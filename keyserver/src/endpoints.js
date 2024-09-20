@@ -85,6 +85,8 @@ import {
 import {
   legacyUpdateRelationshipsResponder,
   legacyUpdateRelationshipInputValidator,
+  updateRelationshipsResponder,
+  updateRelationshipInputValidator,
 } from './responders/relationship-responders.js';
 import {
   reportCreationResponder,
@@ -432,6 +434,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   update_relationships: {
     responder: legacyUpdateRelationshipsResponder,
     inputValidator: legacyUpdateRelationshipInputValidator,
+    policies: baseLegalPolicies,
+  },
+  update_relationships2: {
+    responder: updateRelationshipsResponder,
+    inputValidator: updateRelationshipInputValidator,
     policies: baseLegalPolicies,
   },
   update_role: {
