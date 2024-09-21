@@ -1946,9 +1946,10 @@ mod migration {
     devices_data: &[DeviceRow],
   ) {
     if !verify_device_list_match(list, devices_data) {
-      error!(
-        errorType = error_types::DEVICE_LIST_DB_LOG,
-        "Device list for user (userID={}) out of sync!", user_id
+      info!(
+        "Device list for user (userID={1}) does not match devices data. {0}",
+        "Primary device will be selected basing only on devices with data.",
+        redact_sensitive_data(user_id)
       );
       return;
     }
@@ -1961,7 +1962,7 @@ mod migration {
       info!(
         "No valid primary device found for user (userID={}).\
         Skipping device list reorder.",
-        user_id
+        redact_sensitive_data(user_id)
       );
       return;
     };
@@ -1977,12 +1978,16 @@ mod migration {
     else {
       error!(
         errorType = error_types::DEVICE_LIST_DB_LOG,
-        "Primary device not found in device list (userID={})", user_id
+        "Detected primary device not found in device list (userID={})",
+        redact_sensitive_data(user_id)
       );
       return;
     };
     list.swap(0, primary_device_idx);
-    info!("Reordered device list for user (userID={})", user_id);
+    info!(
+      "Reordered device list for user (userID={})",
+      redact_sensitive_data(user_id)
+    );
   }
 
   // checks if device list matches given devices data
@@ -2007,12 +2012,25 @@ mod migration {
 
     let device_list_set = list.iter().collect::<HashSet<_>>();
 
-    if let Some(unknown_device_id) = device_list_set
-      .symmetric_difference(&actual_device_ids)
-      .next()
+    // devices on device list but with no keys uploaded
+    // this is normal in some flows
+    if let Some(unknown_device_id) =
+      device_list_set.difference(&actual_device_ids).next()
     {
       debug!(
-        "Device list and data out of sync (unknown deviceID={})",
+        "Device list and data out of sync (unregistered deviceID={})",
+        unknown_device_id
+      );
+      return false;
+    }
+
+    // devices that have devices data (keys etc) but not on device list
+    // this should never happen in any login flow and means we have corrupt state
+    if let Some(unknown_device_id) =
+      actual_device_ids.difference(&device_list_set).next()
+    {
+      warn!(
+        "Device ID={} registered, but not on device list!",
         unknown_device_id
       );
       return false;
