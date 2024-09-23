@@ -25,6 +25,7 @@ import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchro
 import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
+import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -258,6 +259,7 @@ class App extends React.PureComponent<Props> {
                       <FarcasterDataHandler />
                       <AutoJoinCommunityHandler />
                       <DMActivityHandler />
+                      <HoldersHandler />
                       {content}
                     </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
