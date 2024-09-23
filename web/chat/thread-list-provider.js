@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
@@ -180,7 +179,6 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   );
   const threadFilter =
     activeTab === 'Muted' ? threadInBackgroundChatList : threadInHomeChatList;
-  const allowOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
   const chatListDataWithoutFilter = getThreadListSearchResults(
     chatListData,
     searchText,
@@ -188,7 +186,6 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     threadSearchResults,
     usersSearchResults,
     loggedInUserInfo,
-    allowOlmViaTunnelbrokerForDMs,
   );
   const activeTopLevelChatThreadItem = useChatThreadItem(
     activeTopLevelThreadInfo,

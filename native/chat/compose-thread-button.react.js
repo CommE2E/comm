@@ -4,7 +4,6 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { createPendingThread } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
@@ -20,26 +19,22 @@ type Props = {
 function ComposeThreadButton(props: Props) {
   const { navigate } = props;
   const loggedInUserInfo = useLoggedInUserInfo();
-  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
   const onPress = React.useCallback(() => {
     if (!loggedInUserInfo) {
       return;
     }
-    const threadType = usingOlmViaTunnelbrokerForDMs
-      ? threadTypes.PRIVATE
-      : threadTypes.GENESIS_PRIVATE;
     navigate<'MessageList'>({
       name: MessageListRouteName,
       params: {
         threadInfo: createPendingThread({
           viewerID: loggedInUserInfo.id,
-          threadType,
+          threadType: threadTypes.PRIVATE,
           members: [loggedInUserInfo],
         }),
         searching: true,
       },
     });
-  }, [loggedInUserInfo, usingOlmViaTunnelbrokerForDMs, navigate]);
+  }, [loggedInUserInfo, navigate]);
 
   const { listForegroundSecondaryLabel } = useColors();
   return (
