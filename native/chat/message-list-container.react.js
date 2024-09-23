@@ -7,7 +7,6 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -96,7 +95,6 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +measureMessages: MessagesMeasurer,
-  +usingOlmViaTunnelbrokerForDMs: boolean,
 };
 type State = {
   +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
@@ -172,7 +170,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
             childThreadType={pendingThreadType(
               userInfoInputArray.length,
               'thick',
-              this.props.usingOlmViaTunnelbrokerForDMs,
             )}
           />
         );
@@ -183,7 +180,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
             childThreadType={pendingThreadType(
               userInfoInputArray.length,
               'thin',
-              this.props.usingOlmViaTunnelbrokerForDMs,
             )}
           />
         );
@@ -423,8 +419,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       colors.panelBackgroundLabel,
     ]);
 
-    const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
-
     return (
       <MessageListContextProvider threadInfo={threadInfo}>
         {pinnedCountBanner}
@@ -443,7 +437,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           styles={styles}
           overlayContext={overlayContext}
           measureMessages={measureMessages}
-          usingOlmViaTunnelbrokerForDMs={usingOlmViaTunnelbrokerForDMs}
         />
       </MessageListContextProvider>
     );
