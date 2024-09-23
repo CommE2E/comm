@@ -262,11 +262,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const pendingUploads = state.pendingUploads[threadID];
       for (const localUploadID in pendingUploads) {
         const upload = pendingUploads[localUploadID];
-        const { messageID, serverID, failed } = upload;
+        const { messageID, canBeSent, failed } = upload;
         if (!messageID || !messageID.startsWith(localIDPrefix)) {
           continue;
         }
-        if (!serverID || failed) {
+        if (!canBeSent || failed) {
           completed.set(messageID, false);
           continue;
         }
@@ -844,6 +844,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uri: encryptionResult?.uri ?? uri,
           loop: false,
           uriIsReal: false,
+          canBeSent: false,
           blobHolder: null,
           blobHash: encryptionResult?.sha256Hash,
           encryptionKey: encryptionResult?.encryptionKey,
@@ -870,6 +871,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(threadInfo: ThreadInfo, upload: PendingMultimediaUpload) {
     const { selectTime, localID, encryptionKey } = upload;
     const threadID = threadInfo.id;
+    const isThickThread = threadTypeIsThick(threadInfo.type);
     const isEncrypted =
       !!encryptionKey &&
       (upload.mediaType === 'encrypted_photo' ||
@@ -911,7 +913,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         abortHandler: (abort: () => void) =>
           this.handleAbortCallback(threadID, localID, abort),
       };
-      const isThickThread = threadTypeIsThick(threadInfo.type);
       const useBlobService = isThickThread || this.useBlobServiceUploads;
       if (
         useBlobService &&
@@ -1021,6 +1022,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               serverID: result.id,
               blobHolder: result.blobHolder,
               abort: null,
+              // For thin threads we can send message right after serverID
+              // is present, but for thick threads we need to wait until
+              // a "real" Blob URI is assigned to the message.
+              canBeSent: !isThickThread,
             },
           },
         },
@@ -1108,8 +1113,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               uri: result.uri,
               mediaType: outputMediaType,
               dimensions: result.dimensions,
-              uriIsReal: true,
               loop: result.loop,
+              uriIsReal: true,
+              canBeSent: true,
             },
           },
         },
