@@ -35,6 +35,7 @@ export type PendingMultimediaUpload = {
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
   +uriIsReal: boolean,
+  +canBeSent: boolean,
   +progressPercent: number,
   // This is set once the network request begins and used if the upload is
   // cancelled
