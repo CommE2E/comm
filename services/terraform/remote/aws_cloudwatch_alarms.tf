@@ -248,3 +248,37 @@ resource "aws_cloudwatch_metric_alarm" "blob_error_alarms" {
   alarm_actions       = [aws_sns_topic.blob_error_topic.arn]
 }
 
+resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
+  alarm_name          = "ecs-memory-utilization-90"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 90
+  alarm_description   = "Alarm when Blob service memory utilization exceeds 90%"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.blob_service.name
+  }
+  alarm_actions = [aws_sns_topic.blob_error_topic.arn]
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "blob_cpu_utilization" {
+  alarm_name          = "ecs-cpu-utilization-90"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 90
+  alarm_description   = "Alarm when Blob service CPU utilization exceeds 90%"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.blob_service.name
+  }
+  alarm_actions = [aws_sns_topic.blob_error_topic.arn]
+}
