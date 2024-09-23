@@ -398,6 +398,9 @@ async function createPersonalThreads(
   request: RelationshipRequest,
   userIDs: $ReadOnlyArray<string>,
 ) {
+  // If you add another RelationshipAction to the supported list below, you'll
+  // probably want to add it to the FRIEND / FARCASTER_MUTUAL special cases in
+  // useUpdateRelationships as well
   invariant(
     request.action === relationshipActions.FRIEND ||
       request.action === relationshipActions.FARCASTER_MUTUAL,
