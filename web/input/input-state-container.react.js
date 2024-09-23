@@ -1069,10 +1069,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         `after preload`,
     );
     if (uploadAfterPreload.messageID) {
-      const { mediaType, uri, dimensions, loop } = result;
+      const { mediaType, uri, dimensions } = result;
       const { thumbHash } = upload;
       let mediaUpdate = {
-        loop,
         dimensions,
         ...(thumbHash ? { thumbHash } : undefined),
       };
