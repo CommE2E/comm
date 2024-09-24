@@ -7,6 +7,7 @@ import {
   useResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -20,12 +21,26 @@ type Props = {
 function UserAvatar(props: Props): React.Node {
   const { userID, size, showSpinner } = props;
 
-  const userInfo = useSelector(state =>
-    userID ? state.userStore.userInfos[userID] : null,
-  );
-  const avatarInfo = getAvatarForUser(userInfo);
+  const currentUserFID = useCurrentUserFID();
+  const userAvatarInfo = useSelector(state => {
+    if (!userID) {
+      return null;
+    } else if (userID === state.currentUserInfo?.id) {
+      return {
+        ...state.currentUserInfo,
+        farcasterID: currentUserFID,
+      };
+    } else {
+      return {
+        ...state.userStore.userInfos[userID],
+        farcasterID: state.auxUserStore.auxUserInfos[userID]?.fid,
+      };
+    }
+  });
 
-  const resolvedUserAvatar = useResolvedAvatar(avatarInfo, userInfo);
+  const avatar = getAvatarForUser(userAvatarInfo);
+
+  const resolvedUserAvatar = useResolvedAvatar(avatar, userAvatarInfo);
 
   return (
     <Avatar
