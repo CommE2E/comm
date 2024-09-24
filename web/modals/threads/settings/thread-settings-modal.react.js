@@ -19,7 +19,10 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsPersonal,
+  threadTypes,
+} from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -91,11 +94,15 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const otherUserInfo = otherMemberID ? userInfos[otherMemberID] : null;
 
     const availableRelationshipActions = React.useMemo(() => {
-      if (!otherUserInfo) {
+      if (
+        !otherUserInfo ||
+        !threadInfo ||
+        !threadTypeIsPersonal(threadInfo.type)
+      ) {
         return ([]: RelationshipButton[]);
       }
       return getAvailableRelationshipButtons(otherUserInfo);
-    }, [otherUserInfo]);
+    }, [otherUserInfo, threadInfo]);
 
     const canEditThreadName = useThreadHasPermission(
       threadInfo,
