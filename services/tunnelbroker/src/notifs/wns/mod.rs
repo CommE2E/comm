@@ -1,4 +1,4 @@
-use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
+use crate::constants::{error_types, PUSH_SERVICE_REQUEST_TIMEOUT};
 use crate::notifs::wns::config::WNSConfig;
 use error::WNSTokenError;
 use reqwest::StatusCode;
@@ -116,7 +116,12 @@ impl WNSClient {
         .text()
         .await
         .unwrap_or_else(|_| String::from("<failed to read body>"));
-      tracing::error!(status, "Failure when getting the WNS token: {}", body);
+      tracing::error!(
+        errorType = error_types::WNS_ERROR,
+        status,
+        "Failure when getting the WNS token: {}",
+        body
+      );
       return Err(error::Error::WNSToken(WNSTokenError::Unknown(status)));
     }
 

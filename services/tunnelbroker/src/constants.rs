@@ -62,3 +62,17 @@ pub mod dynamodb {
     pub const DEVICE_TOKEN_INDEX_NAME: &str = "deviceToken-index";
   }
 }
+
+// Log Error Types
+
+pub mod error_types {
+  pub const AMQP_ERROR: &str = "AMQP Error";
+  pub const DDB_ERROR: &str = "DDB Error";
+  pub const FCM_ERROR: &str = "FCM Error";
+  pub const APNS_ERROR: &str = "APNs Error";
+  pub const WEB_PUSH_ERROR: &str = "Web Push Error";
+  pub const WNS_ERROR: &str = "WNS Error";
+  pub const IDENTITY_ERROR: &str = "Identity Error";
+  pub const WEBSOCKET_ERROR: &str = "Websocket Error";
+  pub const SERVER_ERROR: &str = "Server Error";
+}

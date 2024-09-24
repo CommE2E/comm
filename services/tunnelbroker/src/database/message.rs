@@ -4,6 +4,7 @@ use tunnelbroker_messages::MessageToDevice;
 use crate::constants::dynamodb::undelivered_messages::{
   DEVICE_ID, MESSAGE_ID, PAYLOAD,
 };
+use crate::constants::error_types;
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
 pub enum MessageErrors {
@@ -12,7 +13,11 @@ pub enum MessageErrors {
 
 impl From<DBItemError> for MessageErrors {
   fn from(err: DBItemError) -> Self {
-    tracing::error!("Failed to extract MessageToDevice attribute: {:?}", err);
+    tracing::error!(
+      errorType = error_types::DDB_ERROR,
+      "Failed to extract MessageToDevice attribute: {:?}",
+      err
+    );
     MessageErrors::SerializationError
   }
 }
