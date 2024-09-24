@@ -1,6 +1,6 @@
 use crate::constants::{
-  CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY, MAX_RMQ_MSG_PRIORITY,
-  RMQ_CONSUMER_TAG,
+  error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
+  MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
 };
 use crate::notifs::fcm::response::FCMErrorResponse;
 use crate::notifs::wns::response::WNSErrorResponse;
@@ -120,7 +120,10 @@ pub async fn handle_first_message_from_device(
 
       match auth_request {
         Err(e) => {
-          error!("Failed to complete request to identity service: {:?}", e);
+          error!(
+            errorType = error_types::IDENTITY_ERROR,
+            "Failed to complete request to identity service: {:?}", e
+          );
           return Err(SessionError::InternalError);
         }
         Ok(false) => {
@@ -170,7 +173,10 @@ async fn publish_persisted_messages(
     .retrieve_messages(&device_info.device_id)
     .await
     .unwrap_or_else(|e| {
-      error!("Error while retrieving messages: {}", e);
+      error!(
+        errorType = error_types::DDB_ERROR,
+        "Error while retrieving messages: {}", e
+      );
       Vec::new()
     });
 
@@ -360,7 +366,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
             .delete_message(&self.device_info.device_id, &message_id)
             .await
           {
-            error!("Failed to delete message: {}:", e);
+            error!(
+              errorType = error_types::DDB_ERROR,
+              "Failed to delete message: {}:", e
+            );
           }
         }
 
@@ -462,8 +471,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
                 .await
               {
                 error!(
-                  "Error invalidating device token {}: {:?}",
-                  device_token, e
+                  errorType = error_types::DDB_ERROR,
+                  "Error invalidating device token {}: {:?}", device_token, e
                 );
               };
             }
@@ -532,8 +541,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
                 .await
               {
                 error!(
-                  "Error invalidating device token {}: {:?}",
-                  device_token, e
+                  errorType = error_types::DDB_ERROR,
+                  "Error invalidating device token {}: {:?}", device_token, e
                 );
               };
             }
@@ -595,8 +604,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
               .await
             {
               error!(
-                "Error invalidating device token {}: {:?}",
-                device_token, e
+                errorType = error_types::DDB_ERROR,
+                "Error invalidating device token {}: {:?}", device_token, e
               );
             };
           }
@@ -649,8 +658,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
               .await
             {
               error!(
-                "Error invalidating device token {}: {:?}",
-                device_token, e
+                errorType = error_types::DDB_ERROR,
+                "Error invalidating device token {}: {:?}", device_token, e
               );
             };
           }
@@ -674,7 +683,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
   pub async fn send_message_to_device(&mut self, message: Message) {
     if let Err(e) = self.tx.send(message).await {
-      error!("Failed to send message to device: {}", e);
+      error!(
+        errorType = error_types::AMQP_ERROR,
+        "Failed to send message to device: {}", e
+      );
     }
   }
 
@@ -692,7 +704,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await
     {
-      error!("Failed to cancel consumer: {}", e);
+      error!(
+        errorType = error_types::AMQP_ERROR,
+        "Failed to cancel consumer: {}", e
+      );
     }
 
     if let Err(e) = self
@@ -703,7 +718,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await
     {
-      error!("Failed to delete queue: {}", e);
+      error!(
+        errorType = error_types::AMQP_ERROR,
+        "Failed to delete queue: {}", e
+      );
     }
   }
 
