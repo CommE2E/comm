@@ -20,6 +20,10 @@ resource "aws_ecs_task_definition" "blob_cleanup" {
         {
           name  = "BLOB_S3_BUCKET_NAME",
           value = local.blob_service_s3_bucket
+        },
+        {
+          name  = "COMM_SERVICES_USE_JSON_LOGS",
+          value = local.comm_services_use_json_logs
         }
       ]
       logConfiguration = {

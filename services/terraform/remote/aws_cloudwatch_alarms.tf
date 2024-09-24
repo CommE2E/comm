@@ -135,7 +135,6 @@ resource "aws_cloudwatch_log_group" "ecs_task_stop" {
 }
 
 resource "aws_cloudwatch_event_target" "ecs_task_stop" {
-
   rule = aws_cloudwatch_event_rule.ecs_task_stop.name
   arn  = aws_cloudwatch_log_group.ecs_task_stop.arn
 }
