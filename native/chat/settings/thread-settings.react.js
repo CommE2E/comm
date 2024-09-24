@@ -46,9 +46,9 @@ import type {
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  threadTypes,
   threadTypeIsSidebar,
   threadTypeIsThick,
+  threadTypeIsPersonal,
 } from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
@@ -768,9 +768,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           });
         }
 
-        const threadIsPersonal =
-          threadInfo.type === threadTypes.GENESIS_PERSONAL;
-        if (threadIsPersonal && viewerID) {
+        if (threadInfo && threadTypeIsPersonal(threadInfo.type) && viewerID) {
           const otherMemberID = getSingleOtherUser(threadInfo, viewerID);
           if (otherMemberID) {
             const otherUserInfo = userInfos[otherMemberID];
