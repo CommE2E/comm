@@ -48,6 +48,7 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypes,
   threadTypeIsSidebar,
+  threadTypeIsThick,
 } from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
@@ -701,6 +702,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (threadInfo: ThreadInfo, verticalBounds: ?VerticalBounds) => {
         const listData: ChatSettingsItem[] = [];
         const limit = 6;
+
+        if (threadTypeIsThick(threadInfo.type)) {
+          return listData;
+        }
 
         listData.push({
           itemType: 'mediaGallery',
