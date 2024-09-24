@@ -15,7 +15,7 @@ use crate::notifs::wns::WNSClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
-use constants::COMM_SERVICES_USE_JSON_LOGS;
+use constants::{error_types, COMM_SERVICES_USE_JSON_LOGS};
 use std::env;
 use tracing::{self, error, info, Level};
 use tracing_subscriber::EnvFilter;
@@ -59,12 +59,18 @@ async fn main() -> Result<()> {
         Some(apns_client)
       }
       Err(err) => {
-        error!("Error creating APNs client: {}", err);
+        error!(
+          errorType = error_types::APNS_ERROR,
+          "Error creating APNs client: {}", err
+        );
         None
       }
     },
     None => {
-      error!("APNs config is missing");
+      error!(
+        errorType = error_types::APNS_ERROR,
+        "APNs config is missing"
+      );
       None
     }
   };
@@ -77,12 +83,15 @@ async fn main() -> Result<()> {
         Some(fcm_client)
       }
       Err(err) => {
-        error!("Error creating FCM client: {}", err);
+        error!(
+          errorType = error_types::FCM_ERROR,
+          "Error creating FCM client: {}", err
+        );
         None
       }
     },
     None => {
-      error!("FCM config is missing");
+      error!(errorType = error_types::FCM_ERROR, "FCM config is missing");
       None
     }
   };
@@ -95,12 +104,18 @@ async fn main() -> Result<()> {
         Some(web_client)
       }
       Err(err) => {
-        error!("Error creating Web Push client: {}", err);
+        error!(
+          errorType = error_types::WEB_PUSH_ERROR,
+          "Error creating Web Push client: {}", err
+        );
         None
       }
     },
     None => {
-      error!("Web Push config is missing");
+      error!(
+        errorType = error_types::WEB_PUSH_ERROR,
+        "Web Push config is missing"
+      );
       None
     }
   };
@@ -113,12 +128,15 @@ async fn main() -> Result<()> {
         Some(wns_client)
       }
       Err(err) => {
-        error!("Error creating WNS client: {}", err);
+        error!(
+          errorType = error_types::WNS_ERROR,
+          "Error creating WNS client: {}", err
+        );
         None
       }
     },
     None => {
-      error!("WNS config is missing");
+      error!(errorType = error_types::WNS_ERROR, "WNS config is missing");
       None
     }
   };
@@ -141,7 +159,7 @@ async fn main() -> Result<()> {
     Ok(_) = grpc_server => { Ok(()) },
     Ok(_) = websocket_server => { Ok(()) },
     else => {
-      tracing::error!("A grpc or websocket server crashed.");
+      tracing::error!(errorType = error_types::SERVER_ERROR, "A grpc or websocket server crashed.");
       Err(anyhow!("A grpc or websocket server crashed."))
     }
   }
