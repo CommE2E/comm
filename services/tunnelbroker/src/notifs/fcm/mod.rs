@@ -1,3 +1,4 @@
+use crate::constants::error_types;
 use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
 use crate::notifs::fcm::config::FCMConfig;
 use crate::notifs::fcm::error::Error::FCMError;
@@ -80,8 +81,11 @@ impl FCMClient {
           .await
           .unwrap_or_else(|error| format!("Error occurred: {}", error));
         error!(
+          errorType = error_types::FCM_ERROR,
           "Failed sending FCM notification to: {}. Status: {}. Body: {}",
-          token, error_status, body
+          token,
+          error_status,
+          body
         );
         let fcm_error = FCMErrorResponse::from_status(error_status, body);
         Err(FCMError(fcm_error))
