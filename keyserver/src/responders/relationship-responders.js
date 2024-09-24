@@ -10,8 +10,9 @@ import {
   legacyFarcasterRelationshipRequestValidator,
   relationshipActions,
   type RelationshipRequestUserInfo,
+  type RelationshipRequestWithRobotext,
+  type RelationshipRequestWithoutRobotext,
   type RelationshipRequest,
-  relationshipActionsList,
 } from 'lib/types/relationship-types.js';
 import { tShape, tUserID } from 'lib/utils/validation-utils.js';
 
@@ -54,23 +55,40 @@ async function legacyUpdateRelationshipsResponder(
       createRobotextInThinThread: true,
     };
   }
-  const request = {
-    action: legacyRequest.action,
-    users: requestUserInfos,
-  };
+  const { action } = legacyRequest;
+  let request: RelationshipRequest;
+  if (action === 'farcaster' || action === 'friend') {
+    request = { action, users: requestUserInfos };
+  } else {
+    request = { action, users: requestUserInfos };
+  }
   return await updateRelationships(viewer, request);
 }
 
-export const updateRelationshipInputValidator: TInterface<RelationshipRequest> =
-  tShape<RelationshipRequest>({
-    action: t.enums.of(relationshipActionsList, 'relationship action'),
-    users: t.dict(
-      tUserID,
-      tShape<RelationshipRequestUserInfo>({
-        createRobotextInThinThread: t.Boolean,
-      }),
-    ),
-  });
+export const updateRelationshipInputValidator: TUnion<RelationshipRequest> =
+  t.union([
+    tShape<RelationshipRequestWithRobotext>({
+      action: t.enums.of(['farcaster', 'friend'], 'relationship action'),
+      users: t.dict(
+        tUserID,
+        tShape<RelationshipRequestUserInfo>({
+          createRobotextInThinThread: t.Boolean,
+        }),
+      ),
+    }),
+    tShape<RelationshipRequestWithoutRobotext>({
+      action: t.enums.of(
+        ['unfriend', 'block', 'unblock', 'acknowledge'],
+        'relationship action',
+      ),
+      users: t.dict(
+        tUserID,
+        tShape<RelationshipRequestUserInfo>({
+          createRobotextInThinThread: t.maybe(t.Boolean),
+        }),
+      ),
+    }),
+  ]);
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
