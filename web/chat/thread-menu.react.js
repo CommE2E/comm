@@ -106,17 +106,19 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     [popModal, pushModal, threadInfo],
   );
 
-  const threadMediaGalleryItem = React.useMemo(
-    () => (
+  const threadMediaGalleryItem = React.useMemo(() => {
+    if (threadTypeIsThick(threadInfo.type)) {
+      return null;
+    }
+    return (
       <MenuItem
         key="threadMediaGallery"
         text="Media"
         icon="image-1"
         onClick={onClickThreadMediaGallery}
       />
-    ),
-    [onClickThreadMediaGallery],
-  );
+    );
+  }, [onClickThreadMediaGallery, threadInfo.type]);
 
   const childThreads = useSelector(
     state => childThreadInfos(state)[threadInfo.id],
