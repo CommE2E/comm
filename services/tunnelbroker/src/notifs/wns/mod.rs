@@ -70,6 +70,7 @@ impl WNSClient {
           .await
           .unwrap_or_else(|error| format!("Error occurred: {}", error));
         tracing::error!(
+          errorType = error_types::WNS_ERROR,
           "Failed sending WNS notification to: {}. Status: {}. Body: {}",
           &url,
           error_status,
