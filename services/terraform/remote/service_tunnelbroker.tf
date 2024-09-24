@@ -106,6 +106,10 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name  = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT",
           value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_USE_JSON_LOGS",
+          value = local.comm_services_use_json_logs
         }
       ]
       secrets = [

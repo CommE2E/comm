@@ -15,19 +15,35 @@ use crate::notifs::wns::WNSClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
+use constants::COMM_SERVICES_USE_JSON_LOGS;
+use std::env;
 use tracing::{self, error, info, Level};
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  let use_json_logs: bool = env::var(COMM_SERVICES_USE_JSON_LOGS)
+    .unwrap_or("false".to_string())
+    .parse()
+    .unwrap_or_default();
+
   let filter = EnvFilter::builder()
     .with_default_directive(Level::INFO.into())
     .with_env_var(constants::LOG_LEVEL_ENV_VAR)
     .from_env_lossy();
 
-  let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
-  tracing::subscriber::set_global_default(subscriber)
-    .expect("Unable to configure tracing");
+  if use_json_logs {
+    let subscriber = tracing_subscriber::fmt()
+      .json()
+      .with_env_filter(filter)
+      .finish();
+    tracing::subscriber::set_global_default(subscriber)
+      .expect("Unable to configure tracing");
+  } else {
+    let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
+    tracing::subscriber::set_global_default(subscriber)
+      .expect("Unable to configure tracing");
+  }
 
   config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
