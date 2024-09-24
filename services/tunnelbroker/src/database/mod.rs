@@ -14,6 +14,7 @@ use std::sync::Arc;
 use tracing::{debug, error, warn};
 
 use crate::constants::dynamodb::{device_tokens, undelivered_messages};
+use crate::constants::error_types;
 
 pub mod message;
 pub mod message_id;
@@ -34,7 +35,10 @@ pub fn handle_ddb_error<E>(db_error: SdkError<E>) -> tonic::Status {
       tonic::Status::unavailable("please retry")
     }
     e => {
-      error!("Encountered an unexpected error: {}", e);
+      error!(
+        errorType = error_types::DDB_ERROR,
+        "Encountered an unexpected error: {}", e
+      );
       tonic::Status::failed_precondition("unexpected error")
     }
   }
@@ -153,7 +157,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to remove device token: {:?}", e);
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to remove device token: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -175,7 +182,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to get device token");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to get device token"
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -231,8 +241,8 @@ impl DatabaseClient {
       .await
       .map_err(|e| {
         error!(
-          "DynamoDB client failed to find existing device token {:?}",
-          e
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to find existing device token {:?}", e
         );
         Error::AwsSdk(e.into())
       })?;
@@ -278,7 +288,10 @@ impl DatabaseClient {
     }
 
     put_item_input.send().await.map_err(|e| {
-      error!("DynamoDB client failed to set device token {:?}", e);
+      error!(
+        errorType = error_types::DDB_ERROR,
+        "DynamoDB client failed to set device token {:?}", e
+      );
       Error::AwsSdk(e.into())
     })?;
 
@@ -306,8 +319,8 @@ impl DatabaseClient {
       .await
       .map_err(|e| {
         error!(
-          "DynamoDB client failed to mark device token as invalid {:?}",
-          e
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to mark device token as invalid {:?}", e
         );
         Error::AwsSdk(e.into())
       })?;
