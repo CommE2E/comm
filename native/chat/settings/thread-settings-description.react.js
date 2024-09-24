@@ -228,7 +228,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
   };
 
   onPressEdit = () => {
-    this.props.setDescriptionEditValue(this.props.threadInfo.description);
+    this.props.setDescriptionEditValue(this.props.threadInfo.description ?? '');
   };
 
   onSubmit = () => {
