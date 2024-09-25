@@ -282,6 +282,19 @@ impl BlobService {
     Ok(())
   }
 
+  pub async fn blob_hash_exists(
+    &self,
+    blob_hash: impl Into<String>,
+  ) -> BlobServiceResult<bool> {
+    match self.db.get_blob_item(blob_hash).await {
+      Ok(item) => Ok(item.is_some()),
+      Err(err) => {
+        warn!("Failed to check if blob exists: {err:?}");
+        Err(err.into())
+      }
+    }
+  }
+
   pub async fn perform_cleanup(&self) -> anyhow::Result<()> {
     info!("Starting cleanup...");
     // 1. Fetch blobs and holders marked as "unchecked"
