@@ -36,6 +36,7 @@ async function createMessageReport(
   viewer: Viewer,
   request: MessageReportCreationRequest,
 ): Promise<RawMessageInfo[]> {
+  const keyserverAdminIDPromise = fetchKeyserverAdminID();
   const {
     reportedMessageText,
     reporterUsername,
@@ -51,19 +52,25 @@ async function createMessageReport(
     reportedMessageText,
   );
   const time = Date.now();
-  const result = await createMessages(viewer, [
-    {
-      type: messageTypes.TEXT,
-      threadID: commbotThreadID,
-      creatorID: commbot.userID,
-      time,
-      text: reportMessage,
-    },
+  const [messageResult, keyserverAdminID] = await Promise.all([
+    createMessages(viewer, [
+      {
+        type: messageTypes.TEXT,
+        threadID: commbotThreadID,
+        creatorID: commbot.userID,
+        time,
+        text: reportMessage,
+      },
+    ]),
+    keyserverAdminIDPromise,
   ]);
-  if (result.length === 0) {
+  if (messageResult.length === 0) {
     throw new ServerError('message_report_failed');
   }
-  return result;
+  if (viewer.userID === keyserverAdminID) {
+    return messageResult;
+  }
+  return [];
 }
 
 async function fetchMessageReportData(
