@@ -11,6 +11,8 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import android.util.Log
+import java.util.Base64
 
 private const val ALGORITHM_AES = "AES"
 private const val CIPHER_TRANSFORMATION_NAME = "AES/GCM/NoPadding"
@@ -26,6 +28,7 @@ class AESCryptoModule : Module() {
     Name("AESCrypto")
 
     Function("generateKey", this@AESCryptoModule::generateKey)
+    Function("generateIV", this@AESCryptoModule::generateIV)
     Function("encrypt", this@AESCryptoModule::encrypt)
     Function("decrypt", this@AESCryptoModule::decrypt)
   }
@@ -49,6 +52,16 @@ class AESCryptoModule : Module() {
     destination.write(keyBytes, position = 0, size = keyBytes.size)
   }
 
+  private fun generateIV(destination: Uint8Array) {
+    if (destination.byteLength != IV_LENGTH) {
+      throw InvalidInitializationVectorLengthException()
+    }
+
+    val randomBytes = ByteArray(IV_LENGTH)
+    secureRandom.nextBytes(randomBytes)
+    destination.write(randomBytes, position = 0, size = randomBytes.size)
+  }
+
   /**
    * Encrypts given [plaintext] with provided key and saves encrypted results
    * (sealed data) into [destination]. After the encryption, the destination
@@ -63,13 +76,20 @@ class AESCryptoModule : Module() {
   private fun encrypt(
     rawKey: Uint8Array,
     plaintext: Uint8Array,
-    destination: Uint8Array
+    destination: Uint8Array,
+    initializationVector: Uint8Array,
   ) {
     val key = rawKey.toAESSecretKey()
     val plaintextBuffer = plaintext.toDirectBuffer()
     val destinationBuffer = destination.toDirectBuffer()
+    
+    val ivBuffer =  if (initializationVector.byteLength > 0) {
+      initializationVector.toDirectBuffer()
+    } else {
+      null
+    }
 
-    encryptAES(plaintextBuffer, key, destinationBuffer)
+    encryptAES(plaintextBuffer, key, destinationBuffer, ivBuffer)
   }
 
   /**
@@ -177,16 +197,32 @@ class AESCryptoModuleCompat {
 private fun encryptAES(
   plaintext: ByteBuffer,
   key: SecretKey,
-  destination: ByteBuffer? = null
+  destination: ByteBuffer? = null,
+  initializationVector: ByteBuffer? = null
 ): ByteBuffer {
   if (destination != null &&
     destination.remaining() != plaintext.remaining() + IV_LENGTH + TAG_LENGTH) {
     throw InvalidDataLengthException()
   }
-  val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION_NAME).apply {
-    init(Cipher.ENCRYPT_MODE, key)
+
+  if(initializationVector != null && initializationVector.remaining() != IV_LENGTH) {
+    throw InvalidInitializationVectorLengthException()
   }
-  val iv = cipher.iv
+
+  val cipher = if (initializationVector != null) {
+    val customIV = ByteArray(initializationVector.remaining()).also(initializationVector::get);
+    val spec = GCMParameterSpec(TAG_LENGTH * 8, customIV);
+  
+    Cipher.getInstance(CIPHER_TRANSFORMATION_NAME).apply {
+      init(Cipher.ENCRYPT_MODE, key, spec)
+    }
+  } else {
+    Cipher.getInstance(CIPHER_TRANSFORMATION_NAME).apply {
+      init(Cipher.ENCRYPT_MODE, key)
+    }
+  }
+
+  val iv = cipher.iv;
   val sealedData = destination ?:
     ByteBuffer.allocate(iv.size + cipher.getOutputSize(plaintext.remaining()))
   sealedData.put(iv);
@@ -257,5 +293,8 @@ private class InvalidKeyLengthException :
 
 private class InvalidDataLengthException :
   CodedException("Source or destination array has invalid length")
+
+private class InvalidInitializationVectorLengthException : 
+  CodedException("Initialization vector has invalid length")
 
 // endregion
