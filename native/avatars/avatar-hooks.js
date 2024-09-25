@@ -541,7 +541,16 @@ function useShowAvatarActionSheet(
           <CommIcon
             name="ethereum-outline"
             key={option.id}
-            size={18}
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'farcaster') {
+        return (
+          <CommIcon
+            name="farcaster-outline"
+            key={option.id}
+            size={22}
             style={styles.bottomSheetIcon}
           />
         );
