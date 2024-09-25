@@ -1093,11 +1093,12 @@ async function prepareAndroidVisualNotification(
     inputData,
   );
 
-  return createAndroidVisualNotification(
+  const { targetedNotifications } = await createAndroidVisualNotification(
     encryptedNotifUtilsAPI,
     convertedData,
     devices,
   );
+  return targetedNotifications;
 }
 
 async function prepareWebNotification(
@@ -1110,7 +1111,13 @@ async function prepareWebNotification(
     inputData,
   );
 
-  return createWebNotification(encryptedNotifUtilsAPI, convertedData, devices);
+  const { targetedNotifications } = await createWebNotification(
+    encryptedNotifUtilsAPI,
+    convertedData,
+    devices,
+  );
+
+  return targetedNotifications;
 }
 
 async function prepareWNSNotification(
@@ -1122,7 +1129,12 @@ async function prepareWNSNotification(
     wnsNotifInputDataValidator,
     inputData,
   );
-  return createWNSNotification(encryptedNotifUtilsAPI, convertedData, devices);
+  const { targetedNotifications } = await createWNSNotification(
+    encryptedNotifUtilsAPI,
+    convertedData,
+    devices,
+  );
+  return targetedNotifications;
 }
 
 type NotificationInfo =
@@ -1518,7 +1530,7 @@ async function updateBadgeCount(
     for (const [versionKey, deviceInfos] of androidVersionsToTokens) {
       const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
-        const targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification> =
+        const { targetedNotifications } =
           await createAndroidBadgeOnlyNotification(
             encryptedNotifUtilsAPI,
             {
