@@ -6,6 +6,7 @@ import {
   generateKeyCommon,
   encryptCommon,
   decryptCommon,
+  generateIVCommon,
 } from 'lib/media/aes-crypto-utils-common.js';
 
 // crypto.webcrypto was introduced in Node 15.10.0.
@@ -16,11 +17,16 @@ function generateKey(): Promise<Uint8Array> {
   return generateKeyCommon(commonCrypto);
 }
 
+function generateIV(): Promise<Uint8Array> {
+  return generateIVCommon(commonCrypto);
+}
+
 function encrypt(
   keyBytes: Uint8Array,
   plaintext: Uint8Array,
+  initializationVector?: ?Uint8Array,
 ): Promise<Uint8Array> {
-  return encryptCommon(commonCrypto, keyBytes, plaintext);
+  return encryptCommon(commonCrypto, keyBytes, plaintext, initializationVector);
 }
 
 function decrypt(
@@ -30,4 +36,4 @@ function decrypt(
   return decryptCommon(commonCrypto, keyBytes, sealedData);
 }
 
-export { generateKey, encrypt, decrypt };
+export { generateKey, encrypt, decrypt, generateIV };
