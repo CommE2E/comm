@@ -230,7 +230,7 @@ impl BlobService {
     &self,
     blob_hash: impl Into<String>,
     holder: impl Into<String>,
-  ) -> BlobServiceResult<bool> {
+  ) -> BlobServiceResult<()> {
     let blob_hash: String = blob_hash.into();
     trace!(blob_hash, "Attempting to assign holder");
     self
@@ -238,9 +238,8 @@ impl BlobService {
       .put_holder_assignment(blob_hash.clone(), holder.into())
       .await?;
 
-    trace!("Holder assigned. Checking if data exists");
-    let data_exists = self.db.get_blob_item(blob_hash).await?.is_some();
-    Ok(data_exists)
+    trace!("Holder assigned.");
+    Ok(())
   }
 
   pub async fn revoke_holder(
