@@ -368,7 +368,7 @@ async function prepareAndroidNotification(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
   threadID = await validateOutput(platformDetails, tID, threadID);
-  return await createAndroidNotificationRescind(
+  const { targetedNotifications } = await createAndroidNotificationRescind(
     encryptedNotifUtilsAPI,
     {
       senderDeviceDescriptor: { keyserverID },
@@ -379,6 +379,7 @@ async function prepareAndroidNotification(
     },
     devices,
   );
+  return targetedNotifications;
 }
 
 export { rescindPushNotifs };
