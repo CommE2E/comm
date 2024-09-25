@@ -15,14 +15,22 @@ public class AESCryptoModule: Module {
                          byteLength: destination.byteLength)
     }
 
+    Function("generateIV") { (destination: Uint8Array) throws in
+        try generateIV(destinationPtr: destination.rawBufferPtr(),
+                        byteLength: destination.byteLength)
+    }
+
     Function("encrypt") { (rawKey: Uint8Array,
                            plaintext: Uint8Array,
-                           destination: Uint8Array) throws in
+                           destination: Uint8Array, 
+                           initializationVector: Uint8Array) throws in
         try encrypt(rawKey: rawKey.data(),
                      plaintext: plaintext.data(),
                      plaintextLength: plaintext.byteLength,
                      destinationPtr: destination.rawBufferPtr(),
-                     destinationLength: destination.byteLength)
+                     destinationLength: destination.byteLength, 
+                     initializationVector: initializationVector.byteLength > 0
+                        ? initializationVector.data(): nil)
     }
     
     Function("decrypt") { (rawKey: Uint8Array,
@@ -138,18 +146,36 @@ private func generateKey(destinationPtr: UnsafeMutableRawBufferPointer,
   }
 }
 
+private func generateIV(destinationPtr: UnsafeMutableRawBufferPointer,
+                        byteLength: Int) throws {
+  guard byteLength == IV_LENGTH  else {
+    throw InvalidInitializationVectorLengthException()
+  }
+
+  let iv = AES.GCM.Nonce()
+  iv.withUnsafeBytes { bytes in 
+    let _ = bytes.copyBytes(to: destinationPtr)
+  }
+}
+
 private func encrypt(rawKey: Data,
                      plaintext: Data,
                      plaintextLength: Int,
                      destinationPtr: UnsafeMutableRawBufferPointer,
-                     destinationLength: Int) throws {
+                     destinationLength: Int,
+                     initializationVector: Data? = nil) throws {
   guard destinationLength == plaintextLength + IV_LENGTH + TAG_LENGTH
   else {
     throw InvalidDataLengthException()
   }
   
   let key = SymmetricKey(data: rawKey)
-  let iv = AES.GCM.Nonce()
+  let iv = if let data = initializationVector {
+      try AES.GCM.Nonce(data: data)
+  } else {
+      AES.GCM.Nonce()
+  }
+ 
   let encryptionResult = try AES.GCM.seal(plaintext,
                                           using: key,
                                           nonce: iv)
@@ -192,6 +218,12 @@ private class InvalidKeyLengthException: Exception {
 private class InvalidDataLengthException: Exception {
   override var reason: String {
     "Source or destination array has invalid length"
+  }
+}
+
+private class InvalidInitializationVectorLengthException: Exception {
+  override var reason: String {
+    "Initialization vector has invalid length"
   }
 }
 

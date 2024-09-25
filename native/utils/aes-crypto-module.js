@@ -9,10 +9,12 @@ const TAG_LENGTH = 16; // bytes - GCM auth tag
 
 const AESCryptoModule: {
   +generateKey: (destination: Uint8Array) => void,
+  +generateIV: (destination: Uint8Array) => void,
   +encrypt: (
     key: Uint8Array,
     data: Uint8Array,
     destination: Uint8Array,
+    initializationVector: Uint8Array,
   ) => void,
   +decrypt: (
     key: Uint8Array,
@@ -27,9 +29,20 @@ export function generateKey(): Uint8Array {
   return keyBuffer;
 }
 
-export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
+export function generateIV(): Uint8Array {
+  const ivBuffer = new Uint8Array(IV_LENGTH);
+  AESCryptoModule.generateIV(ivBuffer);
+  return ivBuffer;
+}
+
+export function encrypt(
+  key: Uint8Array,
+  data: Uint8Array,
+  initializationVector?: ?Uint8Array,
+): Uint8Array {
   const sealedDataBuffer = new Uint8Array(data.length + IV_LENGTH + TAG_LENGTH);
-  AESCryptoModule.encrypt(key, data, sealedDataBuffer);
+  const iv = initializationVector ?? new Uint8Array(0);
+  AESCryptoModule.encrypt(key, data, sealedDataBuffer, iv);
   return sealedDataBuffer;
 }
 
