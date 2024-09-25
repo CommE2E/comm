@@ -12,6 +12,7 @@ mod utils;
 
 mod handlers {
   pub(super) mod blob;
+  pub(super) mod holders;
 }
 
 pub async fn run_http_server(
@@ -39,10 +40,15 @@ pub async fn run_http_server(
       )
       .service(
         web::resource("/blob")
-          .wrap(auth_middleware)
+          .wrap(auth_middleware.clone())
           .route(web::put().to(handlers::blob::upload_blob_handler))
           .route(web::post().to(handlers::blob::assign_holder_handler))
           .route(web::delete().to(handlers::blob::remove_holder_handler)),
+      )
+      .service(
+        web::resource("/holders")
+          .wrap(auth_middleware)
+          .route(web::delete().to(handlers::holders::remove_holders_handler)),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
