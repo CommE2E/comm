@@ -59,13 +59,13 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "LambdaErrors"
-  namespace           = "AWS/Lambda"
   period              = "300"
   statistic           = "Sum"
   threshold           = local.lambda_error_threshold
   alarm_description   = "Alarm tracking search index lambda function failure"
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.lambda_alarm_topic.arn]
+  namespace           = "Comm/ServiceLogs"
   dimensions = {
     FunctionName = module.shared.search_index_lambda.function_name
   }
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
 
   metric_transformation {
     name      = "Identity${each.value.name}ErrorCount"
-    namespace = "IdentityServiceMetricFilters"
+    namespace = "Comm/ServiceLogs"
     value     = "1"
   }
 }
@@ -108,13 +108,13 @@ resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "Identity${each.value.name}ErrorCount"
-  namespace           = "IdentityServiceMetricFilters"
   period              = "300"
   statistic           = "Sum"
   threshold           = local.identity_error_threshold
   alarm_description   = "Alarm when Identity ${each.value.name} errors exceed threshold"
-  actions_enabled     = true
   alarm_actions       = [aws_sns_topic.identity_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
+  actions_enabled     = true
 }
 
 resource "aws_sns_topic" "ecs_task_stop_topic" {
@@ -158,7 +158,7 @@ resource "aws_cloudwatch_log_metric_filter" "ecs_task_stop" {
 
   metric_transformation {
     name          = "ECSTaskStopCount"
-    namespace     = "ECSMetrics"
+    namespace     = "Comm/ServiceLogs"
     value         = "1"
     default_value = 0
   }
@@ -169,13 +169,14 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_stop" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "ECSTaskStopCount"
-  namespace           = "ECSMetrics"
   period              = "300"
   statistic           = "Sum"
   threshold           = "1"
   alarm_description   = "This metric monitors ECS tasks stops"
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.ecs_task_stop_topic.arn]
+  namespace           = "Comm/ServiceLogs"
+  dimensions          = { ClusterName = aws_ecs_cluster.comm_services.name }
 }
 
 resource "aws_sns_topic" "service_connection_error_topic" {
@@ -197,7 +198,7 @@ resource "aws_cloudwatch_log_metric_filter" "service_connection_error_filters" {
 
   metric_transformation {
     name      = "${each.value.name}ConnectionErrorCount"
-    namespace = "ServiceConnectionMetricFilters"
+    namespace = "Comm/ServiceLogs"
     value     = "1"
   }
 }
@@ -209,13 +210,16 @@ resource "aws_cloudwatch_metric_alarm" "service_connection_error_alarms" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "${each.value.name}ConnectionErrorCount"
-  namespace           = "ServiceConnectionMetricFilters"
   period              = "300"
   statistic           = "Sum"
   threshold           = "1"
   alarm_description   = "Alarm when ${each.value.name} connection errors exceed threshold"
-  actions_enabled     = true
   alarm_actions       = [aws_sns_topic.service_connection_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+  }
+  actions_enabled = true
 }
 
 
@@ -238,7 +242,7 @@ resource "aws_cloudwatch_log_metric_filter" "blob_error_filters" {
 
   metric_transformation {
     name      = "Blob${each.value.name}ErrorCount"
-    namespace = "BlobServiceMetricFilters"
+    namespace = "Comm/ServiceLogs"
     value     = "1"
   }
 }
@@ -250,13 +254,17 @@ resource "aws_cloudwatch_metric_alarm" "blob_error_alarms" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "Blob${each.value.name}ErrorCount"
-  namespace           = "BlobServiceMetricFilters"
   period              = "300"
   statistic           = "Sum"
   threshold           = 1
   alarm_description   = "Alarm when Blob ${each.value.name} errors exceed threshold"
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.blob_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.blob_service.name
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
@@ -264,16 +272,16 @@ resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "MemoryUtilization"
-  namespace           = "AWS/ECS"
   period              = 60
   statistic           = "Average"
   threshold           = 90
   alarm_description   = "Alarm when Blob service memory utilization exceeds 90%"
+  alarm_actions       = [aws_sns_topic.blob_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
     ServiceName = aws_ecs_service.blob_service.name
   }
-  alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }
 
 
@@ -282,16 +290,16 @@ resource "aws_cloudwatch_metric_alarm" "blob_cpu_utilization" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "CPUUtilization"
-  namespace           = "AWS/ECS"
   period              = 60
   statistic           = "Average"
   threshold           = 90
   alarm_description   = "Alarm when Blob service CPU utilization exceeds 90%"
+  alarm_actions       = [aws_sns_topic.blob_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
     ServiceName = aws_ecs_service.blob_service.name
   }
-  alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }
 
 resource "aws_sns_topic" "tunnelbroker_error_topic" {
@@ -313,7 +321,7 @@ resource "aws_cloudwatch_log_metric_filter" "tunnelbroker_error_filters" {
 
   metric_transformation {
     name      = "Tunnelbroker${each.value.name}ErrorCount"
-    namespace = "TunnelbrokerServiceMetricFilters"
+    namespace = "Comm/ServiceLogs"
     value     = "1"
   }
 }
@@ -325,11 +333,15 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_error_alarms" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "Tunnelbroker${each.value.name}ErrorCount"
-  namespace           = "TunnelbrokerServiceMetricFilters"
   period              = "300"
   statistic           = "Sum"
   threshold           = 1
   alarm_description   = "Alarm when Tunnelbroker ${each.value.name} errors exceed threshold"
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.tunnelbroker_error_topic.arn]
+  namespace           = "Comm/ServiceLogs"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.tunnelbroker.name
+  }
 }
