@@ -4,6 +4,7 @@ import type { EncryptedNotifUtilsAPI } from 'lib/types/notif-types.js';
 import { getConfig } from 'lib/utils/config.js';
 
 import { commUtilsModule } from '../native-modules.js';
+import { encrypt, generateKey } from '../utils/aes-crypto-module.js';
 
 const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   encryptSerializedNotifPayload: async (
@@ -36,6 +37,24 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       serializedNotification,
     );
     return commUtilsModule.sha256(notifAsArrayBuffer);
+  },
+  getBlobHash: async (blob: Uint8Array) => {
+    return commUtilsModule.sha256(blob.buffer);
+  },
+  generateAESKey: async () => {
+    const aesKeyBytes = await generateKey();
+    return await commUtilsModule.base64EncodeBuffer(aesKeyBytes.buffer);
+  },
+  encryptWithAESKey: async (encryptionKey: string, unencryptedData: string) => {
+    const [encryptionKeyBytes, unencryptedDataBytes] = await Promise.all([
+      commUtilsModule.base64DecodeBuffer(encryptionKey),
+      commUtilsModule.encodeStringToUTF8ArrayBuffer(unencryptedData),
+    ]);
+
+    return await encrypt(
+      new Uint8Array(encryptionKeyBytes),
+      new Uint8Array(unencryptedDataBytes),
+    );
   },
 };
 
