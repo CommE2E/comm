@@ -1,8 +1,12 @@
 package app.comm.android;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.CursorWindow;
+import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import app.comm.android.commservices.CommServicesPackage;
@@ -23,6 +27,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Security;
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
 public class MainApplication
     extends MultiDexApplication implements ReactApplication {
 
@@ -72,6 +78,18 @@ public class MainApplication
       return mNewArchitectureNativeHost;
     } else {
       return mReactNativeHost;
+    }
+  }
+
+  @Override
+  public Intent
+  registerReceiver(@Nullable BroadcastReceiver receiver, IntentFilter filter) {
+    if (Build.VERSION.SDK_INT >= 34 &&
+        getApplicationInfo().targetSdkVersion >= 34) {
+      return super.registerReceiver(
+          receiver, filter, Context.RECEIVER_EXPORTED);
+    } else {
+      return super.registerReceiver(receiver, filter);
     }
   }
 
