@@ -4,6 +4,11 @@ import type { EncryptedNotifUtilsAPI } from 'lib/types/notif-types.js';
 import { getConfig } from 'lib/utils/config.js';
 
 import { commUtilsModule } from '../native-modules.js';
+import {
+  encrypt,
+  generateKey,
+  generateIV,
+} from '../utils/aes-crypto-module.js';
 
 const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   encryptSerializedNotifPayload: async (
@@ -36,6 +41,38 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       serializedNotification,
     );
     return commUtilsModule.sha256(notifAsArrayBuffer);
+  },
+  getBlobHash: async (blob: Uint8Array) => {
+    return commUtilsModule.sha256(blob.buffer);
+  },
+  generateAESKey: async () => {
+    const aesKeyBytes = await generateKey();
+    return await commUtilsModule.base64EncodeBuffer(aesKeyBytes.buffer);
+  },
+  generateAESIV: async () => {
+    const ivBytes = await generateIV();
+    return commUtilsModule.base64EncodeBuffer(ivBytes.buffer);
+  },
+  encryptWithAESKey: async (
+    encryptionKey: string,
+    initializationVector: string,
+    unencrypotedData: string,
+  ) => {
+    const [
+      encryptionKeyBytes,
+      unencrypotedDataBytes,
+      initializationVectorBytes,
+    ] = await Promise.all([
+      commUtilsModule.base64DecodeBuffer(encryptionKey),
+      commUtilsModule.encodeStringToUTF8ArrayBuffer(unencrypotedData),
+      commUtilsModule.base64DecodeBuffer(initializationVector),
+    ]);
+
+    return await encrypt(
+      new Uint8Array(encryptionKeyBytes),
+      new Uint8Array(unencrypotedDataBytes),
+      new Uint8Array(initializationVectorBytes),
+    );
   },
 };
 
