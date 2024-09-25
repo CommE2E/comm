@@ -78,10 +78,13 @@ async function fetchMessageReportData(
   request: MessageReportCreationRequest,
 ): Promise<MessageReportData> {
   const keyserverAdminIDPromise = fetchKeyserverAdminID();
-  const reportedMessagePromise = fetchMessageInfoByID(
-    viewer,
-    request.messageID,
-  );
+  const reportedMessagePromise = (async () => {
+    const { messageID } = request;
+    if (!messageID) {
+      return null;
+    }
+    return await fetchMessageInfoByID(viewer, messageID);
+  })();
   const viewerUsernamePromise = fetchUsername(viewer.id);
 
   const keyserverAdminID = await keyserverAdminIDPromise;
