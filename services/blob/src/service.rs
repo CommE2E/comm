@@ -1,6 +1,6 @@
 #![allow(unused)]
 use regex::RegexSet;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 use std::sync::Arc;
 
@@ -282,17 +282,21 @@ impl BlobService {
     Ok(())
   }
 
-  pub async fn blob_hash_exists(
+  pub async fn find_existing_blobs(
     &self,
-    blob_hash: impl Into<String>,
-  ) -> BlobServiceResult<bool> {
-    match self.db.get_blob_item(blob_hash).await {
-      Ok(item) => Ok(item.is_some()),
-      Err(err) => {
-        warn!("Failed to check if blob exists: {err:?}");
-        Err(err.into())
-      }
-    }
+    blob_hashes: HashSet<&String>,
+  ) -> BlobServiceResult<HashSet<String>> {
+    let primary_keys = blob_hashes.into_iter().map(PrimaryKey::for_blob_item);
+
+    let existing_items: HashSet<String> = self
+      .db
+      .list_existing_keys(primary_keys)
+      .await?
+      .into_iter()
+      .map(|pk| pk.blob_hash)
+      .collect();
+
+    Ok(existing_items)
   }
 
   pub async fn perform_cleanup(&self) -> anyhow::Result<()> {

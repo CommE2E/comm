@@ -45,8 +45,10 @@ pub async fn assign_holders_handler(
   info!("Assign holder request for {} holders", requests.len());
   validate_request(&requests)?;
 
-  let mut results = Vec::with_capacity(requests.len());
+  let blob_hashes = requests.iter().map(|it| &it.blob_hash).collect();
+  let existing_blobs = service.find_existing_blobs(blob_hashes).await?;
 
+  let mut results = Vec::with_capacity(requests.len());
   for item in requests {
     let BlobHashAndHolder { blob_hash, holder } = &item;
     let result = match service.assign_holder(blob_hash, holder).await {
@@ -57,8 +59,7 @@ pub async fn assign_holders_handler(
         holder_already_exists: false,
       },
       Err(BlobServiceError::DB(DBError::ItemAlreadyExists)) => {
-        let data_exists =
-          service.blob_hash_exists(blob_hash).await.unwrap_or(false);
+        let data_exists = existing_blobs.contains(blob_hash);
         HolderAssignmentResult {
           request: item,
           success: true,
@@ -68,8 +69,7 @@ pub async fn assign_holders_handler(
       }
       Err(err) => {
         warn!("Holder assignment error: {:?}", err);
-        let data_exists =
-          service.blob_hash_exists(blob_hash).await.unwrap_or(false);
+        let data_exists = existing_blobs.contains(blob_hash);
         HolderAssignmentResult {
           request: item,
           success: false,
