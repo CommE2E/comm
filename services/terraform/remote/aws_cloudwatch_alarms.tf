@@ -260,7 +260,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_error_alarms" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
-  alarm_name          = "ecs-memory-utilization-90"
+  alarm_name          = "BlobMemoryUtilizationAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "MemoryUtilization"
@@ -278,7 +278,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
 
 
 resource "aws_cloudwatch_metric_alarm" "blob_cpu_utilization" {
-  alarm_name          = "ecs-cpu-utilization-90"
+  alarm_name          = "BlobCPUUtilizationAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "CPUUtilization"
@@ -332,4 +332,39 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_error_alarms" {
   alarm_description   = "Alarm when Tunnelbroker ${each.value.name} errors exceed threshold"
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.tunnelbroker_error_topic.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "tunnelbroker_memory_utilization" {
+  alarm_name          = "TunnelbrokerMemoryUtilizationAlarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "MemoryUtilization"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 90
+  alarm_description   = "Alarm when Tunnelbroker service memory utilization exceeds 90%"
+  alarm_actions       = [aws_sns_topic.tunnelbroker_error_topic.arn]
+  namespace           = "AWS/ECS"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.tunnelbroker.name
+  }
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "tunnelbroker_cpu_utilization" {
+  alarm_name          = "TunnelbrokerCPUUtilizationAlarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "CPUUtilization"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 90
+  alarm_description   = "Alarm when Tunnelbroker service CPU utilization exceeds 90%"
+  alarm_actions       = [aws_sns_topic.tunnelbroker_error_topic.arn]
+  namespace           = "AWS/ECS"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.tunnelbroker.name
+  }
 }
