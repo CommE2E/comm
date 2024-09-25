@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::http::errors::handle_blob_service_error;
 use crate::service::BlobService;
 use crate::validate_identifier;
@@ -131,8 +133,15 @@ pub async fn assign_holder_handler(
   validate_identifier!(holder);
   validate_identifier!(blob_hash);
 
-  let data_exists = service.assign_holder(blob_hash, holder).await?;
-  Ok(HttpResponse::Ok().json(web::Json(AssignHolderResponnse { data_exists })))
+  let data_exists = service
+    .find_existing_blobs(HashSet::from([&blob_hash]))
+    .await?
+    .contains(&blob_hash);
+
+  service.assign_holder(blob_hash, holder).await?;
+
+  let response = AssignHolderResponnse { data_exists };
+  Ok(HttpResponse::Ok().json(web::Json(response)))
 }
 
 #[instrument(skip_all, name = "upload_blob", fields(blob_hash))]
