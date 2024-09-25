@@ -183,6 +183,7 @@ async function fetchKnownUserInfos(
       avatar.type === 'farcaster' &&
       !hasMinCodeVersion(viewer.platformDetails, {
         native: NEXT_CODE_VERSION,
+        web: NEXT_CODE_VERSION,
       })
     ) {
       clientAvatar = null;
@@ -396,6 +397,7 @@ async function fetchLoggedInUserInfo(
     avatar.type === 'farcaster' &&
     !hasMinCodeVersion(viewer.platformDetails, {
       native: NEXT_CODE_VERSION,
+      web: FUTURE_CODE_VERSION,
     })
   ) {
     clientAvatar = null;
