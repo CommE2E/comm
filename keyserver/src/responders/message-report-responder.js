@@ -1,6 +1,6 @@
 // @flow
 
-import type { TInterface } from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
 import {
   type MessageReportCreationRequest,
@@ -13,7 +13,7 @@ import type { Viewer } from '../session/viewer.js';
 
 export const messageReportCreationRequestInputValidator: TInterface<MessageReportCreationRequest> =
   tShape<MessageReportCreationRequest>({
-    messageID: tID,
+    messageID: t.maybe(tID),
   });
 
 async function messageReportCreationResponder(
