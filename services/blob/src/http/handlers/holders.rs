@@ -14,6 +14,79 @@ pub struct BlobHashAndHolder {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct AssignHoldersPayload {
+  requests: Vec<BlobHashAndHolder>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct HolderAssignmentResult {
+  #[serde(flatten)]
+  request: BlobHashAndHolder,
+  success: bool,
+  data_exists: bool,
+  holder_already_exists: bool,
+}
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct AssignHoldersResponse {
+  results: Vec<HolderAssignmentResult>,
+}
+
+#[instrument(name = "assign_multiple_holders", skip_all)]
+pub async fn assign_holders_handler(
+  service: web::Data<BlobService>,
+  payload: web::Json<AssignHoldersPayload>,
+) -> actix_web::Result<HttpResponse> {
+  use crate::database::DBError;
+  use crate::service::BlobServiceError;
+
+  let AssignHoldersPayload { requests } = payload.into_inner();
+  info!("Assign holder request for {} holders", requests.len());
+  validate_request(&requests)?;
+
+  let mut results = Vec::with_capacity(requests.len());
+
+  for item in requests {
+    let BlobHashAndHolder { blob_hash, holder } = &item;
+    let result = match service.assign_holder(blob_hash, holder).await {
+      Ok(data_exists) => HolderAssignmentResult {
+        request: item,
+        success: true,
+        data_exists,
+        holder_already_exists: false,
+      },
+      Err(BlobServiceError::DB(DBError::ItemAlreadyExists)) => {
+        let data_exists =
+          service.blob_hash_exists(blob_hash).await.unwrap_or(false);
+        HolderAssignmentResult {
+          request: item,
+          success: true,
+          data_exists,
+          holder_already_exists: true,
+        }
+      }
+      Err(err) => {
+        warn!("Holder assignment error: {:?}", err);
+        let data_exists =
+          service.blob_hash_exists(blob_hash).await.unwrap_or(false);
+        HolderAssignmentResult {
+          request: item,
+          success: false,
+          data_exists,
+          holder_already_exists: false,
+        }
+      }
+    };
+    results.push(result);
+  }
+
+  let response = AssignHoldersResponse { results };
+  Ok(HttpResponse::Ok().json(web::Json(response)))
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RemoveHoldersPayload {
   requests: Vec<BlobHashAndHolder>,
   #[serde(default)]
