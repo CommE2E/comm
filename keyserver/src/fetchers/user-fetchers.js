@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import {
   hasMinCodeVersion,
   FUTURE_CODE_VERSION,
-  NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { UserDetail } from 'lib/types/crypto-types.js';
@@ -182,7 +181,8 @@ async function fetchKnownUserInfos(
       avatar &&
       avatar.type === 'farcaster' &&
       !hasMinCodeVersion(viewer.platformDetails, {
-        native: NEXT_CODE_VERSION,
+        native: 405,
+        web: 122,
       })
     ) {
       clientAvatar = null;
@@ -395,7 +395,8 @@ async function fetchLoggedInUserInfo(
     avatar &&
     avatar.type === 'farcaster' &&
     !hasMinCodeVersion(viewer.platformDetails, {
-      native: NEXT_CODE_VERSION,
+      native: 405,
+      web: 122,
     })
   ) {
     clientAvatar = null;
