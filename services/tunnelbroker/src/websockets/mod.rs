@@ -155,7 +155,7 @@ async fn send_error_init_response(
       if let Err(send_error) =
         outgoing.send(Message::Text(serialized_response)).await
       {
-        error!("Failed to send init error response: {:?}", send_error);
+        debug!("Failed to send init error response: {:?}", send_error);
       }
     }
     Err(ser_error) => {
@@ -212,13 +212,13 @@ async fn accept_connection(
         session
       }
       Err((err, outgoing)) => {
-        error!("Failed to create session with device");
+        debug!("Failed to create session with device");
         send_error_init_response(err, outgoing).await;
         return;
       }
     }
   } else {
-    error!("Failed to create session with device");
+    debug!("Failed to create session with device");
     send_error_init_response(SessionError::InvalidMessage, outgoing).await;
     return;
   };

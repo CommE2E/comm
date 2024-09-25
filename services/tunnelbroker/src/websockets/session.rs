@@ -204,7 +204,7 @@ pub async fn initialize_amqp(
       handle_first_message_from_device(&payload).await?
     }
     _ => {
-      error!("Client sent wrong frame type for establishing connection");
+      debug!("Client sent wrong frame type for establishing connection");
       return Err(SessionError::InvalidMessage);
     }
   };
