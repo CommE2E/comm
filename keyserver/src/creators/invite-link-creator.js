@@ -11,6 +11,7 @@ import type {
   InviteLink,
 } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import type { BlobOperationResult } from 'lib/utils/blob-service.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { reservedUsernamesSet } from 'lib/utils/reserved-users.js';
 
@@ -27,9 +28,8 @@ import {
   download,
   type BlobDownloadResult,
   assignHolder,
-  uploadBlob,
+  uploadBlobKeyserverWrapper,
   deleteBlob,
-  type BlobOperationResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
@@ -272,7 +272,7 @@ async function uploadInviteLinkBlob(
   const key = inviteLinkBlobHash(linkSecret);
   const blob = new Blob([payloadString]);
 
-  const uploadResult = await uploadBlob(blob, key);
+  const uploadResult = await uploadBlobKeyserverWrapper(blob, key);
   if (!uploadResult.success) {
     return uploadResult;
   }

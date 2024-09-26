@@ -56,6 +56,8 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       unencryptedDataBytes,
     );
   },
+  normalizeUint8ArrayForBlobUpload: (uint8Array: Uint8Array) =>
+    new Blob([uint8Array]),
 };
 
 export default encryptedNotifUtilsAPI;
