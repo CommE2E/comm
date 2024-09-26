@@ -163,12 +163,7 @@ resource "aws_ecs_service" "tunnelbroker" {
   task_definition      = aws_ecs_task_definition.tunnelbroker.arn
   force_new_deployment = true
 
-  desired_count = 1
-  # Allow external changes without Terraform plan difference
-  # We can freely specify replica count in AWS Console
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
+  desired_count = 2
 
   service_connect_configuration {
     enabled = true
