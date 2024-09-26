@@ -8,6 +8,7 @@ import type {
   CreateOrUpdateFarcasterChannelTagResponse,
 } from 'lib/types/community-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import type { BlobOperationResult } from 'lib/utils/blob-service.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import {
@@ -18,11 +19,10 @@ import {
 import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
-  uploadBlob,
+  uploadBlobKeyserverWrapper,
   assignHolder,
   download,
   deleteBlob,
-  type BlobOperationResult,
   type BlobDownloadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
@@ -162,7 +162,7 @@ async function uploadFarcasterChannelTagBlob(
   const hash = farcasterChannelTagBlobHash(farcasterChannelID);
   const blob = new Blob([payloadString]);
 
-  const uploadResult = await uploadBlob(blob, hash);
+  const uploadResult = await uploadBlobKeyserverWrapper(blob, hash);
 
   if (!uploadResult.success) {
     return uploadResult;

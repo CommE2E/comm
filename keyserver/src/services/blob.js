@@ -5,6 +5,10 @@ import {
   getBlobFetchableURL,
   makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
+import {
+  uploadBlob,
+  type BlobOperationResult,
+} from 'lib/utils/blob-service.js';
 import { createHTTPAuthorizationHeader } from 'lib/utils/services-utils.js';
 
 import { verifyUserLoggedIn } from '../user/login.js';
@@ -35,49 +39,6 @@ type BlobDescriptor = {
   +holder: string,
 };
 
-export type BlobOperationResult =
-  | {
-      +success: true,
-    }
-  | {
-      +success: false,
-      +reason: 'HASH_IN_USE' | 'OTHER',
-      +status: number,
-      +statusText: string,
-    };
-
-async function uploadBlob(
-  blob: Blob,
-  hash: string,
-): Promise<BlobOperationResult> {
-  const formData = new FormData();
-  formData.append('blob_hash', hash);
-  formData.append('blob_data', blob);
-
-  const headers = await createRequestHeaders(false);
-  const uploadBlobResponse = await fetch(
-    makeBlobServiceEndpointURL(blobService.httpEndpoints.UPLOAD_BLOB),
-    {
-      method: blobService.httpEndpoints.UPLOAD_BLOB.method,
-      body: formData,
-      headers,
-    },
-  );
-
-  if (!uploadBlobResponse.ok) {
-    const { status, statusText } = uploadBlobResponse;
-    const reason = status === 409 ? 'HASH_IN_USE' : 'OTHER';
-    return {
-      success: false,
-      reason,
-      status,
-      statusText,
-    };
-  }
-
-  return { success: true };
-}
-
 async function assignHolder(
   params: BlobDescriptor,
 ): Promise<BlobOperationResult> {
@@ -103,6 +64,14 @@ async function assignHolder(
   return { success: true };
 }
 
+async function uploadBlobKeyserverWrapper(
+  blob: Blob,
+  hash: string,
+): Promise<BlobOperationResult> {
+  const authHeaders = await createRequestHeaders(false);
+  return uploadBlob(blob, hash, authHeaders);
+}
+
 async function upload(
   blob: Blob,
   params: BlobDescriptor,
@@ -117,10 +86,9 @@ async function upload(
     },
 > {
   const { hash, holder } = params;
-
   const [holderResult, uploadResult] = await Promise.all([
     assignHolder({ hash, holder }),
-    uploadBlob(blob, hash),
+    uploadBlobKeyserverWrapper(blob, hash),
   ]);
   if (holderResult.success && uploadResult.success) {
     return { success: true };
@@ -171,4 +139,11 @@ async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
   });
 }
 
-export { upload, uploadBlob, assignHolder, download, deleteBlob };
+export {
+  upload,
+  uploadBlob,
+  assignHolder,
+  download,
+  deleteBlob,
+  uploadBlobKeyserverWrapper,
+};
