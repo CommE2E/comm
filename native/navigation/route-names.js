@@ -162,6 +162,7 @@ export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
 export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
 export const ConnectFarcasterBottomSheetRouteName =
   'ConnectFarcasterBottomSheet';
+export const CommunityJoinerModalRouteName = 'CommunityJoinerModal';
 export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
@@ -198,6 +199,7 @@ export type RootParamList = {
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
   +LinkedDevicesBottomSheet: void,
   +ConnectFarcasterBottomSheet: void,
+  +CommunityJoinerModal: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
