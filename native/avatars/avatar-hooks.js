@@ -505,7 +505,7 @@ function useShowAvatarActionSheet(
     );
 
     const containerStyle = {
-      paddingBotton: insets.bottom,
+      paddingBottom: insets.bottom,
     };
 
     const icons = options.map(option => {
