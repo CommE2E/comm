@@ -279,8 +279,6 @@ function ChatThreadList(props: BaseProps): React.Node {
     ],
   );
 
-  const allowOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
-
   const listData: $ReadOnlyArray<Item> = React.useMemo(() => {
     const chatThreadItems = getThreadListSearchResults(
       boundChatListData,
@@ -289,7 +287,6 @@ function ChatThreadList(props: BaseProps): React.Node {
       threadSearchResults,
       usersSearchResults,
       loggedInUserInfo,
-      allowOlmViaTunnelbrokerForDMs,
     );
 
     const chatItems: Item[] = [...chatThreadItems];
@@ -304,7 +301,6 @@ function ChatThreadList(props: BaseProps): React.Node {
 
     return chatItems;
   }, [
-    allowOlmViaTunnelbrokerForDMs,
     boundChatListData,
     emptyItem,
     filterThreads,
