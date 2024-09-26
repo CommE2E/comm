@@ -6,6 +6,7 @@ import * as React from 'react';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import type { BaseFCAvatarInfo } from 'lib/utils/farcaster-helpers.js';
 
 import { siweNonceExpired } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
@@ -122,13 +123,22 @@ function ConnectFarcaster(prop: Props): React.Node {
   invariant(getFarcasterUsers, 'Could not get getFarcasterUsers');
 
   const neynarClient = React.useContext(NeynarClientContext);
-  const getFCAvatarURLs = neynarClient?.getFCAvatarURLs;
-  invariant(getFCAvatarURLs, 'Could not get getFCAvatarURLs');
 
   const [queuedAlert, setQueuedAlert] = React.useState<?AlertDetails>();
 
   const onSuccess = React.useCallback(
     async (fid: string) => {
+      // We use this fallback function to proceed without the `neynarClient`
+      // if it's missing (devs might be missing the relevant config)
+      const fallbackGetFCAvatarURLs = (
+        // eslint-disable-next-line no-unused-vars
+        fids: $ReadOnlyArray<string>,
+      ): Promise<BaseFCAvatarInfo[]> => {
+        return Promise.resolve([]);
+      };
+      const getFCAvatarURLs =
+        neynarClient?.getFCAvatarURLs ?? fallbackGetFCAvatarURLs;
+
       try {
         const [commFCUsers, farcasterAvatarURLs] = await Promise.all([
           getFarcasterUsers([fid]),
@@ -164,7 +174,12 @@ function ConnectFarcaster(prop: Props): React.Node {
         setWebViewState('closed');
       }
     },
-    [getFarcasterUsers, getFCAvatarURLs, goToNextStep, setCachedSelections],
+    [
+      neynarClient?.getFCAvatarURLs,
+      getFarcasterUsers,
+      goToNextStep,
+      setCachedSelections,
+    ],
   );
 
   const isAppForegrounded = useIsAppForegrounded();
