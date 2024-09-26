@@ -57,6 +57,7 @@ import {
   CreateMissingSIWEBackupMessageRouteName,
   RestoreSIWEBackupRouteName,
   LinkedDevicesBottomSheetRouteName,
+  CommunityJoinerModalRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
@@ -73,6 +74,7 @@ import SidebarListModal from '../chat/sidebar-list-modal.react.js';
 import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
 import CommunityCreationNavigator from '../community-creation/community-creation-navigator.react.js';
 import TagFarcasterChannelNavigator from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-navigator.react.js';
+import CommunityJoinerModal from '../components/community-joiner-modal.react.js';
 import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-sheet.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
@@ -302,6 +304,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={ConnectFarcasterBottomSheetRouteName}
         component={ConnectFarcasterBottomSheet}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={CommunityJoinerModalRouteName}
+        component={CommunityJoinerModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
