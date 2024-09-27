@@ -588,16 +588,7 @@ impl DatabaseClient {
   /// Deletes all user data from DynamoDB. Returns device IDs
   /// from user's device list.
   #[tracing::instrument(skip_all)]
-  pub async fn delete_user(
-    &self,
-    user_id: String,
-  ) -> Result<Vec<String>, Error> {
-    let device_ids = self
-      .get_current_device_list(&user_id)
-      .await?
-      .map(|list| list.device_ids)
-      .unwrap_or_default();
-
+  pub async fn delete_user(&self, user_id: String) -> Result<(), Error> {
     // We must delete the one-time keys first because doing so requires device
     // IDs from the devices table
     debug!(user_id, "Attempting to delete user's one-time keys");
@@ -634,7 +625,7 @@ impl DatabaseClient {
       }
     }?;
 
-    Ok(device_ids)
+    Ok(())
   }
 
   pub async fn wallet_address_taken(
