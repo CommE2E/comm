@@ -57,6 +57,7 @@ resource "aws_db_instance" "mariadb" {
   storage_encrypted       = true
   publicly_accessible     = true
   port                    = local.mariadb_port
+  apply_immediately       = true
   skip_final_snapshot     = true
 }
 
