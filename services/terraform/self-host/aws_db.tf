@@ -45,6 +45,7 @@ resource "aws_db_instance" "mariadb" {
   engine                  = "mariadb"
   engine_version          = "10.11"
   instance_class          = var.db_instance_class
+  multi_az                = true
   backup_retention_period = 7
   backup_window           = "08:00-09:00"
   maintenance_window      = "Mon:09:30-Mon:10:00"
