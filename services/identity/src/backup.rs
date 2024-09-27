@@ -30,11 +30,16 @@ pub async fn delete_backup_user_data(
     .send()
     .await?;
   if !response.status().is_success() {
-    let response_body = response.text().await?;
+    let response_status = response.status();
+    let response_body = response
+      .text()
+      .await
+      .unwrap_or("[failed to get response text]".to_string());
     tracing::error!(
       errorType = error_types::HTTP_LOG,
-      "Backup service failed to delete user data: {}",
-      response_body
+      "Backup service failed to delete user data: {} - {}",
+      response_status,
+      response_body,
     )
   }
   Ok(())
