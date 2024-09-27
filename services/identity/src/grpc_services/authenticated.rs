@@ -107,15 +107,6 @@ fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
   });
 }
 
-fn spawn_delete_backup_data_task(user_id: String, auth_service: AuthService) {
-  tokio::spawn(async move {
-    debug!("Attempting to delete Backup data for user: {}", &user_id);
-    let result =
-      crate::backup::delete_backup_user_data(&user_id, &auth_service).await;
-    consume_error(result);
-  });
-}
-
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
   #[tracing::instrument(skip_all)]
@@ -544,9 +535,9 @@ impl IdentityClientService for AuthenticatedService {
       ));
     }
 
-    let device_ids = self.db_client.delete_user(user_id.clone()).await?;
-    spawn_delete_tunnelbroker_data_task(device_ids);
-    spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
+    self.delete_tunnelbroker_and_backup_data(&user_id).await?;
+
+    self.db_client.delete_user(user_id.clone()).await?;
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -623,9 +614,9 @@ impl IdentityClientService for AuthenticatedService {
       .finish(&message.opaque_login_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
-    let device_ids = self.db_client.delete_user(user_id.clone()).await?;
-    spawn_delete_tunnelbroker_data_task(device_ids);
-    spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
+    self.delete_tunnelbroker_and_backup_data(&user_id).await?;
+
+    self.db_client.delete_user(user_id.clone()).await?;
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -929,6 +920,31 @@ impl AuthenticatedService {
         tonic_status_messages::DEVICE_NOT_IN_DEVICE_LIST,
       ));
     }
+
+    Ok(())
+  }
+
+  async fn delete_tunnelbroker_and_backup_data(
+    &self,
+    user_id: &str,
+  ) -> Result<(), Status> {
+    debug!("Attempting to delete Backup data for user: {}", &user_id);
+    let (device_list_result, delete_backup_result) = tokio::join!(
+      self.db_client.get_current_device_list(user_id),
+      crate::backup::delete_backup_user_data(user_id, &self.comm_auth_service)
+    );
+
+    let device_ids = device_list_result?
+      .map(|list| list.device_ids)
+      .unwrap_or_default();
+
+    delete_backup_result?;
+
+    debug!(
+      "Attempting to delete Tunnelbroker data for devices: {:?}",
+      device_ids
+    );
+    crate::tunnelbroker::delete_devices_data(&device_ids).await?;
 
     Ok(())
   }
