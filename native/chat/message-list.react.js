@@ -9,7 +9,7 @@ import { createSelector } from 'reselect';
 import { messageKey, useFetchMessages } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsPersonal } from 'lib/types/thread-types-enum.js';
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';
@@ -197,10 +197,7 @@ class MessageList extends React.PureComponent<Props, State> {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? this.ListFooterComponent : undefined;
     let relationshipPrompt = null;
-    if (
-      this.props.threadInfo.type === threadTypes.GENESIS_PERSONAL ||
-      this.props.threadInfo.type === threadTypes.PERSONAL
-    ) {
+    if (threadTypeIsPersonal(this.props.threadInfo.type)) {
       relationshipPrompt = (
         <RelationshipPrompt
           pendingPersonalThreadUserInfo={
