@@ -83,10 +83,21 @@ resource "aws_dynamodb_table" "blob-service-blobs" {
     type = "S"
   }
 
+  attribute {
+    name = "indexed_tag"
+    type = "S"
+  }
+
   global_secondary_index {
     name            = "unchecked-index"
     hash_key        = "unchecked"
     range_key       = "last_modified"
+    projection_type = "KEYS_ONLY"
+  }
+
+  global_secondary_index {
+    name            = "holder-tag-index"
+    hash_key        = "indexed_tag"
     projection_type = "KEYS_ONLY"
   }
 
