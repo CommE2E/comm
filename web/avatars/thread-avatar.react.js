@@ -10,7 +10,10 @@ import type {
   ThreadInfo,
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsPersonal,
+  threadTypeIsPrivate,
+} from 'lib/types/thread-types-enum.js';
 
 import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -31,9 +34,9 @@ function ThreadAvatar(props: Props): React.Node {
   );
 
   let displayUserIDForThread;
-  if (threadInfo.type === threadTypes.GENESIS_PRIVATE) {
+  if (threadTypeIsPrivate(threadInfo.type)) {
     displayUserIDForThread = viewerID;
-  } else if (threadInfo.type === threadTypes.GENESIS_PERSONAL) {
+  } else if (threadTypeIsPersonal(threadInfo.type)) {
     displayUserIDForThread = getSingleOtherUser(threadInfo, viewerID);
   }
 
