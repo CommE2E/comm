@@ -57,6 +57,7 @@ import BackgroundIdentityLoginHandler from './components/background-identity-log
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import DMActivityHandler from './components/dm-activity-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
+import JoinCommunityAlertHandler from './components/join-community-alert-handler.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ReportHandler from './components/report-handler.react.js';
@@ -315,6 +316,7 @@ function Root() {
           </ChatContextProvider>
           <NavigationHandler />
           <PersistedStateGate>
+            <JoinCommunityAlertHandler />
             <FarcasterDataHandler>
               <ConnectFarcasterAlertHandler />
             </FarcasterDataHandler>
