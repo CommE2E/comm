@@ -20,6 +20,9 @@ pub mod db {
   pub const UNCHECKED_INDEX_PARTITION_KEY: &str = ATTR_UNCHECKED;
   pub const UNCHECKED_INDEX_SORT_KEY: &str = ATTR_LAST_MODIFIED;
 
+  pub const HOLDER_TAG_INDEX_NAME: &str = "holder-tag-index";
+  pub const HOLDER_TAG_INDEX_KEY_ATTR: &str = ATTR_INDEXED_TAG;
+
   /// attribute names
   pub const ATTR_BLOB_HASH: &str = "blob_hash";
   pub const ATTR_HOLDER: &str = "holder";
