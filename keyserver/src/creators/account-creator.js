@@ -3,7 +3,6 @@
 import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
-import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
@@ -30,11 +29,7 @@ import {
   persistFreshOlmSession,
   createOlmSession,
 } from './olm-session-creator.js';
-import {
-  createThread,
-  createPrivateThread,
-  privateThreadDescription,
-} from './thread-creator.js';
+import { createThread } from './thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
@@ -55,15 +50,11 @@ import {
   thisKeyserverAdmin,
 } from '../user/identity.js';
 
-const { commbot } = bots;
-
 const ashoatMessages = [
   'welcome to Comm!',
   'as you inevitably discover bugs, have feature requests, or design ' +
     'suggestions, feel free to message them to me in the app.',
 ];
-
-const privateMessages = [privateThreadDescription];
 
 async function createAccount(
   viewer: Viewer,
@@ -195,19 +186,15 @@ async function sendMessagesOnAccountCreation(
     { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
   );
 
-  const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer),
-    createThread(
-      viewer,
-      {
-        type: threadTypes.GENESIS_PERSONAL,
-        initialMemberIDs: [admin.id],
-      },
-      { forceAddMembers: true },
-    ),
-  ]);
+  const ashoatThreadResult = await createThread(
+    viewer,
+    {
+      type: threadTypes.GENESIS_PERSONAL,
+      initialMemberIDs: [admin.id],
+    },
+    { forceAddMembers: true },
+  );
   const ashoatThreadID = ashoatThreadResult.newThreadID;
-  const privateThreadID = privateThreadResult.newThreadID;
 
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
@@ -217,21 +204,9 @@ async function sendMessagesOnAccountCreation(
     time: messageTime++,
     text: message,
   }));
-  const privateMessageDatas = privateMessages.map(message => ({
-    type: messageTypes.TEXT,
-    threadID: privateThreadID,
-    creatorID: commbot.userID,
-    time: messageTime++,
-    text: message,
-  }));
-  const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const messageInfos = await createMessages(viewer, messageDatas);
+  const ashoatMessageInfos = await createMessages(viewer, ashoatMessageDatas);
 
-  return [
-    ...ashoatThreadResult.newMessageInfos,
-    ...privateThreadResult.newMessageInfos,
-    ...messageInfos,
-  ];
+  return [...ashoatThreadResult.newMessageInfos, ...ashoatMessageInfos];
 }
 
 async function createAndSendReservedUsernameMessage(
