@@ -2,6 +2,13 @@ use derive_more::Constructor;
 use hex::ToHex;
 use sha2::{Digest, Sha256};
 
+/// This module defines structures for HTTP requests and responses
+/// for the Blob Service. The definitions in this file should remain in sync
+/// with the types and validators defined in the corresponding
+/// JavaScript file at `lib/types/blob-service-types.js`.
+///
+/// If you edit the definitions in one file,
+/// please make sure to update the corresponding definitions in the other.
 pub mod http {
   use serde::{Deserialize, Serialize};
 
