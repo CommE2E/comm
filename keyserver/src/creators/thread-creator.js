@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 
-import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import {
@@ -58,12 +57,6 @@ import {
 import { joinThread } from '../updaters/thread-updaters.js';
 import { isAuthoritativeKeyserver } from '../user/identity.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-
-const { commbot } = bots;
-
-const privateThreadDescription: string =
-  'This is your private chat, ' +
-  'where you can set reminders and jot notes in private!';
 
 type CreateThreadOptions = Partial<{
   +forceAddMembers: boolean,
@@ -518,18 +511,4 @@ async function createThread(
   };
 }
 
-function createPrivateThread(viewer: Viewer): Promise<NewThreadResponse> {
-  return createThread(
-    viewer,
-    {
-      type: threadTypes.GENESIS_PRIVATE,
-      description: privateThreadDescription,
-      ghostMemberIDs: [commbot.userID],
-    },
-    {
-      forceAddMembers: true,
-    },
-  );
-}
-
-export { createThread, createPrivateThread, privateThreadDescription };
+export { createThread };
