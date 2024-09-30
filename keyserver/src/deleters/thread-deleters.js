@@ -18,7 +18,9 @@ import {
 import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers.js';
 import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
+import { removeBlobHolders } from '../services/blob.js';
 import type { Viewer } from '../session/viewer.js';
+import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
 
 type DeleteThreadOptions = Partial<{
   +ignorePermissions: boolean,
@@ -60,6 +62,8 @@ async function deleteThread(
   //       thread-permission-updaters should be used for descendant threads.
   const threadIDs = await fetchContainedThreadIDs(threadID);
 
+  await fetchAndDeleteThreadBlobHolders(threadIDs);
+
   const [{ threadInfos: serverThreadInfos }] = await Promise.all([
     fetchServerThreadInfos({ threadIDs: new Set(threadIDs) }),
     rescindPushNotifs(
@@ -87,6 +91,19 @@ async function deleteThread(
   ]);
 
   return { updatesResult: { newUpdates: viewerUpdates } };
+}
+
+async function fetchAndDeleteThreadBlobHolders(
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<void> {
+  const query = SQL`
+    SELECT extra
+    FROM uploads
+    WHERE container IN (${threadIDs})
+  `;
+  const [rows] = await dbQuery(query);
+  const blobHolders = blobHoldersFromUploadRows(rows);
+  await removeBlobHolders(blobHolders);
 }
 
 function deleteThreadsFromDB(
@@ -144,7 +161,9 @@ async function deleteInaccessibleThreads(): Promise<void> {
   if (threadIDs.size === 0) {
     return;
   }
-  await deleteThreadsFromDB([...threadIDs]);
+  const containerIDs = [...threadIDs];
+  await fetchAndDeleteThreadBlobHolders(containerIDs);
+  await deleteThreadsFromDB(containerIDs);
 }
 
 export { deleteThread, deleteInaccessibleThreads };
