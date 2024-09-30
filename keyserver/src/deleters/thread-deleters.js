@@ -1,6 +1,7 @@
 // @flow
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
+import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadDeletionRequest,
@@ -18,7 +19,9 @@ import {
 import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers.js';
 import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
+import { removeBlobHolders } from '../services/blob.js';
 import type { Viewer } from '../session/viewer.js';
+import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
 
 type DeleteThreadOptions = Partial<{
   +ignorePermissions: boolean,
@@ -81,12 +84,26 @@ async function deleteThread(
     }
   }
 
+  const blobHolders = await fetchThreadBlobHoldersToDelete(threadIDs);
   const [{ viewerUpdates }] = await Promise.all([
     createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
     deleteThreadsFromDB(threadIDs),
+    removeBlobHolders(blobHolders),
   ]);
 
   return { updatesResult: { newUpdates: viewerUpdates } };
+}
+
+async function fetchThreadBlobHoldersToDelete(
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<$ReadOnlyArray<BlobHashAndHolder>> {
+  const query = SQL`
+    SELECT extra
+    FROM uploads
+    WHERE container IN (${threadIDs});
+  `;
+  const [rows] = await dbQuery(query);
+  return blobHoldersFromUploadRows(rows);
 }
 
 function deleteThreadsFromDB(
@@ -144,7 +161,12 @@ async function deleteInaccessibleThreads(): Promise<void> {
   if (threadIDs.size === 0) {
     return;
   }
-  await deleteThreadsFromDB([...threadIDs]);
+  const containerIDs = [...threadIDs];
+  const blobHolders = await fetchThreadBlobHoldersToDelete(containerIDs);
+  await Promise.all([
+    deleteThreadsFromDB(containerIDs),
+    removeBlobHolders(blobHolders),
+  ]);
 }
 
 export { deleteThread, deleteInaccessibleThreads };
