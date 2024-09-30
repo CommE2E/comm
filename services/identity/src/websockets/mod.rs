@@ -28,6 +28,7 @@ use crate::constants::{
   IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
 use crate::cors::cors_layer;
+use crate::regex::is_valid_username;
 use opensearch::OpenSearchResponse;
 use send::{send_message, WebsocketSink};
 pub mod errors;
@@ -158,11 +159,19 @@ async fn handle_prefix_search(
   request_id: &str,
   prefix_request: identity_search_messages::IdentitySearchPrefix,
 ) -> Result<IdentitySearchResult, errors::WebsocketError> {
+  let username_prefix = prefix_request.prefix.trim().to_string();
+  if !is_valid_username(&username_prefix) {
+    return Ok(IdentitySearchResult {
+      id: request_id.to_string(),
+      hits: Vec::new(),
+    });
+  }
+
   let prefix_query = Query {
     size: IDENTITY_SEARCH_RESULT_SIZE,
     query: Prefix {
       prefix: Username {
-        username: prefix_request.prefix.trim().to_string(),
+        username: username_prefix,
       },
     },
   };
