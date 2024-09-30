@@ -18,7 +18,7 @@ type Props = {
   +updateUsernameInput: (text: string) => void,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
-  +resolveToUser: (user: AccountUserInfo) => void,
+  +resolveToUser: (user: AccountUserInfo) => Promise<void>,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
 };
 
@@ -59,14 +59,14 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
     }, [userSearchResults, userInfoInputArray]);
 
     const onUserSelect = React.useCallback(
-      (userInfo: AccountUserInfo) => {
+      async (userInfo: AccountUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
           if (userInfo.id === existingUserInfo.id) {
             return;
           }
         }
         if (nonFriends.has(userInfo.id)) {
-          resolveToUser(userInfo);
+          await resolveToUser(userInfo);
           return;
         }
         const newUserInfoInputArray = [...userInfoInputArray, userInfo];

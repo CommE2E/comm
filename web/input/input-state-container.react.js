@@ -59,7 +59,6 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
-import type { AuxUserInfos } from 'lib/types/aux-user-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   MediaMission,
@@ -172,7 +171,6 @@ type Props = {
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +identityContext: ?IdentityClientContextType,
   +usingOlmViaTunnelbrokerForDMs: boolean,
-  +auxUserInfos: AuxUserInfos,
 };
 type WritableState = {
   pendingUploads: {
@@ -612,7 +610,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         viewerID: this.props.viewerID,
         calendarQuery,
         usingOlmViaTunnelbrokerForDMs: this.props.usingOlmViaTunnelbrokerForDMs,
-        auxUserInfos: this.props.auxUserInfos,
       });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1735,7 +1732,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
     const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
-    const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
 
     return (
       <InputStateContainer
@@ -1762,7 +1758,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         identityContext={identityContext}
         usingOlmViaTunnelbrokerForDMs={usingOlmViaTunnelbrokerForDMs}
-        auxUserInfos={auxUserInfos}
       />
     );
   });

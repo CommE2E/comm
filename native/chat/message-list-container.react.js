@@ -8,6 +8,7 @@ import { Text, View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
 import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
+import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -86,7 +87,7 @@ type Props = {
   +updateUsernameInput: (text: string) => void,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
-  +resolveToUser: (user: AccountUserInfo) => void,
+  +resolveToUser: (user: AccountUserInfo) => Promise<void>,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
@@ -283,14 +284,36 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const existingThreadInfoFinder =
       useExistingThreadInfoFinder(baseThreadInfo);
 
+    const checkUsersThickThreadSupport = useUsersSupportThickThreads();
+    const [allUsersSupportThickThreads, setAllUsersSupportThickThreads] =
+      React.useState(false);
+    React.useEffect(() => {
+      void (async () => {
+        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
+          userInfoInputArray.map(user => user.id),
+        );
+        setAllUsersSupportThickThreads(
+          userInfoInputArray.every(userInfo =>
+            usersSupportingThickThreads.has(userInfo.id),
+          ),
+        );
+      })();
+    }, [checkUsersThickThreadSupport, userInfoInputArray]);
+
     const isSearching = !!props.route.params.searching;
     const threadInfo = React.useMemo(
       () =>
         existingThreadInfoFinder({
           searching: isSearching,
           userInfoInputArray,
+          allUsersSupportThickThreads,
         }),
-      [existingThreadInfoFinder, isSearching, userInfoInputArray],
+      [
+        allUsersSupportThickThreads,
+        existingThreadInfoFinder,
+        isSearching,
+        userInfoInputArray,
+      ],
     );
     invariant(
       threadInfo,
@@ -351,10 +374,14 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     );
     const { editInputMessage } = inputState;
     const resolveToUser = React.useCallback(
-      (user: AccountUserInfo) => {
+      async (user: AccountUserInfo) => {
+        const usersSupportingThickThreads = await checkUsersThickThreadSupport([
+          user.id,
+        ]);
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
           userInfoInputArray: [user],
+          allUsersSupportThickThreads: usersSupportingThickThreads.has(user.id),
         });
         invariant(
           resolvedThreadInfo,
@@ -364,7 +391,12 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         setBaseThreadInfo(resolvedThreadInfo);
         setParams({ searching: false, threadInfo: resolvedThreadInfo });
       },
-      [existingThreadInfoFinder, editInputMessage, setParams],
+      [
+        checkUsersThickThreadSupport,
+        editInputMessage,
+        existingThreadInfoFinder,
+        setParams,
+      ],
     );
 
     const messageListData = useNativeMessageListData({
