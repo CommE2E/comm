@@ -651,7 +651,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
             error = e.what();
           }
 
-          this->cryptoThread->scheduleTask([=]() {
+          taskType cryptoJob = [=]() {
             std::string error;
             this->contentCryptoModule.reset(new crypto::CryptoModule(
                 this->publicCryptoAccountID,
@@ -688,7 +688,13 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
 
             this->jsInvoker_->invokeAsync(
                 [=]() { promise->resolve(jsi::Value::undefined()); });
-          });
+          };
+          try {
+            this->cryptoThread->scheduleTask(cryptoJob);
+          } catch (const std::exception &e) {
+            error = e.what();
+            this->jsInvoker_->invokeAsync([=]() { promise->reject(error); });
+          }
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
