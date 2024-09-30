@@ -39,7 +39,7 @@ const unboundStyles = {
 
 type BaseProps = {
   +userInfo: UserListItem,
-  +onSelect: (user: AccountUserInfo) => void,
+  +onSelect: (user: AccountUserInfo) => mixed,
   +textStyle?: TextStyle,
 };
 type Props = {

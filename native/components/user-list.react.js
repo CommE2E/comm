@@ -12,7 +12,7 @@ import type { TextStyle } from '../types/styles.js';
 
 type BaseProps = {
   +userInfos: $ReadOnlyArray<UserListItem>,
-  +onSelect: (user: AccountUserInfo) => void,
+  +onSelect: (user: AccountUserInfo) => mixed,
   +itemTextStyle?: TextStyle,
 };
 type Props = {
