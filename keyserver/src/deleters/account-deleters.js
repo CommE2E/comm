@@ -17,9 +17,11 @@ import {
   fetchUsername,
 } from '../fetchers/user-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
+import { removeBlobHolders } from '../services/blob.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer, AnonymousViewerData } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
 
 async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
   if (!viewer.loggedIn) {
@@ -32,6 +34,12 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
   const usersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
     (user: UserInfo): boolean => user.id !== deletedUserID,
   );
+
+  const holdersQuery = SQL`
+    SELECT extra
+    FROM uploads
+    WHERE user_container = ${deletedUserID}
+  `;
 
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
@@ -70,6 +78,10 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     DELETE FROM relationships_directed WHERE user2 = ${deletedUserID};
     COMMIT;
   `;
+
+  const [holderRows] = await dbQuery(holdersQuery);
+  const blobHolders = blobHoldersFromUploadRows(holderRows);
+  ignorePromiseRejections(removeBlobHolders(blobHolders));
 
   const deletionPromise = dbQuery(deletionQuery, { multipleStatements: true });
   const anonymousViewerDataPromise: Promise<?AnonymousViewerData> =
