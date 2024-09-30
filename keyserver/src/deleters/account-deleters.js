@@ -17,9 +17,38 @@ import {
   fetchUsername,
 } from '../fetchers/user-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
+import { removeBlobHolders } from '../services/blob.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer, AnonymousViewerData } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
+
+async function deleteUploadsForUser(deletedUserID: string): Promise<void> {
+  try {
+    const [holderRows] = await dbQuery(SQL`
+      SELECT extra
+      FROM uploads
+      WHERE user_container = ${deletedUserID}
+    `);
+    const blobHolders = blobHoldersFromUploadRows(holderRows);
+    await removeBlobHolders(blobHolders);
+    await dbQuery(SQL`
+      DELETE u, i
+      FROM uploads u
+      LEFT JOIN ids i on i.id = u.id
+      WHERE u.user_container = ${deletedUserID};
+    `);
+  } catch (err) {
+    // unassign uploads so the deletion will be retried
+    // by the `deleteUnassignedUploads()`
+    await dbQuery(SQL`
+      UPDATE uploads
+      SET user_container = NULL
+      WHERE user_container = ${deletedUserID};
+    `);
+    throw err;
+  }
+}
 
 async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
   if (!viewer.loggedIn) {
@@ -32,6 +61,8 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
   const usersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
     (user: UserInfo): boolean => user.id !== deletedUserID,
   );
+
+  ignorePromiseRejections(deleteUploadsForUser(deletedUserID));
 
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
@@ -60,10 +91,6 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
       FROM reports r
       LEFT JOIN ids i ON i.id = r.id
       WHERE r.user = ${deletedUserID};
-    DELETE u, i
-      FROM uploads u
-      LEFT JOIN ids i on i.id = u.id
-      WHERE u.user_container = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user1 = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user2 = ${deletedUserID};
     DELETE FROM relationships_directed WHERE user1 = ${deletedUserID};
