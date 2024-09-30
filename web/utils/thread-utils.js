@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
@@ -55,24 +54,18 @@ function useThreadInfoForPossiblyPendingThread(
     }),
   );
 
-  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
-
-  const threadType = usingOlmViaTunnelbrokerForDMs
-    ? threadTypes.PRIVATE
-    : threadTypes.GENESIS_PRIVATE;
-
   const newThreadID = 'pending/new_thread';
   const pendingNewThread = React.useMemo(
     () => ({
       ...createPendingThread({
         viewerID: loggedInUserInfo.id,
-        threadType,
+        threadType: threadTypes.PRIVATE,
         members: [loggedInUserInfo],
         name: 'New thread',
       }),
       id: newThreadID,
     }),
-    [loggedInUserInfo, threadType],
+    [loggedInUserInfo],
   );
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
     pendingPrivateThread.current,
