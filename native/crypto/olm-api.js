@@ -14,10 +14,20 @@ import { getMessageForException } from 'lib/utils/errors.js';
 
 import { commCoreModule } from '../native-modules.js';
 
-const olmAPI: OlmAPI = {
-  async initializeCryptoAccount(): Promise<void> {
+let currentInitializeCryptoAccountPromise: ?Promise<void>;
+function initializeCryptoAccount(): Promise<void> {
+  if (currentInitializeCryptoAccountPromise) {
+    return currentInitializeCryptoAccountPromise;
+  }
+  currentInitializeCryptoAccountPromise = (async () => {
     await commCoreModule.initializeCryptoAccount();
-  },
+    currentInitializeCryptoAccountPromise = null;
+  })();
+  return currentInitializeCryptoAccountPromise;
+}
+
+const olmAPI: OlmAPI = {
+  initializeCryptoAccount,
   getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
   encryptAndPersist: commCoreModule.encryptAndPersist,
