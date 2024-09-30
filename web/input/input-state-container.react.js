@@ -33,7 +33,6 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import {
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
@@ -170,7 +169,6 @@ type Props = {
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +identityContext: ?IdentityClientContextType,
-  +usingOlmViaTunnelbrokerForDMs: boolean,
 };
 type WritableState = {
   pendingUploads: {
@@ -609,7 +607,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
         calendarQuery,
-        usingOlmViaTunnelbrokerForDMs: this.props.usingOlmViaTunnelbrokerForDMs,
       });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1731,7 +1728,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     );
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
-    const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
 
     return (
       <InputStateContainer
@@ -1757,7 +1753,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         unregisterSendCallback={unregisterSendCallback}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         identityContext={identityContext}
-        usingOlmViaTunnelbrokerForDMs={usingOlmViaTunnelbrokerForDMs}
       />
     );
   });

@@ -23,7 +23,6 @@ import { FloatingAction } from 'react-native-floating-action';
 import { useSharedValue } from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
@@ -132,22 +131,17 @@ function ChatThreadList(props: BaseProps): React.Node {
     [],
   );
 
-  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
-
   const composeThread = React.useCallback(() => {
     if (!loggedInUserInfo) {
       return;
     }
-    const threadType = usingOlmViaTunnelbrokerForDMs
-      ? threadTypes.PRIVATE
-      : threadTypes.GENESIS_PRIVATE;
     const threadInfo = createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType,
+      threadType: threadTypes.PRIVATE,
       members: [loggedInUserInfo],
     });
     navigateToThread({ threadInfo, searching: true });
-  }, [loggedInUserInfo, navigateToThread, usingOlmViaTunnelbrokerForDMs]);
+  }, [loggedInUserInfo, navigateToThread]);
 
   const onSearchFocus = React.useCallback(() => {
     if (searchStatus !== 'inactive') {
