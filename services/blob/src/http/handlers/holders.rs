@@ -98,7 +98,7 @@ pub struct RemoveHoldersResponse {
   failed_requests: Vec<BlobHashAndHolder>,
 }
 
-#[instrument(name = "remove_multiple_holders", skip(service))]
+#[instrument(name = "remove_multiple_holders", skip_all)]
 pub async fn remove_holders_handler(
   service: web::Data<BlobService>,
   payload: web::Json<RemoveHoldersPayload>,
