@@ -685,10 +685,8 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                 promise->reject(error);
                 return;
               }
+              promise->resolve(jsi::Value::undefined());
             });
-
-            this->jsInvoker_->invokeAsync(
-                [=]() { promise->resolve(jsi::Value::undefined()); });
           };
           try {
             this->cryptoThread->scheduleTask(cryptoJob);
