@@ -1,12 +1,14 @@
 // @flow
 
 import blobService from 'lib/facts/blob-service.js';
+import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import {
   getBlobFetchableURL,
   makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
 import {
   uploadBlob,
+  removeMultipleHolders,
   type BlobOperationResult,
 } from 'lib/utils/blob-service.js';
 import { createHTTPAuthorizationHeader } from 'lib/utils/services-utils.js';
@@ -139,6 +141,11 @@ async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
   });
 }
 
+async function removeBlobHolders(holders: $ReadOnlyArray<BlobHashAndHolder>) {
+  const headers = await createRequestHeaders(false);
+  await removeMultipleHolders(holders, headers);
+}
+
 export {
   upload,
   uploadBlob,
@@ -146,4 +153,5 @@ export {
   download,
   deleteBlob,
   uploadBlobKeyserverWrapper,
+  removeBlobHolders,
 };
