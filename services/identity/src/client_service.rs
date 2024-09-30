@@ -2,7 +2,6 @@
 use std::str::FromStr;
 
 // External crate imports
-use comm_lib::aws::DynamoDBError;
 use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use grpc_clients::identity::PlatformMetadata;
@@ -1243,32 +1242,29 @@ impl ClientService {
 
 #[tracing::instrument(skip_all)]
 pub fn handle_db_error(db_error: DBError) -> tonic::Status {
+  use comm_lib::aws::DynamoDBError as DDBError;
+  use tonic::Status;
+  use tonic_status_messages as msg;
+  use DBError as E;
+
   match db_error {
-    DBError::AwsSdk(DynamoDBError::InternalServerError(_))
-    | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
-      _,
-    ))
-    | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
-      tonic::Status::unavailable(tonic_status_messages::RETRY)
+    E::AwsSdk(DDBError::InternalServerError(_))
+    | E::AwsSdk(DDBError::ProvisionedThroughputExceededException(_))
+    | E::AwsSdk(DDBError::RequestLimitExceeded(_)) => {
+      Status::unavailable(msg::RETRY)
     }
-    DBError::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
-      tonic::Status::invalid_argument(
-        tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
-      )
+    E::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
+      Status::invalid_argument(msg::INVALID_DEVICE_LIST_UPDATE)
     }
-    DBError::DeviceList(DeviceListError::InvalidSignature) => {
-      tonic::Status::invalid_argument(
-        tonic_status_messages::INVALID_DEVICE_LIST_SIGNATURE,
-      )
+    E::DeviceList(DeviceListError::InvalidSignature) => {
+      Status::invalid_argument(msg::INVALID_DEVICE_LIST_SIGNATURE)
     }
     e => {
       error!(
         errorType = error_types::GENERIC_DB_LOG,
         "Encountered an unexpected error: {}", e
       );
-      tonic::Status::failed_precondition(
-        tonic_status_messages::UNEXPECTED_ERROR,
-      )
+      Status::failed_precondition(msg::UNEXPECTED_ERROR)
     }
   }
 }
