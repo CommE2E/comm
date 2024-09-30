@@ -615,7 +615,6 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
         taskType job = [=]() {
           crypto::Persist contentPersist;
           crypto::Persist notifsPersist;
-          std::string error;
           try {
             std::optional<std::string> contentAccountData =
                 DatabaseManager::getQueryExecutor().getOlmPersistAccountData(
@@ -647,8 +646,10 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                   notifsAccountData->begin(), notifsAccountData->end());
             }
 
-          } catch (std::system_error &e) {
-            error = e.what();
+          } catch (std::exception &e) {
+            std::string error = e.what();
+            this->jsInvoker_->invokeAsync([=]() { promise->reject(error); });
+            return;
           }
 
           taskType cryptoJob = [=]() {
@@ -692,7 +693,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
           try {
             this->cryptoThread->scheduleTask(cryptoJob);
           } catch (const std::exception &e) {
-            error = e.what();
+            std::string error = e.what();
             this->jsInvoker_->invokeAsync([=]() { promise->reject(error); });
           }
         };
