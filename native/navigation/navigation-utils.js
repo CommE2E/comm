@@ -9,6 +9,7 @@ import type {
 import invariant from 'invariant';
 
 import {
+  NUXTipOverlayBackdropRouteName,
   ComposeSubchannelRouteName,
   AppRouteName,
   threadRoutes,
@@ -167,6 +168,22 @@ function getChildRouteFromNavigatorRoute(
   return childRoute;
 }
 
+// isShowingNUXTips assumes nav state is valid
+function isShowingNUXTips(state: PossiblyStaleNavigationState): boolean {
+  const [appRoute] = state.routes;
+  const appSubroutes = appRoute?.state?.routes;
+  if (!appSubroutes) {
+    return false;
+  }
+  for (const route of appSubroutes) {
+    if (route.name === NUXTipOverlayBackdropRouteName) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export {
   getStateFromNavigatorRoute,
   getThreadIDFromParams,
@@ -176,4 +193,5 @@ export {
   removeScreensFromStack,
   validNavState,
   getChildRouteFromNavigatorRoute,
+  isShowingNUXTips,
 };

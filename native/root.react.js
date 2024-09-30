@@ -78,7 +78,10 @@ import {
   type NavContextType,
 } from './navigation/navigation-context.js';
 import NavigationHandler from './navigation/navigation-handler.react.js';
-import { validNavState } from './navigation/navigation-utils.js';
+import {
+  validNavState,
+  isShowingNUXTips,
+} from './navigation/navigation-utils.js';
 import OrientationHandler from './navigation/orientation-handler.react.js';
 import { navStateAsyncStorageKey } from './navigation/persistance.js';
 import RootNavigator from './navigation/root-navigator.react.js';
@@ -158,7 +161,7 @@ function Root() {
           );
           if (navStateString) {
             const savedState = JSON.parse(navStateString);
-            if (validNavState(savedState)) {
+            if (validNavState(savedState) && !isShowingNUXTips(savedState)) {
               loadedState = savedState;
             }
           }
