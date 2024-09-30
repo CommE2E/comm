@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
+import { useUserSupportThickThread } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -87,6 +88,21 @@ function useThreadInfoForPossiblyPendingThread(
     return state.navInfo.pendingThread;
   });
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
+  const checkUsersThickThreadSupport = useUserSupportThickThread();
+
+  const [allUsersSupportThickThreads, setAllUsersSupportThickThreads] =
+    React.useState(false);
+  React.useEffect(() => {
+    void (async () => {
+      const usersSupportingThickThreads = await checkUsersThickThreadSupport(
+        selectedUserInfos.map(user => user.id),
+      );
+      setAllUsersSupportThickThreads(
+        usersSupportingThickThreads.length === selectedUserInfos.length,
+      );
+    })();
+  }, [checkUsersThickThreadSupport, selectedUserInfos]);
+
   const threadInfo = React.useMemo(() => {
     if (isChatCreation) {
       if (selectedUserInfos.length === 0) {
@@ -96,14 +112,17 @@ function useThreadInfoForPossiblyPendingThread(
       return existingThreadInfoFinderForCreatingThread({
         searching: true,
         userInfoInputArray: selectedUserInfos,
+        allUsersSupportThickThreads,
       });
     }
 
     return existingThreadInfoFinder({
       searching: false,
       userInfoInputArray: [],
+      allUsersSupportThickThreads: true,
     });
   }, [
+    allUsersSupportThickThreads,
     existingThreadInfoFinder,
     existingThreadInfoFinderForCreatingThread,
     isChatCreation,

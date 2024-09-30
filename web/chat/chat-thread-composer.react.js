@@ -9,6 +9,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useUserSupportThickThread } from 'lib/hooks/user-identities-hooks.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -84,8 +85,10 @@ function ChatThreadComposer(props: Props): React.Node {
     pendingPrivateThread.current,
   );
 
+  const checkUsersThickThreadSupport = useUserSupportThickThread();
+
   const onSelectUserFromSearch = React.useCallback(
-    (userListItem: UserListItem) => {
+    async (userListItem: UserListItem) => {
       const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
       if (!alert) {
@@ -102,9 +105,14 @@ function ChatThreadComposer(props: Props): React.Node {
         const newUserInfoInputArray = [
           { id: userListItem.id, username: userListItem.username },
         ];
+        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
+          newUserInfoInputArray.map(userInfo => userInfo.id),
+        );
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
+          allUsersSupportThickThreads:
+            usersSupportingThickThreads.length === newUserInfoInputArray.length,
         });
         dispatch({
           type: updateNavInfoActionType,
@@ -119,6 +127,7 @@ function ChatThreadComposer(props: Props): React.Node {
       }
     },
     [
+      checkUsersThickThreadSupport,
       dispatch,
       existingThreadInfoFinderForCreatingThread,
       pushModal,
