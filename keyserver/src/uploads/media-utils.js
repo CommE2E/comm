@@ -11,6 +11,7 @@ import {
   mediaConfig,
 } from 'lib/media/file-utils.js';
 import { getImageProcessingPlan } from 'lib/media/image-utils.js';
+import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import type { Dimensions } from 'lib/types/media-types.js';
 import { deepFileInfoFromData } from 'web/media/file-utils.js';
 
@@ -239,4 +240,21 @@ async function convertImage(
   };
 }
 
-export { getMediaType, validateAndConvert };
+function blobHoldersFromUploadRows(
+  rows: $ReadOnlyArray<Object>,
+): $ReadOnlyArray<BlobHashAndHolder> {
+  const results = [];
+  for (const { extra } of rows) {
+    if (!extra) {
+      continue;
+    }
+    const { blobHash, blobHolder } = JSON.parse(extra);
+    if (blobHash && blobHolder) {
+      results.push({ blobHash, holder: blobHolder });
+    }
+  }
+
+  return results;
+}
+
+export { blobHoldersFromUploadRows, getMediaType, validateAndConvert };
