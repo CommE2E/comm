@@ -45,7 +45,7 @@ function useThreadInfoForPossiblyPendingThread(
   const pendingPrivateThread = React.useRef(
     createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.GENESIS_PRIVATE,
+      threadType: threadTypes.PRIVATE,
       members: [loggedInUserInfo],
     }),
   );
