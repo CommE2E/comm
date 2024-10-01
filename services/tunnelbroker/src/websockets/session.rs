@@ -684,7 +684,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
   pub async fn send_message_to_device(&mut self, message: Message) {
     if let Err(e) = self.tx.send(message).await {
       error!(
-        errorType = error_types::AMQP_ERROR,
+        errorType = error_types::WEBSOCKET_ERROR,
         "Failed to send message to device: {}", e
       );
     }
