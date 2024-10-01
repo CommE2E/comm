@@ -16,7 +16,11 @@ pub async fn connect() -> Connection {
     amqp_uri.authority.userinfo.password = amqp_pass;
   }
 
-  let conn = Connection::connect_uri(amqp_uri, ConnectionProperties::default())
+  let options = ConnectionProperties::default()
+    .with_executor(tokio_executor_trait::Tokio::current())
+    .with_reactor(tokio_reactor_trait::Tokio);
+
+  let conn = Connection::connect_uri(amqp_uri, options)
     .await
     .expect("Unable to connect to AMQP endpoint");
 
