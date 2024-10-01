@@ -97,17 +97,7 @@ function ChatThreadComposer(props: Props): React.Node {
     async (userListItem: UserListItem) => {
       const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
-      if (!alert) {
-        dispatch({
-          type: updateNavInfoActionType,
-          payload: {
-            selectedUserList: [...userInfoInputArray, user],
-          },
-        });
-      } else if (
-        notice === notFriendNotice &&
-        userInfoInputArray.length === 0
-      ) {
+      if (notice === notFriendNotice && userInfoInputArray.length === 0) {
         const newUserInfoInputArray = [
           { id: userListItem.id, username: userListItem.username },
         ];
@@ -127,6 +117,13 @@ function ChatThreadComposer(props: Props): React.Node {
             chatMode: 'view',
             activeChatThreadID: threadInfo?.id,
             pendingThread: threadInfo,
+          },
+        });
+      } else if (!alert) {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            selectedUserList: [...userInfoInputArray, user],
           },
         });
       } else {
