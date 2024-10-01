@@ -97,19 +97,25 @@ function ChatThreadComposer(props: Props): React.Node {
     async (userListItem: UserListItem) => {
       const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
-      if (notice === notFriendNotice && userInfoInputArray.length === 0) {
-        const newUserInfoInputArray = [
-          { id: userListItem.id, username: userListItem.username },
-        ];
+      if (
+        (notice === notFriendNotice || user.id === viewerID) &&
+        userInfoInputArray.length === 0
+      ) {
+        const newUserInfo = {
+          id: userListItem.id,
+          username: userListItem.username,
+        };
+        const newUserInfoInputArray = user.id === viewerID ? [] : [newUserInfo];
         const usersSupportingThickThreads = await checkUsersThickThreadSupport(
           newUserInfoInputArray.map(userInfo => userInfo.id),
         );
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
-          allUsersSupportThickThreads: newUserInfoInputArray.every(userInfo =>
-            usersSupportingThickThreads.has(userInfo.id),
-          ),
+          allUsersSupportThickThreads:
+            user.id === viewerID
+              ? true
+              : usersSupportingThickThreads.has(user.id),
         });
         dispatch({
           type: updateNavInfoActionType,
@@ -133,6 +139,7 @@ function ChatThreadComposer(props: Props): React.Node {
     [
       checkUsersThickThreadSupport,
       dispatch,
+      viewerID,
       existingThreadInfoFinderForCreatingThread,
       pushModal,
       userInfoInputArray,
