@@ -9,6 +9,7 @@ import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import { createTagInput } from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
@@ -58,6 +59,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
       return [userListItemsArr, nonFriendsSet];
     }, [userSearchResults, userInfoInputArray]);
 
+    const viewerID = useSelector(state => state.currentUserInfo?.id);
     const onUserSelect = React.useCallback(
       async (userInfo: AccountUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
@@ -65,7 +67,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
             return;
           }
         }
-        if (nonFriends.has(userInfo.id)) {
+        if (nonFriends.has(userInfo.id) || userInfo.id === viewerID) {
           await resolveToUser(userInfo);
           return;
         }
@@ -79,6 +81,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
         updateTagInput,
         resolveToUser,
         updateUsernameInput,
+        viewerID,
       ],
     );
 

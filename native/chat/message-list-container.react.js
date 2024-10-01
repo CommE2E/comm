@@ -162,8 +162,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     let searchComponent = null;
     if (searching) {
       const { userInfoInputArray, genesisThreadInfo } = this.props;
-      // It's technically possible for the client to be missing the Genesis
-      // ThreadInfo when it first opens up (before the server delivers it)
       let parentThreadHeader;
       if (threadTypeIsThick(threadInfo.type)) {
         parentThreadHeader = (
@@ -175,6 +173,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           />
         );
       } else if (genesisThreadInfo) {
+        // It's technically possible for the client to be missing the Genesis
+        // ThreadInfo when it first opens up (before the server delivers it)
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
@@ -380,13 +380,15 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const { editInputMessage } = inputState;
     const resolveToUser = React.useCallback(
       async (user: AccountUserInfo) => {
-        const usersSupportingThickThreads = await checkUsersThickThreadSupport([
-          user.id,
-        ]);
+        const newUserInfoInputArray = user.id === viewerID ? [] : [user];
+        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
+          newUserInfoInputArray.map(userInfo => userInfo.id),
+        );
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
-          userInfoInputArray: [user],
-          allUsersSupportThickThreads: usersSupportingThickThreads.has(user.id),
+          userInfoInputArray: newUserInfoInputArray,
+          allUsersSupportThickThreads:
+            user.id === viewerID || usersSupportingThickThreads.has(user.id),
         });
         invariant(
           resolvedThreadInfo,
@@ -398,6 +400,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       },
       [
         checkUsersThickThreadSupport,
+        viewerID,
         editInputMessage,
         existingThreadInfoFinder,
         setParams,
