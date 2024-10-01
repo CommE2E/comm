@@ -31,10 +31,14 @@ import type { WebNavInfo } from 'lib/types/nav-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
-import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ClientDBThreadInfo,
+  RawThreadInfos,
+} from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
@@ -641,6 +645,54 @@ const migrations = {
     },
     ops: [],
   }),
+  [85]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const clientDBThreadInfos: ?$ReadOnlyArray<ClientDBThreadInfo> =
+      stores?.store?.threads;
+
+    if (
+      clientDBThreadInfos === null ||
+      clientDBThreadInfos === undefined ||
+      clientDBThreadInfos.length === 0
+    ) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    // This isn't actually accurate, but we force this cast here because the
+    // types for createUpdateDBOpsForThreadStoreThreadInfos assume they're
+    // converting from a client DB that contains RawThreadInfos. In fact, at
+    // this point the client DB contains ThinRawThreadInfoWithPermissions.
+    const stripMemberPermissions: RawThreadInfos => RawThreadInfos =
+      (stripMemberPermissionsFromRawThreadInfos: any);
+
+    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+      clientDBThreadInfos,
+      stripMemberPermissions,
+    );
+
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { threadStoreOperations: dbOperations },
+    });
+
+    return { state, ops: {} };
+  },
 };
 
 const persistConfig: PersistConfig = {
