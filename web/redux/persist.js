@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _keyBy from 'lodash/fp/keyBy.js';
 import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
@@ -16,7 +17,10 @@ import {
   type ClientDBMessageStoreOperation,
   type MessageStoreOperation,
 } from 'lib/ops/message-store-ops.js';
-import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import type {
+  ClientDBThreadStoreOperation,
+  ThreadStoreOperation,
+} from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
 import { deprecatedUpdateRolesAndPermissions } from 'lib/shared/redux/deprecated-update-roles-and-permissions.js';
@@ -30,11 +34,16 @@ import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
-import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ClientDBThreadInfo,
+  RawThreadInfos,
+} from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
@@ -43,7 +52,7 @@ import {
   type MigrationFunction,
   type MigrationsManifest,
 } from 'lib/utils/migration-utils.js';
-import { entries } from 'lib/utils/objects.js';
+import { entries, values } from 'lib/utils/objects.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -644,6 +653,71 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     },
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [84]: (async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return {
+        state,
+        ops: {},
+      };
+    }
+
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const clientDBThreadInfos: ?$ReadOnlyArray<ClientDBThreadInfo> =
+      stores?.store?.threads;
+
+    if (
+      clientDBThreadInfos === null ||
+      clientDBThreadInfos === undefined ||
+      clientDBThreadInfos.length === 0
+    ) {
+      return {
+        state,
+        ops: {},
+      };
+    }
+
+    // 1. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    // 2. Convert `RawThreadInfo`s to a map of `threadID` => `threadInfo`.
+    const keyedRawThreadInfos = _keyBy('id')(rawThreadInfos);
+
+    // This isn't actually accurate, but we force this cast here because the
+    // types for createUpdateDBOpsForThreadStoreThreadInfos assume they're
+    // converting from a client DB that contains RawThreadInfos. In fact, at
+    // this point the client DB contains ThinRawThreadInfoWithPermissions.
+    const stripMemberPermissions: RawThreadInfos => RawThreadInfos =
+      (stripMemberPermissionsFromRawThreadInfos: any);
+
+    // 3. Apply `stripMemberPermissions` to `ThreadInfo`s.
+    const updatedKeyedRawThreadInfos =
+      stripMemberPermissions(keyedRawThreadInfos);
+
+    // 4. Convert the updated `RawThreadInfos` back into an array.
+    const updatedKeyedRawThreadInfosArray = values(updatedKeyedRawThreadInfos);
+
+    // 5. Construct `ThreadStoreOperation`s.
+    const threadOperations: ThreadStoreOperation[] = [{ type: 'remove_all' }];
+    for (const rawThreadInfo of updatedKeyedRawThreadInfosArray) {
+      threadOperations.push({
+        type: 'replace',
+        payload: { id: rawThreadInfo.id, threadInfo: rawThreadInfo },
+      });
+    }
+
+    const operations: StoreOperations = {
+      threadStoreOperations: threadOperations,
+    };
+    return { state, ops: operations };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
