@@ -554,7 +554,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const sidebarCreation =
       this.pendingSidebarCreationMessageLocalIDs.has(localID);
     try {
-      const { result } = await this.props.sendMultimediaMessage(
+      const { result, mediaIDUpdates } = await this.props.sendMultimediaMessage(
         messageInfo,
         sidebarCreation,
         true,
@@ -566,12 +566,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         const newUploads: { [string]: PendingMultimediaUpload } = {};
         for (const localUploadID in prevUploads) {
           const upload = prevUploads[localUploadID];
+          const { serverID } = upload;
           if (upload.messageID !== localID) {
             newUploads[localUploadID] = upload;
           } else if (!upload.uriIsReal) {
             newUploads[localUploadID] = {
               ...upload,
               messageID: result.serverID,
+            };
+          } else if (serverID && mediaIDUpdates?.[serverID]) {
+            const { id } = mediaIDUpdates[serverID];
+            newUploads[localUploadID] = {
+              ...upload,
+              serverID: id,
             };
           }
         }
