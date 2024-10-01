@@ -83,7 +83,7 @@ function ChatThreadComposer(props: Props): React.Node {
   const pendingPrivateThread = React.useRef(
     createPendingThread({
       viewerID,
-      threadType: threadTypes.GENESIS_PRIVATE,
+      threadType: threadTypes.PRIVATE,
       members: [loggedInUserInfo],
     }),
   );
