@@ -24,6 +24,7 @@ import {
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import {
+  type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
@@ -157,7 +158,7 @@ type Props = {
     messageInfo: RawMultimediaMessageInfo,
     sidebarCreation: boolean,
     isLegacy: boolean,
-  ) => Promise<SendMessagePayload>,
+  ) => Promise<SendMultimediaMessagePayload>,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
@@ -394,7 +395,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const sidebarCreation =
       this.pendingSidebarCreationMessageLocalIDs.has(localID);
     try {
-      const result = await this.props.sendMultimediaMessage(
+      const { result } = await this.props.sendMultimediaMessage(
         messageInfo,
         sidebarCreation,
         false,
