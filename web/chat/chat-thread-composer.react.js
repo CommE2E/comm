@@ -52,9 +52,16 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const dispatch = useDispatch();
 
-  const userInfoInputIDs = React.useMemo(
-    () => userInfoInputArray.map(userInfo => userInfo.id),
-    [userInfoInputArray],
+  const loggedInUserInfo = useLoggedInUserInfo();
+  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
+  const viewerID = loggedInUserInfo.id;
+
+  const excludeUserIDs = React.useMemo(
+    () => [
+      ...userInfoInputArray.map(userInfo => userInfo.id),
+      ...(viewerID && userInfoInputArray.length > 0 ? [viewerID] : []),
+    ],
+    [userInfoInputArray, viewerID],
   );
 
   const searchResults = useSearchUsers(usernameInputText);
@@ -65,19 +72,17 @@ function ChatThreadComposer(props: Props): React.Node {
     text: usernameInputText,
     userInfos: otherUserInfos,
     auxUserInfos,
-    excludeUserIDs: userInfoInputIDs,
+    excludeUserIDs,
     includeServerSearchUsers: searchResults,
   });
 
   const userListItemsWithENSNames = useENSNames(userListItems);
 
   const { pushModal } = useModalContext();
-  const loggedInUserInfo = useLoggedInUserInfo();
-  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
 
   const pendingPrivateThread = React.useRef(
     createPendingThread({
-      viewerID: loggedInUserInfo.id,
+      viewerID,
       threadType: threadTypes.GENESIS_PRIVATE,
       members: [loggedInUserInfo],
     }),
