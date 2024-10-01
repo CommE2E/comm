@@ -265,11 +265,20 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const serverSearchResults = useSearchUsers(usernameInputText);
 
     const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
+    const viewerID = useSelector(state => state.currentUserInfo?.id);
+    const excludeUserIDs = React.useMemo(
+      () => [
+        ...userInfoInputArray.map(userInfo => userInfo.id),
+        ...(viewerID && userInfoInputArray.length > 0 ? [viewerID] : []),
+      ],
+      [userInfoInputArray, viewerID],
+    );
+
     const userSearchResults = usePotentialMemberItems({
       text: usernameInputText,
       userInfos: otherUserInfos,
       auxUserInfos,
-      excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
+      excludeUserIDs,
       includeServerSearchUsers: serverSearchResults,
     });
 
