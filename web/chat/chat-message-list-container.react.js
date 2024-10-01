@@ -28,8 +28,7 @@ type Props = {
 
 function ChatMessageListContainer(props: Props): React.Node {
   const { activeChatThreadID } = props;
-  const { isChatCreation, selectedUserInfos, otherUserInfos } =
-    useInfosForPendingThread();
+  const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
   invariant(threadInfo, 'ThreadInfo should be set');
@@ -127,7 +126,6 @@ function ChatMessageListContainer(props: Props): React.Node {
     const chatUserSelection = (
       <ChatThreadComposer
         userInfoInputArray={selectedUserInfos}
-        otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
       />
@@ -143,13 +141,7 @@ function ChatMessageListContainer(props: Props): React.Node {
         {messageListAndInput}
       </>
     );
-  }, [
-    inputState,
-    isChatCreation,
-    otherUserInfos,
-    selectedUserInfos,
-    threadInfo,
-  ]);
+  }, [inputState, isChatCreation, selectedUserInfos, threadInfo]);
 
   return connectDropTarget(
     <div className={containerStyle} ref={containerRef}>

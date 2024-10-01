@@ -6,7 +6,6 @@ import * as React from 'react';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   createPendingThread,
   useExistingThreadInfoFinder,
@@ -20,7 +19,6 @@ import { useSelector } from '../redux/redux-utils.js';
 type InfosForPendingThread = {
   +isChatCreation: boolean,
   +selectedUserInfos: $ReadOnlyArray<AccountUserInfo>,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
 };
 
 function useInfosForPendingThread(): InfosForPendingThread {
@@ -30,11 +28,9 @@ function useInfosForPendingThread(): InfosForPendingThread {
   const selectedUserInfos = useSelector(
     state => state.navInfo.selectedUserList ?? [],
   );
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   return {
     isChatCreation,
     selectedUserInfos,
-    otherUserInfos,
   };
 }
 

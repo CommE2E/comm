@@ -10,6 +10,7 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -36,7 +37,6 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
   +threadID: string,
   +inputState: InputState,
 };
@@ -46,7 +46,7 @@ type ActiveThreadBehavior =
   | 'keep-active-thread';
 
 function ChatThreadComposer(props: Props): React.Node {
-  const { userInfoInputArray, otherUserInfos, threadID, inputState } = props;
+  const { userInfoInputArray, threadID, inputState } = props;
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
@@ -60,6 +60,7 @@ function ChatThreadComposer(props: Props): React.Node {
   const searchResults = useSearchUsers(usernameInputText);
 
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userListItems = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
