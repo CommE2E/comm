@@ -139,12 +139,14 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
     community ? threadInfoSelector(state)[community] : null,
   );
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
   const excludeUserIDs = React.useMemo(
-    () =>
-      threadActualMembers(threadInfo.members).concat(
-        Array.from(previouslySelectedUsers.keys()),
-      ),
-    [previouslySelectedUsers, threadInfo.members],
+    () => [
+      ...threadActualMembers(threadInfo.members),
+      ...previouslySelectedUsers.keys(),
+      ...(viewerID ? [viewerID] : []),
+    ],
+    [previouslySelectedUsers, threadInfo.members, viewerID],
   );
 
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
@@ -215,12 +217,18 @@ function useSubchannelAddMembersListUserInfos(
     [previouslySelectedUsers],
   );
 
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
+  const excludeUserIDs = React.useMemo(
+    () => [...previouslySelectedUserIDs, ...(viewerID ? [viewerID] : [])],
+    [previouslySelectedUserIDs, viewerID],
+  );
+
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: searchText,
     userInfos: otherUserInfos,
     auxUserInfos,
-    excludeUserIDs: previouslySelectedUserIDs,
+    excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
