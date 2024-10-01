@@ -174,9 +174,14 @@ function AddUsersModal(props: Props): React.Node {
     () => threadActualMembers(threadInfo.members),
     [threadInfo.members],
   );
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
   const excludeUserIDs = React.useMemo(
-    () => userInfoInputIDs.concat(threadMemberIDs),
-    [userInfoInputIDs, threadMemberIDs],
+    () => [
+      ...userInfoInputIDs,
+      ...threadMemberIDs,
+      ...(viewerID ? [viewerID] : []),
+    ],
+    [userInfoInputIDs, threadMemberIDs, viewerID],
   );
 
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
