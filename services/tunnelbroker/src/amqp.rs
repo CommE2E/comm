@@ -1,3 +1,4 @@
+use crate::constants::error_types;
 use crate::CONFIG;
 use lapin::{uri::AMQPUri, Connection, ConnectionProperties};
 use tracing::info;
@@ -23,6 +24,12 @@ pub async fn connect() -> Connection {
   let conn = Connection::connect_uri(amqp_uri, options)
     .await
     .expect("Unable to connect to AMQP endpoint");
+  conn.on_error(|error| {
+    tracing::error!(
+      errorType = error_types::AMQP_ERROR,
+      "Lapin error: {error:?}"
+    );
+  });
 
   info!("Connected to AMQP endpoint: {}", &CONFIG.amqp_uri);
   conn
