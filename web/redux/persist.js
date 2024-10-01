@@ -686,7 +686,12 @@ const migrations = {
       stripMemberPermissions,
     );
 
-    return { state, ops: dbOperations };
+    // await sharedWorker.schedule({
+    //   type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+    //   storeOperations: { threadStoreOperations: dbOperations },
+    // });
+
+    return { state, ops: { threadStoreOperations: dbOperations } };
   },
 };
 
