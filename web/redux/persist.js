@@ -686,6 +686,8 @@ const migrations = {
       stripMemberPermissions,
     );
 
+    console.log(JSON.stringify(dbOperations));
+
     return { state, ops: dbOperations };
   },
 };
