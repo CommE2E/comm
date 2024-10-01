@@ -197,11 +197,16 @@ function ComposeSubchannel(props: Props): React.Node {
     community ? threadInfoSelector(state)[community] : null,
   );
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
+  const excludeUserIDs = React.useMemo(
+    () => [...userInfoInputIDs, ...(viewerID ? [viewerID] : [])],
+    [userInfoInputIDs, viewerID],
+  );
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
     auxUserInfos,
-    excludeUserIDs: userInfoInputIDs,
+    excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
