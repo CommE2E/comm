@@ -87,6 +87,13 @@ impl DatabaseClient {
     signing_public_key: String,
     access_token_to_verify: String,
   ) -> Result<bool, Error> {
+    if user_id.is_empty()
+      || signing_public_key.is_empty()
+      || access_token_to_verify.is_empty()
+    {
+      return Ok(false);
+    }
+
     let is_valid = self
       .get_access_token_data(user_id, signing_public_key)
       .await?
