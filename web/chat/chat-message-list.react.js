@@ -17,7 +17,11 @@ import {
   threadOtherMembers,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsPersonal } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsPersonal,
+  threadTypeIsThick,
+} from 'lib/types/thread-types-enum.js';
+import sleep from 'lib/utils/sleep.js';
 
 import { defaultMaxTextAreaHeight, editBoxHeight } from './chat-constants.js';
 import css from './chat-message-list.css';
@@ -378,6 +382,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     this.loadingFromScroll = true;
 
     try {
+      if (threadTypeIsThick(this.props.threadInfo.type)) {
+        await sleep(100);
+      }
       await this.props.fetchMessages();
     } finally {
       this.loadingFromScroll = false;
