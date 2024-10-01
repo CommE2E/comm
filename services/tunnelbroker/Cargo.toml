@@ -36,6 +36,8 @@ web-push = { version = "0.10", features = [
 ], default-features = false }
 reqwest = { workspace = true, features = ["json", "native-tls", "rustls-tls"] }
 serde.workspace = true
+tokio-executor-trait = "2.1"
+tokio-reactor-trait = "1.1"
 
 [build-dependencies]
 tonic-build = "0.8"
