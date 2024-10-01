@@ -26,7 +26,8 @@ import { type DMLeaveThreadOperation } from 'lib/types/dm-ops.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  threadTypes,
+  threadTypeIsPersonal,
+  threadTypeIsPrivate,
   threadTypeIsSidebar,
   threadTypeIsThick,
   thickThreadTypes,
@@ -80,7 +81,10 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     [popModal, pushModal, threadInfo.id],
   );
   const membersItem = React.useMemo(() => {
-    if (threadInfo.type === threadTypes.GENESIS_PERSONAL) {
+    if (
+      threadTypeIsPersonal(threadInfo.type) ||
+      threadTypeIsPrivate(threadInfo.type)
+    ) {
       return null;
     }
     return (
