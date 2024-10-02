@@ -23,6 +23,7 @@ pub mod db {
   /// attribute names
   pub const ATTR_BLOB_HASH: &str = "blob_hash";
   pub const ATTR_HOLDER: &str = "holder";
+  pub const ATTR_INDEXED_TAG: &str = "indexed_tag";
   pub const ATTR_CREATED_AT: &str = "created_at";
   pub const ATTR_LAST_MODIFIED: &str = "last_modified";
   pub const ATTR_S3_PATH: &str = "s3_path";
