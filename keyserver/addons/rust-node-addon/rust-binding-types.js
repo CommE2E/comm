@@ -18,6 +18,8 @@ type RustNativeBindingAPI = {
     contentPrekeySignature: string,
     notifPrekey: string,
     notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
     force: ?boolean,
   ) => Promise<IdentityInfo>,
   +registerUser: (

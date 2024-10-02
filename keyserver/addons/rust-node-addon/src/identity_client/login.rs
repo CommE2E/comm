@@ -18,6 +18,8 @@ pub async fn login_user(
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
   force: Option<bool>,
 ) -> Result<UserLoginInfo> {
   debug!("Attempting to log in user: {}", username);
@@ -47,8 +49,8 @@ pub async fn login_user(
         prekey: notif_prekey,
         prekey_signature: notif_prekey_signature,
       }),
-      one_time_content_prekeys: Vec::new(),
-      one_time_notif_prekeys: Vec::new(),
+      one_time_content_prekeys: content_one_time_keys,
+      one_time_notif_prekeys: notif_one_time_keys,
       device_type: DeviceType::Keyserver.into(),
     }),
     force,
