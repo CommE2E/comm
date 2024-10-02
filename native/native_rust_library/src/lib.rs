@@ -92,6 +92,8 @@ mod ffi {
       content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
 
@@ -122,6 +124,8 @@ mod ffi {
       content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
 
