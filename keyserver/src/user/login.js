@@ -3,13 +3,9 @@
 import type { Account as OlmAccount } from '@commapp/olm';
 import { getRustAPI } from 'rust-node-addon';
 
-import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
-import {
-  retrieveIdentityKeysAndPrekeys,
-  getAccountOneTimeKeys,
-} from 'lib/utils/olm-utils.js';
+import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
 import type { UserCredentials } from './checks.js';
 import {
@@ -156,14 +152,16 @@ async function registerOrLogInBase<T>(
     identityKeys: notificationsIdentityKeys,
     prekey: notificationsPrekey,
     prekeySignature: notificationsPrekeySignature,
-  } = await getUpdateNotificationsAccount(retrieveIdentityKeysAndPrekeys);
+    oneTimeKeys: notificationsOneTimeKeys,
+  } = await fetchCallUpdateOlmAccount('notifications', retrieveAccountKeysSet);
 
-  const contentAccountCallback = (account: OlmAccount) => {
+  const contentAccountCallback = async (account: OlmAccount) => {
     const {
       identityKeys: contentIdentityKeys,
+      oneTimeKeys,
       prekey,
       prekeySignature,
-    } = retrieveIdentityKeysAndPrekeys(account);
+    } = await retrieveAccountKeysSet(account);
 
     const identityKeysBlob = {
       primaryIdentityPublicKeys: JSON.parse(contentIdentityKeys),
@@ -177,6 +175,7 @@ async function registerOrLogInBase<T>(
 
     return {
       signedIdentityKeysBlob,
+      oneTimeKeys,
       prekey,
       prekeySignature,
     };
@@ -188,6 +187,7 @@ async function registerOrLogInBase<T>(
       signedIdentityKeysBlob,
       prekey: contentPrekey,
       prekeySignature: contentPrekeySignature,
+      oneTimeKeys: contentOneTimeKeys,
     },
   ] = await Promise.all([
     rustAPIPromise,
@@ -203,6 +203,8 @@ async function registerOrLogInBase<T>(
       contentPrekeySignature,
       notificationsPrekey,
       notificationsPrekeySignature,
+      contentOneTimeKeys,
+      notificationsOneTimeKeys,
       userInfo.forceLogin,
     );
     await Promise.all([
@@ -212,14 +214,6 @@ async function registerOrLogInBase<T>(
     return identity_info;
   } catch (e) {
     console.warn('Failed to login user: ' + getMessageForException(e));
-    const [contentOneTimeKeys, notificationsOneTimeKeys] = await Promise.all([
-      getUpdateContentAccount((account: OlmAccount) =>
-        getAccountOneTimeKeys(account, ONE_TIME_KEYS_NUMBER),
-      ),
-      getUpdateNotificationsAccount((account: OlmAccount) =>
-        getAccountOneTimeKeys(account, ONE_TIME_KEYS_NUMBER),
-      ),
-    ]);
     try {
       await Promise.all([
         getUpdateContentAccount(markOneTimeKeysAsPublished),
