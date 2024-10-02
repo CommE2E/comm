@@ -10,8 +10,9 @@ use comm_lib::{
     },
   },
   database::{
-    AttributeExtractor, AttributeMap, DBItemAttributeError, DBItemError,
-    DynamoDBError, TryFromAttribute,
+    batch_operations::ExponentialBackoffConfig, AttributeExtractor,
+    AttributeMap, DBItemAttributeError, DBItemError, DynamoDBError,
+    TryFromAttribute,
   },
 };
 use serde::Serialize;
@@ -24,6 +25,7 @@ use crate::{
     error_types, USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
     USERS_TABLE_PARTITION_KEY,
   },
+  ddb_utils::is_transaction_conflict,
   error::{DeviceListError, Error},
   grpc_services::{
     protos::{self, unauth::DeviceType},
@@ -820,7 +822,8 @@ impl DatabaseClient {
       );
       return Err(Error::InvalidFormat);
     }
-    self
+
+    let db_operation = self
       .client
       .update_item()
       .table_name(devices_table::NAME)
@@ -837,18 +840,29 @@ impl DatabaseClient {
       .expression_attribute_names("#content_prekey", ATTR_CONTENT_PREKEY)
       .expression_attribute_names("#notif_prekey", ATTR_NOTIF_PREKEY)
       .expression_attribute_values(":content_prekey", content_prekey.into())
-      .expression_attribute_values(":notif_prekey", notif_prekey.into())
-      .send()
-      .await
-      .map_err(|e| {
-        error!(
-          errorType = error_types::DEVICE_LIST_DB_LOG,
-          "Failed to update device prekeys: {:?}", e
-        );
-        Error::AwsSdk(e.into())
-      })?;
+      .expression_attribute_values(":notif_prekey", notif_prekey.into());
 
-    Ok(())
+    let retry_config = ExponentialBackoffConfig::default();
+    let mut exponential_backoff = retry_config.new_counter();
+    loop {
+      let result = db_operation.clone().send().await;
+
+      match result {
+        Ok(_) => return Ok(()),
+        Err(err) => match DynamoDBError::from(err) {
+          ref conflict_err if is_transaction_conflict(conflict_err) => {
+            exponential_backoff.sleep_and_retry().await?;
+          }
+          error => {
+            error!(
+              errorType = error_types::DEVICE_LIST_DB_LOG,
+              "Failed to update device prekeys: {:?}", error
+            );
+            return Err(error.into());
+          }
+        },
+      }
+    }
   }
 
   /// Checks if given device exists on user's current device list
