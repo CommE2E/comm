@@ -17,7 +17,7 @@ use crate::constants::{error_types, tonic_status_messages};
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload, UserInfoAndPasswordFile,
 };
-use crate::ddb_utils::Identifier;
+use crate::ddb_utils::{Identifier, is_transaction_conflict};
 use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError, consume_error};
 use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo};
@@ -1251,6 +1251,10 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
     E::AwsSdk(DDBError::InternalServerError(_))
     | E::AwsSdk(DDBError::ProvisionedThroughputExceededException(_))
     | E::AwsSdk(DDBError::RequestLimitExceeded(_)) => {
+      Status::unavailable(msg::RETRY)
+    }
+    E::AwsSdk(ref err) if is_transaction_conflict(err) => {
+      warn!("DB operation conflicted. Returning RETRY status.");
       Status::unavailable(msg::RETRY)
     }
     E::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
