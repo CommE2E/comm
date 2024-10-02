@@ -311,16 +311,12 @@ impl DatabaseClient {
     operations.extend_from_slice(&notif_otk_requests);
     operations.extend_from_slice(&update_and_delete_otk_count_operation);
 
-    // TODO: Introduce `transact_write_helper` similar to `batch_write_helper`
-    // in `comm-lib` to handle transactions with retries
-    let mut attempt = 0;
-
+    let retry_config = ExponentialBackoffConfig {
+      max_attempts: retry::MAX_ATTEMPTS as u32,
+      ..Default::default()
+    };
+    let mut exponential_backoff = retry_config.new_counter();
     loop {
-      attempt += 1;
-      if attempt > retry::MAX_ATTEMPTS {
-        return Err(Error::MaxRetriesExceeded);
-      }
-
       let transaction = self
         .client
         .transact_write_items()
@@ -335,6 +331,7 @@ impl DatabaseClient {
           let retryable_codes = HashSet::from([retry::TRANSACTION_CONFLICT]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
             info!("Encountered transaction conflict while uploading one-time keys - retrying");
+            exponential_backoff.sleep_and_retry().await?;
           } else {
             error!(
               errorType = error_types::OTK_DB_LOG,
