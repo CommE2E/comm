@@ -40,6 +40,8 @@ import {
   convertDraftStoreToNewIDSchema,
   createAsyncMigrate,
   type StorageMigrationFunction,
+  type MigrationManifest,
+  type MigrationsManifest,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
@@ -512,14 +514,14 @@ const migrateStorageToSQLite: StorageMigrationFunction<
   return newStorage;
 };
 
-const migrations = {
+const migrations: MigrationsManifest<WebNavInfo, AppState> = {
   // This migration doesn't change the store but sets a persisted version
   // in the DB
-  [75]: (state: AppState) => ({
+  [75]: (async (state: AppState) => ({
     state,
-    ops: [],
-  }),
-  [76]: async (state: AppState) => {
+    ops: {},
+  }): MigrationManifest<WebNavInfo, AppState>),
+  [76]: (async (state: AppState) => {
     const localMessageInfos = state.messageStore.local;
 
     const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
@@ -543,22 +545,21 @@ const migrations = {
       operations,
     );
 
-    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
-      messageStoreOpsHandlers.convertOpsToClientDBOps(operations);
-
     return {
       state: {
         ...state,
         messageStore: newMessageStore,
       },
-      ops: dbOperations,
+      ops: {
+        messageStoreOperations: operations,
+      },
     };
-  },
-  [77]: (state: AppState) => ({
+  }: MigrationManifest<WebNavInfo, AppState>),
+  [77]: (async (state: AppState) => ({
     state,
-    ops: [],
-  }),
-  [78]: async (state: AppState) => {
+    ops: {},
+  }): MigrationManifest<WebNavInfo, AppState>),
+  [78]: (async (state: AppState) => {
     // 1. Check if `databaseModule` is supported and early-exit if not.
     const sharedWorker = await getCommSharedWorker();
     const isDatabaseSupported = await sharedWorker.isSupported();
@@ -566,7 +567,7 @@ const migrations = {
     if (!isDatabaseSupported) {
       return {
         state,
-        ops: [],
+        ops: {},
       };
     }
 
@@ -585,21 +586,23 @@ const migrations = {
     ) {
       return {
         state,
-        ops: [],
+        ops: {},
       };
     }
 
-    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+    const operations = createUpdateDBOpsForThreadStoreThreadInfos(
       clientDBThreadInfos,
       deprecatedUpdateRolesAndPermissions,
     );
 
     return {
       state,
-      ops: dbOperations,
+      ops: {
+        threadStoreOperations: operations,
+      },
     };
-  },
-  [79]: (state: AppState) => {
+  }: MigrationManifest<WebNavInfo, AppState>),
+  [79]: (async (state: AppState) => {
     return {
       state: {
         ...state,
@@ -608,19 +611,19 @@ const migrations = {
           tunnelbrokerToken: null,
         },
       },
-      ops: [],
+      ops: {},
     };
-  },
-  [81]: (state: AppState) => ({
+  }: MigrationManifest<WebNavInfo, AppState>),
+  [81]: (async (state: any) => ({
     state: {
       ...state,
       queuedDMOperations: {
         operations: {},
       },
     },
-    ops: [],
-  }),
-  [82]: (state: any) => ({
+    ops: {},
+  }): MigrationManifest<WebNavInfo, AppState>),
+  [82]: (async (state: any) => ({
     state: {
       ...state,
       queuedDMOperations: {
@@ -630,17 +633,17 @@ const migrations = {
         membershipQueue: {},
       },
     },
-    ops: [],
-  }),
-  [83]: (state: AppState) => ({
+    ops: {},
+  }): MigrationManifest<WebNavInfo, AppState>),
+  [83]: (async (state: AppState) => ({
     state: {
       ...state,
       holderStore: {
         storedHolders: {},
       },
     },
-    ops: [],
-  }),
+    ops: {},
+  }): MigrationManifest<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
