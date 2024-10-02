@@ -420,11 +420,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
-        const [{ blobPayload, signature, primaryIdentityPublicKeys }, prekeys] =
-          await Promise.all([
-            commCoreModule.getUserPublicKey(),
-            commCoreModule.validateAndGetPrekeys(),
-          ]);
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
         const loginResult = await commRustModule.logInPasswordUser(
           username,
           password,
@@ -434,6 +438,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
         );
 
         return await processAuthResult(
@@ -486,11 +492,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         siweSignature: string,
       ) => {
         await commCoreModule.initializeCryptoAccount();
-        const [{ blobPayload, signature, primaryIdentityPublicKeys }, prekeys] =
-          await Promise.all([
-            commCoreModule.getUserPublicKey(),
-            commCoreModule.validateAndGetPrekeys(),
-          ]);
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
         const loginResult = await commRustModule.logInWalletUser(
           siweMessage,
           siweSignature,
@@ -500,6 +510,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
         );
 
         return await processAuthResult(
