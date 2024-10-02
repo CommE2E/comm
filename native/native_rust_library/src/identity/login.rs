@@ -34,6 +34,8 @@ pub mod ffi {
     content_prekey_signature: String,
     notif_prekey: String,
     notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -47,8 +49,8 @@ pub mod ffi {
           content_prekey_signature,
           notif_prekey,
           notif_prekey_signature,
-          content_one_time_keys: Vec::new(),
-          notif_one_time_keys: Vec::new(),
+          content_one_time_keys,
+          notif_one_time_keys,
         },
       };
       let result = log_in_password_user_helper(password_user_info).await;
@@ -66,6 +68,8 @@ pub mod ffi {
     content_prekey_signature: String,
     notif_prekey: String,
     notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -79,8 +83,8 @@ pub mod ffi {
           content_prekey_signature,
           notif_prekey,
           notif_prekey_signature,
-          content_one_time_keys: Vec::new(),
-          notif_one_time_keys: Vec::new(),
+          content_one_time_keys,
+          notif_one_time_keys,
         },
       };
       let result = log_in_wallet_user_helper(wallet_user_info).await;
