@@ -19,10 +19,7 @@ import {
   type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
-import type {
-  IdentityNewDeviceKeyUpload,
-  IdentityExistingDeviceKeyUpload,
-} from 'lib/types/identity-service-types.js';
+import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/olm-session-types.js';
 import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -33,7 +30,6 @@ import {
   getAccountPrekeysSet,
   shouldForgetPrekey,
   shouldRotatePrekey,
-  retrieveIdentityKeysAndPrekeys,
   olmSessionErrors,
 } from 'lib/utils/olm-utils.js';
 
@@ -438,33 +434,6 @@ async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
     notifPrekeySignature: notificationAccountKeysSet.prekeySignature,
     contentOneTimeKeys: primaryAccountKeysSet.oneTimeKeys,
     notifOneTimeKeys: notificationAccountKeysSet.oneTimeKeys,
-  };
-}
-
-async function getExistingDeviceKeyUpload(): Promise<IdentityExistingDeviceKeyUpload> {
-  if (!cryptoStore) {
-    throw new Error('Crypto account not initialized');
-  }
-  const { contentAccount } = cryptoStore;
-  const [notifsCryptoAccount, signedIdentityKeysBlob] = await Promise.all([
-    getNotifsCryptoAccount(),
-    getSignedIdentityKeysBlob(),
-  ]);
-
-  const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
-    retrieveIdentityKeysAndPrekeys(contentAccount);
-  const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
-    retrieveIdentityKeysAndPrekeys(notifsCryptoAccount.notificationAccount);
-
-  await persistCryptoStore(notifsCryptoAccount);
-
-  return {
-    keyPayload: signedIdentityKeysBlob.payload,
-    keyPayloadSignature: signedIdentityKeysBlob.signature,
-    contentPrekey,
-    contentPrekeySignature,
-    notifPrekey,
-    notifPrekeySignature,
   };
 }
 
@@ -1026,5 +995,4 @@ export {
   processAppOlmApiRequest,
   getSignedIdentityKeysBlob,
   getNewDeviceKeyUpload,
-  getExistingDeviceKeyUpload,
 };
