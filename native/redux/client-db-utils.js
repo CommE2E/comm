@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
 import type {
   RawMessageInfo,
@@ -30,9 +31,11 @@ function updateClientDBThreadStoreThreadInfos(
     clientDBThreadInfos,
     migrationFunc,
   );
+  const dbOperations =
+    threadStoreOpsHandlers.convertOpsToClientDBOps(operations);
 
   try {
-    commCoreModule.processThreadStoreOperationsSync(operations);
+    commCoreModule.processThreadStoreOperationsSync(dbOperations);
   } catch (exception) {
     console.log(exception);
     if (handleMigrationFailure) {

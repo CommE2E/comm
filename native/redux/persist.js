@@ -121,6 +121,10 @@ import {
   convertThreadStoreThreadInfosToNewIDSchema,
   createAsyncMigrate,
 } from 'lib/utils/migration-utils.js';
+import type {
+  MigrationManifest,
+  MigrationsManifest,
+} from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
   deprecatedConvertClientDBThreadInfoToRawThreadInfo,
@@ -149,6 +153,7 @@ import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { commCoreModule } from '../native-modules.js';
+import type { NavInfo } from '../navigation/default-state.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
@@ -1363,14 +1368,14 @@ const entryStoreTransform: Transform = createTransform(
   { whitelist: ['entryStore'] },
 );
 
-const migrations = {
+const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
   // This migration doesn't change the store but sets a persisted version
   // in the DB
-  [75]: (state: AppState) => ({
+  [75]: (async (state: AppState) => ({
     state,
-    ops: [],
-  }),
-  [76]: (state: AppState) => {
+    ops: {},
+  }): MigrationManifest<NavInfo, AppState>),
+  [76]: (async (state: AppState) => {
     const localMessageInfos = state.messageStore.local;
 
     const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
@@ -1394,35 +1399,36 @@ const migrations = {
       operations,
     );
 
-    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
-      messageStoreOpsHandlers.convertOpsToClientDBOps(operations);
-
     return {
       state: {
         ...state,
         messageStore: newMessageStore,
       },
-      ops: dbOperations,
+      ops: {
+        messageStoreOperations: operations,
+      },
     };
-  },
-  [77]: (state: AppState) => ({
+  }: MigrationManifest<NavInfo, AppState>),
+  [77]: (async (state: AppState) => ({
     state,
-    ops: [],
-  }),
-  [78]: (state: AppState) => {
+    ops: {},
+  }): MigrationManifest<NavInfo, AppState>),
+  [78]: (async (state: AppState) => {
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
 
-    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+    const operations = createUpdateDBOpsForThreadStoreThreadInfos(
       clientDBThreadInfos,
       deprecatedUpdateRolesAndPermissions,
     );
 
     return {
       state,
-      ops: dbOperations,
+      ops: {
+        threadStoreOperations: operations,
+      },
     };
-  },
-  [79]: (state: AppState) => {
+  }: MigrationManifest<NavInfo, AppState>),
+  [79]: (async (state: AppState) => {
     return {
       state: {
         ...state,
@@ -1431,10 +1437,10 @@ const migrations = {
           tunnelbrokerToken: null,
         },
       },
-      ops: [],
+      ops: {},
     };
-  },
-  [80]: (state: AppState) => {
+  }: MigrationManifest<NavInfo, AppState>),
+  [80]: (async (state: AppState) => {
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
 
     // This isn't actually accurate, but we force this cast here because the
@@ -1444,26 +1450,28 @@ const migrations = {
     const stripMemberPermissions: RawThreadInfos => RawThreadInfos =
       (stripMemberPermissionsFromRawThreadInfos: any);
 
-    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+    const operations = createUpdateDBOpsForThreadStoreThreadInfos(
       clientDBThreadInfos,
       stripMemberPermissions,
     );
 
     return {
       state,
-      ops: dbOperations,
+      ops: {
+        threadStoreOperations: operations,
+      },
     };
-  },
-  [81]: (state: AppState) => ({
+  }: MigrationManifest<NavInfo, AppState>),
+  [81]: (async (state: any) => ({
     state: {
       ...state,
       queuedDMOperations: {
         operations: {},
       },
     },
-    ops: [],
-  }),
-  [82]: (state: any) => ({
+    ops: {},
+  }): MigrationManifest<NavInfo, AppState>),
+  [82]: (async (state: any) => ({
     state: {
       ...state,
       queuedDMOperations: {
@@ -1473,18 +1481,18 @@ const migrations = {
         membershipQueue: {},
       },
     },
-    ops: [],
-  }),
-  [83]: (state: AppState) => ({
+    ops: {},
+  }): MigrationManifest<NavInfo, AppState>),
+  [83]: (async (state: AppState) => ({
     state: {
       ...state,
       holderStore: {
         storedHolders: {},
       },
     },
-    ops: [],
-  }),
-};
+    ops: {},
+  }): MigrationManifest<NavInfo, AppState>),
+});
 
 // NOTE: renaming this object, and especially the `version` property
 // requires updating `native/native_rust_library/build.rs` to correctly
