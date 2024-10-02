@@ -19,7 +19,6 @@ import {
   type UserDevicesOlmOutboundKeys,
   type IdentityAuthResult,
   type IdentityNewDeviceKeyUpload,
-  type IdentityExistingDeviceKeyUpload,
   identityAuthResultValidator,
   type UserDevicesOlmInboundKeys,
   type DeviceOlmInboundKeys,
@@ -63,14 +62,12 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getNewDeviceKeyUpload: () => Promise<IdentityNewDeviceKeyUpload>;
-  getExistingDeviceKeyUpload: () => Promise<IdentityExistingDeviceKeyUpload>;
 
   constructor(
     platformDetails: PlatformDetails,
     overridedOpaqueFilepath: string,
     authLayer: ?IdentityServiceAuthLayer,
     getNewDeviceKeyUpload: () => Promise<IdentityNewDeviceKeyUpload>,
-    getExistingDeviceKeyUpload: () => Promise<IdentityExistingDeviceKeyUpload>,
   ) {
     this.overridedOpaqueFilepath = overridedOpaqueFilepath;
     this.platformDetails = platformDetails;
@@ -83,7 +80,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     this.unauthClient =
       IdentityServiceClientWrapper.createUnauthClient(platformDetails);
     this.getNewDeviceKeyUpload = getNewDeviceKeyUpload;
-    this.getExistingDeviceKeyUpload = getExistingDeviceKeyUpload;
   }
 
   static determineSocketAddr(): string {
@@ -351,14 +347,14 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
 
     const [identityDeviceKeyUpload] = await Promise.all([
-      this.getExistingDeviceKeyUpload(),
+      this.getNewDeviceKeyUpload(),
       initOpaque(this.overridedOpaqueFilepath),
     ]);
 
     const opaqueLogin = new Login();
     const startRequestBytes = opaqueLogin.start(password);
 
-    const deviceKeyUpload = authExistingDeviceKeyUpload(
+    const deviceKeyUpload = authNewDeviceKeyUpload(
       this.platformDetails,
       identityDeviceKeyUpload,
     );
@@ -420,8 +416,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     siweMessage: string,
     siweSignature: string,
   ) => {
-    const identityDeviceKeyUpload = await this.getExistingDeviceKeyUpload();
-    const deviceKeyUpload = authExistingDeviceKeyUpload(
+    const identityDeviceKeyUpload = await this.getNewDeviceKeyUpload();
+    const deviceKeyUpload = authNewDeviceKeyUpload(
       this.platformDetails,
       identityDeviceKeyUpload,
     );
@@ -801,41 +797,6 @@ function authNewDeviceKeyUpload(
     notifPrekeyUpload,
     contentOneTimeKeys,
     notifOneTimeKeys,
-  );
-
-  return deviceKeyUpload;
-}
-
-function authExistingDeviceKeyUpload(
-  platformDetails: PlatformDetails,
-  uploadData: IdentityExistingDeviceKeyUpload,
-): DeviceKeyUpload {
-  const {
-    keyPayload,
-    keyPayloadSignature,
-    contentPrekey,
-    contentPrekeySignature,
-    notifPrekey,
-    notifPrekeySignature,
-  } = uploadData;
-
-  const identityKeyInfo = createIdentityKeyInfo(
-    keyPayload,
-    keyPayloadSignature,
-  );
-
-  const contentPrekeyUpload = createPrekey(
-    contentPrekey,
-    contentPrekeySignature,
-  );
-
-  const notifPrekeyUpload = createPrekey(notifPrekey, notifPrekeySignature);
-
-  const deviceKeyUpload = createDeviceKeyUpload(
-    platformDetails,
-    identityKeyInfo,
-    contentPrekeyUpload,
-    notifPrekeyUpload,
   );
 
   return deviceKeyUpload;
