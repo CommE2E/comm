@@ -99,12 +99,18 @@ impl DatabaseClient {
     let blob_hash: String = blob_hash.into();
     let holder: String = holder.into();
 
+    let indexed_tag = get_indexable_tag(&holder, &[]);
+
     validate_holder(&holder)?;
-    let item = HashMap::from([
+    let mut item = HashMap::from([
       (ATTR_BLOB_HASH.to_string(), AttributeValue::S(blob_hash)),
       (ATTR_HOLDER.to_string(), AttributeValue::S(holder)),
       (ATTR_UNCHECKED.to_string(), UncheckedKind::Holder.into()),
     ]);
+
+    if let Some(tag) = indexed_tag {
+      item.insert(ATTR_INDEXED_TAG.to_string(), AttributeValue::S(tag));
+    }
 
     self.insert_item(item).await?;
     Ok(())
@@ -433,4 +439,52 @@ fn validate_holder(holder: &str) -> DBResult<()> {
     return Err(DBError::Blob(BlobDBError::InvalidInput(holder.to_string())));
   }
   Ok(())
+}
+
+fn get_indexable_tag(holder: &str, tags: &[String]) -> Option<String> {
+  const HOLDER_PREFIX_SEPARATOR: char = ':';
+
+  if let Some(first_tag) = tags.first() {
+    return Some(first_tag.to_string());
+  }
+
+  if !holder.contains(HOLDER_PREFIX_SEPARATOR) {
+    return None;
+  }
+
+  holder
+    .split(HOLDER_PREFIX_SEPARATOR)
+    .next()
+    .map(str::to_string)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn get_indexable_tag_no_tags_no_prefix() {
+    let tag = get_indexable_tag("foo", &[]);
+    assert!(tag.is_none());
+  }
+
+  #[test]
+  fn get_indexable_tag_tags_no_prefix() {
+    let tags = vec!["tag1".to_string(), "tag2".to_string()];
+    let tag = get_indexable_tag("foo", &tags);
+    assert_eq!(tag, Some("tag1".into()));
+  }
+
+  #[test]
+  fn get_indexable_tag_tags_and_prefix() {
+    let tags = vec!["tag1".to_string(), "tag2".to_string()];
+    let tag = get_indexable_tag("device1:foo", &tags);
+    assert_eq!(tag, Some("tag1".into()));
+  }
+
+  #[test]
+  fn get_indexable_tag_prefix_no_tags() {
+    let tag = get_indexable_tag("device1:foo", &[]);
+    assert_eq!(tag, Some("device1".into()));
+  }
 }
