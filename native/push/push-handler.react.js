@@ -668,9 +668,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     for (const keyserverID in keyserverIDToMessageInfos) {
       const updatesCurrentAsOf = this.props.allUpdatesCurrentAsOf[keyserverID];
       const messageInfos = keyserverIDToMessageInfos[keyserverID];
-      if (!updatesCurrentAsOf) {
-        continue;
-      }
 
       this.props.dispatch({
         type: saveMessagesActionType,
