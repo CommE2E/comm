@@ -134,6 +134,14 @@ impl AmqpConnection {
   }
 }
 
+pub fn is_connection_error(err: &lapin::Error) -> bool {
+  matches!(
+    err,
+    lapin::Error::InvalidChannelState(_)
+      | lapin::Error::InvalidConnectionState(_)
+  )
+}
+
 fn from_env(var_name: &str) -> Option<String> {
   std::env::var(var_name).ok().filter(|s| !s.is_empty())
 }
