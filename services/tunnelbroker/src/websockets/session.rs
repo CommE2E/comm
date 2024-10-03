@@ -62,6 +62,7 @@ pub struct WebsocketSession<S> {
   tx: SplitSink<WebSocketStream<S>, Message>,
   db_client: DatabaseClient,
   pub device_info: DeviceInfo,
+  amqp: AmqpConnection,
   amqp_channel: lapin::Channel,
   // Stream of messages from AMQP endpoint
   amqp_consumer: lapin::Consumer,
@@ -234,6 +235,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       tx,
       db_client,
       device_info,
+      amqp,
       amqp_channel,
       amqp_consumer,
       notif_client,
@@ -273,6 +275,26 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await?;
     Ok((amqp_channel, amqp_consumer))
+  }
+
+  pub async fn reset_failed_amqp(&mut self) -> Result<(), SessionError> {
+    if self.amqp_channel.status().connected()
+      && self.amqp_consumer.state().is_active()
+    {
+      return Ok(());
+    }
+    debug!(
+      "Resetting failed amqp for session with {}",
+      &self.device_info.device_id
+    );
+
+    let (amqp_channel, amqp_consumer) =
+      Self::init_amqp(&self.device_info, &self.db_client, &self.amqp).await?;
+
+    self.amqp_channel = amqp_channel;
+    self.amqp_consumer = amqp_consumer;
+
+    Ok(())
   }
 
   pub async fn handle_message_to_device(
