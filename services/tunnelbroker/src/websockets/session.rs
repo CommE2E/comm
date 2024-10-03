@@ -1,3 +1,4 @@
+use crate::amqp::AmqpConnection;
 use crate::constants::{
   error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
   MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
@@ -24,7 +25,7 @@ use notifs::wns::error::Error::WNSNotification as NotifsWNSError;
 use reqwest::Url;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, info, trace, warn};
 use tunnelbroker_messages::bad_device_token::BadDeviceToken;
 use tunnelbroker_messages::Platform;
 use tunnelbroker_messages::{
@@ -200,11 +201,9 @@ async fn publish_persisted_messages(
   Ok(())
 }
 
-pub async fn initialize_amqp(
-  db_client: DatabaseClient,
+pub async fn handle_first_ws_frame(
   frame: Message,
-  amqp_channel: &lapin::Channel,
-) -> Result<(DeviceInfo, lapin::Consumer), SessionError> {
+) -> Result<DeviceInfo, SessionError> {
   let device_info = match frame {
     Message::Text(payload) => {
       handle_first_message_from_device(&payload).await?
@@ -214,42 +213,78 @@ pub async fn initialize_amqp(
       return Err(SessionError::InvalidMessage);
     }
   };
-
-  let mut args = FieldTable::default();
-  args.insert("x-max-priority".into(), MAX_RMQ_MSG_PRIORITY.into());
-  amqp_channel
-    .queue_declare(&device_info.device_id, QueueDeclareOptions::default(), args)
-    .await?;
-
-  publish_persisted_messages(&db_client, amqp_channel, &device_info).await?;
-
-  let amqp_consumer = amqp_channel
-    .basic_consume(
-      &device_info.device_id,
-      RMQ_CONSUMER_TAG,
-      BasicConsumeOptions::default(),
-      FieldTable::default(),
-    )
-    .await?;
-  Ok((device_info, amqp_consumer))
+  Ok(device_info)
 }
+
 impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
-  pub fn new(
+  pub async fn new(
     tx: SplitSink<WebSocketStream<S>, Message>,
     db_client: DatabaseClient,
     device_info: DeviceInfo,
-    amqp_channel: lapin::Channel,
-    amqp_consumer: lapin::Consumer,
+    amqp: AmqpConnection,
     notif_client: NotifClient,
-  ) -> Self {
-    Self {
+  ) -> Result<Self, super::ErrorWithStreamHandle<S>> {
+    let (amqp_channel, amqp_consumer) =
+      match Self::init_amqp(&device_info, &db_client, &amqp).await {
+        Ok(consumer) => consumer,
+        Err(err) => return Err((err, tx)),
+      };
+
+    Ok(Self {
       tx,
       db_client,
       device_info,
       amqp_channel,
       amqp_consumer,
       notif_client,
+    })
+  }
+
+  async fn init_amqp(
+    device_info: &DeviceInfo,
+    db_client: &DatabaseClient,
+    amqp: &AmqpConnection,
+  ) -> Result<(lapin::Channel, lapin::Consumer), SessionError> {
+    let amqp_channel = amqp.channel(&device_info.device_id).await?;
+    debug!(
+      "Got AMQP Channel Id={} for device '{}'",
+      amqp_channel.id(),
+      device_info.device_id
+    );
+
+    let mut args = FieldTable::default();
+    args.insert("x-max-priority".into(), MAX_RMQ_MSG_PRIORITY.into());
+    amqp_channel
+      .queue_declare(
+        &device_info.device_id,
+        QueueDeclareOptions::default(),
+        args,
+      )
+      .await?;
+
+    publish_persisted_messages(db_client, &amqp_channel, device_info).await?;
+
+    // Cancel previous consumer. If not done, Rabbit yells that
+    // "NOT_ALLOWED - attempt to reuse consumer tag" and closes channels.
+    if let Err(e) = amqp_channel
+      .basic_cancel(RMQ_CONSUMER_TAG, BasicCancelOptions::default())
+      .await
+    {
+      warn!(
+        errorType = error_types::AMQP_ERROR,
+        "Failed to cancel previous consumer: {}", e
+      );
     }
+
+    let amqp_consumer = amqp_channel
+      .basic_consume(
+        &device_info.device_id,
+        RMQ_CONSUMER_TAG,
+        BasicConsumeOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+    Ok((amqp_channel, amqp_consumer))
   }
 
   pub async fn handle_message_to_device(
