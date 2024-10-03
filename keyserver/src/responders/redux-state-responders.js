@@ -6,7 +6,6 @@ import t, { type TInterface } from 'tcomb';
 import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
-import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
@@ -237,19 +236,13 @@ async function getInitialReduxStateResponder(
   })();
 
   const navInfoPromise = (async () => {
-    const [
-      { threadInfos },
-      messageStore,
-      currentUserInfo,
-      userInfos,
-      finalNavInfo,
-    ] = await Promise.all([
-      threadInfoPromise,
-      messageStorePromise,
-      currentUserInfoPromise,
-      userInfosPromise,
-      initialNavInfoPromise,
-    ]);
+    const [{ threadInfos }, currentUserInfo, userInfos, finalNavInfo] =
+      await Promise.all([
+        threadInfoPromise,
+        currentUserInfoPromise,
+        userInfosPromise,
+        initialNavInfoPromise,
+      ]);
 
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (
@@ -261,16 +254,6 @@ async function getInitialReduxStateResponder(
       )
     ) {
       finalNavInfo.activeChatThreadID = null;
-    }
-
-    if (!finalNavInfo.activeChatThreadID) {
-      const mostRecentThread = mostRecentlyReadThread(
-        messageStore,
-        threadInfos,
-      );
-      if (mostRecentThread) {
-        finalNavInfo.activeChatThreadID = mostRecentThread;
-      }
     }
 
     const curActiveChatThreadID = finalNavInfo.activeChatThreadID;
