@@ -1,5 +1,6 @@
 pub mod session;
 
+use crate::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
@@ -39,7 +40,7 @@ use self::session::WebsocketSession;
 /// It also handles regular HTTP requests (currently health check)
 struct WebsocketService {
   addr: SocketAddr,
-  channel: lapin::Channel,
+  amqp: AmqpConnection,
   db_client: DatabaseClient,
   notif_client: NotifClient,
 }
@@ -62,7 +63,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
   fn call(&mut self, mut req: Request<Body>) -> Self::Future {
     let addr = self.addr;
     let db_client = self.db_client.clone();
-    let channel = self.channel.clone();
+    let amqp = self.amqp.clone();
     let notif_client = self.notif_client.clone();
 
     let future = async move {
@@ -72,7 +73,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
         // Spawn a task to handle the websocket connection.
         tokio::spawn(async move {
-          accept_connection(websocket, addr, db_client, channel, notif_client)
+          accept_connection(websocket, addr, db_client, amqp, notif_client)
             .await;
         });
 
@@ -101,7 +102,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
 pub async fn run_server(
   db_client: DatabaseClient,
-  amqp_connection: &lapin::Connection,
+  amqp_connection: &AmqpConnection,
   notif_client: NotifClient,
 ) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
@@ -115,15 +116,12 @@ pub async fn run_server(
   http.http1_keep_alive(true);
 
   while let Ok((stream, addr)) = listener.accept().await {
-    let channel = amqp_connection
-      .create_channel()
-      .await
-      .expect("Failed to create AMQP channel");
+    let amqp = amqp_connection.clone();
     let connection = http
       .serve_connection(
         stream,
         WebsocketService {
-          channel,
+          amqp,
           db_client: db_client.clone(),
           addr,
           notif_client: notif_client.clone(),
@@ -169,10 +167,18 @@ async fn accept_connection(
   hyper_ws: HyperWebsocket,
   addr: SocketAddr,
   db_client: DatabaseClient,
-  amqp_channel: lapin::Channel,
+  amqp_connection: AmqpConnection,
   notif_client: NotifClient,
 ) {
   debug!("Incoming connection from: {}", addr);
+
+  let amqp_channel = match amqp_connection.new_channel().await {
+    Ok(channel) => channel,
+    Err(err) => {
+      tracing::warn!("Failed to create AMQP channel for {addr}: {err:?}.");
+      return;
+    }
+  };
 
   let ws_stream = match hyper_ws.await {
     Ok(stream) => stream,
