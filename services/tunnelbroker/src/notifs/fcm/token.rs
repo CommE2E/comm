@@ -40,8 +40,11 @@ impl FCMToken {
     })
   }
 
-  pub async fn get_auth_bearer(&self) -> Result<String, Error> {
-    if self.fcm_token_needs_generation().await {
+  pub async fn get_auth_bearer(
+    &self,
+    force_regenerate: bool,
+  ) -> Result<String, Error> {
+    if force_regenerate || self.fcm_token_needs_generation().await {
       self.generate_fcm_token().await?;
     }
 
