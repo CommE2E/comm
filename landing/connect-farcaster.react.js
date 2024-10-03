@@ -10,6 +10,7 @@ const config = {
   siweURL: 'https://comm.app/connect-farcaster',
   rpcURL: 'https://mainnet.optimism.io',
   relay: 'https://relay.farcaster.xyz',
+  redirectUrl: 'comm://back-from-warpcast',
 };
 
 function postMessageToNativeWebView(message: FarcasterWebViewMessage) {
