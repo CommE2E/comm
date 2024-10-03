@@ -318,7 +318,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       (values/*: ExitAnimationsValues*/) => {
         'worklet';
 
-        if(tooltipLocation === 'absolute'){
+        if (tooltipLocation === 'absolute') {
           return {
             animations: {
               opacity: withTiming(0, { duration: animationDuration }),
@@ -328,7 +328,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
             },
             initialValues: {
               opacity: 1,
-              transform: [ { scale: 1 }],
+              transform: [{ scale: 1 }],
             },
             callback: onExitFinish,
           };
@@ -340,9 +340,9 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
             initialCoordinates.x) /
           2;
         const toValueY =
-        tooltipLocation === 'below'
-          ? -values.currentHeight / 2
-          : values.currentHeight / 2;;
+          tooltipLocation === 'below'
+            ? -values.currentHeight / 2
+            : values.currentHeight / 2;
 
         return {
           animations: {
@@ -368,7 +368,12 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
           callback: onExitFinish,
         };
       },
-      [initialCoordinates.width, initialCoordinates.x, onExitFinish, tooltipLocation],
+      [
+        initialCoordinates.width,
+        initialCoordinates.x,
+        onExitFinish,
+        tooltipLocation,
+      ],
     );
 
     let triangleDown = null;
