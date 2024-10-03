@@ -56,21 +56,6 @@ async fn create_connection() -> Result<lapin::Connection, lapin::Error> {
   }
 }
 
-pub async fn connect() -> lapin::Connection {
-  let conn = create_connection()
-    .await
-    .expect("Unable to connect to AMQP. Exiting.");
-  conn.on_error(|error| {
-    tracing::error!(
-      errorType = error_types::AMQP_ERROR,
-      "Lapin error: {error:?}"
-    );
-  });
-
-  info!("Connected to AMQP endpoint: {}", &CONFIG.amqp_uri);
-  conn
-}
-
 /// Inner connection that is a direct wrapper over [`lapin::Connection`]
 /// This should be instantiated only once to establish connection
 /// New instances can be created to reconnect
