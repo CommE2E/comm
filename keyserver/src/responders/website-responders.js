@@ -207,7 +207,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
   const detectionResult = detectBrowser(userAgent);
-  if (detectionResult.os === 'Android OS') {
+  if (detectionResult?.os === 'Android OS') {
     const isSecretValid = inviteSecretRegex.test(secret);
     const referrer = isSecretValid
       ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
@@ -218,7 +218,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
     });
     res.end();
     return;
-  } else if (detectionResult.os !== 'iOS') {
+  } else if (detectionResult?.os !== 'iOS') {
     const urlFacts = getWebAppURLFacts();
     const baseDomain = urlFacts?.baseDomain ?? '';
     const basePath = urlFacts?.basePath ?? '/';
