@@ -7,6 +7,7 @@ pub const GRPC_KEEP_ALIVE_PING_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub const SOCKET_HEARTBEAT_TIMEOUT: Duration = Duration::from_secs(3);
 
+pub const NUM_AMQP_CHANNELS: usize = 8;
 pub const MAX_RMQ_MSG_PRIORITY: u8 = 10;
 pub const DDB_RMQ_MSG_PRIORITY: u8 = 10;
 pub const CLIENT_RMQ_MSG_PRIORITY: u8 = 1;
