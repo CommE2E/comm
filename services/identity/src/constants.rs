@@ -177,7 +177,7 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 // Nonce
 
 pub const NONCE_LENGTH: usize = 17;
-pub const NONCE_TTL_DURATION: Duration = Duration::from_secs(120); // seconds
+pub const NONCE_TTL_DURATION: Duration = Duration::from_secs(900); // seconds
 
 // Device list
 
