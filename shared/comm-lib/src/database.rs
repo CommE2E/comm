@@ -706,6 +706,11 @@ pub mod batch_operations {
       self.attempt = 0;
     }
 
+    /// Returns 1 before the first retry, then 2,3,... after subsequent retries
+    pub fn attempt(&self) -> u32 {
+      self.attempt + 1
+    }
+
     /// increase counter and sleep in case of failure
     pub async fn sleep_and_retry(&mut self) -> Result<(), super::Error> {
       let jitter_factor = 1f32.min(0f32.max(self.config.jitter_factor));
