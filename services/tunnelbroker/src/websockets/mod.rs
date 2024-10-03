@@ -1,9 +1,10 @@
 pub mod session;
 
+use crate::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
-use crate::websockets::session::{initialize_amqp, SessionError};
+use crate::websockets::session::{handle_first_ws_frame, SessionError};
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::{SinkExt, StreamExt};
@@ -18,7 +19,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, info, trace, warn};
 use tunnelbroker_messages::{
   ConnectionInitializationStatus, DeviceToTunnelbrokerRequestStatus, Heartbeat,
   MessageSentStatus,
@@ -39,7 +40,7 @@ use self::session::WebsocketSession;
 /// It also handles regular HTTP requests (currently health check)
 struct WebsocketService {
   addr: SocketAddr,
-  channel: lapin::Channel,
+  amqp: AmqpConnection,
   db_client: DatabaseClient,
   notif_client: NotifClient,
 }
@@ -62,7 +63,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
   fn call(&mut self, mut req: Request<Body>) -> Self::Future {
     let addr = self.addr;
     let db_client = self.db_client.clone();
-    let channel = self.channel.clone();
+    let amqp = self.amqp.clone();
     let notif_client = self.notif_client.clone();
 
     let future = async move {
@@ -72,7 +73,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
         // Spawn a task to handle the websocket connection.
         tokio::spawn(async move {
-          accept_connection(websocket, addr, db_client, channel, notif_client)
+          accept_connection(websocket, addr, db_client, amqp, notif_client)
             .await;
         });
 
@@ -101,7 +102,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
 pub async fn run_server(
   db_client: DatabaseClient,
-  amqp_connection: &lapin::Connection,
+  amqp_connection: &AmqpConnection,
   notif_client: NotifClient,
 ) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
@@ -115,15 +116,12 @@ pub async fn run_server(
   http.http1_keep_alive(true);
 
   while let Ok((stream, addr)) = listener.accept().await {
-    let channel = amqp_connection
-      .create_channel()
-      .await
-      .expect("Failed to create AMQP channel");
+    let amqp = amqp_connection.clone();
     let connection = http
       .serve_connection(
         stream,
         WebsocketService {
-          channel,
+          amqp,
           db_client: db_client.clone(),
           addr,
           notif_client: notif_client.clone(),
@@ -169,7 +167,7 @@ async fn accept_connection(
   hyper_ws: HyperWebsocket,
   addr: SocketAddr,
   db_client: DatabaseClient,
-  amqp_channel: lapin::Channel,
+  amqp_connection: AmqpConnection,
   notif_client: NotifClient,
 ) {
   debug!("Incoming connection from: {}", addr);
@@ -194,7 +192,7 @@ async fn accept_connection(
       outgoing,
       first_msg,
       db_client,
-      amqp_channel,
+      amqp_connection,
       notif_client,
     )
     .await
@@ -231,16 +229,31 @@ async fn accept_connection(
   loop {
     trace!("Polling for messages from: {}", addr);
     tokio::select! {
-      Some(Ok(delivery)) = session.next_amqp_message() => {
-        if let Ok(message) = std::str::from_utf8(&delivery.data) {
-          if message == WS_SESSION_CLOSE_AMQP_MSG {
-            debug!("Connection to {} closed by server.", addr);
-            break;
-          } else {
-            session.send_message_to_device(Message::Text(message.to_string())).await;
+      Some(delivery_result) = session.next_amqp_message() => {
+        match delivery_result {
+          Ok(delivery) => {
+            if let Ok(message) = std::str::from_utf8(&delivery.data) {
+              if message == WS_SESSION_CLOSE_AMQP_MSG {
+                debug!("Connection to {} closed by server.", addr);
+                break;
+              } else {
+                session.send_message_to_device(Message::Text(message.to_string())).await;
+              }
+            } else {
+              error!("Invalid payload");
+            }
+          },
+          Err(ref err) if crate::amqp::is_connection_error(err) => {
+            if let Err(e) = session.reset_failed_amqp().await {
+              warn!("Connection to {} closed due to failed AMQP restoration: {:?}", addr, e);
+              break;
+            }
+            continue;
           }
-        } else {
-          error!("Invalid payload");
+          Err(err) => {
+            warn!("Connection to {} closed due to AMQP error: {:?}", addr, err);
+            break;
+          }
         }
       },
       device_message = incoming.next() => {
@@ -316,21 +329,14 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   outgoing: SplitSink<WebSocketStream<S>, Message>,
   frame: Message,
   db_client: DatabaseClient,
-  amqp_channel: lapin::Channel,
+  amqp: AmqpConnection,
   notif_client: NotifClient,
 ) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
-  let initialized_session =
-    initialize_amqp(db_client.clone(), frame, &amqp_channel).await;
+  let device_info = match handle_first_ws_frame(frame).await {
+    Ok(info) => info,
+    Err(e) => return Err((e, outgoing)),
+  };
 
-  match initialized_session {
-    Ok((device_info, amqp_consumer)) => Ok(WebsocketSession::new(
-      outgoing,
-      db_client,
-      device_info,
-      amqp_channel,
-      amqp_consumer,
-      notif_client,
-    )),
-    Err(e) => Err((e, outgoing)),
-  }
+  WebsocketSession::new(outgoing, db_client, device_info, amqp, notif_client)
+    .await
 }

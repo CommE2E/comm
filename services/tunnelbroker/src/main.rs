@@ -48,7 +48,9 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
-  let amqp_connection = amqp::connect().await;
+  let amqp_connection = amqp::AmqpConnection::connect()
+    .await
+    .expect("Failed to create AMQP connection");
 
   let apns_config = CONFIG.apns_config.clone();
 
