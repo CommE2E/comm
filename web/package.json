@@ -60,7 +60,7 @@
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
     "dateformat": "^3.0.3",
-    "detect-browser": "^4.0.4",
+    "detect-browser": "^5.3.0",
     "emoji-mart": "^5.5.2",
     "ethers": "^6.11.1",
     "exif-js": "^2.3.0",
