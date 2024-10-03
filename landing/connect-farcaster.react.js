@@ -55,6 +55,7 @@ function ConnectFarcaster(): React.Node {
       return;
     }
     if (isError) {
+      messageSentRef.current = false;
       reconnect();
     }
 
