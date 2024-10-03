@@ -132,6 +132,11 @@ impl AmqpConnection {
   async fn is_connected(&self) -> bool {
     self.inner.read().await.is_connected()
   }
+
+  pub fn maybe_reconnect_in_background(&self) {
+    let this = self.clone();
+    tokio::spawn(async move { this.reset_conn().await });
+  }
 }
 
 pub fn is_connection_error(err: &lapin::Error) -> bool {
