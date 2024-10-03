@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.23.7",
-    "@farcaster/auth-kit": "^0.2.1",
+    "@farcaster/auth-kit": "^0.6.0",
     "@fortawesome/fontawesome-svg-core": "1.2.25",
     "@fortawesome/free-brands-svg-icons": "5.15.4",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
