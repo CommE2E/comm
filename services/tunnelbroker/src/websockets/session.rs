@@ -1,4 +1,4 @@
-use crate::amqp::AmqpConnection;
+use crate::amqp::{is_connection_error, AmqpConnection};
 use crate::constants::{
   error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
   MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
@@ -756,10 +756,15 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await
     {
-      error!(
-        errorType = error_types::AMQP_ERROR,
-        "Failed to cancel consumer: {}", e
-      );
+      if is_connection_error(&e) {
+        warn!("AMQP connection dead when closing WS session.");
+        self.amqp.trigger_reconnect();
+      } else {
+        error!(
+          errorType = error_types::AMQP_ERROR,
+          "Failed to cancel consumer: {}", e
+        );
+      }
     }
 
     if let Err(e) = self
@@ -770,10 +775,15 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await
     {
-      error!(
-        errorType = error_types::AMQP_ERROR,
-        "Failed to delete queue: {}", e
-      );
+      if is_connection_error(&e) {
+        warn!("AMQP connection dead when closing WS session.");
+        self.amqp.trigger_reconnect();
+      } else {
+        error!(
+          errorType = error_types::AMQP_ERROR,
+          "Failed to delete queue: {}", e
+        );
+      }
     }
   }
 

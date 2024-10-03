@@ -166,6 +166,18 @@ impl AmqpConnection {
     self.inner.read().unwrap().get_channel(id_hash)
   }
 
+  /// Triggers reconnecting in background, without awaiting
+  pub fn trigger_reconnect(&self) {
+    if !self.is_connected() && !self.is_connecting() {
+      let this = self.clone();
+      tokio::spawn(async move {
+        if let Err(err) = this.reset_conn().await {
+          tracing::warn!("AMQP background reconnect failed: {:?}", err);
+        }
+      });
+    }
+  }
+
   async fn reset_conn(&self) -> Result<(), lapin::Error> {
     if let Ok(false) = self.is_connecting.compare_exchange(
       false,
