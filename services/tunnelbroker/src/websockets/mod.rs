@@ -19,7 +19,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, info, trace, warn};
 use tunnelbroker_messages::{
   ConnectionInitializationStatus, DeviceToTunnelbrokerRequestStatus, Heartbeat,
   MessageSentStatus,
@@ -229,16 +229,28 @@ async fn accept_connection(
   loop {
     trace!("Polling for messages from: {}", addr);
     tokio::select! {
-      Some(Ok(delivery)) = session.next_amqp_message() => {
-        if let Ok(message) = std::str::from_utf8(&delivery.data) {
-          if message == WS_SESSION_CLOSE_AMQP_MSG {
-            debug!("Connection to {} closed by server.", addr);
-            break;
-          } else {
-            session.send_message_to_device(Message::Text(message.to_string())).await;
+      Some(delivery_result) = session.next_amqp_message() => {
+        match delivery_result {
+          Ok(delivery) => {
+            if let Ok(message) = std::str::from_utf8(&delivery.data) {
+              if message == WS_SESSION_CLOSE_AMQP_MSG {
+                debug!("Connection to {} closed by server.", addr);
+                break;
+              } else {
+                session.send_message_to_device(Message::Text(message.to_string())).await;
+              }
+            } else {
+              error!("Invalid payload");
+            }
+          },
+          Err(err) => {
+            warn!("Session AMQP error: {:?}", err);
+            if let Err(e) = session.reset_failed_amqp().await {
+              warn!("Connection to {} closed due to failed AMQP restoration: {:?}", addr, e);
+              break;
+            }
+            continue;
           }
-        } else {
-          error!("Invalid payload");
         }
       },
       device_message = incoming.next() => {
