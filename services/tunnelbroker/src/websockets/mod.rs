@@ -4,7 +4,7 @@ use crate::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
-use crate::websockets::session::{initialize_amqp, SessionError};
+use crate::websockets::session::SessionError;
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::{SinkExt, StreamExt};
@@ -32,7 +32,7 @@ pub type ErrorWithStreamHandle<S> = (
   SplitSink<WebSocketStream<S>, Message>,
 );
 
-use self::session::WebsocketSession;
+use self::session::{handle_first_ws_frame, WebsocketSession};
 
 /// Hyper HTTP service that handles incoming HTTP and websocket connections
 /// It handles the initial websocket upgrade request and spawns a task to
@@ -172,14 +172,6 @@ async fn accept_connection(
 ) {
   debug!("Incoming connection from: {}", addr);
 
-  let amqp_channel = match amqp_connection.new_channel().await {
-    Ok(channel) => channel,
-    Err(err) => {
-      tracing::warn!("Failed to create AMQP channel for {addr}: {err:?}.");
-      return;
-    }
-  };
-
   let ws_stream = match hyper_ws.await {
     Ok(stream) => stream,
     Err(e) => {
@@ -200,7 +192,7 @@ async fn accept_connection(
       outgoing,
       first_msg,
       db_client,
-      amqp_channel,
+      amqp_connection,
       notif_client,
     )
     .await
@@ -218,7 +210,7 @@ async fn accept_connection(
         session
       }
       Err((err, outgoing)) => {
-        debug!("Failed to create session with device");
+        debug!("Failed to create session with device: {err:?}");
         send_error_init_response(err, outgoing).await;
         return;
       }
@@ -322,21 +314,14 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   outgoing: SplitSink<WebSocketStream<S>, Message>,
   frame: Message,
   db_client: DatabaseClient,
-  amqp_channel: lapin::Channel,
+  amqp: AmqpConnection,
   notif_client: NotifClient,
 ) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
-  let initialized_session =
-    initialize_amqp(db_client.clone(), frame, &amqp_channel).await;
+  let device_info = match handle_first_ws_frame(frame).await {
+    Ok(info) => info,
+    Err(e) => return Err((e, outgoing)),
+  };
 
-  match initialized_session {
-    Ok((device_info, amqp_consumer)) => Ok(WebsocketSession::new(
-      outgoing,
-      db_client,
-      device_info,
-      amqp_channel,
-      amqp_consumer,
-      notif_client,
-    )),
-    Err(e) => Err((e, outgoing)),
-  }
+  WebsocketSession::new(outgoing, db_client, device_info, amqp, notif_client)
+    .await
 }
