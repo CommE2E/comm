@@ -85,7 +85,10 @@ impl ConnectionInner {
   async fn new() -> Result<Self, lapin::Error> {
     let conn = create_connection().await?;
     conn.on_error(|err| {
-      // TODO: we should filter out some IOErrors here to avoid spamming alerts
+      if should_ignore_error(&err) {
+        debug!("Ignored AMQP Lapin error: {err:?}");
+        return;
+      }
       error!(errorType = error_types::AMQP_ERROR, "Lapin error: {err:?}");
     });
 
@@ -175,6 +178,26 @@ impl AmqpConnection {
   async fn is_connected(&self) -> bool {
     self.inner.read().await.is_connected()
   }
+}
+
+fn should_ignore_error(err: &lapin::Error) -> bool {
+  use lapin::Error as E;
+  use std::io::ErrorKind;
+
+  if is_connection_error(err) {
+    return true;
+  }
+
+  if let E::IOError(io_error) = err {
+    return match io_error.kind() {
+      // Suppresses: "Socket was readable but we read 0.""
+      // We handle this by auto-reconnecting
+      ErrorKind::ConnectionAborted => true,
+      _ => false,
+    };
+  }
+
+  false
 }
 
 pub fn is_connection_error(err: &lapin::Error) -> bool {
