@@ -942,13 +942,12 @@ async function fetchUserRoleForThread(
     return null;
   }
 
-  const ledChannels =
-    await neynarClient?.fetchLedFarcasterChannels(farcasterID);
+  const userLeadsChannel = await neynarClient?.userLeadsChannel(
+    farcasterID,
+    communityFarcasterChannelTag,
+  );
 
-  if (
-    !ledChannels ||
-    !ledChannels.some(channel => channel.id === communityFarcasterChannelTag)
-  ) {
+  if (!userLeadsChannel) {
     return null;
   }
 
