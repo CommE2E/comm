@@ -20,6 +20,7 @@ use tracing::{debug, error, trace, warn};
 
 use crate::{
   client_service::FlattenedDeviceKeyUpload,
+  comm_service::tunnelbroker,
   constants::{
     devices_table::{self, *},
     error_types, USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
@@ -1547,8 +1548,7 @@ impl DatabaseClient {
           "Attempting to delete Tunnelbroker data for device: {}",
           &device_id
         );
-        let result =
-          crate::tunnelbroker::delete_devices_data(&[device_id]).await;
+        let result = tunnelbroker::delete_devices_data(&[device_id]).await;
         consume_error(result);
       });
     }

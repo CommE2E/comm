@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::comm_service::{backup, tunnelbroker};
 use crate::config::CONFIG;
 use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
@@ -102,7 +103,7 @@ fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
       "Attempting to delete Tunnelbroker data for devices: {:?}",
       device_ids.as_slice()
     );
-    let result = crate::tunnelbroker::delete_devices_data(&device_ids).await;
+    let result = tunnelbroker::delete_devices_data(&device_ids).await;
     consume_error(result);
   });
 }
@@ -401,8 +402,7 @@ impl IdentityClientService for AuthenticatedService {
       );
       let device_ids: Vec<&str> =
         device_list.device_ids.iter().map(AsRef::as_ref).collect();
-      let result =
-        crate::tunnelbroker::send_device_list_update(&device_ids).await;
+      let result = tunnelbroker::send_device_list_update(&device_ids).await;
       consume_error(result);
     });
 
@@ -956,7 +956,7 @@ impl AuthenticatedService {
     debug!("Attempting to delete Backup data for user: {}", &user_id);
     let (device_list_result, delete_backup_result) = tokio::join!(
       self.db_client.get_current_device_list(user_id),
-      crate::backup::delete_backup_user_data(user_id, &self.comm_auth_service)
+      backup::delete_backup_user_data(user_id, &self.comm_auth_service)
     );
 
     let device_ids = device_list_result?
@@ -969,7 +969,7 @@ impl AuthenticatedService {
       "Attempting to delete Tunnelbroker data for devices: {:?}",
       device_ids
     );
-    crate::tunnelbroker::delete_devices_data(&device_ids).await?;
+    tunnelbroker::delete_devices_data(&device_ids).await?;
 
     Ok(())
   }
