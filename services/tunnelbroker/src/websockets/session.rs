@@ -266,17 +266,26 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
     publish_persisted_messages(db_client, &amqp_channel, device_info).await?;
 
-    // Cancel previous consumer. If not done, Rabbit yells that
-    // "NOT_ALLOWED - attempt to reuse consumer tag" and closes channels.
-    if let Err(e) = amqp_channel
-      .basic_cancel(RMQ_CONSUMER_TAG, BasicCancelOptions::default())
-      .await
-    {
-      warn!(
-        errorType = error_types::AMQP_ERROR,
-        "Failed to cancel previous consumer: {}", e
-      );
-    }
+    // NOTE: this is no longer needed if a channel is new. The consumer is dead
+
+    // NOTE: This is not needed.
+    // According to 'basic.consume' in
+    // https://www.rabbitmq.com/amqp-0-9-1-reference#basic.consume.reserved-1
+    // "This method asks the server to start a "consumer", which is a transient
+    // request for messages from a specific queue. Consumers last as long
+    // as the channel they were declared on, or until the client cancels them."
+
+    // // Cancel previous consumer. If not done, Rabbit yells that
+    // // "NOT_ALLOWED - attempt to reuse consumer tag" and closes channels.
+    // if let Err(e) = amqp_channel
+    //   .basic_cancel(RMQ_CONSUMER_TAG, BasicCancelOptions::default())
+    //   .await
+    // {
+    //   warn!(
+    //     errorType = error_types::AMQP_ERROR,
+    //     "Failed to cancel previous consumer: {}", e
+    //   );
+    // }
 
     let amqp_consumer = amqp_channel
       .basic_consume(
@@ -769,22 +778,16 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       debug!("Failed to close WebSocket session: {}", e);
     }
 
+    // NOTE: This is not needed.
+    // According to 'basic.consume' in
+    // https://www.rabbitmq.com/amqp-0-9-1-reference#basic.consume.reserved-1
+    // "This method asks the server to start a "consumer", which is a transient
+    // request for messages from a specific queue. Consumers last as long
+    // as the channel they were declared on, or until the client cancels them."
     if self.is_amqp_channel_dead() {
-      warn!(
-        "AMQP channel or connection dead when closing WS session. \
-          Attempting to restore..."
-      );
-      if let Err(error) = self.reset_failed_amqp().await {
-        error!(
-          ?error,
-          errorType = error_types::AMQP_ERROR,
-          "Could not restore AMQP after closing WS session. \
-           Queue and consumer for device '{}' won't be properly removed.",
-          &self.device_info.device_id
-        );
-        return;
-      }
-      info!("AMQP restored.");
+      warn!("AMQP channel or connection dead when closing WS session.");
+      self.amqp.maybe_reconnect_in_background();
+      return;
     }
 
     if let Err(e) = self

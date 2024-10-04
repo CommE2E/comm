@@ -113,9 +113,9 @@ impl AmqpConnection {
   }
 
   async fn reset_conn(&self) -> Result<(), lapin::Error> {
-    debug!("Resetting connection...");
     let mut inner = self.inner.write().await;
     if !inner.is_connected() {
+      debug!("Resetting AMQP connection...");
       let new_conn = ConnectionInner::new().await?;
       *inner = new_conn;
       info!("AMQP Connection restored.");
@@ -125,6 +125,11 @@ impl AmqpConnection {
 
   async fn is_connected(&self) -> bool {
     self.inner.read().await.is_connected()
+  }
+
+  pub fn maybe_reconnect_in_background(&self) {
+    let this = self.clone();
+    tokio::spawn(async move { this.reset_conn().await });
   }
 }
 
