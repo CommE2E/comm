@@ -1,56 +1,30 @@
 use actix_web::error::ErrorBadRequest;
 use actix_web::{web, HttpResponse};
-use serde::{Deserialize, Serialize};
+use comm_lib::blob::types::http::{
+  AssignHoldersRequest, AssignHoldersResponse, BlobInfo,
+  HolderAssignmentResult, RemoveHoldersRequest, RemoveHoldersResponse,
+};
 use tracing::{info, instrument, trace, warn};
 
 use crate::service::BlobService;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct BlobHashAndHolder {
-  blob_hash: String,
-  holder: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct AssignHoldersPayload {
-  requests: Vec<BlobHashAndHolder>,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-struct HolderAssignmentResult {
-  #[serde(flatten)]
-  request: BlobHashAndHolder,
-  success: bool,
-  data_exists: bool,
-  holder_already_exists: bool,
-}
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-struct AssignHoldersResponse {
-  results: Vec<HolderAssignmentResult>,
-}
-
 #[instrument(name = "assign_multiple_holders", skip_all)]
 pub async fn assign_holders_handler(
   service: web::Data<BlobService>,
-  payload: web::Json<AssignHoldersPayload>,
+  payload: web::Json<AssignHoldersRequest>,
 ) -> actix_web::Result<HttpResponse> {
   use crate::database::DBError;
   use crate::service::BlobServiceError;
 
-  let AssignHoldersPayload { requests } = payload.into_inner();
+  let AssignHoldersRequest { requests } = payload.into_inner();
   info!("Assign holder request for {} holders", requests.len());
   validate_request(&requests)?;
 
   let blob_hashes = requests.iter().map(|it| &it.blob_hash).collect();
   let existing_blobs = service.find_existing_blobs(blob_hashes).await?;
-
   let mut results = Vec::with_capacity(requests.len());
   for item in requests {
-    let BlobHashAndHolder { blob_hash, holder } = &item;
+    let BlobInfo { blob_hash, holder } = &item;
     let data_exists = existing_blobs.contains(blob_hash);
     let result = match service.assign_holder(blob_hash, holder).await {
       Ok(()) => HolderAssignmentResult {
@@ -84,26 +58,12 @@ pub async fn assign_holders_handler(
   Ok(HttpResponse::Ok().json(web::Json(response)))
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct RemoveHoldersPayload {
-  requests: Vec<BlobHashAndHolder>,
-  #[serde(default)]
-  instant_delete: bool,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct RemoveHoldersResponse {
-  failed_requests: Vec<BlobHashAndHolder>,
-}
-
 #[instrument(name = "remove_multiple_holders", skip_all)]
 pub async fn remove_holders_handler(
   service: web::Data<BlobService>,
-  payload: web::Json<RemoveHoldersPayload>,
+  payload: web::Json<RemoveHoldersRequest>,
 ) -> actix_web::Result<HttpResponse> {
-  let RemoveHoldersPayload {
+  let RemoveHoldersRequest {
     requests,
     instant_delete,
   } = payload.into_inner();
@@ -121,7 +81,7 @@ pub async fn remove_holders_handler(
   for item in requests {
     trace!("Removing item: {:?}", &item);
 
-    let BlobHashAndHolder { holder, blob_hash } = &item;
+    let BlobInfo { holder, blob_hash } = &item;
     if let Err(err) = service
       .revoke_holder(blob_hash, holder, instant_delete)
       .await
@@ -139,12 +99,11 @@ pub async fn remove_holders_handler(
  * have invalid format. See [`comm_lib::tools::is_valid_identifier`] for
  * valid format conditions
  */
-fn validate_request(items: &[BlobHashAndHolder]) -> actix_web::Result<()> {
+fn validate_request(items: &[BlobInfo]) -> actix_web::Result<()> {
   use comm_lib::tools::is_valid_identifier;
-  let all_valid =
-    items.iter().all(|BlobHashAndHolder { holder, blob_hash }| {
-      is_valid_identifier(holder) && is_valid_identifier(blob_hash)
-    });
+  let all_valid = items.iter().all(|BlobInfo { holder, blob_hash }| {
+    is_valid_identifier(holder) && is_valid_identifier(blob_hash)
+  });
 
   if !all_valid {
     return Err(ErrorBadRequest("One or more requests have invalid format"));

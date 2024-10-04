@@ -13,7 +13,12 @@ pub use reqwest::Error as ReqwestError;
 pub use reqwest::StatusCode;
 pub use reqwest::Url;
 
-use crate::auth::{AuthorizationCredential, UserIdentity};
+use crate::{
+  auth::{AuthorizationCredential, UserIdentity},
+  blob::types::http::{
+    AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
+  },
+};
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -216,9 +221,10 @@ impl BlobServiceClient {
     debug!("Revoke holder request");
     let url = self.get_blob_url(None)?;
 
-    let payload = RevokeHolderRequest {
+    let payload = RemoveHolderRequest {
       holder: holder.to_string(),
       blob_hash: blob_hash.to_string(),
+      instant_delete: false,
     };
     debug!("Request payload: {:?}", payload);
 
@@ -394,18 +400,6 @@ fn handle_http_error(status_code: StatusCode) -> BlobServiceError {
 }
 
 type BlobResult<T> = Result<T, BlobServiceError>;
-
-#[derive(serde::Deserialize)]
-struct AssignHolderResponse {
-  data_exists: bool,
-}
-#[derive(Debug, serde::Serialize)]
-struct AssignHolderRequest {
-  blob_hash: String,
-  holder: String,
-}
-// they have the same layout so we can simply alias
-type RevokeHolderRequest = AssignHolderRequest;
 
 #[cfg(feature = "http")]
 impl crate::http::auth_service::HttpAuthenticatedService for BlobServiceClient {
