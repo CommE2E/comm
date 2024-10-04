@@ -24,6 +24,7 @@ use crate::database::types::{
 use crate::database::DBError;
 use crate::s3::{Error as S3Error, S3Client, S3Path};
 use crate::tools::MemOps;
+use crate::types::BlobHashAndHolder;
 use crate::{
   constants::error_types, constants::BLOB_DOWNLOAD_CHUNK_SIZE,
   database::DatabaseClient,
@@ -296,6 +297,14 @@ impl BlobService {
       .collect();
 
     Ok(existing_items)
+  }
+
+  pub async fn query_indexed_holders(
+    &self,
+    prefix: String,
+  ) -> BlobServiceResult<Vec<BlobHashAndHolder>> {
+    let results = self.db.query_indexed_holders(prefix).await?;
+    Ok(results)
   }
 
   pub async fn perform_cleanup(&self) -> anyhow::Result<()> {
