@@ -11,14 +11,14 @@ use tonic::transport::Server;
 use tracing::debug;
 use tunnelbroker_messages::MessageToDevice;
 
-use crate::amqp::AmqpConnection;
+use crate::amqp::{AmqpChannel, AmqpConnection};
 use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, CONFIG};
 
 struct TunnelbrokerGRPC {
   client: DatabaseClient,
-  amqp: AmqpConnection,
+  amqp_channel: AmqpChannel,
 }
 
 pub fn handle_amqp_error(error: lapin::Error) -> tonic::Status {
@@ -58,8 +58,8 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
       .map_err(|_| tonic::Status::invalid_argument("Invalid argument"))?;
 
     self
-      .amqp
-      .new_channel()
+      .amqp_channel
+      .get()
       .await
       .map_err(handle_amqp_error)?
       .basic_publish(
@@ -85,8 +85,8 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
     debug!("Connection close request for device {}", &message.device_id);
 
     self
-      .amqp
-      .new_channel()
+      .amqp_channel
+      .get()
       .await
       .map_err(handle_amqp_error)?
       .basic_publish(
@@ -141,7 +141,7 @@ pub async fn run_server(
     .http2_keepalive_timeout(Some(constants::GRPC_KEEP_ALIVE_PING_TIMEOUT))
     .add_service(TunnelbrokerServiceServer::new(TunnelbrokerGRPC {
       client,
-      amqp: amqp_connection.clone(),
+      amqp_channel: AmqpChannel::new(amqp_connection),
     }))
     .serve(addr)
     .await

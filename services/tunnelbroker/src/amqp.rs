@@ -3,7 +3,7 @@ use lapin::{uri::AMQPUri, ConnectionProperties};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tracing::{debug, error, info, warn};
 
 use crate::constants::error_types;
@@ -124,6 +124,40 @@ impl AmqpConnection {
   pub fn maybe_reconnect_in_background(&self) {
     let this = self.clone();
     tokio::spawn(async move { this.reset_conn().await });
+  }
+}
+
+/// Wrapper over [`lapin::Channel`] that automatically recreates AMQP channel
+/// in case of errors. The channel is initialized on first use.
+///
+/// TODO: Add support for restoring channel topology (queues and consumers)
+/// (`lapin` has this built-in, but it's internal crate feature)
+pub struct AmqpChannel {
+  conn: AmqpConnection,
+  channel: Arc<Mutex<Option<lapin::Channel>>>,
+}
+
+impl AmqpChannel {
+  pub fn new(amqp_connection: &AmqpConnection) -> Self {
+    let channel = Arc::new(Mutex::new(None));
+    Self {
+      conn: amqp_connection.clone(),
+      channel,
+    }
+  }
+
+  pub async fn get(&self) -> Result<lapin::Channel, lapin::Error> {
+    let mut channel = self.channel.lock().await;
+    match channel.as_ref() {
+      Some(ch) if ch.status().connected() => Ok(ch.clone()),
+      _ => {
+        let new_channel = self.conn.new_channel().await?;
+        let channel_id = new_channel.id();
+        debug!(channel_id, "Instantiated lazy AMQP channel.");
+        *channel = Some(new_channel.clone());
+        Ok(new_channel)
+      }
+    }
   }
 }
 
