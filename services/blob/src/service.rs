@@ -1,4 +1,5 @@
 #![allow(unused)]
+use comm_lib::blob::types::BlobInfo;
 use regex::RegexSet;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
@@ -296,6 +297,14 @@ impl BlobService {
       .collect();
 
     Ok(existing_items)
+  }
+
+  pub async fn query_indexed_holders(
+    &self,
+    prefix: String,
+  ) -> BlobServiceResult<Vec<BlobInfo>> {
+    let results = self.db.query_indexed_holders(prefix).await?;
+    Ok(results)
   }
 
   pub async fn perform_cleanup(&self) -> anyhow::Result<()> {
