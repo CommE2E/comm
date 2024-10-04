@@ -3,7 +3,8 @@ use actix_web::{web, HttpResponse};
 use comm_lib::auth::AuthorizationCredential;
 use comm_lib::blob::types::http::{
   AssignHoldersRequest, AssignHoldersResponse, BlobInfo,
-  HolderAssignmentResult, RemoveHoldersRequest, RemoveHoldersResponse,
+  HolderAssignmentResult, HoldersQueryResponse, HoldersQueryUrlParams,
+  RemoveHoldersRequest, RemoveHoldersResponse,
 };
 use tracing::{info, instrument, trace, warn};
 
@@ -102,6 +103,21 @@ pub async fn remove_holders_handler(
     }
   }
   let response = RemoveHoldersResponse { failed_requests };
+  Ok(HttpResponse::Ok().json(web::Json(response)))
+}
+
+#[instrument(name = "query_holders", skip_all)]
+pub async fn query_holders_handler(
+  service: web::Data<BlobService>,
+  query: web::Query<HoldersQueryUrlParams>,
+  requesting_identity: AuthorizationCredential,
+) -> actix_web::Result<HttpResponse> {
+  verify_caller_is_service(&requesting_identity)?;
+
+  let HoldersQueryUrlParams { prefix } = query.into_inner();
+  let items = service.query_indexed_holders(prefix).await?;
+
+  let response = HoldersQueryResponse { items };
   Ok(HttpResponse::Ok().json(web::Json(response)))
 }
 
