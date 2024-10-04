@@ -12,8 +12,10 @@ use actix_web::{
 };
 use async_stream::try_stream;
 use base64::Engine;
+use comm_lib::blob::types::http::{
+  AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
+};
 use comm_lib::http::multipart;
-use serde::{Deserialize, Serialize};
 use tokio_stream::StreamExt;
 use tracing::{debug, info, instrument, trace, warn};
 use tracing_futures::Instrument;
@@ -114,24 +116,13 @@ pub async fn get_blob_handler(
   )
 }
 
-#[derive(Deserialize, Debug)]
-pub struct AssignHolderPayload {
-  holder: String,
-  blob_hash: String,
-}
-
-#[derive(Serialize)]
-struct AssignHolderResponnse {
-  data_exists: bool,
-}
-
 #[instrument(name = "assign_holder", skip(service))]
 pub async fn assign_holder_handler(
   service: web::Data<BlobService>,
-  payload: web::Json<AssignHolderPayload>,
+  payload: web::Json<AssignHolderRequest>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Assign holder request");
-  let AssignHolderPayload { holder, blob_hash } = payload.into_inner();
+  let AssignHolderRequest { holder, blob_hash } = payload.into_inner();
   validate_identifier!(holder);
   validate_identifier!(blob_hash);
 
@@ -142,7 +133,7 @@ pub async fn assign_holder_handler(
 
   service.assign_holder(blob_hash, holder).await?;
 
-  let response = AssignHolderResponnse { data_exists };
+  let response = AssignHolderResponse { data_exists };
   Ok(HttpResponse::Ok().json(web::Json(response)))
 }
 
@@ -212,23 +203,13 @@ pub async fn upload_blob_handler(
   Ok(HttpResponse::NoContent().finish())
 }
 
-#[derive(Deserialize, Debug)]
-pub struct RemoveHolderPayload {
-  holder: String,
-  blob_hash: String,
-  /// If true, the blob will be deleted intantly
-  /// after the last holder is revoked.
-  #[serde(default)]
-  instant_delete: bool,
-}
-
 #[instrument(name = "remove_holder", skip(service))]
 pub async fn remove_holder_handler(
   service: web::Data<BlobService>,
-  payload: web::Json<RemoveHolderPayload>,
+  payload: web::Json<RemoveHolderRequest>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Revoke holder request");
-  let RemoveHolderPayload {
+  let RemoveHolderRequest {
     holder,
     blob_hash,
     instant_delete,
