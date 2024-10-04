@@ -11,6 +11,7 @@ use siwe::eip55;
 use tonic::Response;
 use tracing::{debug, error, info, warn};
 
+use crate::comm_service::tunnelbroker;
 // Workspace crate imports
 use crate::config::CONFIG;
 use crate::constants::{error_types, tonic_status_messages};
@@ -1341,8 +1342,7 @@ fn spawn_force_close_tb_session_task(device_ids: Vec<String>) {
       "Attempting to terminate Tunnelbroker sessions for devices: {:?}",
       device_ids.as_slice()
     );
-    let result =
-      crate::tunnelbroker::terminate_device_sessions(&device_ids).await;
+    let result = tunnelbroker::terminate_device_sessions(&device_ids).await;
     consume_error(result);
   });
 }
