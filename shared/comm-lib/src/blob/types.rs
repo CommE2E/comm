@@ -62,6 +62,16 @@ pub mod http {
     pub failed_requests: Vec<BlobInfo>,
   }
 
+  // Query holders by prefix
+  #[derive(Serialize, Deserialize, Debug)]
+  pub struct HoldersQueryUrlParams {
+    pub prefix: String,
+  }
+  #[derive(Serialize, Deserialize, Debug)]
+  pub struct HoldersQueryResponse {
+    pub items: Vec<BlobInfo>,
+  }
+
   // Single holder endpoint types
 
   #[derive(Serialize, Deserialize, Debug)]
