@@ -7,8 +7,12 @@ use aws_sdk_dynamodb::{
   Error as DynamoDBError,
 };
 use chrono::Utc;
-use comm_lib::database::{
-  self, batch_operations::ExponentialBackoffConfig, TryFromAttribute,
+use comm_lib::{
+  blob::types::BlobInfo,
+  database::{
+    self, batch_operations::ExponentialBackoffConfig, AttributeExtractor,
+    TryFromAttribute,
+  },
 };
 use std::collections::HashMap;
 use tracing::{debug, error, trace};
@@ -253,6 +257,38 @@ impl DatabaseClient {
     .into_iter()
     .map(PrimaryKey::try_from)
     .collect::<Result<Vec<_>, _>>()
+  }
+
+  pub async fn query_indexed_holders(
+    &self,
+    tag: String,
+  ) -> DBResult<Vec<BlobInfo>> {
+    self
+      .ddb
+      .query()
+      .table_name(BLOB_TABLE_NAME)
+      .index_name(HOLDER_TAG_INDEX_NAME)
+      .key_condition_expression("#indexed_tag = :tag")
+      .expression_attribute_names("#indexed_tag", HOLDER_TAG_INDEX_KEY_ATTR)
+      .expression_attribute_values(":tag", AttributeValue::S(tag))
+      .send()
+      .await
+      .map_err(|err| {
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to query indexed holders: {:?}", err
+        );
+        DBError::AwsSdk(Box::new(err.into()))
+      })?
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(|mut item| {
+        let blob_hash = item.take_attr(ATTR_BLOB_HASH)?;
+        let holder = item.take_attr(ATTR_HOLDER)?;
+        Ok(BlobInfo { blob_hash, holder })
+      })
+      .collect()
   }
 
   /// Returns a list of primary keys for "unchecked" items (blob / holder)
