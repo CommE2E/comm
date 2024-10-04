@@ -48,6 +48,7 @@ pub async fn run_http_server(
       .service(
         web::resource("/holders")
           .wrap(auth_middleware)
+          .route(web::get().to(handlers::holders::query_holders_handler))
           .route(web::post().to(handlers::holders::assign_holders_handler))
           .route(web::delete().to(handlers::holders::remove_holders_handler)),
       )
