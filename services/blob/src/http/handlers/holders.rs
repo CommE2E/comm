@@ -4,13 +4,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{info, instrument, trace, warn};
 
 use crate::service::BlobService;
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct BlobHashAndHolder {
-  blob_hash: String,
-  holder: String,
-}
+use crate::types::BlobHashAndHolder;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
