@@ -286,6 +286,10 @@ pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
 pub const BACKUP_SERVICE_URL: &str = "BACKUP_SERVICE_URL";
 pub const DEFAULT_BACKUP_SERVICE_URL: &str = "http://localhost:50052";
 
+// Blob
+pub const BLOB_SERVICE_URL: &str = "BLOB_SERVICE_URL";
+pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:50053";
+
 // X3DH key management
 
 // Threshold for requesting more one_time keys
