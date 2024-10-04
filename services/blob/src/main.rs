@@ -5,6 +5,7 @@ pub mod http;
 pub mod s3;
 pub mod service;
 pub mod tools;
+pub mod types;
 
 use anyhow::Result;
 use comm_lib::auth::AuthService;
