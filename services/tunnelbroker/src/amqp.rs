@@ -1,13 +1,12 @@
 use comm_lib::database::batch_operations::ExponentialBackoffConfig;
 use lapin::{uri::AMQPUri, ConnectionProperties};
 use once_cell::sync::Lazy;
-use std::hash::Hasher;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
-use crate::constants::{error_types, NUM_AMQP_CHANNELS};
+use crate::constants::error_types;
 use crate::CONFIG;
 
 static AMQP_URI: Lazy<AMQPUri> = Lazy::new(|| {
@@ -62,8 +61,6 @@ async fn create_connection() -> Result<lapin::Connection, lapin::Error> {
 /// New instances can be created to reconnect
 struct ConnectionInner {
   conn: lapin::Connection,
-  // channel pool
-  channels: [lapin::Channel; NUM_AMQP_CHANNELS],
 }
 
 impl ConnectionInner {
@@ -77,73 +74,11 @@ impl ConnectionInner {
       error!(errorType = error_types::AMQP_ERROR, "Lapin error: {err:?}");
     });
 
-    debug!("Creating channels...");
-    let mut channels = Vec::with_capacity(NUM_AMQP_CHANNELS);
-    for idx in 0..NUM_AMQP_CHANNELS {
-      let channel = conn.create_channel().await?;
-      tracing::trace!("Creating channel ID={} at index={}", channel.id(), idx);
-      channels.push(channel);
-    }
-
-    Ok(Self {
-      conn,
-      channels: channels
-        .try_into()
-        .expect("Channels vec size doesn't match array size"),
-    })
-  }
-
-  fn get_channel(
-    &self,
-    id_hash: impl std::hash::Hash,
-  ) -> Option<lapin::Channel> {
-    let channel_idx = Self::channel_idx_for_hash(id_hash);
-    let channel = self.channels[channel_idx].clone();
-    let channel_id = channel.id();
-    tracing::trace!(channel_id, channel_idx, "Retrieving AMQP Channel");
-
-    if channel.status().connected() {
-      return Some(channel);
-    }
-    warn!(channel_id, channel_idx, "Channel is dead!");
-    None
-  }
-
-  async fn reset_channel(
-    &mut self,
-    id_hash: impl std::hash::Hash,
-  ) -> Result<lapin::Channel, lapin::Error> {
-    let channel_idx = Self::channel_idx_for_hash(id_hash);
-
-    let existing_channel = &self.channels[channel_idx];
-    if existing_channel.status().connected() {
-      return Ok(existing_channel.clone());
-    }
-
-    let new_channel = self.conn.create_channel().await?;
-    debug!(
-      "Channel for idx={channel_idx} was recreated, new Id={}",
-      new_channel.id()
-    );
-    self.channels[channel_idx] = new_channel.clone();
-    Ok(new_channel)
+    Ok(Self { conn })
   }
 
   fn is_connected(&self) -> bool {
     self.conn.status().connected()
-  }
-
-  fn channel_idx_for_hash(id_hash: impl std::hash::Hash) -> usize {
-    // We have channel pool and want to distribute them between connected
-    // devices. Round robin would work too, but by using "hash modulo N"
-    // we make sure the same device will always use the same channel.
-    // Generally this shouldn't matter, but helps avoiding potential issues
-    // with the same queue name being declared by different channels,
-    // in case of reconnection.
-    let mut hasher = std::hash::DefaultHasher::new();
-    id_hash.hash(&mut hasher);
-    let channel_idx: usize = hasher.finish() as usize % NUM_AMQP_CHANNELS;
-    channel_idx
   }
 }
 
@@ -165,21 +100,16 @@ impl AmqpConnection {
 
   pub async fn channel(
     &self,
-    id_hash: impl std::hash::Hash + Clone,
+    id_hash: impl std::fmt::Display,
   ) -> Result<lapin::Channel, lapin::Error> {
     if !self.is_connected().await {
       warn!("AMQP disconnected while retrieving channel");
       self.reset_conn().await?;
     }
 
-    {
-      let inner = self.inner.read().await;
-      if let Some(channel) = inner.get_channel(id_hash.clone()) {
-        return Ok(channel);
-      }
-    }
-
-    self.inner.write().await.reset_channel(id_hash).await
+    let channel = self.inner.read().await.conn.create_channel().await?;
+    debug!("Created channel Id={} for {}", channel.id(), id_hash);
+    Ok(channel)
   }
 
   async fn reset_conn(&self) -> Result<(), lapin::Error> {
