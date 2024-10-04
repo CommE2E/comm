@@ -158,11 +158,11 @@ async fn main() -> Result<()> {
   );
 
   tokio::select! {
-    Ok(_) = grpc_server => { Ok(()) },
-    Ok(_) = websocket_server => { Ok(()) },
-    else => {
-      tracing::error!(errorType = error_types::SERVER_ERROR, "A grpc or websocket server crashed.");
-      Err(anyhow!("A grpc or websocket server crashed."))
-    }
+    grpc_result = grpc_server => {
+      grpc_result.map_err(|err| anyhow!("gRPC server failed: {:?}", err))
+    },
+    ws_result = websocket_server => {
+      ws_result.map_err(|err| anyhow!("WS server failed: {:?}", err))
+    },
   }
 }
