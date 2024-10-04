@@ -7,7 +7,6 @@ use database::DatabaseClient;
 use tonic::transport::Server;
 use tonic_web::GrpcWebLayer;
 
-mod backup;
 mod client_service;
 mod config;
 pub mod constants;
@@ -29,8 +28,12 @@ mod reserved_users;
 mod siwe;
 mod sync_identity_search;
 mod token;
-mod tunnelbroker;
 mod websockets;
+
+mod comm_service {
+  pub mod backup;
+  pub mod tunnelbroker;
+}
 
 use constants::{COMM_SERVICES_USE_JSON_LOGS, IDENTITY_SERVICE_SOCKET_ADDR};
 use cors::cors_layer;
