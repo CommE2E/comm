@@ -17,6 +17,7 @@ use comm_lib::{
 use tracing::{debug, error, info, warn};
 
 use crate::{
+  comm_service::tunnelbroker,
   constants::{
     error_types, MAX_ONE_TIME_KEYS, ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT,
   },
@@ -60,8 +61,7 @@ impl DatabaseClient {
       let device_id = device_id.to_string();
       tokio::spawn(async move {
         debug!("Attempting to request more keys for device: {}", &device_id);
-        let result =
-          crate::tunnelbroker::send_refresh_keys_request(&device_id).await;
+        let result = tunnelbroker::send_refresh_keys_request(&device_id).await;
         consume_error(result);
       });
     }
