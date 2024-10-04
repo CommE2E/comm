@@ -2,8 +2,73 @@ use derive_more::Constructor;
 use hex::ToHex;
 use sha2::{Digest, Sha256};
 
+pub mod http {
+  use serde::{Deserialize, Serialize};
+
+  pub use super::BlobInfo;
+
+  // Assign multiple holders
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct AssignHoldersRequest {
+    pub requests: Vec<BlobInfo>,
+  }
+
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct HolderAssignmentResult {
+    #[serde(flatten)]
+    pub request: BlobInfo,
+    pub success: bool,
+    pub data_exists: bool,
+    pub holder_already_exists: bool,
+  }
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct AssignHoldersResponse {
+    pub results: Vec<HolderAssignmentResult>,
+  }
+
+  // Remove multiple holders
+  #[derive(Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct RemoveHoldersRequest {
+    pub requests: Vec<BlobInfo>,
+    #[serde(default)]
+    pub instant_delete: bool,
+  }
+  #[derive(Serialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct RemoveHoldersResponse {
+    pub failed_requests: Vec<BlobInfo>,
+  }
+
+  // Single holder endpoint types
+
+  #[derive(Serialize, Deserialize, Debug)]
+  pub struct AssignHolderRequest {
+    pub blob_hash: String,
+    pub holder: String,
+  }
+  #[derive(Serialize, Deserialize, Debug)]
+  pub struct AssignHolderResponse {
+    pub data_exists: bool,
+  }
+
+  #[derive(Serialize, Deserialize, Debug)]
+  pub struct RemoveHolderRequest {
+    pub blob_hash: String,
+    pub holder: String,
+    /// If true, the blob will be deleted intantly
+    /// after the last holder is revoked.
+    #[serde(default)]
+    pub instant_delete: bool,
+  }
+}
+
 /// Blob owning information - stores both blob_hash and holder
-#[derive(Clone, Debug, Constructor)]
+#[derive(Clone, Debug, Constructor, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct BlobInfo {
   pub blob_hash: String,
   pub holder: String,
