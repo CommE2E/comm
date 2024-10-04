@@ -79,6 +79,10 @@ resource "aws_ecs_task_definition" "identity_service" {
           value = local.backup_local_url
         },
         {
+          name  = "BLOB_SERVICE_URL",
+          value = local.blob_local_url
+        },
+        {
           name  = "OPENSEARCH_ENDPOINT"
           value = module.shared.opensearch_domain_identity.endpoint
         },
