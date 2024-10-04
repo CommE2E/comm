@@ -243,16 +243,13 @@ async fn accept_connection(
               error!("Invalid payload");
             }
           },
-          Err(ref err) if crate::amqp::is_connection_error(err) => {
+          Err(err) => {
+            warn!("Session AMQP error: {:?}", err);
             if let Err(e) = session.reset_failed_amqp().await {
               warn!("Connection to {} closed due to failed AMQP restoration: {:?}", addr, e);
               break;
             }
             continue;
-          }
-          Err(err) => {
-            warn!("Connection to {} closed due to AMQP error: {:?}", addr, err);
-            break;
           }
         }
       },
