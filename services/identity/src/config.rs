@@ -10,10 +10,11 @@ use url::Url;
 
 use crate::constants::{
   cors::ALLOW_ORIGIN_LIST, cors::PROD_ORIGIN_HOST_STR, BACKUP_SERVICE_URL,
-  DEFAULT_BACKUP_SERVICE_URL, DEFAULT_OPENSEARCH_ENDPOINT,
-  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
-  OPAQUE_SERVER_SETUP, OPENSEARCH_ENDPOINT, REDACT_SENSITIVE_DATA,
-  SECRETS_DIRECTORY, SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
+  BLOB_SERVICE_URL, DEFAULT_BACKUP_SERVICE_URL, DEFAULT_BLOB_SERVICE_URL,
+  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
+  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
+  OPENSEARCH_ENDPOINT, REDACT_SENSITIVE_DATA, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -70,6 +71,11 @@ struct Cli {
   #[arg(env = BACKUP_SERVICE_URL)]
   #[arg(long, default_value = DEFAULT_BACKUP_SERVICE_URL)]
   backup_service_url: reqwest::Url,
+
+  /// Blob service URL
+  #[arg(env = BLOB_SERVICE_URL)]
+  #[arg(long, default_value = DEFAULT_BLOB_SERVICE_URL)]
+  blob_service_url: reqwest::Url,
 }
 
 #[derive(Subcommand)]
@@ -94,6 +100,7 @@ pub struct ServerConfig {
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
   pub backup_service_url: reqwest::Url,
+  pub blob_service_url: reqwest::Url,
   pub opensearch_endpoint: String,
   pub allow_origin: Option<AllowOrigin>,
   pub redact_sensitive_data: bool,
@@ -128,6 +135,7 @@ impl ServerConfig {
       localstack_endpoint: cli.localstack_endpoint.clone(),
       tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
       backup_service_url: cli.backup_service_url.clone(),
+      blob_service_url: cli.blob_service_url.clone(),
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       keyserver_public_key,
