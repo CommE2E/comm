@@ -8,13 +8,14 @@ use aws_sdk_dynamodb::{
 };
 use chrono::Utc;
 use comm_lib::database::{
-  self, batch_operations::ExponentialBackoffConfig, TryFromAttribute,
+  self, batch_operations::ExponentialBackoffConfig, AttributeExtractor,
+  TryFromAttribute,
 };
 use std::collections::HashMap;
 use tracing::{debug, error, trace};
 
-use crate::constants::db::*;
 use crate::constants::error_types;
+use crate::{constants::db::*, types::BlobHashAndHolder};
 
 use super::errors::{BlobDBError, Error as DBError};
 use super::types::*;
@@ -253,6 +254,38 @@ impl DatabaseClient {
     .into_iter()
     .map(PrimaryKey::try_from)
     .collect::<Result<Vec<_>, _>>()
+  }
+
+  pub async fn query_indexed_holders(
+    &self,
+    prefix: String,
+  ) -> DBResult<Vec<BlobHashAndHolder>> {
+    self
+      .ddb
+      .query()
+      .table_name(BLOB_TABLE_NAME)
+      .index_name(HOLDER_TAG_INDEX_NAME)
+      .key_condition_expression("#indexed_tag = :prefix")
+      .expression_attribute_names("#indexed_tag", HOLDER_TAG_INDEX_KEY_ATTR)
+      .expression_attribute_values(":prefix", AttributeValue::S(prefix))
+      .send()
+      .await
+      .map_err(|err| {
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to query indexed holders: {:?}", err
+        );
+        DBError::AwsSdk(Box::new(err.into()))
+      })?
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(|mut item| {
+        let blob_hash = item.take_attr(ATTR_BLOB_HASH)?;
+        let holder = item.take_attr(ATTR_HOLDER)?;
+        Ok(BlobHashAndHolder { blob_hash, holder })
+      })
+      .collect()
   }
 
   /// Returns a list of primary keys for "unchecked" items (blob / holder)
