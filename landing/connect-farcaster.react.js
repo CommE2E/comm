@@ -41,12 +41,6 @@ function ConnectFarcaster(): React.Node {
     validSignature,
   } = signInState;
 
-  React.useEffect(() => {
-    if (!channelToken) {
-      connect();
-    }
-  }, [channelToken, connect]);
-
   const messageSentRef = React.useRef<boolean>(false);
   const authenticated = isSuccess && validSignature;
 
@@ -57,6 +51,8 @@ function ConnectFarcaster(): React.Node {
     if (isError) {
       messageSentRef.current = false;
       reconnect();
+    } else if (!channelToken) {
+      connect();
     }
 
     signIn();
@@ -69,7 +65,7 @@ function ConnectFarcaster(): React.Node {
         url: url.toString(),
       });
     }
-  }, [authenticated, isError, reconnect, signIn, url]);
+  }, [authenticated, isError, reconnect, channelToken, connect, signIn, url]);
 
   return null;
 }
