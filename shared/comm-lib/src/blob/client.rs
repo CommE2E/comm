@@ -17,8 +17,11 @@ use crate::{
   auth::{AuthorizationCredential, UserIdentity},
   blob::types::http::{
     AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
+    RemoveHoldersRequest,
   },
 };
+
+use super::types::{http::RemoveHoldersResponse, BlobInfo};
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -247,6 +250,52 @@ impl BlobServiceClient {
     Err(error)
   }
 
+  /// Removes multiple holders.
+  /// - Holders don't have to own the same blob item. For each item
+  ///   a (blob hash; holder) pair is specified.
+  /// - Operation is idempotent. Not existing holders are treated as
+  ///   successfully removed.
+  /// - If one or more removal failed server-side, these will be returned
+  ///   in the `failed_requests` response field. It has the same format
+  ///   as this function input and can be directly used to retry removal.
+  ///
+  /// For single holder removal, see [`BlobServiceClient::revoke_holder`].
+  pub async fn remove_multiple_holders(
+    &self,
+    blob_infos: Vec<BlobInfo>,
+  ) -> BlobResult<RemoveHoldersResponse> {
+    let num_holders = blob_infos.len();
+    debug!(num_holders, "Revoke multiple holders request.");
+
+    let url = self.get_holders_url()?;
+    let payload = RemoveHoldersRequest {
+      requests: blob_infos,
+      instant_delete: false,
+    };
+    trace!("Request payload: {:?}", payload);
+    let response = self
+      .request(Method::DELETE, url)?
+      .json(&payload)
+      .send()
+      .await?;
+    debug!("Response status: {}", response.status());
+
+    if response.status().is_success() {
+      let result: RemoveHoldersResponse = response.json().await?;
+      debug!(
+        "Request successful. {} holders failed to be removed.",
+        result.failed_requests.len()
+      );
+      return Ok(result);
+    }
+
+    let error = handle_http_error(response.status());
+    if let Ok(message) = response.text().await {
+      debug!("Error response message: {}", message);
+    }
+    Err(error)
+  }
+
   /// Uploads a blob. Returns `BlobServiceError::AlreadyExists` if blob with given hash
   /// already exists.
   ///
@@ -365,6 +414,15 @@ impl BlobServiceClient {
     let url = self
       .blob_service_url
       .join(&path)
+      .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
+    trace!("Constructed request URL: {}", url);
+    Ok(url)
+  }
+
+  fn get_holders_url(&self) -> Result<Url, BlobServiceError> {
+    let url = self
+      .blob_service_url
+      .join("/holders")
       .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
     trace!("Constructed request URL: {}", url);
     Ok(url)
