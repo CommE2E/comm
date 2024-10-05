@@ -1,5 +1,6 @@
 use derive_more::Constructor;
 use hex::ToHex;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// This module defines structures for HTTP requests and responses
@@ -38,12 +39,23 @@ pub mod http {
 
   // Remove multiple holders
   #[derive(Serialize, Deserialize, Debug)]
-  #[serde(rename_all = "camelCase")]
-  pub struct RemoveHoldersRequest {
-    pub requests: Vec<BlobInfo>,
-    #[serde(default)]
-    pub instant_delete: bool,
+  #[serde(untagged)]
+  pub enum RemoveHoldersRequest {
+    // remove holders with given (hash, holder) pairs
+    #[serde(rename_all = "camelCase")]
+    Items {
+      requests: Vec<BlobInfo>,
+      /// If true, the blobs will be deleted instantly
+      /// after their last holders are revoked.
+      #[serde(default)]
+      instant_delete: bool,
+    },
+    // remove all holders that are indexed by any of given tags
+    ByIndexedTags {
+      tags: Vec<String>,
+    },
   }
+
   #[derive(Serialize, Deserialize, Debug)]
   #[serde(rename_all = "camelCase")]
   pub struct RemoveHoldersResponse {
@@ -66,7 +78,7 @@ pub mod http {
   pub struct RemoveHolderRequest {
     pub blob_hash: String,
     pub holder: String,
-    /// If true, the blob will be deleted intantly
+    /// If true, the blob will be deleted instantly
     /// after the last holder is revoked.
     #[serde(default)]
     pub instant_delete: bool,
@@ -74,7 +86,7 @@ pub mod http {
 }
 
 /// Blob owning information - stores both blob_hash and holder
-#[derive(Clone, Debug, Constructor, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Constructor, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BlobInfo {
   pub blob_hash: String,
@@ -136,6 +148,70 @@ mod db_conversions {
         .remove("holder")
         .attr_try_into(format!("{attr_name}.holder"))?;
       Ok(BlobInfo { blob_hash, holder })
+    }
+  }
+}
+
+#[cfg(test)]
+mod serialization_tests {
+  use super::http::*;
+  mod remove_holders_request {
+    use super::*;
+
+    #[test]
+    fn serialize_items() {
+      let req = RemoveHoldersRequest::Items {
+        requests: vec![BlobInfo::new("a".into(), "b".into())],
+        instant_delete: false,
+      };
+      let expected =
+        r#"{"requests":[{"blobHash":"a","holder":"b"}],"instantDelete":false}"#;
+      assert_eq!(expected, serde_json::to_string(&req).unwrap());
+    }
+
+    #[test]
+    fn deserialize_items() {
+      let json =
+        r#"{"requests":[{"blobHash":"a","holder":"b"}],"instantDelete":false}"#;
+      let deserialized: RemoveHoldersRequest =
+        serde_json::from_str(json).expect("Request JSON payload invalid");
+
+      let expected_items = vec![BlobInfo::new("a".into(), "b".into())];
+
+      let is_matching = matches!(
+        deserialized,
+        RemoveHoldersRequest::Items {
+          requests: items,
+          instant_delete: false,
+        } if items == expected_items
+      );
+      assert!(is_matching, "Deserialized request is incorrect");
+    }
+
+    #[test]
+    fn serialize_tags() {
+      let req = RemoveHoldersRequest::ByIndexedTags {
+        tags: vec!["foo".into(), "bar".into()],
+      };
+      let expected = r#"{"tags":["foo","bar"]}"#;
+      assert_eq!(expected, serde_json::to_string(&req).unwrap());
+    }
+
+    #[test]
+    fn deserialize_tags() {
+      let json = r#"{"tags":["foo","bar"]}"#;
+      let deserialized: RemoveHoldersRequest =
+        serde_json::from_str(json).expect("Request JSON payload invalid");
+
+      let expected_tags: Vec<String> = vec!["foo".into(), "bar".into()];
+
+      let is_matching = matches!(
+        deserialized,
+        RemoveHoldersRequest::ByIndexedTags {
+          tags: actual_tags
+        } if actual_tags == expected_tags
+      );
+      assert!(is_matching, "Deserialized request is incorrect");
     }
   }
 }

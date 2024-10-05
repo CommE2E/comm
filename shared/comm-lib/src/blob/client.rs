@@ -253,7 +253,7 @@ impl BlobServiceClient {
     debug!(num_holders, "Revoke multiple holders request.");
 
     let url = self.get_holders_url()?;
-    let payload = RemoveHoldersRequest {
+    let payload = RemoveHoldersRequest::Items {
       requests: blob_infos,
       instant_delete: false,
     };
