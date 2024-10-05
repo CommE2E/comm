@@ -16,12 +16,12 @@ pub use reqwest::Url;
 use crate::{
   auth::{AuthorizationCredential, UserIdentity},
   blob::types::http::{
-    AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
-    RemoveHoldersRequest,
+    AssignHolderRequest, AssignHolderResponse, HoldersQueryResponse,
+    RemoveHolderRequest, RemoveHoldersRequest,
   },
 };
 
-use super::types::http::RemoveHoldersResponse;
+use super::types::http::{BlobInfo, RemoveHoldersResponse};
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -260,7 +260,7 @@ impl BlobServiceClient {
       }
     }
 
-    let url = self.get_holders_url()?;
+    let url = self.get_holders_url(None)?;
     trace!("Request payload: {:?}", request);
     let response = self
       .request(Method::DELETE, url)?
@@ -278,6 +278,39 @@ impl BlobServiceClient {
       result.failed_requests.len()
     );
     Ok(result)
+  }
+
+  /// Returns a list of (blob hash; holder) pairs for holders that
+  /// are in format of `prefix:rest` or their first `tag`
+  /// is equal to the queried value (NOTE: tags are not yet implemented).
+  /// Equality check is done server side. Full prefix value must be specified.
+  ///
+  /// #### Example _(blob hashes omitted for brevity)_:
+  /// Given holders in DDB: `["foo:abc", "bar:abc", "foo:123", "foobar:456"]`,
+  /// querying for `foo` will return: `["foo:abc", "foo:123"]`.
+  pub async fn query_holders_by_prefix(
+    &self,
+    prefix: impl AsRef<str>,
+  ) -> BlobResult<Vec<BlobInfo>> {
+    debug!("Query holders by prefix request.");
+
+    let url = self.get_holders_url(Some(prefix.as_ref()))?;
+    let response = self
+      .request(Method::GET, url)?
+      .send()
+      .await
+      .map_err(BlobServiceError::ClientError)?;
+
+    if !response.status().is_success() {
+      return error_response_result(response).await;
+    }
+
+    let HoldersQueryResponse { items } = response.json().await?;
+    debug!(
+      "Request successful. Found {} holders matching prefix.",
+      items.len()
+    );
+    Ok(items)
   }
 
   /// Uploads a blob. Returns `BlobServiceError::AlreadyExists` if blob with given hash
@@ -402,10 +435,17 @@ impl BlobServiceClient {
     Ok(url)
   }
 
-  fn get_holders_url(&self) -> Result<Url, BlobServiceError> {
+  fn get_holders_url(
+    &self,
+    prefix: Option<&str>,
+  ) -> Result<Url, BlobServiceError> {
+    let path = match prefix {
+      Some(prefix) => format!("/holders?prefix={}", prefix),
+      None => "/holders".to_string(),
+    };
     let url = self
       .blob_service_url
-      .join("/holders")
+      .join(&path)
       .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
     trace!("Constructed request URL: {}", url);
     Ok(url)
