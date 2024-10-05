@@ -1,5 +1,6 @@
-use actix_web::error::{ErrorBadRequest, ErrorNotImplemented};
+use actix_web::error::{ErrorBadRequest, ErrorForbidden};
 use actix_web::{web, HttpResponse};
+use comm_lib::auth::AuthorizationCredential;
 use comm_lib::blob::types::http::{
   AssignHoldersRequest, AssignHoldersResponse, BlobInfo,
   HolderAssignmentResult, RemoveHoldersRequest, RemoveHoldersResponse,
@@ -62,17 +63,24 @@ pub async fn assign_holders_handler(
 pub async fn remove_holders_handler(
   service: web::Data<BlobService>,
   payload: web::Json<RemoveHoldersRequest>,
+  requesting_identity: AuthorizationCredential,
 ) -> actix_web::Result<HttpResponse> {
-  let RemoveHoldersRequest::Items {
-    requests,
-    instant_delete,
-  } = payload.into_inner()
-  else {
-    return Err(ErrorNotImplemented("not implemented"));
+  let (requests, instant_delete) = match payload.into_inner() {
+    RemoveHoldersRequest::Items {
+      requests,
+      instant_delete,
+    } => (requests, instant_delete),
+    RemoveHoldersRequest::ByIndexedTags { tags } => {
+      verify_caller_is_service(&requesting_identity)?;
+
+      tracing::debug!("Querying holders for {} tags", tags.len());
+      let requests = service.query_holders_by_tags(tags).await?;
+      (requests, false)
+    }
   };
   info!(
     instant_delete,
-    "Remove request for {} holders.",
+    "Requested removal of {} holders.",
     requests.len()
   );
   validate_request(&requests)?;
@@ -113,4 +121,16 @@ fn validate_request(items: &[BlobInfo]) -> actix_web::Result<()> {
   }
 
   Ok(())
+}
+
+/// Returns HTTP 403 if caller is not a Comm service
+fn verify_caller_is_service(
+  requesting_identity: &AuthorizationCredential,
+) -> actix_web::Result<()> {
+  match requesting_identity {
+    AuthorizationCredential::ServicesToken(_) => Ok(()),
+    _ => Err(ErrorForbidden(
+      "This endpoint can only be called by other services",
+    )),
+  }
 }
