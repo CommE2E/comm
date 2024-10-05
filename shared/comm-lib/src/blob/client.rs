@@ -158,23 +158,18 @@ impl BlobServiceClient {
       .await
       .map_err(BlobServiceError::ClientError)?;
 
-    debug!("Response status: {}", response.status());
-    if response.status().is_success() {
-      let stream = response.bytes_stream().map(|result| match result {
-        Ok(bytes) => Ok(bytes),
-        Err(error) => {
-          warn!("Error while streaming response: {}", error);
-          Err(BlobServiceError::ClientError(error))
-        }
-      });
-      return Ok(stream);
+    if !response.status().is_success() {
+      return error_response_result(response).await;
     }
 
-    let error = handle_http_error(response.status());
-    if let Ok(message) = response.text().await {
-      trace!("Error response message: {}", message);
-    }
-    Err(error)
+    let stream = response.bytes_stream().map(|result| match result {
+      Ok(bytes) => Ok(bytes),
+      Err(error) => {
+        warn!("Error while streaming response: {}", error);
+        Err(BlobServiceError::ClientError(error))
+      }
+    });
+    Ok(stream)
   }
 
   /// Assigns a new holder to a blob represented by [`blob_hash`].
@@ -199,18 +194,13 @@ impl BlobServiceClient {
       .send()
       .await?;
 
-    debug!("Response status: {}", response.status());
-    if response.status().is_success() {
-      let AssignHolderResponse { data_exists } = response.json().await?;
-      trace!("Data exists: {}", data_exists);
-      return Ok(data_exists);
+    if !response.status().is_success() {
+      return error_response_result(response).await;
     }
 
-    let error = handle_http_error(response.status());
-    if let Ok(message) = response.text().await {
-      trace!("Error response message: {}", message);
-    }
-    Err(error)
+    let AssignHolderResponse { data_exists } = response.json().await?;
+    trace!("Data exists: {}", data_exists);
+    Ok(data_exists)
   }
 
   /// Revokes given holder from a blob represented by [`blob_hash`].
@@ -236,18 +226,13 @@ impl BlobServiceClient {
       .json(&payload)
       .send()
       .await?;
-    debug!("Response status: {}", response.status());
 
     if response.status().is_success() {
       trace!("Revoke holder request successful");
       return Ok(());
     }
 
-    let error = handle_http_error(response.status());
-    if let Ok(message) = response.text().await {
-      trace!("Error response message: {}", message);
-    }
-    Err(error)
+    error_response_result(response).await
   }
 
   /// Removes multiple holders.
@@ -278,22 +263,17 @@ impl BlobServiceClient {
       .json(&payload)
       .send()
       .await?;
-    debug!("Response status: {}", response.status());
 
-    if response.status().is_success() {
-      let result: RemoveHoldersResponse = response.json().await?;
-      debug!(
-        "Request successful. {} holders failed to be removed.",
-        result.failed_requests.len()
-      );
-      return Ok(result);
+    if !response.status().is_success() {
+      return error_response_result(response).await;
     }
 
-    let error = handle_http_error(response.status());
-    if let Ok(message) = response.text().await {
-      debug!("Error response message: {}", message);
-    }
-    Err(error)
+    let result: RemoveHoldersResponse = response.json().await?;
+    debug!(
+      "Request successful. {} holders failed to be removed.",
+      result.failed_requests.len()
+    );
+    Ok(result)
   }
 
   /// Uploads a blob. Returns `BlobServiceError::AlreadyExists` if blob with given hash
@@ -337,7 +317,6 @@ impl BlobServiceClient {
       .multipart(form)
       .send()
       .await?;
-    debug!("Response status: {}", response.status());
 
     if response.status().is_success() {
       trace!("Blob upload successful");
@@ -455,6 +434,18 @@ fn handle_http_error(status_code: StatusCode) -> BlobServiceError {
     code if code.is_server_error() => BlobServiceError::ServerError,
     code => BlobServiceError::UnexpectedHttpStatus(code),
   }
+}
+
+async fn error_response_result<T>(
+  response: reqwest::Response,
+) -> BlobResult<T> {
+  let status = response.status();
+  debug!("Response status: {}", status);
+  let error = handle_http_error(status);
+  if let Ok(message) = response.text().await {
+    trace!("Error response message: {}", message);
+  }
+  Err(error)
 }
 
 type BlobResult<T> = Result<T, BlobServiceError>;
