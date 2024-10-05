@@ -1,4 +1,4 @@
-use actix_web::error::{ErrorBadRequest, ErrorNotImplemented};
+use actix_web::error::ErrorBadRequest;
 use actix_web::{web, HttpResponse};
 use comm_lib::blob::types::http::{
   AssignHoldersRequest, AssignHoldersResponse, BlobInfo,
@@ -63,16 +63,20 @@ pub async fn remove_holders_handler(
   service: web::Data<BlobService>,
   payload: web::Json<RemoveHoldersRequest>,
 ) -> actix_web::Result<HttpResponse> {
-  let RemoveHoldersRequest::Items {
-    requests,
-    instant_delete,
-  } = payload.into_inner()
-  else {
-    return Err(ErrorNotImplemented("not implemented"));
+  let (requests, instant_delete) = match payload.into_inner() {
+    RemoveHoldersRequest::Items {
+      requests,
+      instant_delete,
+    } => (requests, instant_delete),
+    RemoveHoldersRequest::ByIndexedTags { tags } => {
+      tracing::debug!("Querying holders for {} tags", tags.len());
+      let requests = service.query_holders_by_tags(tags).await?;
+      (requests, false)
+    }
   };
   info!(
     instant_delete,
-    "Remove request for {} holders.",
+    "Requested removal of {} holders.",
     requests.len()
   );
   validate_request(&requests)?;
