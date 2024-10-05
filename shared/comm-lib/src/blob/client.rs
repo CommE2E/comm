@@ -21,7 +21,7 @@ use crate::{
   },
 };
 
-use super::types::{http::RemoveHoldersResponse, BlobInfo};
+use super::types::http::RemoveHoldersResponse;
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -242,25 +242,29 @@ impl BlobServiceClient {
   ///   successfully removed.
   /// - If one or more removal failed server-side, these will be returned
   ///   in the `failed_requests` response field. It has the same format
-  ///   as this function input and can be directly used to retry removal.
+  ///   as this function input and can be directly used to retry removal,
+  ///   by calling `remove_multiple_holders(failed_requests.into()).await`
   ///
   /// For single holder removal, see [`BlobServiceClient::revoke_holder`].
   pub async fn remove_multiple_holders(
     &self,
-    blob_infos: Vec<BlobInfo>,
+    request: RemoveHoldersRequest,
   ) -> BlobResult<RemoveHoldersResponse> {
-    let num_holders = blob_infos.len();
-    debug!(num_holders, "Revoke multiple holders request.");
+    match &request {
+      RemoveHoldersRequest::Items { requests, .. } => {
+        let num_holders = requests.len();
+        debug!(num_holders, "Remove multiple holders request.");
+      }
+      RemoveHoldersRequest::ByIndexedTags { tags } => {
+        debug!("Remove holders request for {} tags.", tags.len());
+      }
+    }
 
     let url = self.get_holders_url()?;
-    let payload = RemoveHoldersRequest::Items {
-      requests: blob_infos,
-      instant_delete: false,
-    };
-    trace!("Request payload: {:?}", payload);
+    trace!("Request payload: {:?}", request);
     let response = self
       .request(Method::DELETE, url)?
-      .json(&payload)
+      .json(&request)
       .send()
       .await?;
 

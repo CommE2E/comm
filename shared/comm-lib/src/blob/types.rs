@@ -83,6 +83,16 @@ pub mod http {
     #[serde(default)]
     pub instant_delete: bool,
   }
+
+  // impls
+  impl From<Vec<BlobInfo>> for RemoveHoldersRequest {
+    fn from(requests: Vec<BlobInfo>) -> Self {
+      Self::Items {
+        requests,
+        instant_delete: false,
+      }
+    }
+  }
 }
 
 /// Blob owning information - stores both blob_hash and holder
