@@ -11,6 +11,7 @@ blob-client = [
   "dep:reqwest",
   "dep:futures-core",
   "dep:futures-util",
+  "dep:tokio-stream",
 ]
 http = [
   "dep:actix-cors",
