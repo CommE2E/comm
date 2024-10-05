@@ -20,6 +20,12 @@ pub fn is_valid_identifier(identifier: &str) -> bool {
     .all(|c| c.is_ascii_alphanumeric() || VALID_IDENTIFIER_CHARS.contains(&c))
 }
 
+/// Converts base64 string to base64url format. See RFC 4648 § 5 for details.
+#[inline]
+pub fn base64_to_base64url(base64_string: &str) -> String {
+  base64_string.replace('/', "_").replace('+', "-")
+}
+
 pub type BoxedError = Box<dyn std::error::Error>;
 
 /// Defers call of the provided function to when [Defer] goes out of scope.

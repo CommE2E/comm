@@ -25,6 +25,8 @@ pub enum Error {
   #[display(...)]
   Reqwest(reqwest::Error),
   #[display(...)]
+  BlobService(comm_lib::blob::client::BlobServiceError),
+  #[display(...)]
   CannotOverwrite,
   #[display(...)]
   OneTimeKeyUploadLimitExceeded,
