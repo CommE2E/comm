@@ -15,6 +15,7 @@ use crate::{
 };
 use chrono::DateTime;
 use comm_lib::auth::AuthService;
+use comm_lib::blob::client::BlobServiceClient;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, trace};
@@ -38,6 +39,7 @@ use super::protos::unauth::Empty;
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
   db_client: DatabaseClient,
+  blob_client: BlobServiceClient,
   comm_auth_service: AuthService,
 }
 
