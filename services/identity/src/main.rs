@@ -1,7 +1,8 @@
 use comm_lib::auth::AuthService;
-use comm_lib::aws;
 use comm_lib::aws::config::timeout::TimeoutConfig;
 use comm_lib::aws::config::BehaviorVersion;
+use comm_lib::aws::{self, AwsConfig};
+use comm_lib::blob::client::BlobServiceClient;
 use config::Command;
 use database::DatabaseClient;
 use tonic::transport::Server;
@@ -50,6 +51,24 @@ use grpc_services::authenticated::AuthenticatedService;
 use grpc_services::protos::auth::identity_client_service_server::IdentityClientServiceServer as AuthServer;
 use websockets::errors::BoxedError;
 
+async fn load_aws_config() -> AwsConfig {
+  let mut config_builder =
+    comm_lib::aws::config::defaults(BehaviorVersion::v2024_03_28())
+      .timeout_config(
+        TimeoutConfig::builder()
+          .connect_timeout(Duration::from_secs(60))
+          .build(),
+      )
+      .region("us-east-2");
+
+  if let Some(endpoint) = &config::CONFIG.localstack_endpoint {
+    info!("Using Localstack. AWS endpoint URL: {}", endpoint);
+    config_builder = config_builder.endpoint_url(endpoint);
+  }
+
+  config_builder.load().await
+}
+
 #[tokio::main]
 async fn main() -> Result<(), BoxedError> {
   let filter = EnvFilter::builder()
@@ -78,27 +97,23 @@ async fn main() -> Result<(), BoxedError> {
       generate_and_persist_keypair(dir)?;
     }
     Command::Server => {
-      config::load_server_config();
+      let cfg = config::load_server_config();
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
-      let aws_config = aws::config::defaults(BehaviorVersion::v2024_03_28())
-        .timeout_config(
-          TimeoutConfig::builder()
-            .connect_timeout(Duration::from_secs(60))
-            .build(),
-        )
-        .region("us-east-2")
-        .load()
-        .await;
+      let aws_config = load_aws_config().await;
       let comm_auth_service =
         AuthService::new(&aws_config, "http://localhost:50054".to_string());
+      let blob_client = BlobServiceClient::new(cfg.blob_service_url.to_owned());
       let database_client = DatabaseClient::new(&aws_config);
       let inner_client_service = ClientService::new(database_client.clone());
       let client_service = IdentityClientServiceServer::with_interceptor(
         inner_client_service,
         grpc_services::shared::version_interceptor,
       );
-      let inner_auth_service =
-        AuthenticatedService::new(database_client.clone(), comm_auth_service);
+      let inner_auth_service = AuthenticatedService::new(
+        database_client.clone(),
+        blob_client,
+        comm_auth_service,
+      );
       let db_client = database_client.clone();
       let auth_service =
         AuthServer::with_interceptor(inner_auth_service, move |req| {
