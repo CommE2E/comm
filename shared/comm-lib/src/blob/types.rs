@@ -38,7 +38,7 @@ pub mod http {
   }
 
   // Remove multiple holders
-  #[derive(Serialize, Deserialize, Debug)]
+  #[derive(Serialize, Deserialize, Debug, Clone)]
   #[serde(untagged)]
   pub enum RemoveHoldersRequest {
     // remove holders with given (hash, holder) pairs
