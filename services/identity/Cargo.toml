@@ -16,6 +16,7 @@ derive_more = { workspace = true }
 comm-lib = { path = "../../shared/comm-lib", features = [
   "aws",
   "grpc_clients",
+  "blob-client",
 ] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter", "json"] }
