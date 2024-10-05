@@ -39,7 +39,6 @@ use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn, Instrument};
 
 use crate::client_service::{FlattenedDeviceKeyUpload, UserRegistrationInfo};
-use crate::config::CONFIG;
 use crate::constants::{
   error_types, NONCE_TABLE, NONCE_TABLE_CREATED_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
@@ -151,20 +150,7 @@ pub struct DatabaseClient {
 
 impl DatabaseClient {
   pub fn new(aws_config: &AwsConfig) -> Self {
-    let client = match &CONFIG.localstack_endpoint {
-      Some(endpoint) => {
-        info!(
-          "Configuring DynamoDB client to use LocalStack endpoint: {}",
-          endpoint
-        );
-        let ddb_config_builder =
-          comm_lib::aws::ddb::config::Builder::from(aws_config)
-            .endpoint_url(endpoint);
-        DynamoDBClient::from_conf(ddb_config_builder.build())
-      }
-      None => DynamoDBClient::new(aws_config),
-    };
-
+    let client = DynamoDBClient::new(aws_config);
     DatabaseClient {
       client: Arc::new(client),
     }
