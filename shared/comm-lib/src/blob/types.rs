@@ -30,14 +30,14 @@ pub mod http {
   }
 
   // Remove multiple holders
-  #[derive(Deserialize, Debug)]
+  #[derive(Serialize, Deserialize, Debug)]
   #[serde(rename_all = "camelCase")]
   pub struct RemoveHoldersRequest {
     pub requests: Vec<BlobInfo>,
     #[serde(default)]
     pub instant_delete: bool,
   }
-  #[derive(Serialize, Debug)]
+  #[derive(Serialize, Deserialize, Debug)]
   #[serde(rename_all = "camelCase")]
   pub struct RemoveHoldersResponse {
     pub failed_requests: Vec<BlobInfo>,
