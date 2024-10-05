@@ -13,7 +13,7 @@ use comm_lib::tools::BoxedError;
 use once_cell::sync::Lazy;
 use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
-use tracing::{debug, error, info, trace, warn};
+use tracing::{debug, error, info, trace, warn, Instrument};
 
 use crate::config::{CONFIG, OFFENSIVE_INVITE_LINKS};
 use crate::constants::{
@@ -47,8 +47,11 @@ pub enum BlobServiceError {
   InvalidState,
   DB(DBError),
   S3(S3Error),
+  #[from(ignore)]
   InputError(#[error(ignore)] BoxedError),
   InviteLinkError(InviteLinkError),
+  #[from(ignore)]
+  UnexpectedError(#[error(ignore)] BoxedError),
 }
 
 type BlobServiceResult<T> = Result<T, BlobServiceError>;
@@ -304,6 +307,40 @@ impl BlobService {
     tag: String,
   ) -> BlobServiceResult<Vec<BlobInfo>> {
     let results = self.db.query_indexed_holders(tag).await?;
+    Ok(results)
+  }
+
+  pub async fn query_holders_by_tags(
+    &self,
+    tags: Vec<String>,
+  ) -> BlobServiceResult<Vec<BlobInfo>> {
+    let mut tasks = tokio::task::JoinSet::new();
+
+    for tag in tags {
+      let db = self.db.clone();
+      let task = async move { db.query_indexed_holders(tag).await };
+      tasks.spawn(task.in_current_span());
+    }
+
+    let mut results = Vec::new();
+    while let Some(result) = tasks.join_next().await {
+      match result {
+        Ok(Ok(items)) => results.extend(items),
+        Ok(Err(db_error)) => {
+          tasks.abort_all();
+          return Err(db_error.into());
+        }
+        Err(join_error) => {
+          error!(
+            errorType = error_types::OTHER_ERROR,
+            "Holder query task failed: {:?}", join_error
+          );
+          tasks.abort_all();
+          return Err(BlobServiceError::UnexpectedError(Box::new(join_error)));
+        }
+      }
+    }
+
     Ok(results)
   }
 
