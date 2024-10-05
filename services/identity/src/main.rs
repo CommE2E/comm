@@ -32,6 +32,7 @@ mod websockets;
 
 mod comm_service {
   pub mod backup;
+  pub mod blob;
   pub mod tunnelbroker;
 }
 
