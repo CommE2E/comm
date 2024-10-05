@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::comm_service::{backup, tunnelbroker};
+use crate::comm_service::{backup, blob, tunnelbroker};
 use crate::config::CONFIG;
 use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
@@ -99,14 +99,22 @@ pub fn get_user_and_device_id<T>(
   Ok((user_id, device_id))
 }
 
-fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
+fn spawn_delete_devices_services_data_task(
+  blob_client: &BlobServiceClient,
+  device_ids: Vec<String>,
+) {
+  let blob_client = blob_client.clone();
   tokio::spawn(async move {
     debug!(
       "Attempting to delete Tunnelbroker data for devices: {:?}",
       device_ids.as_slice()
     );
-    let result = tunnelbroker::delete_devices_data(&device_ids).await;
-    consume_error(result);
+    let (tunnelbroker_result, blob_result) = tokio::join!(
+      tunnelbroker::delete_devices_data(&device_ids),
+      blob::remove_holders_for_devices(&blob_client, &device_ids)
+    );
+    consume_error(tunnelbroker_result);
+    consume_error(blob_result);
   });
 }
 
@@ -408,7 +416,8 @@ impl IdentityClientService for AuthenticatedService {
       consume_error(result);
     });
 
-    spawn_delete_tunnelbroker_data_task([device_id].into());
+    let blob_client = self.authenticated_blob_client().await?;
+    spawn_delete_devices_services_data_task(&blob_client, [device_id].into());
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -476,7 +485,8 @@ impl IdentityClientService for AuthenticatedService {
       .delete_devices_data_for_user(&user_id)
       .await?;
 
-    spawn_delete_tunnelbroker_data_task(device_ids);
+    let blob_client = self.authenticated_blob_client().await?;
+    spawn_delete_devices_services_data_task(&blob_client, device_ids);
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -511,7 +521,8 @@ impl IdentityClientService for AuthenticatedService {
       .delete_otks_table_rows_for_user_device(&user_id, &device_id)
       .await?;
 
-    spawn_delete_tunnelbroker_data_task([device_id].into());
+    let blob_client = self.authenticated_blob_client().await?;
+    spawn_delete_devices_services_data_task(&blob_client, [device_id].into());
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -537,7 +548,7 @@ impl IdentityClientService for AuthenticatedService {
       ));
     }
 
-    self.delete_tunnelbroker_and_backup_data(&user_id).await?;
+    self.delete_services_data_for_user(&user_id).await?;
 
     self.db_client.delete_user(user_id.clone()).await?;
 
@@ -616,7 +627,7 @@ impl IdentityClientService for AuthenticatedService {
       .finish(&message.opaque_login_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
-    self.delete_tunnelbroker_and_backup_data(&user_id).await?;
+    self.delete_services_data_for_user(&user_id).await?;
 
     self.db_client.delete_user(user_id.clone()).await?;
 
@@ -640,7 +651,7 @@ impl IdentityClientService for AuthenticatedService {
 
     for user_id_to_delete in request.into_inner().user_ids {
       self
-        .delete_tunnelbroker_and_backup_data(&user_id_to_delete)
+        .delete_services_data_for_user(&user_id_to_delete)
         .await?;
       self.db_client.delete_user(user_id_to_delete).await?;
     }
@@ -951,7 +962,7 @@ impl AuthenticatedService {
     Ok(())
   }
 
-  async fn delete_tunnelbroker_and_backup_data(
+  async fn delete_services_data_for_user(
     &self,
     user_id: &str,
   ) -> Result<(), Status> {
@@ -968,12 +979,40 @@ impl AuthenticatedService {
     delete_backup_result?;
 
     debug!(
-      "Attempting to delete Tunnelbroker data for devices: {:?}",
+      "Attempting to delete Blob holders and Tunnelbroker data for devices: {:?}",
       device_ids
     );
-    tunnelbroker::delete_devices_data(&device_ids).await?;
+
+    let (tunnelbroker_result, blob_client_result) = tokio::join!(
+      tunnelbroker::delete_devices_data(&device_ids),
+      self.authenticated_blob_client()
+    );
+    tunnelbroker_result?;
+
+    let blob_client = blob_client_result?;
+    blob::remove_holders_for_devices(&blob_client, &device_ids).await?;
 
     Ok(())
+  }
+
+  /// Retrieves [`BlobServiceClient`] authenticated with a service-to-service token
+  async fn authenticated_blob_client(
+    &self,
+  ) -> Result<BlobServiceClient, crate::error::Error> {
+    let s2s_token =
+      self
+        .comm_auth_service
+        .get_services_token()
+        .await
+        .map_err(|err| {
+          tracing::error!(
+            errorType = error_types::HTTP_LOG,
+            "Failed to retrieve service-to-service token: {err:?}",
+          );
+          tonic::Status::aborted(tonic_status_messages::UNEXPECTED_ERROR)
+        })?;
+    let blob_client = self.blob_client.with_authentication(s2s_token.into());
+    Ok(blob_client)
   }
 }
 
