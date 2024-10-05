@@ -14,7 +14,7 @@ use std::{str::FromStr, string::FromUtf8Error};
 ///   Ok(HttpResponse::Ok().finish())
 /// }
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, From, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum AuthorizationCredential {
   UserToken(UserIdentity),
