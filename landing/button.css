@@ -7,7 +7,6 @@
   justify-content: center;
   padding: 8px 16px;
   transition: 300ms;
-  flex-basis: 120px;
   text-align: center;
   cursor: pointer;
   transition: background-color 150ms;
