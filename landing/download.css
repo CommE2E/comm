@@ -25,7 +25,6 @@
 .buttonsContainer {
   display: flex;
   column-gap: 16px;
-  width: 280px;
 }
 
 .buttonContentContainer {
