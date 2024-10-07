@@ -270,7 +270,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       .basic_consume(
         &device_info.device_id,
         RMQ_CONSUMER_TAG,
-        BasicConsumeOptions::default(),
+        BasicConsumeOptions {
+          no_ack: true,
+          ..Default::default()
+        },
         FieldTable::default(),
       )
       .await?;
