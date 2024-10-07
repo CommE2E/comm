@@ -6,6 +6,7 @@ import {
   faApple,
   faWindows,
 } from '@fortawesome/free-brands-svg-icons';
+import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
@@ -40,6 +41,10 @@ const onClickWindows = () => {
     'https://electron-update.commtechnologies.org/download/windows',
     '_blank',
   );
+};
+
+const onClickWeb = () => {
+  window.open('https://web.comm.app', '_blank');
 };
 
 function Download(): React.Node {
@@ -86,6 +91,12 @@ function Download(): React.Node {
           <div className={css.buttonContentContainer}>
             <FontAwesomeIcon icon={faWindows} size="lg" />
             <div className={typography.paragraph1}>Windows</div>
+          </div>
+        </Button>
+        <Button onClick={onClickWeb}>
+          <div className={css.buttonContentContainer}>
+            <FontAwesomeIcon icon={faGlobe} size="lg" />
+            <div className={typography.paragraph1}>Web</div>
           </div>
         </Button>
       </div>
