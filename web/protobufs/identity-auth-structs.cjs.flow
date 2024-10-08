@@ -439,6 +439,24 @@ export type DeletePasswordUserStartResponseObject = {
   opaqueLoginResponse: Uint8Array | string,
 }
 
+declare export class PrivilegedDeleteUsersRequest extends Message {
+  getUserIdsList(): Array<string>;
+  setUserIdsList(value: Array<string>): PrivilegedDeleteUsersRequest;
+  clearUserIdsList(): PrivilegedDeleteUsersRequest;
+  addUserIds(value: string, index?: number): PrivilegedDeleteUsersRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrivilegedDeleteUsersRequestObject;
+  static toObject(includeInstance: boolean, msg: PrivilegedDeleteUsersRequest): PrivilegedDeleteUsersRequestObject;
+  static serializeBinaryToWriter(message: PrivilegedDeleteUsersRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrivilegedDeleteUsersRequest;
+  static deserializeBinaryFromReader(message: PrivilegedDeleteUsersRequest, reader: BinaryReader): PrivilegedDeleteUsersRequest;
+}
+
+export type PrivilegedDeleteUsersRequestObject = {
+  userIdsList: Array<string>,
+}
+
 export type SinceTimestampCase = 0 | 2;
 
 declare export class GetDeviceListRequest extends Message {

@@ -102,6 +102,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
+  privilegedDeleteUsers(
+    request: identityAuthStructs.PrivilegedDeleteUsersRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
     metadata: grpcWeb.Metadata | void,
@@ -222,6 +229,11 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
+  privilegedDeleteUsers(
+    request: identityAuthStructs.PrivilegedDeleteUsersRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
     metadata?: grpcWeb.Metadata
@@ -258,4 +270,3 @@ declare export class IdentityClientServicePromiseClient {
   ): Promise<identityStructs.Empty>;
 
 }
-

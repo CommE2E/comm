@@ -874,6 +874,67 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.deleteWalletUse
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.PrivilegedDeleteUsersRequest,
+ *   !proto.identity.unauth.Empty>}
+ */
+const methodDescriptor_IdentityClientService_PrivilegedDeleteUsers = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/PrivilegedDeleteUsers',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.PrivilegedDeleteUsersRequest,
+  identity_unauth_pb.Empty,
+  /**
+   * @param {!proto.identity.auth.PrivilegedDeleteUsersRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_unauth_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedDeleteUsersRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.privilegedDeleteUsers =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedDeleteUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedDeleteUsers,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedDeleteUsersRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.privilegedDeleteUsers =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedDeleteUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedDeleteUsers);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.GetDeviceListRequest,
  *   !proto.identity.auth.GetDeviceListResponse>}
  */
@@ -1299,4 +1360,3 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.syncPlatformDet
 
 
 module.exports = proto.identity.auth;
-
