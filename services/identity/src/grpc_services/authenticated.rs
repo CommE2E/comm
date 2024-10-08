@@ -625,9 +625,26 @@ impl IdentityClientService for AuthenticatedService {
   #[tracing::instrument(skip_all)]
   async fn privileged_delete_users(
     &self,
-    _request: tonic::Request<PrivilegedDeleteUsersRequest>,
+    request: tonic::Request<PrivilegedDeleteUsersRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!()
+    const STAFF_USER_IDS: [&str; 1] = ["256"];
+
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    if !STAFF_USER_IDS.contains(&user_id.as_str()) {
+      return Err(Status::permission_denied(
+        tonic_status_messages::USER_IS_NOT_STAFF,
+      ));
+    }
+
+    for user_id_to_delete in request.into_inner().user_ids {
+      self
+        .delete_tunnelbroker_and_backup_data(&user_id_to_delete)
+        .await?;
+      self.db_client.delete_user(user_id_to_delete).await?;
+    }
+
+    let response = Empty {};
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
