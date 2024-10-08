@@ -82,58 +82,83 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
     const { id } = item.messageInfo;
     const threadColor = threadInfo.color;
 
-    const contentClassName = classNames({
-      [css.content]: true,
-      [css.viewerContent]: isViewer,
-      [css.nonViewerContent]: !isViewer,
-    });
-    const messageBoxContainerClassName = classNames({
-      [css.messageBoxContainer]: true,
-      [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
-    });
-    const messageBoxClassName = classNames({
-      [css.messageBox]: true,
-      [css.fixedWidthMessageBox]: props.fixedWidth,
-    });
-    const messageBoxStyle = {
-      borderTopRightRadius: isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomRightRadius: isViewer && !item.endsCluster ? 0 : borderRadius,
-      borderTopLeftRadius: !isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomLeftRadius: !isViewer && !item.endsCluster ? 0 : borderRadius,
-    };
+    const contentClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.content]: true,
+          [css.viewerContent]: isViewer,
+          [css.nonViewerContent]: !isViewer,
+        }),
+      [isViewer],
+    );
+    const messageBoxContainerClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.messageBoxContainer]: true,
+          [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
+        }),
+      [props.fixedWidth],
+    );
+    const messageBoxClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.messageBox]: true,
+          [css.fixedWidthMessageBox]: props.fixedWidth,
+        }),
+      [props.fixedWidth],
+    );
+    const messageBoxStyle = React.useMemo(
+      () => ({
+        borderTopRightRadius:
+          isViewer && !item.startsCluster ? 0 : borderRadius,
+        borderBottomRightRadius:
+          isViewer && !item.endsCluster ? 0 : borderRadius,
+        borderTopLeftRadius:
+          !isViewer && !item.startsCluster ? 0 : borderRadius,
+        borderBottomLeftRadius:
+          !isViewer && !item.endsCluster ? 0 : borderRadius,
+      }),
+      [isViewer, item.startsCluster, item.endsCluster, borderRadius],
+    );
 
-    let authorName = null;
     const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
-    if (stringForUser) {
-      authorName = (
+    const authorName = React.useMemo(() => {
+      if (!stringForUser) {
+        return null;
+      }
+      return (
         <span className={css.authorName} onClick={pushUserProfileModal}>
           {stringForUser}
         </span>
       );
-    }
+    }, [stringForUser, pushUserProfileModal]);
 
-    let deliveryIcon = null;
-    let failedSendInfo = null;
-    if (isViewer) {
-      let deliveryIconSpan;
+    const notDeliveredP2PMessages =
+      item?.localMessageInfo?.outboundP2PMessageIDs;
+    const { deliveryIcon, failedSendInfo } = React.useMemo(() => {
+      if (!isViewer) {
+        return { deliveryIcon: null, failedSendInfo: null };
+      }
+
+      let returnedFailedSendInfo, deliveryIconSpan;
       let deliveryIconColor = threadColor;
-
-      const notDeliveredP2PMessages =
-        item?.localMessageInfo?.outboundP2PMessageIDs ?? [];
       if (
         id !== null &&
         id !== undefined &&
-        notDeliveredP2PMessages.length === 0
+        (!notDeliveredP2PMessages || notDeliveredP2PMessages.length === 0)
       ) {
         deliveryIconSpan = <CheckCircleIcon />;
       } else if (props.sendFailed) {
         deliveryIconSpan = <XCircleIcon />;
         deliveryIconColor = 'FF0000';
-        failedSendInfo = <FailedSend item={item} threadInfo={threadInfo} />;
+        returnedFailedSendInfo = (
+          <FailedSend item={item} threadInfo={threadInfo} />
+        );
       } else {
         deliveryIconSpan = <CircleIcon />;
       }
-      deliveryIcon = (
+
+      const returnedDeliveryIcon = (
         <div
           className={css.iconContainer}
           style={{ color: `#${deliveryIconColor}` }}
@@ -141,17 +166,31 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
           {deliveryIconSpan}
         </div>
       );
-    }
+      return {
+        deliveryIcon: returnedDeliveryIcon,
+        failedSendInfo: returnedFailedSendInfo,
+      };
+    }, [
+      isViewer,
+      threadColor,
+      id,
+      notDeliveredP2PMessages,
+      props.sendFailed,
+      item,
+      threadInfo,
+    ]);
 
-    let inlineEngagement = null;
     const label = getMessageLabel(hasBeenEdited, threadInfo.id);
-    if (
-      item.threadCreatedFromMessage ||
-      Object.keys(item.reactions).length > 0 ||
-      label
-    ) {
+    const inlineEngagement = React.useMemo(() => {
+      if (
+        !item.threadCreatedFromMessage &&
+        Object.keys(item.reactions).length === 0 &&
+        !label
+      ) {
+        return null;
+      }
       const positioning = isViewer ? 'right' : 'left';
-      inlineEngagement = (
+      return (
         <div className={css.sidebarMarginBottom}>
           <InlineEngagement
             messageInfo={item.messageInfo}
@@ -163,29 +202,41 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
           />
         </div>
       );
-    }
+    }, [
+      item.threadCreatedFromMessage,
+      item.reactions,
+      label,
+      isViewer,
+      item.messageInfo,
+      threadInfo,
+    ]);
 
-    let avatar;
-    if (!isViewer && item.endsCluster) {
-      avatar = (
-        <div className={css.avatarContainer} onClick={pushUserProfileModal}>
-          <UserAvatar size="S" userID={creator.id} />
-        </div>
-      );
-    } else if (!isViewer) {
-      avatar = <div className={css.avatarOffset} />;
-    }
+    const avatar = React.useMemo(() => {
+      if (!isViewer && item.endsCluster) {
+        return (
+          <div className={css.avatarContainer} onClick={pushUserProfileModal}>
+            <UserAvatar size="S" userID={creator.id} />
+          </div>
+        );
+      } else if (!isViewer) {
+        return <div className={css.avatarOffset} />;
+      }
+      return undefined;
+    }, [isViewer, item.endsCluster, pushUserProfileModal, creator.id]);
 
-    const pinIconPositioning = isViewer ? 'left' : 'right';
-    const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
-    const pinIconContainerClassName = classNames({
-      [css.pinIconContainer]: true,
-      [css.pinIconLeft]: pinIconPositioning === 'left',
-      [css.pinIconRight]: pinIconPositioning === 'right',
-    });
-    let pinIcon;
-    if (isPinned && shouldDisplayPinIndicator) {
-      pinIcon = (
+    const shouldShowPinIcon = isPinned && shouldDisplayPinIndicator;
+    const pinIcon = React.useMemo(() => {
+      if (!shouldShowPinIcon) {
+        return null;
+      }
+      const pinIconPositioning = isViewer ? 'left' : 'right';
+      const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
+      const pinIconContainerClassName = classNames({
+        [css.pinIconContainer]: true,
+        [css.pinIconLeft]: pinIconPositioning === 'left',
+        [css.pinIconRight]: pinIconPositioning === 'right',
+      });
+      return (
         <div
           className={pinIconContainerClassName}
           style={{ color: `#${threadColor}` }}
@@ -193,32 +244,51 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
           <CommIcon icon={pinIconName} size={12} />
         </div>
       );
-    }
+    }, [shouldShowPinIcon, isViewer, threadColor]);
 
-    return (
-      <React.Fragment>
-        {authorName}
-        <div className={contentClassName}>
-          {avatar}
-          <div
-            className={messageBoxContainerClassName}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-          >
-            {pinIcon}
+    const composedMessageID = getComposedMessageID(item.messageInfo);
+    return React.useMemo(
+      () => (
+        <>
+          {authorName}
+          <div className={contentClassName}>
+            {avatar}
             <div
-              className={messageBoxClassName}
-              style={messageBoxStyle}
-              id={getComposedMessageID(item.messageInfo)}
+              className={messageBoxContainerClassName}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
             >
-              {props.children}
+              {pinIcon}
+              <div
+                className={messageBoxClassName}
+                style={messageBoxStyle}
+                id={composedMessageID}
+              >
+                {props.children}
+              </div>
             </div>
+            {deliveryIcon}
           </div>
-          {deliveryIcon}
-        </div>
-        {failedSendInfo}
-        {inlineEngagement}
-      </React.Fragment>
+          {failedSendInfo}
+          {inlineEngagement}
+        </>
+      ),
+      [
+        authorName,
+        contentClassName,
+        avatar,
+        messageBoxContainerClassName,
+        onMouseEnter,
+        onMouseLeave,
+        pinIcon,
+        messageBoxClassName,
+        messageBoxStyle,
+        composedMessageID,
+        props.children,
+        deliveryIcon,
+        failedSendInfo,
+        inlineEngagement,
+      ],
     );
   },
 );
