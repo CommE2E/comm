@@ -20,7 +20,6 @@ import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import CommIcon from '../comm-icon.react.js';
-import { type InputState, InputStateContext } from '../input/input-state.js';
 import { usePushUserProfileModal } from '../modals/user-profile/user-profile-utils.js';
 import { useMessageTooltip } from '../tooltips/tooltip-action-utils.js';
 import { tooltipPositions } from '../tooltips/tooltip-utils.js';
@@ -61,8 +60,6 @@ type DefaultProps = { +borderRadius: number };
 type BaseConfig = React.Config<BaseProps, DefaultProps>;
 type Props = {
   ...BaseProps,
-  // withInputState
-  +inputState: ?InputState,
   +onMouseLeave: ?() => mixed,
   +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
   +containsInlineEngagement: boolean,
@@ -229,7 +226,6 @@ type ConnectedConfig = React.Config<
 const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
   React.memo<BaseConfig>(function ConnectedComposedMessage(props) {
     const { item, threadInfo } = props;
-    const inputState = React.useContext(InputStateContext);
     const { creator } = props.item.messageInfo;
     const { isViewer } = creator;
     const availablePositions = isViewer
@@ -251,7 +247,6 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
     return (
       <ComposedMessage
         {...props}
-        inputState={inputState}
         onMouseLeave={onMouseLeave}
         onMouseEnter={onMouseEnter}
         containsInlineEngagement={containsInlineEngagement}
