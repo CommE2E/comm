@@ -59,69 +59,15 @@ type Props = {
 const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
   function ComposedMessage(props) {
     const { item, threadInfo } = props;
-    const { creator } = item.messageInfo;
+    const { messageInfo } = item;
+    const { id, creator } = messageInfo;
     const { isViewer } = creator;
-    const availablePositions = isViewer
-      ? availableTooltipPositionsForViewerMessage
-      : availableTooltipPositionsForNonViewerMessage;
 
-    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
-      item,
-      threadInfo,
-      availablePositions,
-    });
+    assertComposableMessageType(messageInfo.type);
 
     const shouldShowUsername = !isViewer && item.startsCluster;
-
-    const pushUserProfileModal = usePushUserProfileModal(creator.id);
-
-    assertComposableMessageType(item.messageInfo.type);
-    const { shouldDisplayPinIndicator } = props;
-    const borderRadius = props.borderRadius ?? 8;
-    const { hasBeenEdited, isPinned } = item;
-    const { id } = item.messageInfo;
-    const threadColor = threadInfo.color;
-
-    const contentClassName = React.useMemo(
-      () =>
-        classNames({
-          [css.content]: true,
-          [css.viewerContent]: isViewer,
-          [css.nonViewerContent]: !isViewer,
-        }),
-      [isViewer],
-    );
-    const messageBoxContainerClassName = React.useMemo(
-      () =>
-        classNames({
-          [css.messageBoxContainer]: true,
-          [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
-        }),
-      [props.fixedWidth],
-    );
-    const messageBoxClassName = React.useMemo(
-      () =>
-        classNames({
-          [css.messageBox]: true,
-          [css.fixedWidthMessageBox]: props.fixedWidth,
-        }),
-      [props.fixedWidth],
-    );
-    const messageBoxStyle = React.useMemo(
-      () => ({
-        borderTopRightRadius:
-          isViewer && !item.startsCluster ? 0 : borderRadius,
-        borderBottomRightRadius:
-          isViewer && !item.endsCluster ? 0 : borderRadius,
-        borderTopLeftRadius:
-          !isViewer && !item.startsCluster ? 0 : borderRadius,
-        borderBottomLeftRadius:
-          !isViewer && !item.endsCluster ? 0 : borderRadius,
-      }),
-      [isViewer, item.startsCluster, item.endsCluster, borderRadius],
-    );
-
     const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
+    const pushUserProfileModal = usePushUserProfileModal(creator.id);
     const authorName = React.useMemo(() => {
       if (!stringForUser) {
         return null;
@@ -133,6 +79,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       );
     }, [stringForUser, pushUserProfileModal]);
 
+    const threadColor = threadInfo.color;
     const notDeliveredP2PMessages =
       item?.localMessageInfo?.outboundP2PMessageIDs;
     const { deliveryIcon, failedSendInfo } = React.useMemo(() => {
@@ -180,7 +127,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       threadInfo,
     ]);
 
-    const label = getMessageLabel(hasBeenEdited, threadInfo.id);
+    const label = getMessageLabel(item.hasBeenEdited, threadInfo.id);
     const inlineEngagement = React.useMemo(() => {
       if (
         !item.threadCreatedFromMessage &&
@@ -224,7 +171,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       return undefined;
     }, [isViewer, item.endsCluster, pushUserProfileModal, creator.id]);
 
-    const shouldShowPinIcon = isPinned && shouldDisplayPinIndicator;
+    const shouldShowPinIcon = item.isPinned && props.shouldDisplayPinIndicator;
     const pinIcon = React.useMemo(() => {
       if (!shouldShowPinIcon) {
         return null;
@@ -245,6 +192,55 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
         </div>
       );
     }, [shouldShowPinIcon, isViewer, threadColor]);
+
+    const availablePositions = isViewer
+      ? availableTooltipPositionsForViewerMessage
+      : availableTooltipPositionsForNonViewerMessage;
+    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
+      item,
+      threadInfo,
+      availablePositions,
+    });
+
+    const contentClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.content]: true,
+          [css.viewerContent]: isViewer,
+          [css.nonViewerContent]: !isViewer,
+        }),
+      [isViewer],
+    );
+    const messageBoxContainerClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.messageBoxContainer]: true,
+          [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
+        }),
+      [props.fixedWidth],
+    );
+    const messageBoxClassName = React.useMemo(
+      () =>
+        classNames({
+          [css.messageBox]: true,
+          [css.fixedWidthMessageBox]: props.fixedWidth,
+        }),
+      [props.fixedWidth],
+    );
+    const borderRadius = props.borderRadius ?? 8;
+    const messageBoxStyle = React.useMemo(
+      () => ({
+        borderTopRightRadius:
+          isViewer && !item.startsCluster ? 0 : borderRadius,
+        borderBottomRightRadius:
+          isViewer && !item.endsCluster ? 0 : borderRadius,
+        borderTopLeftRadius:
+          !isViewer && !item.startsCluster ? 0 : borderRadius,
+        borderBottomLeftRadius:
+          !isViewer && !item.endsCluster ? 0 : borderRadius,
+      }),
+      [isViewer, item.startsCluster, item.endsCluster, borderRadius],
+    );
 
     const composedMessageID = getComposedMessageID(item.messageInfo);
     return React.useMemo(
