@@ -47,36 +47,41 @@ const availableTooltipPositionsForNonViewerMessage = [
   tooltipPositions.TOP,
 ];
 
-type BaseProps = {
+type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
   +sendFailed: boolean,
   +children: React.Node,
   +fixedWidth?: boolean,
-  +borderRadius: number,
+  +borderRadius?: number,
 };
-type DefaultProps = { +borderRadius: number };
-type BaseConfig = React.Config<BaseProps, DefaultProps>;
-type Props = {
-  ...BaseProps,
-  +onMouseLeave: ?() => mixed,
-  +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
-  +stringForUser: ?string,
-  +onClickUser: () => mixed,
-};
-class ComposedMessage extends React.PureComponent<Props> {
-  static defaultProps: DefaultProps = { borderRadius: 8 };
+const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
+  function ComposedMessage(props) {
+    const { item, threadInfo } = props;
+    const { creator } = item.messageInfo;
+    const { isViewer } = creator;
+    const availablePositions = isViewer
+      ? availableTooltipPositionsForViewerMessage
+      : availableTooltipPositionsForNonViewerMessage;
 
-  render(): React.Node {
-    assertComposableMessageType(this.props.item.messageInfo.type);
-    const { borderRadius, item, threadInfo, shouldDisplayPinIndicator } =
-      this.props;
+    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
+      item,
+      threadInfo,
+      availablePositions,
+    });
+
+    const shouldShowUsername = !isViewer && item.startsCluster;
+
+    const pushUserProfileModal = usePushUserProfileModal(creator.id);
+
+    assertComposableMessageType(item.messageInfo.type);
+    const { shouldDisplayPinIndicator } = props;
+    const borderRadius = props.borderRadius ?? 8;
     const { hasBeenEdited, isPinned } = item;
-    const { id, creator } = item.messageInfo;
+    const { id } = item.messageInfo;
     const threadColor = threadInfo.color;
 
-    const { isViewer } = creator;
     const contentClassName = classNames({
       [css.content]: true,
       [css.viewerContent]: isViewer,
@@ -84,11 +89,11 @@ class ComposedMessage extends React.PureComponent<Props> {
     });
     const messageBoxContainerClassName = classNames({
       [css.messageBoxContainer]: true,
-      [css.fixedWidthMessageBoxContainer]: this.props.fixedWidth,
+      [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
     });
     const messageBoxClassName = classNames({
       [css.messageBox]: true,
-      [css.fixedWidthMessageBox]: this.props.fixedWidth,
+      [css.fixedWidthMessageBox]: props.fixedWidth,
     });
     const messageBoxStyle = {
       borderTopRightRadius: isViewer && !item.startsCluster ? 0 : borderRadius,
@@ -98,10 +103,10 @@ class ComposedMessage extends React.PureComponent<Props> {
     };
 
     let authorName = null;
-    const { stringForUser } = this.props;
+    const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
     if (stringForUser) {
       authorName = (
-        <span className={css.authorName} onClick={this.props.onClickUser}>
+        <span className={css.authorName} onClick={pushUserProfileModal}>
           {stringForUser}
         </span>
       );
@@ -121,7 +126,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         notDeliveredP2PMessages.length === 0
       ) {
         deliveryIconSpan = <CheckCircleIcon />;
-      } else if (this.props.sendFailed) {
+      } else if (props.sendFailed) {
         deliveryIconSpan = <XCircleIcon />;
         deliveryIconColor = 'FF0000';
         failedSendInfo = <FailedSend item={item} threadInfo={threadInfo} />;
@@ -163,7 +168,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     let avatar;
     if (!isViewer && item.endsCluster) {
       avatar = (
-        <div className={css.avatarContainer} onClick={this.props.onClickUser}>
+        <div className={css.avatarContainer} onClick={pushUserProfileModal}>
           <UserAvatar size="S" userID={creator.id} />
         </div>
       );
@@ -197,8 +202,8 @@ class ComposedMessage extends React.PureComponent<Props> {
           {avatar}
           <div
             className={messageBoxContainerClassName}
-            onMouseEnter={this.props.onMouseEnter}
-            onMouseLeave={this.props.onMouseLeave}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
           >
             {pinIcon}
             <div
@@ -206,7 +211,7 @@ class ComposedMessage extends React.PureComponent<Props> {
               style={messageBoxStyle}
               id={getComposedMessageID(item.messageInfo)}
             >
-              {this.props.children}
+              {props.children}
             </div>
           </div>
           {deliveryIcon}
@@ -215,42 +220,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         {inlineEngagement}
       </React.Fragment>
     );
-  }
-}
+  },
+);
 
-type ConnectedConfig = React.Config<
-  BaseProps,
-  typeof ComposedMessage.defaultProps,
->;
-const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
-  React.memo<BaseConfig>(function ConnectedComposedMessage(props) {
-    const { item, threadInfo } = props;
-    const { creator } = props.item.messageInfo;
-    const { isViewer } = creator;
-    const availablePositions = isViewer
-      ? availableTooltipPositionsForViewerMessage
-      : availableTooltipPositionsForNonViewerMessage;
-
-    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
-      item,
-      threadInfo,
-      availablePositions,
-    });
-
-    const shouldShowUsername = !isViewer && item.startsCluster;
-    const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
-
-    const pushUserProfileModal = usePushUserProfileModal(creator.id);
-
-    return (
-      <ComposedMessage
-        {...props}
-        onMouseLeave={onMouseLeave}
-        onMouseEnter={onMouseEnter}
-        stringForUser={stringForUser}
-        onClickUser={pushUserProfileModal}
-      />
-    );
-  });
-
-export default ConnectedComposedMessage;
+export default ComposedMessage;
