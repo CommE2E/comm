@@ -1492,6 +1492,10 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [84]: (async (state: AppState) => ({
+    state,
+    ops: {},
+  }): MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1502,7 +1506,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 83,
+  version: 84,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
