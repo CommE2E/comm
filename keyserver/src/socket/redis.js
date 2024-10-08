@@ -1,6 +1,6 @@
 // @flow
 
-import type { RedisClient } from 'redis';
+import type { RedisClient, CreateOptions } from 'redis';
 import redis from 'redis';
 import uuidv4 from 'uuid/v4.js';
 
@@ -22,7 +22,7 @@ function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
   }
 }
 
-const redisConfig = (() => {
+const redisConfig: void | CreateOptions = (() => {
   if (!process.env.REDIS_URL) {
     return undefined;
   }
@@ -116,4 +116,4 @@ class RedisSubscriber {
   }
 }
 
-export { channelNameForUpdateTarget, publisher, RedisSubscriber };
+export { channelNameForUpdateTarget, publisher, RedisSubscriber, redisConfig };
