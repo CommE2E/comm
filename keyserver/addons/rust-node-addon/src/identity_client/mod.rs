@@ -6,6 +6,7 @@ pub mod get_inbound_keys_for_user;
 pub mod login;
 pub mod nonce;
 pub mod prekey;
+mod privileged_delete_users;
 pub mod register_user;
 pub mod remove_reserved_usernames;
 pub mod upload_one_time_keys;
@@ -20,7 +21,7 @@ use config::get_identity_service_config;
 use generated::CODE_VERSION;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::authenticated::{
-  InboundKeyInfo, UploadOneTimeKeysRequest,
+  InboundKeyInfo, PrivilegedDeleteUsersRequest, UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
