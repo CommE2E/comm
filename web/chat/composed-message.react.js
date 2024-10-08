@@ -62,7 +62,6 @@ type Props = {
   ...BaseProps,
   +onMouseLeave: ?() => mixed,
   +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
-  +containsInlineEngagement: boolean,
   +stringForUser: ?string,
   +onClickUser: () => mixed,
 };
@@ -142,7 +141,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineEngagement = null;
     const label = getMessageLabel(hasBeenEdited, threadInfo.id);
     if (
-      (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
+      item.threadCreatedFromMessage ||
       Object.keys(item.reactions).length > 0 ||
       label
     ) {
@@ -231,7 +230,6 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
     const availablePositions = isViewer
       ? availableTooltipPositionsForViewerMessage
       : availableTooltipPositionsForNonViewerMessage;
-    const containsInlineEngagement = !!item.threadCreatedFromMessage;
 
     const { onMouseLeave, onMouseEnter } = useMessageTooltip({
       item,
@@ -249,7 +247,6 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
         {...props}
         onMouseLeave={onMouseLeave}
         onMouseEnter={onMouseEnter}
-        containsInlineEngagement={containsInlineEngagement}
         stringForUser={stringForUser}
         onClickUser={pushUserProfileModal}
       />
