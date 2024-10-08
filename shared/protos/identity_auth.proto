@@ -64,6 +64,12 @@ service IdentityClientService {
     (identity.unauth.Empty) {}
   rpc DeleteWalletUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
 
+  // Called by Comm staff to delete user accounts. Usage is strictly limited to
+  // accounts flagged for violating terms of service.
+  rpc PrivilegedDeleteUsers(PrivilegedDeleteUsersRequest) returns
+    (identity.unauth.Empty) {};
+
+
   /* Device list actions */
 
   // Returns device list history
@@ -237,6 +243,12 @@ message DeletePasswordUserStartResponse {
   // Identifier used to correlate requests in the same workflow
   string session_id = 1;
   bytes opaque_login_response = 2;
+}
+
+// PrivilegedDeleteUsers
+
+message PrivilegedDeleteUsersRequest {
+  repeated string user_ids = 1;
 }
 
 // GetDeviceListForUser

@@ -26,11 +26,11 @@ use super::protos::auth::{
   KeyserverKeysResponse, LinkFarcasterAccountRequest, OutboundKeyInfo,
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
   PeersDeviceListsRequest, PeersDeviceListsResponse,
-  PrimaryDeviceLogoutRequest, RefreshUserPrekeysRequest,
-  UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, UserDevicesPlatformDetails, UserIdentitiesRequest,
-  UserIdentitiesResponse,
+  PrimaryDeviceLogoutRequest, PrivilegedDeleteUsersRequest,
+  RefreshUserPrekeysRequest, UpdateDeviceListRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  UserDevicesPlatformDetails, UserIdentitiesRequest, UserIdentitiesResponse,
 };
 use super::protos::unauth::Empty;
 
@@ -620,6 +620,14 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Empty {};
     Ok(Response::new(response))
+  }
+
+  #[tracing::instrument(skip_all)]
+  async fn privileged_delete_users(
+    &self,
+    _request: tonic::Request<PrivilegedDeleteUsersRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!()
   }
 
   #[tracing::instrument(skip_all)]
