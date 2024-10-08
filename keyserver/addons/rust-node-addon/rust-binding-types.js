@@ -83,6 +83,12 @@ type RustNativeBindingAPI = {
     authAccessToken: string,
     userIds: $ReadOnlyArray<string>,
   ) => Promise<UserIdentitiesResponse>,
+  +privilegedDeleteUsers: (
+    authUserId: string,
+    authDeviceId: string,
+    authAccessToken: string,
+    userIds: $ReadOnlyArray<string>,
+  ) => Promise<void>,
 };
 
 export type { RustNativeBindingAPI };
