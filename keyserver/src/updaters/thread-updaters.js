@@ -69,6 +69,7 @@ import {
 import type { Viewer } from '../session/viewer.js';
 import { neynarClient } from '../utils/fc-cache.js';
 import { findUserIdentities } from '../utils/identity-utils.js';
+import { redisCache } from '../utils/redis-cache.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
 type UpdateRoleOptions = {
@@ -942,13 +943,11 @@ async function fetchUserRoleForThread(
     return null;
   }
 
-  const ledChannels =
-    await neynarClient?.fetchLedFarcasterChannels(farcasterID);
-
-  if (
-    !ledChannels ||
-    !ledChannels.some(channel => channel.id === communityFarcasterChannelTag)
-  ) {
+  const leadsChannel = await userLeadsChannel(
+    communityFarcasterChannelTag,
+    farcasterID,
+  );
+  if (!leadsChannel) {
     return null;
   }
 
@@ -960,6 +959,40 @@ async function fetchUserRoleForThread(
   }
 
   return null;
+}
+
+async function userLeadsChannel(
+  communityFarcasterChannelTag: string,
+  farcasterID: string,
+) {
+  const cachedChannelInfo = await redisCache.getChannelInfo(
+    communityFarcasterChannelTag,
+  );
+  if (cachedChannelInfo) {
+    return cachedChannelInfo.lead.fid === parseInt(farcasterID);
+  }
+
+  // In the background, we fetch and cache followed channels
+  void (async () => {
+    const followedChannels =
+      await neynarClient?.fetchFollowedFarcasterChannels(farcasterID);
+    if (followedChannels) {
+      await Promise.allSettled(
+        followedChannels.map(followedChannel =>
+          redisCache.setChannelInfo(followedChannel.id, followedChannel),
+        ),
+      );
+    }
+  })();
+
+  const channelInfo = await neynarClient?.fetchFarcasterChannelByName(
+    communityFarcasterChannelTag,
+  );
+  if (channelInfo) {
+    return channelInfo.lead.fid === parseInt(farcasterID);
+  }
+
+  return false;
 }
 
 async function toggleMessagePinForThread(
