@@ -9,6 +9,7 @@ import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
@@ -81,6 +82,10 @@ function keyExtractor(item: ListItem) {
 
 const tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>
   userInfo.username;
+
+const loadingStatusSelector = createLoadingStatusSelector(
+  updateRelationshipsActionTypes,
+);
 
 type Props = {
   +navigation: ProfileNavigationProp<'FriendList' | 'BlockList'>,
@@ -197,8 +202,11 @@ function RelationshipList(props: Props): React.Node {
     tagInputRef.current?.focus();
   }, []);
 
+  const updateInProgress = React.useRef(false);
+
   const updateRelationships = useUpdateRelationships();
   const updateRelationshipsOnServer = React.useCallback(async () => {
+    updateInProgress.current = true;
     const action = {
       [FriendListRouteName]: relationshipActions.FRIEND,
       [BlockListRouteName]: relationshipActions.BLOCK,
@@ -217,6 +225,8 @@ function RelationshipList(props: Props): React.Node {
         { cancelable: true, onDismiss: onUnknownErrorAlertAcknowledged },
       );
       throw e;
+    } finally {
+      updateInProgress.current = false;
     }
   }, [
     routeName,
@@ -228,7 +238,7 @@ function RelationshipList(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const noCurrentTags = currentTags.length === 0;
   const onPressAdd = React.useCallback(() => {
-    if (noCurrentTags) {
+    if (noCurrentTags || updateInProgress.current) {
       return;
     }
     void dispatchActionPromise(
@@ -285,6 +295,7 @@ function RelationshipList(props: Props): React.Node {
 
   const { setOptions } = navigation;
   const prevNoCurrentTags = React.useRef(noCurrentTags);
+  const loadingStatus = useSelector(loadingStatusSelector);
   React.useEffect(() => {
     let setSaveButtonDisabled;
     if (!prevNoCurrentTags.current && noCurrentTags) {
@@ -301,11 +312,15 @@ function RelationshipList(props: Props): React.Node {
         <LinkButton
           text="Save"
           onPress={onPressAdd}
-          disabled={setSaveButtonDisabled}
+          disabled={
+            setSaveButtonDisabled ||
+            loadingStatus === 'loading' ||
+            updateInProgress.current
+          }
         />
       ),
     });
-  }, [setOptions, noCurrentTags, onPressAdd]);
+  }, [setOptions, noCurrentTags, onPressAdd, loadingStatus]);
 
   const relationships = useSelector(userRelationshipsSelector);
   const viewerID = useSelector(
