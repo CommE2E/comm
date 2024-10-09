@@ -12,11 +12,11 @@ import { Timestamp, timestampHeight } from './timestamp.react.js';
 import SingleLine from '../components/single-line.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 type Props = {
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
   +focused: boolean,
   +display: DisplayType,
 };

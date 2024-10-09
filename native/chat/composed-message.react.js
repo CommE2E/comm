@@ -33,7 +33,7 @@ import UserAvatar from '../avatars/user-avatar.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { useColors } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 import {
   type AnimatedStyleObj,
   type ViewStyle,
@@ -44,7 +44,7 @@ import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profil
 type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
 type Props = {
   ...React.ElementConfig<typeof View>,
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
   +sendFailed: boolean,
   +focused: boolean,
   +swipeOptions: SwipeOptions,

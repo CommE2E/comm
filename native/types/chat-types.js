@@ -68,6 +68,10 @@ export type ChatMultimediaMessageInfoItem = {
   +inlineEngagementHeight: ?number,
 };
 
+export type ChatComposedMessageInfoItemWithHeight =
+  | ChatTextMessageInfoItemWithHeight
+  | ChatMultimediaMessageInfoItem;
+
 export type ChatMessageInfoItemWithHeight =
   | ChatRobotextMessageInfoItemWithHeight
   | ChatTextMessageInfoItemWithHeight

@@ -5,10 +5,10 @@ import { View, StyleSheet } from 'react-native';
 
 import { avatarOffset } from './chat-constants.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
 };
 
 function MessageTooltipButtonAvatar(props: Props): React.Node {
