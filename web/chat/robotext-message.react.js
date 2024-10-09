@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import {
@@ -41,10 +42,12 @@ function RobotextMessage(props: Props): React.Node {
   const { item, threadInfo } = props;
   const { threadCreatedFromMessage, reactions } = item;
   if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
+    const engagementTargetMessageInfo =
+      chatMessageItemEngagementTargetMessageInfo(item);
     inlineEngagement = (
       <div className={css.sidebarMarginTop}>
         <InlineEngagement
-          messageInfo={item.messageInfo}
+          messageInfo={engagementTargetMessageInfo}
           threadInfo={threadInfo}
           sidebarThreadInfo={threadCreatedFromMessage}
           reactions={reactions}
