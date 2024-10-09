@@ -36,17 +36,21 @@ function Message(props: Props): React.Node {
 
   let message;
   if (
+    item.messageInfoType === 'composable' &&
     item.messageInfo.id &&
     editState?.messageInfo.messageInfo?.id === item.messageInfo.id
   ) {
     message = (
       <ComposedEditTextMessage
-        item={props.item}
+        item={item}
         threadInfo={props.threadInfo}
         background={true}
       />
     );
-  } else if (item.messageInfo.type === messageTypes.TEXT) {
+  } else if (
+    item.messageInfoType === 'composable' &&
+    item.messageInfo.type === messageTypes.TEXT
+  ) {
     message = (
       <TextMessage
         item={item}
@@ -55,8 +59,9 @@ function Message(props: Props): React.Node {
       />
     );
   } else if (
-    item.messageInfo.type === messageTypes.IMAGES ||
-    item.messageInfo.type === messageTypes.MULTIMEDIA
+    item.messageInfoType === 'composable' &&
+    (item.messageInfo.type === messageTypes.IMAGES ||
+      item.messageInfo.type === messageTypes.MULTIMEDIA)
   ) {
     message = (
       <MultimediaMessage
