@@ -62,6 +62,10 @@ async function verifyUserLoggedIn(): Promise<IdentityInfo> {
     return result;
   }
 
+  return authAndSaveIdentityInfo();
+}
+
+async function authAndSaveIdentityInfo(): Promise<IdentityInfo> {
   const userInfo = await getUserCredentials();
   const identityInfo = await registerOrLogIn(userInfo);
   await saveIdentityInfo(identityInfo);
