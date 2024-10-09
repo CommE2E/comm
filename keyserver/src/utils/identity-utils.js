@@ -5,6 +5,7 @@ import { getRustAPI } from 'rust-node-addon';
 import type { UserIdentitiesResponse } from 'lib/types/identity-service-types.js';
 
 import { getContentSigningKey } from './olm-utils.js';
+import type { IdentityInfo } from '../user/identity.js';
 import { verifyUserLoggedIn } from '../user/login.js';
 
 async function findUserIdentities(
@@ -39,4 +40,16 @@ async function privilegedDeleteUsers(
   );
 }
 
-export { findUserIdentities, privilegedDeleteUsers };
+async function syncPlatformDetails(identityInfo: IdentityInfo): Promise<void> {
+  const [rustAPI, deviceID] = await Promise.all([
+    getRustAPI(),
+    getContentSigningKey(),
+  ]);
+  return rustAPI.syncPlatformDetails(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+  );
+}
+
+export { findUserIdentities, privilegedDeleteUsers, syncPlatformDetails };
