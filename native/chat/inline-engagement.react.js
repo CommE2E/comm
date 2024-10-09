@@ -27,7 +27,7 @@ import CommIcon from '../components/comm-icon.react.js';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
 import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 function dummyNodeForInlineEngagementHeightMeasurement(
   sidebarInfo: ?ThreadInfo,
@@ -461,7 +461,7 @@ const unboundStyles = {
 };
 
 type TooltipInlineEngagementProps = {
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
   +isOpeningSidebar: boolean,
   +progress: Animated.Node,
   +windowWidth: number,
