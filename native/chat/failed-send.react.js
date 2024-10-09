@@ -19,7 +19,7 @@ import Button from '../components/button.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 const failedSendHeight = 22;
 
@@ -41,7 +41,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
 };
 type Props = {
   ...BaseProps,

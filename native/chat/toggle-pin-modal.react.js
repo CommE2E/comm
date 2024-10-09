@@ -18,10 +18,10 @@ import Modal from '../components/modal.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 export type TogglePinModalParams = {
-  +item: ChatMessageInfoItemWithHeight,
+  +item: ChatComposedMessageInfoItemWithHeight,
   +threadInfo: ThreadInfo,
 };
 
