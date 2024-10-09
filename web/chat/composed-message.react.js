@@ -9,7 +9,7 @@ import {
 } from 'react-feather';
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { type ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -48,7 +48,7 @@ const availableTooltipPositionsForNonViewerMessage = [
 ];
 
 type Props = {
-  +item: ChatMessageInfoItem,
+  +item: ComposableChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
   +sendFailed: boolean,

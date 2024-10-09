@@ -1,11 +1,11 @@
 // @flow
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import type { ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { textMessageSendFailed as sharedTextMessageSendFailed } from 'lib/shared/chat-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
 export default function textMessageSendFailed(
-  item: ChatMessageInfoItem,
+  item: ComposableChatMessageInfoItem,
 ): boolean {
   const { messageInfo, localMessageInfo } = item;
 
