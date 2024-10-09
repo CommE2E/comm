@@ -128,8 +128,7 @@ function RobotextMessage(props: Props): React.Node {
 
       const belowMargin = 20;
       const belowSpace = fixedTooltipHeight + belowMargin;
-      const { isViewer } = item.messageInfo.creator;
-      const aboveMargin = isViewer ? 30 : 50;
+      const aboveMargin = 30;
       const aboveSpace = fixedTooltipHeight + aboveMargin;
 
       let margin = 0;
