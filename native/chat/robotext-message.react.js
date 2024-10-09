@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import {
   chatMessageItemKey,
   chatMessageItemHasEngagement,
+  chatMessageInfoItemTargetableMessageInfo,
 } from 'lib/shared/chat-message-item-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 
@@ -62,12 +63,13 @@ function RobotextMessage(props: Props): React.Node {
   }
 
   const styles = useStyles(unboundStyles);
+  const targetableMessageInfo = chatMessageInfoItemTargetableMessageInfo(item);
   let inlineEngagement = null;
   if (chatMessageItemHasEngagement(item, item.threadInfo.id)) {
     inlineEngagement = (
       <View style={styles.sidebar}>
         <InlineEngagement
-          messageInfo={item.messageInfo}
+          messageInfo={targetableMessageInfo}
           threadInfo={item.threadInfo}
           sidebarThreadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
@@ -93,7 +95,7 @@ function RobotextMessage(props: Props): React.Node {
 
   const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
     item.threadInfo,
-    item.messageInfo,
+    targetableMessageInfo,
   );
 
   const visibleEntryIDs = React.useMemo(() => {

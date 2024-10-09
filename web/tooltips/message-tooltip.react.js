@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageInfoItemTargetableMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import css from './message-tooltip.css';
@@ -42,7 +43,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     item,
     threadInfo,
   } = props;
-  const { messageInfo, reactions } = item;
+  const { reactions } = item;
 
   const { alignment = 'left' } = tooltipPositionStyle;
 
@@ -169,7 +170,12 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     };
   }, [emojiKeyboardPosition]);
 
-  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
+  const targetableMessageInfo = chatMessageInfoItemTargetableMessageInfo(item);
+  const sendReaction = useSendReaction(
+    targetableMessageInfo?.id,
+    threadInfo,
+    reactions,
+  );
 
   const onEmojiSelect = React.useCallback(
     (emoji: { +native: string, ... }) => {

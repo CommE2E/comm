@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
+import { chatMessageInfoItemTargetableMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import {
   useViewerAlreadySelectedMessageReactions,
   useCanCreateReactionFromMessage,
@@ -66,14 +67,19 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const { messageInfo, threadInfo, reactions } = item;
+  const { threadInfo, reactions } = item;
+  const targetableMessageInfo = chatMessageInfoItemTargetableMessageInfo(item);
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
-    messageInfo,
+    targetableMessageInfo,
   );
 
-  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
+  const sendReaction = useSendReaction(
+    targetableMessageInfo?.id,
+    threadInfo,
+    reactions,
+  );
 
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState<boolean>(false);
   const openEmojiPicker = React.useCallback(() => {
