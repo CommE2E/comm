@@ -2,7 +2,7 @@
 
 import type { Corners } from 'lib/types/media-types.js';
 
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type FilteredCorners = {
   +bottomLeft: void | boolean,
@@ -12,7 +12,7 @@ type FilteredCorners = {
 };
 function filterCorners(
   corners: Corners,
-  item: ChatMessageInfoItemWithHeight,
+  item: ChatComposedMessageInfoItemWithHeight,
 ): FilteredCorners {
   const { startsCluster, endsCluster } = item;
   const { isViewer } = item.messageInfo.creator;
