@@ -258,4 +258,8 @@ async function registerOrLogInBase<T>(
   }
 }
 
-export { verifyUserLoggedIn, verifyUserLoggedInWithoutDB };
+export {
+  verifyUserLoggedIn,
+  verifyUserLoggedInWithoutDB,
+  authAndSaveIdentityInfo,
+};
