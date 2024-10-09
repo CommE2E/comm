@@ -86,14 +86,20 @@ impl FCMClient {
             .text()
             .await
             .unwrap_or_else(|error| format!("Error occurred: {}", error));
-          error!(
-            errorType = error_types::FCM_ERROR,
-            "Failed sending FCM notification to: {}. Status: {}. Body: {}",
-            token,
-            error_status,
-            body
-          );
-          let fcm_error = FCMErrorResponse::from_status(error_status, body);
+
+          let fcm_error =
+            FCMErrorResponse::from_status(error_status, body.clone());
+
+          if !fcm_error.should_invalidate_token() {
+            error!(
+              errorType = error_types::FCM_ERROR,
+              "Failed sending FCM notification to: {}. Status: {}. Body: {}",
+              token,
+              error_status,
+              body
+            );
+          }
+
           return Err(FCMError(fcm_error));
         }
       }
