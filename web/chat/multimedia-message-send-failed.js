@@ -2,13 +2,13 @@
 
 import invariant from 'invariant';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import type { ComposedChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import type { InputState } from '../input/input-state.js';
 
 export default function multimediaMessageSendFailed(
-  item: ChatMessageInfoItem,
+  item: ComposedChatMessageInfoItem,
   inputState: InputState,
 ): boolean {
   const { messageInfo } = item;
