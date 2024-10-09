@@ -297,6 +297,8 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
     const viewStyle = React.useMemo(() => {
       const baseStyle: Array<ViewStyle> = [styles.alignment];
       if (__DEV__) {
+        // We don't force view height in dev mode because we
+        // want to measure it in Message to see if it's correct
         return baseStyle;
       }
       if (item.messageShapeType === 'text') {
