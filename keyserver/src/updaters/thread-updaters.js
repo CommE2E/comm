@@ -935,9 +935,7 @@ async function fetchUserRoleForThread(
   threadID: string,
   communityFarcasterChannelTag: string,
 ): Promise<string | null> {
-  const response = await findUserIdentities([viewer.userID]);
-
-  const { farcasterID } = response.identities[viewer.userID];
+  const farcasterID = await getUserFarcasterID(viewer.userID);
 
   if (!farcasterID) {
     return null;
@@ -956,6 +954,26 @@ async function fetchUserRoleForThread(
     if (roleInfo.specialRole === specialRoles.ADMIN_ROLE) {
       return roleInfo.id;
     }
+  }
+
+  return null;
+}
+
+async function getUserFarcasterID(userID: string): Promise<?string> {
+  const cachedUserIdentity = await redisCache.getUserIdentity(userID);
+  if (cachedUserIdentity) {
+    return cachedUserIdentity.farcasterID;
+  }
+
+  const response = await findUserIdentities([userID]);
+  const userIdentity = response.identities[userID];
+  if (userIdentity) {
+    ignorePromiseRejections(
+      (async () => {
+        await redisCache.setUserIdentity(userID, userIdentity);
+      })(),
+    );
+    return userIdentity.farcasterID;
   }
 
   return null;
