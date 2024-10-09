@@ -217,7 +217,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Encryption',
-        comingSoon: true,
+        comingSoon: false,
         competitorDescriptionShort:
           'Keybase has a custom implementation of E2E encryption that doesn’t guarantee forward secrecy.',
         commDescriptionShort:
