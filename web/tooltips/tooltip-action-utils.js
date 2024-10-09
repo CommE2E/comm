@@ -10,7 +10,10 @@ import type {
   ChatMessageInfoItem,
   ReactionInfo,
 } from 'lib/selectors/chat-selectors.js';
-import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
+import {
+  chatMessageInfoItemTimestamp,
+  chatMessageInfoItemTargetableMessageInfo,
+} from 'lib/shared/chat-message-item-utils.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
@@ -280,9 +283,13 @@ function useMessageTogglePinAction(
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { pushModal } = useModalContext();
-  const { messageInfo, isPinned } = item;
+  const { isPinned } = item;
 
-  const canTogglePin = useCanToggleMessagePin(messageInfo, threadInfo);
+  const targetableMessageInfo = chatMessageInfoItemTargetableMessageInfo(item);
+  const canTogglePin = useCanToggleMessagePin(
+    targetableMessageInfo,
+    threadInfo,
+  );
 
   const inputState = React.useContext(InputStateContext);
 
