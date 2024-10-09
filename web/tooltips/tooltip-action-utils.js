@@ -175,7 +175,6 @@ function useMessageTooltipReplyAction(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
-  const { messageInfo } = item;
   const { popModal } = useModalContext();
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'inputState is required');
@@ -184,8 +183,18 @@ function useMessageTooltipReplyAction(
     threadInfo,
     threadPermissions.VOICED,
   );
+
+  let messageInfo;
+  if (
+    item.messageInfoType === 'composable' &&
+    item.messageInfo.type === messageTypes.TEXT &&
+    currentUserIsVoiced
+  ) {
+    messageInfo = item.messageInfo;
+  }
+
   return React.useMemo(() => {
-    if (item.messageInfo.type !== messageTypes.TEXT || !currentUserIsVoiced) {
+    if (!messageInfo) {
       return null;
     }
     const buttonContent = <CommIcon icon="reply-filled" size={18} />;
@@ -202,34 +211,35 @@ function useMessageTooltipReplyAction(
       onClick,
       label: 'Reply',
     };
-  }, [
-    popModal,
-    addReply,
-    item.messageInfo.type,
-    messageInfo,
-    currentUserIsVoiced,
-  ]);
+  }, [popModal, addReply, messageInfo]);
 }
 
 const copiedMessageDurationMs = 2000;
 function useMessageCopyAction(
   item: ChatMessageInfoItem,
 ): ?MessageTooltipAction {
-  const { messageInfo } = item;
-
   const [successful, setSuccessful] = useResettingState(
     false,
     copiedMessageDurationMs,
   );
 
+  let messageInfo;
+  if (
+    item.messageInfoType === 'composable' &&
+    item.messageInfo.type === messageTypes.TEXT
+  ) {
+    messageInfo = item.messageInfo;
+  }
+
+  const messageText = messageInfo?.text;
   return React.useMemo(() => {
-    if (messageInfo.type !== messageTypes.TEXT) {
+    if (!messageText) {
       return null;
     }
     const buttonContent = <CommIcon icon="copy-filled" size={18} />;
     const onClick = async () => {
       try {
-        await navigator.clipboard.writeText(messageInfo.text);
+        await navigator.clipboard.writeText(messageText);
         setSuccessful(true);
       } catch (e) {
         setSuccessful(false);
@@ -240,7 +250,7 @@ function useMessageCopyAction(
       onClick,
       label: successful ? 'Copied!' : 'Copy',
     };
-  }, [messageInfo.text, messageInfo.type, setSuccessful, successful]);
+  }, [messageText, setSuccessful, successful]);
 }
 
 function useMessageReactAction(
@@ -335,6 +345,10 @@ function useMessageEditAction(
     invariant(
       item.messageInfoType === 'composable',
       'canEditMessage should only be true for composable messages!',
+    );
+    invariant(
+      messageInfo && messageInfo.type === messageTypes.TEXT,
+      'canEditMessage should only be true for text messages!',
     );
     const buttonContent = <CommIcon icon="edit-filled" size={18} />;
     const onClickEdit = () => {

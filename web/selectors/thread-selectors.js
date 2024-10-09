@@ -64,7 +64,7 @@ function useThreadIsActive(threadID: string): boolean {
 }
 
 function useOnClickPendingSidebar(
-  messageInfo: ComposableMessageInfo | RobotextMessageInfo,
+  messageInfo: ?ComposableMessageInfo | RobotextMessageInfo,
   threadInfo: ThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => mixed {
   const dispatch = useDispatch();
@@ -79,7 +79,7 @@ function useOnClickPendingSidebar(
   return React.useCallback(
     async (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
-      if (!loggedInUserInfo) {
+      if (!loggedInUserInfo || !messageInfo) {
         return;
       }
       const pendingSidebarInfo = await createPendingSidebar({
