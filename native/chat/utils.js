@@ -6,18 +6,15 @@ import Animated from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
-import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import { clusterEndHeight } from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
-import {
-  type NativeChatMessageItem,
-  useNativeMessageListData,
-} from './message-data.react.js';
+import { useNativeMessageListData } from './message-data.react.js';
 import { authorNameHeight } from './message-header.react.js';
 import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
@@ -312,7 +309,7 @@ function useAnimatedMessageTooltipButton({
 }
 
 function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
-  return `tooltip|${messageKey(item.messageInfo)}`;
+  return `tooltip|${chatMessageItemKey(item)}`;
 }
 
 function isMessageTooltipKey(key: string): boolean {
@@ -383,15 +380,6 @@ function useDeliveryIconOpacity(
   ]);
 }
 
-function chatMessageItemKey(
-  item: ChatMessageItemWithHeight | NativeChatMessageItem,
-): string {
-  if (item.itemType === 'loader') {
-    return 'loader';
-  }
-  return messageKey(item.messageInfo);
-}
-
 function modifyItemForResultScreen(
   item: ChatMessageInfoItemWithHeight,
 ): ChatMessageInfoItemWithHeight {
@@ -431,7 +419,6 @@ function modifyItemForResultScreen(
 }
 
 export {
-  chatMessageItemKey,
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
   messageItemHeight,
