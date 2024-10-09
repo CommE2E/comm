@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import {
   getInlineEngagementSidebarText,
@@ -23,7 +24,6 @@ import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.r
 import type { NativeChatMessageItem } from './message-data.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import { multimediaMessageContentSizes } from './multimedia-message-utils.js';
-import { chatMessageItemKey } from './utils.js';
 import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
 import { InputStateContext } from '../input/input-state.js';
 

@@ -10,6 +10,7 @@ import {
   type ChatMessageInfoItem,
   messageListData,
 } from 'lib/selectors/chat-selectors.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import {
   createMessageInfo,
   isInvalidPinSourceForThread,
@@ -162,7 +163,7 @@ function PinnedMessagesScreen(props: Props): React.Node {
 
         return (
           <MessageResult
-            key={item.messageInfo.id}
+            key={chatMessageItemKey(item)}
             item={item}
             threadInfo={threadInfo}
             navigation={navigation}

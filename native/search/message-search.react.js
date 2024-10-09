@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 import { messageListData } from 'lib/selectors/chat-selectors.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { createMessageInfo } from 'lib/shared/message-utils.js';
 import {
   filterChatMessageInfosForSearch,
@@ -168,7 +169,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
       }
       return (
         <MessageResult
-          key={item.messageInfo.id}
+          key={chatMessageItemKey(item)}
           item={item}
           threadInfo={threadInfo}
           navigation={props.navigation}
