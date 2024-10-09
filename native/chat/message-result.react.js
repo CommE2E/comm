@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import { type ChatNavigationProp } from './chat.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
@@ -64,7 +64,7 @@ function MessageResult(props: MessageResultProps): React.Node {
             shouldDisplayPinIndicator={false}
           />
           <Text style={styles.messageDate}>
-            {longAbsoluteDate(props.item.messageInfo.time)}
+            {chatMessageInfoItemTimestamp(props.item)}
           </Text>
         </View>
       </MessageListContextProvider>

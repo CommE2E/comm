@@ -4,9 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './chat-message-list.css';
 import { useEditModalContext } from './edit-message-provider.js';
@@ -27,7 +27,7 @@ function Message(props: Props): React.Node {
   if (item.startsConversation) {
     conversationHeader = (
       <div className={css.conversationHeader}>
-        {longAbsoluteDate(item.messageInfo.time)}
+        {chatMessageInfoItemTimestamp(item)}
       </div>
     );
   }

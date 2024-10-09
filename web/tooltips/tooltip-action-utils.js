@@ -10,6 +10,7 @@ import type {
   ChatMessageInfoItem,
   ReactionInfo,
 } from 'lib/selectors/chat-selectors.js';
+import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
@@ -18,7 +19,6 @@ import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import LabelTooltip from './label-toolitp.react.js';
@@ -407,10 +407,7 @@ function useMessageTooltip({
 }: UseMessageTooltipArgs): UseTooltipResult {
   const tooltipActions = useMessageTooltipActions(item, threadInfo);
 
-  const messageTimestamp = React.useMemo(() => {
-    const time = item.messageInfo.time;
-    return longAbsoluteDate(time);
-  }, [item.messageInfo.time]);
+  const messageTimestamp = chatMessageInfoItemTimestamp(item);
 
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
