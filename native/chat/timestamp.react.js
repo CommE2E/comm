@@ -2,15 +2,16 @@
 
 import * as React from 'react';
 
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
+import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 
 import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 export type DisplayType = 'lowContrast' | 'modal';
 
 type Props = {
-  +time: number,
+  +item: ChatMessageInfoItemWithHeight,
   +display: DisplayType,
 };
 function Timestamp(props: Props): React.Node {
@@ -24,8 +25,8 @@ function Timestamp(props: Props): React.Node {
   );
 
   const absoluteDate = React.useMemo(
-    () => longAbsoluteDate(props.time),
-    [props.time],
+    () => chatMessageInfoItemTimestamp(props.item),
+    [props.item],
   );
 
   const timestamp = React.useMemo(
