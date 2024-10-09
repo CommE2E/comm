@@ -17,7 +17,6 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import {
   avatarOffset,
   composedMessageStyle,
-  inlineEngagementCenterStyle,
   inlineEngagementLabelStyle,
   inlineEngagementRightStyle,
   inlineEngagementStyle,
@@ -503,15 +502,10 @@ function TooltipInlineEngagement(
           composedMessageStyle.marginRight,
         top: inlineEngagementStyle.marginTop + inlineEngagementStyle.topOffset,
       };
-    } else if (positioning === 'center') {
-      return {
-        alignSelf: 'center',
-        top: inlineEngagementCenterStyle.topOffset,
-      };
     }
     invariant(
       false,
-      `${positioning} is not a valid positioning value for InlineEngagement`,
+      `${positioning} is not a valid positioning value for TooltipInlineEngagement`,
     );
   }, [positioning]);
   const inlineEngagementContainer = React.useMemo(() => {

@@ -8,7 +8,6 @@ import {
   useCanCreateReactionFromMessage,
 } from 'lib/shared/reaction-utils.js';
 
-import { TooltipInlineEngagement } from './inline-engagement.react.js';
 import { InnerRobotextMessage } from './inner-robotext-message.react.js';
 import { useSendReaction } from './reaction-message-utils.js';
 import ReactionSelectionPopover from './reaction-selection-popover.react.js';
@@ -28,10 +27,10 @@ type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
   +progress: Node,
-  +isOpeningSidebar: boolean,
+  ...
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progress, isOpeningSidebar } = props;
+  const { navigation, route, progress } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -66,22 +65,6 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
       bottom,
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
-
-  const inlineEngagement = React.useMemo(() => {
-    if (!item.threadCreatedFromMessage) {
-      return null;
-    }
-    return (
-      <TooltipInlineEngagement
-        item={item}
-        positioning="center"
-        isOpeningSidebar={isOpeningSidebar}
-        progress={progress}
-        windowWidth={windowWidth}
-        initialCoordinates={initialCoordinates}
-      />
-    );
-  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
 
   const { messageInfo, threadInfo, reactions } = item;
 
@@ -144,7 +127,6 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
         </Animated.View>
         {reactionSelectionPopover}
         <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
-        {inlineEngagement}
       </Animated.View>
       <EmojiKeyboard
         onEmojiSelected={onEmojiSelected}
