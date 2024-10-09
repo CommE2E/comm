@@ -325,6 +325,10 @@ function useMessageEditAction(
     if (!canEditMessage) {
       return null;
     }
+    invariant(
+      item.messageInfoType === 'composable',
+      'canEditMessage should only be true for composable messages!',
+    );
     const buttonContent = <CommIcon icon="edit-filled" size={18} />;
     const onClickEdit = () => {
       const callback = (maxHeight: number) =>

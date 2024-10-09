@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import type { ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -17,7 +17,7 @@ import textMessageSendFailed from './text-message-send-failed.js';
 import Markdown from '../markdown/markdown.react.js';
 
 type Props = {
-  +item: ChatMessageInfoItem,
+  +item: ComposableChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
