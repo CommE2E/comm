@@ -41,6 +41,10 @@ function getUnresolvedSidebarThreadInfo(
   }
 
   const { messageInfo, threadInfo } = sourceMessage;
+  if (!messageInfo) {
+    return null;
+  }
+
   return createUnresolvedPendingSidebar({
     sourceMessageInfo: messageInfo,
     parentThreadInfo: threadInfo,
@@ -75,6 +79,10 @@ async function getSidebarThreadInfo(
   }
 
   const { messageInfo, threadInfo } = sourceMessage;
+  if (!messageInfo) {
+    return null;
+  }
+
   return await createPendingSidebar({
     sourceMessageInfo: messageInfo,
     parentThreadInfo: threadInfo,
@@ -125,8 +133,11 @@ function useAnimatedNavigateToSidebar(
   const chatContext = React.useContext(ChatContext);
   const setSidebarSourceID = chatContext?.setCurrentTransitionSidebarSourceID;
   const navigateToSidebar = useNavigateToSidebar(item);
-  const messageID = item.messageInfo.id;
+  const messageID = item.messageInfo?.id;
   return React.useCallback(() => {
+    if (!messageID) {
+      return;
+    }
     setSidebarSourceID && setSidebarSourceID(messageID);
     navigateToSidebar();
   }, [setSidebarSourceID, messageID, navigateToSidebar]);

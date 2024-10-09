@@ -54,8 +54,8 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const styles = useOverlayStyles(unboundStyles);
 
-  const { messageInfo, robotext } = item;
-  const { threadID } = messageInfo;
+  const { messageInfos, robotext } = item;
+  const { threadID } = messageInfos[0];
   const resolvedRobotext = useResolvedEntityText(robotext);
   invariant(
     resolvedRobotext,

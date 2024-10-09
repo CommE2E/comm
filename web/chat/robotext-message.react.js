@@ -41,9 +41,11 @@ function RobotextMessage(props: Props): React.Node {
   let inlineEngagement;
   const { item, threadInfo } = props;
   const { threadCreatedFromMessage, reactions } = item;
-  if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
-    const targetableMessageInfo =
-      chatMessageInfoItemTargetableMessageInfo(item);
+  const targetableMessageInfo = chatMessageInfoItemTargetableMessageInfo(item);
+  if (
+    targetableMessageInfo &&
+    (threadCreatedFromMessage || Object.keys(reactions).length > 0)
+  ) {
     inlineEngagement = (
       <div className={css.sidebarMarginTop}>
         <InlineEngagement
@@ -57,8 +59,8 @@ function RobotextMessage(props: Props): React.Node {
     );
   }
 
-  const { messageInfo, robotext } = item;
-  const { threadID } = messageInfo;
+  const { messageInfos, robotext } = item;
+  const { threadID } = messageInfos[0];
   const resolvedRobotext = useResolvedEntityText(robotext);
   invariant(
     resolvedRobotext,
