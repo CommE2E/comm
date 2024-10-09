@@ -10,6 +10,7 @@ import {
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { type ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -129,11 +130,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
 
     const label = getMessageLabel(item.hasBeenEdited, threadInfo.id);
     const inlineEngagement = React.useMemo(() => {
-      if (
-        !item.threadCreatedFromMessage &&
-        Object.keys(item.reactions).length === 0 &&
-        !label
-      ) {
+      if (!chatMessageItemHasEngagement(item, threadInfo.id)) {
         return null;
       }
       const positioning = isViewer ? 'right' : 'left';
@@ -149,14 +146,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
           />
         </div>
       );
-    }, [
-      item.threadCreatedFromMessage,
-      item.reactions,
-      label,
-      isViewer,
-      item.messageInfo,
-      threadInfo,
-    ]);
+    }, [item, label, isViewer, threadInfo]);
 
     const avatar = React.useMemo(() => {
       if (!isViewer && item.endsCluster) {

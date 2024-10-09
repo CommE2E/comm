@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
+import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import {
   useViewerAlreadySelectedMessageReactions,
   useCanCreateReactionFromMessage,
@@ -71,7 +72,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
   const inlineEngagement = React.useMemo(() => {
-    if (!item.threadCreatedFromMessage) {
+    if (!chatMessageItemHasEngagement(item, item.threadInfo.id)) {
       return null;
     }
     return (

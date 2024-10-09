@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 
@@ -62,7 +63,7 @@ function RobotextMessage(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   let inlineEngagement = null;
-  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
+  if (chatMessageItemHasEngagement(item, item.threadInfo.id)) {
     inlineEngagement = (
       <View style={styles.sidebar}>
         <InlineEngagement

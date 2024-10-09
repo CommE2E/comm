@@ -11,6 +11,7 @@ import {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
+import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
@@ -275,13 +276,9 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       ],
     );
 
+    const label = getMessageLabel(hasBeenEdited, item.threadInfo.id);
     const inlineEngagement = React.useMemo(() => {
-      const label = getMessageLabel(hasBeenEdited, item.threadInfo.id);
-      if (
-        !item.threadCreatedFromMessage &&
-        Object.keys(item.reactions).length <= 0 &&
-        !label
-      ) {
+      if (!chatMessageItemHasEngagement(item, item.threadInfo.id)) {
         return undefined;
       }
       const positioning = isViewer ? 'right' : 'left';
@@ -295,14 +292,7 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
           label={label}
         />
       );
-    }, [
-      hasBeenEdited,
-      isViewer,
-      item.messageInfo,
-      item.reactions,
-      item.threadCreatedFromMessage,
-      item.threadInfo,
-    ]);
+    }, [label, isViewer, item]);
 
     const viewStyle = React.useMemo(() => {
       const baseStyle: Array<ViewStyle> = [styles.alignment];
