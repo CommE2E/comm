@@ -18,11 +18,12 @@ import {
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import NewMessagesPill from './new-messages-pill.react.js';
-import { chatMessageItemHeight, chatMessageItemKey } from './utils.js';
+import { chatMessageItemHeight } from './utils.js';
 import { InputStateContext } from '../input/input-state.js';
 import type { InputState } from '../input/input-state.js';
 import {

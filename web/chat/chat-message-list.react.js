@@ -11,7 +11,8 @@ import {
   type ChatMessageItem,
   useMessageListData,
 } from 'lib/selectors/chat-selectors.js';
-import { messageKey, useFetchMessages } from 'lib/shared/message-utils.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
+import { useFetchMessages } from 'lib/shared/message-utils.js';
 import {
   threadIsPending,
   threadOtherMembers,
@@ -112,8 +113,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       return true;
     }
     return (
-      ChatMessageList.keyExtractor(prevMessageListData[0]) !==
-      ChatMessageList.keyExtractor(messageListData[0])
+      chatMessageItemKey(prevMessageListData[0]) !==
+      chatMessageItemKey(messageListData[0])
     );
   }
 
@@ -164,13 +165,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
   }
 
-  static keyExtractor(item: ChatMessageItem): string {
-    if (item.itemType === 'loader') {
-      return 'loader';
-    }
-    return messageKey(item.messageInfo);
-  }
-
   renderItem = (item: ChatMessageItem): React.Node => {
     if (item.itemType === 'loader') {
       return (
@@ -186,7 +180,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         item={item}
         threadInfo={threadInfo}
         shouldDisplayPinIndicator={true}
-        key={ChatMessageList.keyExtractor(item)}
+        key={chatMessageItemKey(item)}
       />
     );
   };

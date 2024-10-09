@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -79,7 +80,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
   const renderItem = React.useCallback(
     (item: ChatMessageInfoItem) => (
       <MessageResult
-        key={item.messageInfo.id}
+        key={chatMessageItemKey(item)}
         item={item}
         threadInfo={threadInfo}
         scrollable={false}

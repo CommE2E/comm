@@ -6,7 +6,8 @@ import * as React from 'react';
 import { TouchableWithoutFeedback, View } from 'react-native';
 import { createSelector } from 'reselect';
 
-import { messageKey, useFetchMessages } from 'lib/shared/message-utils.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
+import { useFetchMessages } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypeIsPersonal } from 'lib/types/thread-types-enum.js';
@@ -165,8 +166,7 @@ class MessageList extends React.PureComponent<Props, State> {
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
     const { messageListVerticalBounds, focusedMessageKey, navigation, route } =
       this.flatListExtraData;
-    const focused =
-      messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
+    const focused = chatMessageItemKey(messageInfoItem) === focusedMessageKey;
     return (
       <Message
         item={messageInfoItem}
@@ -261,7 +261,7 @@ class MessageList extends React.PureComponent<Props, State> {
       for (const token of info.viewableItems) {
         if (
           token.item.itemType === 'message' &&
-          messageKey(token.item.messageInfo) === this.state.focusedMessageKey
+          chatMessageItemKey(token.item) === this.state.focusedMessageKey
         ) {
           focusedMessageVisible = true;
           break;

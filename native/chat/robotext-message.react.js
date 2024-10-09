@@ -4,8 +4,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
-import { messageKey } from 'lib/shared/message-utils.js';
+import {
+  chatMessageItemKey,
+  chatMessageItemHasEngagement,
+} from 'lib/shared/chat-message-item-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 
 import { inlineEngagementCenterStyle } from './chat-constants.js';
@@ -79,7 +81,7 @@ function RobotextMessage(props: Props): React.Node {
 
   const chatContext = React.useContext(ChatContext);
   const keyboardState = React.useContext(KeyboardContext);
-  const key = messageKey(item.messageInfo);
+  const key = chatMessageItemKey(item);
   const onPress = React.useCallback(() => {
     const didDismiss =
       keyboardState && keyboardState.dismissKeyboardIfShowing();
@@ -181,7 +183,7 @@ function RobotextMessage(props: Props): React.Node {
     }
 
     if (!focused) {
-      toggleFocus(messageKey(item.messageInfo));
+      toggleFocus(key);
     }
 
     invariant(overlayContext, 'RobotextMessage should have OverlayContext');
@@ -189,7 +191,7 @@ function RobotextMessage(props: Props): React.Node {
     viewRef.current?.measure(openRobotextTooltipModal);
   }, [
     focused,
-    item,
+    key,
     keyboardState,
     overlayContext,
     toggleFocus,
