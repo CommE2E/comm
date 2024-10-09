@@ -23,7 +23,7 @@ type Props = {
 function MessageHeader(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { item, focused, display } = props;
-  const { creator, time } = item.messageInfo;
+  const { creator } = item.messageInfo;
   const { isViewer } = creator;
 
   const route = useRoute();
@@ -84,14 +84,8 @@ function MessageHeader(props: Props): React.Node {
       return null;
     }
 
-    return <Timestamp time={time} display={display} />;
-  }, [
-    display,
-    item.startsConversation,
-    messageInMessageList,
-    modalDisplay,
-    time,
-  ]);
+    return <Timestamp item={item} display={display} />;
+  }, [display, item, messageInMessageList, modalDisplay]);
 
   const containerStyle = React.useMemo(() => {
     if (!focused || modalDisplay) {

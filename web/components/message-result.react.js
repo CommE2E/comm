@@ -6,8 +6,8 @@ import * as React from 'react';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './message-result.css';
 import { MessageListContext } from '../chat/message-list-types.js';
@@ -59,7 +59,7 @@ function MessageResult(props: MessageResultProps): React.Node {
           </MessageListContext.Provider>
         </div>
         <div className={css.messageDate}>
-          {longAbsoluteDate(item.messageInfo.time)}
+          {chatMessageInfoItemTimestamp(item)}
         </div>
       </div>
     </div>

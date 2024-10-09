@@ -123,7 +123,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
           onInputBarMeasured={onInputBarMeasured}
         />
         <Animated.View style={headerStyle}>
-          <Timestamp time={item.messageInfo.time} display="modal" />
+          <Timestamp item={item} display="modal" />
         </Animated.View>
         {reactionSelectionPopover}
         <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />

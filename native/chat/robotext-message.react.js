@@ -58,9 +58,7 @@ function RobotextMessage(props: Props): React.Node {
 
   let timestamp = null;
   if (focused || item.startsConversation) {
-    timestamp = (
-      <Timestamp time={item.messageInfo.time} display="lowContrast" />
-    );
+    timestamp = <Timestamp item={item} display="lowContrast" />;
   }
 
   const styles = useStyles(unboundStyles);
