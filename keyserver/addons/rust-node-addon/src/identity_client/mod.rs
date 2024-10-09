@@ -9,6 +9,7 @@ pub mod prekey;
 mod privileged_delete_users;
 pub mod register_user;
 pub mod remove_reserved_usernames;
+mod sync_platform_details;
 pub mod upload_one_time_keys;
 
 use client_proto::identity_client_service_client::IdentityClientServiceClient;
