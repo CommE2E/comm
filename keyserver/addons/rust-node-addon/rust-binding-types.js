@@ -89,6 +89,11 @@ type RustNativeBindingAPI = {
     authAccessToken: string,
     userIds: $ReadOnlyArray<string>,
   ) => Promise<void>,
+  +syncPlatformDetails: (
+    userId: string,
+    deviceId: string,
+    accessToken: string,
+  ) => Promise<void>,
 };
 
 export type { RustNativeBindingAPI };
