@@ -60,4 +60,11 @@ impl FCMErrorResponse {
       _ => FCMErrorResponse::UnspecifiedError,
     }
   }
+
+  pub fn should_invalidate_token(&self) -> bool {
+    matches!(
+      self,
+      FCMErrorResponse::Unregistered | FCMErrorResponse::InvalidArgument(_)
+    )
+  }
 }

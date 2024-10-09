@@ -3,7 +3,6 @@ use crate::constants::{
   error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
   MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
 };
-use crate::notifs::fcm::response::FCMErrorResponse;
 use crate::notifs::wns::response::WNSErrorResponse;
 use comm_lib::aws::ddb::error::SdkError;
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
@@ -600,11 +599,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           let result = fcm.send(fcm_message).await;
 
           if let Err(NotifsFCMError(fcm_error)) = &result {
-            if matches!(
-              fcm_error,
-              FCMErrorResponse::Unregistered
-                | FCMErrorResponse::InvalidArgument(_)
-            ) {
+            if fcm_error.should_invalidate_token() {
               if let Err(e) = self
                 .invalidate_device_token(notif.device_id, device_token.clone())
                 .await
