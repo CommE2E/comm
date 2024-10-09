@@ -48,9 +48,10 @@ import {
 } from './uploads/uploads.js';
 import { createAuthoritativeKeyserverConfigFiles } from './user/create-configs.js';
 import { fetchIdentityInfo } from './user/identity.js';
-import { verifyUserLoggedIn } from './user/login.js';
+import { authAndSaveIdentityInfo } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { initFCCache } from './utils/fc-cache.js';
+import { syncPlatformDetails } from './utils/identity-utils.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
 import {
   isPrimaryNode,
@@ -191,7 +192,14 @@ void (async () => {
           // We await here to ensure that the keyserver has been provisioned a
           // commServicesAccessToken. In the future, this will be necessary for
           // many keyserver operations.
-          const identityInfo = await verifyUserLoggedIn();
+          let identityInfo = await fetchIdentityInfo();
+          if (identityInfo && isPrimaryNode) {
+            // We are using persisted auth metadata here, so we should attempt
+            // to synchronize platform details with the identity service
+            ignorePromiseRejections(syncPlatformDetails(identityInfo));
+          } else {
+            identityInfo = await authAndSaveIdentityInfo();
+          }
 
           if (!isPrimaryNode) {
             return;
