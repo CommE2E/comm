@@ -18,7 +18,10 @@ import {
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
-import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
+import {
+  chatMessageItemKey,
+  chatMessageItemHasNonViewerMessage,
+} from 'lib/shared/chat-message-item-utils.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
@@ -144,6 +147,7 @@ class ChatList extends React.PureComponent<Props, State> {
     }
 
     const { scrollPos } = this;
+    const { viewerID } = this.props;
 
     let curDataIndex = 0,
       prevDataIndex = 0,
@@ -166,10 +170,7 @@ class ChatList extends React.PureComponent<Props, State> {
 
         if (curItemKey.startsWith(localIDPrefix)) {
           newLocalMessage = true;
-        } else if (
-          curItem.itemType === 'message' &&
-          curItem.messageInfo.creator.id !== this.props.viewerID
-        ) {
+        } else if (chatMessageItemHasNonViewerMessage(curItem, viewerID)) {
           newRemoteMessageCount++;
         }
         adjustScrollPos += chatMessageItemHeight(curItem);
