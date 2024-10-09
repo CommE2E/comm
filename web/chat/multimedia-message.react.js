@@ -7,7 +7,7 @@ import {
   encryptedMediaBlobURI,
   encryptedVideoThumbnailBlobURI,
 } from 'lib/media/media-utils.js';
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { type ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
@@ -18,7 +18,7 @@ import { type InputState, InputStateContext } from '../input/input-state.js';
 import Multimedia from '../media/multimedia.react.js';
 
 type BaseProps = {
-  +item: ChatMessageInfoItem,
+  +item: ComposableChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
