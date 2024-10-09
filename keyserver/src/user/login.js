@@ -56,16 +56,13 @@ async function getUserCredentials(): Promise<UserCredentials> {
 }
 
 async function verifyUserLoggedIn(): Promise<IdentityInfo> {
-  const userInfoPromise = getUserCredentials();
-
   const result = await fetchIdentityInfo();
 
   if (result) {
     return result;
   }
 
-  const userInfo = await userInfoPromise;
-
+  const userInfo = await getUserCredentials();
   const identityInfo = await registerOrLogIn(userInfo);
   await saveIdentityInfo(identityInfo);
   return identityInfo;
