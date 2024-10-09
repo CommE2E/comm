@@ -7,7 +7,7 @@ import {
   PixelRatio,
 } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
@@ -82,7 +82,7 @@ function Message(props: Props): React.Node {
 
       console.log(
         `Message height for ${item.messageShapeType} ` +
-          `${messageKey(item.messageInfo)} was expected to be ` +
+          `${chatMessageItemKey(item)} was expected to be ` +
           `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
           "This means MessageList's FlatList isn't getting the right item " +
           'height for some of its nodes, which is guaranteed to cause glitchy ' +

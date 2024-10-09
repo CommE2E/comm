@@ -12,6 +12,7 @@ import {
   messageListData,
 } from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import {
   createMessageInfo,
   isInvalidPinSourceForThread,
@@ -136,7 +137,7 @@ function PinnedMessagesModal(props: Props): React.Node {
 
     const items = modifiedItems.map(item => (
       <MessageResult
-        key={item.messageInfo.id}
+        key={chatMessageItemKey(item)}
         item={item}
         threadInfo={threadInfo}
         scrollable={false}
