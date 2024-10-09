@@ -66,7 +66,10 @@ function RobotextMessage(props: Props): React.Node {
   const engagementTargetMessageInfo =
     chatMessageItemEngagementTargetMessageInfo(item);
   let inlineEngagement = null;
-  if (chatMessageItemHasEngagement(item, item.threadInfo.id)) {
+  if (
+    targetableMessageInfo &&
+    chatMessageItemHasEngagement(item, item.threadInfo.id)
+  ) {
     inlineEngagement = (
       <View style={styles.sidebar}>
         <InlineEngagement

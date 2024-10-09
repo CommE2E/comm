@@ -228,8 +228,21 @@ function MessageSearch(props: MessageSearchProps): React.Node {
 
 function oldestMessage(data: $ReadOnlyArray<ChatMessageItemWithHeight>) {
   for (let i = data.length - 1; i >= 0; i--) {
-    if (data[i].itemType === 'message' && data[i].messageInfo.id) {
-      return data[i].messageInfo;
+    const item = data[i];
+    if (item.itemType !== 'message') {
+      continue;
+    }
+    if (item.messageShapeType !== 'robotext') {
+      if (item.messageInfo.id) {
+        return item.messageInfo;
+      }
+      continue;
+    }
+    for (let j = item.messageInfos.length - 1; j >= 0; j--) {
+      const messageInfo = item.messageInfos[j];
+      if (messageInfo.id) {
+        return messageInfo;
+      }
     }
   }
   return undefined;

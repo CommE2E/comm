@@ -15,7 +15,7 @@ import type { MessagePendingUploads } from '../input/input-state.js';
 export type ChatRobotextMessageInfoItemWithHeight = {
   +itemType: 'message',
   +messageShapeType: 'robotext',
-  +messageInfo: RobotextMessageInfo,
+  +messageInfos: $ReadOnlyArray<RobotextMessageInfo>,
   +threadInfo: ThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,

@@ -37,7 +37,9 @@ function MessageResult(props: MessageResultProps): React.Node {
 
   const shouldShowUsername = !item.startsConversation && !item.startsCluster;
   const username = useStringForUser(
-    shouldShowUsername ? item.messageInfo.creator : null,
+    shouldShowUsername && item.messageInfoType === 'composable'
+      ? item.messageInfo.creator
+      : null,
   );
 
   const messageContainerClassNames = classNames({
