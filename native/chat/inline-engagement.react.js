@@ -491,16 +491,12 @@ function TooltipInlineEngagement(
     if (positioning === 'left') {
       return {
         position: 'absolute',
-        top: inlineEngagementStyle.marginTop + inlineEngagementStyle.topOffset,
         left: composedMessageStyle.marginLeft,
       };
     } else if (positioning === 'right') {
       return {
         position: 'absolute',
-        right:
-          inlineEngagementRightStyle.marginLeft +
-          composedMessageStyle.marginRight,
-        top: inlineEngagementStyle.marginTop + inlineEngagementStyle.topOffset,
+        right: composedMessageStyle.marginRight,
       };
     }
     invariant(
@@ -538,6 +534,7 @@ function TooltipInlineEngagement(
           threadInfo={item.threadInfo}
           sidebarThreadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
+          positioning={positioning}
           disabled
         />
       </Animated.View>
