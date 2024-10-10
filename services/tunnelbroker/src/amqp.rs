@@ -162,6 +162,7 @@ impl AmqpChannel {
 }
 
 fn should_ignore_error(err: &lapin::Error) -> bool {
+  use lapin::protocol::{AMQPErrorKind, AMQPHardError};
   use lapin::Error as E;
   use std::io::ErrorKind;
 
@@ -169,16 +170,22 @@ fn should_ignore_error(err: &lapin::Error) -> bool {
     return true;
   }
 
-  if let E::IOError(io_error) = err {
-    return match io_error.kind() {
+  match err {
+    E::ProtocolError(amqp_err) => match amqp_err.kind() {
+      // Suppresses:
+      // "CONNECTION_FORCED - broker forced connection closure with reason 'shutdown'"
+      // We handle this by auto-reconnecting
+      AMQPErrorKind::Hard(AMQPHardError::CONNECTIONFORCED) => true,
+      _ => false,
+    },
+    E::IOError(io_err) => match io_err.kind() {
       // Suppresses: "Socket was readable but we read 0.""
       // We handle this by auto-reconnecting
       ErrorKind::ConnectionAborted => true,
       _ => false,
-    };
+    },
+    _ => false,
   }
-
-  false
 }
 
 pub fn is_connection_error(err: &lapin::Error) -> bool {
