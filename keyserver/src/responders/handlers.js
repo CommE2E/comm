@@ -111,6 +111,29 @@ function jsonHandler(
   };
 }
 
+type WebhookPayloadResponder = (request: $Request) => Promise<void>;
+function webhookPayloadHandler(
+  responder: WebhookPayloadResponder,
+): (req: $Request, res: $Response) => Promise<void> {
+  return async (req: $Request, res: $Response) => {
+    try {
+      if (!req.body || typeof req.body !== 'object') {
+        throw new ServerError('invalid_parameters');
+      }
+
+      const responderResult = await responder(req);
+
+      if (res.headersSent) {
+        return;
+      }
+      const result = { ...responderResult };
+      res.json({ success: true, ...result });
+    } catch (e) {
+      await handleException(e, res);
+    }
+  };
+}
+
 function httpGetHandler(
   responder: HTTPGetResponder,
 ): (req: $Request, res: $Response) => Promise<void> {
@@ -245,4 +268,5 @@ export {
   downloadHandler,
   htmlHandler,
   uploadHandler,
+  webhookPayloadHandler,
 };
