@@ -124,7 +124,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: true,
+        comingSoon: false,
         competitorDescriptionShort:
           'Discord staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
@@ -282,7 +282,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: true,
+        comingSoon: false,
         competitorDescriptionShort:
           'E2E encryption is optional in Matrix. Two-person encrypted chats use Double Ratchet, but group chats use a less secure algorithm called Megolm.',
         commDescriptionShort:
@@ -438,7 +438,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: true,
+        comingSoon: false,
         competitorDescriptionShort:
           'Slack staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
@@ -535,7 +535,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: true,
+        comingSoon: false,
         competitorDescriptionShort:
           'Outside of rarely-used “Secret Chats”, Telegram staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
