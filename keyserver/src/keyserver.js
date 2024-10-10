@@ -17,7 +17,6 @@ import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { identityDeviceTypes } from 'lib/types/identity-service-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
-import { ignorePromiseRejections } from 'lib/utils/promises.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { fetchDBVersion } from './database/db-version.js';
@@ -46,12 +45,10 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads.js';
-import { createAuthoritativeKeyserverConfigFiles } from './user/create-configs.js';
 import { fetchIdentityInfo } from './user/identity.js';
-import { authAndSaveIdentityInfo } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { initFCCache } from './utils/fc-cache.js';
-import { syncPlatformDetails } from './utils/identity-utils.js';
+import { setUpKeyserverWithServices } from './utils/keyserver-services-setup.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
 import {
   isPrimaryNode,
@@ -181,41 +178,7 @@ void (async () => {
         console.log('Error generating QR code', e);
       }
     } else {
-      await (async () => {
-        // Should not be run by Landing or WebApp nodes
-        if (!isPrimaryNode && !isSecondaryNode) {
-          return;
-        }
-
-        let identityInfo = await fetchIdentityInfo();
-        // Secondary nodes should not attempt identity auth. Instead, they
-        // should poll until the identity info is in the database
-        if (isSecondaryNode) {
-          while (!identityInfo) {
-            await sleep(5000);
-            identityInfo = await fetchIdentityInfo();
-          }
-          return;
-        }
-        // If the primary node is able to fetch persisted identity info, it
-        // should attempt to sync platform details with the identity service
-        if (identityInfo) {
-          ignorePromiseRejections(syncPlatformDetails(identityInfo));
-        } else {
-          identityInfo = await authAndSaveIdentityInfo();
-        }
-
-        // We don't await here, as Tunnelbroker communication is not needed
-        // for normal keyserver behavior yet. In addition, this doesn't
-        // return information useful for other keyserver functions.
-        ignorePromiseRejections(createAndMaintainTunnelbrokerWebsocket(null));
-
-        if (process.env.NODE_ENV !== 'development') {
-          return;
-        }
-
-        await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
-      })();
+      await setUpKeyserverWithServices();
     }
 
     if (!isCPUProfilingEnabled) {
