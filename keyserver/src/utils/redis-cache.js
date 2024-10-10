@@ -8,10 +8,13 @@ import type { NeynarChannel } from 'lib/types/farcaster-types.js';
 import { redisConfig } from '../socket/redis.js';
 
 class RedisCache {
-  cacheClient: RedisClient;
+  _cacheClient: ?RedisClient;
 
-  constructor() {
-    this.cacheClient = redis.createClient(redisConfig);
+  get cacheClient(): RedisClient {
+    if (!this._cacheClient) {
+      this._cacheClient = redis.createClient(redisConfig);
+    }
+    return this._cacheClient;
   }
 
   setChannelInfo(fcChannelID: string, fcChannel: NeynarChannel): Promise<void> {
