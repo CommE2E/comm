@@ -25,11 +25,13 @@ import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
+import { taggedCommFarcasterResponder } from './responders/farcaster-webhook-responders.js';
 import {
   jsonHandler,
   downloadHandler,
   htmlHandler,
   uploadHandler,
+  webhookPayloadHandler,
 } from './responders/handlers.js';
 import landingHandler from './responders/landing-handler.js';
 import { errorReportDownloadResponder } from './responders/report-responders.js';
@@ -296,6 +298,11 @@ void (async () => {
       if (keyserverCorsOptions) {
         keyserverRouter.use(cors(keyserverCorsOptions));
       }
+
+      keyserverRouter.post(
+        '/fc_comm_tagged',
+        webhookPayloadHandler(taggedCommFarcasterResponder),
+      );
 
       for (const endpoint in jsonEndpoints) {
         // $FlowFixMe Flow thinks endpoint is string
