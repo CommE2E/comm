@@ -23,4 +23,20 @@ async function findUserIdentities(
   );
 }
 
-export { findUserIdentities };
+async function privilegedDeleteUsers(
+  userIDs: $ReadOnlyArray<string>,
+): Promise<void> {
+  const [rustAPI, identityInfo, deviceID] = await Promise.all([
+    getRustAPI(),
+    verifyUserLoggedIn(),
+    getContentSigningKey(),
+  ]);
+  await rustAPI.privilegedDeleteUsers(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    userIDs,
+  );
+}
+
+export { findUserIdentities, privilegedDeleteUsers };
