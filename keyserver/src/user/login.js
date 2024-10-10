@@ -153,7 +153,7 @@ async function registerOrLogInBase<T>(
     prekey: notificationsPrekey,
     prekeySignature: notificationsPrekeySignature,
     oneTimeKeys: notificationsOneTimeKeys,
-  } = await fetchCallUpdateOlmAccount('notifications', retrieveAccountKeysSet);
+  } = await getUpdateNotificationsAccount(retrieveAccountKeysSet);
 
   const contentAccountCallback = async (account: OlmAccount) => {
     const {
