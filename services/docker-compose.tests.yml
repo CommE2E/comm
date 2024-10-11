@@ -73,6 +73,7 @@ services:
     env_file: test-commons.env
     environment:
       TUNNELBROKER_GRPC_ENDPOINT: 'http://tunnelbroker-server:50051'
+      BLOB_SERVICE_URL: 'http://blob-server:${COMM_SERVICES_PORT_BLOB}'
     build:
       args:
         - generate_keypair=true
