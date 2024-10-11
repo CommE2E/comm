@@ -46,8 +46,8 @@ async fn blob_integration_test() -> Result<(), Error> {
   ];
 
   for item in &blob_data {
-    let data_exists: bool = put::run(&client, item).await?;
-    assert!(!data_exists, "test data should not exist");
+    let result = put::run(&client, item).await?;
+    assert!(result.blob_was_uploaded(), "test data should not exist");
   }
 
   for (i, blob_item) in blob_data.iter().enumerate() {
