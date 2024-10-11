@@ -9,7 +9,10 @@ import { MaterialTopTabBar } from '@react-navigation/material-top-tabs';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
+import type { MeasureOnSuccessCallback } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 import { TabBarItem } from 'react-native-tab-view';
+
+import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import {
   nuxTip,
@@ -28,32 +31,25 @@ const ButtonTitleToTip = Object.freeze({
 function TabBarButton(props: TabBarItemProps<Route<>>) {
   const tipsContext = React.useContext(NUXTipsContext);
   invariant(tipsContext, 'NUXTipsContext should be defined');
+  const { registerTipButton } = tipsContext;
 
-  const viewRef = React.useRef<?React.ElementRef<typeof View>>();
-  const onLayout = React.useCallback(() => {
-    const button = viewRef.current;
-    if (!button) {
-      return;
-    }
-
-    const tipType = ButtonTitleToTip[props.route.name];
-    if (!tipType) {
-      return;
-    }
-    button.measure((x, y, width, height, pageX, pageY) => {
-      tipsContext.registerTipButton(tipType, {
-        x,
-        y,
-        width,
-        height,
-        pageX,
-        pageY,
-      });
-    });
-  }, [props.route.name, tipsContext]);
+  const onLayout = React.useCallback(() => {}, []);
+  const registerRef: ReactRefSetter<React.ElementRef<typeof View>> =
+    React.useCallback(
+      element => {
+        const tipType = ButtonTitleToTip[props.route.name];
+        if (!tipType) {
+          return;
+        }
+        const measure = (callback: MeasureOnSuccessCallback) =>
+          element?.measure(callback);
+        registerTipButton(tipType, measure);
+      },
+      [props.route.name, registerTipButton],
+    );
 
   return (
-    <View ref={viewRef} onLayout={onLayout}>
+    <View ref={registerRef} onLayout={onLayout}>
       <TabBarItem {...props} />
     </View>
   );
