@@ -31,6 +31,7 @@ import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
+import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
@@ -375,27 +376,20 @@ export default function ChatComponent(props: Props): React.Node {
     draftUpdater = <ThreadDraftUpdater />;
   }
 
-  const communityDrawerButtonRef =
-    React.useRef<?React.ElementRef<typeof View>>();
-
   const tipsContext = React.useContext(NUXTipsContext);
   invariant(tipsContext, 'NUXTipsContext should be defined');
   const { registerTipButton } = tipsContext;
 
-  const communityDrawerButtonOnLayout = React.useCallback(() => {
-    communityDrawerButtonRef.current?.measure(
-      (x, y, width, height, pageX, pageY) => {
-        registerTipButton(nuxTip.COMMUNITY_DRAWER, {
-          x,
-          y,
-          width,
-          height,
-          pageX,
-          pageY,
-        });
-      },
-    );
-  }, [registerTipButton]);
+  const communityDrawerButtonOnLayout = React.useCallback(() => {}, []);
+
+  const communityDrawerButtonRegisterRef: ReactRefSetter<
+    React.ElementRef<typeof View>,
+  > = React.useCallback(
+    element => {
+      registerTipButton(nuxTip.COMMUNITY_DRAWER, element);
+    },
+    [registerTipButton],
+  );
 
   const headerLeftButton = React.useCallback(
     (headerProps: StackHeaderLeftButtonProps) => {
@@ -405,13 +399,17 @@ export default function ChatComponent(props: Props): React.Node {
       return (
         <View
           onLayout={communityDrawerButtonOnLayout}
-          ref={communityDrawerButtonRef}
+          ref={communityDrawerButtonRegisterRef}
         >
           <CommunityDrawerButton navigation={props.navigation} />
         </View>
       );
     },
-    [communityDrawerButtonOnLayout, props.navigation],
+    [
+      communityDrawerButtonOnLayout,
+      communityDrawerButtonRegisterRef,
+      props.navigation,
+    ],
   );
 
   const messageEditingContext = React.useContext(MessageEditingContext);

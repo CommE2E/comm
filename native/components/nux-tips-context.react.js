@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { View } from 'react-native';
 
 import { values } from 'lib/utils/objects.js';
 
@@ -61,14 +62,7 @@ function getNUXTipParams(currentTipKey: NUXTip): NUXTipParams {
   return nuxTipParams[currentTipKey];
 }
 
-type TipProps = {
-  +x: number,
-  +y: number,
-  +width: number,
-  +height: number,
-  +pageX: number,
-  +pageY: number,
-};
+type TipProps = React.ElementRef<typeof View>;
 
 export type NUXTipsContextType = {
   +registerTipButton: (type: NUXTip, tipProps: ?TipProps) => void,
