@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use reqwest::StatusCode;
+
 use crate::blob::blob_utils::{BlobData, BlobServiceClient};
 use crate::tools::{generate_stable_nbytes, Error};
 
@@ -7,10 +9,30 @@ use crate::tools::{generate_stable_nbytes, Error};
 struct AssignHolderResponse {
   data_exists: bool,
 }
+
+#[derive(Debug)]
+pub enum PutResult {
+  HolderEstablished { data_exists: bool },
+  HolderAlreadyExists,
+}
+
+impl PutResult {
+  pub fn blob_was_uploaded(&self) -> bool {
+    match self {
+      Self::HolderEstablished { data_exists } => !data_exists,
+      _ => false,
+    }
+  }
+
+  pub fn holder_already_exists(&self) -> bool {
+    matches!(self, Self::HolderAlreadyExists)
+  }
+}
+
 pub async fn run(
   client: &BlobServiceClient,
   blob_data: &BlobData,
-) -> Result<bool, Error> {
+) -> Result<PutResult, Error> {
   let url = client.blob_service_url.join("/blob")?;
 
   let holder = blob_data.holder.clone();
@@ -27,11 +49,15 @@ pub async fn run(
     .send()
     .await?;
 
+  if assign_holder_response.status() == StatusCode::CONFLICT {
+    return Ok(PutResult::HolderAlreadyExists);
+  }
+
   let AssignHolderResponse { data_exists } =
     assign_holder_response.json::<_>().await?;
 
   if data_exists {
-    return Ok(data_exists);
+    return Ok(PutResult::HolderEstablished { data_exists });
   }
 
   // 2. Upload blob
@@ -57,5 +83,5 @@ pub async fn run(
     return Err(Error::HttpStatus(response.status()));
   }
 
-  Ok(data_exists)
+  Ok(PutResult::HolderEstablished { data_exists })
 }

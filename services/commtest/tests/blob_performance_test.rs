@@ -47,9 +47,8 @@ async fn blob_performance_test() -> Result<(), Error> {
         let item_cloned = item.clone();
         let client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
-          let data_exists: bool =
-            put::run(&client_cloned, &item_cloned).await.unwrap();
-          assert!(!data_exists, "test data should not exist");
+          let result = put::run(&client_cloned, &item_cloned).await.unwrap();
+          assert!(result.blob_was_uploaded(), "test data should not exist");
         }));
       }
 
