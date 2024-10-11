@@ -383,17 +383,9 @@ export default function ChatComponent(props: Props): React.Node {
   const { registerTipButton } = tipsContext;
 
   const communityDrawerButtonOnLayout = React.useCallback(() => {
-    communityDrawerButtonRef.current?.measure(
-      (x, y, width, height, pageX, pageY) => {
-        registerTipButton(nuxTip.COMMUNITY_DRAWER, {
-          x,
-          y,
-          width,
-          height,
-          pageX,
-          pageY,
-        });
-      },
+    registerTipButton(
+      nuxTip.COMMUNITY_DRAWER,
+      communityDrawerButtonRef.current,
     );
   }, [registerTipButton]);
 

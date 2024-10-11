@@ -121,23 +121,36 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
 
     const dimensions = useSelector(state => state.dimensions);
 
-    const { initialCoordinates, verticalBounds } = React.useMemo(() => {
-      if (!ButtonComponent) {
-        const y = (dimensions.height * 2) / 5;
-        const x = dimensions.width / 2;
-        return {
-          initialCoordinates: { height: 0, width: 0, x, y },
-          verticalBounds: { height: 0, y },
-        };
-      }
-      const tipProps = nuxTipContext?.tipsProps?.[route.params.tipKey];
-      invariant(tipProps, 'button should be registered with nuxTipContext');
-      const { pageX, pageY, width, height } = tipProps;
+    const yInitial = (dimensions.height * 2) / 5;
+    const xInitial = dimensions.width / 2;
 
-      return {
-        initialCoordinates: { height, width, x: pageX, y: pageY },
-        verticalBounds: { height, y: pageY },
-      };
+    const [initialCoordinates, setInitialCoordinates] = React.useState<{
+      height: number,
+      width: number,
+      x: number,
+      y: number,
+    }>({ height: 0, width: 0, x: xInitial, y: yInitial });
+
+    const [verticalBounds, setVerticalBounds] = React.useState<{
+      height: number,
+      y: number,
+    }>({ height: 0, y: yInitial });
+
+    const [buttonMeasured, setButtonMeasured] =
+      React.useState<boolean>(!ButtonComponent);
+
+    React.useEffect(() => {
+      if (!ButtonComponent) {
+        return;
+      }
+      const button = nuxTipContext?.tipsProps?.[route.params.tipKey];
+      invariant(button, 'button should be registered with nuxTipContext');
+
+      button?.measure((x, y, width, height, pageX, pageY) => {
+        setInitialCoordinates({ height, width, x: pageX, y: pageY });
+        setVerticalBounds({ height, y: pageY });
+        setButtonMeasured(true);
+      });
     }, [dimensions, nuxTipContext?.tipsProps, route.params.tipKey]);
 
     const overlayContext = React.useContext(OverlayContext);
@@ -419,6 +432,10 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
         ) : undefined,
       [buttonStyle, contentContainerStyle, props.navigation, route],
     );
+
+    if (!buttonMeasured) {
+      return null;
+    }
 
     return (
       <TouchableWithoutFeedback onPress={onPressOk}>

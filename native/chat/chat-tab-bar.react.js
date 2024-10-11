@@ -31,25 +31,11 @@ function TabBarButton(props: TabBarItemProps<Route<>>) {
 
   const viewRef = React.useRef<?React.ElementRef<typeof View>>();
   const onLayout = React.useCallback(() => {
-    const button = viewRef.current;
-    if (!button) {
-      return;
-    }
-
     const tipType = ButtonTitleToTip[props.route.name];
     if (!tipType) {
       return;
     }
-    button.measure((x, y, width, height, pageX, pageY) => {
-      tipsContext.registerTipButton(tipType, {
-        x,
-        y,
-        width,
-        height,
-        pageX,
-        pageY,
-      });
-    });
+    tipsContext.registerTipButton(tipType, viewRef.current);
   }, [props.route.name, tipsContext]);
 
   return (
