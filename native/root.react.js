@@ -104,7 +104,7 @@ import Socket from './socket.react.js';
 import { useLoadCommFonts } from './themes/fonts.js';
 import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
-import { provider } from './utils/ethers-utils.js';
+import { alchemyKey, ethersProvider } from './utils/ethers-utils.js';
 import { neynarKey } from './utils/neynar-utils.js';
 
 // Add custom items to expo-dev-menu
@@ -355,7 +355,10 @@ function Root() {
                               initialMetrics={initialWindowMetrics}
                             >
                               <ActionSheetProvider>
-                                <ENSCacheProvider provider={provider}>
+                                <ENSCacheProvider
+                                  ethersProvider={ethersProvider}
+                                  alchemyKey={alchemyKey}
+                                >
                                   <NeynarClientProvider apiKey={neynarKey}>
                                     <MediaCacheProvider
                                       persistence={filesystemMediaCache}

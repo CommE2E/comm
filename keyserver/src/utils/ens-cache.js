@@ -8,6 +8,8 @@ import {
   getENSNames as baseGetENSNames,
   type GetENSNames,
 } from 'lib/utils/ens-helpers.js';
+import { ENSWrapper } from 'lib/utils/ens-wrapper.js';
+import { getAlchemyMainnetViemClientWithENSContracts } from 'lib/utils/viem-utils.js';
 
 type AlchemyConfig = { +key: string };
 type BaseUserInfo = { +username?: ?string, ... };
@@ -22,8 +24,10 @@ async function initENSCache() {
   if (!alchemyKey) {
     return;
   }
-  const provider = new AlchemyProvider('mainnet', alchemyKey);
-  const ensCache = new ENSCache(provider);
+  const viemClient = getAlchemyMainnetViemClientWithENSContracts(alchemyKey);
+  const ethersProvider = new AlchemyProvider('mainnet', alchemyKey);
+  const ensWrapper = new ENSWrapper(viemClient, ethersProvider);
+  const ensCache = new ENSCache(ensWrapper);
   getENSNames = <T: ?BaseUserInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
     baseGetENSNames(ensCache, users);
 }
