@@ -5,8 +5,17 @@ module.exports = {
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
     ['@babel/plugin-transform-private-methods', { loose: true }],
+    '@babel/plugin-transform-numeric-separator',
+    'babel-plugin-transform-bigint',
     // react-native-reanimated must be last
     'react-native-reanimated/plugin',
+  ],
+  include: [
+    '../node_modules/ethers',
+    '../node_modules/viem',
+    '../node_modules/@ensdomains/ensjs',
+    '../node_modules/@ensdomains/address-encoder',
+    '../node_modules/@ensdomains/content-hash/node_modules/@ensdomains/address-encoder',
   ],
   env: {
     production: {
