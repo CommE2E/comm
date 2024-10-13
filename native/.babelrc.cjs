@@ -5,6 +5,9 @@ module.exports = {
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
     ['@babel/plugin-transform-private-methods', { loose: true }],
+    '@babel/plugin-transform-numeric-separator',
+    'babel-plugin-transform-bigint',
+    '@babel/plugin-transform-named-capturing-groups-regex',
     // react-native-reanimated must be last
     'react-native-reanimated/plugin',
   ],
