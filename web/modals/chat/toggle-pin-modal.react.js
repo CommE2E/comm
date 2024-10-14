@@ -9,6 +9,7 @@ import {
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -26,7 +27,7 @@ type TogglePinModalProps = {
 
 function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { item, threadInfo } = props;
-  const { messageInfo, isPinned } = item;
+  const { isPinned } = item;
   const { popModal } = useModalContext();
 
   const callToggleMessagePin = useToggleMessagePin();
@@ -71,11 +72,17 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     return modifyItemForResultScreen(strippedItem);
   }, [item]);
 
+  const engagementTargetMessageInfo =
+    chatMessageItemEngagementTargetMessageInfo(item);
+  const engagementTargetMessageID = engagementTargetMessageInfo?.id;
   const onClick = React.useCallback(() => {
     const createToggleMessagePinPromise = async () => {
-      invariant(messageInfo.id, 'messageInfo.id should be defined');
+      invariant(
+        engagementTargetMessageID,
+        'engagement target messageID should be defined',
+      );
       const result = await callToggleMessagePin({
-        messageID: messageInfo.id,
+        messageID: engagementTargetMessageID,
         action: modalInfo.action,
       });
       return ({
@@ -96,7 +103,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     modalInfo,
     callToggleMessagePin,
     dispatchActionPromise,
-    messageInfo.id,
+    engagementTargetMessageID,
     popModal,
   ]);
 
