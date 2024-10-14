@@ -133,7 +133,8 @@ function useMessageTooltipSidebarAction(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
-  const { threadCreatedFromMessage, messageInfo } = item;
+  const { threadCreatedFromMessage } = item;
+  const messageInfo = chatMessageItemEngagementTargetMessageInfo(item);
   const { popModal } = useModalContext();
   const sidebarExists = !!threadCreatedFromMessage;
   const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(

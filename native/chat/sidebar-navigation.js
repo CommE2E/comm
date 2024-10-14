@@ -7,6 +7,7 @@ import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
+import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
@@ -78,7 +79,8 @@ async function getSidebarThreadInfo(
     return null;
   }
 
-  const { messageInfo, threadInfo } = sourceMessage;
+  const { threadInfo } = sourceMessage;
+  const messageInfo = chatMessageItemEngagementTargetMessageInfo(sourceMessage);
   if (!messageInfo) {
     return null;
   }
@@ -133,7 +135,8 @@ function useAnimatedNavigateToSidebar(
   const chatContext = React.useContext(ChatContext);
   const setSidebarSourceID = chatContext?.setCurrentTransitionSidebarSourceID;
   const navigateToSidebar = useNavigateToSidebar(item);
-  const messageID = item.messageInfo?.id;
+  const messageInfo = chatMessageItemEngagementTargetMessageInfo(item);
+  const messageID = messageInfo?.id;
   return React.useCallback(() => {
     if (!messageID) {
       return;
