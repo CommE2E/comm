@@ -258,7 +258,7 @@ function useMessageReactAction(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
-  const { messageInfo } = item;
+  const messageInfo = chatMessageItemEngagementTargetMessageInfo(item);
 
   const { setShouldRenderEmojiKeyboard } = useTooltipContext();
 
