@@ -505,7 +505,7 @@ cd web
 yarn dev
 ```
 
-You should now be able to load the web app in your web browser at http://localhost/webapp/.
+You should now be able to load the web app in your web browser at http://localhost:3000/webapp/.
 
 This command will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node server in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
 
@@ -550,7 +550,7 @@ cd landing
 yarn dev
 ```
 
-You should now be able to load the landing page in your web browser at http://localhost/commlanding/.
+You should now be able to load the landing page in your web browser at http://localhost:3000/commlanding/.
 
 This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app’s `app.build.cjs` file) is consumed by the Node server.
 
