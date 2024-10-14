@@ -178,9 +178,6 @@ class TextMessage extends React.PureComponent<Props> {
 
   onPress = () => {
     const visibleEntryIDs = this.visibleEntryIDs();
-    if (visibleEntryIDs.length === 0) {
-      return;
-    }
 
     const {
       message,
