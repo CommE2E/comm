@@ -9,6 +9,7 @@ import {
   chatMessageItemHasEngagement,
   chatMessageItemEngagementTargetMessageInfo,
 } from 'lib/shared/chat-message-item-utils.js';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 
 import { inlineEngagementCenterStyle } from './chat-constants.js';
@@ -101,6 +102,10 @@ function RobotextMessage(props: Props): React.Node {
     item.threadInfo,
     engagementTargetMessageInfo,
   );
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    item.threadInfo,
+    engagementTargetMessageInfo,
+  );
 
   const visibleEntryIDs = React.useMemo(() => {
     const result = [];
@@ -178,7 +183,7 @@ function RobotextMessage(props: Props): React.Node {
       return;
     }
 
-    if (visibleEntryIDs.length === 0) {
+    if (visibleEntryIDs.length === 0 && !canCreateReactionFromMessage) {
       return;
     }
 
@@ -203,6 +208,7 @@ function RobotextMessage(props: Props): React.Node {
     viewRef,
     visibleEntryIDs,
     openRobotextTooltipModal,
+    canCreateReactionFromMessage,
   ]);
 
   const onLayout = React.useCallback(() => {}, []);
