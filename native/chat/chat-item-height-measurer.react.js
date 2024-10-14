@@ -38,7 +38,7 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
   const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
     item;
 
-  if (messageInfo.type === messageTypes.TEXT) {
+  if (messageInfo && messageInfo.type === messageTypes.TEXT) {
     return JSON.stringify({
       text: messageInfo.text,
       edited: getMessageLabel(hasBeenEdited, messageInfo.threadID),
@@ -46,7 +46,7 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
       reactions: reactionsToRawString(reactions),
     });
   } else if (item.robotext) {
-    const { threadID } = item.messageInfo;
+    const { threadID } = item.messageInfos[0];
     return JSON.stringify({
       robotext: entityTextToRawString(item.robotext, { threadID }),
       sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
@@ -73,7 +73,7 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
   const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
     item;
 
-  if (messageInfo.type === messageTypes.TEXT) {
+  if (messageInfo && messageInfo.type === messageTypes.TEXT) {
     const label = getMessageLabel(hasBeenEdited, messageInfo.threadID);
     return dummyNodeForTextMessageHeightMeasurement(
       messageInfo.text,
@@ -84,7 +84,7 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
   } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(
       item.robotext,
-      messageInfo.threadID,
+      item.messageInfos[0].threadID,
       threadCreatedFromMessage,
       reactions,
     );
@@ -114,6 +114,26 @@ function ChatItemHeightMeasurer(props: Props) {
     (item: NativeChatMessageItem, height: ?number) => {
       if (item.itemType !== 'message') {
         return item;
+      }
+
+      if (item.messageInfoType !== 'composable') {
+        invariant(
+          height !== null && height !== undefined,
+          'height should be set',
+        );
+        return {
+          itemType: 'message',
+          messageShapeType: 'robotext',
+          messageInfos: item.messageInfos,
+          threadInfo,
+          startsConversation: item.startsConversation,
+          startsCluster: item.startsCluster,
+          endsCluster: item.endsCluster,
+          threadCreatedFromMessage: item.threadCreatedFromMessage,
+          robotext: item.robotext,
+          contentHeight: height,
+          reactions: item.reactions,
+        };
       }
 
       const { messageInfo } = item;
@@ -181,29 +201,11 @@ function ChatItemHeightMeasurer(props: Props) {
           isPinned: item.isPinned,
         };
       }
-      invariant(
-        item.messageInfoType !== 'composable',
+
+      throw new Error(
         'ChatItemHeightMeasurer was handed a messageInfoType=composable, but ' +
           `does not know how to handle MessageType ${messageInfo.type}`,
       );
-      invariant(
-        item.messageInfoType === 'robotext',
-        'ChatItemHeightMeasurer was handed a messageInfoType that it does ' +
-          `not recognize: ${item.messageInfoType}`,
-      );
-      return {
-        itemType: 'message',
-        messageShapeType: 'robotext',
-        messageInfo,
-        threadInfo,
-        startsConversation: item.startsConversation,
-        startsCluster: item.startsCluster,
-        endsCluster: item.endsCluster,
-        threadCreatedFromMessage: item.threadCreatedFromMessage,
-        robotext: item.robotext,
-        contentHeight: height,
-        reactions: item.reactions,
-      };
     },
     [composedMessageMaxWidth, inputStatePendingUploads, threadInfo],
   );

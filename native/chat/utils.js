@@ -153,9 +153,10 @@ function useMessageTargetParameters(
     };
   }
 
-  const authorNameComponentHeight = sourceMessage.messageInfo.creator.isViewer
-    ? 0
-    : authorNameHeight;
+  const authorNameComponentHeight =
+    !sourceMessage.messageInfo || sourceMessage.messageInfo.creator.isViewer
+      ? 0
+      : authorNameHeight;
   const currentDistanceFromBottom =
     messageListVerticalBounds.height +
     messageListVerticalBounds.y -
