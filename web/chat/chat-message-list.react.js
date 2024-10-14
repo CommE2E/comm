@@ -135,6 +135,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       (hasNewMessage &&
         messageListData &&
         messageListData[0].itemType === 'message' &&
+        messageListData[0].messageInfoType === 'composable' &&
         messageListData[0].messageInfo.localID) ||
       (hasNewMessage &&
         snapshot &&
