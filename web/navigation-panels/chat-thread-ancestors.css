@@ -11,6 +11,8 @@
   font-size: var(--l-font-18);
   font-weight: var(--semi-bold);
   white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .ancestorThreadsContainer {
