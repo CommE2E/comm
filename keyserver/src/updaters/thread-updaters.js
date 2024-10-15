@@ -1001,7 +1001,7 @@ async function userLeadsChannel(
     })(),
   );
 
-  const channelInfo = await neynarClient?.fetchFarcasterChannelByName(
+  const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
     communityFarcasterChannelTag,
   );
   if (channelInfo) {

@@ -89,7 +89,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
     }
 
     const channelInfo =
-      await neynarClientContext.client.fetchFarcasterChannelByName(
+      await neynarClientContext.client.fetchFarcasterChannelByID(
         channelNameText,
       );
     if (!channelInfo) {
