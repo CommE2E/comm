@@ -7,7 +7,7 @@ import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
-import { useFarcasterAvatarURL } from 'lib/hooks/fc-cache.js';
+import { useFarcasterUserAvatarURL } from 'lib/hooks/fc-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
@@ -34,7 +34,7 @@ function EditUserAvatarMenu(): React.Node {
     [currentUserInfo],
   );
   const ensAvatarURI: ?string = useENSAvatar(ethAddress);
-  const farcasterAvatarURL = useFarcasterAvatarURL(currentUserFID);
+  const farcasterAvatarURL = useFarcasterUserAvatarURL(currentUserFID);
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');

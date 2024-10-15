@@ -7,7 +7,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
-import { useFarcasterAvatarURL } from 'lib/hooks/fc-cache.js';
+import { useFarcasterUserAvatarURL } from 'lib/hooks/fc-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
 
@@ -59,7 +59,7 @@ function EditUserAvatar(props: Props): React.Node {
   const ensAvatarURI = fetchedENSAvatarURI ?? props.prefetchedENSAvatarURI;
 
   const fid = props.fid;
-  const fetchedFarcasterAvatarURL = useFarcasterAvatarURL(fid);
+  const fetchedFarcasterAvatarURL = useFarcasterUserAvatarURL(fid);
   const farcasterAvatarURL =
     fetchedFarcasterAvatarURL ?? props.prefetchedFarcasterAvatarURL;
 
