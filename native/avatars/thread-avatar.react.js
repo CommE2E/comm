@@ -55,7 +55,10 @@ function ThreadAvatar(props: Props): React.Node {
     };
   });
 
-  const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, displayUser);
+  const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, {
+    userProfileInfo: displayUser,
+    channelInfo: { fcChannelID: null },
+  });
 
   return <Avatar size={size} avatarInfo={resolvedThreadAvatar} />;
 }
