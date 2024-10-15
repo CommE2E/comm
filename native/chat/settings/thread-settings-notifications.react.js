@@ -147,23 +147,19 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     onMutedSelected,
     saveButtonDisabled,
     onSave,
-    isSidebar,
-    canPromoteSidebar,
-    parentThreadIsMuted,
   } = useThreadSettingsNotifications(threadInfo, goBack);
 
   React.useEffect(() => {
     setOptions({
-      headerRight: () =>
-        parentThreadIsMuted ? null : (
-          <HeaderRightTextButton
-            label="Save"
-            onPress={onSave}
-            disabled={saveButtonDisabled}
-          />
-        ),
+      headerRight: () => (
+        <HeaderRightTextButton
+          label="Save"
+          onPress={onSave}
+          disabled={saveButtonDisabled}
+        />
+      ),
     });
-  }, [saveButtonDisabled, onSave, setOptions, parentThreadIsMuted]);
+  }, [saveButtonDisabled, onSave, setOptions]);
 
   const styles = useStyles(unboundStyles);
 
@@ -230,46 +226,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     [notificationSettings],
   );
 
-  const noticeText = React.useMemo(() => {
-    if (!isSidebar) {
-      return null;
-    }
-
-    return (
-      <View style={styles.noticeTextContainer}>
-        <Text style={styles.noticeText}>
-          {threadSettingsNotificationsCopy.IS_SIDEBAR}
-        </Text>
-        <Text style={styles.noticeText}>
-          {canPromoteSidebar
-            ? threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_PROMOTE
-            : threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_NOT_PROMOTE}
-        </Text>
-      </View>
-    );
-  }, [
-    canPromoteSidebar,
-    isSidebar,
-    styles.noticeText,
-    styles.noticeTextContainer,
-  ]);
-
   const threadSettingsNotifications = React.useMemo(() => {
-    if (parentThreadIsMuted) {
-      return (
-        <View style={styles.parentThreadIsMutedNoticeContainerStyle}>
-          <Text style={styles.parentThreadIsMutedNoticeText}>
-            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED}
-          </Text>
-          <Text style={styles.parentThreadIsMutedNoticeText}>
-            {canPromoteSidebar
-              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_PROMOTE
-              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_NOT_PROMOTE}
-          </Text>
-        </View>
-      );
-    }
-
     return (
       <View style={styles.container}>
         <View style={styles.enumSettingsOptionContainer}>
@@ -297,18 +254,13 @@ function ThreadSettingsNotifications(props: Props): React.Node {
             onEnumValuePress={onMutedSelected}
             description={mutedDescription}
             icon={mutedIllustration}
-            disabled={isSidebar}
           />
         </View>
-        {noticeText}
       </View>
     );
   }, [
-    parentThreadIsMuted,
     styles.container,
     styles.enumSettingsOptionContainer,
-    styles.parentThreadIsMutedNoticeContainerStyle,
-    styles.parentThreadIsMutedNoticeText,
     notificationSettings,
     onHomeSelected,
     allNotificationsDescription,
@@ -319,9 +271,6 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     onMutedSelected,
     mutedDescription,
     mutedIllustration,
-    isSidebar,
-    noticeText,
-    canPromoteSidebar,
   ]);
 
   return threadSettingsNotifications;
@@ -365,18 +314,6 @@ const unboundStyles = {
     textAlign: 'center',
     fontSize: 14,
     lineHeight: 18,
-    marginVertical: 8,
-  },
-  parentThreadIsMutedNoticeContainerStyle: {
-    backgroundColor: 'panelForeground',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  parentThreadIsMutedNoticeText: {
-    color: 'panelForegroundSecondaryLabel',
-    fontSize: 16,
-    lineHeight: 20,
-    textAlign: 'left',
     marginVertical: 8,
   },
 };

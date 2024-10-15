@@ -87,8 +87,6 @@ function NotificationsModal(props: Props): React.Node {
     saveButtonDisabled,
     onSave,
     isSidebar,
-    canPromoteSidebar,
-    parentThreadIsMuted,
   } = useThreadSettingsNotifications(threadInfo, onClose);
 
   const isHomeSelected = notificationSettings === 'home';
@@ -128,51 +126,16 @@ function NotificationsModal(props: Props): React.Node {
         title={threadSettingsNotificationsCopy.MUTED}
         statements={mutedStatements}
         icon={icon}
-        disabled={isSidebar}
         onSelect={onMutedSelected}
       />
     );
-  }, [isMutedSelected, onMutedSelected, isSidebar]);
+  }, [isMutedSelected, onMutedSelected]);
 
   const modalName = isSidebar
     ? threadSettingsNotificationsCopy.SIDEBAR_TITLE
     : threadSettingsNotificationsCopy.CHANNEL_TITLE;
 
-  const noticeText = React.useMemo(() => {
-    if (!isSidebar) {
-      return null;
-    }
-
-    return (
-      <>
-        <p className={css.notice}>
-          {threadSettingsNotificationsCopy.IS_SIDEBAR}
-        </p>
-        <p className={css.notice}>
-          {canPromoteSidebar
-            ? threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_PROMOTE
-            : threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_NOT_PROMOTE}
-        </p>
-      </>
-    );
-  }, [isSidebar, canPromoteSidebar]);
-
   const modalContent = React.useMemo(() => {
-    if (parentThreadIsMuted) {
-      return (
-        <>
-          <p className={css.parentThreadIsInBackgroundNotice}>
-            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED}
-          </p>
-          <p className={css.parentThreadIsInBackgroundNotice}>
-            {canPromoteSidebar
-              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_PROMOTE
-              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_NOT_PROMOTE}
-          </p>
-        </>
-      );
-    }
-
     return (
       <>
         <div className={css.optionsContainer}>
@@ -180,29 +143,17 @@ function NotificationsModal(props: Props): React.Node {
           {notifCountOnlyItem}
           {backgroundItem}
         </div>
-        {noticeText}
       </>
     );
-  }, [
-    parentThreadIsMuted,
-    homeItem,
-    notifCountOnlyItem,
-    backgroundItem,
-    noticeText,
-    canPromoteSidebar,
-  ]);
+  }, [homeItem, notifCountOnlyItem, backgroundItem]);
 
   const saveButton = React.useMemo(() => {
-    if (parentThreadIsMuted) {
-      return undefined;
-    }
-
     return (
       <Button variant="filled" onClick={onSave} disabled={saveButtonDisabled}>
         Save
       </Button>
     );
-  }, [parentThreadIsMuted, onSave, saveButtonDisabled]);
+  }, [onSave, saveButtonDisabled]);
 
   return (
     <Modal
