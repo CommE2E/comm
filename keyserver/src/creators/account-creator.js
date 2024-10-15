@@ -50,7 +50,7 @@ import {
   thisKeyserverAdmin,
 } from '../user/identity.js';
 
-const ashoatMessages = [
+const adminMessages = [
   'welcome to Comm!',
   'as you inevitably discover bugs, have feature requests, or design ' +
     'suggestions, feel free to message them to me in the app.',
@@ -176,9 +176,10 @@ async function sendMessagesOnAccountCreation(
   }
 
   const admin = await thisKeyserverAdmin();
+  const adminViewer = createScriptViewer(admin.id);
 
   await updateThread(
-    createScriptViewer(admin.id),
+    adminViewer,
     {
       threadID: genesis().id,
       changes: { newMemberIDs: [viewer.userID] },
@@ -186,27 +187,30 @@ async function sendMessagesOnAccountCreation(
     { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
   );
 
-  const ashoatThreadResult = await createThread(
-    viewer,
+  const adminThreadResult = await createThread(
+    adminViewer,
     {
       type: threadTypes.GENESIS_PERSONAL,
-      initialMemberIDs: [admin.id],
+      initialMemberIDs: [viewer.id],
     },
     { forceAddMembers: true },
   );
-  const ashoatThreadID = ashoatThreadResult.newThreadID;
+  const adminThreadID = adminThreadResult.newThreadID;
 
   let messageTime = Date.now();
-  const ashoatMessageDatas = ashoatMessages.map(message => ({
+  const adminMessageDatas = adminMessages.map(message => ({
     type: messageTypes.TEXT,
-    threadID: ashoatThreadID,
+    threadID: adminThreadID,
     creatorID: admin.id,
     time: messageTime++,
     text: message,
   }));
-  const ashoatMessageInfos = await createMessages(viewer, ashoatMessageDatas);
+  const adminMessageInfos = await createMessages(
+    adminViewer,
+    adminMessageDatas,
+  );
 
-  return [...ashoatThreadResult.newMessageInfos, ...ashoatMessageInfos];
+  return [...adminThreadResult.newMessageInfos, ...adminMessageInfos];
 }
 
 async function createAndSendReservedUsernameMessage(
