@@ -238,32 +238,28 @@ class App extends React.PureComponent<Props> {
       <DndProvider backend={HTML5Backend}>
         <EditModalProvider>
           <MenuProvider>
-            <AlchemyENSCacheProvider>
-              <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
-                <TooltipProvider>
-                  <MessageSearchStateProvider>
-                    <ChatMentionContextProvider>
-                      <FocusHandler />
-                      <VisibilityHandler />
-                      <PolicyAcknowledgmentHandler />
-                      <PushNotificationsHandler />
-                      <InviteLinkHandler />
-                      <InviteLinksRefresher />
-                      <CommunitiesRefresher />
-                      <MinVersionHandler />
-                      <PlatformDetailsSynchronizer />
-                      <LogOutIfMissingCSATHandler />
-                      <UserInfosHandler />
-                      <TunnelbrokerDeviceTokenHandler />
-                      <FarcasterDataHandler />
-                      <AutoJoinCommunityHandler />
-                      <DMActivityHandler />
-                      {content}
-                    </ChatMentionContextProvider>
-                  </MessageSearchStateProvider>
-                </TooltipProvider>
-              </NeynarClientProvider>
-            </AlchemyENSCacheProvider>
+            <TooltipProvider>
+              <MessageSearchStateProvider>
+                <ChatMentionContextProvider>
+                  <FocusHandler />
+                  <VisibilityHandler />
+                  <PolicyAcknowledgmentHandler />
+                  <PushNotificationsHandler />
+                  <InviteLinkHandler />
+                  <InviteLinksRefresher />
+                  <CommunitiesRefresher />
+                  <MinVersionHandler />
+                  <PlatformDetailsSynchronizer />
+                  <LogOutIfMissingCSATHandler />
+                  <UserInfosHandler />
+                  <TunnelbrokerDeviceTokenHandler />
+                  <FarcasterDataHandler />
+                  <AutoJoinCommunityHandler />
+                  <DMActivityHandler />
+                  {content}
+                </ChatMentionContextProvider>
+              </MessageSearchStateProvider>
+            </TooltipProvider>
           </MenuProvider>
         </EditModalProvider>
       </DndProvider>
@@ -556,34 +552,40 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     return (
       <AppThemeWrapper>
-        <TunnelbrokerProvider
-          shouldBeClosed={lockStatus !== 'acquired'}
-          onClose={releaseLockOrAbortRequest}
-          secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
-        >
-          <BadgeHandler />
-          <IdentitySearchProvider>
-            <QRAuthProvider
-              parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
-              composeTunnelbrokerQRAuthMessage={
-                composeTunnelbrokerQRAuthMessage
-              }
-              generateAESKey={generateQRAuthAESKey}
-              onLogInError={handleSecondaryDeviceLogInError}
+        <AlchemyENSCacheProvider>
+          <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
+            <TunnelbrokerProvider
+              shouldBeClosed={lockStatus !== 'acquired'}
+              onClose={releaseLockOrAbortRequest}
+              secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
             >
-              <App
-                {...props}
-                navInfo={navInfo}
-                entriesLoadingStatus={entriesLoadingStatus}
-                loggedIn={loggedIn}
-                activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-                dispatch={dispatch}
-                modals={modals}
-              />
-            </QRAuthProvider>
-            <DBOpsHandler />
-          </IdentitySearchProvider>
-        </TunnelbrokerProvider>
+              <BadgeHandler />
+              <IdentitySearchProvider>
+                <QRAuthProvider
+                  parseTunnelbrokerQRAuthMessage={
+                    parseTunnelbrokerQRAuthMessage
+                  }
+                  composeTunnelbrokerQRAuthMessage={
+                    composeTunnelbrokerQRAuthMessage
+                  }
+                  generateAESKey={generateQRAuthAESKey}
+                  onLogInError={handleSecondaryDeviceLogInError}
+                >
+                  <App
+                    {...props}
+                    navInfo={navInfo}
+                    entriesLoadingStatus={entriesLoadingStatus}
+                    loggedIn={loggedIn}
+                    activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                    dispatch={dispatch}
+                    modals={modals}
+                  />
+                </QRAuthProvider>
+                <DBOpsHandler />
+              </IdentitySearchProvider>
+            </TunnelbrokerProvider>
+          </NeynarClientProvider>
+        </AlchemyENSCacheProvider>
       </AppThemeWrapper>
     );
   },

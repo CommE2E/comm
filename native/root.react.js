@@ -331,33 +331,33 @@ function Root() {
       <StaffContextProvider>
         <IdentityServiceContextProvider>
           <UserIdentityCacheProvider>
-            <TunnelbrokerProvider>
-              <IdentitySearchProvider>
-                <QRAuthProvider
-                  parseTunnelbrokerQRAuthMessage={
-                    parseTunnelbrokerQRAuthMessage
-                  }
-                  composeTunnelbrokerQRAuthMessage={
-                    composeTunnelbrokerQRAuthMessage
-                  }
-                  generateAESKey={generateQRAuthAESKey}
-                  performBackupRestore={performBackupRestore}
-                  onLogInError={handleSecondaryDeviceLogInError}
-                >
-                  <FeatureFlagsProvider>
-                    <NavContext.Provider value={navContext}>
-                      <RootContext.Provider value={rootContext}>
-                        <InputStateContainer>
-                          <MessageEditingContextProvider>
-                            <SafeAreaProvider
-                              initialMetrics={initialWindowMetrics}
-                            >
-                              <ActionSheetProvider>
-                                <ENSCacheProvider
-                                  ethersProvider={ethersProvider}
-                                  alchemyKey={alchemyKey}
+            <ENSCacheProvider
+              ethersProvider={ethersProvider}
+              alchemyKey={alchemyKey}
+            >
+              <NeynarClientProvider apiKey={neynarKey}>
+                <TunnelbrokerProvider>
+                  <IdentitySearchProvider>
+                    <QRAuthProvider
+                      parseTunnelbrokerQRAuthMessage={
+                        parseTunnelbrokerQRAuthMessage
+                      }
+                      composeTunnelbrokerQRAuthMessage={
+                        composeTunnelbrokerQRAuthMessage
+                      }
+                      generateAESKey={generateQRAuthAESKey}
+                      performBackupRestore={performBackupRestore}
+                      onLogInError={handleSecondaryDeviceLogInError}
+                    >
+                      <FeatureFlagsProvider>
+                        <NavContext.Provider value={navContext}>
+                          <RootContext.Provider value={rootContext}>
+                            <InputStateContainer>
+                              <MessageEditingContextProvider>
+                                <SafeAreaProvider
+                                  initialMetrics={initialWindowMetrics}
                                 >
-                                  <NeynarClientProvider apiKey={neynarKey}>
+                                  <ActionSheetProvider>
                                     <MediaCacheProvider
                                       persistence={filesystemMediaCache}
                                     >
@@ -398,18 +398,18 @@ function Root() {
                                         </NativeEditThreadAvatarProvider>
                                       </EditUserAvatarProvider>
                                     </MediaCacheProvider>
-                                  </NeynarClientProvider>
-                                </ENSCacheProvider>
-                              </ActionSheetProvider>
-                            </SafeAreaProvider>
-                          </MessageEditingContextProvider>
-                        </InputStateContainer>
-                      </RootContext.Provider>
-                    </NavContext.Provider>
-                  </FeatureFlagsProvider>
-                </QRAuthProvider>
-              </IdentitySearchProvider>
-            </TunnelbrokerProvider>
+                                  </ActionSheetProvider>
+                                </SafeAreaProvider>
+                              </MessageEditingContextProvider>
+                            </InputStateContainer>
+                          </RootContext.Provider>
+                        </NavContext.Provider>
+                      </FeatureFlagsProvider>
+                    </QRAuthProvider>
+                  </IdentitySearchProvider>
+                </TunnelbrokerProvider>
+              </NeynarClientProvider>
+            </ENSCacheProvider>
           </UserIdentityCacheProvider>
         </IdentityServiceContextProvider>
       </StaffContextProvider>
