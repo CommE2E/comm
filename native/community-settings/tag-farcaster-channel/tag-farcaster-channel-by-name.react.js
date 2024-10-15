@@ -49,7 +49,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
 
   const onPressTagChannel = React.useCallback(async () => {
     const channelInfo =
-      await neynarClientContext.client.fetchFarcasterChannelByName(
+      await neynarClientContext.client.fetchFarcasterChannelByID(
         channelSelectionText,
       );
 
