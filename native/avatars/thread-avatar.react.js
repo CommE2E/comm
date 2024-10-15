@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
-import { useResolvedAvatar } from 'lib/shared/avatar-utils.js';
+import { useResolvedThreadAvatar } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import type {
@@ -55,7 +55,7 @@ function ThreadAvatar(props: Props): React.Node {
     };
   });
 
-  const resolvedThreadAvatar = useResolvedAvatar(avatarInfo, displayUser);
+  const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, displayUser);
 
   return <Avatar size={size} avatarInfo={resolvedThreadAvatar} />;
 }

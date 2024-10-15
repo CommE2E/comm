@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {
   getAvatarForUser,
-  useResolvedAvatar,
+  useResolvedUserAvatar,
 } from 'lib/shared/avatar-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
@@ -40,7 +40,7 @@ function UserAvatar(props: Props): React.Node {
 
   const avatar = getAvatarForUser(userAvatarInfo);
 
-  const resolvedUserAvatar = useResolvedAvatar(avatar, userAvatarInfo);
+  const resolvedUserAvatar = useResolvedUserAvatar(avatar, userAvatarInfo);
 
   return (
     <Avatar
