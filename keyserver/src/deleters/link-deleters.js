@@ -68,4 +68,20 @@ async function deleteInviteLink(
   await deleteInviteLinks([result]);
 }
 
-export { deleteInviteLink };
+async function deleteOrphanedInviteLinks(): Promise<void> {
+  const [selectResults] = await dbQuery(SQL`
+    SELECT i.id, i.name, i.blob_holder AS blobHolder
+    FROM invite_links i
+    LEFT JOIN threads tc ON tc.id = i.community
+    LEFT JOIN threads tt ON tt.id = i.thread
+    WHERE tc.id IS NULL OR (i.thread IS NOT NULL AND tt.id IS NULL)
+  `);
+  const inviteLinksToDelete = selectResults.map(({ id, name, blobHolder }) => ({
+    id,
+    name,
+    blobHolder,
+  }));
+  await deleteInviteLinks(inviteLinksToDelete);
+}
+
+export { deleteInviteLink, deleteOrphanedInviteLinks };
