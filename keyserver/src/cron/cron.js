@@ -13,6 +13,7 @@ import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
 import { deleteOrphanedDays } from '../deleters/day-deleters.js';
 import { deleteOrphanedEntries } from '../deleters/entry-deleters.js';
+import { deleteOrphanedInviteLinks } from '../deleters/link-deleters.js';
 import { deleteOrphanedMemberships } from '../deleters/membership-deleters.js';
 import { deleteOrphanedMessages } from '../deleters/message-deleters.js';
 import { deleteOrphanedNotifs } from '../deleters/notif-deleters.js';
@@ -72,6 +73,7 @@ if (cluster.isMaster) {
           await deleteExpiredUpdates();
           await deleteUnassignedUploads();
           await deleteStaleSIWENonceEntries();
+          await deleteOrphanedInviteLinks();
         } catch (e) {
           console.warn('encountered error while trying to clean database', e);
         }
