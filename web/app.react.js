@@ -128,6 +128,8 @@ registerConfig({
   olmAPI,
   sqliteAPI,
   encryptedNotifUtilsAPI,
+  showAlert: (title: string, message: string) =>
+    window.alert(`${title}: ${message}`),
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
