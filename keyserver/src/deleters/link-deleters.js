@@ -10,6 +10,37 @@ import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js
 import { deleteBlob } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 
+type InviteLinksToDelete = {
+  +id: string,
+  +name: string,
+  +blobHolder: string,
+};
+async function deleteInviteLinks(
+  links: $ReadOnlyArray<InviteLinksToDelete>,
+): Promise<void> {
+  await Promise.all(
+    links.map(({ name, blobHolder }) =>
+      deleteBlob(
+        {
+          hash: inviteLinkBlobHash(name),
+          holder: blobHolder,
+        },
+        true,
+      ),
+    ),
+  );
+  const ids = links.map(({ id }) => id);
+  await dbQuery(
+    SQL`
+    START TRANSACTION;
+    DELETE FROM invite_links WHERE id IN (${ids});
+    DELETE FROM ids WHERE id IN (${ids});
+    COMMIT;
+  `,
+    { multipleStatements: true },
+  );
+}
+
 async function deleteInviteLink(
   viewer: Viewer,
   request: DisableInviteLinkRequest,
@@ -23,22 +54,15 @@ async function deleteInviteLink(
     throw new ServerError('invalid_credentials');
   }
 
-  const query = SQL`
-    DELETE FROM invite_links
+  const [[result]] = await dbQuery(SQL`
+    SELECT id, name, blob_holder AS blobHolder
+    FROM invite_links
     WHERE name = ${request.name} AND community = ${request.communityID}
-    RETURNING blob_holder AS blobHolder
-  `;
-
-  const [[row]] = await dbQuery(query);
-  if (row?.blobHolder) {
-    await deleteBlob(
-      {
-        hash: inviteLinkBlobHash(request.name),
-        holder: row.blobHolder,
-      },
-      true,
-    );
+  `);
+  if (!result) {
+    return;
   }
+  await deleteInviteLinks([result]);
 }
 
 export { deleteInviteLink };
