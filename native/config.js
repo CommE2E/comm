@@ -1,6 +1,6 @@
 // @flow
 
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import { registerConfig } from 'lib/utils/config.js';
 
@@ -24,4 +24,5 @@ registerConfig({
   olmAPI,
   sqliteAPI,
   encryptedNotifUtilsAPI,
+  showAlert: Alert.alert,
 });
