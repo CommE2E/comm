@@ -9,6 +9,7 @@ import {
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { deleteInviteLinksForThreadIDs } from './link-deleters.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import {
@@ -87,7 +88,7 @@ async function deleteThread(
 
   const [{ viewerUpdates }] = await Promise.all([
     createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
-    deleteThreadsFromDB(threadIDs),
+    deleteThreads(threadIDs),
   ]);
 
   return { updatesResult: { newUpdates: viewerUpdates } };
@@ -106,9 +107,7 @@ async function fetchAndDeleteThreadBlobHolders(
   await removeBlobHolders(blobHolders);
 }
 
-function deleteThreadsFromDB(
-  threadIDs: $ReadOnlyArray<string>,
-): Promise<mixed> {
+async function deleteThreads(threadIDs: $ReadOnlyArray<string>): Promise<void> {
   const deletionQuery = SQL`
     START TRANSACTION;
     DELETE FROM threads WHERE id IN (${threadIDs});
@@ -141,7 +140,10 @@ function deleteThreadsFromDB(
       WHERE n.thread IN (${threadIDs});
     COMMIT;
   `;
-  return dbQuery(deletionQuery, { multipleStatements: true });
+  await Promise.all([
+    dbQuery(deletionQuery, { multipleStatements: true }),
+    deleteInviteLinksForThreadIDs(threadIDs),
+  ]);
 }
 
 async function deleteInaccessibleThreads(): Promise<void> {
@@ -163,7 +165,7 @@ async function deleteInaccessibleThreads(): Promise<void> {
   }
   const containerIDs = [...threadIDs];
   await fetchAndDeleteThreadBlobHolders(containerIDs);
-  await deleteThreadsFromDB(containerIDs);
+  await deleteThreads(containerIDs);
 }
 
 export { deleteThread, deleteInaccessibleThreads };
