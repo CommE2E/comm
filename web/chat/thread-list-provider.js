@@ -179,13 +179,24 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   );
   const threadFilter =
     activeTab === 'Muted' ? threadInBackgroundChatList : threadInHomeChatList;
-  const chatListDataWithoutFilter = getThreadListSearchResults(
-    chatListData,
-    searchText,
-    threadFilter,
-    threadSearchResults,
-    usersSearchResults,
-    loggedInUserInfo,
+  const chatListDataWithoutFilter = React.useMemo(
+    () =>
+      getThreadListSearchResults(
+        chatListData,
+        searchText,
+        threadFilter,
+        threadSearchResults,
+        usersSearchResults,
+        loggedInUserInfo,
+      ),
+    [
+      chatListData,
+      searchText,
+      threadFilter,
+      threadSearchResults,
+      usersSearchResults,
+      loggedInUserInfo,
+    ],
   );
   const activeTopLevelChatThreadItem = useChatThreadItem(
     activeTopLevelThreadInfo,
