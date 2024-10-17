@@ -1,7 +1,7 @@
 // @flow
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
-import type { DeleteFarcasterChannelTagRequest } from 'lib/types/community-types';
+import type { DeleteFarcasterChannelTagRequest } from 'lib/types/community-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 

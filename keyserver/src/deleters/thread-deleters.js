@@ -1,6 +1,7 @@
 // @flow
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
+import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadDeletionRequest,
@@ -19,7 +20,7 @@ import {
 import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers.js';
 import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
-import { removeBlobHolders } from '../services/blob.js';
+import { removeBlobHolders, deleteBlob } from '../services/blob.js';
 import type { Viewer } from '../session/viewer.js';
 import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
 
@@ -108,6 +109,22 @@ async function fetchAndDeleteThreadBlobHolders(
 }
 
 async function deleteThreads(threadIDs: $ReadOnlyArray<string>): Promise<void> {
+  const [farcasterChannelTagQueryResult] = await dbQuery(SQL`
+    SELECT farcaster_channel_id AS farcasterChannelID, blob_holder AS blobHolder
+    FROM communities
+    WHERE id IN (${threadIDs})
+  `);
+  const farcasterChannelTagDeletionPromise = Promise.all(
+    farcasterChannelTagQueryResult.map(({ farcasterChannelID, blobHolder }) =>
+      deleteBlob(
+        {
+          hash: farcasterChannelTagBlobHash(farcasterChannelID),
+          holder: blobHolder,
+        },
+        true,
+      ),
+    ),
+  );
   const deletionQuery = SQL`
     START TRANSACTION;
     DELETE FROM threads WHERE id IN (${threadIDs});
@@ -143,6 +160,7 @@ async function deleteThreads(threadIDs: $ReadOnlyArray<string>): Promise<void> {
   await Promise.all([
     dbQuery(deletionQuery, { multipleStatements: true }),
     deleteInviteLinksForThreadIDs(threadIDs),
+    farcasterChannelTagDeletionPromise,
   ]);
 }
 
