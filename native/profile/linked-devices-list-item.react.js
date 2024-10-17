@@ -19,10 +19,17 @@ type Props = {
   +platformDetails: ?IdentityPlatformDetails,
   +isPrimary: boolean,
   +isThisDevice: boolean,
+  +shouldAllowDeviceRemoval: boolean,
 };
 
 function LinkedDevicesListItem(props: Props): React.Node {
-  const { deviceID, platformDetails, isPrimary, isThisDevice } = props;
+  const {
+    deviceID,
+    platformDetails,
+    isPrimary,
+    isThisDevice,
+    shouldAllowDeviceRemoval,
+  } = props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -30,13 +37,17 @@ function LinkedDevicesListItem(props: Props): React.Node {
   const { navigate } = useNavigation();
 
   const onPress = React.useCallback(() => {
+    if (!shouldAllowDeviceRemoval) {
+      return;
+    }
     navigate<'LinkedDevicesBottomSheet'>({
       name: LinkedDevicesBottomSheetRouteName,
       params: {
         deviceID,
+        shouldDisplayRemoveButton: shouldAllowDeviceRemoval,
       },
     });
-  }, [deviceID, navigate]);
+  }, [deviceID, navigate, shouldAllowDeviceRemoval]);
 
   const deviceType = platformDetails?.deviceType;
 
@@ -74,9 +85,23 @@ function LinkedDevicesListItem(props: Props): React.Node {
     return finalLabel;
   }, [deviceID, isPrimary, isThisDevice]);
 
-  const deviceListItem = React.useMemo(
-    () => (
-      <TouchableOpacity style={styles.listItemContainer} onPress={onPress}>
+  const deviceListItem = React.useMemo(() => {
+    let editIcon;
+    if (shouldAllowDeviceRemoval) {
+      editIcon = (
+        <SWMIcon
+          name="edit-1"
+          size={20}
+          color={colors.modalForegroundSecondaryLabel}
+        />
+      );
+    }
+    return (
+      <TouchableOpacity
+        style={styles.listItemContainer}
+        disabled={!shouldAllowDeviceRemoval}
+        onPress={onPress}
+      >
         <View style={styles.pillContainer}>
           <Pill
             label={label}
@@ -84,17 +109,19 @@ function LinkedDevicesListItem(props: Props): React.Node {
             icon={deviceIcon}
           />
         </View>
+        {editIcon}
       </TouchableOpacity>
-    ),
-    [
-      styles.listItemContainer,
-      styles.pillContainer,
-      onPress,
-      label,
-      colors.codeBackground,
-      deviceIcon,
-    ],
-  );
+    );
+  }, [
+    styles.listItemContainer,
+    styles.pillContainer,
+    onPress,
+    label,
+    colors.codeBackground,
+    colors.modalForegroundSecondaryLabel,
+    deviceIcon,
+    shouldAllowDeviceRemoval,
+  ]);
 
   return deviceListItem;
 }
