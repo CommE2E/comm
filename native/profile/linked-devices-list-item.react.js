@@ -69,16 +69,21 @@ function LinkedDevicesListItem(props: Props): React.Node {
 
   const label = React.useMemo(() => {
     const baseLabel = deviceID.substr(0, 7);
-    let finalLabel = baseLabel;
 
+    const labelAttributes = [];
     if (isPrimary) {
-      finalLabel += ' (primary)';
+      labelAttributes.push('primary');
     }
-
     if (isThisDevice) {
-      finalLabel += ' (this device)';
+      labelAttributes.push('this device');
     }
 
+    if (labelAttributes.length === 0) {
+      return baseLabel;
+    }
+
+    const joinedAttributes = labelAttributes.join(', ');
+    const finalLabel = `${baseLabel} (${joinedAttributes})`;
     return finalLabel;
   }, [deviceID, isPrimary, isThisDevice]);
 
