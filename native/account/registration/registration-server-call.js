@@ -23,7 +23,7 @@ import {
 } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { NO_FID_METADATA } from 'lib/utils/farcaster-utils.js';
+import { useSetLocalFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -302,6 +302,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   );
 
   const dispatch = useDispatch();
+  const setLocalFID = useSetLocalFID();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
       new Promise<void>(
@@ -357,14 +358,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 payload: passedKeyserverURL,
               });
             }
-            const fidToSave = farcasterID ?? NO_FID_METADATA;
-            dispatch({
-              type: setSyncedMetadataEntryActionType,
-              payload: {
-                name: syncedMetadataNames.CURRENT_USER_FID,
-                data: fidToSave,
-              },
-            });
+            setLocalFID(farcasterID);
             if (siweBackupSecrets) {
               await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
             }
@@ -407,6 +401,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       legacyKeyserverRegisterEthereumAccount,
       identityRegisterEthereumAccount,
       dispatch,
+      setLocalFID,
     ],
   );
 
