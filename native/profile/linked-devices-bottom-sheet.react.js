@@ -27,6 +27,7 @@ import Alert from '../utils/alert.js';
 
 export type LinkedDevicesBottomSheetParams = {
   +deviceID: string,
+  +shouldDisplayRemoveButton: boolean,
 };
 
 type Props = {
@@ -38,7 +39,7 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
   const {
     navigation,
     route: {
-      params: { deviceID },
+      params: { deviceID, shouldDisplayRemoveButton },
     },
   } = props;
 
@@ -133,6 +134,18 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
     );
   }, [insets.bottom, setContentHeight]);
 
+  let removeDeviceButton;
+  if (shouldDisplayRemoveButton) {
+    removeDeviceButton = (
+      <Button
+        style={styles.removeButtonContainer}
+        onPress={confirmDeviceRemoval}
+      >
+        <Text style={styles.removeButtonText}>Remove device</Text>
+      </Button>
+    );
+  }
+
   return (
     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
       <View
@@ -140,12 +153,7 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
         ref={removeDeviceContainerRef}
         onLayout={onLayout}
       >
-        <Button
-          style={styles.removeButtonContainer}
-          onPress={confirmDeviceRemoval}
-        >
-          <Text style={styles.removeButtonText}>Remove device</Text>
-        </Button>
+        {removeDeviceButton}
       </View>
     </BottomSheet>
   );

@@ -24,17 +24,23 @@ function renderDeviceListItem({
   item,
   index,
   thisDeviceID,
+  allowEdits,
 }: {
   +item: DeviceIDAndPlatformDetails,
   +index: number,
   +thisDeviceID: ?string,
+  +allowEdits: boolean,
   ...
 }) {
+  const isPrimary = index === 0;
+  const isThisDevice = item.deviceID === thisDeviceID;
+  const shouldAllowDeviceRemoval = allowEdits && !isPrimary && !isThisDevice;
   return (
     <LinkedDevicesListItem
       {...item}
       isPrimary={index === 0}
       isThisDevice={item.deviceID === thisDeviceID}
+      shouldAllowDeviceRemoval={shouldAllowDeviceRemoval}
     />
   );
 }
@@ -48,18 +54,22 @@ function LinkedDevices(props: Props): React.Node {
 
   const userDevicesInfos: $ReadOnlyArray<DeviceIDAndPlatformDetails> =
     useSelector(getOwnPeerDevices);
+  const primaryDeviceID = userDevicesInfos[0].deviceID;
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
   const { getAuthMetadata } = identityContext;
   const [thisDeviceID, setThisDeviceID] = React.useState<?string>(null);
+  const [shouldAllowEdits, setShouldAllowEdits] =
+    React.useState<boolean>(false);
 
   React.useEffect(() => {
     void (async () => {
       const { deviceID } = await getAuthMetadata();
       setThisDeviceID(deviceID);
+      setShouldAllowEdits(deviceID === primaryDeviceID);
     })();
-  }, [getAuthMetadata]);
+  }, [getAuthMetadata, primaryDeviceID]);
 
   const separatorComponent = React.useCallback(
     () => <View style={styles.separator} />,
@@ -73,7 +83,12 @@ function LinkedDevices(props: Props): React.Node {
         <FlatList
           data={userDevicesInfos}
           renderItem={({ item, index }) =>
-            renderDeviceListItem({ item, index, thisDeviceID })
+            renderDeviceListItem({
+              item,
+              index,
+              thisDeviceID,
+              allowEdits: shouldAllowEdits,
+            })
           }
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.deviceListContentContainer}
@@ -82,12 +97,13 @@ function LinkedDevices(props: Props): React.Node {
       </View>
     ),
     [
-      separatorComponent,
-      userDevicesInfos,
       styles.container,
       styles.header,
       styles.deviceListContentContainer,
+      userDevicesInfos,
+      separatorComponent,
       thisDeviceID,
+      shouldAllowEdits,
     ],
   );
 
