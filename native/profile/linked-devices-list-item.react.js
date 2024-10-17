@@ -19,10 +19,17 @@ type Props = {
   +platformDetails: ?IdentityPlatformDetails,
   +isPrimary: boolean,
   +isThisDevice: boolean,
+  +shouldAllowDeviceRemoval: boolean,
 };
 
 function LinkedDevicesListItem(props: Props): React.Node {
-  const { deviceID, platformDetails, isPrimary, isThisDevice } = props;
+  const {
+    deviceID,
+    platformDetails,
+    isPrimary,
+    isThisDevice,
+    shouldAllowDeviceRemoval,
+  } = props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -30,13 +37,17 @@ function LinkedDevicesListItem(props: Props): React.Node {
   const { navigate } = useNavigation();
 
   const onPress = React.useCallback(() => {
+    if (!shouldAllowDeviceRemoval) {
+      return;
+    }
     navigate<'LinkedDevicesBottomSheet'>({
       name: LinkedDevicesBottomSheetRouteName,
       params: {
         deviceID,
+        shouldDisplayRemoveButton: shouldAllowDeviceRemoval,
       },
     });
-  }, [deviceID, navigate]);
+  }, [deviceID, navigate, shouldAllowDeviceRemoval]);
 
   const deviceType = platformDetails?.deviceType;
 
