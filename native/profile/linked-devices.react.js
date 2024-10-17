@@ -22,22 +22,31 @@ function keyExtractor(item: DeviceIDAndPlatformDetails) {
 
 function renderDeviceListItem({
   item,
-  index,
-  thisDeviceID,
+  isThisDevice,
+  isPrimary,
+  allowEdits,
 }: {
   +item: DeviceIDAndPlatformDetails,
-  +index: number,
-  +thisDeviceID: ?string,
+  +isThisDevice: boolean,
+  +isPrimary: boolean,
+  +allowEdits: boolean,
   ...
 }) {
+  const shouldAllowDeviceRemoval = allowEdits && !isPrimary && !isThisDevice;
   return (
     <LinkedDevicesListItem
       {...item}
-      isPrimary={index === 0}
-      isThisDevice={item.deviceID === thisDeviceID}
+      isPrimary={isPrimary}
+      isThisDevice={isThisDevice}
+      shouldAllowDeviceRemoval={shouldAllowDeviceRemoval}
     />
   );
 }
+
+type ViewerInfo = {
+  +deviceID: ?string,
+  +canEdit: boolean,
+};
 type Props = {
   +navigation: ProfileNavigationProp<'LinkedDevices'>,
   +route: NavigationRoute<'LinkedDevices'>,
@@ -48,18 +57,25 @@ function LinkedDevices(props: Props): React.Node {
 
   const userDevicesInfos: $ReadOnlyArray<DeviceIDAndPlatformDetails> =
     useSelector(getOwnPeerDevices);
+  const primaryDeviceID = userDevicesInfos[0].deviceID;
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
   const { getAuthMetadata } = identityContext;
-  const [thisDeviceID, setThisDeviceID] = React.useState<?string>(null);
+  const [viewerInfo, setViewerInfo] = React.useState<ViewerInfo>({
+    deviceID: null,
+    canEdit: false,
+  });
 
   React.useEffect(() => {
     void (async () => {
       const { deviceID } = await getAuthMetadata();
-      setThisDeviceID(deviceID);
+      setViewerInfo({
+        deviceID,
+        canEdit: deviceID === primaryDeviceID,
+      });
     })();
-  }, [getAuthMetadata]);
+  }, [getAuthMetadata, primaryDeviceID]);
 
   const separatorComponent = React.useCallback(
     () => <View style={styles.separator} />,
@@ -73,7 +89,12 @@ function LinkedDevices(props: Props): React.Node {
         <FlatList
           data={userDevicesInfos}
           renderItem={({ item, index }) =>
-            renderDeviceListItem({ item, index, thisDeviceID })
+            renderDeviceListItem({
+              item,
+              isPrimary: index === 0,
+              isThisDevice: item.deviceID === viewerInfo.deviceID,
+              allowEdits: viewerInfo.canEdit,
+            })
           }
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.deviceListContentContainer}
@@ -82,12 +103,12 @@ function LinkedDevices(props: Props): React.Node {
       </View>
     ),
     [
-      separatorComponent,
-      userDevicesInfos,
       styles.container,
       styles.header,
       styles.deviceListContentContainer,
-      thisDeviceID,
+      userDevicesInfos,
+      separatorComponent,
+      viewerInfo,
     ],
   );
 
