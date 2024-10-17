@@ -4,8 +4,9 @@ import * as React from 'react';
 
 import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
 import { useResolvedThreadAvatar } from 'lib/shared/avatar-utils.js';
-import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
+import { getSingleOtherUser, getCommunity } from 'lib/shared/thread-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
@@ -33,6 +34,14 @@ function ThreadAvatar(props: Props): React.Node {
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
 
+  const communityID = getCommunity(threadInfo);
+  const communityInfo: ?CommunityInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return state.communityStore.communityInfos[communityID];
+  });
+
   let displayUserIDForThread;
   if (threadTypeIsPrivate(threadInfo.type)) {
     displayUserIDForThread = viewerID;
@@ -55,7 +64,11 @@ function ThreadAvatar(props: Props): React.Node {
     };
   });
 
-  const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, displayUser);
+  const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, {
+    username: displayUser?.username,
+    farcasterID: displayUser?.farcasterID,
+    fcChannelID: communityInfo?.farcasterChannelID,
+  });
 
   return (
     <Avatar
