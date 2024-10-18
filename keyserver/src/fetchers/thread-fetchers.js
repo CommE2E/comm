@@ -10,7 +10,10 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import type { ThinRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -309,6 +312,13 @@ function rawThreadInfosFromServerThreadInfos(
     native: 379,
     web: 130,
   });
+  const canDisplayFarcasterThreadAvatars = hasMinCodeVersion(
+    viewer.platformDetails,
+    {
+      native: NEXT_CODE_VERSION,
+      web: NEXT_CODE_VERSION,
+    },
+  );
 
   const threadInfos: {
     [string]: LegacyThinRawThreadInfo | ThinRawThreadInfo,
@@ -329,6 +339,7 @@ function rawThreadInfosFromServerThreadInfos(
         filterManageFarcasterChannelTagsPermission:
           manageFarcasterChannelTagsPermissionUnsupported,
         stripMemberPermissions: stripMemberPermissions,
+        canDisplayFarcasterThreadAvatars,
       },
     );
     if (threadInfo) {
