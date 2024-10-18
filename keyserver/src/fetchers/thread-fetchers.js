@@ -309,6 +309,13 @@ function rawThreadInfosFromServerThreadInfos(
     native: 379,
     web: 130,
   });
+  const canDisplayFarcasterThreadAvatars = hasMinCodeVersion(
+    viewer.platformDetails,
+    {
+      native: 405,
+      web: 122,
+    },
+  );
 
   const threadInfos: {
     [string]: LegacyThinRawThreadInfo | ThinRawThreadInfo,
@@ -329,6 +336,7 @@ function rawThreadInfosFromServerThreadInfos(
         filterManageFarcasterChannelTagsPermission:
           manageFarcasterChannelTagsPermissionUnsupported,
         stripMemberPermissions: stripMemberPermissions,
+        canDisplayFarcasterThreadAvatars,
       },
     );
     if (threadInfo) {
