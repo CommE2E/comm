@@ -86,14 +86,15 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
       type: userActionsP2PMessageTypes.LOG_OUT_DEVICE,
     };
 
-    await broadcastEphemeralMessage(
+    const sendLogoutMessagePromise = broadcastEphemeralMessage(
       JSON.stringify(messageContents),
       [{ userID, deviceID }],
       authMetadata,
     );
-    await broadcastDeviceListUpdates(
+    const broadcastUpdatePromise = broadcastDeviceListUpdates(
       allPeerDevices.filter(peerDeviceID => deviceID !== peerDeviceID),
     );
+    await Promise.all([sendLogoutMessagePromise, broadcastUpdatePromise]);
     bottomSheetRef.current?.close();
   }, [
     broadcastDeviceListUpdates,
@@ -106,7 +107,7 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
 
   const confirmDeviceRemoval = () => {
     Alert.alert(
-      'Remove Device',
+      'Remove device',
       'Are you sure you want to remove this device?',
       [
         { text: 'Cancel', style: 'cancel' },
