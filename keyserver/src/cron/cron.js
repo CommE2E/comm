@@ -6,6 +6,7 @@ import schedule from 'node-schedule';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
+import { postMetrics } from './metrics.js';
 import { postLeaderboard } from './phab-leaderboard.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { updateIdentityReservedUsernames } from './update-identity-reserved-usernames.js';
@@ -159,6 +160,19 @@ if (cluster.isMaster) {
         } catch (e) {
           console.warn(
             'encountered error while trying to post Phabricator leaderboard',
+            e,
+          );
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 6 * * *', // every day at 6:00 AM in the keyserver's timezone
+      async () => {
+        try {
+          await postMetrics();
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to post product metrics',
             e,
           );
         }
