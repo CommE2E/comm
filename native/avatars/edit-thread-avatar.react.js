@@ -6,6 +6,8 @@ import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
+import { getCommunity } from 'lib/shared/thread-utils.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
@@ -22,6 +24,7 @@ import {
   EmojiThreadAvatarCreationRouteName,
   ThreadAvatarCameraModalRouteName,
 } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -31,6 +34,14 @@ type Props = {
 function EditThreadAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { threadInfo, disabled } = props;
+
+  const communityID = getCommunity(threadInfo);
+  const communityInfo: ?CommunityInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return state.communityStore.communityInfos[communityID];
+  });
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
@@ -64,6 +75,11 @@ function EditThreadAvatar(props: Props): React.Node {
     });
   }, [navigate, threadInfo]);
 
+  const setFarcasterThreadAvatar = React.useCallback(
+    () => nativeSetThreadAvatar(threadInfo.id, { type: 'farcaster' }),
+    [nativeSetThreadAvatar, threadInfo.id],
+  );
+
   const removeAvatar = React.useCallback(
     () => nativeSetThreadAvatar(threadInfo.id, { type: 'remove' }),
     [nativeSetThreadAvatar, threadInfo.id],
@@ -76,6 +92,13 @@ function EditThreadAvatar(props: Props): React.Node {
       { id: 'camera', onPress: navigateToCamera },
     ];
 
+    if (communityInfo?.farcasterChannelID) {
+      configOptions.push({
+        id: 'farcaster',
+        onPress: setFarcasterThreadAvatar,
+      });
+    }
+
     if (threadInfo.avatar) {
       configOptions.push({ id: 'remove', onPress: removeAvatar });
     }
@@ -87,6 +110,8 @@ function EditThreadAvatar(props: Props): React.Node {
     removeAvatar,
     selectFromGallery,
     threadInfo.avatar,
+    communityInfo?.farcasterChannelID,
+    setFarcasterThreadAvatar,
   ]);
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
