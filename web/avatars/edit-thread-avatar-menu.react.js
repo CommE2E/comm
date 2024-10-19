@@ -6,6 +6,8 @@ import * as React from 'react';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { getCommunity } from 'lib/shared/thread-utils.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
@@ -15,9 +17,11 @@ import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
 import ThreadEmojiAvatarSelectionModal from './thread-emoji-avatar-selection-modal.react.js';
+import CommIcon from '../comm-icon.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import { allowedMimeTypeString } from '../media/file-utils.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const editIcon = (
   <div className={css.editAvatarBadge}>
@@ -30,6 +34,14 @@ type Props = {
 };
 function EditThreadAvatarMenu(props: Props): React.Node {
   const { threadInfo } = props;
+
+  const communityID = getCommunity(threadInfo);
+  const communityInfo: ?CommunityInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return state.communityStore.communityInfos[communityID];
+  });
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
@@ -103,13 +115,45 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     [openEmojiSelectionModal],
   );
 
+  const setFarcasterThreadAvatar = React.useCallback(
+    () => baseSetThreadAvatar(threadInfo.id, { type: 'farcaster' }),
+    [baseSetThreadAvatar, threadInfo.id],
+  );
+
+  const farcasterIcon = React.useMemo(
+    () => <CommIcon icon="farcaster-outline" size={22} />,
+    [],
+  );
+
+  const farcasterMenuItem = React.useMemo(
+    () => (
+      <MenuItem
+        key="farcaster"
+        text="Use Farcaster avatar"
+        onClick={setFarcasterThreadAvatar}
+        iconComponent={farcasterIcon}
+      />
+    ),
+    [farcasterIcon, setFarcasterThreadAvatar],
+  );
+
   const menuItems = React.useMemo(() => {
     const items = [emojiMenuItem, imageMenuItem];
+    if (communityInfo?.farcasterChannelID) {
+      items.push(farcasterMenuItem);
+    }
     if (threadInfo.avatar) {
       items.push(removeMenuItem);
     }
     return items;
-  }, [emojiMenuItem, imageMenuItem, removeMenuItem, threadInfo.avatar]);
+  }, [
+    communityInfo?.farcasterChannelID,
+    emojiMenuItem,
+    farcasterMenuItem,
+    imageMenuItem,
+    removeMenuItem,
+    threadInfo.avatar,
+  ]);
 
   return (
     <div>
