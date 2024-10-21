@@ -7,6 +7,7 @@ pub mod login;
 pub mod nonce;
 pub mod prekey;
 mod privileged_delete_users;
+mod privileged_reset_user_password;
 pub mod register_user;
 pub mod remove_reserved_usernames;
 mod sync_platform_details;
@@ -22,7 +23,9 @@ use config::get_identity_service_config;
 use generated::CODE_VERSION;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::authenticated::{
-  InboundKeyInfo, PrivilegedDeleteUsersRequest, UploadOneTimeKeysRequest,
+  InboundKeyInfo, PrivilegedDeleteUsersRequest,
+  PrivilegedResetUserPasswordFinishRequest,
+  PrivilegedResetUserPasswordStartRequest, UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
