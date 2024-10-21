@@ -21,7 +21,7 @@ use crate::database::{
 use crate::ddb_utils::{Identifier, is_transaction_conflict};
 use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError, consume_error};
-use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo};
+use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo, PrivilegedPasswordResetInfo};
 use crate::grpc_services::protos::unauth::{
   find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
   ExistingDeviceLoginRequest, FindUserIdRequest, FindUserIdResponse,
@@ -59,6 +59,7 @@ pub enum WorkflowInProgress {
   Login(Box<UserLoginInfo>),
   Update(Box<UpdatePasswordInfo>),
   PasswordUserDeletion(Box<DeletePasswordUserInfo>),
+  PrivilegedPasswordReset(Box<PrivilegedPasswordResetInfo>),
 }
 
 #[derive(Clone, Serialize, Deserialize)]

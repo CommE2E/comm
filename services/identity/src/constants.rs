@@ -363,3 +363,8 @@ pub mod retry {
 pub const ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT: usize = 24;
 pub const ONE_TIME_KEY_SIZE: usize = 43; // as defined in olm
 pub const MAX_ONE_TIME_KEYS: usize = 100; // as defined in olm
+
+// Comm staff
+pub mod staff {
+  pub const STAFF_USER_IDS: [&str; 1] = ["256"];
+}

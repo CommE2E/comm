@@ -9,7 +9,7 @@ use crate::error::consume_error;
 use crate::log::redact_sensitive_data;
 use crate::{
   client_service::{handle_db_error, WorkflowInProgress},
-  constants::{error_types, request_metadata, tonic_status_messages},
+  constants::{error_types, request_metadata, staff, tonic_status_messages},
   database::DatabaseClient,
   grpc_services::shared::{get_platform_metadata, get_value},
 };
@@ -643,10 +643,8 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<PrivilegedDeleteUsersRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    const STAFF_USER_IDS: [&str; 1] = ["256"];
-
     let (user_id, _) = get_user_and_device_id(&request)?;
-    if !STAFF_USER_IDS.contains(&user_id.as_str()) {
+    if !staff::STAFF_USER_IDS.contains(&user_id.as_str()) {
       return Err(Status::permission_denied(
         tonic_status_messages::USER_IS_NOT_STAFF,
       ));
@@ -666,20 +664,91 @@ impl IdentityClientService for AuthenticatedService {
   #[tracing::instrument(skip_all)]
   async fn privileged_reset_user_password_start(
     &self,
-    _request: tonic::Request<PrivilegedResetUserPasswordStartRequest>,
+    request: tonic::Request<PrivilegedResetUserPasswordStartRequest>,
   ) -> Result<
     tonic::Response<PrivilegedResetUserPasswordStartResponse>,
     tonic::Status,
   > {
-    unimplemented!()
+    let (staff_user_id, _) = get_user_and_device_id(&request)?;
+    if !staff::STAFF_USER_IDS.contains(&staff_user_id.as_str()) {
+      return Err(Status::permission_denied(
+        tonic_status_messages::USER_IS_NOT_STAFF,
+      ));
+    }
+
+    let message = request.into_inner();
+    debug!(
+      "Attempting to start resetting password for user: {:?}",
+      &message.username
+    );
+
+    let user_id_and_password_file = self
+      .db_client
+      .get_user_info_and_password_file_from_username(&message.username)
+      .await?
+      .ok_or(tonic::Status::not_found(
+        tonic_status_messages::USER_NOT_FOUND,
+      ))?;
+
+    let server_registration = comm_opaque2::server::Registration::new();
+    let registration_response = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        &message.username.to_lowercase().as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    let reset_state =
+      PrivilegedPasswordResetInfo::new(user_id_and_password_file.user_id);
+    let session_id = self
+      .db_client
+      .insert_workflow(WorkflowInProgress::PrivilegedPasswordReset(Box::new(
+        reset_state,
+      )))
+      .await?;
+
+    let response = PrivilegedResetUserPasswordStartResponse {
+      session_id,
+      opaque_registration_response: registration_response,
+    };
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
   async fn privileged_reset_user_password_finish(
     &self,
-    _request: tonic::Request<PrivilegedResetUserPasswordFinishRequest>,
+    request: tonic::Request<PrivilegedResetUserPasswordFinishRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!()
+    let (staff_user_id, _) = get_user_and_device_id(&request)?;
+    if !staff::STAFF_USER_IDS.contains(&staff_user_id.as_str()) {
+      return Err(Status::permission_denied(
+        tonic_status_messages::USER_IS_NOT_STAFF,
+      ));
+    }
+
+    let message = request.into_inner();
+
+    let Some(WorkflowInProgress::PrivilegedPasswordReset(state)) =
+      self.db_client.get_workflow(message.session_id).await?
+    else {
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::SESSION_NOT_FOUND,
+      ));
+    };
+
+    let server_registration = comm_opaque2::server::Registration::new();
+    let password_file = server_registration
+      .finish(&message.opaque_registration_upload)
+      .map_err(protocol_error_to_grpc_status)?;
+
+    self
+      .db_client
+      .update_user_password(state.user_id, password_file)
+      .await?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
@@ -1050,4 +1119,11 @@ pub struct DeletePasswordUserInfo {
 )]
 pub struct UpdatePasswordInfo {
   pub opaque_server_login: comm_opaque2::server::Login,
+}
+
+#[derive(
+  Clone, serde::Serialize, serde::Deserialize, derive_more::Constructor,
+)]
+pub struct PrivilegedPasswordResetInfo {
+  pub user_id: String,
 }
