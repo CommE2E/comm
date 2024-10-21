@@ -69,6 +69,13 @@ service IdentityClientService {
   rpc PrivilegedDeleteUsers(PrivilegedDeleteUsersRequest) returns
     (identity.unauth.Empty) {};
 
+  // Called by Comm staff to reset user passwords. Usage is strictly limited to
+  // accounts that have requested a password reset.
+  rpc PrivilegedResetUserPasswordStart(PrivilegedResetUserPasswordStartRequest)
+    returns (PrivilegedResetUserPasswordStartResponse) {};
+  rpc PrivilegedResetUserPasswordFinish
+    (PrivilegedResetUserPasswordFinishRequest) returns
+    (identity.unauth.Empty) {};
 
   /* Device list actions */
 
@@ -249,6 +256,28 @@ message DeletePasswordUserStartResponse {
 
 message PrivilegedDeleteUsersRequest {
   repeated string user_ids = 1;
+}
+
+// PrivilegedResetUserPassword
+
+message PrivilegedResetUserPasswordStartRequest {
+  // Initiate PAKE registration with new password
+  bytes opaque_registration_request = 1;
+  string username = 2;
+}
+
+message PrivilegedResetUserPasswordStartResponse {
+  // Identifier used to correlate start request with finish request
+  string session_id = 1;
+  // Continue PAKE registration on server with new password
+  bytes opaque_registration_response = 2;
+}
+
+message PrivilegedResetUserPasswordFinishRequest {
+  // Identifier used to correlate start and finish request
+  string session_id = 1;
+  // Complete PAKE registration with new password
+  bytes opaque_registration_upload = 2;
 }
 
 // GetDeviceListForUser

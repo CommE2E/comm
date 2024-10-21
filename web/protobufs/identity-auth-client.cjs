@@ -935,6 +935,128 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.privilegedDelet
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.PrivilegedResetUserPasswordStartRequest,
+ *   !proto.identity.auth.PrivilegedResetUserPasswordStartResponse>}
+ */
+const methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordStart = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordStart',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.PrivilegedResetUserPasswordStartRequest,
+  proto.identity.auth.PrivilegedResetUserPasswordStartResponse,
+  /**
+   * @param {!proto.identity.auth.PrivilegedResetUserPasswordStartRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.auth.PrivilegedResetUserPasswordStartResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedResetUserPasswordStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.PrivilegedResetUserPasswordStartResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.PrivilegedResetUserPasswordStartResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.privilegedResetUserPasswordStart =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordStart,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedResetUserPasswordStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.auth.PrivilegedResetUserPasswordStartResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.privilegedResetUserPasswordStart =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordStart);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.PrivilegedResetUserPasswordFinishRequest,
+ *   !proto.identity.unauth.Empty>}
+ */
+const methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordFinish = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordFinish',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.PrivilegedResetUserPasswordFinishRequest,
+  identity_unauth_pb.Empty,
+  /**
+   * @param {!proto.identity.auth.PrivilegedResetUserPasswordFinishRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_unauth_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedResetUserPasswordFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.privilegedResetUserPasswordFinish =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordFinish,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.PrivilegedResetUserPasswordFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.privilegedResetUserPasswordFinish =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/PrivilegedResetUserPasswordFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_PrivilegedResetUserPasswordFinish);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.GetDeviceListRequest,
  *   !proto.identity.auth.GetDeviceListResponse>}
  */
