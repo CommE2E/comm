@@ -40,6 +40,24 @@ async function privilegedDeleteUsers(
   );
 }
 
+async function privilegedResetUserPassword(
+  username: string,
+  password: string,
+): Promise<void> {
+  const [rustAPI, identityInfo, deviceID] = await Promise.all([
+    getRustAPI(),
+    verifyUserLoggedIn(),
+    getContentSigningKey(),
+  ]);
+  await rustAPI.privilegedResetUserPassword(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    username,
+    password,
+  );
+}
+
 async function syncPlatformDetails(identityInfo: IdentityInfo): Promise<void> {
   const [rustAPI, deviceID] = await Promise.all([
     getRustAPI(),
@@ -52,4 +70,9 @@ async function syncPlatformDetails(identityInfo: IdentityInfo): Promise<void> {
   );
 }
 
-export { findUserIdentities, privilegedDeleteUsers, syncPlatformDetails };
+export {
+  findUserIdentities,
+  privilegedDeleteUsers,
+  privilegedResetUserPassword,
+  syncPlatformDetails,
+};
