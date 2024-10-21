@@ -15,6 +15,10 @@ class Session {
   OlmBuffer olmSessionBuffer;
   int version;
 
+  // this constant has to match OLM_ERROR_FLAG constant in
+  // lib/utils/olm-utils.js
+  const std::string olmErrorFlag = "OLM_ERROR";
+
 public:
   static std::unique_ptr<Session> createSessionAsInitializer(
       OlmAccount *account,
