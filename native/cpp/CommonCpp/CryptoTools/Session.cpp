@@ -7,6 +7,10 @@
 namespace comm {
 namespace crypto {
 
+// this constant has to match OLM_ERROR_FLAG constant in
+// lib/utils/olm-utils.js
+static const std::string olmErrorFlag = "OLM_ERROR";
+
 OlmSession *Session::getOlmSession() {
   return reinterpret_cast<OlmSession *>(this->olmSessionBuffer.data());
 }
@@ -174,8 +178,8 @@ std::string Session::decrypt(EncryptedData &encryptedData) {
       decryptedMessage.size());
   if (decryptedSize == -1) {
     throw std::runtime_error{
-        "error decrypt => " + std::string{::olm_session_last_error(session)} +
-        ". Hash: " +
+        "error decrypt => " + olmErrorFlag + " " +
+        std::string{::olm_session_last_error(session)} + ". Hash: " +
         std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
   }
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
