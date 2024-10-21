@@ -15,13 +15,18 @@ type NeynarConfig = {
   +neynarWebhookSecret?: string,
 };
 
-let getFCNames: ?GetFCNames;
-let neynarClient: ?NeynarClient;
-async function initFCCache() {
-  const neynarSecret = await getCommConfig<NeynarConfig>({
+function getNeynarConfig(): Promise<?NeynarConfig> {
+  return getCommConfig<NeynarConfig>({
     folder: 'secrets',
     name: 'neynar',
   });
+}
+
+let getFCNames: ?GetFCNames;
+let neynarClient: ?NeynarClient;
+async function initFCCache() {
+  const neynarSecret = await getNeynarConfig();
+
   const neynarKey = neynarSecret?.key;
   if (!neynarKey) {
     return;
@@ -32,4 +37,4 @@ async function initFCCache() {
     baseGetFCNames(fcCache, users);
 }
 
-export { initFCCache, getFCNames, neynarClient };
+export { initFCCache, getFCNames, neynarClient, getNeynarConfig };
