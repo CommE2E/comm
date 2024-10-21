@@ -29,10 +29,13 @@ use super::protos::auth::{
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
   PeersDeviceListsRequest, PeersDeviceListsResponse,
   PrimaryDeviceLogoutRequest, PrivilegedDeleteUsersRequest,
-  RefreshUserPrekeysRequest, UpdateDeviceListRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
-  UserDevicesPlatformDetails, UserIdentitiesRequest, UserIdentitiesResponse,
+  PrivilegedResetUserPasswordFinishRequest,
+  PrivilegedResetUserPasswordStartRequest,
+  PrivilegedResetUserPasswordStartResponse, RefreshUserPrekeysRequest,
+  UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest, UserDevicesPlatformDetails, UserIdentitiesRequest,
+  UserIdentitiesResponse,
 };
 use super::protos::unauth::Empty;
 
@@ -658,6 +661,25 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Empty {};
     Ok(Response::new(response))
+  }
+
+  #[tracing::instrument(skip_all)]
+  async fn privileged_reset_user_password_start(
+    &self,
+    _request: tonic::Request<PrivilegedResetUserPasswordStartRequest>,
+  ) -> Result<
+    tonic::Response<PrivilegedResetUserPasswordStartResponse>,
+    tonic::Status,
+  > {
+    unimplemented!()
+  }
+
+  #[tracing::instrument(skip_all)]
+  async fn privileged_reset_user_password_finish(
+    &self,
+    _request: tonic::Request<PrivilegedResetUserPasswordFinishRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!()
   }
 
   #[tracing::instrument(skip_all)]

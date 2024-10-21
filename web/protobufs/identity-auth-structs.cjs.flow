@@ -457,6 +457,72 @@ export type PrivilegedDeleteUsersRequestObject = {
   userIdsList: Array<string>,
 }
 
+declare export class PrivilegedResetUserPasswordStartRequest extends Message {
+  getOpaqueRegistrationRequest(): Uint8Array | string;
+  getOpaqueRegistrationRequest_asU8(): Uint8Array;
+  getOpaqueRegistrationRequest_asB64(): string;
+  setOpaqueRegistrationRequest(value: Uint8Array | string): PrivilegedResetUserPasswordStartRequest;
+
+  getUsername(): string;
+  setUsername(value: string): PrivilegedResetUserPasswordStartRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrivilegedResetUserPasswordStartRequestObject;
+  static toObject(includeInstance: boolean, msg: PrivilegedResetUserPasswordStartRequest): PrivilegedResetUserPasswordStartRequestObject;
+  static serializeBinaryToWriter(message: PrivilegedResetUserPasswordStartRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrivilegedResetUserPasswordStartRequest;
+  static deserializeBinaryFromReader(message: PrivilegedResetUserPasswordStartRequest, reader: BinaryReader): PrivilegedResetUserPasswordStartRequest;
+}
+
+export type PrivilegedResetUserPasswordStartRequestObject = {
+  opaqueRegistrationRequest: Uint8Array | string,
+  username: string,
+}
+
+declare export class PrivilegedResetUserPasswordStartResponse extends Message {
+  getSessionId(): string;
+  setSessionId(value: string): PrivilegedResetUserPasswordStartResponse;
+
+  getOpaqueRegistrationResponse(): Uint8Array | string;
+  getOpaqueRegistrationResponse_asU8(): Uint8Array;
+  getOpaqueRegistrationResponse_asB64(): string;
+  setOpaqueRegistrationResponse(value: Uint8Array | string): PrivilegedResetUserPasswordStartResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrivilegedResetUserPasswordStartResponseObject;
+  static toObject(includeInstance: boolean, msg: PrivilegedResetUserPasswordStartResponse): PrivilegedResetUserPasswordStartResponseObject;
+  static serializeBinaryToWriter(message: PrivilegedResetUserPasswordStartResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrivilegedResetUserPasswordStartResponse;
+  static deserializeBinaryFromReader(message: PrivilegedResetUserPasswordStartResponse, reader: BinaryReader): PrivilegedResetUserPasswordStartResponse;
+}
+
+export type PrivilegedResetUserPasswordStartResponseObject = {
+  sessionId: string,
+  opaqueRegistrationResponse: Uint8Array | string,
+}
+
+declare export class PrivilegedResetUserPasswordFinishRequest extends Message {
+  getSessionId(): string;
+  setSessionId(value: string): PrivilegedResetUserPasswordFinishRequest;
+
+  getOpaqueRegistrationUpload(): Uint8Array | string;
+  getOpaqueRegistrationUpload_asU8(): Uint8Array;
+  getOpaqueRegistrationUpload_asB64(): string;
+  setOpaqueRegistrationUpload(value: Uint8Array | string): PrivilegedResetUserPasswordFinishRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrivilegedResetUserPasswordFinishRequestObject;
+  static toObject(includeInstance: boolean, msg: PrivilegedResetUserPasswordFinishRequest): PrivilegedResetUserPasswordFinishRequestObject;
+  static serializeBinaryToWriter(message: PrivilegedResetUserPasswordFinishRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrivilegedResetUserPasswordFinishRequest;
+  static deserializeBinaryFromReader(message: PrivilegedResetUserPasswordFinishRequest, reader: BinaryReader): PrivilegedResetUserPasswordFinishRequest;
+}
+
+export type PrivilegedResetUserPasswordFinishRequestObject = {
+  sessionId: string,
+  opaqueRegistrationUpload: Uint8Array | string,
+}
+
 export type SinceTimestampCase = 0 | 2;
 
 declare export class GetDeviceListRequest extends Message {
