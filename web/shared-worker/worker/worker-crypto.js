@@ -31,6 +31,7 @@ import {
   shouldForgetPrekey,
   shouldRotatePrekey,
   olmSessionErrors,
+  OLM_ERROR_FLAG,
 } from 'lib/utils/olm-utils.js';
 
 import { getIdentityClient } from './identity-client.js';
@@ -611,10 +612,15 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.invalidSessionVersion);
     }
 
-    const result = olmSession.session.decrypt(
-      encryptedData.messageType,
-      encryptedData.message,
-    );
+    let result;
+    try {
+      result = olmSession.session.decrypt(
+        encryptedData.messageType,
+        encryptedData.message,
+      );
+    } catch (e) {
+      throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    }
 
     await persistCryptoStore();
 
@@ -642,10 +648,15 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.invalidSessionVersion);
     }
 
-    const result = olmSession.session.decrypt(
-      encryptedData.messageType,
-      encryptedData.message,
-    );
+    let result;
+    try {
+      result = olmSession.session.decrypt(
+        encryptedData.messageType,
+        encryptedData.message,
+      );
+    } catch (e) {
+      throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    }
 
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
     const dbModule = getDBModule();
@@ -703,10 +714,15 @@ const olmAPI: OlmAPI = {
     );
 
     contentAccount.remove_one_time_keys(session);
-    const initialEncryptedMessage = session.decrypt(
-      initialEncryptedData.messageType,
-      initialEncryptedData.message,
-    );
+    let initialEncryptedMessage;
+    try {
+      initialEncryptedMessage = session.decrypt(
+        initialEncryptedData.messageType,
+        initialEncryptedData.message,
+      );
+    } catch (e) {
+      throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    }
 
     contentSessions[contentIdentityKeys.ed25519] = {
       session,

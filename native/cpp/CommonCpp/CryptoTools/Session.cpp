@@ -174,8 +174,8 @@ std::string Session::decrypt(EncryptedData &encryptedData) {
       decryptedMessage.size());
   if (decryptedSize == -1) {
     throw std::runtime_error{
-        "error decrypt => " + std::string{::olm_session_last_error(session)} +
-        ". Hash: " +
+        "error decrypt => OLM_ERROR " +
+        std::string{::olm_session_last_error(session)} + ". Hash: " +
         std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
   }
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
