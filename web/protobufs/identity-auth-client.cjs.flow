@@ -109,6 +109,20 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
+  privilegedResetUserPasswordStart(
+    request: identityAuthStructs.PrivilegedResetUserPasswordStartRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.PrivilegedResetUserPasswordStartResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.PrivilegedResetUserPasswordStartResponse>;
+
+  privilegedResetUserPasswordFinish(
+    request: identityAuthStructs.PrivilegedResetUserPasswordFinishRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
     metadata: grpcWeb.Metadata | void,
@@ -231,6 +245,16 @@ declare export class IdentityClientServicePromiseClient {
 
   privilegedDeleteUsers(
     request: identityAuthStructs.PrivilegedDeleteUsersRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  privilegedResetUserPasswordStart(
+    request: identityAuthStructs.PrivilegedResetUserPasswordStartRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.PrivilegedResetUserPasswordStartResponse>;
+
+  privilegedResetUserPasswordFinish(
+    request: identityAuthStructs.PrivilegedResetUserPasswordFinishRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
