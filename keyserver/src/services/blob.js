@@ -105,6 +105,7 @@ async function upload(
 export type BlobDownloadResult =
   | {
       +found: false,
+      +status: number,
     }
   | {
       +found: true,
@@ -119,7 +120,7 @@ async function download(hash: string): Promise<BlobDownloadResult> {
   });
 
   if (!response.ok) {
-    return { found: false };
+    return { found: false, status: response.status };
   }
   const blob = await response.blob();
   return { found: true, blob };
