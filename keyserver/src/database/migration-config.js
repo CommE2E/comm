@@ -6,6 +6,8 @@ import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
 import { specialRoles } from 'lib/permissions/special-roles.js';
+import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
+import type { InviteLinkWithHolder } from 'lib/types/link-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   threadPermissions,
@@ -22,6 +24,8 @@ import {
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
+import { fetchAllPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
+import { deleteBlob } from '../services/blob.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateChangedUndirectedRelationships } from '../updaters/relationship-updaters.js';
@@ -1051,6 +1055,34 @@ const migrations: $ReadOnlyArray<Migration> = [
       await updateChangedUndirectedRelationships(relationshipRows);
     },
     migrationType: 'wrap_in_transaction_and_block_requests',
+  },
+  {
+    version: 71,
+    migrationPromise: async () => {
+      const links = await fetchAllPrimaryInviteLinks();
+      const promises = [];
+      for (const link: InviteLinkWithHolder of links) {
+        const holder = link.blobHolder;
+        if (!holder) {
+          continue;
+        }
+        promises.push(
+          deleteBlob(
+            {
+              hash: inviteLinkBlobHash(inviteLinkBlobHash(link.name)),
+              holder,
+            },
+            true,
+          ),
+        );
+      }
+      try {
+        await Promise.all(promises);
+      } catch (e) {
+        console.log('Error while cleaning invite links blobs', e);
+      }
+    },
+    migrationType: 'run_simultaneously_with_requests',
   },
 ];
 const versions: $ReadOnlyArray<number> = migrations.map(
