@@ -28,10 +28,7 @@ async function synchronizeInviteLinksWithBlobs() {
             return;
           }
         }
-        const uploadResult = await uploadInviteLinkBlob(
-          inviteLinkBlobHash(link.name),
-          holder,
-        );
+        const uploadResult = await uploadInviteLinkBlob(link.name, holder);
         if (uploadResult.success && !isHolderPresent) {
           await setLinkHolder(link.name, holder);
         }
