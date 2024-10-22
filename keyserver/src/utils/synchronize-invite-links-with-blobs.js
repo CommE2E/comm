@@ -2,7 +2,6 @@
 
 import uuid from 'uuid';
 
-import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
 import type { InviteLinkWithHolder } from 'lib/types/link-types.js';
 
 import {
@@ -21,17 +20,12 @@ async function synchronizeInviteLinksWithBlobs() {
         const isHolderPresent = !!link.blobHolder;
         const holder = link.blobHolder ?? uuid.v4();
         if (isHolderPresent) {
-          const blobFetchResult = await getInviteLinkBlob(
-            inviteLinkBlobHash(link.name),
-          );
+          const blobFetchResult = await getInviteLinkBlob(link.name);
           if (blobFetchResult.found) {
             return;
           }
         }
-        const uploadResult = await uploadInviteLinkBlob(
-          inviteLinkBlobHash(link.name),
-          holder,
-        );
+        const uploadResult = await uploadInviteLinkBlob(link.name, holder);
         if (uploadResult.success && !isHolderPresent) {
           await setLinkHolder(link.name, holder);
         }
