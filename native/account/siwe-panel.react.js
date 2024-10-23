@@ -91,6 +91,17 @@ function SIWEPanel(props: Props): React.Node {
   // to be unmounted/remounted by our parent component prior to a retry
   const nonceNotNeededRef = React.useRef(false);
 
+  // When we succeed or fail, we call onSuccessOrCancel, which cancels
+  // any pending setWalletConnectModalHeight callbacks
+  const walletConnectModalHeightResetTimeout = React.useRef<?TimeoutID>();
+  const onSuccessOrCancel = React.useCallback(() => {
+    nonceNotNeededRef.current = true;
+    if (walletConnectModalHeightResetTimeout.current) {
+      clearTimeout(walletConnectModalHeightResetTimeout.current);
+      walletConnectModalHeightResetTimeout.current = undefined;
+    }
+  }, []);
+
   React.useEffect(() => {
     if (siweNonce && siweStatement && siweIssuedAt) {
       setNonceInfo({
@@ -101,7 +112,7 @@ function SIWEPanel(props: Props): React.Node {
       const siwePrimaryIdentityPublicKey =
         getPublicKeyFromSIWEStatement(siweStatement);
       setPrimaryIdentityPublicKey(siwePrimaryIdentityPublicKey);
-      nonceNotNeededRef.current = true;
+      onSuccessOrCancel();
       return;
     }
     if (nonceNotNeededRef.current) {
@@ -123,7 +134,7 @@ function SIWEPanel(props: Props): React.Node {
             {
               text: 'OK',
               onPress: () => {
-                nonceNotNeededRef.current = true;
+                onSuccessOrCancel();
                 onClosing();
               },
             },
@@ -158,6 +169,7 @@ function SIWEPanel(props: Props): React.Node {
     siweNonce,
     siweStatement,
     siweIssuedAt,
+    onSuccessOrCancel,
   ]);
 
   const [isLoading, setLoading] = React.useState(true);
@@ -200,7 +212,7 @@ function SIWEPanel(props: Props): React.Node {
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;
         if (address && signature) {
-          nonceNotNeededRef.current = true;
+          onSuccessOrCancel();
           closeBottomSheet?.();
           await onSuccessfulWalletSignature({
             address,
@@ -210,14 +222,23 @@ function SIWEPanel(props: Props): React.Node {
           });
         }
       } else if (data.type === 'siwe_closed') {
-        nonceNotNeededRef.current = true;
+        onSuccessOrCancel();
         onClosing();
         closeBottomSheet?.();
       } else if (data.type === 'walletconnect_modal_update') {
+        if (nonceNotNeededRef.current) {
+          return;
+        }
         const height = data.state === 'open' ? data.height : 0;
         if (!walletConnectModalHeight || height > 0) {
           setWalletConnectModalHeight(height);
+          return;
         }
+        walletConnectModalHeightResetTimeout.current = setTimeout(() => {
+          if (!nonceNotNeededRef.current) {
+            setWalletConnectModalHeight(height);
+          }
+        }, 50);
       }
     },
     [
@@ -226,16 +247,17 @@ function SIWEPanel(props: Props): React.Node {
       closeBottomSheet,
       walletConnectModalHeight,
       nonceTimestamp,
+      onSuccessOrCancel,
     ],
   );
   const prevClosingRef = React.useRef<?boolean>();
   React.useEffect(() => {
     if (closing && !prevClosingRef.current) {
-      nonceNotNeededRef.current = true;
+      onSuccessOrCancel();
       closeBottomSheet?.();
     }
     prevClosingRef.current = closing;
-  }, [closing, closeBottomSheet]);
+  }, [closing, closeBottomSheet, onSuccessOrCancel]);
 
   const nonce = nonceInfo?.nonce;
   const issuedAt = nonceInfo?.issuedAt;
