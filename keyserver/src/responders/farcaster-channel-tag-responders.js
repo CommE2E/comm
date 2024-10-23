@@ -6,6 +6,7 @@ import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
   DeleteFarcasterChannelTagRequest,
+  DeleteFarcasterChannelTagResponse,
 } from 'lib/types/community-types';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -19,11 +20,11 @@ const createOrUpdateFarcasterChannelTagInputValidator: TInterface<CreateOrUpdate
     farcasterChannelID: t.String,
   });
 
-async function createOrUpdateFarcasterChannelTagResponder(
+function createOrUpdateFarcasterChannelTagResponder(
   viewer: Viewer,
   request: CreateOrUpdateFarcasterChannelTagRequest,
 ): Promise<CreateOrUpdateFarcasterChannelTagResponse> {
-  return await createOrUpdateFarcasterChannelTag(viewer, request);
+  return createOrUpdateFarcasterChannelTag(viewer, request);
 }
 
 const deleteFarcasterChannelTagInputValidator: TInterface<DeleteFarcasterChannelTagRequest> =
@@ -32,11 +33,11 @@ const deleteFarcasterChannelTagInputValidator: TInterface<DeleteFarcasterChannel
     farcasterChannelID: t.String,
   });
 
-async function deleteFarcasterChannelTagResponder(
+function deleteFarcasterChannelTagResponder(
   viewer: Viewer,
   request: DeleteFarcasterChannelTagRequest,
-): Promise<void> {
-  await deleteFarcasterChannelTag(viewer, request);
+): Promise<?DeleteFarcasterChannelTagResponse> {
+  return deleteFarcasterChannelTag(viewer, request);
 }
 
 export {
