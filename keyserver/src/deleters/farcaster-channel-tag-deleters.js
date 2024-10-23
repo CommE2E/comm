@@ -40,6 +40,12 @@ async function deleteFarcasterChannelTag(
     WHERE id = ${request.commCommunityID}
       AND farcaster_channel_id = ${request.farcasterChannelID};
     
+    UPDATE threads
+    SET
+      avatar = NULL
+    WHERE id = ${request.commCommunityID}
+      AND avatar = '{"type":"farcaster"}';
+
     COMMIT;
 
     SELECT @currentBlobHolder AS blobHolder;
