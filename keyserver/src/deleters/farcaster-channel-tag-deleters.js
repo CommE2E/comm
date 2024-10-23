@@ -1,19 +1,28 @@
 // @flow
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
-import type { DeleteFarcasterChannelTagRequest } from 'lib/types/community-types.js';
+import {
+  NEXT_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
+import type {
+  DeleteFarcasterChannelTagRequest,
+  DeleteFarcasterChannelTagResponse,
+} from 'lib/types/community-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import { deleteBlob } from '../services/blob.js';
 import type { Viewer } from '../session/viewer';
+import { updateThread } from '../updaters/thread-updaters.js';
 
 async function deleteFarcasterChannelTag(
   viewer: Viewer,
   request: DeleteFarcasterChannelTagRequest,
-): Promise<void> {
+): Promise<?DeleteFarcasterChannelTagResponse> {
   const hasPermission = await checkThreadPermission(
     viewer,
     request.commCommunityID,
@@ -39,7 +48,7 @@ async function deleteFarcasterChannelTag(
       blob_holder = NULL
     WHERE id = ${request.commCommunityID}
       AND farcaster_channel_id = ${request.farcasterChannelID};
-    
+
     COMMIT;
 
     SELECT @currentBlobHolder AS blobHolder;
@@ -61,6 +70,34 @@ async function deleteFarcasterChannelTag(
       true,
     );
   }
+
+  const serverThreadInfos = await fetchServerThreadInfos({
+    threadID: request.commCommunityID,
+  });
+  const threadInfo = serverThreadInfos.threadInfos[request.commCommunityID];
+  if (!threadInfo) {
+    return null;
+  }
+  const { avatar } = threadInfo;
+  if (avatar?.type !== 'farcaster') {
+    return null;
+  }
+
+  const changeThreadSettingsResult = await updateThread(viewer, {
+    threadID: request.commCommunityID,
+    changes: { avatar: { type: 'remove' } },
+  });
+
+  if (
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: NEXT_CODE_VERSION,
+      web: NEXT_CODE_VERSION,
+    })
+  ) {
+    return null;
+  }
+
+  return changeThreadSettingsResult;
 }
 
 export { deleteFarcasterChannelTag };
