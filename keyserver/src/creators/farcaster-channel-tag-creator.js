@@ -3,6 +3,10 @@
 import uuid from 'uuid';
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
@@ -17,6 +21,7 @@ import {
   MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
 } from '../database/database.js';
 import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   uploadBlobKeyserverWrapper,
@@ -26,7 +31,9 @@ import {
   type BlobDownloadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
+import { updateThread } from '../updaters/thread-updaters.js';
 import { thisKeyserverID } from '../user/identity.js';
+import { neynarClient } from '../utils/fc-cache.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 async function createOrUpdateFarcasterChannelTag(
@@ -130,9 +137,65 @@ async function createOrUpdateFarcasterChannelTag(
     throw new ServerError('invalid_parameters');
   }
 
+  const neynarChannelDescriptionPromise = (async () => {
+    if (!neynarClient) {
+      return '';
+    }
+    const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
+      request.farcasterChannelID,
+    );
+    return channelInfo?.description ?? '';
+  })();
+
+  const [fcChannelDescription, serverThreadInfos] = await Promise.all([
+    neynarChannelDescriptionPromise,
+    fetchServerThreadInfos({ threadID: request.commCommunityID }),
+  ]);
+
+  const threadInfo = serverThreadInfos.threadInfos[request.commCommunityID];
+  if (!threadInfo) {
+    return {
+      commCommunityID: request.commCommunityID,
+      farcasterChannelID: request.farcasterChannelID,
+    };
+  }
+  const { avatar, description } = threadInfo;
+  if (avatar && description) {
+    return {
+      commCommunityID: request.commCommunityID,
+      farcasterChannelID: request.farcasterChannelID,
+    };
+  }
+
+  let changes = {};
+  if (!avatar) {
+    changes = { ...changes, avatar: { type: 'farcaster' } };
+  }
+  if (!description) {
+    changes = { ...changes, description: fcChannelDescription };
+  }
+
+  const changeThreadSettingsResult = await updateThread(viewer, {
+    threadID: request.commCommunityID,
+    changes,
+  });
+
+  if (
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: NEXT_CODE_VERSION,
+      web: NEXT_CODE_VERSION,
+    })
+  ) {
+    return {
+      commCommunityID: request.commCommunityID,
+      farcasterChannelID: request.farcasterChannelID,
+    };
+  }
+
   return {
     commCommunityID: request.commCommunityID,
     farcasterChannelID: request.farcasterChannelID,
+    ...changeThreadSettingsResult,
   };
 }
 
