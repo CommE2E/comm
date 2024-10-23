@@ -27,6 +27,7 @@ import {
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
+import { neynarClient } from '../utils/fc-cache.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 async function createOrUpdateFarcasterChannelTag(
@@ -39,13 +40,32 @@ async function createOrUpdateFarcasterChannelTag(
     threadPermissions.MANAGE_FARCASTER_CHANNEL_TAGS,
   );
 
-  const [hasPermission, communityInfos, blobDownload, keyserverID] =
-    await Promise.all([
-      permissionPromise,
-      fetchCommunityInfos(viewer, [request.commCommunityID]),
-      getFarcasterChannelTagBlob(request.farcasterChannelID),
-      thisKeyserverID(),
-    ]);
+  const neynarChannelDescriptionPromise = (async () => {
+    if (!neynarClient) {
+      return '';
+    }
+    const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
+      request.farcasterChannelID,
+    );
+    if (!channelInfo) {
+      return '';
+    }
+    return channelInfo.description;
+  })();
+
+  const [
+    hasPermission,
+    communityInfos,
+    blobDownload,
+    keyserverID,
+    neynarChannelDescription,
+  ] = await Promise.all([
+    permissionPromise,
+    fetchCommunityInfos(viewer, [request.commCommunityID]),
+    getFarcasterChannelTagBlob(request.farcasterChannelID),
+    thisKeyserverID(),
+    neynarChannelDescriptionPromise,
+  ]);
 
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
@@ -90,6 +110,18 @@ async function createOrUpdateFarcasterChannelTag(
       farcaster_channel_id = ${request.farcasterChannelID},
       blob_holder = ${blobHolder}
     WHERE id = ${request.commCommunityID};
+
+    UPDATE threads
+    SET
+      avatar = '{"type":"farcaster"}'
+    WHERE id = ${request.commCommunityID}
+      AND avatar IS NULL;
+
+    UPDATE threads
+    SET
+      description = ${neynarChannelDescription}
+    WHERE id = ${request.commCommunityID}
+      AND (description IS NULL OR description = '');
 
     COMMIT;
 
