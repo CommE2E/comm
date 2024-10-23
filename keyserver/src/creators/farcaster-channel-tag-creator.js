@@ -1,5 +1,6 @@
 // @flow
 
+import t, { type TInterface } from 'tcomb';
 import uuid from 'uuid';
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
@@ -10,6 +11,7 @@ import type {
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { BlobOperationResult } from 'lib/utils/blob-service.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
 import {
   dbQuery,
@@ -144,6 +146,19 @@ function getFarcasterChannelTagBlob(
   return download(hash);
 }
 
+const farcasterChannelTagBlobValidator: TInterface<FarcasterChannelTagBlob> =
+  tShape<FarcasterChannelTagBlob>({
+    commCommunityID: t.String,
+    farcasterChannelID: t.String,
+    keyserverURL: t.String,
+  });
+
+type FarcasterChannelTagBlob = {
+  +commCommunityID: string,
+  +farcasterChannelID: string,
+  +keyserverURL: string,
+};
+
 async function uploadFarcasterChannelTagBlob(
   commCommunityID: string,
   farcasterChannelID: string,
@@ -152,7 +167,7 @@ async function uploadFarcasterChannelTagBlob(
   const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
   const keyserverURL = baseDomain + basePath;
 
-  const payload = {
+  const payload: FarcasterChannelTagBlob = {
     commCommunityID,
     farcasterChannelID,
     keyserverURL,
@@ -171,4 +186,9 @@ async function uploadFarcasterChannelTagBlob(
   return await assignHolder({ holder, hash });
 }
 
-export { createOrUpdateFarcasterChannelTag, uploadFarcasterChannelTagBlob };
+export {
+  createOrUpdateFarcasterChannelTag,
+  uploadFarcasterChannelTagBlob,
+  getFarcasterChannelTagBlob,
+  farcasterChannelTagBlobValidator,
+};
