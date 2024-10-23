@@ -10,6 +10,7 @@ import type {
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { BlobOperationResult } from 'lib/utils/blob-service.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import {
   dbQuery,
@@ -17,6 +18,7 @@ import {
   MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
 } from '../database/database.js';
 import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   uploadBlobKeyserverWrapper,
@@ -26,7 +28,9 @@ import {
   type BlobDownloadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
+import { updateThread } from '../updaters/thread-updaters.js';
 import { thisKeyserverID } from '../user/identity.js';
+import { neynarClient } from '../utils/fc-cache.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 async function createOrUpdateFarcasterChannelTag(
@@ -129,6 +133,48 @@ async function createOrUpdateFarcasterChannelTag(
     }
     throw new ServerError('invalid_parameters');
   }
+
+  // In the background, we fetch information about the community thread and
+  // corresponding Farcaster channel. If the thread's avatar or description has
+  // not already been set, we set them to the values from the channel.
+  ignorePromiseRejections(
+    (async () => {
+      const neynarChannelDescriptionPromise = (async () => {
+        if (!neynarClient) {
+          return '';
+        }
+        const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
+          request.farcasterChannelID,
+        );
+        if (!channelInfo) {
+          return '';
+        }
+        return channelInfo.description;
+      })();
+      const [fcChannelDescription, serverThreadInfos] = await Promise.all([
+        neynarChannelDescriptionPromise,
+        fetchServerThreadInfos({ threadID: request.commCommunityID }),
+      ]);
+      const { avatar, description } =
+        serverThreadInfos.threadInfos[request.commCommunityID];
+      if (avatar && description) {
+        return;
+      }
+      let changes = {};
+
+      if (!avatar) {
+        changes = { ...changes, avatar: { type: 'farcaster' } };
+      }
+      if (!description) {
+        changes = { ...changes, description: fcChannelDescription };
+      }
+
+      await updateThread(viewer, {
+        threadID: request.commCommunityID,
+        changes,
+      });
+    })(),
+  );
 
   return {
     commCommunityID: request.commCommunityID,
