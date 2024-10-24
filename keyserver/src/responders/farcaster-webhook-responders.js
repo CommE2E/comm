@@ -5,6 +5,7 @@ import type { $Request } from 'express';
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { createSidebarThreadName } from 'lib/shared/sidebar-utils.js';
 import { type NeynarWebhookCastCreatedEvent } from 'lib/types/farcaster-types.js';
@@ -200,6 +201,7 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
   const event = assertWithValidator(body, taggedCommFarcasterInputValidator);
   const eventTaggerFID = event.data.author.fid;
 
+  const neynarConfigPromise = getNeynarConfig();
   const taggerUserIDPromise = getVerifiedUserIDForFID(
     eventTaggerFID.toString(),
   );
@@ -285,13 +287,32 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
   }
 
   const inviteLinkName = Math.random().toString(36).slice(-9);
-  const inviteLink = await createOrUpdatePublicLink(commbotViewer, {
-    name: inviteLinkName,
-    communityID: channelCommunityID,
-    threadID: sidebarThreadResponse.newThreadID,
-  });
 
-  console.log(inviteLink);
+  const [inviteLink, neynarConfig] = await Promise.all([
+    createOrUpdatePublicLink(commbotViewer, {
+      name: inviteLinkName,
+      communityID: channelCommunityID,
+      threadID: sidebarThreadResponse.newThreadID,
+    }),
+    neynarConfigPromise,
+  ]);
+
+  const introText = 'I created a thread on Comm. Join the conversation here:';
+  const replyText = `${introText} ${inviteLinkURL(inviteLink.name)}`;
+
+  if (!neynarConfig?.signerUUID) {
+    throw new ServerError('missing_signer_uuid');
+  }
+
+  const postCastResponse = await neynarClient?.postCast(
+    neynarConfig.signerUUID,
+    castHash,
+    replyText,
+  );
+
+  if (!postCastResponse?.success) {
+    throw new ServerError('post_cast_failed');
+  }
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
