@@ -233,9 +233,10 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     }
   }
 
+  const { hash: castHash, parent_hash: parentHash } = event.data;
   const sidebarThreadResponse = await createCastSidebar(
-    event.data.hash,
-    event.data.parent_hash,
+    castHash,
+    parentHash,
     event.data.channel?.name,
     channelCommunityID,
   );
@@ -252,7 +253,23 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     threadID: sidebarThreadResponse.newThreadID,
   });
 
-  console.log(inviteLink);
+  const neynarConfig = await getNeynarConfig();
+
+  if (!neynarConfig?.signerUUID) {
+    throw new ServerError('missing_signer_uuid');
+  }
+
+  const replyText = `Join the conversation at https://comm.app/invite/${inviteLink.name}!`;
+
+  const postCaseResponse = await neynarClient?.postCast(
+    neynarConfig?.signerUUID,
+    parentHash ? parentHash : castHash,
+    replyText,
+  );
+
+  if (!postCaseResponse?.success) {
+    throw new ServerError('post_cast_failed');
+  }
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
