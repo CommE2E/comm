@@ -2,10 +2,12 @@
 
 import { createHmac } from 'crypto';
 import type { $Request } from 'express';
+import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 
 import bots from 'lib/facts/bots.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type NewThreadResponse } from 'lib/types/thread-types.js';
 import { neynarWebhookCastCreatedEventValidator } from 'lib/types/validators/farcaster-webhook-validators.js';
@@ -17,6 +19,7 @@ import {
   createOrUpdateFarcasterChannelTag,
   farcasterChannelTagBlobValidator,
 } from '../creators/farcaster-channel-tag-creator.js';
+import createMessages from '../creators/message-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { verifyUserIDs } from '../fetchers/user-fetchers.js';
@@ -31,6 +34,55 @@ const taggedCommFarcasterInputValidator =
 
 const noChannelCommunityID = '80887273';
 const { commbot } = bots;
+
+async function createCastSidebar(
+  castHash: string,
+  parentHash: ?string,
+  channelName: ?string,
+  channelCommunityID: string,
+): Promise<?NewThreadResponse> {
+  let sidebarCastHash = castHash;
+  if (parentHash) {
+    sidebarCastHash = parentHash;
+  }
+
+  const sidebarCast =
+    await neynarClient?.fetchFarcasterCastByHash(sidebarCastHash);
+
+  if (!sidebarCast) {
+    return null;
+  }
+
+  const castAuthor = sidebarCast.author.username;
+  const channelText = channelName ? `\nin channel ${channelName}` : '';
+  const messageText = `${castAuthor} said ${sidebarCast.text}${channelText}`;
+  const commbotViewer = createBotViewer(commbot.userID);
+
+  const [{ id: messageID }] = await createMessages(commbotViewer, [
+    {
+      type: messageTypes.TEXT,
+      threadID: channelCommunityID,
+      creatorID: commbot.userID,
+      time: Date.now(),
+      text: messageText,
+    },
+  ]);
+
+  invariant(
+    messageID,
+    'message returned from createMessages always has ID set',
+  );
+  const sidebarName =
+    messageText.length > 32 ? messageText.slice(0, 32) : messageText;
+  const response = await createThread(commbotViewer, {
+    type: threadTypes.SIDEBAR,
+    parentThreadID: channelCommunityID,
+    name: sidebarName,
+    sourceMessageID: messageID,
+  });
+
+  return response;
+}
 
 async function createTaggedFarcasterCommunity(
   channelID: string,
@@ -179,7 +231,19 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
       throw new ServerError('blob_fetch_failed');
     }
   }
-  console.log(channelCommunityID);
+
+  const sidebarThreadResponse = await createCastSidebar(
+    event.data.hash,
+    event.data.parent_hash,
+    event.data.channel?.name,
+    channelCommunityID,
+  );
+
+  if (!sidebarThreadResponse) {
+    return;
+  }
+
+  console.log(sidebarThreadResponse);
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
