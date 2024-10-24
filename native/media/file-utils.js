@@ -195,7 +195,12 @@ async function fetchAssetInfo(mediaNativeID: string): Promise<{
   try {
     const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
     success = true;
-    localURI = assetInfo.localUri;
+    // on iOS18 getAssetInfoAsync returns uri with a weird #YnBsaXN... suffix
+    // this looks like iOS bug, so to mitigate it for now we simply remove
+    // the suffix
+    // https://github.com/expo/expo/issues/31857
+    // https://forums.developer.apple.com/forums/thread/760499
+    localURI = assetInfo.localUri.replace(/#.*$/, '');
     if (Platform.OS === 'ios') {
       orientation = assetInfo.orientation;
     } else {
