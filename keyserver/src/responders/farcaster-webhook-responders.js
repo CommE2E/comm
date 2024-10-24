@@ -20,6 +20,7 @@ import {
   createOrUpdateFarcasterChannelTag,
   farcasterChannelTagBlobValidator,
 } from '../creators/farcaster-channel-tag-creator.js';
+import { createOrUpdatePublicLink } from '../creators/invite-link-creator.js';
 import createMessages from '../creators/message-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
@@ -288,7 +289,14 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     return;
   }
 
-  console.log(sidebarThreadResponse);
+  const inviteLinkName = Math.random().toString(36).slice(-9);
+  const inviteLink = await createOrUpdatePublicLink(commbotViewer, {
+    name: inviteLinkName,
+    communityID: channelCommunityID,
+    threadID: sidebarThreadResponse.newThreadID,
+  });
+
+  console.log(inviteLink);
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
