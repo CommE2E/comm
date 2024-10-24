@@ -5,6 +5,7 @@ import type { $Request } from 'express';
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { type NeynarWebhookCastCreatedEvent } from 'lib/types/farcaster-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -282,7 +283,25 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     threadID: sidebarThreadResponse.newThreadID,
   });
 
-  console.log(inviteLink);
+  const neynarConfig = await getNeynarConfig();
+
+  const replyText = `I created a thread on Comm. Join the conversation here: ${inviteLinkURL(
+    inviteLink.name,
+  )}`;
+
+  if (!neynarConfig?.signerUUID) {
+    throw new ServerError('missing_signer_uuid');
+  }
+
+  const postCaseResponse = await neynarClient?.postCast(
+    neynarConfig?.signerUUID,
+    castHash,
+    replyText,
+  );
+
+  if (!postCaseResponse?.success) {
+    throw new ServerError('post_cast_failed');
+  }
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
