@@ -2,14 +2,17 @@
 
 import { createHmac } from 'crypto';
 import type { $Request } from 'express';
+import invariant from 'invariant';
 
 import bots from 'lib/facts/bots.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { type NeynarWebhookCastCreatedEvent } from 'lib/types/farcaster-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type NewThreadResponse } from 'lib/types/thread-types.js';
 import { neynarWebhookCastCreatedEventValidator } from 'lib/types/validators/farcaster-webhook-validators.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { trimText } from 'lib/utils/text-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import {
@@ -17,10 +20,16 @@ import {
   createOrUpdateFarcasterChannelTag,
   farcasterChannelTagBlobValidator,
 } from '../creators/farcaster-channel-tag-creator.js';
+import createMessages from '../creators/message-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { createBotViewer } from '../session/bots.js';
-import { updateRole } from '../updaters/thread-updaters.js';
+import { createScriptViewer } from '../session/scripts.js';
+import {
+  changeRole,
+  commitMembershipChangeset,
+} from '../updaters/thread-permission-updaters.js';
+import { updateRole, joinThread } from '../updaters/thread-updaters.js';
 import { thisKeyserverAdmin, thisKeyserverID } from '../user/identity.js';
 import { getFarcasterBotConfig } from '../utils/farcaster-bot.js';
 import { getVerifiedUserIDForFID } from '../utils/farcaster-utils.js';
@@ -33,6 +42,70 @@ const taggedCommFarcasterInputValidator =
 const noChannelCommunityID = '80887273';
 const { commbot } = bots;
 const commbotViewer = createBotViewer(commbot.userID);
+
+async function createCastSidebar(
+  sidebarCastHash: string,
+  channelName: ?string,
+  channelCommunityID: string,
+  taggerUserID: ?string,
+): Promise<?NewThreadResponse> {
+  const sidebarCast =
+    await neynarClient?.fetchFarcasterCastByHash(sidebarCastHash);
+
+  if (!sidebarCast) {
+    return null;
+  }
+
+  const castAuthor = sidebarCast.author.username;
+  const channelText = channelName ? ` in channel ${channelName}` : '';
+  const messageText = `${castAuthor} said "${sidebarCast.text}"${channelText}`;
+
+  let viewer = commbotViewer;
+  if (taggerUserID) {
+    viewer = createScriptViewer(taggerUserID);
+    await joinThread(viewer, {
+      threadID: channelCommunityID,
+    });
+  } else {
+    const changeset = await changeRole(
+      channelCommunityID,
+      [commbot.userID],
+      -1,
+    );
+    await commitMembershipChangeset(viewer, changeset);
+  }
+
+  const [{ id: messageID }] = await createMessages(viewer, [
+    {
+      type: messageTypes.TEXT,
+      threadID: channelCommunityID,
+      creatorID: viewer.id,
+      time: Date.now(),
+      text: messageText,
+    },
+  ]);
+
+  invariant(
+    messageID,
+    'message returned from createMessages always has ID set',
+  );
+  const sidebarName = trimText(messageText, 30);
+  console.log('creating sidebar from source message');
+  const response = await createThread(
+    viewer,
+    {
+      type: threadTypes.SIDEBAR,
+      parentThreadID: channelCommunityID,
+      name: sidebarName,
+      sourceMessageID: messageID,
+    },
+    {
+      addViewerAsGhost: !taggerUserID,
+    },
+  );
+
+  return response;
+}
 
 async function createTaggedFarcasterCommunity(
   channelID: string,
@@ -185,7 +258,23 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
       throw new ServerError('blob_fetch_failed');
     }
   }
-  console.log(channelCommunityID);
+
+  const { hash: castHash, parent_hash: parentHash } = event.data;
+
+  // we use the parent cast to create the sidebar source message if it exists
+  const sidebarCastHash = parentHash ?? castHash;
+  const sidebarThreadResponse = await createCastSidebar(
+    sidebarCastHash,
+    event.data.channel?.name,
+    channelCommunityID,
+    taggerUserID,
+  );
+
+  if (!sidebarThreadResponse) {
+    return;
+  }
+
+  console.log(sidebarThreadResponse);
 }
 
 export { taggedCommFarcasterResponder, taggedCommFarcasterInputValidator };
