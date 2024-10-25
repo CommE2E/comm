@@ -4,6 +4,7 @@ use tracing::trace;
 
 use crate::constants::{
   request_metadata, tonic_status_messages, MIN_SUPPORTED_NATIVE_VERSION,
+  MIN_SUPPORTED_WEB_VERSION,
 };
 
 pub use grpc_clients::identity::shared::PlatformMetadata;
@@ -15,6 +16,14 @@ pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
     Some((version, platform))
       if (platform == "ios" || platform == "android")
         && version < MIN_SUPPORTED_NATIVE_VERSION =>
+    {
+      Err(unsupported_version())
+    }
+    Some((version, platform))
+      if (platform == "web"
+        || platform == "windows"
+        || platform == "mac_os")
+        && version < MIN_SUPPORTED_WEB_VERSION =>
     {
       Err(unsupported_version())
     }

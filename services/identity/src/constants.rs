@@ -299,7 +299,8 @@ pub const ONE_TIME_KEY_REFRESH_NUMBER: u32 = 5;
 
 // Minimum supported code versions
 
-pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
+pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 401;
+pub const MIN_SUPPORTED_WEB_VERSION: u64 = 120;
 
 // Request metadata
 
