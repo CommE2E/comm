@@ -198,6 +198,14 @@ async function landingResponder(req: $Request, res: $Response) {
         <base href="${basePath}" />
         ${fontsInclude}
         ${cssInclude}
+        <script>
+          localStorage.clear();
+          indexedDB.databases().then(databases => {
+            databases.forEach(db => {
+              indexedDB.deleteDatabase(db.name);
+            });
+          });
+        </script>
         <link
           rel="apple-touch-icon"
           sizes="180x180"

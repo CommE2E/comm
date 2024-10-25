@@ -1,7 +1,5 @@
 // @flow
 
-localStorage.clear();
-
 import 'isomorphic-fetch';
 
 import invariant from 'invariant';
