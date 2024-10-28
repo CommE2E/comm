@@ -80,6 +80,13 @@ function MobileNav(props: Props): React.Node {
           />
         </NavLink>
         <a
+          href="https://github.com/CommE2E/comm"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <FontAwesomeIcon icon={faGithub} className={css.icon} size="1x" />
+        </a>
+        <a
           href="https://warpcast.com/comm.eth"
           target="_blank"
           rel="noreferrer"
@@ -92,13 +99,6 @@ function MobileNav(props: Props): React.Node {
           rel="noreferrer"
         >
           <FontAwesomeIcon icon={faTwitter} className={css.icon} size="1x" />
-        </a>
-        <a
-          href="https://github.com/CommE2E/comm"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <FontAwesomeIcon icon={faGithub} className={css.icon} size="1x" />
         </a>
       </div>
     </nav>

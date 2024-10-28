@@ -109,6 +109,22 @@ function Header(props: Props): React.Node {
             </div>
           </a>
           <a
+            href="https://github.com/CommE2E/comm"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div className={css.githubIcon}>
+              <FontAwesomeIcon icon={faGithub} className={css.icon} size="sm" />
+            </div>
+          </a>
+          <div className={css.menuIcon} onClick={onClickMobileNavIcon}>
+            <FontAwesomeIcon
+              icon={showMobileNav ? faTimes : faBars}
+              className={css.icon}
+              size="sm"
+            />
+          </div>
+          <a
             href="https://warpcast.com/comm.eth"
             target="_blank"
             rel="noreferrer"
@@ -130,22 +146,6 @@ function Header(props: Props): React.Node {
               />
             </div>
           </a>
-          <a
-            href="https://github.com/CommE2E/comm"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div className={css.githubIcon}>
-              <FontAwesomeIcon icon={faGithub} className={css.icon} size="sm" />
-            </div>
-          </a>
-          <div className={css.menuIcon} onClick={onClickMobileNavIcon}>
-            <FontAwesomeIcon
-              icon={showMobileNav ? faTimes : faBars}
-              className={css.icon}
-              size="sm"
-            />
-          </div>
         </div>
       </div>
     </nav>
