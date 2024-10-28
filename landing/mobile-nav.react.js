@@ -9,6 +9,7 @@ import { NavLink } from 'react-router-dom';
 
 import type { SetState } from 'lib/types/hook-types.js';
 
+import FarcasterLogo from './assets/farcaster-logo.react.js';
 import css from './mobile-nav.css';
 import typography from './typography.css';
 
@@ -78,6 +79,13 @@ function MobileNav(props: Props): React.Node {
             size="1x"
           />
         </NavLink>
+        <a
+          href="https://warpcast.com/comm.eth"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <FarcasterLogo size={20} className={css.icon} />
+        </a>
         <a
           href="https://twitter.com/commdotapp"
           target="_blank"
