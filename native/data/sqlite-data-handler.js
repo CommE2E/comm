@@ -64,7 +64,7 @@ async function clearSensitiveData() {
 const returnsFalseSinceDoesntNeedToSupportCancellation = () => false;
 
 function SQLiteDataHandler(): React.Node {
-  const storeLoaded = useSelector(state => state.storeLoaded);
+  const initialStateLoaded = useSelector(state => state.initialStateLoaded);
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -218,7 +218,7 @@ function SQLiteDataHandler(): React.Node {
     }
 
     const sensitiveDataHandled = handleSensitiveData();
-    if (storeLoaded) {
+    if (initialStateLoaded) {
       return;
     }
     if (!loggedIn) {
@@ -317,7 +317,7 @@ function SQLiteDataHandler(): React.Node {
     dispatch,
     rehydrateConcluded,
     staffCanSee,
-    storeLoaded,
+    initialStateLoaded,
     recoverData,
     callClearSensitiveData,
     mediaCacheContext,

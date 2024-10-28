@@ -241,13 +241,13 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
   if (action.type === setStoreLoadedActionType) {
     return {
       ...state,
-      storeLoaded: true,
+      initialStateLoaded: true,
     };
   }
   if (action.type === setClientDBStoreActionType) {
     state = {
       ...state,
-      storeLoaded: true,
+      initialStateLoaded: true,
     };
     const currentLoggedInUserID = state.currentUserInfo?.anonymous
       ? undefined
