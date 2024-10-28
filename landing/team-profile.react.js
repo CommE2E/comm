@@ -17,10 +17,6 @@ type Props = {
   +farcasterHandle?: string,
 };
 
-const fontAwesomeIconProps = {
-  size: 'm',
-};
-
 function TeamProfile(props: Props): React.Node {
   const { name, role, imageURL, githubHandle, twitterHandle, farcasterHandle } =
     props;
@@ -33,7 +29,7 @@ function TeamProfile(props: Props): React.Node {
         target="_blank"
         rel="noreferrer"
       >
-        <FontAwesomeIcon icon={faTwitter} {...fontAwesomeIconProps} />
+        <FontAwesomeIcon icon={faTwitter} />
       </a>
     );
   }
@@ -46,7 +42,7 @@ function TeamProfile(props: Props): React.Node {
         target="_blank"
         rel="noreferrer"
       >
-        <FontAwesomeIcon icon={faGithub} {...fontAwesomeIconProps} />
+        <FontAwesomeIcon icon={faGithub} />
       </a>
     );
   }
