@@ -14,6 +14,7 @@ import { NavLink } from 'react-router-dom';
 
 import type { SetState } from 'lib/types/hook-types.js';
 
+import FarcasterLogo from './assets/farcaster-logo.react.js';
 import css from './header.css';
 import typography from './typography.css';
 
@@ -105,6 +106,15 @@ function Header(props: Props): React.Node {
                 className={css.icon}
                 size="sm"
               />
+            </div>
+          </a>
+          <a
+            href="https://warpcast.com/comm.eth"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div className={css.farcasterIcon}>
+              <FarcasterLogo size={30} className={css.icon} />
             </div>
           </a>
           <a

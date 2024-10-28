@@ -71,6 +71,7 @@ div.socialIconsContainer a {
 }
 
 div.twitterIcon,
+div.farcasterIcon,
 div.githubIcon,
 div.commAppIcon {
   display: flex;
@@ -89,6 +90,7 @@ div.menuIcon {
 }
 
 div.twitterIcon svg,
+div.farcasterIcon svg,
 div.githubIcon svg,
 div.commAppIcon svg {
   transition: 300ms;
@@ -114,6 +116,11 @@ div.commAppIcon svg {
     background-color: #1d9bf0;
     transition: 300ms;
   }
+
+  div.farcasterIcon:hover {
+    background-color: #855dcd;
+    transition: 300ms;
+  }
 }
 
 /* max-width should be kept in sync with HEADER_BREAKPOINT in header.react */
@@ -123,6 +130,7 @@ div.commAppIcon svg {
   }
 
   div.twitterIcon,
+  div.farcasterIcon,
   div.githubIcon,
   div.commAppIcon {
     display: none;
