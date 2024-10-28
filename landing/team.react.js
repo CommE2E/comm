@@ -37,6 +37,7 @@ function Team(): React.Node {
             name="Ashoat Tevosyan"
             role="Founder"
             githubHandle="ashoat"
+            farcasterHandle="ashoat.eth"
             twitterHandle="ashoat"
             imageURL={`${assetsCacheURLPrefix}/ashoat.png`}
           />
@@ -44,6 +45,7 @@ function Team(): React.Node {
             name="Varun Dhananjaya"
             role="Software Engineer"
             githubHandle="vdhanan"
+            farcasterHandle="varun5"
             twitterHandle="_va_run"
             imageURL={`${assetsCacheURLPrefix}/varun.jpeg`}
           />
@@ -52,6 +54,7 @@ function Team(): React.Node {
             role="Software Engineer"
             imageURL={`${assetsCacheURLPrefix}/will.jpg`}
             githubHandle="wyilio"
+            farcasterHandle="wyilio"
           />
           <TeamProfile
             name="Yiannis Tselekounis"

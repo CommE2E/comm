@@ -41,3 +41,9 @@
   color: var(--white-100);
   font-size: 20px;
 }
+
+.farcaster {
+  display: inline-block;
+  position: relative;
+  top: 5px;
+}
