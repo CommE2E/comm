@@ -4,6 +4,7 @@ import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
+import FarcasterLogo from './assets/farcaster-logo.react.js';
 import css from './team-profile.css';
 import typography from './typography.css';
 
@@ -13,14 +14,16 @@ type Props = {
   +imageURL: string,
   +githubHandle?: string,
   +twitterHandle?: string,
+  +farcasterHandle?: string,
 };
 
-const iconProps = {
+const fontAwesomeIconProps = {
   size: 'm',
 };
 
 function TeamProfile(props: Props): React.Node {
-  const { name, role, imageURL, githubHandle, twitterHandle } = props;
+  const { name, role, imageURL, githubHandle, twitterHandle, farcasterHandle } =
+    props;
 
   let twitterLink;
   if (twitterHandle) {
@@ -30,7 +33,7 @@ function TeamProfile(props: Props): React.Node {
         target="_blank"
         rel="noreferrer"
       >
-        <FontAwesomeIcon icon={faTwitter} {...iconProps} />
+        <FontAwesomeIcon icon={faTwitter} {...fontAwesomeIconProps} />
       </a>
     );
   }
@@ -43,18 +46,32 @@ function TeamProfile(props: Props): React.Node {
         target="_blank"
         rel="noreferrer"
       >
-        <FontAwesomeIcon icon={faGithub} {...iconProps} />
+        <FontAwesomeIcon icon={faGithub} {...fontAwesomeIconProps} />
+      </a>
+    );
+  }
+
+  let farcasterLink;
+  if (farcasterHandle) {
+    farcasterLink = (
+      <a
+        href={`https://warpcast.com/${farcasterHandle}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <FarcasterLogo size={25} className={css.farcaster} />
       </a>
     );
   }
 
   return (
     <article className={css.profile}>
-      <img alt={`portrait of comm team member ${name}`} src={imageURL} />
+      <img alt={`portrait of Comm team member ${name}`} src={imageURL} />
       <p className={typography.paragraph1}>{name}</p>
       <small className={typography.paragraph2}>{role}</small>
       <span>
         {githubLink}
+        {farcasterLink}
         {twitterLink}
       </span>
     </article>
