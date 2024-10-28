@@ -41,13 +41,6 @@ function Team(): React.Node {
             imageURL={`${assetsCacheURLPrefix}/ashoat.png`}
           />
           <TeamProfile
-            name="atul"
-            role="Software Engineer"
-            githubHandle="atulsmadhugiri"
-            twitterHandle="atuli0"
-            imageURL={`${assetsCacheURLPrefix}/atul.jpeg`}
-          />
-          <TeamProfile
             name="Varun Dhananjaya"
             role="Software Engineer"
             githubHandle="vdhanan"
@@ -55,33 +48,20 @@ function Team(): React.Node {
             imageURL={`${assetsCacheURLPrefix}/varun.jpeg`}
           />
           <TeamProfile
-            name="Mark Rafferty"
-            role="Recruiter"
-            imageURL={`${assetsCacheURLPrefix}/mark.jpg`}
-          />
-          <TeamProfile
-            name="Anunay Kulshrestha"
-            role="Research Scientist"
-            imageURL={`${assetsCacheURLPrefix}/anunay.jpg`}
-          />
-          <TeamProfile
-            name="Ginsu Eddy"
-            role="Software Engineer"
-            githubHandle="ginsueddy"
-            twitterHandle="ginsueddy"
-            imageURL={`${assetsCacheURLPrefix}/ginsu.jpg`}
-          />
-          <TeamProfile
-            name="Rohan Khanderia"
-            role="Software Engineer"
-            imageURL={`${assetsCacheURLPrefix}/rohan.jpg`}
-            githubHandle="RohanK6"
-          />
-          <TeamProfile
             name="William Wang"
             role="Software Engineer"
             imageURL={`${assetsCacheURLPrefix}/will.jpg`}
             githubHandle="wyilio"
+          />
+          <TeamProfile
+            name="Yiannis Tselekounis"
+            role="Research Scientist"
+            imageURL={`${assetsCacheURLPrefix}/yiannis.jpeg`}
+          />
+          <TeamProfile
+            name="Mark Rafferty"
+            role="Recruiter"
+            imageURL={`${assetsCacheURLPrefix}/mark.jpg`}
           />
         </div>
       </section>
@@ -95,28 +75,10 @@ function Team(): React.Node {
           imageURL={`${assetsCacheURLPrefix}/tomek.png`}
         />
         <TeamProfile
-          name="Marcin Wasowicz"
-          role="Software Engineer"
-          githubHandle="marcinwasowicz"
-          imageURL={`${assetsCacheURLPrefix}/marcin.jpeg`}
-        />
-        <TeamProfile
-          name="Inka Sokolowska"
-          role="Software Engineer"
-          githubHandle="InkaAlicja"
-          imageURL={`${assetsCacheURLPrefix}/inka.jpg`}
-        />
-        <TeamProfile
           name="Kamil Kurowski"
           role="Software Engineer"
           githubHandle="xsanm"
           imageURL={`${assetsCacheURLPrefix}/kamil.jpg`}
-        />
-        <TeamProfile
-          name="Michał Gniadek"
-          role="Software Engineer"
-          githubHandle="MichalGniadek"
-          imageURL={`${assetsCacheURLPrefix}/michał.jpg`}
         />
         <TeamProfile
           name="Bartłomiej Klocek"
@@ -126,9 +88,10 @@ function Team(): React.Node {
           imageURL={`${assetsCacheURLPrefix}/bartłomiej.jpg`}
         />
         <TeamProfile
-          name="Aleksandra Grzęda"
-          role="Project Manager"
-          imageURL={`${assetsCacheURLPrefix}/aleksandra.jpg`}
+          name="Angelika Serwa"
+          role="Software Engineer"
+          githubHandle="graszka22"
+          imageURL={`${assetsCacheURLPrefix}/angelika.png`}
         />
         <TeamProfile
           name="Monika Kulczyńska"
