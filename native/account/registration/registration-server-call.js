@@ -451,7 +451,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           setInProgress: () => {},
           hasBeenCancelled: () => false,
           doNotRegister: false,
-          password: credentialsToSave?.password,
         });
         setCurrentStep({
           step: 'authoritative_keyserver_registration_dispatched',

@@ -15,7 +15,7 @@ import {
 } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
-  KeyserverAuthRequest,
+  ServerKeyserverAuthRequest,
   ResetPasswordRequest,
   LogOutResponse,
   RegisterResponse,
@@ -756,8 +756,8 @@ async function siweAuthResponder(
   });
 }
 
-export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest> =
-  tShape<KeyserverAuthRequest>({
+export const keyserverAuthRequestInputValidator: TInterface<ServerKeyserverAuthRequest> =
+  tShape<ServerKeyserverAuthRequest>({
     userID: tUserID,
     deviceID: t.String,
     calendarQuery: entryQueryInputValidator,
@@ -773,7 +773,7 @@ export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest
 
 async function keyserverAuthResponder(
   viewer: Viewer,
-  request: KeyserverAuthRequest,
+  request: ServerKeyserverAuthRequest,
 ): Promise<ServerLogInResponse> {
   const {
     userID,
@@ -781,7 +781,6 @@ async function keyserverAuthResponder(
     initialContentEncryptedMessage,
     initialNotificationsEncryptedMessage,
     doNotRegister,
-    password,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -849,17 +848,15 @@ async function keyserverAuthResponder(
       return;
     }
 
-    const hash = password ? bcrypt.hashSync(password) : null;
     const time = Date.now();
     const newUserRow = [
       userID,
       username,
       inboundKeysForUser.walletAddress,
-      hash,
       time,
     ];
     const newUserQuery = SQL`
-      INSERT INTO users(id, username, ethereum_address, hash, creation_time)
+      INSERT INTO users(id, username, ethereum_address, creation_time)
       VALUES ${[newUserRow]}
   `;
     await dbQuery(newUserQuery);
