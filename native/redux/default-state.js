@@ -38,7 +38,7 @@ const defaultState = ({
     local: {},
     currentAsOf: { [authoritativeKeyserverID]: 0 },
   },
-  storeLoaded: false,
+  initialStateLoaded: false,
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
   dataLoaded: false,

@@ -15,7 +15,7 @@ const persistBlacklist = [
   'deviceOrientation',
   'frozen',
   'threadStore',
-  'storeLoaded',
+  'initialStateLoaded',
   'dbOpsStore',
   'syncedMetadataStore',
   'userStore',
