@@ -35,7 +35,7 @@ import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { LocalSettings } from '../types/local-settings-types.js';
 
 const nonUserSpecificFieldsNative = [
-  'storeLoaded',
+  'initialStateLoaded',
   'loadingStatuses',
   'customServer',
   'lifecycleState',
@@ -57,7 +57,7 @@ export type AppState = {
   +threadStore: ThreadStore,
   +userStore: UserStore,
   +messageStore: MessageStore,
-  +storeLoaded: boolean,
+  +initialStateLoaded: boolean,
   +loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +dataLoaded: boolean,

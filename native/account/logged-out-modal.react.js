@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
+import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -47,7 +48,6 @@ import {
   QRCodeSignInNavigatorRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';

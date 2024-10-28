@@ -81,7 +81,9 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   const fontsLoaded = useLoadCommFonts();
 
   const rootContext = React.useContext(RootContext);
-  const storeLoadedFromLocalDatabase = useSelector(state => state.storeLoaded);
+  const storeLoadedFromLocalDatabase = useSelector(
+    state => state.initialStateLoaded,
+  );
   const setNavStateInitialized =
     rootContext && rootContext.setNavStateInitialized;
   React.useEffect(() => {
