@@ -331,7 +331,7 @@ async fn download_latest_backup_id(
   let user_identity = get_user_identity_from_secure_store()?;
 
   let latest_backup_descriptor = BackupDescriptor::Latest {
-    username: user_identity.user_id.clone(),
+    user_identifier: user_identity.user_id.clone(),
   };
 
   let backup_id_response = backup_client
@@ -357,7 +357,7 @@ async fn download_backup_keys(
   let user_identity = get_user_identity_from_secure_store()?;
 
   let latest_backup_descriptor = BackupDescriptor::Latest {
-    username: user_identity.user_id.clone(),
+    user_identifier: user_identity.user_id.clone(),
   };
 
   let mut encrypted_user_keys = backup_client
