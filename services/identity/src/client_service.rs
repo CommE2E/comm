@@ -45,7 +45,10 @@ use crate::reserved_users::{
   validate_remove_reserved_username_message,
 };
 use crate::siwe::{
-  is_valid_ethereum_address, parse_and_verify_siwe_message, SocialProof,
+  parse_and_verify_siwe_message, SocialProof,
+};
+use comm_lib::{
+  crypto,
 };
 use crate::token::{AccessTokenData, AuthType};
 pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
@@ -110,7 +113,7 @@ impl IdentityClientService for ClientService {
     debug!("Received registration request for: {}", message.username);
 
     if !is_valid_username(&message.username)
-      || is_valid_ethereum_address(&message.username)
+      || crypto::siwe::is_valid_ethereum_address(&message.username)
     {
       return Err(tonic::Status::invalid_argument(
         tonic_status_messages::INVALID_USERNAME,
