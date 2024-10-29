@@ -77,7 +77,7 @@ async fn backup_integration_test() -> Result<(), Error> {
 
   // Test latest backup lookup for not-existing user
   let latest_backup_descriptor = BackupDescriptor::Latest {
-    username: "non_existing_user".to_string(),
+    user_identifier: "non_existing_user".to_string(),
   };
 
   let non_existing_user_response = backup_client
@@ -98,7 +98,7 @@ async fn backup_integration_test() -> Result<(), Error> {
 
   // Test latest backup lookup
   let latest_backup_descriptor = BackupDescriptor::Latest {
-    username: device_info.username,
+    user_identifier: device_info.username,
   };
 
   let backup_id_response = backup_client

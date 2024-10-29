@@ -82,13 +82,13 @@ async fn backup_performance_test() -> Result<(), Error> {
       for user in &user_identities {
         let backup_client = backup_client.clone();
 
-        let username = if user.user_id == device_info_1.user_id {
+        let user_identifier = if user.user_id == device_info_1.user_id {
           device_info_1.username.clone()
         } else {
           device_info_2.username.clone()
         };
 
-        let descriptor = BackupDescriptor::Latest { username };
+        let descriptor = BackupDescriptor::Latest { user_identifier };
 
         handlers.push(tokio::spawn(async move {
           let response = backup_client
@@ -113,13 +113,14 @@ async fn backup_performance_test() -> Result<(), Error> {
       let mut handlers = vec![];
       for user in &user_identities {
         let backup_client = backup_client.clone();
-        let username = if user.user_id == device_info_1.user_id {
+
+        let user_identifier = if user.user_id == device_info_1.user_id {
           device_info_1.username.clone()
         } else {
           device_info_2.username.clone()
         };
 
-        let descriptor = BackupDescriptor::Latest { username };
+        let descriptor = BackupDescriptor::Latest { user_identifier };
 
         handlers.push(tokio::spawn(async move {
           backup_client
