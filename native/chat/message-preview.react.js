@@ -14,7 +14,7 @@ import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +messageInfo: MessageInfo,
+  +messageInfo: ?MessageInfo,
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
@@ -26,14 +26,17 @@ function MessagePreview(props: Props): React.Node {
     threadInfo,
     getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
-  invariant(
-    messagePreviewResult,
-    'useMessagePreview should only return falsey if pass null or undefined',
-  );
+  const styles = useStyles(unboundStyles);
+  if (!messagePreviewResult) {
+    return (
+      <Text style={styles.noMessages} numberOfLines={1}>
+        No messages
+      </Text>
+    );
+  }
   const { message, username } = messagePreviewResult;
 
   let messageStyle;
-  const styles = useStyles(unboundStyles);
   if (message.style === 'unread') {
     messageStyle = styles.unread;
   } else if (message.style === 'primary') {
@@ -87,6 +90,12 @@ const unboundStyles = {
   },
   unread: {
     color: 'listForegroundLabel',
+  },
+  noMessages: {
+    color: 'listForegroundTertiaryLabel',
+    flex: 1,
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 };
 

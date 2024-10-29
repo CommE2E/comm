@@ -42,23 +42,6 @@ function ChatThreadListItem({
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const lastMessage = React.useMemo(() => {
-    const mostRecentMessageInfo = data.mostRecentMessageInfo;
-    if (!mostRecentMessageInfo) {
-      return (
-        <Text style={styles.noMessages} numberOfLines={1}>
-          No messages
-        </Text>
-      );
-    }
-    return (
-      <MessagePreview
-        messageInfo={mostRecentMessageInfo}
-        threadInfo={data.threadInfo}
-      />
-    );
-  }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
-
   const numOfSidebarsWithExtendedArrow =
     data.sidebars.filter(sidebarItem => sidebarItem.type === 'sidebar').length -
     1;
@@ -172,7 +155,10 @@ function ChatThreadListItem({
           </SingleLine>
         </View>
         <View style={styles.row}>
-          {lastMessage}
+          <MessagePreview
+            messageInfo={data.mostRecentMessageInfo}
+            threadInfo={data.threadInfo}
+          />
           <Text style={lastActivityStyle}>{lastActivity}</Text>
         </View>
       </View>
@@ -183,13 +169,13 @@ function ChatThreadListItem({
       iconName,
       lastActivity,
       lastActivityStyle,
-      lastMessage,
       resolvedThreadInfo.uiName,
       styles.header,
       styles.iconContainer,
       styles.row,
       styles.threadDetails,
       threadNameStyle,
+      data.mostRecentMessageInfo,
     ],
   );
 
@@ -286,12 +272,6 @@ const unboundStyles = {
   unreadLastActivity: {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
-  },
-  noMessages: {
-    color: 'listForegroundTertiaryLabel',
-    flex: 1,
-    fontSize: 14,
-    fontStyle: 'italic',
   },
   row: {
     flexDirection: 'row',
