@@ -6,7 +6,7 @@ use backup_client::{
 use bytesize::ByteSize;
 use comm_lib::{
   auth::UserIdentity,
-  backup::{LatestBackupIDResponse, UploadLogRequest},
+  backup::{LatestBackupInfoResponse, UploadLogRequest},
 };
 use commtest::identity::device::register_user_device;
 use commtest::{
@@ -81,7 +81,7 @@ async fn backup_integration_test() -> Result<(), Error> {
   };
 
   let nonexistent_user_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
     .await;
 
   match nonexistent_user_response {
@@ -101,12 +101,13 @@ async fn backup_integration_test() -> Result<(), Error> {
     user_identifier: device_info.username,
   };
 
-  let backup_id_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+  let backup_info_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
     .await?;
-  let response: LatestBackupIDResponse =
-    serde_json::from_slice(&backup_id_response)?;
+  let response: LatestBackupInfoResponse =
+    serde_json::from_slice(&backup_info_response)?;
   assert_eq!(response.backup_id, backup_data.backup_id);
+  assert_eq!(response.user_id, device_info.user_id);
 
   let user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
