@@ -53,13 +53,14 @@ services:
     env_file: test-commons.env
     environment:
       BLOB_SERVICE_URL: 'http://blob-server:50053'
+      COMM_TUNNELBROKER_IDENTITY_ENDPOINT: 'http://identity-server:50054'
       COMM_SERVICES_DISABLE_CSAT_VERIFICATION: 'true'
 
   blob-server:
     image: blob
     pull_policy: build
     # Until blob cleanup is supported in tests, enable auto-deletion
-    command: ['blob', 'server', '--instant-delete']
+    command: [ 'blob', 'server', '--instant-delete' ]
     platform: '${PLATFORM:-linux/amd64}'
     env_file: test-commons.env
     environment:
