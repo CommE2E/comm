@@ -24,6 +24,7 @@ import { NeynarClientProvider } from 'lib/components/neynar-client-provider.reac
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
@@ -258,6 +259,7 @@ class App extends React.PureComponent<Props> {
                   <TunnelbrokerDeviceTokenHandler />
                   <FarcasterDataHandler />
                   <AutoJoinCommunityHandler />
+                  <SyncCommunityStoreHandler />
                   <DMActivityHandler />
                   <HoldersHandler />
                   {content}
