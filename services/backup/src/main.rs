@@ -8,6 +8,7 @@ pub mod constants;
 pub mod database;
 pub mod error;
 pub mod http;
+pub mod identity;
 
 // re-export this to be available as crate::CONFIG
 pub use config::CONFIG;
