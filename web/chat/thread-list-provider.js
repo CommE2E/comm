@@ -22,7 +22,7 @@ import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
   useChatThreadItem,
-  activeChatThreadItem as activeChatThreadItemSelector,
+  useActiveChatThreadItem,
 } from '../selectors/chat-selectors.js';
 
 type ChatTabType = 'Home' | 'Muted';
@@ -43,7 +43,7 @@ type ThreadListProviderProps = {
 function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const [activeTab, setActiveTab] = React.useState('Home');
 
-  const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
+  const activeChatThreadItem = useActiveChatThreadItem();
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
   const activeThreadID = activeThreadInfo?.id;
   const activeSidebarParentThreadInfo = useSelector(state => {
