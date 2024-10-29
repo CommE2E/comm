@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
+import { useMessageInfoForPreview } from 'lib/hooks/message-hooks.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
@@ -23,7 +24,7 @@ type Props = {
 
 function Sidebar(props: Props): React.Node {
   const { sidebar, isLastItem } = props;
-  const { threadInfo, lastUpdatedTime, mostRecentMessageInfo } = sidebar;
+  const { threadInfo, lastUpdatedTime } = sidebar;
   const { unread } = threadInfo.currentUser;
 
   const { popModal } = useModalContext();
@@ -54,8 +55,9 @@ function Sidebar(props: Props): React.Node {
   );
 
   const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
+  const messageInfoForPreview = useMessageInfoForPreview(threadInfo);
   const messagePreviewResult = useMessagePreview(
-    mostRecentMessageInfo,
+    messageInfoForPreview,
     threadInfo,
     getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );

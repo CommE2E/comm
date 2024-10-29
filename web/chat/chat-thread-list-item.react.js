@@ -39,7 +39,6 @@ function ChatThreadListItem(props: Props): React.Node {
     threadInfo,
     lastUpdatedTimeIncludingSidebars,
     mostRecentNonLocalMessage,
-    mostRecentMessageInfo,
   } = item;
   const { id: threadID, currentUser } = threadInfo;
 
@@ -156,10 +155,7 @@ function ChatThreadListItem(props: Props): React.Node {
             <div className={titleClassName}>{uiName}</div>
           </div>
           <div className={css.threadRow}>
-            <MessagePreview
-              messageInfo={mostRecentMessageInfo}
-              threadInfo={threadInfo}
-            />
+            <MessagePreview threadInfo={threadInfo} />
           </div>
         </div>
         <div>
