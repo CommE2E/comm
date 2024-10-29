@@ -1719,6 +1719,7 @@ dependencies = [
  "http 0.2.12",
  "once_cell",
  "rand 0.8.5",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
