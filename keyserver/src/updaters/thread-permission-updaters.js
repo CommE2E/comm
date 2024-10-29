@@ -90,6 +90,7 @@ type ChangeRoleOptions = {
   // This will only be set if the user is joining or leaving the thread
   // Joined means role > 0
   +defaultSubscription?: ThreadSubscription,
+  +dontCheckJoinPermissions?: boolean,
 };
 type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
@@ -265,9 +266,12 @@ async function changeRole(
     const newRole = getRoleForPermissions(targetRole, permissions);
     const userBecameMember = Number(oldRole) <= 0 && Number(newRole) > 0;
     const userLostMembership = Number(oldRole) > 0 && Number(newRole) <= 0;
+    const dontCheckJoinPermissions = options?.dontCheckJoinPermissions;
 
     if (
-      (intent === 'join' && Number(newRole) <= 0) ||
+      (intent === 'join' &&
+        Number(newRole) <= 0 &&
+        !dontCheckJoinPermissions) ||
       (intent === 'leave' && Number(newRole) > 0)
     ) {
       throw new ServerError('invalid_parameters');

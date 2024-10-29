@@ -62,6 +62,7 @@ type CreateThreadOptions = Partial<{
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
   +silentlyFailMembers: boolean,
+  +dontCheckJoinPermissions: boolean,
 }>;
 
 // If forceAddMembers is set, we will allow the viewer to add random users who
@@ -363,7 +364,9 @@ async function createThread(
     ghostMembersChangeset,
     recalculatePermissionsChangeset,
   ] = await Promise.all([
-    changeRole(id, [viewer.userID], newRoles.creator.id),
+    changeRole(id, [viewer.userID], newRoles.creator.id, {
+      dontCheckJoinPermissions: !!options?.dontCheckJoinPermissions,
+    }),
     initialMemberPromise,
     ghostMemberPromise,
     recalculateThreadPermissions(id),
