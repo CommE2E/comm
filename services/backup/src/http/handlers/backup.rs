@@ -282,8 +282,8 @@ pub async fn get_latest_backup_id(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<impl Responder> {
-  let username = path.into_inner();
-  let user_id = find_user_id(&username).await?;
+  let user_identifier = path.into_inner();
+  let user_id = find_user_id(&user_identifier).await?;
 
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)
@@ -307,8 +307,8 @@ pub async fn download_latest_backup_keys(
   db_client: web::Data<DatabaseClient>,
   blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<HttpResponse> {
-  let username = path.into_inner();
-  let user_id = find_user_id(&username).await?;
+  let user_identifier = path.into_inner();
+  let user_id = find_user_id(&user_identifier).await?;
 
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)
