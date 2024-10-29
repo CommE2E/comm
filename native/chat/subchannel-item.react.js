@@ -25,22 +25,6 @@ function SubchannelItem(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
 
-  const lastMessage = React.useMemo(() => {
-    if (!mostRecentMessageInfo) {
-      return (
-        <Text style={styles.noMessages} numberOfLines={1}>
-          No messages
-        </Text>
-      );
-    }
-    return (
-      <MessagePreview
-        messageInfo={mostRecentMessageInfo}
-        threadInfo={threadInfo}
-      />
-    );
-  }, [mostRecentMessageInfo, threadInfo, styles]);
-
   return (
     <View style={styles.outerView}>
       <View style={styles.itemRowContainer}>
@@ -53,7 +37,10 @@ function SubchannelItem(props: Props): React.Node {
         <SingleLine style={[styles.name, unreadStyle]}>{uiName}</SingleLine>
       </View>
       <View style={styles.itemRowContainer}>
-        {lastMessage}
+        <MessagePreview
+          messageInfo={mostRecentMessageInfo}
+          threadInfo={threadInfo}
+        />
         <Text style={[styles.lastActivity, unreadStyle]}>{lastActivity}</Text>
       </View>
     </View>
@@ -97,12 +84,6 @@ const unboundStyles = {
     color: 'listForegroundSecondaryLabel',
     alignItems: 'center',
     height: 24,
-  },
-  noMessages: {
-    color: 'listForegroundTertiaryLabel',
-    flex: 1,
-    fontSize,
-    fontStyle: 'italic',
   },
 };
 
