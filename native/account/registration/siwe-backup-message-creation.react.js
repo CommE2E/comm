@@ -71,9 +71,11 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
       const newSignatureButtonText = onExistingWalletSignature
         ? 'Encrypt with new signature'
         : 'Encrypt with Ethereum signature';
-      const newSignatureButtonVariant = onExistingWalletSignature
+      const defaultNewSignatureButtonVariant = onExistingWalletSignature
         ? 'outline'
         : 'enabled';
+      const newSignatureButtonVariant =
+        panelState === 'opening' ? 'loading' : defaultNewSignatureButtonVariant;
 
       let useExistingSignatureButton;
       if (onExistingWalletSignature) {
