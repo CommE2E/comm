@@ -4,7 +4,7 @@ mod web;
 use async_stream::{stream, try_stream};
 pub use comm_lib::auth::UserIdentity;
 pub use comm_lib::backup::{
-  DownloadLogsRequest, LatestBackupIDResponse, LogWSRequest, LogWSResponse,
+  DownloadLogsRequest, LatestBackupInfoResponse, LogWSRequest, LogWSResponse,
   UploadLogRequest,
 };
 pub use futures_util::{Sink, SinkExt, Stream, StreamExt, TryStreamExt};
@@ -103,7 +103,7 @@ impl BackupClient {
       }
     };
     let url = match &requested_data {
-      RequestedData::BackupID => url.join("backup_id")?,
+      RequestedData::BackupInfo => url.join("backup_info")?,
       RequestedData::UserKeys => url.join("user_keys")?,
       RequestedData::UserData => url.join("user_data")?,
     };
@@ -342,7 +342,7 @@ pub enum BackupDescriptor {
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[derive(Debug, Clone)]
 pub enum RequestedData {
-  BackupID,
+  BackupInfo,
   UserKeys,
   UserData,
 }

@@ -2,7 +2,7 @@ use backup_client::{
   BackupClient, BackupData, BackupDescriptor, RequestedData,
 };
 use bytesize::ByteSize;
-use comm_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
+use comm_lib::{auth::UserIdentity, backup::LatestBackupInfoResponse};
 use commtest::identity::device::register_user_device;
 use commtest::{
   service_addr,
@@ -92,11 +92,11 @@ async fn backup_performance_test() -> Result<(), Error> {
 
         handlers.push(tokio::spawn(async move {
           let response = backup_client
-            .download_backup_data(&descriptor, RequestedData::BackupID)
+            .download_backup_data(&descriptor, RequestedData::BackupInfo)
             .await
             .unwrap();
 
-          serde_json::from_slice::<LatestBackupIDResponse>(&response).unwrap()
+          serde_json::from_slice::<LatestBackupInfoResponse>(&response).unwrap()
         }));
       }
 
