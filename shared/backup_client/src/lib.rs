@@ -98,8 +98,8 @@ impl BackupClient {
       BackupDescriptor::BackupID { backup_id, .. } => {
         url.join(&format!("{backup_id}/"))?
       }
-      BackupDescriptor::Latest { username } => {
-        url.join(&format!("latest/{username}/"))?
+      BackupDescriptor::Latest { user_identifier } => {
+        url.join(&format!("latest/{user_identifier}/"))?
       }
     };
     let url = match &requested_data {
@@ -335,7 +335,7 @@ pub enum BackupDescriptor {
     user_identity: UserIdentity,
   },
   Latest {
-    username: String,
+    user_identifier: String,
   },
 }
 
