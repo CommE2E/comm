@@ -155,10 +155,7 @@ function ChatThreadListItem({
           </SingleLine>
         </View>
         <View style={styles.row}>
-          <MessagePreview
-            messageInfo={data.mostRecentMessageInfo}
-            threadInfo={data.threadInfo}
-          />
+          <MessagePreview threadInfo={data.threadInfo} />
           <Text style={lastActivityStyle}>{lastActivity}</Text>
         </View>
       </View>
@@ -175,7 +172,6 @@ function ChatThreadListItem({
       styles.row,
       styles.threadDetails,
       threadNameStyle,
-      data.mostRecentMessageInfo,
     ],
   );
 
