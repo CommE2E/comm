@@ -5,7 +5,7 @@ use actix_web::{
 };
 use comm_lib::{
   auth::UserIdentity,
-  backup::LatestBackupIDResponse,
+  backup::LatestBackupInfoResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},
   http::{
     auth_service::Authenticated,
@@ -278,7 +278,7 @@ pub async fn download_user_blob(
 }
 
 #[instrument(skip_all, fields(username = %path))]
-pub async fn get_latest_backup_id(
+pub async fn get_latest_backup_info(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<impl Responder> {
@@ -293,8 +293,9 @@ pub async fn get_latest_backup_id(
     return Err(BackupError::NoBackup.into());
   };
 
-  let response = LatestBackupIDResponse {
+  let response = LatestBackupInfoResponse {
     backup_id: backup_item.backup_id,
+    user_id,
     siwe_backup_msg: backup_item.siwe_backup_msg,
   };
 
