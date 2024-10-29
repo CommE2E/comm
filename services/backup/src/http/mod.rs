@@ -41,10 +41,10 @@ pub async fn run_http_server(
         // Backup services that don't require authetication
         web::scope("/backups/latest")
           .service(
-            web::resource("{username}/backup_id")
+            web::resource("{user_identifier}/backup_id")
               .route(web::get().to(handlers::backup::get_latest_backup_id)),
           )
-          .service(web::resource("{username}/user_keys").route(
+          .service(web::resource("{user_identifier}/user_keys").route(
             web::get().to(handlers::backup::download_latest_backup_keys),
           )),
       )
