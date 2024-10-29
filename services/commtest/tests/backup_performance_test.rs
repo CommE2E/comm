@@ -3,10 +3,12 @@ use backup_client::{
 };
 use bytesize::ByteSize;
 use comm_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
+use commtest::identity::device::register_user_device;
 use commtest::{
   service_addr,
   tools::{generate_stable_nbytes, obtain_number_of_threads, Error},
 };
+use grpc_clients::identity::DeviceType;
 use tokio::{runtime::Runtime, task::JoinSet};
 
 #[tokio::test]
@@ -39,16 +41,19 @@ async fn backup_performance_test() -> Result<(), Error> {
     });
   }
 
+  let device_info_1 = register_user_device(None, Some(DeviceType::Ios)).await;
+  let device_info_2 = register_user_device(None, Some(DeviceType::Ios)).await;
+
   let user_identities = [
     UserIdentity {
-      user_id: "1".to_string(),
-      access_token: "dummy access token".to_string(),
-      device_id: "dummy device_id".to_string(),
+      user_id: device_info_1.user_id.clone(),
+      access_token: device_info_1.access_token,
+      device_id: device_info_1.device_id,
     },
     UserIdentity {
-      user_id: "2".to_string(),
-      access_token: "dummy access token".to_string(),
-      device_id: "dummy device_id".to_string(),
+      user_id: device_info_2.user_id.clone(),
+      access_token: device_info_2.access_token,
+      device_id: device_info_2.device_id,
     },
   ];
 
