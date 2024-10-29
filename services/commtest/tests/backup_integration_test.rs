@@ -8,10 +8,12 @@ use comm_lib::{
   auth::UserIdentity,
   backup::{LatestBackupIDResponse, UploadLogRequest},
 };
+use commtest::identity::device::register_user_device;
 use commtest::{
   service_addr,
   tools::{generate_stable_nbytes, Error},
 };
+use grpc_clients::identity::DeviceType;
 use reqwest::StatusCode;
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -20,10 +22,12 @@ use uuid::Uuid;
 async fn backup_integration_test() -> Result<(), Error> {
   let backup_client = BackupClient::new(service_addr::BACKUP_SERVICE_HTTP)?;
 
+  let device_info = register_user_device(None, Some(DeviceType::Ios)).await;
+
   let user_identity = UserIdentity {
-    user_id: "1".to_string(),
-    access_token: "dummy access token".to_string(),
-    device_id: "dummy device_id".to_string(),
+    user_id: device_info.user_id.clone(),
+    access_token: device_info.access_token,
+    device_id: device_info.device_id,
   };
 
   let backup_datas = generate_backup_data();
@@ -74,7 +78,7 @@ async fn backup_integration_test() -> Result<(), Error> {
   // Test latest backup lookup
   let latest_backup_descriptor = BackupDescriptor::Latest {
     // Initial version of the backup service uses `user_id` in place of a username
-    username: "1".to_string(),
+    username: device_info.user_id.to_string(),
   };
 
   let backup_id_response = backup_client
