@@ -20,6 +20,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
   "grpc_clients",
   "crypto"
 ] }
+grpc_clients = { path = "../../shared/grpc_clients" }
 once_cell = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tokio-stream = { workspace = true }
