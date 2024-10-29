@@ -5,37 +5,33 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
+import { useMessageInfoForPreview } from 'lib/hooks/message-hooks.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
-import { type MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import css from './chat-thread-list.css';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 
 type Props = {
-  +messageInfo: ?MessageInfo,
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
-  const { messageInfo, threadInfo } = props;
+  const { threadInfo } = props;
   const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
+  const messageInfoForPreview = useMessageInfoForPreview(threadInfo);
   const messagePreviewResult = useMessagePreview(
-    messageInfo,
+    messageInfoForPreview,
     threadInfo,
     getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
 
-  if (!messageInfo) {
+  if (!messagePreviewResult) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
         No messages
       </div>
     );
   }
-  invariant(
-    messagePreviewResult,
-    'useMessagePreview should only return falsey if pass null or undefined',
-  );
   const { message, username } = messagePreviewResult;
 
   let usernameText = null;
