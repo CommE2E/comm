@@ -15,7 +15,7 @@ use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
-  BackupClient, BackupDescriptor, LatestBackupIDResponse, RequestedData,
+  BackupClient, BackupDescriptor, LatestBackupInfoResponse, RequestedData,
   TryStreamExt, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
@@ -216,8 +216,9 @@ pub mod ffi {
         }
       };
 
-      let LatestBackupIDResponse {
+      let LatestBackupInfoResponse {
         backup_id,
+        user_id,
         siwe_backup_msg,
       } = result;
 
@@ -326,7 +327,7 @@ async fn download_backup(
 }
 
 async fn download_latest_backup_id(
-) -> Result<LatestBackupIDResponse, Box<dyn Error>> {
+) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
@@ -334,17 +335,19 @@ async fn download_latest_backup_id(
     user_identifier: user_identity.user_id.clone(),
   };
 
-  let backup_id_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+  let backup_info_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
     .await?;
 
-  let LatestBackupIDResponse {
+  let LatestBackupInfoResponse {
     backup_id,
+    user_id,
     siwe_backup_msg,
-  } = serde_json::from_slice(&backup_id_response)?;
+  } = serde_json::from_slice(&backup_info_response)?;
 
-  Ok(LatestBackupIDResponse {
+  Ok(LatestBackupInfoResponse {
     backup_id,
+    user_id,
     siwe_backup_msg,
   })
 }
