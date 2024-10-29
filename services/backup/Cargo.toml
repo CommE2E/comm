@@ -18,6 +18,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
   "blob-client",
   "aws",
   "grpc_clients",
+  "crypto"
 ] }
 once_cell = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
