@@ -1266,6 +1266,7 @@ dependencies = [
  "clap",
  "comm-lib",
  "derive_more",
+ "grpc_clients",
  "once_cell",
  "reqwest",
  "serde",
