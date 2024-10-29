@@ -75,10 +75,30 @@ async fn backup_integration_test() -> Result<(), Error> {
     .await?;
   assert_eq!(user_data, backup_data.user_data);
 
+  // Test latest backup lookup for nonexistent user
+  let latest_backup_descriptor = BackupDescriptor::Latest {
+    username: "nonexistent_user".to_string(),
+  };
+
+  let nonexistent_user_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+    .await;
+
+  match nonexistent_user_response {
+    Ok(_) => panic!("Expected error, but got success response"),
+    Err(BackupClientError::ReqwestError(error)) => {
+      assert_eq!(
+        error.status(),
+        Some(StatusCode::BAD_REQUEST),
+        "Expected bad request status"
+      );
+    }
+    Err(_) => panic!("Unexpected error type"),
+  }
+
   // Test latest backup lookup
   let latest_backup_descriptor = BackupDescriptor::Latest {
-    // Initial version of the backup service uses `user_id` in place of a username
-    username: device_info.user_id.to_string(),
+    username: device_info.username,
   };
 
   let backup_id_response = backup_client
