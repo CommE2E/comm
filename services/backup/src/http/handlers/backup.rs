@@ -17,6 +17,7 @@ use std::convert::Infallible;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tracing::{info, instrument, trace, warn};
 
+use crate::identity::find_user_id;
 use crate::{
   database::{backup_item::BackupItem, DatabaseClient},
   error::BackupError,
@@ -282,8 +283,7 @@ pub async fn get_latest_backup_id(
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<impl Responder> {
   let username = path.into_inner();
-  // Treat username as user_id in the initial version
-  let user_id = username;
+  let user_id = find_user_id(&username).await?;
 
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)
@@ -308,8 +308,7 @@ pub async fn download_latest_backup_keys(
   blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<HttpResponse> {
   let username = path.into_inner();
-  // Treat username as user_id in the initial version
-  let user_id = username;
+  let user_id = find_user_id(&username).await?;
 
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)

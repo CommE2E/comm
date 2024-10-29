@@ -81,9 +81,15 @@ async fn backup_performance_test() -> Result<(), Error> {
       let mut handlers = vec![];
       for user in &user_identities {
         let backup_client = backup_client.clone();
-        let descriptor = BackupDescriptor::Latest {
-          username: user.user_id.clone(),
+
+        let username = if user.user_id == device_info_1.user_id {
+          device_info_1.username.clone()
+        } else {
+          device_info_2.username.clone()
         };
+
+        let descriptor = BackupDescriptor::Latest { username };
+
         handlers.push(tokio::spawn(async move {
           let response = backup_client
             .download_backup_data(&descriptor, RequestedData::BackupID)
@@ -107,9 +113,14 @@ async fn backup_performance_test() -> Result<(), Error> {
       let mut handlers = vec![];
       for user in &user_identities {
         let backup_client = backup_client.clone();
-        let descriptor = BackupDescriptor::Latest {
-          username: user.user_id.clone(),
+        let username = if user.user_id == device_info_1.user_id {
+          device_info_1.username.clone()
+        } else {
+          device_info_2.username.clone()
         };
+
+        let descriptor = BackupDescriptor::Latest { username };
+
         handlers.push(tokio::spawn(async move {
           backup_client
             .download_backup_data(&descriptor, RequestedData::UserKeys)
