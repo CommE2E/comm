@@ -20,6 +20,10 @@ import {
 import { createThread } from '../creators/thread-creator.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { createBotViewer } from '../session/bots.js';
+import {
+  changeRole,
+  commitMembershipChangeset,
+} from '../updaters/thread-permission-updaters.js';
 import { updateRole } from '../updaters/thread-updaters.js';
 import { thisKeyserverAdmin, thisKeyserverID } from '../user/identity.js';
 import { getFarcasterBotConfig } from '../utils/farcaster-bot.js';
@@ -100,6 +104,9 @@ async function createTaggedFarcasterCommunity(
     commCommunityID: newThreadResponse.newThreadID,
     farcasterChannelID: channelID,
   });
+
+  const changeset = await changeRole(newThreadID, [commbot.userID], 0);
+  await commitMembershipChangeset(commbotViewer, changeset);
 
   return newThreadResponse;
 }
