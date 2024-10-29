@@ -3,10 +3,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LatestBackupIDResponse {
+pub struct LatestBackupInfoResponse {
   #[serde(rename = "backupID")]
   pub backup_id: String,
-
+  #[serde(rename = "userID")]
+  pub user_id: String,
   pub siwe_backup_msg: Option<String>,
 }
 
