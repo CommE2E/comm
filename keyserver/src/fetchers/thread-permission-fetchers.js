@@ -71,6 +71,21 @@ function viewerIsMember(viewer: Viewer, threadID: string): Promise<boolean> {
   return checkThread(viewer, threadID, [{ check: 'is_member' }]);
 }
 
+async function viewerHasPositiveRole(
+  viewer: Viewer,
+  threadID: string,
+): Promise<boolean> {
+  const query = SQL`
+    SELECT role
+    FROM memberships
+    WHERE thread = ${threadID} AND user = ${viewer.userID}
+  `;
+
+  const [queryResult] = await dbQuery(query);
+  const positiveRoles = queryResult.filter(row => Number(row.role) > 0);
+  return positiveRoles.length > 0;
+}
+
 type Check =
   | { +check: 'is_member' }
   | { +check: 'permission', +permission: ThreadPermission };
@@ -438,4 +453,5 @@ export {
   checkThread,
   checkIfThreadIsBlocked,
   validateCandidateMembers,
+  viewerHasPositiveRole,
 };
