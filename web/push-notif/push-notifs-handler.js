@@ -19,7 +19,6 @@ import {
 import { isDesktopPlatform } from 'lib/types/device-types.js';
 import type { SenderDeviceDescriptor } from 'lib/types/notif-types.js';
 import { getConfig } from 'lib/utils/config.js';
-import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { shouldSkipPushPermissionAlert } from 'lib/utils/push-alerts.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -28,7 +27,6 @@ import {
   decryptDesktopNotification,
   migrateLegacyOlmNotificationsSessions,
 } from './notif-crypto-utils.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -109,14 +107,9 @@ function useCreateDesktopPushSubscription() {
     () =>
       electron?.onNotificationClicked?.(
         ({ threadID }: { +threadID: string }) => {
-          const convertedThreadID = convertNonPendingIDToNewSchema(
-            threadID,
-            authoritativeKeyserverID,
-          );
-
           const payload = {
             chatMode: 'view',
-            activeChatThreadID: convertedThreadID,
+            activeChatThreadID: threadID,
             tab: 'chat',
           };
 

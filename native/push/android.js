@@ -4,13 +4,6 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import {
-  convertNonPendingIDToNewSchema,
-  convertNotificationMessageInfoToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
-import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
-
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
 type CommAndroidNotificationsConstants = {
   +NOTIFICATIONS_IMPORTANCE_HIGH: number,
@@ -51,23 +44,10 @@ export type ParsedAndroidMessage = {
 };
 
 function parseAndroidMessage(message: AndroidMessage): ParsedAndroidMessage {
-  const { threadID, messageInfos } = message;
-  if (thickThreadIDRegex.test(threadID)) {
-    return {
-      ...message,
-      messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
-    };
-  }
-
+  const { messageInfos } = message;
   return {
     ...message,
-    threadID: convertNonPendingIDToNewSchema(
-      message.threadID,
-      authoritativeKeyserverID,
-    ),
-    messageInfos: convertNotificationMessageInfoToNewIDSchema(
-      message.messageInfos,
-    ),
+    messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
   };
 }
 
