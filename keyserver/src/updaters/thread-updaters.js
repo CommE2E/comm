@@ -114,7 +114,7 @@ async function updateRole(
   );
 
   // Ensure that there will always still be at least one admin in a community
-  if (adminRoleID) {
+  if (adminRoleID && adminRoleID !== request.role) {
     const memberRoles = memberIDs.map(
       memberID =>
         threadInfo.members.find(member => member.id === memberID)?.role,
