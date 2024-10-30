@@ -62,6 +62,7 @@ type CreateThreadOptions = Partial<{
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
   +silentlyFailMembers: boolean,
+  +addViewerAsGhost: boolean,
 }>;
 
 // If forceAddMembers is set, we will allow the viewer to add random users who
@@ -83,6 +84,7 @@ async function createThread(
   const updatesForCurrentSession =
     options?.updatesForCurrentSession ?? 'return';
   const silentlyFailMembers = options?.silentlyFailMembers ?? false;
+  const addViewerAsGhost = options?.addViewerAsGhost ?? false;
 
   const threadType = request.type;
   const shouldCreateRelationships =
@@ -357,13 +359,15 @@ async function createThread(
     ? changeRole(id, ghostMemberIDs, -1)
     : Promise.resolve(undefined);
 
+  const creatorRoleID = addViewerAsGhost ? -1 : newRoles.creator.id;
+
   const [
     creatorChangeset,
     initialMembersChangeset,
     ghostMembersChangeset,
     recalculatePermissionsChangeset,
   ] = await Promise.all([
-    changeRole(id, [viewer.userID], newRoles.creator.id),
+    changeRole(id, [viewer.userID], creatorRoleID),
     initialMemberPromise,
     ghostMemberPromise,
     recalculateThreadPermissions(id),
