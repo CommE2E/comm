@@ -58,7 +58,7 @@ import {
 } from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
-  viewerIsMember as fetchViewerIsMember,
+  viewerHasPositiveRole as fetchViewerHasPositiveRole,
   checkThread,
   validateCandidateMembers,
 } from '../fetchers/thread-permission-fetchers.js';
@@ -858,7 +858,7 @@ async function joinThread(
 
   const [isMember, hasPermission, communityFarcasterChannelTag] =
     await Promise.all([
-      fetchViewerIsMember(viewer, request.threadID),
+      fetchViewerHasPositiveRole(viewer, request.threadID),
       permissionPromise,
       communityFarcasterChannelTagPromise,
     ]);
