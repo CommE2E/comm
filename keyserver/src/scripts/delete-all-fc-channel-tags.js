@@ -10,7 +10,8 @@ async function deleteAllFCChannelTags() {
   const admin = await thisKeyserverAdmin();
   const adminViewer = createScriptViewer(admin.id);
 
-  const allCommunityInfosWithNames = await fetchAllCommunityInfosWithNames();
+  const allCommunityInfosWithNames =
+    await fetchAllCommunityInfosWithNames(adminViewer);
 
   const deleteFarcasterChannelTagPromises = allCommunityInfosWithNames
     .map(communityInfoWithName => {
