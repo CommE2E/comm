@@ -5,8 +5,11 @@ import type {
   ServerCommunityInfoWithCommunityName,
 } from 'lib/types/community-types.js';
 
+import { fetchThreadInfos } from './thread-fetchers.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { createScriptViewer } from '../session/scripts.js';
 import { Viewer } from '../session/viewer.js';
+import { thisKeyserverAdmin } from '../user/identity.js';
 
 type ServerCommunityInfoWithHolder = $ReadOnly<{
   ...ServerCommunityInfo,
@@ -78,12 +81,24 @@ async function fetchAllCommunityInfosWithNames(): Promise<
     INNER JOIN threads t ON c.id = t.id
   `;
 
-  const [result] = await dbQuery(query);
+  const [[result], admin] = await Promise.all([
+    dbQuery(query),
+    thisKeyserverAdmin(),
+  ]);
+
+  const threadIDs = new Set(result.map(row => row.id.toString()));
+
+  const adminViewer = createScriptViewer(admin.id);
+
+  const threadInfosResult = await fetchThreadInfos(adminViewer, {
+    threadIDs,
+  });
 
   const communityInfos = result.map(row => ({
     id: row.id.toString(),
     farcasterChannelID: row.farcasterChannelID,
     communityName: row.communityName,
+    threadInfo: threadInfosResult.threadInfos[row.id.toString()] ?? null,
   }));
 
   return communityInfos;
