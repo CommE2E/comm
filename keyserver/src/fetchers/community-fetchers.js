@@ -5,6 +5,7 @@ import type {
   ServerCommunityInfoWithCommunityName,
 } from 'lib/types/community-types.js';
 
+import { fetchPrivilegedThreadInfos } from './thread-fetchers.js';
 import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import { Viewer } from '../session/viewer.js';
 
@@ -80,9 +81,9 @@ async function fetchCommunityFarcasterChannelTag(
   return communityInfo?.farcasterChannelID;
 }
 
-async function fetchAllCommunityInfosWithNames(): Promise<
-  $ReadOnlyArray<ServerCommunityInfoWithCommunityName>,
-> {
+async function fetchAllCommunityInfosWithNames(
+  viewer: Viewer,
+): Promise<$ReadOnlyArray<ServerCommunityInfoWithCommunityName>> {
   const query = SQL`
     SELECT c.id, t.name as communityName,
       c.farcaster_channel_id as farcasterChannelID
@@ -92,11 +93,20 @@ async function fetchAllCommunityInfosWithNames(): Promise<
 
   const [result] = await dbQuery(query);
 
-  const communityInfos = result.map(row => ({
-    id: row.id.toString(),
-    farcasterChannelID: row.farcasterChannelID,
-    communityName: row.communityName,
-  }));
+  const threadIDs = new Set(result.map(row => row.id.toString()));
+
+  const threadInfosResult = await fetchPrivilegedThreadInfos(viewer, {
+    threadIDs,
+  });
+
+  const communityInfos = result.map(
+    (row): ServerCommunityInfoWithCommunityName => ({
+      id: row.id.toString(),
+      farcasterChannelID: row.farcasterChannelID,
+      communityName: row.communityName,
+      threadInfo: threadInfosResult.threadInfos[row.id.toString()] ?? null,
+    }),
+  );
 
   return communityInfos;
 }
