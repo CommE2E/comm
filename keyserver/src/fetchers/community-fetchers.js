@@ -5,7 +5,7 @@ import type {
   ServerCommunityInfoWithCommunityName,
 } from 'lib/types/community-types.js';
 
-import { dbQuery, SQL } from '../database/database.js';
+import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import { Viewer } from '../session/viewer.js';
 
 type ServerCommunityInfoWithHolder = $ReadOnly<{
@@ -25,15 +25,27 @@ async function fetchCommunityInfos(
     SELECT c.id, c.farcaster_channel_id as farcasterChannelID,
       c.blob_holder as blobHolder
     FROM communities c
-    INNER JOIN memberships m
-      ON c.id = m.thread AND m.user = ${viewer.userID}
-    WHERE m.role > 0
   `;
-
-  if (communityIDs && communityIDs.length > 0) {
+  if (!viewer.isScriptViewer) {
     query.append(SQL`
-      AND c.id IN (${communityIDs})
+      INNER JOIN memberships m
+        ON c.id = m.thread AND m.user = ${viewer.userID}
     `);
+  }
+
+  const conditions = [];
+  if (!viewer.isScriptViewer) {
+    conditions.push(SQL`m.role > 0`);
+  }
+  if (communityIDs && communityIDs.length > 0) {
+    conditions.push(SQL`
+      c.id IN (${communityIDs})
+    `);
+  }
+  if (conditions.length > 0) {
+    const clause = mergeAndConditions(conditions);
+    query.append(SQL`WHERE `);
+    query.append(clause);
   }
 
   const [result] = await dbQuery(query);
