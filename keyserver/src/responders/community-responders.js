@@ -2,7 +2,7 @@
 
 import type {
   FetchCommunityInfosResponse,
-  FetchAllCommunityInfosWithNamesResponse,
+  ServerFetchAllCommunityInfosWithNamesResponse,
 } from 'lib/types/community-types.js';
 
 import {
@@ -26,7 +26,7 @@ async function fetchCommunityInfosResponder(
 
 async function fetchAllCommunityInfosWithNamesResponder(
   viewer: Viewer,
-): Promise<FetchAllCommunityInfosWithNamesResponse> {
+): Promise<ServerFetchAllCommunityInfosWithNamesResponse> {
   if (!viewer.loggedIn) {
     return { allCommunityInfosWithNames: [] };
   }
