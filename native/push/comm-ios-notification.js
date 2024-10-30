@@ -3,13 +3,6 @@
 import { NativeModules } from 'react-native';
 
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import {
-  convertNonPendingIDToNewSchema,
-  convertNotificationMessageInfoToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
-import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
-
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
 const { CommIOSNotifications } = NativeModules;
 
@@ -50,25 +43,10 @@ export class CommIOSNotification {
 
   constructor(notification: CoreIOSNotificationData) {
     this.remoteNotificationCompleteCallbackCalled = false;
-    const { threadID, messageInfos } = notification;
-
-    if (thickThreadIDRegex.test(threadID)) {
-      this.data = {
-        ...notification,
-        messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
-      };
-      return;
-    }
-
+    const { messageInfos } = notification;
     this.data = {
       ...notification,
-      threadID: convertNonPendingIDToNewSchema(
-        notification.threadID,
-        authoritativeKeyserverID,
-      ),
-      messageInfos: convertNotificationMessageInfoToNewIDSchema(
-        notification.messageInfos,
-      ),
+      messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
     };
   }
 

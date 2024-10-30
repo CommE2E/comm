@@ -40,10 +40,6 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { Dispatch } from 'lib/types/redux-types.js';
 import type { ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import {
-  convertNonPendingIDToNewSchema,
-  convertNotificationMessageInfoToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
 import { shouldSkipPushPermissionAlert } from 'lib/utils/push-alerts.js';
 import {
   type DispatchActionPromise,
@@ -73,7 +69,6 @@ import {
   iosPushPermissionResponseReceived,
   requestIOSPushPermissions,
 } from './ios.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import {
   type MessageListParams,
   useNavigateToThread,
@@ -720,7 +715,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     backgroundData: CoreIOSNotificationBackgroundData,
   ) => {
     const convertedMessageInfos = backgroundData.messageInfosArray
-      .flatMap(convertNotificationMessageInfoToNewIDSchema)
+      .flatMap(messageInfosString =>
+        messageInfosString ? JSON.parse(messageInfosString) : null,
+      )
       .filter(Boolean);
 
     if (!convertedMessageInfos.length) {
@@ -774,12 +771,8 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (threadID: string) => {
-    const convertedThreadID = convertNonPendingIDToNewSchema(
-      threadID,
-      authoritativeKeyserverID,
-    );
     this.onPushNotifBootsApp();
-    this.onPressNotificationForThread(convertedThreadID, true);
+    this.onPressNotificationForThread(threadID, true);
   };
 
   androidMessageReceived = async (message: AndroidMessage) => {
