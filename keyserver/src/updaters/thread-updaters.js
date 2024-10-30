@@ -95,7 +95,7 @@ async function updateRole(
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
-    fetchThreadInfos(viewer, { threadID: request.threadID }),
+    fetchServerThreadInfos({ threadID: request.threadID }),
   ]);
   if (memberIDs.length === 0) {
     throw new ServerError('invalid_parameters');
