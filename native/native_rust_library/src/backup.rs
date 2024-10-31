@@ -194,7 +194,6 @@ pub mod ffi {
   }
 
   fn get_siwe_backup_data_from_msg(
-    backup_id: String,
     siwe_backup_msg: String,
   ) -> Result<SIWEBackupData, String> {
     let siwe_backup_msg_obj: Message = match siwe_backup_msg.parse() {
@@ -215,7 +214,6 @@ pub mod ffi {
     let siwe_backup_msg_issued_at = siwe_backup_msg_obj.issued_at.to_string();
 
     Ok(SIWEBackupData {
-      backup_id,
       siwe_backup_msg_nonce,
       siwe_backup_msg_statement,
       siwe_backup_msg_issued_at,
@@ -245,10 +243,7 @@ pub mod ffi {
 
       let siwe_backup_data = match siwe_backup_msg {
         Some(siwe_backup_msg_value) => {
-          match get_siwe_backup_data_from_msg(
-            backup_id.clone(),
-            siwe_backup_msg_value,
-          ) {
+          match get_siwe_backup_data_from_msg(siwe_backup_msg_value) {
             Ok(data) => Some(data),
             Err(err) => {
               string_callback(err, promise_id, "".to_string());
@@ -451,8 +446,6 @@ struct BackupKeysResult {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SIWEBackupData {
-  #[serde(rename = "backupID")]
-  backup_id: String,
   siwe_backup_msg_statement: String,
   siwe_backup_msg_nonce: String,
   siwe_backup_msg_issued_at: String,
