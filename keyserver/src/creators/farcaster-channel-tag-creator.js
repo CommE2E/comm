@@ -4,10 +4,7 @@ import t, { type TInterface } from 'tcomb';
 import uuid from 'uuid';
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
@@ -184,8 +181,8 @@ async function createOrUpdateFarcasterChannelTag(
 
   if (
     !hasMinCodeVersion(viewer.platformDetails, {
-      native: NEXT_CODE_VERSION,
-      web: NEXT_CODE_VERSION,
+      native: 433,
+      web: 138,
     })
   ) {
     return {

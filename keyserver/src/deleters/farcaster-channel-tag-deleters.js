@@ -1,10 +1,7 @@
 // @flow
 
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
-import {
-  NEXT_CODE_VERSION,
-  hasMinCodeVersion,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   DeleteFarcasterChannelTagRequest,
   DeleteFarcasterChannelTagResponse,
@@ -90,8 +87,8 @@ async function deleteFarcasterChannelTag(
 
   if (
     !hasMinCodeVersion(viewer.platformDetails, {
-      native: NEXT_CODE_VERSION,
-      web: NEXT_CODE_VERSION,
+      native: 433,
+      web: 138,
     })
   ) {
     return null;
