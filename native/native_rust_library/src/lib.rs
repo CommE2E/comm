@@ -456,9 +456,6 @@ mod ffi {
     #[cxx_name = "retrieveBackupKeys"]
     fn retrieve_backup_keys(backup_secret: String, promise_id: u32);
 
-    #[cxx_name = "retrieveLatestSIWEBackupData"]
-    fn retrieve_latest_siwe_backup_data(promise_id: u32);
-
     #[cxx_name = "retrieveLatestBackupInfo"]
     fn retrieve_latest_backup_info(user_identifier: String, promise_id: u32);
   }

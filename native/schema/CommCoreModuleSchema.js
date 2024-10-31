@@ -166,11 +166,6 @@ interface Spec extends TurboModule {
     maxVersion: string,
     backupID: string,
   ) => Promise<string>;
-  +restoreSIWEBackup: (
-    backupSecret: string,
-    backupID: string,
-    maxVersion: string,
-  ) => Promise<string>;
   +restoreBackupData: (
     backupID: string,
     backupDataKey: string,
@@ -179,7 +174,6 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
   +retrieveLatestBackupInfo: (userIdentifier: string) => Promise<string>;
-  +retrieveLatestSIWEBackupData: () => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
   +getAllInboundP2PMessages: () => Promise<Array<InboundP2PMessage>>;
