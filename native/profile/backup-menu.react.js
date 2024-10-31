@@ -39,6 +39,7 @@ function BackupMenu(props: Props): React.Node {
     uploadBackupProtocol,
     restorePasswordUserBackupProtocol,
     retrieveLatestSIWEBackupData,
+    retrieveLatestBackupInfo,
   } = useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
@@ -62,6 +63,25 @@ function BackupMenu(props: Props): React.Node {
     }
     Alert.alert('Restore protocol result', message);
   }, [restorePasswordUserBackupProtocol]);
+
+  const testLatestBackupInfo = React.useCallback(async () => {
+    let message;
+    try {
+      const backupInfo = await retrieveLatestBackupInfo();
+      const { backupID, userID } = backupInfo;
+      message =
+        `Success!\n` +
+        `Backup ID: ${backupID},\n` +
+        `userID: ${userID},\n` +
+        `userID check: ${currentUserInfo?.id === userID ? 'true' : 'false'}`;
+    } catch (e) {
+      message = `Latest backup info error: ${String(
+        getMessageForException(e),
+      )}`;
+      console.error(message);
+    }
+    Alert.alert('Latest backup info result', message);
+  }, [currentUserInfo?.id, retrieveLatestBackupInfo]);
 
   const testRestoreForSIWEUser = React.useCallback(async () => {
     let message = 'success';
@@ -138,6 +158,19 @@ function BackupMenu(props: Props): React.Node {
           iosActiveOpacity={0.85}
         >
           <Text style={styles.submenuText}>Test backup restore protocol</Text>
+        </Button>
+      </View>
+      <View style={styles.section}>
+        <Button
+          onPress={testLatestBackupInfo}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>
+            Test retrieving latest backup info
+          </Text>
         </Button>
       </View>
     </ScrollView>
