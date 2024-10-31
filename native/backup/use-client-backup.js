@@ -66,28 +66,6 @@ function useClientBackup(): ClientBackup {
     console.info('Backup uploaded.');
   }, [currentUserID, loggedIn, currentUserInfo]);
 
-  const restorePasswordUserBackupProtocol = React.useCallback(async () => {
-    if (!loggedIn || !currentUserID) {
-      throw new Error('Attempt to restore backup for not logged in user.');
-    }
-
-    if (!accountHasPassword(currentUserInfo)) {
-      throw new Error(
-        'Attempt to restore from password for non-password user.',
-      );
-    }
-
-    console.info('Start restoring backup...');
-
-    const backupSecret = await getBackupSecret();
-    await commCoreModule.restoreBackup(
-      backupSecret,
-      persistConfig.version.toString(),
-    );
-
-    console.info('Backup restored.');
-  }, [currentUserID, loggedIn, currentUserInfo]);
-
   const retrieveLatestSIWEBackupData = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
       throw new Error('Attempt to restore backup for not logged in user.');
@@ -122,6 +100,27 @@ function useClientBackup(): ClientBackup {
       latestBackupInfoResponseValidator,
     );
   }, [currentUserID, currentUserInfo, loggedIn]);
+
+  const restorePasswordUserBackupProtocol = React.useCallback(async () => {
+    if (!accountHasPassword(currentUserInfo)) {
+      throw new Error(
+        'Attempt to restore from password for non-password user.',
+      );
+    }
+
+    const [latestBackupInfo, backupSecret] = await Promise.all([
+      retrieveLatestBackupInfo(),
+      getBackupSecret(),
+    ]);
+
+    console.info('Start restoring backup...');
+    await commCoreModule.restoreBackup(
+      backupSecret,
+      persistConfig.version.toString(),
+      latestBackupInfo.backupID,
+    );
+    console.info('Backup restored.');
+  }, [currentUserInfo, retrieveLatestBackupInfo]);
 
   return React.useMemo(
     () => ({

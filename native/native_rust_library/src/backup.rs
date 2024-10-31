@@ -83,7 +83,6 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let backup_id = Option::from(backup_id).filter(|it| !it.is_empty());
       let result = download_backup(backup_secret, backup_id)
         .await
         .map_err(|err| err.to_string());
@@ -364,16 +363,8 @@ pub async fn create_siwe_backup_msg_compaction(
 
 async fn download_backup(
   backup_secret: String,
-  backup_id: Option<String>,
+  backup_id: String,
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
-  let backup_id = match backup_id {
-    Some(backup_id) => backup_id,
-    None => {
-      let latest_backup_id_response = download_latest_backup_id().await?;
-      latest_backup_id_response.backup_id
-    }
-  };
-
   let backup_keys = download_backup_keys(backup_id, backup_secret).await?;
   download_backup_data(backup_keys).await
 }
