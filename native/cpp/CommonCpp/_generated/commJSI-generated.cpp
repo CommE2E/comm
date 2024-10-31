@@ -190,9 +190,6 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewSIWEBac
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreBackup(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreSIWEBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreSIWEBackup(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
-}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreBackupData(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
 }
@@ -201,9 +198,6 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKe
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestBackupInfo(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveLatestBackupInfo(rt, args[0].asString(rt));
-}
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestSIWEBackupData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveLatestSIWEBackupData(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setSIWEBackupSecrets(rt, args[0].asObject(rt));
@@ -307,11 +301,9 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["createNewBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewBackup};
   methodMap_["createNewSIWEBackup"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewSIWEBackup};
   methodMap_["restoreBackup"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup};
-  methodMap_["restoreSIWEBackup"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreSIWEBackup};
   methodMap_["restoreBackupData"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData};
   methodMap_["retrieveBackupKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys};
   methodMap_["retrieveLatestBackupInfo"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestBackupInfo};
-  methodMap_["retrieveLatestSIWEBackupData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestSIWEBackupData};
   methodMap_["setSIWEBackupSecrets"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets};
   methodMap_["getSIWEBackupSecrets"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets};
   methodMap_["getAllInboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllInboundP2PMessages};
