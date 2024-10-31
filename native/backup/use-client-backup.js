@@ -4,20 +4,17 @@ import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import {
+  type SIWEBackupData,
+  siweBackupDataValidator,
+} from 'lib/types/backup-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
 import { persistConfig } from '../redux/persist.js';
 import { useSelector } from '../redux/redux-utils.js';
-
-type SIWEBackupData = {
-  +backupID: string,
-  +siweBackupMsg: string,
-  +siweBackupMsgNonce: string,
-  +siweBackupMsgStatement: string,
-  +siweBackupMsgIssuedAt: string,
-};
 
 type ClientBackup = {
   +uploadBackupProtocol: () => Promise<void>,
@@ -86,7 +83,6 @@ function useClientBackup(): ClientBackup {
     );
 
     console.info('Backup restored.');
-    return;
   }, [currentUserID, loggedIn, currentUserInfo]);
 
   const retrieveLatestSIWEBackupData = React.useCallback(async () => {
@@ -102,8 +98,11 @@ function useClientBackup(): ClientBackup {
 
     const serializedBackupData =
       await commCoreModule.retrieveLatestSIWEBackupData();
-    const siweBackupData: SIWEBackupData = JSON.parse(serializedBackupData);
-    return siweBackupData;
+
+    return assertWithValidator(
+      JSON.parse(serializedBackupData),
+      siweBackupDataValidator,
+    );
   }, [currentUserID, currentUserInfo, loggedIn]);
 
   return {
