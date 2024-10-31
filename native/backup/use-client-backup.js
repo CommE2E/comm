@@ -8,10 +8,9 @@ import {
   latestBackupInfoResponseValidator,
   type LatestBackupInfo,
 } from 'lib/types/backup-types.js';
-import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
-import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
+import { useGetBackupSecretForLoggedInUser } from './use-get-backup-secret.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -20,28 +19,13 @@ type ClientBackup = {
   +retrieveLatestBackupInfo: () => Promise<LatestBackupInfo>,
 };
 
-async function getBackupSecret(): Promise<string> {
-  const nativeCredentials = await fetchNativeKeychainCredentials();
-  if (!nativeCredentials) {
-    throw new Error('Native credentials are missing');
-  }
-  return nativeCredentials.password;
-}
-
-async function getSIWEBackupSecrets(): Promise<SIWEBackupSecrets> {
-  const siweBackupSecrets = await commCoreModule.getSIWEBackupSecrets();
-  if (!siweBackupSecrets) {
-    throw new Error('SIWE backup message and its signature are missing');
-  }
-  return siweBackupSecrets;
-}
-
 function useClientBackup(): ClientBackup {
   const currentUserID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const loggedIn = useSelector(isLoggedIn);
+  const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
   const uploadBackupProtocol = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
@@ -54,12 +38,18 @@ function useClientBackup(): ClientBackup {
       const backupSecret = await getBackupSecret();
       await commCoreModule.createNewBackup(backupSecret);
     } else {
-      const { message, signature } = await getSIWEBackupSecrets();
-      await commCoreModule.createNewSIWEBackup(signature, message);
+      const siweBackupSecrets = await commCoreModule.getSIWEBackupSecrets();
+      if (!siweBackupSecrets) {
+        throw new Error('SIWE backup message and its signature are missing');
+      }
+      await commCoreModule.createNewSIWEBackup(
+        siweBackupSecrets.signature,
+        siweBackupSecrets.message,
+      );
     }
 
     console.info('Backup uploaded.');
-  }, [currentUserID, loggedIn, currentUserInfo]);
+  }, [loggedIn, currentUserID, currentUserInfo, getBackupSecret]);
 
   const retrieveLatestBackupInfo = React.useCallback(async () => {
     if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
@@ -85,4 +75,4 @@ function useClientBackup(): ClientBackup {
   );
 }
 
-export { getBackupSecret, useClientBackup };
+export { useClientBackup };
