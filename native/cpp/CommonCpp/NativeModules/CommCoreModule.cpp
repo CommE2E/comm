@@ -2574,10 +2574,13 @@ jsi::Value CommCoreModule::restoreBackupInternal(
 jsi::Value CommCoreModule::restoreBackup(
     jsi::Runtime &rt,
     jsi::String backupSecret,
-    jsi::String maxVersion) {
+    jsi::String maxVersion,
+    jsi::String backupID) {
   std::string backupSecretStr = backupSecret.utf8(rt);
   std::string maxVersionStr = maxVersion.utf8(rt);
-  return restoreBackupInternal(rt, backupSecretStr, "", maxVersionStr);
+  std::string backupIDStr = backupID.utf8(rt);
+
+  return restoreBackupInternal(rt, backupSecretStr, backupIDStr, maxVersionStr);
 }
 
 jsi::Value CommCoreModule::restoreSIWEBackup(
