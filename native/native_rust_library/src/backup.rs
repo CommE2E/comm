@@ -273,6 +273,54 @@ pub mod ffi {
       handle_string_result_as_callback(serialize_result, promise_id);
     });
   }
+
+  pub fn retrieve_latest_backup_info(user_identifier: String, promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let latest_backup_id_response =
+        download_latest_backup_info(user_identifier)
+          .await
+          .map_err(|err| err.to_string());
+
+      let result = match latest_backup_id_response {
+        Ok(result) => result,
+        Err(error) => {
+          string_callback(error, promise_id, "".to_string());
+          return;
+        }
+      };
+
+      let LatestBackupInfoResponse {
+        backup_id,
+        user_id,
+        siwe_backup_msg,
+      } = result;
+
+      let siwe_backup_data = match siwe_backup_msg {
+        Some(siwe_backup_msg_value) => {
+          match get_siwe_backup_data_from_msg(
+            backup_id.clone(),
+            siwe_backup_msg_value,
+          ) {
+            Ok(data) => Some(data),
+            Err(err) => {
+              string_callback(err, promise_id, "".to_string());
+              return;
+            }
+          }
+        }
+        None => None,
+      };
+
+      let result = LatestBackupInfo {
+        backup_id,
+        user_id,
+        siwe_backup_data,
+      };
+
+      let serialize_result = serde_json::to_string(&result);
+      handle_string_result_as_callback(serialize_result, promise_id);
+    });
+  }
 }
 
 pub async fn create_userkeys_compaction(
@@ -338,6 +386,30 @@ async fn download_latest_backup_id(
   let latest_backup_descriptor = BackupDescriptor::Latest {
     user_identifier: user_identity.user_id.clone(),
   };
+
+  let backup_info_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
+    .await?;
+
+  let LatestBackupInfoResponse {
+    backup_id,
+    user_id,
+    siwe_backup_msg,
+  } = serde_json::from_slice(&backup_info_response)?;
+
+  Ok(LatestBackupInfoResponse {
+    backup_id,
+    user_id,
+    siwe_backup_msg,
+  })
+}
+
+async fn download_latest_backup_info(
+  user_identifier: String,
+) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+
+  let latest_backup_descriptor = BackupDescriptor::Latest { user_identifier };
 
   let backup_info_response = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
@@ -461,7 +533,7 @@ struct BackupKeysResult {
 }
 
 // This struct should match `SIWEBackupData` in `lib/types/backup-types.js`
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SIWEBackupData {
   #[serde(rename = "backupID")]
@@ -469,6 +541,17 @@ struct SIWEBackupData {
   siwe_backup_msg_statement: String,
   siwe_backup_msg_nonce: String,
   siwe_backup_msg_issued_at: String,
+}
+
+// This struct should match `LatestBackupInfo` in `lib/types/backup-types.js`
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct LatestBackupInfo {
+  #[serde(rename = "backupID")]
+  pub backup_id: String,
+  #[serde(rename = "userID")]
+  pub user_id: String,
+  pub siwe_backup_data: Option<SIWEBackupData>,
 }
 
 struct CompactionDownloadResult {
