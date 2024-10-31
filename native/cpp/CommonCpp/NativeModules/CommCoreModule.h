@@ -60,11 +60,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       std::string backupSecret,
       std::string backupMessage);
-  jsi::Value restoreBackupInternal(
-      jsi::Runtime &rt,
-      std::string backupSecret,
-      std::string backupID,
-      std::string maxVersion);
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
@@ -230,11 +225,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String backupSecret,
       jsi::String maxVersion,
       jsi::String backupID) override;
-  virtual jsi::Value restoreSIWEBackup(
-      jsi::Runtime &rt,
-      jsi::String backupSecret,
-      jsi::String backupID,
-      jsi::String maxVersion) override;
   virtual jsi::Value restoreBackupData(
       jsi::Runtime &rt,
       jsi::String backupID,
@@ -249,7 +239,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value setSIWEBackupSecrets(
       jsi::Runtime &rt,
       jsi::Object siweBackupSecrets) override;
-  virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) override;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) override;
   virtual jsi::Value getAllInboundP2PMessages(jsi::Runtime &rt) override;
   virtual jsi::Value
