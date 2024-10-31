@@ -10,10 +10,8 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import {
-  getBackupSecret,
-  useClientBackup,
-} from '../backup/use-client-backup.js';
+import { useClientBackup } from '../backup/use-client-backup.js';
+import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secret.js';
 import Button from '../components/button.react.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -35,6 +33,7 @@ function BackupMenu(props: Props): React.Node {
   const colors = useColors();
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const navigation = useNavigation();
+  const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
   const isBackupEnabled = useSelector(
     state => state.localSettings.isBackupEnabled,
@@ -71,7 +70,7 @@ function BackupMenu(props: Props): React.Node {
       console.error(message);
     }
     Alert.alert('Restore protocol result', message);
-  }, [retrieveLatestBackupInfo]);
+  }, [getBackupSecret, retrieveLatestBackupInfo]);
 
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
