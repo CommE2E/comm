@@ -40,10 +40,10 @@ function RestoreSIWEBackup(props: Props): React.Node {
         const { signature } = result;
         let message = 'success';
         try {
-          await commCoreModule.restoreSIWEBackup(
+          await commCoreModule.restoreBackup(
             signature,
-            backupID,
             persistConfig.version.toString(),
+            backupID,
           );
         } catch (e) {
           message = `Backup restore error: ${String(
