@@ -10,11 +10,16 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import { useClientBackup } from '../backup/use-client-backup.js';
+import {
+  getBackupSecret,
+  useClientBackup,
+} from '../backup/use-client-backup.js';
 import Button from '../components/button.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { RestoreSIWEBackupRouteName } from '../navigation/route-names.js';
 import { setLocalSettingsActionType } from '../redux/action-types.js';
+import { persistConfig } from '../redux/persist.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -35,12 +40,7 @@ function BackupMenu(props: Props): React.Node {
     state => state.localSettings.isBackupEnabled,
   );
 
-  const {
-    uploadBackupProtocol,
-    restorePasswordUserBackupProtocol,
-    retrieveLatestSIWEBackupData,
-    retrieveLatestBackupInfo,
-  } = useClientBackup();
+  const { uploadBackupProtocol, retrieveLatestBackupInfo } = useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
     let message = 'Success';
@@ -56,13 +56,22 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      await restorePasswordUserBackupProtocol();
+      const [latestBackupInfo, backupSecret] = await Promise.all([
+        retrieveLatestBackupInfo(),
+        getBackupSecret(),
+      ]);
+      await commCoreModule.restoreBackup(
+        backupSecret,
+        persistConfig.version.toString(),
+        latestBackupInfo.backupID,
+      );
+      console.info('Backup restored.');
     } catch (e) {
       message = `Backup restore error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
     Alert.alert('Restore protocol result', message);
-  }, [restorePasswordUserBackupProtocol]);
+  }, [retrieveLatestBackupInfo]);
 
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
@@ -86,10 +95,14 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForSIWEUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      const siweBackupData = await retrieveLatestSIWEBackupData();
+      const backupInfo = await retrieveLatestBackupInfo();
+      const { siweBackupData, backupID } = backupInfo;
+
+      if (!siweBackupData) {
+        throw new Error('Missing SIWE message for Wallet user backup');
+      }
 
       const {
-        backupID,
         siweBackupMsgNonce,
         siweBackupMsgIssuedAt,
         siweBackupMsgStatement,
@@ -108,7 +121,7 @@ function BackupMenu(props: Props): React.Node {
       message = `Backup restore error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
-  }, [navigation, retrieveLatestSIWEBackupData]);
+  }, [navigation, retrieveLatestBackupInfo]);
 
   const onBackupToggled = React.useCallback(
     (value: boolean) => {
