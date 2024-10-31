@@ -2598,14 +2598,20 @@ jsi::Value CommCoreModule::restoreBackupData(
       });
 }
 
-jsi::Value
-CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) {
+jsi::Value CommCoreModule::retrieveBackupKeys(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::String backupID) {
   std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string backupIDStr = backupID.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
             {promise, this->jsInvoker_, innerRt});
-        ::retrieveBackupKeys(rust::string(backupSecretStr), currentID);
+        ::retrieveBackupKeys(
+            rust::string(backupSecretStr),
+            rust::string(backupIDStr),
+            currentID);
       });
 }
 
