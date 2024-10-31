@@ -7,12 +7,20 @@ import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 const taggedCommFarcasterInputValidator =
   neynarWebhookCastCreatedEventValidator;
+const threadHashTagRegex = /\B#createathread\b/i;
 
 async function taggedCommFarcasterResponder(request: $Request): Promise<void> {
   const event = assertWithValidator(
     request.body,
     taggedCommFarcasterInputValidator,
   );
+
+  const { text: eventText } = event.data;
+  const foundCreateThreadHashTag = threadHashTagRegex.test(eventText);
+
+  if (!foundCreateThreadHashTag) {
+    return;
+  }
 
   console.log(event);
 }
