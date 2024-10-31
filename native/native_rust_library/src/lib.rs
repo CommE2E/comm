@@ -454,7 +454,11 @@ mod ffi {
     );
 
     #[cxx_name = "retrieveBackupKeys"]
-    fn retrieve_backup_keys(backup_secret: String, promise_id: u32);
+    fn retrieve_backup_keys(
+      backup_secret: String,
+      backup_id: String,
+      promise_id: u32,
+    );
 
     #[cxx_name = "retrieveLatestBackupInfo"]
     fn retrieve_latest_backup_info(user_identifier: String, promise_id: u32);
