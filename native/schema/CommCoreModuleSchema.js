@@ -172,7 +172,10 @@ interface Spec extends TurboModule {
     backupLogDataKey: string,
     maxVersion: string,
   ) => Promise<void>;
-  +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
+  +retrieveBackupKeys: (
+    backupSecret: string,
+    backupID: string,
+  ) => Promise<string>;
   +retrieveLatestBackupInfo: (userIdentifier: string) => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;

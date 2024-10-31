@@ -44,6 +44,7 @@ import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
+import { useClientBackup } from '../backup/use-client-backup.js';
 import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secret.js';
 import TextInput from '../components/text-input.react.js';
 import { commCoreModule } from '../native-modules.js';
@@ -89,6 +90,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
+  const { retrieveLatestBackupInfo } = useClientBackup();
 
   const { panelForegroundTertiaryLabel } = useColors();
 
@@ -159,9 +161,14 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      const backupSecret = await getBackupSecret();
-      const backupKeysResponse =
-        await commCoreModule.retrieveBackupKeys(backupSecret);
+      const [backupSecret, latestBackupInfo] = await Promise.all([
+        getBackupSecret(),
+        retrieveLatestBackupInfo(),
+      ]);
+      const backupKeysResponse = await commCoreModule.retrieveBackupKeys(
+        backupSecret,
+        latestBackupInfo.backupID,
+      );
       const backupKeys = assertWithValidator<BackupKeys>(
         JSON.parse(backupKeysResponse),
         backupKeysValidator,
@@ -191,6 +198,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       getBackupSecret,
       tunnelbrokerContext,
       goBack,
+      retrieveLatestBackupInfo,
     ],
   );
 
