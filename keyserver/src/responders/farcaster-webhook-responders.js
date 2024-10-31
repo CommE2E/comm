@@ -14,6 +14,11 @@ async function taggedCommFarcasterResponder(request: $Request): Promise<void> {
     taggedCommFarcasterInputValidator,
   );
 
+  const { text: eventText } = event.data;
+  if (!eventText.toLowerCase().includes('#createathread')) {
+    return;
+  }
+
   console.log(event);
 }
 
