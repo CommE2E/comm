@@ -44,7 +44,7 @@ import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import { getBackupSecret } from '../backup/use-client-backup.js';
+import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secret.js';
 import TextInput from '../components/text-input.react.js';
 import { commCoreModule } from '../native-modules.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
@@ -88,6 +88,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const foreignPeerDevices = useSelector(getForeignPeerDeviceIDs);
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
+  const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
   const { panelForegroundTertiaryLabel } = useColors();
 
@@ -187,6 +188,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       broadcastDeviceListUpdates,
       foreignPeerDevices,
       getAndUpdateDeviceListsForUsers,
+      getBackupSecret,
       tunnelbrokerContext,
       goBack,
     ],
