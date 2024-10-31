@@ -14,6 +14,14 @@ async function taggedCommFarcasterResponder(request: $Request): Promise<void> {
     taggedCommFarcasterInputValidator,
   );
 
+  const { text: eventText } = event.data;
+  const threadHashTagRegex = /\B#createathread\b/i;
+  const foundCreateThreadHashTag = threadHashTagRegex.test(eventText);
+
+  if (!foundCreateThreadHashTag) {
+    return;
+  }
+
   console.log(event);
 }
 
