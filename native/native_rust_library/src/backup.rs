@@ -202,6 +202,34 @@ pub mod ffi {
     });
   }
 
+  fn get_siwe_backup_data_from_msg(
+    backup_id: String,
+    siwe_backup_msg: String,
+  ) -> Result<SIWEBackupData, String> {
+    let siwe_backup_msg_obj: Message = match siwe_backup_msg.parse() {
+      Ok(siwe_backup_msg_obj) => siwe_backup_msg_obj,
+      Err(error) => {
+        return Err(error.to_string());
+      }
+    };
+
+    let siwe_backup_msg_nonce = siwe_backup_msg_obj.nonce;
+    let siwe_backup_msg_statement = match siwe_backup_msg_obj.statement {
+      Some(statement) => statement,
+      None => {
+        return Err("Backup message invalid: missing statement".to_string());
+      }
+    };
+
+    let siwe_backup_msg_issued_at = siwe_backup_msg_obj.issued_at.to_string();
+
+    Ok(SIWEBackupData {
+      backup_id,
+      siwe_backup_msg_nonce,
+      siwe_backup_msg_statement,
+      siwe_backup_msg_issued_at,
+    })
+  }
   pub fn retrieve_latest_siwe_backup_data(promise_id: u32) {
     RUNTIME.spawn(async move {
       let result = download_latest_backup_id()
@@ -222,8 +250,17 @@ pub mod ffi {
         siwe_backup_msg,
       } = result;
 
-      let siwe_backup_msg_string = match siwe_backup_msg {
-        Some(siwe_backup_msg_value) => siwe_backup_msg_value,
+      let siwe_backup_data = match siwe_backup_msg {
+        Some(siwe_backup_msg_value) => {
+          match get_siwe_backup_data_from_msg(backup_id, siwe_backup_msg_value)
+          {
+            Ok(data) => data,
+            Err(err) => {
+              string_callback(err, promise_id, "".to_string());
+              return;
+            }
+          }
+        }
         None => {
           string_callback(
             "Backup message unavailable".to_string(),
@@ -232,37 +269,6 @@ pub mod ffi {
           );
           return;
         }
-      };
-
-      let siwe_backup_msg_obj: Message = match siwe_backup_msg_string.parse() {
-        Ok(siwe_backup_msg_obj) => siwe_backup_msg_obj,
-        Err(error) => {
-          string_callback(error.to_string(), promise_id, "".to_string());
-          return;
-        }
-      };
-
-      let siwe_backup_msg_nonce = siwe_backup_msg_obj.nonce;
-      let siwe_backup_msg_statement = match siwe_backup_msg_obj.statement {
-        Some(statement) => statement,
-        None => {
-          string_callback(
-            "Backup message invalid: missing statement".to_string(),
-            promise_id,
-            "".to_string(),
-          );
-          return;
-        }
-      };
-
-      let siwe_backup_msg_issued_at = siwe_backup_msg_obj.issued_at.to_string();
-
-      let siwe_backup_data = SIWEBackupData {
-        backup_id: backup_id,
-        siwe_backup_msg: siwe_backup_msg_string,
-        siwe_backup_msg_nonce: siwe_backup_msg_nonce,
-        siwe_backup_msg_statement: siwe_backup_msg_statement,
-        siwe_backup_msg_issued_at: siwe_backup_msg_issued_at,
       };
 
       let serialize_result = serde_json::to_string(&siwe_backup_data);
@@ -456,12 +462,12 @@ struct BackupKeysResult {
   backup_log_data_key: String,
 }
 
+// This struct should match `SIWEBackupData` in `lib/types/backup-types.js`
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SIWEBackupData {
   #[serde(rename = "backupID")]
   backup_id: String,
-  siwe_backup_msg: String,
   siwe_backup_msg_statement: String,
   siwe_backup_msg_nonce: String,
   siwe_backup_msg_issued_at: String,
