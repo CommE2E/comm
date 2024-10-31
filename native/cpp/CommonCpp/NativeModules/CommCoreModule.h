@@ -242,6 +242,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String maxVersion) override;
   virtual jsi::Value
   retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) override;
+  virtual jsi::Value retrieveLatestBackupInfo(
+      jsi::Runtime &rt,
+      jsi::String userIdentifier) override;
   virtual jsi::Value setSIWEBackupSecrets(
       jsi::Runtime &rt,
       jsi::Object siweBackupSecrets) override;
