@@ -229,49 +229,6 @@ pub mod ffi {
       siwe_backup_msg_issued_at,
     })
   }
-  pub fn retrieve_latest_siwe_backup_data(promise_id: u32) {
-    RUNTIME.spawn(async move {
-      let result = download_latest_backup_id()
-        .await
-        .map_err(|err| err.to_string());
-
-      let result = match result {
-        Ok(result) => result,
-        Err(error) => {
-          string_callback(error, promise_id, "".to_string());
-          return;
-        }
-      };
-
-      let LatestBackupInfoResponse {
-        backup_id,
-        user_id,
-        siwe_backup_msg,
-      } = result;
-
-      let siwe_backup_data = if let Some(siwe_backup_msg_value) =
-        siwe_backup_msg
-      {
-        match get_siwe_backup_data_from_msg(backup_id, siwe_backup_msg_value) {
-          Ok(data) => data,
-          Err(err) => {
-            string_callback(err, promise_id, "".to_string());
-            return;
-          }
-        }
-      } else {
-        string_callback(
-          "Backup message unavailable".to_string(),
-          promise_id,
-          "".to_string(),
-        );
-        return;
-      };
-
-      let serialize_result = serde_json::to_string(&siwe_backup_data);
-      handle_string_result_as_callback(serialize_result, promise_id);
-    });
-  }
 
   pub fn retrieve_latest_backup_info(user_identifier: String, promise_id: u32) {
     RUNTIME.spawn(async move {
