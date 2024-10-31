@@ -120,20 +120,12 @@ pub mod ffi {
     });
   }
 
-  pub fn retrieve_backup_keys(backup_secret: String, promise_id: u32) {
+  pub fn retrieve_backup_keys(
+    backup_secret: String,
+    backup_id: String,
+    promise_id: u32,
+  ) {
     RUNTIME.spawn(async move {
-      let latest_backup_id_response = download_latest_backup_id()
-        .await
-        .map_err(|err| err.to_string());
-
-      let backup_id = match latest_backup_id_response {
-        Ok(result) => result.backup_id,
-        Err(error) => {
-          string_callback(error, promise_id, "".to_string());
-          return;
-        }
-      };
-
       let result = download_backup_keys(backup_id, backup_secret)
         .await
         .map_err(|err| err.to_string());
@@ -326,32 +318,6 @@ async fn download_backup(
   download_backup_data(backup_keys).await
 }
 
-async fn download_latest_backup_id(
-) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
-  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
-  let user_identity = get_user_identity_from_secure_store()?;
-
-  let latest_backup_descriptor = BackupDescriptor::Latest {
-    user_identifier: user_identity.user_id.clone(),
-  };
-
-  let backup_info_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
-    .await?;
-
-  let LatestBackupInfoResponse {
-    backup_id,
-    user_id,
-    siwe_backup_msg,
-  } = serde_json::from_slice(&backup_info_response)?;
-
-  Ok(LatestBackupInfoResponse {
-    backup_id,
-    user_id,
-    siwe_backup_msg,
-  })
-}
-
 async fn download_latest_backup_info(
   user_identifier: String,
 ) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
@@ -383,12 +349,13 @@ async fn download_backup_keys(
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
-  let latest_backup_descriptor = BackupDescriptor::Latest {
-    user_identifier: user_identity.user_id.clone(),
+  let backup_descriptor = BackupDescriptor::BackupID {
+    backup_id: backup_id.clone(),
+    user_identity: user_identity.clone(),
   };
 
   let mut encrypted_user_keys = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
+    .download_backup_data(&backup_descriptor, RequestedData::UserKeys)
     .await?;
   let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
   let user_keys =
