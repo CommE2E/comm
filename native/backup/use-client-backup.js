@@ -5,8 +5,10 @@ import * as React from 'react';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
-  type SIWEBackupData,
+  latestBackupInfoResponseValidator,
   siweBackupDataValidator,
+  type LatestBackupInfo,
+  type SIWEBackupData,
 } from 'lib/types/backup-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -20,6 +22,7 @@ type ClientBackup = {
   +uploadBackupProtocol: () => Promise<void>,
   +restorePasswordUserBackupProtocol: () => Promise<void>,
   +retrieveLatestSIWEBackupData: () => Promise<SIWEBackupData>,
+  +retrieveLatestBackupInfo: () => Promise<LatestBackupInfo>,
 };
 
 async function getBackupSecret(): Promise<string> {
@@ -105,11 +108,35 @@ function useClientBackup(): ClientBackup {
     );
   }, [currentUserID, currentUserInfo, loggedIn]);
 
-  return {
-    uploadBackupProtocol,
-    restorePasswordUserBackupProtocol,
-    retrieveLatestSIWEBackupData,
-  };
+  const retrieveLatestBackupInfo = React.useCallback(async () => {
+    if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
+      throw new Error('Attempt to restore backup for not logged in user.');
+    }
+    const userIdentitifer = currentUserInfo?.username;
+
+    const response =
+      await commCoreModule.retrieveLatestBackupInfo(userIdentitifer);
+
+    return assertWithValidator<LatestBackupInfo>(
+      JSON.parse(response),
+      latestBackupInfoResponseValidator,
+    );
+  }, [currentUserID, currentUserInfo, loggedIn]);
+
+  return React.useMemo(
+    () => ({
+      uploadBackupProtocol,
+      restorePasswordUserBackupProtocol,
+      retrieveLatestSIWEBackupData,
+      retrieveLatestBackupInfo,
+    }),
+    [
+      restorePasswordUserBackupProtocol,
+      retrieveLatestBackupInfo,
+      retrieveLatestSIWEBackupData,
+      uploadBackupProtocol,
+    ],
+  );
 }
 
 export { getBackupSecret, useClientBackup };
