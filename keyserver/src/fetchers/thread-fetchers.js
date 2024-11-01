@@ -266,6 +266,14 @@ async function fetchAccessibleThreadInfos(
   return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
 }
 
+async function fetchThreadInfos(
+  viewer: Viewer,
+  inputFilter?: FetchThreadInfosFilter,
+): Promise<FetchThreadInfosResult> {
+  const serverResult = await fetchServerThreadInfos(inputFilter);
+  return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
+}
+
 function rawThreadInfosFromServerThreadInfos(
   viewer: Viewer,
   serverResult: FetchServerThreadInfosResult,
@@ -464,6 +472,7 @@ async function fetchContainedThreadIDs(
 export {
   fetchServerThreadInfos,
   fetchAccessibleThreadInfos,
+  fetchThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
