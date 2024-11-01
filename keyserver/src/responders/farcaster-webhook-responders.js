@@ -59,9 +59,13 @@ async function createCastSidebar(
     return null;
   }
 
-  const castAuthor = sidebarCast.author.username;
+  const {
+    author: { username: castAuthor },
+    text: castText,
+  } = sidebarCast;
+
   const channelText = channelName ? ` in channel ${channelName}` : '';
-  const messageText = `${castAuthor} said "${sidebarCast.text}"${channelText}`;
+  const messageText = `${castAuthor} said "${castText}"${channelText}`;
 
   let viewer = commbotViewer;
   if (taggerUserID) {
