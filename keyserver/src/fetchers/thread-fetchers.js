@@ -266,11 +266,23 @@ async function fetchThreadInfos(
   return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
 }
 
+async function fetchPrivilegedThreadInfos(
+  viewer: Viewer,
+  inputFilter?: FetchThreadInfosFilter,
+): Promise<FetchThreadInfosResult> {
+  const serverResult = await fetchServerThreadInfos(inputFilter);
+  return rawThreadInfosFromServerThreadInfos(viewer, serverResult, {
+    addKnowOfPermission: true,
+  });
+}
+
 function rawThreadInfosFromServerThreadInfos(
   viewer: Viewer,
   serverResult: FetchServerThreadInfosResult,
+  options?: { addKnowOfPermission?: boolean },
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
+  const addKnowOfPermission = options?.addKnowOfPermission ?? false;
   const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, {
     native: 209,
   });
@@ -337,6 +349,7 @@ function rawThreadInfosFromServerThreadInfos(
           manageFarcasterChannelTagsPermissionUnsupported,
         stripMemberPermissions: stripMemberPermissions,
         canDisplayFarcasterThreadAvatars,
+        addKnowOfPermission,
       },
     );
     if (threadInfo) {
@@ -463,6 +476,7 @@ async function fetchContainedThreadIDs(
 
 export {
   fetchServerThreadInfos,
+  fetchPrivilegedThreadInfos,
   fetchThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
