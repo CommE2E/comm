@@ -50,7 +50,7 @@ import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import { fetchRoles } from '../fetchers/role-fetchers.js';
 import {
-  fetchThreadInfos,
+  fetchAccessibleThreadInfos,
   fetchServerThreadInfos,
   determineThreadAncestry,
   rawThreadInfosFromServerThreadInfos,
@@ -95,7 +95,7 @@ async function updateRole(
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
-    fetchThreadInfos(viewer, { threadID: request.threadID }),
+    fetchAccessibleThreadInfos(viewer, { threadID: request.threadID }),
   ]);
   if (memberIDs.length === 0) {
     throw new ServerError('invalid_parameters');
@@ -274,7 +274,7 @@ async function leaveThread(
   }
 
   const [fetchThreadResult, hasPermission] = await Promise.all([
-    fetchThreadInfos(viewer, { threadID: request.threadID }),
+    fetchAccessibleThreadInfos(viewer, { threadID: request.threadID }),
     checkThreadPermission(
       viewer,
       request.threadID,

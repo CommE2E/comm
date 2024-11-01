@@ -30,7 +30,7 @@ import type {
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import { values } from 'lib/utils/objects.js';
 
-import { fetchThreadInfos } from './thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from './thread-fetchers.js';
 import { fetchKnownUserInfos } from './user-fetchers.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
@@ -164,7 +164,7 @@ async function checkThreadsFrozen(
   }
 
   const [{ threadInfos }, userInfos] = await Promise.all([
-    fetchThreadInfos(viewer, { threadIDs: new Set(threadIDs) }),
+    fetchAccessibleThreadInfos(viewer, { threadIDs: new Set(threadIDs) }),
     fetchKnownUserInfos(viewer),
   ]);
 
@@ -177,9 +177,10 @@ async function checkThreadsFrozen(
     communityThreadIDs.add(communityRootThreadID);
   }
 
-  const { threadInfos: communityThreadInfos } = await fetchThreadInfos(viewer, {
-    threadIDs: communityThreadIDs,
-  });
+  const { threadInfos: communityThreadInfos } =
+    await fetchAccessibleThreadInfos(viewer, {
+      threadIDs: communityThreadIDs,
+    });
 
   const combinedThreadInfos = {
     ...threadInfos,

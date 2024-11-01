@@ -254,7 +254,7 @@ export type FetchThreadInfosResult = {
   },
 };
 
-async function fetchThreadInfos(
+async function fetchAccessibleThreadInfos(
   viewer: Viewer,
   inputFilter?: FetchThreadInfosFilter,
 ): Promise<FetchThreadInfosResult> {
@@ -463,7 +463,7 @@ async function fetchContainedThreadIDs(
 
 export {
   fetchServerThreadInfos,
-  fetchThreadInfos,
+  fetchAccessibleThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
   verifyThreadID,

@@ -14,7 +14,7 @@ import { dbQuery, SQL } from '../database/database.js';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
-  fetchThreadInfos,
+  fetchAccessibleThreadInfos,
 } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -63,7 +63,7 @@ async function deleteRole(
     await Promise.all([
       dbQuery(defaultRoleQuery),
       dbQuery(membersWithRoleQuery),
-      fetchThreadInfos(viewer, {
+      fetchAccessibleThreadInfos(viewer, {
         threadID: community,
       }),
     ]);

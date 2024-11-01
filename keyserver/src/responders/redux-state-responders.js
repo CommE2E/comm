@@ -41,7 +41,7 @@ import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
@@ -118,7 +118,7 @@ async function getInitialReduxStateResponder(
     ? clientUpdatesCurrentAsOf
     : Date.now();
 
-  const threadInfoPromise = fetchThreadInfos(viewer);
+  const threadInfoPromise = fetchAccessibleThreadInfos(viewer);
   const messageInfoPromise = fetchMessageInfos(
     viewer,
     messageSelectionCriteria,
