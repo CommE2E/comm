@@ -279,6 +279,7 @@ function rawThreadInfosFromServerThreadInfos(
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
+  const addKnowOfPermission = viewer.isScriptViewer;
   const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, {
     native: 209,
   });
@@ -345,6 +346,7 @@ function rawThreadInfosFromServerThreadInfos(
           manageFarcasterChannelTagsPermissionUnsupported,
         stripMemberPermissions: stripMemberPermissions,
         canDisplayFarcasterThreadAvatars,
+        addKnowOfPermission,
       },
     );
     if (threadInfo) {
