@@ -32,7 +32,7 @@ import {
 import { createThread } from './thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchLoggedInUserInfo,
   fetchKnownUserInfos,
@@ -145,7 +145,7 @@ async function createAccount(
   const rawMessageInfos = await sendMessagesOnAccountCreation(viewer);
 
   const [threadsResult, userInfos, currentUserInfo] = await Promise.all([
-    fetchThreadInfos(viewer),
+    fetchAccessibleThreadInfos(viewer),
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
   ]);

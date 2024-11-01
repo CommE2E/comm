@@ -110,7 +110,7 @@ import { checkAndInvalidateSIWENonceEntry } from '../deleters/siwe-nonce-deleter
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfo,
@@ -423,7 +423,7 @@ async function fetchLoginResponse(
     userInfos,
     currentUserInfo,
   ] = await Promise.all([
-    fetchThreadInfos(viewer),
+    fetchAccessibleThreadInfos(viewer),
     fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
     entriesPromise,
     fetchKnownUserInfos(viewer),

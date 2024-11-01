@@ -51,7 +51,7 @@ import {
 } from '../fetchers/entry-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import {
-  fetchThreadInfos,
+  fetchAccessibleThreadInfos,
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers.js';
 import {
@@ -431,7 +431,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     if (viewerInfo.threadInfos || threadIDsNeedingFetch.size === 0) {
       return undefined;
     }
-    return await fetchThreadInfos(viewer, {
+    return await fetchAccessibleThreadInfos(viewer, {
       threadIDs: threadIDsNeedingFetch,
     });
   })();

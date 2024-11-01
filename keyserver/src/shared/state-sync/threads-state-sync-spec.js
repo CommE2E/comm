@@ -11,7 +11,7 @@ import {
 import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
-import { fetchThreadInfos } from '../../fetchers/thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from '../../fetchers/thread-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
 import { validateOutput } from '../../utils/validation-utils.js';
 
@@ -23,7 +23,7 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
 > = Object.freeze({
   fetch,
   async fetchFullSocketSyncPayload(viewer: Viewer) {
-    const result = await fetchThreadInfos(viewer);
+    const result = await fetchAccessibleThreadInfos(viewer);
     return result.threadInfos;
   },
   async fetchServerInfosHash(viewer: Viewer, ids?: $ReadOnlySet<string>) {
@@ -37,7 +37,7 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
 
 async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   const filter = ids ? { threadIDs: ids } : undefined;
-  const result = await fetchThreadInfos(viewer, filter);
+  const result = await fetchAccessibleThreadInfos(viewer, filter);
   return result.threadInfos;
 }
 

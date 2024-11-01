@@ -29,7 +29,7 @@ import createIDs from './id-creator.js';
 import { createUpdates } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import {
-  fetchThreadInfos,
+  fetchAccessibleThreadInfos,
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
 } from '../fetchers/thread-fetchers.js';
@@ -98,7 +98,7 @@ async function modifyRole(
 ): Promise<RoleModificationResult> {
   const { community, name, permissions } = request;
 
-  const { threadInfos } = await fetchThreadInfos(viewer, {
+  const { threadInfos } = await fetchAccessibleThreadInfos(viewer, {
     threadID: community,
   });
   const threadInfo = threadInfos[community];

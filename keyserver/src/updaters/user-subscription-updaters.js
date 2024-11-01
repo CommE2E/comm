@@ -10,7 +10,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchAccessibleThreadInfos } from '../fetchers/thread-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
 async function userSubscriptionUpdater(
@@ -21,7 +21,7 @@ async function userSubscriptionUpdater(
     throw new ServerError('not_logged_in');
   }
 
-  const { threadInfos } = await fetchThreadInfos(viewer, {
+  const { threadInfos } = await fetchAccessibleThreadInfos(viewer, {
     threadID: update.threadID,
   });
   const threadInfo = threadInfos[update.threadID];
