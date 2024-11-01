@@ -64,8 +64,11 @@ async function createCastSidebar(
     text: castText,
   } = sidebarCast;
 
+  const warpcastLink = `https://warpcast.com/${castAuthor}/${sidebarCastHash}`;
+  const saidText = `[said](${warpcastLink})`;
   const channelText = channelName ? ` in channel ${channelName}` : '';
-  const messageText = `${castAuthor} said "${castText}"${channelText}`;
+
+  const messageText = `${castAuthor} ${saidText} "${castText}"${channelText}`;
 
   let viewer = commbotViewer;
   if (taggerUserID) {
