@@ -48,7 +48,7 @@ const commbotViewer = createBotViewer(commbot.userID);
 
 async function createCastSidebar(
   sidebarCastHash: string,
-  channelName: ?string,
+  channelFarcasterID: ?string,
   channelCommunityID: string,
   taggerUserID: ?string,
 ): Promise<?NewThreadResponse> {
@@ -66,7 +66,9 @@ async function createCastSidebar(
 
   const warpcastLink = `https://warpcast.com/${castAuthor}/${sidebarCastHash}`;
   const saidText = `[said](${warpcastLink})`;
-  const channelText = channelName ? ` in channel ${channelName}` : '';
+  const channelText = channelFarcasterID
+    ? ` in channel /${channelFarcasterID}`
+    : '';
 
   const messageText = `${castAuthor} ${saidText} "${castText}"${channelText}`;
 
@@ -289,7 +291,7 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
   const sidebarCastHash = parentHash ?? castHash;
   const sidebarThreadResponse = await createCastSidebar(
     sidebarCastHash,
-    eventChannel?.name,
+    eventChannel?.id,
     channelCommunityID,
     taggerUserID,
   );
