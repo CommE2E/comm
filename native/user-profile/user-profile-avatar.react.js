@@ -5,10 +5,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
-import { userProfileUserInfoContainerHeight } from './user-profile-constants.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import { UserProfileAvatarModalRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 
 // We need to set onAvatarLayout in order to allow .measure() to be on the ref
 const onAvatarLayout = () => {};
@@ -26,6 +27,9 @@ function UserProfileAvatar(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
 
   const avatarRef = React.useRef<?React.ElementRef<typeof View>>();
+
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const fullScreenHeight = dimensions.height;
 
   const onPressAvatar = React.useCallback(() => {
     invariant(overlayContext, 'UserProfileAvatar should have OverlayContext');
@@ -45,8 +49,8 @@ function UserProfileAvatar(props: Props): React.Node {
       };
 
       const verticalBounds = {
-        height: userProfileUserInfoContainerHeight,
-        y: pageY,
+        height: fullScreenHeight,
+        y: 0,
       };
 
       navigate<'UserProfileAvatarModal'>({
@@ -59,7 +63,7 @@ function UserProfileAvatar(props: Props): React.Node {
         },
       });
     });
-  }, [navigate, overlayContext, route.key, userID]);
+  }, [navigate, overlayContext, route.key, userID, fullScreenHeight]);
 
   return (
     <TouchableOpacity onPress={onPressAvatar}>
