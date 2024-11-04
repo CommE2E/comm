@@ -7,6 +7,7 @@ import * as React from 'react';
 import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import BottomSheetBackdrop from './bottom-sheet-backdrop.react.js';
+import { handleTotalHeight } from './bottom-sheet-constants.js';
 import BottomSheetHandle from './bottom-sheet-handle.react.js';
 import { BottomSheetContext } from './bottom-sheet-provider.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -29,7 +30,10 @@ function ForwardedBottomSheet(
 
   const { contentHeight } = bottomSheetContext;
 
-  const snapPoints = React.useMemo(() => [contentHeight], [contentHeight]);
+  const snapPoints = React.useMemo(
+    () => [contentHeight + handleTotalHeight],
+    [contentHeight],
+  );
 
   const onChange = React.useCallback(
     (index: number) => {
