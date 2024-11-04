@@ -17,7 +17,7 @@ import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
+import { thickIDRegex } from 'lib/utils/validation-utils.js';
 
 import {
   setInitialReduxState,
@@ -58,7 +58,7 @@ function InitialReduxStateGate(props: Props): React.Node {
       try {
         let urlInfo = infoFromURL(decodeURI(window.location.href));
         const isThickThreadOpen =
-          urlInfo.thread && thickThreadIDRegex.test(urlInfo.thread);
+          urlInfo.thread && thickIDRegex.test(urlInfo.thread);
         // Handle older links
         if (urlInfo.thread && !isThickThreadOpen) {
           urlInfo = {
