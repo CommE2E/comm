@@ -70,7 +70,12 @@ async function createCastSidebar(
     ? ` in channel /${channelFarcasterID}`
     : '';
 
-  const messageText = `${castAuthor} ${saidText} "${castText}"${channelText}`;
+  const quoteText = castText
+    .split('\n')
+    .map(line => `> ${line}`)
+    .join('\n');
+
+  const messageText = `${castAuthor} ${saidText}${channelText}:\n${quoteText}`;
 
   let viewer = commbotViewer;
   if (taggerUserID) {
