@@ -3,6 +3,11 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
+import {
+  knobHandleContainerMarginTop,
+  knobHandleHeight,
+  handleGap,
+} from './bottom-sheet-constants.js';
 import { useStyles } from '../themes/colors.js';
 
 function BottomSheetHandle(): React.Node {
@@ -25,17 +30,17 @@ function BottomSheetHandle(): React.Node {
 
 const unboundStyles = {
   knobHandleContainer: {
-    marginTop: -12,
+    marginTop: knobHandleContainerMarginTop,
   },
   knobHandle: {
     width: 64,
-    height: 4,
+    height: knobHandleHeight,
     backgroundColor: 'modalKnob',
     alignSelf: 'center',
     borderRadius: 4,
   },
   gap: {
-    height: 32,
+    height: handleGap,
   },
 };
 
