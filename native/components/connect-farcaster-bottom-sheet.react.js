@@ -19,10 +19,9 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
-const bottomSheetPaddingTop = 32;
 const farcasterPromptHeight = 350;
 const marginBottom = 40;
-const buttonHeight = 48;
+const buttonHeight = 61;
 
 type Props = {
   +navigation: RootNavigationProp<'ConnectFarcasterBottomSheet'>,
@@ -66,11 +65,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   React.useLayoutEffect(() => {
     setContentHeight(
-      bottomSheetPaddingTop +
-        farcasterPromptHeight +
-        marginBottom +
-        buttonHeight +
-        insets.bottom,
+      farcasterPromptHeight + marginBottom + buttonHeight + insets.bottom,
     );
   }, [insets.bottom, setContentHeight]);
 
@@ -117,7 +112,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   promptContainer: {
-    marginBottom: 40,
+    marginBottom,
   },
 });
 
