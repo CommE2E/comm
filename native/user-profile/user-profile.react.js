@@ -16,7 +16,6 @@ import sleep from 'lib/utils/sleep.js';
 import UserProfileAvatar from './user-profile-avatar.react.js';
 import {
   userProfileUserInfoContainerHeight,
-  userProfileBottomPadding,
   userProfileMenuButtonHeight,
   userProfileActionButtonHeight,
 } from './user-profile-constants.js';
@@ -55,10 +54,7 @@ function UserProfile(props: Props): React.Node {
   const insets = useSafeAreaInsets();
 
   React.useLayoutEffect(() => {
-    let height =
-      insets.bottom +
-      userProfileUserInfoContainerHeight +
-      userProfileBottomPadding;
+    let height = insets.bottom + userProfileUserInfoContainerHeight;
 
     if (userProfileThreadInfo) {
       height += userProfileMenuButtonHeight;
