@@ -469,6 +469,12 @@ struct CompactionDownloadResult {
   backup_log_data_key: String,
 }
 
+/// Stores the Olm account in `pickled_account`. However, Olm account
+/// information might be out of date. We have decided we don't need
+/// to update this when one-time keys (OTKs) or prekeys change.
+/// The reasoning behind this decision is that the backed-up Olm account
+/// is primarily used for signing an update to the device list. For these
+/// operations only the identity signing key is necessary.
 #[derive(Debug, Serialize, Deserialize)]
 struct UserKeys {
   backup_data_key: String,
