@@ -29,9 +29,6 @@ export type KeyserverSelectionBottomSheetParams = {
   +keyserverInfo: KeyserverInfo,
 };
 
-// header + paddingTop + paddingBottom + marginBottom
-const keyserverHeaderHeight = 84 + 16 + 16 + 24;
-
 type Props = {
   +navigation: RootNavigationProp<'KeyserverSelectionBottomSheet'>,
   +route: NavigationRoute<'KeyserverSelectionBottomSheet'>,
@@ -51,8 +48,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
   const { setContentHeight } = bottomSheetContext;
 
-  const removeKeyserverContainerRef =
-    React.useRef<?React.ElementRef<typeof View>>();
+  const containerRef = React.useRef<?React.ElementRef<typeof View>>();
   const bottomSheetRef = React.useRef<?BottomSheetRef>();
 
   const colors = useColors();
@@ -61,20 +57,18 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
   const insets = useSafeAreaInsets();
 
   const onLayout = React.useCallback(() => {
-    removeKeyserverContainerRef.current?.measure(
-      (x, y, width, height, pageX, pageY) => {
-        if (
-          height === null ||
-          height === undefined ||
-          pageY === null ||
-          pageY === undefined
-        ) {
-          return;
-        }
+    containerRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      if (
+        height === null ||
+        height === undefined ||
+        pageY === null ||
+        pageY === undefined
+      ) {
+        return;
+      }
 
-        setContentHeight(height + keyserverHeaderHeight + insets.bottom);
-      },
-    );
+      setContentHeight(height + insets.bottom);
+    });
   }, [insets.bottom, setContentHeight]);
 
   const cloudIcon = React.useMemo(
@@ -196,7 +190,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
 
   return (
     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
-      <View style={styles.container}>
+      <View style={styles.container} ref={containerRef} onLayout={onLayout}>
         <View style={styles.keyserverDetailsContainer}>
           <View style={styles.keyserverHeaderContainer}>
             <View style={styles.keyserverPillContainer}>
@@ -212,9 +206,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
           </View>
           <Text style={styles.keyserverURLText}>{keyserverInfo.urlPrefix}</Text>
         </View>
-        <View ref={removeKeyserverContainerRef} onLayout={onLayout}>
-          {removeKeyserver}
-        </View>
+        {removeKeyserver}
       </View>
     </BottomSheet>
   );
