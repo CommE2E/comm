@@ -63,7 +63,6 @@
     "tinycolor2": "^1.4.1",
     "tokenize-text": "^1.1.3",
     "util-inspect": "^0.1.8",
-    "utils-copy-error": "^1.0.1",
     "uuid": "^3.4.0",
     "viem": "^2.9.5",
     "wagmi": "^2.5.18"
