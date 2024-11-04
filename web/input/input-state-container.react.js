@@ -95,7 +95,7 @@ import {
   makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
 import { getConfig } from 'lib/utils/config.js';
-import { cloneError, getMessageForException } from 'lib/utils/errors.js';
+import { getMessageForException, SendMessageError } from 'lib/utils/errors.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -493,12 +493,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const result = await threadCreationPromise;
       newThreadID = result.threadID;
     } catch (e) {
-      const copy = cloneError(e);
-      copy.localID = messageInfo.localID;
-      copy.threadID = messageInfo.threadID;
+      const payload = new SendMessageError(
+        getMessageForException(e) ?? '',
+        messageInfo.localID,
+        messageInfo.threadID,
+      );
       this.props.dispatch({
         type: sendMultimediaMessageActionTypes.failed,
-        payload: copy,
+        payload,
         error: true,
       });
       return;
@@ -586,10 +588,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
       return result;
     } catch (e) {
-      const copy = cloneError(e);
-      copy.localID = localID;
-      copy.threadID = threadID;
-      throw copy;
+      throw new SendMessageError(
+        getMessageForException(e) ?? '',
+        localID,
+        threadID,
+      );
     }
   }
 
@@ -1353,12 +1356,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       threadCreationResult = await this.startThreadCreation(threadInfo);
     } catch (e) {
-      const copy = cloneError(e);
-      copy.localID = messageInfo.localID;
-      copy.threadID = messageInfo.threadID;
+      const payload = new SendMessageError(
+        getMessageForException(e) ?? '',
+        messageInfo.localID,
+        messageInfo.threadID,
+      );
       this.props.dispatch({
         type: sendTextMessageActionTypes.failed,
-        payload: copy,
+        payload,
         error: true,
       });
       return;
@@ -1425,10 +1430,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
     } catch (e) {
-      const copy = cloneError(e);
-      copy.localID = messageInfo.localID;
-      copy.threadID = messageInfo.threadID;
-      throw copy;
+      throw new SendMessageError(
+        getMessageForException(e) ?? '',
+        messageInfo.localID,
+        messageInfo.threadID,
+      );
     }
   }
 
