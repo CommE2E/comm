@@ -24,7 +24,7 @@ import {
   thickThreadTypes,
   threadTypeIsThick,
 } from 'lib/types/thread-types-enum.js';
-import { cloneError } from 'lib/utils/errors.js';
+import { SendMessageError, getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Alert from '../modals/alert.react.js';
@@ -118,10 +118,11 @@ function useSendReaction(
             </Alert>,
           );
 
-          const copy = cloneError(e);
-          copy.localID = localID;
-          copy.threadID = threadID;
-          throw copy;
+          throw new SendMessageError(
+            getMessageForException(e) ?? '',
+            localID,
+            threadID,
+          );
         }
       })();
 
