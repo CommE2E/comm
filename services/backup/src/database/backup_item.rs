@@ -15,7 +15,7 @@ pub struct BackupItem {
   pub backup_id: String,
   pub created: DateTime<Utc>,
   pub user_keys: BlobInfo,
-  pub user_data: BlobInfo,
+  pub user_data: Option<BlobInfo>,
   pub attachments: Vec<BlobInfo>,
   pub siwe_backup_msg: Option<String>,
 }
@@ -25,7 +25,7 @@ impl BackupItem {
     user_id: String,
     backup_id: String,
     user_keys: BlobInfo,
-    user_data: BlobInfo,
+    user_data: Option<BlobInfo>,
     attachments: Vec<BlobInfo>,
     siwe_backup_msg: Option<String>,
   ) -> Self {
@@ -40,16 +40,18 @@ impl BackupItem {
     }
   }
 
-  pub fn revoke_holders(&self, blob_client: &BlobServiceClient) {
+  pub fn revoke_user_keys_holders(&self, blob_client: &BlobServiceClient) {
     blob_client.schedule_revoke_holder(
       &self.user_keys.blob_hash,
       &self.user_keys.holder,
     );
+  }
 
-    blob_client.schedule_revoke_holder(
-      &self.user_data.blob_hash,
-      &self.user_data.holder,
-    );
+  pub fn revoke_user_data_holders(&self, blob_client: &BlobServiceClient) {
+    if let Some(user_data) = &self.user_data {
+      blob_client
+        .schedule_revoke_holder(&user_data.blob_hash, &user_data.holder);
+    }
 
     for attachment_info in &self.attachments {
       blob_client.schedule_revoke_holder(
@@ -95,11 +97,11 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
         backup_table::attr::USER_KEYS.to_string(),
         value.user_keys.into(),
       ),
-      (
-        backup_table::attr::USER_DATA.to_string(),
-        value.user_data.into(),
-      ),
     ]);
+
+    if let Some(user_data) = value.user_data {
+      attrs.insert(backup_table::attr::USER_DATA.to_string(), user_data.into());
+    }
 
     if !value.attachments.is_empty() {
       attrs.insert(
@@ -147,10 +149,12 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       backup_table::attr::USER_KEYS,
       value.remove(backup_table::attr::USER_KEYS),
     )?;
-    let user_data = BlobInfo::try_from_attr(
-      backup_table::attr::USER_DATA,
-      value.remove(backup_table::attr::USER_DATA),
-    )?;
+    let user_data = value
+      .remove(backup_table::attr::USER_DATA)
+      .map(|attr| {
+        BlobInfo::try_from_attr(backup_table::attr::USER_DATA, Some(attr))
+      })
+      .transpose()?;
 
     let attachments = value.remove(backup_table::attr::ATTACHMENTS);
     let attachments = if attachments.is_some() {
