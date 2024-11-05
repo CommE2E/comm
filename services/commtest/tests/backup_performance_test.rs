@@ -124,7 +124,7 @@ async fn backup_performance_test() -> Result<(), Error> {
         .find(|data| data.backup_id == *backup_id)
         .expect("Request should return existing backup data");
 
-      assert_eq!(backup.user_keys, user_keys);
+      assert_eq!(backup.user_keys, Some(user_keys));
     }
 
     let mut latest_user_data_for_user = vec![];
@@ -159,7 +159,7 @@ async fn backup_performance_test() -> Result<(), Error> {
         .find(|data| data.backup_id == *backup_id)
         .expect("Request should return existing backup data");
 
-      assert_eq!(backup.user_data, user_data);
+      assert_eq!(backup.user_data, Some(user_data));
     }
   })
   .await
