@@ -90,5 +90,6 @@ public class MainActivity extends ReactActivity
             grantResults[permissionIndex] == PackageManager.PERMISSION_GRANTED);
       }
     }
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 }
