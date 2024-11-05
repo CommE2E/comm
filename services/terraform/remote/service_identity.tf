@@ -33,7 +33,11 @@ locals {
     http://localhost:3008,
     http://localhost:3009
   EOT
-  production_allow_origin_list    = "https://web.comm.app"
+  production_allow_origin_list    = <<EOT
+    https://web.comm.app,
+    https://comm.software,
+    https://www.comm.software
+  EOT
 }
 
 data "aws_secretsmanager_secret" "identity_server_setup" {
