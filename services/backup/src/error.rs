@@ -23,6 +23,7 @@ pub enum BackupError {
   DB(comm_lib::database::Error),
   IdentityClientError(IdentityClientError),
   BadRequest,
+  NoUserData,
 }
 
 impl From<&BackupError> for actix_web::Error {
@@ -75,6 +76,7 @@ impl From<&BackupError> for actix_web::Error {
       }
       BackupError::NoUserID => ErrorBadRequest("bad request"),
       BackupError::BadRequest => ErrorBadRequest("bad request"),
+      BackupError::NoUserData => ErrorNotFound("not found"),
     }
   }
 }
