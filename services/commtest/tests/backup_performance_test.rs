@@ -1,12 +1,13 @@
-use backup_client::{
-  BackupClient, BackupData, BackupDescriptor, RequestedData,
+use backup_client::{BackupClient, BackupDescriptor, RequestedData};
+
+use comm_lib::backup::LatestBackupInfoResponse;
+use commtest::backup::backup_utils::{
+  create_user_identity, generate_backup_data,
 };
-use bytesize::ByteSize;
-use comm_lib::{auth::UserIdentity, backup::LatestBackupInfoResponse};
 use commtest::identity::device::register_user_device;
 use commtest::{
   service_addr,
-  tools::{generate_stable_nbytes, obtain_number_of_threads, Error},
+  tools::{obtain_number_of_threads, Error},
 };
 use grpc_clients::identity::DeviceType;
 use tokio::{runtime::Runtime, task::JoinSet};
@@ -24,37 +25,16 @@ async fn backup_performance_test() -> Result<(), Error> {
     number_of_threads
   );
 
-  let mut backup_data = vec![];
-  for i in 0..number_of_threads {
-    backup_data.push(BackupData {
-      backup_id: format!("b{i}"),
-      user_keys: generate_stable_nbytes(
-        ByteSize::kib(4).as_u64() as usize,
-        Some(i as u8),
-      ),
-      user_data: generate_stable_nbytes(
-        ByteSize::mib(4).as_u64() as usize,
-        Some(i as u8),
-      ),
-      attachments: vec![],
-      siwe_backup_msg: None,
-    });
-  }
+  let backup_data: Vec<_> = (0..number_of_threads)
+    .map(|i| generate_backup_data(i as u8))
+    .collect();
 
   let device_info_1 = register_user_device(None, Some(DeviceType::Ios)).await;
   let device_info_2 = register_user_device(None, Some(DeviceType::Ios)).await;
 
   let user_identities = [
-    UserIdentity {
-      user_id: device_info_1.user_id.clone(),
-      access_token: device_info_1.access_token,
-      device_id: device_info_1.device_id,
-    },
-    UserIdentity {
-      user_id: device_info_2.user_id.clone(),
-      access_token: device_info_2.access_token,
-      device_id: device_info_2.device_id,
-    },
+    create_user_identity(device_info_1.clone()),
+    create_user_identity(device_info_2.clone()),
   ];
 
   tokio::task::spawn_blocking(move || {
