@@ -337,7 +337,6 @@ pub mod cors {
     super::request_metadata::ACCESS_TOKEN,
   ];
   pub const ALLOW_ORIGIN_LIST: &str = "ALLOW_ORIGIN_LIST";
-  pub const PROD_ORIGIN_HOST_STR: &str = "web.comm.app";
 }
 
 // Tracing
