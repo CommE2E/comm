@@ -19,6 +19,7 @@ pub const PLACEHOLDER_CODE_VERSION: u64 = 0;
 pub const DEVICE_TYPE: &str = "service";
 const PASSWORD: &str = "pass";
 
+#[derive(Clone)]
 pub struct DeviceInfo {
   pub username: String,
   pub user_id: String,
