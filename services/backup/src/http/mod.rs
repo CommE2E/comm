@@ -68,6 +68,12 @@ pub async fn run_http_server(
             web::resource("/user_keys")
               .route(web::post().to(handlers::backup::upload_user_keys)),
           )
+          // Uploads User Data without creating a new backup.
+          // User Data are mandatory for this operation.
+          .service(
+            web::resource("/user_data")
+              .route(web::post().to(handlers::backup::upload_user_data)),
+          )
           .service(
             web::resource("{backup_id}/user_keys")
               .route(web::get().to(handlers::backup::download_user_keys)),

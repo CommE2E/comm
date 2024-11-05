@@ -184,6 +184,65 @@ pub async fn upload_user_keys(
   Ok(HttpResponse::Ok().finish())
 }
 
+#[instrument(skip_all, fields(backup_id))]
+pub async fn upload_user_data(
+  user: UserIdentity,
+  blob_client: Authenticated<BlobServiceClient>,
+  db_client: web::Data<DatabaseClient>,
+  mut multipart: actix_multipart::Multipart,
+) -> actix_web::Result<HttpResponse> {
+  let backup_id = get_named_text_field("backup_id", &mut multipart).await?;
+  let blob_client = blob_client.with_user_identity(user.clone());
+  tracing::Span::current().record("backup_id", &backup_id);
+
+  info!("Backup User Data upload started");
+
+  let (user_data_blob_info, user_data_revoke) = forward_field_to_blob(
+    &mut multipart,
+    &blob_client,
+    "user_data_hash",
+    "user_data",
+  )
+  .await?;
+
+  let (attachments, attachments_revokes) =
+    process_attachments(&mut multipart, &blob_client).await?;
+
+  let existing_backup_item = db_client
+    .find_backup_item(&user.user_id, &backup_id)
+    .await
+    .map_err(BackupError::from)?
+    .ok_or(BackupError::NoBackup)?;
+
+  let item = BackupItem::new(
+    user.user_id.clone(),
+    backup_id,
+    existing_backup_item.user_keys.clone(),
+    Some(user_data_blob_info),
+    attachments,
+    existing_backup_item.siwe_backup_msg.clone(),
+  );
+
+  db_client
+    .put_backup_item(item)
+    .await
+    .map_err(BackupError::from)?;
+
+  user_data_revoke.cancel();
+  for attachment_revoke in attachments_revokes {
+    attachment_revoke.cancel();
+  }
+
+  existing_backup_item.revoke_user_data_holders(&blob_client);
+
+  db_client
+    .remove_old_backups(&user.user_id, &blob_client)
+    .await
+    .map_err(BackupError::from)?;
+
+  Ok(HttpResponse::Ok().finish())
+}
+
 #[instrument(skip_all, fields(hash_field_name, data_field_name))]
 async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   multipart: &mut actix_multipart::Multipart,
