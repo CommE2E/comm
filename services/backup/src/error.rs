@@ -22,6 +22,7 @@ pub enum BackupError {
   AuthError(AuthServiceError),
   DB(comm_lib::database::Error),
   IdentityClientError(IdentityClientError),
+  BadRequest,
 }
 
 impl From<&BackupError> for actix_web::Error {
@@ -73,6 +74,7 @@ impl From<&BackupError> for actix_web::Error {
         ErrorServiceUnavailable("please retry")
       }
       BackupError::NoUserID => ErrorBadRequest("bad request"),
+      BackupError::BadRequest => ErrorBadRequest("bad request"),
     }
   }
 }
