@@ -26,7 +26,7 @@ async fn backup_performance_test() -> Result<(), Error> {
   );
 
   let backup_data: Vec<_> = (0..number_of_threads)
-    .map(|i| generate_backup_data(i as u8))
+    .map(|i| generate_backup_data(Some(i as u8)))
     .collect();
 
   let device_info_1 = register_user_device(None, Some(DeviceType::Ios)).await;
