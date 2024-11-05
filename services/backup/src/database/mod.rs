@@ -123,7 +123,8 @@ impl DatabaseClient {
       .map_err(Error::from)?;
 
     if let Some(backup_item) = &result {
-      backup_item.revoke_holders(blob_client);
+      backup_item.revoke_user_keys_holders(blob_client);
+      backup_item.revoke_user_data_holders(blob_client);
     }
 
     self
