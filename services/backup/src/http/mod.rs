@@ -60,6 +60,14 @@ pub async fn run_http_server(
           .service(
             web::resource("").route(web::post().to(handlers::backup::upload)),
           )
+          // Uploads User Keys and creates a new backup.
+          // User Keys are mandatory for this operation.
+          // User Data is not required, data from the previous
+          // backup will be used for the new backup (User Data and Attachments).
+          .service(
+            web::resource("/user_keys")
+              .route(web::post().to(handlers::backup::upload_user_keys)),
+          )
           .service(
             web::resource("{backup_id}/user_keys")
               .route(web::get().to(handlers::backup::download_user_keys)),
