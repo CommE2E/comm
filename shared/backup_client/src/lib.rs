@@ -57,26 +57,46 @@ impl BackupClient {
     } = backup_data;
 
     let client = reqwest::Client::new();
-    let mut form = Form::new()
-      .text("backup_id", backup_id)
-      .text(
-        "user_keys_hash",
-        Sha256::digest(&user_keys).encode_hex::<String>(),
-      )
-      .part("user_keys", Part::stream(Body::from(user_keys)))
-      .text(
-        "user_data_hash",
-        Sha256::digest(&user_data).encode_hex::<String>(),
-      )
-      .part("user_data", Part::stream(Body::from(user_data)))
-      .text("attachments", attachments.join("\n"));
+    let mut form = Form::new().text("backup_id", backup_id);
+
+    if let Some(user_keys_value) = user_keys.clone() {
+      form = form
+        .text(
+          "user_keys_hash",
+          Sha256::digest(&user_keys_value).encode_hex::<String>(),
+        )
+        .part("user_keys", Part::stream(Body::from(user_keys_value)));
+    }
+
+    if let Some(user_data_value) = user_data.clone() {
+      form = form
+        .text(
+          "user_data_hash",
+          Sha256::digest(&user_data_value).encode_hex::<String>(),
+        )
+        .part("user_data", Part::stream(Body::from(user_data_value)));
+    }
+
+    form = form.text("attachments", attachments.join("\n"));
 
     if let Some(siwe_backup_msg_value) = siwe_backup_msg {
       form = form.text("siwe_backup_msg", siwe_backup_msg_value);
     }
 
+    if user_data.is_none() && user_keys.is_none() {
+      return Err(Error::InvalidRequest);
+    }
+
+    let endpoint = if user_data.is_some() && user_keys.is_some() {
+      "backups"
+    } else if user_data.is_some() {
+      "backups/user_data"
+    } else {
+      "backups/user_keys"
+    };
+
     let response = client
-      .post(self.url.join("backups")?)
+      .post(self.url.join(endpoint)?)
       .bearer_auth(user_identity.as_authorization_token()?)
       .multipart(form)
       .send()
@@ -319,8 +339,8 @@ impl BackupClient {
 #[derive(Debug, Clone)]
 pub struct BackupData {
   pub backup_id: String,
-  pub user_keys: Vec<u8>,
-  pub user_data: Vec<u8>,
+  pub user_keys: Option<Vec<u8>>,
+  pub user_data: Option<Vec<u8>>,
   pub attachments: Vec<String>,
   pub siwe_backup_msg: Option<String>,
 }
@@ -375,6 +395,7 @@ pub enum Error {
   LogMissing,
   WSClosed,
   Unauthenticated,
+  InvalidRequest,
 }
 impl std::error::Error for Error {}
 

@@ -11,14 +11,14 @@ use uuid::Uuid;
 pub fn generate_backup_data(predefined_byte_value: u8) -> BackupData {
   BackupData {
     backup_id: Uuid::new_v4().to_string(),
-    user_keys: generate_stable_nbytes(
+    user_keys: Some(generate_stable_nbytes(
       ByteSize::kib(4).as_u64() as usize,
       Some(predefined_byte_value),
-    ),
-    user_data: generate_stable_nbytes(
+    )),
+    user_data: Some(generate_stable_nbytes(
       ByteSize::mib(4).as_u64() as usize,
       Some(predefined_byte_value),
-    ),
+    )),
     attachments: vec![],
     siwe_backup_msg: None,
   }

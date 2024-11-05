@@ -57,12 +57,12 @@ async fn backup_integration_test() -> Result<(), Error> {
   let user_keys = backup_client
     .download_backup_data(&second_backup_descriptor, RequestedData::UserKeys)
     .await?;
-  assert_eq!(user_keys, backup_data.user_keys);
+  assert_eq!(Some(user_keys), backup_data.user_keys);
 
   let user_data = backup_client
     .download_backup_data(&second_backup_descriptor, RequestedData::UserData)
     .await?;
-  assert_eq!(user_data, backup_data.user_data);
+  assert_eq!(Some(user_data), backup_data.user_data);
 
   // Test latest backup lookup for nonexistent user
   let latest_backup_descriptor = BackupDescriptor::Latest {
@@ -91,7 +91,7 @@ async fn backup_integration_test() -> Result<(), Error> {
   let user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
     .await?;
-  assert_eq!(user_keys, backup_data.user_keys);
+  assert_eq!(Some(user_keys), backup_data.user_keys);
 
   // Test log download
   let log_stream = backup_client
