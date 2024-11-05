@@ -8,7 +8,7 @@ use actix_web::{
 pub use aws_sdk_dynamodb::Error as DynamoDBError;
 use comm_lib::database::Error as DBError;
 use comm_lib::{auth::AuthServiceError, blob::client::BlobServiceError};
-use grpc_clients::error::Error as IdentityClientError;
+use grpc_clients::error::Error as IdentityError;
 use reqwest::StatusCode;
 use tracing::{error, trace, warn};
 
@@ -21,7 +21,8 @@ pub enum BackupError {
   BlobError(BlobServiceError),
   AuthError(AuthServiceError),
   DB(comm_lib::database::Error),
-  IdentityClientError(IdentityClientError),
+  IdentityError(IdentityError),
+  BadRequest,
 }
 
 impl From<&BackupError> for actix_web::Error {
@@ -68,11 +69,12 @@ impl From<&BackupError> for actix_web::Error {
           ErrorInternalServerError("server error")
         }
       },
-      BackupError::IdentityClientError(err) => {
+      BackupError::IdentityError(err) => {
         warn!("Transient identity error occurred: {err}");
         ErrorServiceUnavailable("please retry")
       }
       BackupError::NoUserID => ErrorBadRequest("bad request"),
+      BackupError::BadRequest => ErrorBadRequest("bad request"),
     }
   }
 }
