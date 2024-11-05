@@ -38,7 +38,7 @@ pub async fn run_http_server(
       .app_data(auth_service.to_owned())
       .route("/health", web::get().to(HttpResponse::Ok))
       .service(
-        // Backup services that don't require authetication
+        // Backup services that don't require authentication
         web::scope("/backups/latest")
           .service(
             web::resource("{user_identifier}/backup_info")
@@ -49,9 +49,14 @@ pub async fn run_http_server(
           )),
       )
       .service(
-        // Backup services requiring authetication
+        // Backup services requiring authentication
         web::scope("/backups")
           .wrap(get_comm_authentication_middleware())
+          // Uploads backup data from multipart form data.
+          // This function requires both User Keys and User Data form fields
+          // in order to proceed with the upload.
+          // If either User Keys or User Data is not present in the form data,
+          // the upload will fail.
           .service(
             web::resource("").route(web::post().to(handlers::backup::upload)),
           )
