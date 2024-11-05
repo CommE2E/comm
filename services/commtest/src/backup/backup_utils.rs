@@ -5,10 +5,13 @@ use backup_client::{BackupData, Error as BackupClientError};
 use bytesize::ByteSize;
 use comm_lib::auth::UserIdentity;
 use comm_lib::backup::UploadLogRequest;
+use rand::Rng;
 use reqwest::StatusCode;
 use uuid::Uuid;
 
-pub fn generate_backup_data(predefined_byte_value: u8) -> BackupData {
+pub fn generate_backup_data(predefined_byte_value: Option<u8>) -> BackupData {
+  let predefined_byte_value =
+    predefined_byte_value.unwrap_or(rand::thread_rng().gen::<u8>());
   BackupData {
     backup_id: Uuid::new_v4().to_string(),
     user_keys: Some(generate_stable_nbytes(
@@ -60,7 +63,7 @@ pub fn generate_backup_data_with_logs(
   predefined_byte_values
     .into_iter()
     .map(|byte_value| {
-      let backup_data = generate_backup_data(byte_value);
+      let backup_data = generate_backup_data(Some(byte_value));
       let log_data = generate_log_data(&backup_data.backup_id, byte_value);
       (backup_data, log_data)
     })
