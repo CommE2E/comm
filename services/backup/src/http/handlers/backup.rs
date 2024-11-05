@@ -61,7 +61,7 @@ pub async fn upload(
     user.user_id.clone(),
     backup_id,
     user_keys_blob_info,
-    user_data_blob_info,
+    Some(user_data_blob_info),
     attachments,
     siwe_backup_msg,
   );
@@ -238,7 +238,7 @@ pub async fn download_user_keys(
   info!("Download user keys request");
   let backup_id = path.into_inner();
   download_user_blob(
-    |item| &item.user_keys,
+    |item| Ok(&item.user_keys),
     &user.user_id,
     &backup_id,
     blob_client.into_inner(),
@@ -257,7 +257,7 @@ pub async fn download_user_data(
   info!("Download user data request");
   let backup_id = path.into_inner();
   download_user_blob(
-    |item| &item.user_data,
+    |item| item.user_data.as_ref().ok_or(BackupError::NoUserData),
     &user.user_id,
     &backup_id,
     blob_client.into_inner(),
@@ -267,7 +267,7 @@ pub async fn download_user_data(
 }
 
 pub async fn download_user_blob(
-  data_extractor: impl FnOnce(&BackupItem) -> &BlobInfo,
+  data_extractor: impl FnOnce(&BackupItem) -> Result<&BlobInfo, BackupError>,
   user_id: &str,
   backup_id: &str,
   blob_client: BlobServiceClient,
@@ -279,8 +279,10 @@ pub async fn download_user_blob(
     .map_err(BackupError::from)?
     .ok_or(BackupError::NoBackup)?;
 
+  let blob_info = data_extractor(&backup_item)?;
+
   let stream = blob_client
-    .get(&data_extractor(&backup_item).blob_hash)
+    .get(&blob_info.blob_hash)
     .await
     .map_err(BackupError::from)?;
 
