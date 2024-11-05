@@ -34,7 +34,7 @@ locals {
     http://localhost:3009
   EOT
   production_allow_origin_list    = <<EOT
-    https://web.comm.app,
+    https://web.comm.app:443,
     https://comm.software:443,
     https://www.comm.software:443
   EOT
