@@ -52,46 +52,10 @@ pub async fn upload(
   )
   .await?;
 
-  let attachments_hashes: Vec<String> =
-    match get_text_field(&mut multipart).await? {
-      Some((name, attachments)) => {
-        if name != "attachments" {
-          warn!(
-            name,
-            "Malformed request: 'attachments' text field expected."
-          );
-          return Err(ErrorBadRequest("Bad request"));
-        }
+  let (attachments, attachments_revokes) =
+    process_attachments(&mut multipart, &blob_client).await?;
 
-        attachments.lines().map(ToString::to_string).collect()
-      }
-      None => Vec::new(),
-    };
-
-  let mut attachments = Vec::new();
-  let mut attachments_revokes = Vec::new();
-  for attachment_hash in attachments_hashes {
-    let (holder, revoke) =
-      create_attachment_holder(&attachment_hash, &blob_client).await?;
-
-    attachments.push(BlobInfo {
-      blob_hash: attachment_hash,
-      holder,
-    });
-    attachments_revokes.push(revoke);
-  }
-
-  let siwe_backup_msg_option: Option<String> =
-    match get_text_field(&mut multipart).await? {
-      Some((name, siwe_backup_msg)) => {
-        if name == "siwe_backup_msg" {
-          Some(siwe_backup_msg)
-        } else {
-          None
-        }
-      }
-      _ => None,
-    };
+  let siwe_backup_msg = get_siwe_backup_msg(&mut multipart).await?;
 
   let item = BackupItem::new(
     user.user_id.clone(),
@@ -99,7 +63,7 @@ pub async fn upload(
     user_keys_blob_info,
     user_data_blob_info,
     attachments,
-    siwe_backup_msg_option,
+    siwe_backup_msg,
   );
 
   db_client
@@ -194,7 +158,7 @@ async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
 async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
   attachment: &str,
   blob_client: &'blob BlobServiceClient,
-) -> Result<(String, Defer<'revoke>), BackupError> {
+) -> Result<(BlobInfo, Defer<'revoke>), BackupError> {
   let holder = uuid::Uuid::new_v4().to_string();
 
   if !blob_client
@@ -211,7 +175,57 @@ async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
     blob_client.schedule_revoke_holder(revoke_hash, revoke_holder)
   });
 
-  Ok((holder, revoke_holder))
+  let blob_info = BlobInfo {
+    blob_hash: attachment.to_string(),
+    holder,
+  };
+
+  Ok((blob_info, revoke_holder))
+}
+
+#[instrument(skip_all)]
+async fn process_attachments<'revoke, 'blob: 'revoke>(
+  multipart: &mut actix_multipart::Multipart,
+  blob_client: &'blob BlobServiceClient,
+) -> Result<(Vec<BlobInfo>, Vec<Defer<'revoke>>), BackupError> {
+  let attachments_hashes: Vec<String> = match get_text_field(multipart).await {
+    Ok(Some((name, attachments))) => {
+      if name != "attachments" {
+        warn!(
+          name,
+          "Malformed request: 'attachments' text field expected."
+        );
+        return Err(BackupError::BadRequest);
+      }
+
+      attachments.lines().map(ToString::to_string).collect()
+    }
+    Ok(None) => Vec::new(),
+    Err(_) => return Err(BackupError::BadRequest),
+  };
+
+  let mut attachments = Vec::new();
+  let mut attachments_revokes = Vec::new();
+  for attachment_hash in attachments_hashes {
+    let (attachment, revoke) =
+      create_attachment_holder(&attachment_hash, blob_client).await?;
+    attachments.push(attachment);
+    attachments_revokes.push(revoke);
+  }
+
+  Ok((attachments, attachments_revokes))
+}
+
+#[instrument(skip_all)]
+pub async fn get_siwe_backup_msg(
+  multipart: &mut actix_multipart::Multipart,
+) -> actix_web::Result<Option<String>> {
+  Ok(
+    get_text_field(multipart)
+      .await?
+      .filter(|(name, _)| name == "siwe_backup_msg")
+      .map(|(_, siwe_backup_msg)| siwe_backup_msg),
+  )
 }
 
 #[instrument(skip_all, fields(backup_id = %path))]
