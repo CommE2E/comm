@@ -196,10 +196,17 @@ pub mod compaction {
     backup_id: String,
   ) -> Result<(), BackupHandlerError> {
     let user_data_path = get_backup_file_path(&backup_id, false)?;
-    let user_data = tokio::fs::read(&user_data_path).await?;
-
+    let user_data = match tokio::fs::read(&user_data_path).await {
+      Ok(data) => Some(data),
+      Err(err) if err.kind() == ErrorKind::NotFound => None,
+      Err(err) => return Err(err.into()),
+    };
     let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
-    let user_keys = tokio::fs::read(&user_keys_path).await?;
+    let user_keys = match tokio::fs::read(&user_keys_path).await {
+      Ok(data) => Some(data),
+      Err(err) if err.kind() == ErrorKind::NotFound => None,
+      Err(err) => return Err(err.into()),
+    };
 
     let attachments_path = get_backup_file_path(&backup_id, true)?;
     let attachments = match tokio::fs::read(&attachments_path).await {
