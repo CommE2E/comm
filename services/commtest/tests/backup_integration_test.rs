@@ -1,36 +1,25 @@
 use backup_client::{
-  BackupClient, BackupData, BackupDescriptor, DownloadedLog,
-  Error as BackupClientError, LogUploadConfirmation, RequestedData, SinkExt,
-  StreamExt, TryStreamExt,
+  BackupClient, BackupDescriptor, DownloadedLog, LogUploadConfirmation,
+  RequestedData, SinkExt, StreamExt, TryStreamExt,
 };
-use bytesize::ByteSize;
-use comm_lib::{
-  auth::UserIdentity,
-  backup::{LatestBackupInfoResponse, UploadLogRequest},
+use comm_lib::backup::LatestBackupInfoResponse;
+use commtest::backup::backup_utils::{
+  assert_reqwest_error, create_user_identity, generate_backup_data_with_logs,
 };
 use commtest::identity::device::register_user_device;
-use commtest::{
-  service_addr,
-  tools::{generate_stable_nbytes, Error},
-};
+use commtest::{service_addr, tools::Error};
 use grpc_clients::identity::DeviceType;
 use reqwest::StatusCode;
 use std::collections::HashSet;
-use uuid::Uuid;
 
 #[tokio::test]
 async fn backup_integration_test() -> Result<(), Error> {
   let backup_client = BackupClient::new(service_addr::BACKUP_SERVICE_HTTP)?;
 
   let device_info = register_user_device(None, Some(DeviceType::Ios)).await;
+  let user_identity = create_user_identity(device_info.clone());
 
-  let user_identity = UserIdentity {
-    user_id: device_info.user_id.clone(),
-    access_token: device_info.access_token,
-    device_id: device_info.device_id,
-  };
-
-  let backup_datas = generate_backup_data();
+  let backup_datas = generate_backup_data_with_logs(vec![b'a', b'b']);
 
   // Upload backups
   for (backup_data, log_datas) in &backup_datas {
@@ -84,17 +73,7 @@ async fn backup_integration_test() -> Result<(), Error> {
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
     .await;
 
-  match nonexistent_user_response {
-    Ok(_) => panic!("Expected error, but got success response"),
-    Err(BackupClientError::ReqwestError(error)) => {
-      assert_eq!(
-        error.status(),
-        Some(StatusCode::BAD_REQUEST),
-        "Expected bad request status"
-      );
-    }
-    Err(_) => panic!("Unexpected error type"),
-  }
+  assert_reqwest_error(nonexistent_user_response, StatusCode::BAD_REQUEST);
 
   // Test latest backup lookup
   let latest_backup_descriptor = BackupDescriptor::Latest {
@@ -141,15 +120,7 @@ async fn backup_integration_test() -> Result<(), Error> {
     .download_backup_data(&removed_backup_descriptor, RequestedData::UserKeys)
     .await;
 
-  let Err(BackupClientError::ReqwestError(error)) = response else {
-    panic!("First backup should have been removed, instead got response: {response:?}");
-  };
-
-  assert_eq!(
-    error.status(),
-    Some(StatusCode::NOT_FOUND),
-    "Expected status 'not found'"
-  );
+  assert_reqwest_error(response, StatusCode::NOT_FOUND);
 
   // Test log cleanup
   let log_stream = backup_client
@@ -166,71 +137,4 @@ async fn backup_integration_test() -> Result<(), Error> {
   }
 
   Ok(())
-}
-
-fn generate_backup_data() -> [(BackupData, Vec<UploadLogRequest>); 2] {
-  [
-    (
-      BackupData {
-        backup_id: "b1".to_string(),
-        user_keys: generate_stable_nbytes(
-          ByteSize::kib(4).as_u64() as usize,
-          Some(b'a'),
-        ),
-        user_data: generate_stable_nbytes(
-          ByteSize::mib(4).as_u64() as usize,
-          Some(b'A'),
-        ),
-        attachments: vec![],
-        siwe_backup_msg: None,
-      },
-      generate_log_data("b1", b'a'),
-    ),
-    (
-      BackupData {
-        backup_id: "b2".to_string(),
-        user_keys: generate_stable_nbytes(
-          ByteSize::kib(4).as_u64() as usize,
-          Some(b'b'),
-        ),
-        user_data: generate_stable_nbytes(
-          ByteSize::mib(4).as_u64() as usize,
-          Some(b'B'),
-        ),
-        attachments: vec![],
-        siwe_backup_msg: None,
-      },
-      generate_log_data("b2", b'b'),
-    ),
-  ]
-}
-
-fn generate_log_data(backup_id: &str, value: u8) -> Vec<UploadLogRequest> {
-  const IN_DB_SIZE: usize = ByteSize::kib(4).as_u64() as usize;
-  const IN_BLOB_SIZE: usize = ByteSize::kib(400).as_u64() as usize;
-
-  (1..30)
-    .map(|log_id| {
-      let size = if log_id % 2 == 0 {
-        IN_DB_SIZE
-      } else {
-        IN_BLOB_SIZE
-      };
-      let attachments = if log_id % 10 == 0 {
-        Some(vec![Uuid::new_v4().to_string()])
-      } else {
-        None
-      };
-      let mut content = generate_stable_nbytes(size, Some(value));
-      let unique_suffix = log_id.to_string();
-      content.extend(unique_suffix.as_bytes());
-
-      UploadLogRequest {
-        backup_id: backup_id.to_string(),
-        log_id,
-        content,
-        attachments,
-      }
-    })
-    .collect()
 }
