@@ -1,4 +1,4 @@
-FROM rust:1.76-bullseye as builder
+FROM rust:1.82-bullseye as builder
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
