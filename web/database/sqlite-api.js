@@ -26,6 +26,20 @@ const sqliteAPI: SQLiteAPI = {
     return messages ? [...messages] : [];
   },
 
+  async getInboundP2PMessagesByID(
+    ids: $ReadOnlyArray<string>,
+  ): Promise<Array<InboundP2PMessage>> {
+    const sharedWorker = await getCommSharedWorker();
+
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_INBOUND_P2P_MESSAGES_BY_ID,
+      messageIDs: ids,
+    });
+    const messages: ?$ReadOnlyArray<InboundP2PMessage> =
+      data?.inboundP2PMessages;
+    return messages ? [...messages] : [];
+  },
+
   async getAllOutboundP2PMessages(): Promise<OutboundP2PMessage[]> {
     const sharedWorker = await getCommSharedWorker();
 
