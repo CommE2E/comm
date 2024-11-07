@@ -8,13 +8,9 @@ import { Platform } from 'react-native';
 import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  uploadMultimedia,
-  useBlobServiceUpload,
-} from 'lib/actions/upload-actions.js';
+import { useBlobServiceUpload } from 'lib/actions/upload-actions.js';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
@@ -44,8 +40,6 @@ import Alert from '../utils/alert.js';
 import blobServiceUploadHandler from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
-const useBlobServiceUploads = true;
-
 function displayAvatarUpdateFailureAlert(): void {
   Alert.alert(
     'Couldn’t save avatar',
@@ -59,28 +53,9 @@ function useUploadProcessedMedia(): (
   media: MediaResult,
   metadataUploadLocation: 'keyserver' | 'none',
 ) => Promise<?UpdateUserAvatarRequest> {
-  const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   return React.useCallback(
     async (processedMedia, metadataUploadLocation) => {
-      const useBlobService =
-        metadataUploadLocation !== 'keyserver' || useBlobServiceUploads;
-      if (!useBlobService) {
-        const { uploadURI, filename, mime, dimensions } = processedMedia;
-        const { id } = await callUploadMultimedia(
-          {
-            uri: uploadURI,
-            name: filename,
-            type: mime,
-          },
-          dimensions,
-        );
-        if (!id) {
-          return undefined;
-        }
-        return { type: 'image', uploadID: id };
-      }
-
       const { result: encryptionResult } = await encryptMedia(processedMedia);
       if (!encryptionResult.success) {
         throw new Error('Avatar media encryption failed.');
@@ -132,7 +107,7 @@ function useUploadProcessedMedia(): (
       }
       return { type: 'encrypted_image', uploadID: id };
     },
-    [callUploadMultimedia, callBlobServiceUpload],
+    [callBlobServiceUpload],
   );
 }
 
