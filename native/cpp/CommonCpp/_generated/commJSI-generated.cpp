@@ -241,6 +241,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages(j
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->fetchMessages(rt, args[0].asString(rt), args[1].asNumber(), args[2].asNumber());
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getInboundP2PMessagesByID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getInboundP2PMessagesByID(rt, args[0].asObject(rt).asArray(rt));
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -318,6 +321,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getRelatedMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessages};
   methodMap_["searchMessages"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages};
   methodMap_["fetchMessages"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages};
+  methodMap_["getInboundP2PMessagesByID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getInboundP2PMessagesByID};
 }
 
 
