@@ -32,7 +32,6 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
-import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import {
   type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
@@ -55,7 +54,6 @@ import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-uti
 import {
   draftKeyFromThreadID,
   patchThreadInfoToIncludeMentionedMembersOfParent,
-  threadInfoInsideCommunity,
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
@@ -448,11 +446,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return rawMessageInfo;
   }
 
+  // eslint-disable-next-line no-unused-vars
   shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return (
-      threadTypeIsThick(threadInfo.type) ||
-      threadInfoInsideCommunity(threadInfo, commStaffCommunity.id)
-    );
+    return true;
   }
 
   async sendMultimediaMessage(
