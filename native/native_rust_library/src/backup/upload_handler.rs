@@ -243,28 +243,33 @@ pub mod compaction {
     Ok(())
   }
 
+  async fn remove_file_if_exists(path: &String) -> Result<(), Box<dyn Error>> {
+    match tokio::fs::remove_file(path).await {
+      Ok(()) => Ok(()),
+      Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+      Err(err) => Err(err.into()),
+    }
+  }
   pub async fn cleanup_files(backup_id: String) {
     let backup_files_cleanup = async {
-      let user_data_path = get_backup_file_path(&backup_id, false)?;
-      tokio::fs::remove_file(&user_data_path).await?;
-      let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
-      tokio::fs::remove_file(&user_keys_path).await?;
-      let attachments_path = get_backup_file_path(&backup_id, true)?;
-      match tokio::fs::remove_file(&attachments_path).await {
-        Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
-        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
-        Err(err) => Err(err.into()),
-      }?;
-      let siwe_backup_msg_path = get_siwe_backup_message_path(&backup_id)?;
-      match tokio::fs::remove_file(&siwe_backup_msg_path).await {
-        Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
-        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
-        Err(err) => Err(err.into()),
+      let paths_to_remove = vec![
+        get_backup_file_path(&backup_id, false)?,
+        get_backup_user_keys_file_path(&backup_id)?,
+        get_backup_file_path(&backup_id, true)?,
+        get_siwe_backup_message_path(&backup_id)?,
+      ];
+
+      for path in paths_to_remove {
+        if let Err(e) = remove_file_if_exists(&path).await {
+          println!("Error occurred while removing a file: {:?}", e);
+        }
       }
+
+      Ok::<(), Box<dyn Error>>(())
     };
 
     if let Err(err) = backup_files_cleanup.await {
-      println!("Error when cleaning up the backup files: {err:?}");
+      println!("Error when cleaning up the backup files: {:?}", err);
     }
   }
 }
