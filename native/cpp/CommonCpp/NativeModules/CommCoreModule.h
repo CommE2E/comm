@@ -280,6 +280,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String threadID,
       double limit,
       double offset) override;
+  virtual jsi::Value
+  getInboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

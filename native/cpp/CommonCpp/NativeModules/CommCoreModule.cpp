@@ -3213,4 +3213,58 @@ jsi::Value CommCoreModule::fetchMessages(
       });
 }
 
+jsi::Value
+CommCoreModule::getInboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) {
+  std::vector<std::string> msgIDsCPP{};
+  for (auto idx = 0; idx < ids.size(rt); idx++) {
+    std::string msgID = ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    msgIDsCPP.push_back(msgID);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<InboundP2PMessage> messages;
+
+          try {
+            messages =
+                DatabaseManager::getQueryExecutor().getInboundP2PMessagesByID(
+                    msgIDsCPP);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          auto messagesPtr = std::make_shared<std::vector<InboundP2PMessage>>(
+              std::move(messages));
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, messagesPtr, error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+
+                jsi::Array jsiMessages =
+                    jsi::Array(innerRt, messagesPtr->size());
+                size_t writeIdx = 0;
+                for (const InboundP2PMessage &msg : *messagesPtr) {
+                  jsi::Object jsiMsg = jsi::Object(innerRt);
+                  jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
+                  jsiMsg.setProperty(
+                      innerRt, "senderDeviceID", msg.sender_device_id);
+                  jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
+                  jsiMsg.setProperty(innerRt, "status", msg.status);
+                  jsiMsg.setProperty(
+                      innerRt, "senderUserID", msg.sender_user_id);
+                  jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
+                }
+
+                promise->resolve(std::move(jsiMessages));
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm

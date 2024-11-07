@@ -210,6 +210,9 @@ interface Spec extends TurboModule {
     limit: number,
     offset: number,
   ) => Promise<Array<ClientDBMessageInfo>>;
+  +getInboundP2PMessagesByID: (
+    ids: $ReadOnlyArray<string>,
+  ) => Promise<Array<InboundP2PMessage>>;
 }
 
 export interface CoreModuleSpec extends Spec {
