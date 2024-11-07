@@ -6,10 +6,11 @@ license.workspace = true
 homepage.workspace = true
 
 [dependencies]
-argon2 = { workspace = true }
+argon2 = "0.5.3"
 log = { workspace = true }
 opaque-ke = { workspace = true, features = ["argon2"] }
 rand = "0.8"
 tonic = { version = "0.9.1", default-features = false }
 wasm-bindgen = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+generic-array = { workspace = true }
