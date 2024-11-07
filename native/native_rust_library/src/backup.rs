@@ -28,6 +28,11 @@ pub mod ffi {
 
   pub use upload_handler::ffi::*;
 
+  fn handle_backup_creation_error(backup_id: String, err: String) {
+    compaction_upload_promises::resolve(&backup_id, Err(err));
+    tokio::spawn(upload_handler::compaction::cleanup_files(backup_id));
+  }
+
   pub fn create_backup(
     backup_id: String,
     backup_secret: String,
@@ -49,7 +54,7 @@ pub mod ffi {
       .map_err(|err| err.to_string());
 
       if let Err(err) = result {
-        compaction_upload_promises::resolve(&backup_id, Err(err));
+        handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
       }
 
@@ -57,7 +62,7 @@ pub mod ffi {
         if let Err(err) =
           create_siwe_backup_msg_compaction(&backup_id, siwe_backup_msg).await
         {
-          compaction_upload_promises::resolve(&backup_id, Err(err.to_string()));
+          handle_backup_creation_error(backup_id.clone(), err.to_string());
           return;
         }
       }
@@ -65,8 +70,7 @@ pub mod ffi {
       let (future_id, future) = future_manager::new_future::<()>().await;
       create_main_compaction(&backup_id, future_id);
       if let Err(err) = future.await {
-        compaction_upload_promises::resolve(&backup_id, Err(err));
-        tokio::spawn(upload_handler::compaction::cleanup_files(backup_id));
+        handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
       }
 
