@@ -1496,6 +1496,7 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     state,
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [85]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1506,7 +1507,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 84,
+  version: 85,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
