@@ -12,6 +12,7 @@ import { isTaskCancelledError } from '../utils/error-handling.js';
 const sqliteAPI: SQLiteAPI = {
   // read operations
   getAllInboundP2PMessages: commCoreModule.getAllInboundP2PMessages,
+  getInboundP2PMessagesByID: commCoreModule.getInboundP2PMessagesByID,
   getAllOutboundP2PMessages: commCoreModule.getAllOutboundP2PMessages,
   getRelatedMessages: commCoreModule.getRelatedMessages,
   getOutboundP2PMessagesByID: commCoreModule.getOutboundP2PMessagesByID,
