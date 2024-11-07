@@ -78,7 +78,7 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
         Ok(ws) => ws,
         Err(err) => {
           println!(
-            "Backup handler error when estabilishing connection: '{err:?}'"
+            "Backup handler error when establishing connection: '{err:?}'"
           );
           tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
           continue;
@@ -190,40 +190,40 @@ async fn delete_confirmed_logs(
 pub mod compaction {
   use super::*;
 
+  async fn read_file(
+    path: &String,
+  ) -> Result<Option<Vec<u8>>, BackupHandlerError> {
+    match tokio::fs::read(path).await {
+      Ok(data) => Ok(Some(data)),
+      Err(err) if err.kind() == ErrorKind::NotFound => Ok(None),
+      Err(err) => Err(err.into()),
+    }
+  }
+
   pub async fn upload_files(
     backup_client: &BackupClient,
     user_identity: &UserIdentity,
     backup_id: String,
   ) -> Result<(), BackupHandlerError> {
-    let user_data_path = get_backup_file_path(&backup_id, false)?;
-    let user_data = match tokio::fs::read(&user_data_path).await {
-      Ok(data) => Some(data),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
-    };
-    let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
-    let user_keys = match tokio::fs::read(&user_keys_path).await {
-      Ok(data) => Some(data),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
-    };
+    let user_data =
+      read_file(&get_backup_file_path(&backup_id, false)?).await?;
+    let user_keys =
+      read_file(&get_backup_user_keys_file_path(&backup_id)?).await?;
 
     let attachments_path = get_backup_file_path(&backup_id, true)?;
-    let attachments = match tokio::fs::read(&attachments_path).await {
-      Ok(data) => data.lines().collect::<Result<_, _>>()?,
-      Err(err) if err.kind() == ErrorKind::NotFound => Vec::new(),
-      Err(err) => return Err(err.into()),
+    let attachments = match read_file(&attachments_path).await? {
+      Some(data) => data.lines().collect::<Result<_, _>>()?,
+      None => Vec::new(),
     };
 
-    let siwe_backup_msg_path = get_siwe_backup_message_path(&backup_id)?;
-    let siwe_backup_msg = match tokio::fs::read(&siwe_backup_msg_path).await {
-      Ok(data) => match String::from_utf8(data) {
-        Ok(valid_string) => Some(valid_string),
-        Err(err) => return Err(err.into()),
-      },
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
-    };
+    let siwe_backup_msg =
+      match read_file(&get_siwe_backup_message_path(&backup_id)?).await? {
+        Some(data) => match String::from_utf8(data) {
+          Ok(valid_string) => Some(valid_string),
+          Err(err) => return Err(err.into()),
+        },
+        None => None,
+      };
 
     let backup_data = BackupData {
       backup_id: backup_id.clone(),
