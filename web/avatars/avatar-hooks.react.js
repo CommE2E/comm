@@ -14,8 +14,7 @@ import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
 import { validateFile } from '../media/media-utils.js';
 
-// TODO: flip the switch
-const useBlobServiceUploads = false;
+const useBlobServiceUploads = true;
 
 type AvatarMediaUploadOptions = {
   +uploadMetadataToKeyserver?: boolean,
