@@ -191,6 +191,8 @@ public:
   std::vector<InboundP2PMessage> getAllInboundP2PMessage() const override;
   void
   removeInboundP2PMessages(const std::vector<std::string> &ids) const override;
+  std::vector<InboundP2PMessage>
+  getInboundP2PMessagesByID(const std::vector<std::string> &ids) const override;
   std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const override;
   void updateMessageSearchIndex(

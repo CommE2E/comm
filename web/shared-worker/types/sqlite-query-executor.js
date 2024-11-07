@@ -197,6 +197,9 @@ declare export class SQLiteQueryExecutor {
   addInboundP2PMessage(message: InboundP2PMessage): void;
   getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
   removeInboundP2PMessages(ids: $ReadOnlyArray<string>): void;
+  getInboundP2PMessagesByID(
+    ids: $ReadOnlyArray<string>,
+  ): $ReadOnlyArray<InboundP2PMessage>;
 
   getRelatedMessagesWeb(id: string): $ReadOnlyArray<MessageEntity>;
 
