@@ -16,10 +16,7 @@ import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type BlobServiceUploadResult,
-  type MultimediaUploadCallbacks,
-  type MultimediaUploadExtras,
   updateMultimediaMessageMediaActionType,
-  uploadMultimedia,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import {
@@ -32,7 +29,6 @@ import type {
   CallSingleKeyserverEndpointOptions,
   CallSingleKeyserverEndpointResponse,
 } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
 import {
   getNextLocalUploadID,
@@ -62,7 +58,6 @@ import type {
   MediaMissionResult,
   MediaMissionStep,
   NativeMediaSelection,
-  UploadMultimediaResult,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -146,11 +141,6 @@ type Props = {
   +dispatch: Dispatch,
   +staffCanSee: boolean,
   +dispatchActionPromise: DispatchActionPromise,
-  +uploadMultimedia: (
-    multimedia: Object,
-    extras: MultimediaUploadExtras,
-    callbacks: MultimediaUploadCallbacks,
-  ) => Promise<UploadMultimediaResult>,
   +blobServiceUpload: BlobServiceUploadAction,
   +sendMultimediaMessage: (
     messageInfo: RawMultimediaMessageInfo,
@@ -191,8 +181,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }>,
   > = new Map();
   pendingThreadUpdateHandlers: Map<string, (ThreadInfo) => mixed> = new Map();
-
-  useBlobServiceUploads = true;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -629,11 +617,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  // eslint-disable-next-line no-unused-vars
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return true;
-  }
-
   sendMultimediaMessage = async (
     selections: $ReadOnlyArray<NativeMediaSelection>,
     threadInfo: ThreadInfo,
@@ -722,7 +705,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             creatorID,
             media,
           },
-          { forceMultimediaMessageType: this.shouldEncryptMedia(threadInfo) },
+          { forceMultimediaMessageType: true },
         );
         this.props.dispatch({
           type: createLocalMessageActionType,
@@ -825,29 +808,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    if (this.shouldEncryptMedia(threadInfo)) {
-      const encryptionStart = Date.now();
-      try {
-        const { result: encryptionResult, ...encryptionReturn } =
-          await encryptMedia(processedMedia);
-        encryptionSteps = encryptionReturn.steps;
-        if (!encryptionResult.success) {
-          onUploadFailed(encryptionResult.reason);
-          return await onUploadFinished(encryptionResult);
-        }
-        if (encryptionResult.shouldDisposePath) {
-          filesToDispose.push(encryptionResult.shouldDisposePath);
-        }
-        processedMedia = encryptionResult;
-      } catch (e) {
-        onUploadFailed('encryption failed');
-        return await onUploadFinished({
-          success: false,
-          reason: 'encryption_exception',
-          time: Date.now() - encryptionStart,
-          exceptionMessage: getMessageForException(e),
-        });
+    const encryptionStart = Date.now();
+    try {
+      const { result: encryptionResult, ...encryptionReturn } =
+        await encryptMedia(processedMedia);
+      encryptionSteps = encryptionReturn.steps;
+      if (!encryptionResult.success) {
+        onUploadFailed(encryptionResult.reason);
+        return await onUploadFinished(encryptionResult);
       }
+      if (encryptionResult.shouldDisposePath) {
+        filesToDispose.push(encryptionResult.shouldDisposePath);
+      }
+      processedMedia = encryptionResult;
+    } catch (e) {
+      onUploadFailed('encryption failed');
+      return await onUploadFinished({
+        success: false,
+        reason: 'encryption_exception',
+        time: Date.now() - encryptionStart,
+        exceptionMessage: getMessageForException(e),
+      });
     }
 
     const { uploadURI, filename, mime } = processedMedia;
@@ -861,136 +842,76 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult;
 
     const isThickThread = threadTypeIsThick(threadInfo.type);
-    const useBlobService = isThickThread || this.useBlobServiceUploads;
     try {
-      if (
-        useBlobService &&
-        (processedMedia.mediaType === 'encrypted_photo' ||
-          processedMedia.mediaType === 'encrypted_video')
-      ) {
-        const uploadMetadataToKeyserver = !isThickThread;
-        const uploadPromise = this.props.blobServiceUpload({
-          uploadInput: {
-            blobInput: {
-              type: 'uri',
-              uri: uploadURI,
-              filename: filename,
-              mimeType: mime,
-            },
-            blobHash: processedMedia.blobHash,
-            encryptionKey: processedMedia.encryptionKey,
-            dimensions: processedMedia.dimensions,
-            thumbHash:
-              processedMedia.mediaType === 'encrypted_photo'
-                ? processedMedia.thumbHash
-                : null,
+      invariant(
+        processedMedia.mediaType === 'encrypted_photo' ||
+          processedMedia.mediaType === 'encrypted_video',
+        'uploaded media should be encrypted',
+      );
+      const uploadMetadataToKeyserver = !isThickThread;
+      const uploadPromise = this.props.blobServiceUpload({
+        uploadInput: {
+          blobInput: {
+            type: 'uri',
+            uri: uploadURI,
+            filename: filename,
+            mimeType: mime,
           },
-          keyserverOrThreadID: uploadMetadataToKeyserver ? threadInfo.id : null,
-          callbacks: {
-            blobServiceUploadHandler,
-            onProgress: (percent: number) => {
-              this.setProgress(
-                localMessageID,
-                localMediaID,
-                'uploading',
-                percent,
-              );
-            },
-          },
-        });
-
-        const uploadThumbnailPromise: Promise<?BlobServiceUploadResult> =
-          (async () => {
-            if (processedMedia.mediaType !== 'encrypted_video') {
-              return undefined;
-            }
-            return await this.props.blobServiceUpload({
-              uploadInput: {
-                blobInput: {
-                  type: 'uri',
-                  uri: processedMedia.uploadThumbnailURI,
-                  filename: replaceExtension(`thumb${filename}`, 'jpg'),
-                  mimeType: 'image/jpeg',
-                },
-                blobHash: processedMedia.thumbnailBlobHash,
-                encryptionKey: processedMedia.thumbnailEncryptionKey,
-                loop: false,
-                dimensions: processedMedia.dimensions,
-                thumbHash: processedMedia.thumbHash,
-              },
-              keyserverOrThreadID: uploadMetadataToKeyserver
-                ? threadInfo.id
-                : null,
-              callbacks: {
-                blobServiceUploadHandler,
-              },
-            });
-          })();
-
-        [uploadResult, uploadThumbnailResult] = await Promise.all([
-          uploadPromise,
-          uploadThumbnailPromise,
-        ]);
-      } else {
-        const uploadPromise = this.props.uploadMultimedia(
-          { uri: uploadURI, name: filename, type: mime },
-          {
-            ...processedMedia.dimensions,
-            loop:
-              processedMedia.mediaType === 'video' ||
-              processedMedia.mediaType === 'encrypted_video'
-                ? processedMedia.loop
-                : undefined,
-            encryptionKey: processedMedia.encryptionKey,
-            thumbHash:
-              processedMedia.mediaType === 'photo' ||
-              processedMedia.mediaType === 'encrypted_photo'
-                ? processedMedia.thumbHash
-                : null,
-          },
-          {
-            onProgress: (percent: number) =>
-              this.setProgress(
-                localMessageID,
-                localMediaID,
-                'uploading',
-                percent,
-              ),
-            performHTTPMultipartUpload: this.performHTTPMultipartUpload,
-          },
-        );
-
-        const uploadThumbnailPromise: Promise<?UploadMultimediaResult> =
-          (async () => {
-            if (
-              processedMedia.mediaType !== 'video' &&
-              processedMedia.mediaType !== 'encrypted_video'
-            ) {
-              return undefined;
-            }
-            return await this.props.uploadMultimedia(
-              {
-                uri: processedMedia.uploadThumbnailURI,
-                name: replaceExtension(`thumb${filename}`, 'jpg'),
-                type: 'image/jpeg',
-              },
-              {
-                ...processedMedia.dimensions,
-                loop: false,
-                encryptionKey: processedMedia.thumbnailEncryptionKey,
-                thumbHash: processedMedia.thumbHash,
-              },
-              {
-                performHTTPMultipartUpload: this.performHTTPMultipartUpload,
-              },
+          blobHash: processedMedia.blobHash,
+          encryptionKey: processedMedia.encryptionKey,
+          dimensions: processedMedia.dimensions,
+          thumbHash:
+            processedMedia.mediaType === 'encrypted_photo'
+              ? processedMedia.thumbHash
+              : null,
+        },
+        keyserverOrThreadID: uploadMetadataToKeyserver ? threadInfo.id : null,
+        callbacks: {
+          blobServiceUploadHandler,
+          onProgress: (percent: number) => {
+            this.setProgress(
+              localMessageID,
+              localMediaID,
+              'uploading',
+              percent,
             );
-          })();
+          },
+        },
+      });
 
-        [uploadResult, uploadThumbnailResult] = await Promise.all([
-          uploadPromise,
-          uploadThumbnailPromise,
-        ]);
-      }
+      const uploadThumbnailPromise: Promise<?BlobServiceUploadResult> =
+        (async () => {
+          if (processedMedia.mediaType !== 'encrypted_video') {
+            return undefined;
+          }
+          return await this.props.blobServiceUpload({
+            uploadInput: {
+              blobInput: {
+                type: 'uri',
+                uri: processedMedia.uploadThumbnailURI,
+                filename: replaceExtension(`thumb${filename}`, 'jpg'),
+                mimeType: 'image/jpeg',
+              },
+              blobHash: processedMedia.thumbnailBlobHash,
+              encryptionKey: processedMedia.thumbnailEncryptionKey,
+              loop: false,
+              dimensions: processedMedia.dimensions,
+              thumbHash: processedMedia.thumbHash,
+            },
+            keyserverOrThreadID: uploadMetadataToKeyserver
+              ? threadInfo.id
+              : null,
+            callbacks: {
+              blobServiceUploadHandler,
+            },
+          });
+        })();
+
+      [uploadResult, uploadThumbnailResult] = await Promise.all([
+        uploadPromise,
+        uploadThumbnailPromise,
+      ]);
+
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
@@ -1776,7 +1697,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     );
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
-    const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage =
       useInputStateContainerSendMultimediaMessage();
@@ -1799,7 +1719,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         hasWiFi={hasWiFi}
         mediaReportsEnabled={mediaReportsEnabled}
         calendarQuery={calendarQuery}
-        uploadMultimedia={callUploadMultimedia}
         blobServiceUpload={callBlobServiceUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}

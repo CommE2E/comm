@@ -20,10 +20,7 @@ import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type DeleteUploadInput,
-  type MultimediaUploadCallbacks,
-  type MultimediaUploadExtras,
   updateMultimediaMessageMediaActionType,
-  uploadMultimedia,
   useBlobServiceUpload,
   useDeleteUpload,
 } from 'lib/actions/upload-actions.js';
@@ -38,7 +35,6 @@ import {
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
@@ -63,7 +59,6 @@ import type {
   MediaMissionFailure,
   MediaMissionResult,
   MediaMissionStep,
-  UploadMultimediaResult,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -140,11 +135,6 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +calendarQuery: () => CalendarQuery,
-  +uploadMultimedia: (
-    multimedia: Object,
-    extras: MultimediaUploadExtras,
-    callbacks: MultimediaUploadCallbacks,
-  ) => Promise<UploadMultimediaResult>,
   +blobServiceUpload: BlobServiceUploadAction,
   +deleteUpload: (input: DeleteUploadInput) => Promise<void>,
   +sendMultimediaMessage: (
@@ -212,8 +202,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       +threadType: ThreadType,
     }>,
   >();
-
-  useBlobServiceUploads = true;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -311,7 +299,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       string,
       {
         +threadID: string,
-        +shouldEncrypt: boolean,
         +uploads: PendingMultimediaUpload[],
       },
     >();
@@ -327,18 +314,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         ) {
           continue;
         }
-        const { shouldEncrypt } = upload;
         let assignedUploads = newlyAssignedUploads.get(messageID);
         if (!assignedUploads) {
-          assignedUploads = { threadID, shouldEncrypt, uploads: [] };
+          assignedUploads = { threadID, uploads: [] };
           newlyAssignedUploads.set(messageID, assignedUploads);
-        }
-        if (shouldEncrypt !== assignedUploads.shouldEncrypt) {
-          console.warn(
-            `skipping upload ${localUploadID} ` +
-              "because shouldEncrypt doesn't match",
-          );
-          continue;
         }
         assignedUploads.uploads.push(upload);
       }
@@ -346,7 +325,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const newMessageInfos = new Map<string, RawMultimediaMessageInfo>();
     for (const [messageID, assignedUploads] of newlyAssignedUploads) {
-      const { uploads, threadID, shouldEncrypt } = assignedUploads;
+      const { uploads, threadID } = assignedUploads;
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
@@ -401,7 +380,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           creatorID,
           media,
         },
-        { forceMultimediaMessageType: shouldEncrypt },
+        { forceMultimediaMessageType: true },
       );
       newMessageInfos.set(messageID, messageInfo);
     }
@@ -443,11 +422,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       `rawMessageInfo ${localMessageID} should be multimedia`,
     );
     return rawMessageInfo;
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return true;
   }
 
   async sendMultimediaMessage(
@@ -817,29 +791,26 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     const { uri, file: fixedFile, mediaType, dimensions } = result;
 
-    const shouldEncrypt = this.shouldEncryptMedia(threadInfo);
-
-    let encryptionResult;
-    if (shouldEncrypt) {
-      let encryptionResponse;
-      const encryptionStart = Date.now();
-      try {
-        encryptionResponse = await encryptFile(fixedFile);
-      } catch (e) {
-        return {
-          steps,
-          result: {
-            success: false,
-            reason: 'encryption_exception',
-            time: Date.now() - encryptionStart,
-            exceptionMessage: getMessageForException(e),
-          },
-        };
-      }
-      steps.push(...encryptionResponse.steps);
-      encryptionResult = encryptionResponse.result;
+    let encryptionResponse;
+    const encryptionStart = Date.now();
+    try {
+      encryptionResponse = await encryptFile(fixedFile);
+    } catch (e) {
+      return {
+        steps,
+        result: {
+          success: false,
+          reason: 'encryption_exception',
+          time: Date.now() - encryptionStart,
+          exceptionMessage: getMessageForException(e),
+        },
+      };
     }
-    if (encryptionResult && !encryptionResult.success) {
+    const { result: encryptionResult, steps: encryptionSteps } =
+      encryptionResponse;
+    steps.push(...encryptionSteps);
+
+    if (!encryptionResult.success) {
       return { steps, result: encryptionResult };
     }
 
@@ -874,7 +845,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abort: null,
           steps,
           selectTime,
-          shouldEncrypt,
         },
       },
     };
@@ -934,48 +904,32 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         abortHandler: (abort: () => void) =>
           this.handleAbortCallback(threadID, localID, abort),
       };
-      const useBlobService = isThickThread || this.useBlobServiceUploads;
-      if (
-        useBlobService &&
-        (upload.mediaType === 'encrypted_photo' ||
-          upload.mediaType === 'encrypted_video')
-      ) {
-        const { blobHash, dimensions, thumbHash } = upload;
-        invariant(
-          encryptionKey && blobHash && dimensions,
-          'incomplete encrypted upload',
-        );
 
-        uploadResult = await this.props.blobServiceUpload({
-          uploadInput: {
-            blobInput: {
-              type: 'file',
-              file: upload.file,
-            },
-            blobHash,
-            encryptionKey,
-            dimensions,
-            loop: false,
-            thumbHash,
+      const { mediaType, blobHash, dimensions, thumbHash } = upload;
+      invariant(
+        mediaType === 'encrypted_photo' || mediaType === 'encrypted_video',
+        'uploaded media should be encrypted',
+      );
+      invariant(
+        encryptionKey && blobHash && dimensions,
+        'incomplete encrypted upload',
+      );
+
+      uploadResult = await this.props.blobServiceUpload({
+        uploadInput: {
+          blobInput: {
+            type: 'file',
+            file: upload.file,
           },
-          keyserverOrThreadID: isThickThread ? null : threadID,
-          callbacks,
-        });
-      } else {
-        let uploadExtras = {
-          ...upload.dimensions,
+          blobHash,
+          encryptionKey,
+          dimensions,
           loop: false,
-          thumbHash: upload.thumbHash,
-        };
-        if (encryptionKey) {
-          uploadExtras = { ...uploadExtras, encryptionKey };
-        }
-        uploadResult = await this.props.uploadMultimedia(
-          upload.file,
-          uploadExtras,
-          callbacks,
-        );
-      }
+          thumbHash,
+        },
+        keyserverOrThreadID: isThickThread ? null : threadID,
+        callbacks,
+      });
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
       this.handleUploadFailure(threadID, localID);
@@ -1711,7 +1665,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
       pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage =
@@ -1750,7 +1703,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         messageStoreMessages={messageStoreMessages}
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
-        uploadMultimedia={callUploadMultimedia}
         blobServiceUpload={callBlobServiceUpload}
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
