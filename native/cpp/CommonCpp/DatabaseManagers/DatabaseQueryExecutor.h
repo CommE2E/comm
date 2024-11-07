@@ -174,6 +174,8 @@ public:
   virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
   removeInboundP2PMessages(const std::vector<std::string> &ids) const = 0;
+  virtual std::vector<InboundP2PMessage>
+  getInboundP2PMessagesByID(const std::vector<std::string> &ids) const = 0;
   virtual std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const = 0;
   virtual void updateMessageSearchIndex(

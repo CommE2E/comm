@@ -77,4 +77,10 @@ describe('Inbound P2P message queries', () => {
     expect(messages.length).toBe(2);
     expect(messages).toStrictEqual([TEST_MSG_1, TEST_MSG_3]);
   });
+  it('should return message by id', () => {
+    const messages = queryExecutor?.getInboundP2PMessagesByID([
+      TEST_MSG_2.messageID,
+    ]);
+    expect(messages).toStrictEqual([TEST_MSG_2]);
+  });
 });
