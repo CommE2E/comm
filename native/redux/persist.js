@@ -150,7 +150,7 @@ import {
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
-import { unshimClientDB } from './unshim-utils.js';
+import { unshimClientDB, legacyUnshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavInfo } from '../navigation/default-state.js';
@@ -515,13 +515,16 @@ const legacyMigrations = {
     }
     return state;
   },
-  [32]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
-  [33]: (state: AppState) => unshimClientDB(state, [messageTypes.REACTION]),
+  [32]: (state: AppState) =>
+    legacyUnshimClientDB(state, [messageTypes.MULTIMEDIA]),
+  [33]: (state: AppState) =>
+    legacyUnshimClientDB(state, [messageTypes.REACTION]),
   [34]: (state: any) => {
     const { threadIDsToNotifIDs, ...stateSansThreadIDsToNotifIDs } = state;
     return stateSansThreadIDsToNotifIDs;
   },
-  [35]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
+  [35]: (state: AppState) =>
+    legacyUnshimClientDB(state, [messageTypes.MULTIMEDIA]),
   [36]: (state: AppState) => {
     // 1. Get threads and messages from SQLite `threads` and `messages` tables.
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
@@ -653,7 +656,8 @@ const legacyMigrations = {
       state,
       legacyUpdateRolesAndPermissions,
     ),
-  [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
+  [39]: (state: AppState) =>
+    legacyUnshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
   [40]: (state: AppState) =>
     deprecatedUpdateClientDBThreadStoreThreadInfos(
       state,
@@ -1305,7 +1309,7 @@ const legacyMigrations = {
     };
   },
   [74]: (state: AppState) =>
-    unshimClientDB(
+    legacyUnshimClientDB(
       state,
       [messageTypes.UPDATE_RELATIONSHIP],
       handleReduxMigrationFailure,
@@ -1496,6 +1500,12 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     state,
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [85]: (async (state: AppState) =>
+    unshimClientDB(
+      state,
+      [messageTypes.MULTIMEDIA],
+      handleReduxMigrationFailure,
+    ): MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1506,7 +1516,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 84,
+  version: 85,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
