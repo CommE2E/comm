@@ -436,6 +436,16 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "createUserKeysBackup"]
+    fn create_user_keys_backup(
+      backup_id: String,
+      backup_secret: String,
+      pickle_key: String,
+      pickled_account: String,
+      siwe_backup_msg: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "restoreBackup"]
     fn restore_backup(
       backup_secret: String,

@@ -33,6 +33,39 @@ pub mod ffi {
     tokio::spawn(upload_handler::compaction::cleanup_files(backup_id));
   }
 
+  async fn prepare_user_keys_backup(
+    backup_id: String,
+    backup_secret: String,
+    pickle_key: String,
+    pickled_account: String,
+    siwe_backup_msg: String,
+  ) -> Result<(), String> {
+    let result = create_userkeys_compaction(
+      backup_id.clone(),
+      backup_secret,
+      pickle_key,
+      pickled_account,
+    )
+    .await
+    .map_err(|err| err.to_string());
+
+    if let Err(err) = result {
+      handle_backup_creation_error(backup_id.clone(), err.to_string());
+      return Err(err);
+    }
+
+    if !siwe_backup_msg.is_empty() {
+      if let Err(err) =
+        create_siwe_backup_msg_compaction(&backup_id, siwe_backup_msg).await
+      {
+        handle_backup_creation_error(backup_id.clone(), err.to_string());
+        return Err(err.to_string());
+      }
+    }
+
+    Ok(())
+  }
+
   pub fn create_backup(
     backup_id: String,
     backup_secret: String,
@@ -44,27 +77,17 @@ pub mod ffi {
     compaction_upload_promises::insert(backup_id.clone(), promise_id);
 
     RUNTIME.spawn(async move {
-      let result = create_userkeys_compaction(
+      if (prepare_user_keys_backup(
         backup_id.clone(),
         backup_secret,
         pickle_key,
         pickled_account,
+        siwe_backup_msg.clone(),
       )
-      .await
-      .map_err(|err| err.to_string());
-
-      if let Err(err) = result {
-        handle_backup_creation_error(backup_id.clone(), err.to_string());
+      .await)
+        .is_err()
+      {
         return;
-      }
-
-      if !siwe_backup_msg.is_empty() {
-        if let Err(err) =
-          create_siwe_backup_msg_compaction(&backup_id, siwe_backup_msg).await
-        {
-          handle_backup_creation_error(backup_id.clone(), err.to_string());
-          return;
-        }
       }
 
       let (future_id, future) = future_manager::new_future::<()>().await;
@@ -75,7 +98,35 @@ pub mod ffi {
       }
 
       trigger_backup_file_upload();
+      // The promise will be resolved when the backup is uploaded
+    });
+  }
 
+  pub fn create_user_keys_backup(
+    backup_id: String,
+    backup_secret: String,
+    pickle_key: String,
+    pickled_account: String,
+    siwe_backup_msg: String,
+    promise_id: u32,
+  ) {
+    compaction_upload_promises::insert(backup_id.clone(), promise_id);
+
+    RUNTIME.spawn(async move {
+      if (prepare_user_keys_backup(
+        backup_id.clone(),
+        backup_secret,
+        pickle_key,
+        pickled_account,
+        siwe_backup_msg.clone(),
+      )
+      .await)
+        .is_err()
+      {
+        return;
+      }
+
+      trigger_backup_file_upload();
       // The promise will be resolved when the backup is uploaded
     });
   }
