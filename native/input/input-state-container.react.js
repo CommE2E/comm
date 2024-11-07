@@ -192,8 +192,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   > = new Map();
   pendingThreadUpdateHandlers: Map<string, (ThreadInfo) => mixed> = new Map();
 
-  useBlobServiceUploads = true;
-
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
   // for the uploads to complete before sending. We use this Set to track the
@@ -629,11 +627,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  // eslint-disable-next-line no-unused-vars
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return true;
-  }
-
   sendMultimediaMessage = async (
     selections: $ReadOnlyArray<NativeMediaSelection>,
     threadInfo: ThreadInfo,
@@ -722,7 +715,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             creatorID,
             media,
           },
-          { forceMultimediaMessageType: this.shouldEncryptMedia(threadInfo) },
+          { forceMultimediaMessageType: true },
         );
         this.props.dispatch({
           type: createLocalMessageActionType,
@@ -825,29 +818,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    if (this.shouldEncryptMedia(threadInfo)) {
-      const encryptionStart = Date.now();
-      try {
-        const { result: encryptionResult, ...encryptionReturn } =
-          await encryptMedia(processedMedia);
-        encryptionSteps = encryptionReturn.steps;
-        if (!encryptionResult.success) {
-          onUploadFailed(encryptionResult.reason);
-          return await onUploadFinished(encryptionResult);
-        }
-        if (encryptionResult.shouldDisposePath) {
-          filesToDispose.push(encryptionResult.shouldDisposePath);
-        }
-        processedMedia = encryptionResult;
-      } catch (e) {
-        onUploadFailed('encryption failed');
-        return await onUploadFinished({
-          success: false,
-          reason: 'encryption_exception',
-          time: Date.now() - encryptionStart,
-          exceptionMessage: getMessageForException(e),
-        });
+    const encryptionStart = Date.now();
+    try {
+      const { result: encryptionResult, ...encryptionReturn } =
+        await encryptMedia(processedMedia);
+      encryptionSteps = encryptionReturn.steps;
+      if (!encryptionResult.success) {
+        onUploadFailed(encryptionResult.reason);
+        return await onUploadFinished(encryptionResult);
       }
+      if (encryptionResult.shouldDisposePath) {
+        filesToDispose.push(encryptionResult.shouldDisposePath);
+      }
+      processedMedia = encryptionResult;
+    } catch (e) {
+      onUploadFailed('encryption failed');
+      return await onUploadFinished({
+        success: false,
+        reason: 'encryption_exception',
+        time: Date.now() - encryptionStart,
+        exceptionMessage: getMessageForException(e),
+      });
     }
 
     const { uploadURI, filename, mime } = processedMedia;
@@ -861,12 +852,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult;
 
     const isThickThread = threadTypeIsThick(threadInfo.type);
-    const useBlobService = isThickThread || this.useBlobServiceUploads;
     try {
       if (
-        useBlobService &&
-        (processedMedia.mediaType === 'encrypted_photo' ||
-          processedMedia.mediaType === 'encrypted_video')
+        processedMedia.mediaType === 'encrypted_photo' ||
+        processedMedia.mediaType === 'encrypted_video'
       ) {
         const uploadMetadataToKeyserver = !isThickThread;
         const uploadPromise = this.props.blobServiceUpload({
