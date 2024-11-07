@@ -22,7 +22,6 @@ import {
   uploadMultimedia,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
-import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import {
   type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
@@ -53,7 +52,6 @@ import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.j
 import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-utils.js';
 import {
   patchThreadInfoToIncludeMentionedMembersOfParent,
-  threadInfoInsideCommunity,
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
@@ -632,11 +630,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return (
-      threadTypeIsThick(threadInfo.type) ||
-      threadInfoInsideCommunity(threadInfo, commStaffCommunity.id)
-    );
+    return true;
   }
 
   sendMultimediaMessage = async (
