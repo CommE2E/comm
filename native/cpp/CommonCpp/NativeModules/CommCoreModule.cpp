@@ -2502,7 +2502,7 @@ jsi::Value CommCoreModule::createNewBackupInternal(
 
           std::string backupID;
           try {
-            backupID = crypto::Tools::generateRandomString(32);
+            backupID = crypto::Tools::generateRandomURLSafeString(32);
           } catch (const std::exception &e) {
             error = "Failed to generate backupID";
           }
