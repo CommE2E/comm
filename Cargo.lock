@@ -520,12 +520,13 @@ checksum = "b3d1d046238990b9cf5bcde22a3fb3584ee5cf65fb2765f454ed428c7a0063da"
 
 [[package]]
 name = "argon2"
-version = "0.4.1"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db4ce4441f99dbd377ca8a8f57b698c44d0d6e712d8329b5040da5a64aa1ce73"
+checksum = "3c3610892ee6e0cbce8ae2700349fcf8f98adb0dbfbee85aec3c9179d29cc072"
 dependencies = [
  "base64ct",
  "blake2",
+ "cpufeatures",
  "password-hash",
 ]
 
@@ -1736,6 +1737,7 @@ name = "comm-opaque2"
 version = "0.2.0"
 dependencies = [
  "argon2",
+ "generic-array",
  "log",
  "opaque-ke",
  "rand 0.8.5",
@@ -1974,15 +1976,29 @@ dependencies = [
 
 [[package]]
 name = "curve25519-dalek"
-version = "4.0.0-pre.1"
+version = "4.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4033478fbf70d6acf2655ac70da91ee65852d69daf7a67bf7a2f518fb47aafcf"
+checksum = "97fb8b7c4503de7d6ae7b42ab72a5a59857b4c937ec27a3d4539dba95b5ab2be"
 dependencies = [
- "byteorder",
- "digest 0.9.0",
+ "cfg-if",
+ "cpufeatures",
+ "curve25519-dalek-derive",
+ "fiat-crypto",
  "rand_core 0.6.4",
+ "rustc_version",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "curve25519-dalek-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.65",
 ]
 
 [[package]]
@@ -2108,13 +2124,13 @@ dependencies = [
 
 [[package]]
 name = "derive-where"
-version = "1.0.0-rc.3"
+version = "1.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d322f2907b2abad3117790c1a54d8f2d64574ba0fbea54cb6c6e66a0e50d99a4"
+checksum = "62d671cc41a825ebabc75757b62d3d168c577f9149b2d49ece1dad1f72119d25"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.65",
 ]
 
 [[package]]
@@ -2441,6 +2457,12 @@ dependencies = [
  "rand_core 0.6.4",
  "subtle",
 ]
+
+[[package]]
+name = "fiat-crypto"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
 name = "fixedbitset"
@@ -3694,16 +3716,16 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 
 [[package]]
 name = "opaque-ke"
-version = "2.0.0"
+version = "2.1.0-pre.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76d410412d23781909d90c3900c5783e830586765f2277bccc78167da8af81a5"
+checksum = "3752668208a325d8c887827fc3e7ee8f5b4030cc036fb63ddeb02c21921b700c"
 dependencies = [
  "argon2",
- "curve25519-dalek 4.0.0-pre.1",
+ "curve25519-dalek 4.1.3",
  "derive-where",
  "digest 0.10.7",
  "displaydoc",
- "elliptic-curve 0.12.3",
+ "elliptic-curve 0.13.8",
  "generic-array",
  "hkdf",
  "hmac",
@@ -3864,9 +3886,9 @@ checksum = "944553dd59c802559559161f9816429058b869003836120e262e8caec061b7ae"
 
 [[package]]
 name = "password-hash"
-version = "0.4.2"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7676374caaee8a325c9e7a2ae557f216c5563a171d6997b0ef8a65af35147700"
+checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
 dependencies = [
  "base64ct",
  "rand_core 0.6.4",
@@ -5165,9 +5187,9 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "subtle"
-version = "2.5.0"
+version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
+checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
@@ -6006,15 +6028,15 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
 name = "voprf"
-version = "0.4.0-pre.3"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "081acbe8fcf05d5e8e2aad8ef3d40e02eddeaec07c75a9770d862a0fc0874322"
+checksum = "3e389827f1bd1fe2b69c03ee133aed75c49f03f2d021c40b88c2ff6ce5517846"
 dependencies = [
- "curve25519-dalek 4.0.0-pre.1",
+ "curve25519-dalek 4.1.3",
  "derive-where",
  "digest 0.10.7",
  "displaydoc",
- "elliptic-curve 0.12.3",
+ "elliptic-curve 0.13.8",
  "generic-array",
  "rand_core 0.6.4",
  "serde",
@@ -6447,9 +6469,9 @@ dependencies = [
 
 [[package]]
 name = "zeroize"
-version = "1.7.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "525b4ec142c6b68a2d10f01f7bbf6755599ca3f81ea53b8431b7dd348f5fdb2d"
+checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
 dependencies = [
  "zeroize_derive",
 ]
