@@ -2,19 +2,13 @@
 
 import * as React from 'react';
 
-import {
-  uploadMultimedia,
-  useBlobServiceUpload,
-} from 'lib/actions/upload-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { useBlobServiceUpload } from 'lib/actions/upload-actions.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
 import { validateFile } from '../media/media-utils.js';
-
-const useBlobServiceUploads = true;
 
 type AvatarMediaUploadOptions = {
   +uploadMetadataToKeyserver?: boolean,
@@ -25,7 +19,6 @@ function useUploadAvatarMedia(
 ): File => Promise<UpdateUserAvatarRequest> {
   const { uploadMetadataToKeyserver = true } = options;
 
-  const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
     async (file: File): Promise<UpdateUserAvatarRequest> => {
@@ -35,16 +28,6 @@ function useUploadAvatarMedia(
         throw new Error('Avatar media validation failed.');
       }
       const { file: fixedFile, dimensions } = result;
-      const uploadExtras = {
-        ...dimensions,
-        loop: false,
-      };
-      const useBlobService =
-        !uploadMetadataToKeyserver || useBlobServiceUploads;
-      if (!useBlobService) {
-        const { id } = await callUploadMultimedia(fixedFile, uploadExtras);
-        return { type: 'image', uploadID: id };
-      }
 
       const encryptionResponse = await encryptFile(fixedFile);
       const { result: encryptionResult } = encryptionResponse;
@@ -94,7 +77,7 @@ function useUploadAvatarMedia(
         encryptionKey,
       };
     },
-    [callBlobServiceUpload, callUploadMultimedia, uploadMetadataToKeyserver],
+    [callBlobServiceUpload, uploadMetadataToKeyserver],
   );
   return uploadAvatarMedia;
 }
