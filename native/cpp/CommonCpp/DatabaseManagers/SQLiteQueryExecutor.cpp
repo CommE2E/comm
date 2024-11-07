@@ -2747,6 +2747,25 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQLStream.str(), ids);
 }
 
+std::vector<InboundP2PMessage> SQLiteQueryExecutor::getInboundP2PMessagesByID(
+    const std::vector<std::string> &ids) const {
+  std::stringstream getInboundP2PMessageSQLStream;
+  getInboundP2PMessageSQLStream << "SELECT message_id, sender_device_id, "
+                                   "plaintext, status, sender_user_id "
+                                   "FROM inbound_p2p_messages "
+                                   "WHERE message_id IN "
+                                << getSQLStatementArray(ids.size()) << ";";
+  std::string getInboundP2PMessageSQL = getInboundP2PMessageSQLStream.str();
+
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      getInboundP2PMessageSQL,
+      "Failed to get inbound messages by ID");
+
+  return getAllEntitiesByPrimaryKeys<InboundP2PMessage>(
+      SQLiteQueryExecutor::getConnection(), getInboundP2PMessageSQL, ids);
+}
+
 std::vector<MessageEntity>
 SQLiteQueryExecutor::getRelatedMessages(const std::string &messageID) const {
   static std::string getMessageSQL =
