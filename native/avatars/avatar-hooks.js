@@ -44,8 +44,6 @@ import Alert from '../utils/alert.js';
 import blobServiceUploadHandler from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
-const useBlobServiceUploads = true;
-
 function displayAvatarUpdateFailureAlert(): void {
   Alert.alert(
     'Couldn’t save avatar',
@@ -63,8 +61,7 @@ function useUploadProcessedMedia(): (
   const callBlobServiceUpload = useBlobServiceUpload();
   return React.useCallback(
     async (processedMedia, metadataUploadLocation) => {
-      const useBlobService =
-        metadataUploadLocation !== 'keyserver' || useBlobServiceUploads;
+      const useBlobService = metadataUploadLocation !== 'keyserver';
       if (!useBlobService) {
         const { uploadURI, filename, mime, dimensions } = processedMedia;
         const { id } = await callUploadMultimedia(

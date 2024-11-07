@@ -14,8 +14,6 @@ import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
 import { validateFile } from '../media/media-utils.js';
 
-const useBlobServiceUploads = true;
-
 type AvatarMediaUploadOptions = {
   +uploadMetadataToKeyserver?: boolean,
 };
@@ -39,9 +37,7 @@ function useUploadAvatarMedia(
         ...dimensions,
         loop: false,
       };
-      const useBlobService =
-        !uploadMetadataToKeyserver || useBlobServiceUploads;
-      if (!useBlobService) {
+      if (uploadMetadataToKeyserver) {
         const { id } = await callUploadMultimedia(fixedFile, uploadExtras);
         return { type: 'image', uploadID: id };
       }

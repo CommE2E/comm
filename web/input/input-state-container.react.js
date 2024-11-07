@@ -213,8 +213,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }>,
   >();
 
-  useBlobServiceUploads = true;
-
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
   // for the uploads to complete before sending. We use this Set to track the
@@ -311,7 +309,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       string,
       {
         +threadID: string,
-        +shouldEncrypt: boolean,
         +uploads: PendingMultimediaUpload[],
       },
     >();
@@ -327,18 +324,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         ) {
           continue;
         }
-        const { shouldEncrypt } = upload;
         let assignedUploads = newlyAssignedUploads.get(messageID);
         if (!assignedUploads) {
-          assignedUploads = { threadID, shouldEncrypt, uploads: [] };
+          assignedUploads = { threadID, uploads: [] };
           newlyAssignedUploads.set(messageID, assignedUploads);
-        }
-        if (shouldEncrypt !== assignedUploads.shouldEncrypt) {
-          console.warn(
-            `skipping upload ${localUploadID} ` +
-              "because shouldEncrypt doesn't match",
-          );
-          continue;
         }
         assignedUploads.uploads.push(upload);
       }
@@ -346,7 +335,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const newMessageInfos = new Map<string, RawMultimediaMessageInfo>();
     for (const [messageID, assignedUploads] of newlyAssignedUploads) {
-      const { uploads, threadID, shouldEncrypt } = assignedUploads;
+      const { uploads, threadID } = assignedUploads;
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
@@ -401,7 +390,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           creatorID,
           media,
         },
-        { forceMultimediaMessageType: shouldEncrypt },
+        { forceMultimediaMessageType: true },
       );
       newMessageInfos.set(messageID, messageInfo);
     }
@@ -443,11 +432,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       `rawMessageInfo ${localMessageID} should be multimedia`,
     );
     return rawMessageInfo;
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return true;
   }
 
   async sendMultimediaMessage(
@@ -817,29 +801,26 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     const { uri, file: fixedFile, mediaType, dimensions } = result;
 
-    const shouldEncrypt = this.shouldEncryptMedia(threadInfo);
-
-    let encryptionResult;
-    if (shouldEncrypt) {
-      let encryptionResponse;
-      const encryptionStart = Date.now();
-      try {
-        encryptionResponse = await encryptFile(fixedFile);
-      } catch (e) {
-        return {
-          steps,
-          result: {
-            success: false,
-            reason: 'encryption_exception',
-            time: Date.now() - encryptionStart,
-            exceptionMessage: getMessageForException(e),
-          },
-        };
-      }
-      steps.push(...encryptionResponse.steps);
-      encryptionResult = encryptionResponse.result;
+    let encryptionResponse;
+    const encryptionStart = Date.now();
+    try {
+      encryptionResponse = await encryptFile(fixedFile);
+    } catch (e) {
+      return {
+        steps,
+        result: {
+          success: false,
+          reason: 'encryption_exception',
+          time: Date.now() - encryptionStart,
+          exceptionMessage: getMessageForException(e),
+        },
+      };
     }
-    if (encryptionResult && !encryptionResult.success) {
+    const { result: encryptionResult, steps: encryptionSteps } =
+      encryptionResponse;
+    steps.push(...encryptionSteps);
+
+    if (!encryptionResult.success) {
       return { steps, result: encryptionResult };
     }
 
@@ -874,7 +855,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abort: null,
           steps,
           selectTime,
-          shouldEncrypt,
         },
       },
     };
@@ -934,11 +914,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         abortHandler: (abort: () => void) =>
           this.handleAbortCallback(threadID, localID, abort),
       };
-      const useBlobService = isThickThread || this.useBlobServiceUploads;
       if (
-        useBlobService &&
-        (upload.mediaType === 'encrypted_photo' ||
-          upload.mediaType === 'encrypted_video')
+        upload.mediaType === 'encrypted_photo' ||
+        upload.mediaType === 'encrypted_video'
       ) {
         const { blobHash, dimensions, thumbHash } = upload;
         invariant(

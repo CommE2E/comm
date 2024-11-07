@@ -42,7 +42,6 @@ export type PendingMultimediaUpload = {
   +abort: ?() => void,
   +steps: MediaMissionStep[],
   +selectTime: number,
-  +shouldEncrypt: boolean,
 };
 
 export type TypeaheadState = {
