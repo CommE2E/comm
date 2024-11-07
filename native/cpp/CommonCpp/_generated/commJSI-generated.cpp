@@ -211,6 +211,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllInboundP2P
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeInboundP2PMessages(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeInboundP2PMessages(rt, args[0].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getInboundP2PMessagesByID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getInboundP2PMessagesByID(rt, args[0].asObject(rt).asArray(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOutboundP2PMessagesByID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getOutboundP2PMessagesByID(rt, args[0].asObject(rt).asArray(rt));
 }
@@ -308,6 +311,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getSIWEBackupSecrets"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets};
   methodMap_["getAllInboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllInboundP2PMessages};
   methodMap_["removeInboundP2PMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeInboundP2PMessages};
+  methodMap_["getInboundP2PMessagesByID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getInboundP2PMessagesByID};
   methodMap_["getOutboundP2PMessagesByID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOutboundP2PMessagesByID};
   methodMap_["getAllOutboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllOutboundP2PMessages};
   methodMap_["markOutboundP2PMessageAsSent"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PMessageAsSent};
