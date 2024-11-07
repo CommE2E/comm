@@ -291,6 +291,15 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_MESSAGES,
       messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
     };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_INBOUND_P2P_MESSAGES_BY_ID
+  ) {
+    return {
+      type: workerResponseMessageTypes.GET_INBOUND_P2P_MESSAGES,
+      inboundP2PMessages: sqliteQueryExecutor.getInboundP2PMessagesByID(
+        message.messageIDs,
+      ),
+    };
   }
 
   // write operations
