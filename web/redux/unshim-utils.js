@@ -12,8 +12,8 @@ import type {
   ClientDBMessageInfo,
 } from 'lib/types/message-types.js';
 import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
+import type { MigrationResult } from 'lib/utils/migration-utils.js';
 
-import { handleReduxMigrationFailure } from './handle-redux-migration-failure.js';
 import type { AppState } from './redux-setup.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -26,13 +26,16 @@ const {
 async function unshimClientDB(
   state: AppState,
   unshimTypes: $ReadOnlyArray<MessageType>,
-): Promise<AppState> {
+): Promise<MigrationResult<AppState>> {
   // 1. Check if `databaseModule` is supported and early-exit if not.
   const sharedWorker = await getCommSharedWorker();
   const isDatabaseSupported = await sharedWorker.isSupported();
 
   if (!isDatabaseSupported) {
-    return state;
+    return {
+      state,
+      ops: {},
+    };
   }
 
   // 2. Get existing `stores` from SQLite.
@@ -44,7 +47,10 @@ async function unshimClientDB(
     stores?.store?.messages;
 
   if (messages === null || messages === undefined || messages.length === 0) {
-    return state;
+    return {
+      state,
+      ops: {},
+    };
   }
 
   // 3. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
@@ -71,26 +77,46 @@ async function unshimClientDB(
 
   // 6. Process the constructed `messageStoreOperations`.
   try {
-    const convertedMessageStoreOperations =
-      convertMessageOpsToClientDBOps(operations);
+    const processedMessageStore = processMessageStoreOperations(
+      state.messageStore,
+      operations,
+    );
+    return {
+      state: {
+        ...state,
+        messageStore: processedMessageStore,
+      },
+      ops: {
+        messageStoreOperations: operations,
+      },
+    };
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+async function legacyUnshimClientDB(
+  prevState: AppState,
+  unshimTypes: $ReadOnlyArray<MessageType>,
+): Promise<AppState> {
+  const [sharedWorker, { state, ops }] = await Promise.all([
+    getCommSharedWorker(),
+    unshimClientDB(prevState, unshimTypes),
+  ]);
+  const { messageStoreOperations } = ops;
+  if (messageStoreOperations) {
+    const convertedMessageStoreOperations = convertMessageOpsToClientDBOps(
+      messageStoreOperations,
+    );
     await sharedWorker.schedule({
       type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
       storeOperations: {
         messageStoreOperations: convertedMessageStoreOperations,
       },
     });
-    const processedMessageStore = processMessageStoreOperations(
-      state.messageStore,
-      operations,
-    );
-    return {
-      ...state,
-      messageStore: processedMessageStore,
-    };
-  } catch (e) {
-    console.log(e);
-    return handleReduxMigrationFailure(state);
   }
+  return state;
 }
 
-export { unshimClientDB };
+export { unshimClientDB, legacyUnshimClientDB };
