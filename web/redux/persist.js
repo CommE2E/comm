@@ -65,7 +65,7 @@ import {
 } from './handle-redux-migration-failure.js';
 import { rootKey, rootKeyPrefix, storeVersion } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
-import { unshimClientDB } from './unshim-utils.js';
+import { legacyUnshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
@@ -486,7 +486,7 @@ const legacyMigrations = {
     return state;
   },
   [18]: (state: AppState) =>
-    unshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
+    legacyUnshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction<
@@ -718,6 +718,10 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     };
     return { state, ops: operations };
   }: MigrationFunction<WebNavInfo, AppState>),
+  [85]: (async (state: AppState) => ({
+    state,
+    ops: {},
+  }): MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {

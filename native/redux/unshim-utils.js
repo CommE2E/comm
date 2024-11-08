@@ -9,6 +9,7 @@ import { unshimFunc } from 'lib/shared/unshim-utils.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
+import type { MigrationResult } from 'lib/utils/migration-utils.js';
 
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
@@ -22,7 +23,7 @@ function unshimClientDB(
   state: AppState,
   unshimTypes: $ReadOnlyArray<MessageType>,
   handleMigrationFailure?: AppState => AppState,
-): AppState {
+): MigrationResult<AppState> {
   // 1. Get messages from SQLite `messages` table.
   const clientDBMessageInfos = commCoreModule.getInitialMessagesSync();
 
@@ -51,26 +52,52 @@ function unshimClientDB(
   // 5. Try processing `ClientDBMessageStoreOperation`s and log out if
   //    `processMessageStoreOperationsSync(...)` throws an exception.
   try {
-    const convertedMessageStoreOperations =
-      convertMessageOpsToClientDBOps(operations);
-    commCoreModule.processMessageStoreOperationsSync(
-      convertedMessageStoreOperations,
-    );
     const processedMessageStore = processMessageStoreOperations(
       state.messageStore,
       operations,
     );
     return {
-      ...state,
-      messageStore: processedMessageStore,
+      state: {
+        ...state,
+        messageStore: processedMessageStore,
+      },
+      ops: {
+        messageStoreOperations: operations,
+      },
     };
   } catch (exception) {
     console.log(exception);
     if (handleMigrationFailure) {
-      return handleMigrationFailure(state);
+      const newState = handleMigrationFailure(state);
+      return { state: newState, ops: {} };
     }
-    return ({ ...state, cookie: null }: any);
+    return {
+      state: ({ ...state, cookie: null }: any),
+      ops: {},
+    };
   }
 }
 
-export { unshimClientDB };
+function legacyUnshimClientDB(
+  prevState: AppState,
+  unshimTypes: $ReadOnlyArray<MessageType>,
+  handleMigrationFailure?: AppState => AppState,
+): AppState {
+  const { state, ops } = unshimClientDB(
+    prevState,
+    unshimTypes,
+    handleMigrationFailure,
+  );
+  const { messageStoreOperations } = ops;
+  if (messageStoreOperations) {
+    const convertedMessageStoreOperations = convertMessageOpsToClientDBOps(
+      messageStoreOperations,
+    );
+    commCoreModule.processMessageStoreOperationsSync(
+      convertedMessageStoreOperations,
+    );
+  }
+  return state;
+}
+
+export { unshimClientDB, legacyUnshimClientDB };
