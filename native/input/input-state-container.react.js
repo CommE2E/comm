@@ -191,9 +191,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }>,
   > = new Map();
   pendingThreadUpdateHandlers: Map<string, (ThreadInfo) => mixed> = new Map();
-  // TODO: flip the switch
-  // Note that this enables Blob service for encrypted media only
-  useBlobServiceUploads = false;
+
+  useBlobServiceUploads = true;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait

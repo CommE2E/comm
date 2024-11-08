@@ -44,8 +44,7 @@ import Alert from '../utils/alert.js';
 import blobServiceUploadHandler from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
-// TODO: flip the switch
-const useBlobServiceUploads = false;
+const useBlobServiceUploads = true;
 
 function displayAvatarUpdateFailureAlert(): void {
   Alert.alert(
