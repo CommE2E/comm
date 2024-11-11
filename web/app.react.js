@@ -16,6 +16,7 @@ import {
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
+import { GlobalSearchIndexProvider } from 'lib/components/global-search-index-provider.react.js';
 import {
   ModalProvider,
   useModalContext,
@@ -245,24 +246,26 @@ class App extends React.PureComponent<Props> {
             <TooltipProvider>
               <MessageSearchStateProvider>
                 <ChatMentionContextProvider>
-                  <FocusHandler />
-                  <VisibilityHandler />
-                  <PolicyAcknowledgmentHandler />
-                  <PushNotificationsHandler />
-                  <InviteLinkHandler />
-                  <InviteLinksRefresher />
-                  <CommunitiesRefresher />
-                  <MinVersionHandler />
-                  <PlatformDetailsSynchronizer />
-                  <LogOutIfMissingCSATHandler />
-                  <UserInfosHandler />
-                  <TunnelbrokerDeviceTokenHandler />
-                  <FarcasterDataHandler />
-                  <AutoJoinCommunityHandler />
-                  <SyncCommunityStoreHandler />
-                  <DMActivityHandler />
-                  <HoldersHandler />
-                  {content}
+                  <GlobalSearchIndexProvider>
+                    <FocusHandler />
+                    <VisibilityHandler />
+                    <PolicyAcknowledgmentHandler />
+                    <PushNotificationsHandler />
+                    <InviteLinkHandler />
+                    <InviteLinksRefresher />
+                    <CommunitiesRefresher />
+                    <MinVersionHandler />
+                    <PlatformDetailsSynchronizer />
+                    <LogOutIfMissingCSATHandler />
+                    <UserInfosHandler />
+                    <TunnelbrokerDeviceTokenHandler />
+                    <FarcasterDataHandler />
+                    <AutoJoinCommunityHandler />
+                    <SyncCommunityStoreHandler />
+                    <DMActivityHandler />
+                    <HoldersHandler />
+                    {content}
+                  </GlobalSearchIndexProvider>
                 </ChatMentionContextProvider>
               </MessageSearchStateProvider>
             </TooltipProvider>
