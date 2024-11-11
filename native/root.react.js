@@ -27,6 +27,7 @@ import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
+import { GlobalSearchIndexProvider } from 'lib/components/global-search-index-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
@@ -313,9 +314,11 @@ function Root() {
           <ChatContextProvider>
             <DeepLinksContextProvider>
               <ChatMentionContextProvider>
-                <NUXTipsContextProvider>
-                  <RootNavigator />
-                </NUXTipsContextProvider>
+                <GlobalSearchIndexProvider>
+                  <NUXTipsContextProvider>
+                    <RootNavigator />
+                  </NUXTipsContextProvider>
+                </GlobalSearchIndexProvider>
               </ChatMentionContextProvider>
             </DeepLinksContextProvider>
           </ChatContextProvider>

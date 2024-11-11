@@ -8,7 +8,7 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions.js';
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { useGlobalThreadSearchIndex } from 'lib/components/global-search-index-provider.react.js';
 import { useOnScreenEntryEditableThreadInfos } from 'lib/shared/thread-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
