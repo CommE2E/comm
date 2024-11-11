@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { useGlobalThreadSearchIndex } from 'lib/components/global-search-index-provider.react.js';
 import {
   useOnScreenEntryEditableThreadInfos,
   reorderThreadSearchResults,
