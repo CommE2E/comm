@@ -48,6 +48,7 @@
   "dependencies": {
     "@babel/runtime": "^7.23.7",
     "@commapp/olm": "0.2.1",
+    "@hono/node-server": "^1.13.7",
     "@parse/node-apn": "^3.2.0",
     "@vingle/bmp-js": "^0.2.5",
     "bad-words": "^3.0.4",
@@ -62,7 +63,9 @@
     "express-ws": "^4.0.0",
     "file-type": "^12.3.0",
     "firebase-admin": "^12.5.0",
+    "frog": "^0.18.2",
     "geoip-lite": "^1.4.5",
+    "hono": "^4.6.9",
     "invariant": "^2.2.4",
     "landing": "0.0.1",
     "lib": "0.0.1",
