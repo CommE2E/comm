@@ -24,7 +24,6 @@ const nuxTip = Object.freeze({
 export type NUXTip = $Values<typeof nuxTip>;
 
 type NUXTipParams = {
-  +nextTip: ?NUXTip,
   +tooltipLocation: 'below' | 'above' | 'absolute',
   +routeName: NUXTipRouteNames,
   +exitingCallback?: <Route: NUXTipRouteNames>(
@@ -36,22 +35,18 @@ const firstNUXTipKey = nuxTip.INTRO;
 
 const nuxTipParams: { +[NUXTip]: NUXTipParams } = {
   [nuxTip.INTRO]: {
-    nextTip: nuxTip.COMMUNITY_DRAWER,
     tooltipLocation: 'absolute',
     routeName: IntroTipRouteName,
   },
   [nuxTip.COMMUNITY_DRAWER]: {
-    nextTip: nuxTip.HOME,
     tooltipLocation: 'below',
     routeName: CommunityDrawerTipRouteName,
   },
   [nuxTip.HOME]: {
-    nextTip: nuxTip.MUTED,
     tooltipLocation: 'below',
     routeName: HomeTabTipRouteName,
   },
   [nuxTip.MUTED]: {
-    nextTip: undefined,
     routeName: MutedTabTipRouteName,
     tooltipLocation: 'below',
     exitingCallback: navigation => navigation.goBack(),

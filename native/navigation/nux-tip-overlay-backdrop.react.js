@@ -7,10 +7,7 @@ import { withTiming } from 'react-native-reanimated';
 import type { AppNavigationProp } from './app-navigator.react.js';
 import { OverlayContext } from './overlay-context.js';
 import type { NUXTipRouteNames, NavigationRoute } from './route-names';
-import {
-  firstNUXTipKey,
-  getNUXTipParams,
-} from '../components/nux-tips-context.react.js';
+import { getNUXTipParams } from '../components/nux-tips-context.react.js';
 import { useStyles } from '../themes/colors.js';
 import { animationDuration } from '../tooltip/nux-tips-overlay.react.js';
 import { AnimatedView } from '../types/styles.js';
@@ -44,11 +41,20 @@ function opacityEnteringAnimation() {
 }
 
 function NUXTipOverlayBackdropInner(props: Props): React.Node {
+  const { navigation, route } = props;
+
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
   const { onExitFinish } = overlayContext;
 
   const styles = useStyles(unboundStyles);
+
+  const orderedTips = route.params?.orderedTips;
+  invariant(
+    orderedTips && orderedTips.length > 0,
+    'orderedTips is required and should not be empty.',
+  );
+  const firstTip = orderedTips[0];
 
   const opacityExitingAnimation = React.useCallback(() => {
     'worklet';
@@ -64,16 +70,18 @@ function NUXTipOverlayBackdropInner(props: Props): React.Node {
     };
   }, [onExitFinish]);
 
-  const { routeName } = getNUXTipParams(firstNUXTipKey);
+  const { routeName } = getNUXTipParams(firstTip);
 
   React.useEffect(
-    () =>
-      props.navigation.navigate<NUXTipRouteNames>({
+    () => {
+      navigation.navigate<NUXTipRouteNames>({
         name: routeName,
         params: {
-          tipKey: firstNUXTipKey,
+          orderedTips,
+          orderedTipsIndex: 0,
         },
-      }),
+      });
+    },
     // We want this effect to run exactly once, when this component is mounted
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
