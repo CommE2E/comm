@@ -81,7 +81,11 @@ function getPanelPaddingTop(
   'worklet';
   const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
   let containerSize = headerHeight;
-  if (modeValue === 'loading' || modeValue === 'prompt') {
+  if (
+    modeValue === 'loading' ||
+    modeValue === 'prompt' ||
+    modeValue === 'restore'
+  ) {
     containerSize += Platform.OS === 'ios' ? 40 : 61;
   } else if (modeValue === 'log-in') {
     containerSize += 140;
@@ -499,12 +503,14 @@ function LoggedOutModal(props: Props) {
     [styles.buttonContainer, buttonsViewOpacity],
   );
   const buttons = React.useMemo(() => {
-    if (mode.curMode !== 'prompt') {
+    if (mode.curMode !== 'prompt' && mode.curMode !== 'restore') {
       return null;
     }
 
     const signInButtons = [];
-    if (!usingRestoreFlow) {
+    if (!usingRestoreFlow || mode.curMode === 'restore') {
+      const buttonText =
+        mode.curMode === 'restore' ? 'Sign in with password' : 'Sign in';
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressLogIn}
@@ -512,11 +518,11 @@ function LoggedOutModal(props: Props) {
           activeOpacity={0.6}
           key="login-form"
         >
-          <Text style={classicAuthButtonTextStyle}>Sign in</Text>
+          <Text style={classicAuthButtonTextStyle}>{buttonText}</Text>
         </TouchableOpacity>,
       );
     }
-    if (__DEV__ || usingRestoreFlow) {
+    if ((__DEV__ || usingRestoreFlow) && mode.curMode === 'prompt') {
       const buttonText = usingRestoreFlow ? 'Sign in' : 'Sign in (QR)';
       signInButtons.push(
         <TouchableOpacity
@@ -531,7 +537,17 @@ function LoggedOutModal(props: Props) {
     }
 
     let siweSection = null;
-    if (!usingRestoreFlow) {
+    if (!usingRestoreFlow || mode.curMode === 'restore') {
+      let siweOr = null;
+      if (mode.curMode !== 'restore') {
+        siweOr = (
+          <View style={styles.siweOr}>
+            <View style={styles.siweOrLeftHR} />
+            <Text style={styles.siweOrText}>or</Text>
+            <View style={styles.siweOrRightHR} />
+          </View>
+        );
+      }
       siweSection = (
         <>
           <TouchableOpacity
@@ -544,20 +560,14 @@ function LoggedOutModal(props: Props) {
             </View>
             <Text style={siweAuthButtonTextStyle}>Sign in with Ethereum</Text>
           </TouchableOpacity>
-          <View style={styles.siweOr}>
-            <View style={styles.siweOrLeftHR} />
-            <Text style={styles.siweOrText}>or</Text>
-            <View style={styles.siweOrRightHR} />
-          </View>
+          {siweOr}
         </>
       );
     }
 
-    return (
-      <AnimatedView style={buttonsViewStyle}>
-        <LoggedOutStaffInfo />
-        {siweSection}
-        <View style={styles.signInButtons}>{signInButtons}</View>
+    let registerButtons = null;
+    if (mode.curMode === 'prompt') {
+      registerButtons = (
         <View style={styles.registerButtons}>
           <TouchableOpacity
             onPress={onPressNewRegister}
@@ -568,6 +578,20 @@ function LoggedOutModal(props: Props) {
             <Text style={classicAuthButtonTextStyle}>Register</Text>
           </TouchableOpacity>
         </View>
+      );
+    }
+
+    let loggedOutStaffInfo = null;
+    if (mode.curMode === 'prompt') {
+      loggedOutStaffInfo = <LoggedOutStaffInfo />;
+    }
+
+    return (
+      <AnimatedView style={buttonsViewStyle}>
+        {loggedOutStaffInfo}
+        {siweSection}
+        <View style={styles.signInButtons}>{signInButtons}</View>
+        {registerButtons}
       </AnimatedView>
     );
   }, [
