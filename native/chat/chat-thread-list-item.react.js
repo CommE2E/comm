@@ -50,10 +50,9 @@ function ChatThreadListItem({
     () =>
       data.sidebars.map((sidebarItem, index) => {
         if (sidebarItem.type === 'sidebar') {
-          const { type, ...sidebarInfo } = sidebarItem;
           return (
             <ChatThreadListSidebar
-              sidebarInfo={sidebarInfo}
+              sidebarItem={sidebarItem}
               onPressItem={onPressItem}
               onSwipeableWillOpen={onSwipeableWillOpen}
               currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
