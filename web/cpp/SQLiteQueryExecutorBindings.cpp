@@ -302,8 +302,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "getOutboundP2PMessagesByID",
           &SQLiteQueryExecutor::getOutboundP2PMessagesByID)
       .function(
-          "getAllOutboundP2PMessages",
-          &SQLiteQueryExecutor::getAllOutboundP2PMessages)
+          "getUnsentOutboundP2PMessages",
+          &SQLiteQueryExecutor::getUnsentOutboundP2PMessages)
       .function(
           "setCiphertextForOutboundP2PMessage",
           &SQLiteQueryExecutor::setCiphertextForOutboundP2PMessage)

@@ -97,11 +97,11 @@ describe('Outbound P2P messages queries', () => {
   });
 
   it('should return all messages', () => {
-    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(4);
+    expect(queryExecutor?.getUnsentOutboundP2PMessages().length).toBe(4);
   });
 
   it('should return messages in correct order', () => {
-    const messages = queryExecutor?.getAllOutboundP2PMessages();
+    const messages = queryExecutor?.getUnsentOutboundP2PMessages();
     expect(messages).toStrictEqual(messagesOrdered);
   });
 
@@ -111,8 +111,8 @@ describe('Outbound P2P messages queries', () => {
       TEST_MSG_4.deviceID,
     );
 
-    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(3);
-    expect(queryExecutor?.getAllOutboundP2PMessages()).toStrictEqual([
+    expect(queryExecutor?.getUnsentOutboundP2PMessages().length).toBe(3);
+    expect(queryExecutor?.getUnsentOutboundP2PMessages()).toStrictEqual([
       TEST_MSG_3,
       TEST_MSG_1,
       TEST_MSG_2,
@@ -122,7 +122,7 @@ describe('Outbound P2P messages queries', () => {
   it('should remove all messages for given device', () => {
     queryExecutor?.removeAllOutboundP2PMessages(device1);
     queryExecutor?.removeAllOutboundP2PMessages(device2);
-    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(0);
+    expect(queryExecutor?.getUnsentOutboundP2PMessages().length).toBe(0);
   });
 
   it('should set ciphertext for given message', () => {
@@ -134,7 +134,7 @@ describe('Outbound P2P messages queries', () => {
       ciphertext,
     );
 
-    const messages = queryExecutor?.getAllOutboundP2PMessages() ?? [];
+    const messages = queryExecutor?.getUnsentOutboundP2PMessages() ?? [];
     expect(messages.length).toBe(4);
     expect(
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.ciphertext,
@@ -147,7 +147,7 @@ describe('Outbound P2P messages queries', () => {
       TEST_MSG_4.deviceID,
     );
 
-    const messages = queryExecutor?.getAllOutboundP2PMessages() ?? [];
+    const messages = queryExecutor?.getUnsentOutboundP2PMessages() ?? [];
     expect(messages.length).toBe(3);
     expect(
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID),
