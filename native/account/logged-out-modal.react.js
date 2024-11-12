@@ -27,7 +27,10 @@ import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import {
+  usingCommServicesAccessToken,
+  usingRestoreFlow,
+} from 'lib/utils/services-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
@@ -57,7 +60,12 @@ import EthereumLogo from '../vectors/ethereum-logo.react.js';
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
 
-export type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'siwe';
+export type LoggedOutMode =
+  | 'loading'
+  | 'prompt'
+  | 'log-in'
+  | 'siwe'
+  | 'restore';
 
 const timingConfig = {
   duration: 250,
@@ -426,6 +434,11 @@ function LoggedOutModal(props: Props) {
     combinedSetMode('log-in');
   }, [combinedSetMode]);
 
+  const onPressRestore = React.useCallback(
+    () => combinedSetMode('restore'),
+    [combinedSetMode],
+  );
+
   const { navigate } = props.navigation;
   const onPressQRCodeSignIn = React.useCallback(() => {
     navigate(QRCodeSignInNavigatorRouteName);
@@ -496,17 +509,19 @@ function LoggedOutModal(props: Props) {
     }
 
     const signInButtons = [];
-    signInButtons.push(
-      <TouchableOpacity
-        onPress={onPressLogIn}
-        style={classicAuthButtonStyle}
-        activeOpacity={0.6}
-        key="login-form"
-      >
-        <Text style={classicAuthButtonTextStyle}>Sign in</Text>
-      </TouchableOpacity>,
-    );
-    if (__DEV__) {
+    if (!usingRestoreFlow) {
+      signInButtons.push(
+        <TouchableOpacity
+          onPress={onPressLogIn}
+          style={classicAuthButtonStyle}
+          activeOpacity={0.6}
+          key="login-form"
+        >
+          <Text style={classicAuthButtonTextStyle}>Sign in</Text>
+        </TouchableOpacity>,
+      );
+    }
+    if (__DEV__ || usingRestoreFlow) {
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressQRCodeSignIn}
@@ -519,24 +534,48 @@ function LoggedOutModal(props: Props) {
       );
     }
 
+    let siweSection = null;
+    if (!usingRestoreFlow) {
+      siweSection = (
+        <>
+          <TouchableOpacity
+            onPress={onPressSIWE}
+            style={siweAuthButtonStyle}
+            activeOpacity={0.6}
+          >
+            <View style={styles.siweIcon}>
+              <EthereumLogo />
+            </View>
+            <Text style={siweAuthButtonTextStyle}>Sign in with Ethereum</Text>
+          </TouchableOpacity>
+          <View style={styles.siweOr}>
+            <View style={styles.siweOrLeftHR} />
+            <Text style={styles.siweOrText}>or</Text>
+            <View style={styles.siweOrRightHR} />
+          </View>
+        </>
+      );
+    }
+
+    let restoreButton = null;
+    if (usingRestoreFlow) {
+      restoreButton = (
+        <TouchableOpacity
+          onPress={onPressRestore}
+          style={classicAuthButtonStyle}
+          activeOpacity={0.6}
+          key="qr-code-login"
+        >
+          <Text style={classicAuthButtonTextStyle}>Restore</Text>
+        </TouchableOpacity>
+      );
+    }
+
     return (
       <AnimatedView style={buttonsViewStyle}>
         <LoggedOutStaffInfo />
-        <TouchableOpacity
-          onPress={onPressSIWE}
-          style={siweAuthButtonStyle}
-          activeOpacity={0.6}
-        >
-          <View style={styles.siweIcon}>
-            <EthereumLogo />
-          </View>
-          <Text style={siweAuthButtonTextStyle}>Sign in with Ethereum</Text>
-        </TouchableOpacity>
-        <View style={styles.siweOr}>
-          <View style={styles.siweOrLeftHR} />
-          <Text style={styles.siweOrText}>or</Text>
-          <View style={styles.siweOrRightHR} />
-        </View>
+        {siweSection}
+        {restoreButton}
         <View style={styles.signInButtons}>{signInButtons}</View>
         <View style={styles.registerButtons}>
           <TouchableOpacity
@@ -555,6 +594,7 @@ function LoggedOutModal(props: Props) {
     onPressNewRegister,
     onPressLogIn,
     onPressQRCodeSignIn,
+    onPressRestore,
     onPressSIWE,
     classicAuthButtonStyle,
     classicAuthButtonTextStyle,
