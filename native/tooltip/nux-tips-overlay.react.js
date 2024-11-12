@@ -100,7 +100,8 @@ const unboundStyles = {
 };
 
 export type NUXTipsOverlayParams = {
-  +tipKey: NUXTip,
+  +orderedTips: $ReadOnlyArray<NUXTip>,
+  +orderedTipsIndex: number,
 };
 
 export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
@@ -144,7 +145,9 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
         });
         return;
       }
-      const measure = nuxTipContext?.tipsProps?.[route.params.tipKey];
+      const currentTipKey =
+        route.params.orderedTips[route.params.orderedTipsIndex];
+      const measure = nuxTipContext?.tipsProps?.[currentTipKey];
       invariant(measure, 'button should be registered with nuxTipContext');
 
       measure((x, y, width, height, pageX, pageY) =>
@@ -153,7 +156,12 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
           verticalBounds: { height, y: pageY },
         }),
       );
-    }, [dimensions, nuxTipContext?.tipsProps, route.params.tipKey]);
+    }, [
+      dimensions,
+      nuxTipContext?.tipsProps,
+      route.params.orderedTips,
+      route.params.orderedTipsIndex,
+    ]);
 
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
@@ -218,7 +226,9 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       [coordinates, dimensions.width, tipHorizontalOffset],
     );
 
-    const tipParams = getNUXTipParams(route.params.tipKey);
+    const currentTipKey =
+      route.params.orderedTips[route.params.orderedTipsIndex];
+    const tipParams = getNUXTipParams(currentTipKey);
     const { tooltipLocation } = tipParams;
 
     const baseTipContainerStyle = React.useMemo(() => {
@@ -415,25 +425,30 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     }
 
     const onPressOk = React.useCallback(() => {
-      const { nextTip, exitingCallback } = tipParams;
+      const { orderedTips, orderedTipsIndex } = route.params;
+      const { exitingCallback } = tipParams;
       goBackOnce();
 
       if (exitingCallback) {
         exitingCallback?.(navigation);
       }
 
-      if (!nextTip) {
+      const nextOrderedTipsIndex = orderedTipsIndex + 1;
+      if (nextOrderedTipsIndex >= orderedTips.length) {
         return;
       }
+
+      const nextTip = orderedTips[nextOrderedTipsIndex];
       const { routeName } = getNUXTipParams(nextTip);
 
       navigation.navigate<NUXTipRouteNames>({
         name: routeName,
         params: {
-          tipKey: nextTip,
+          orderedTips,
+          orderedTipsIndex: nextOrderedTipsIndex,
         },
       });
-    }, [goBackOnce, navigation, tipParams]);
+    }, [goBackOnce, navigation, route.params, tipParams]);
 
     const button = React.useMemo(
       () =>

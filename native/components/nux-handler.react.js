@@ -6,9 +6,20 @@ import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
-import { NUXTipsContext } from './nux-tips-context.react.js';
+import {
+  type NUXTip,
+  NUXTipsContext,
+  nuxTip,
+} from './nux-tips-context.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnFirstLaunchEffect } from '../utils/hooks.js';
+
+const orderedTips: $ReadOnlyArray<NUXTip> = [
+  nuxTip.INTRO,
+  nuxTip.COMMUNITY_DRAWER,
+  nuxTip.HOME,
+  nuxTip.MUTED,
+];
 
 function NUXHandler(): React.Node {
   const nuxTipsContext = React.useContext(NUXTipsContext);
@@ -30,6 +41,9 @@ function NUXHandlerInner(): React.Node {
   const effect = React.useCallback(() => {
     navigation.navigate<'NUXTipOverlayBackdrop'>({
       name: 'NUXTipOverlayBackdrop',
+      params: {
+        orderedTips,
+      },
     });
   }, [navigation]);
 
