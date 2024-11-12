@@ -504,12 +504,12 @@ function LoggedOutModal(props: Props) {
     [styles.buttonContainer, buttonsViewOpacity],
   );
   const buttons = React.useMemo(() => {
-    if (mode.curMode !== 'prompt') {
+    if (mode.curMode !== 'prompt' && mode.curMode !== 'restore') {
       return null;
     }
 
     const signInButtons = [];
-    if (!usingRestoreFlow) {
+    if (!usingRestoreFlow || mode.curMode === 'restore') {
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressLogIn}
@@ -521,7 +521,7 @@ function LoggedOutModal(props: Props) {
         </TouchableOpacity>,
       );
     }
-    if (__DEV__ || usingRestoreFlow) {
+    if ((__DEV__ || usingRestoreFlow) && mode.curMode === 'prompt') {
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressQRCodeSignIn}
@@ -535,7 +535,7 @@ function LoggedOutModal(props: Props) {
     }
 
     let siweSection = null;
-    if (!usingRestoreFlow) {
+    if (!usingRestoreFlow || mode.curMode === 'restore') {
       siweSection = (
         <>
           <TouchableOpacity
@@ -558,7 +558,7 @@ function LoggedOutModal(props: Props) {
     }
 
     let restoreButton = null;
-    if (usingRestoreFlow) {
+    if (usingRestoreFlow && mode.curMode === 'prompt') {
       restoreButton = (
         <TouchableOpacity
           onPress={onPressRestore}
@@ -571,12 +571,9 @@ function LoggedOutModal(props: Props) {
       );
     }
 
-    return (
-      <AnimatedView style={buttonsViewStyle}>
-        <LoggedOutStaffInfo />
-        {siweSection}
-        {restoreButton}
-        <View style={styles.signInButtons}>{signInButtons}</View>
+    let registerButtons = null;
+    if (mode.curMode === 'prompt') {
+      registerButtons = (
         <View style={styles.registerButtons}>
           <TouchableOpacity
             onPress={onPressNewRegister}
@@ -587,6 +584,21 @@ function LoggedOutModal(props: Props) {
             <Text style={classicAuthButtonTextStyle}>Register</Text>
           </TouchableOpacity>
         </View>
+      );
+    }
+
+    let loggedOutStaffInfo = null;
+    if (mode.curMode === 'prompt') {
+      loggedOutStaffInfo = <LoggedOutStaffInfo />;
+    }
+
+    return (
+      <AnimatedView style={buttonsViewStyle}>
+        {loggedOutStaffInfo}
+        {siweSection}
+        {restoreButton}
+        <View style={styles.signInButtons}>{signInButtons}</View>
+        {registerButtons}
       </AnimatedView>
     );
   }, [
