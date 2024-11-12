@@ -426,15 +426,11 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
 
     const onPressOk = React.useCallback(() => {
       const { orderedTips, orderedTipsIndex } = route.params;
-      const { exitingCallback } = tipParams;
       goBackOnce();
-
-      if (exitingCallback) {
-        exitingCallback?.(navigation);
-      }
 
       const nextOrderedTipsIndex = orderedTipsIndex + 1;
       if (nextOrderedTipsIndex >= orderedTips.length) {
+        navigation.goBack();
         return;
       }
 
@@ -448,7 +444,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
           orderedTipsIndex: nextOrderedTipsIndex,
         },
       });
-    }, [goBackOnce, navigation, route.params, tipParams]);
+    }, [goBackOnce, navigation, route.params]);
 
     const button = React.useMemo(
       () =>
