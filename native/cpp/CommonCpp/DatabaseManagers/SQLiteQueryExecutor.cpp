@@ -2547,7 +2547,7 @@ std::vector<OutboundP2PMessage> SQLiteQueryExecutor::getOutboundP2PMessagesByID(
 }
 
 std::vector<OutboundP2PMessage>
-SQLiteQueryExecutor::getAllOutboundP2PMessages() const {
+SQLiteQueryExecutor::getUnsentOutboundP2PMessages() const {
   std::string query =
       "SELECT * FROM outbound_p2p_messages "
       "WHERE status != 'sent' "

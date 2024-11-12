@@ -155,7 +155,8 @@ public:
       const std::vector<OutboundP2PMessage> &messages) const = 0;
   virtual std::vector<OutboundP2PMessage>
   getOutboundP2PMessagesByID(const std::vector<std::string> &ids) const = 0;
-  virtual std::vector<OutboundP2PMessage> getAllOutboundP2PMessages() const = 0;
+  virtual std::vector<OutboundP2PMessage>
+  getUnsentOutboundP2PMessages() const = 0;
   virtual void removeOutboundP2PMessage(
       std::string confirmedMessageID,
       std::string deviceID) const = 0;

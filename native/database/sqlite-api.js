@@ -13,7 +13,7 @@ const sqliteAPI: SQLiteAPI = {
   // read operations
   getAllInboundP2PMessages: commCoreModule.getAllInboundP2PMessages,
   getInboundP2PMessagesByID: commCoreModule.getInboundP2PMessagesByID,
-  getAllOutboundP2PMessages: commCoreModule.getAllOutboundP2PMessages,
+  getUnsentOutboundP2PMessages: commCoreModule.getUnsentOutboundP2PMessages,
   getRelatedMessages: commCoreModule.getRelatedMessages,
   getOutboundP2PMessagesByID: commCoreModule.getOutboundP2PMessagesByID,
   searchMessages: commCoreModule.searchMessages,

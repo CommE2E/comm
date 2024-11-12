@@ -2888,7 +2888,7 @@ CommCoreModule::getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) {
       });
 }
 
-jsi::Value CommCoreModule::getAllOutboundP2PMessages(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getUnsentOutboundP2PMessages(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -2896,8 +2896,8 @@ jsi::Value CommCoreModule::getAllOutboundP2PMessages(jsi::Runtime &rt) {
           std::vector<OutboundP2PMessage> messages;
 
           try {
-            messages =
-                DatabaseManager::getQueryExecutor().getAllOutboundP2PMessages();
+            messages = DatabaseManager::getQueryExecutor()
+                           .getUnsentOutboundP2PMessages();
 
           } catch (std::system_error &e) {
             error = e.what();
