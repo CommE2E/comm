@@ -148,10 +148,10 @@ describe('Outbound P2P messages queries', () => {
     );
 
     const messages = queryExecutor?.getAllOutboundP2PMessages() ?? [];
-    expect(messages.length).toBe(4);
+    expect(messages.length).toBe(3);
     expect(
-      messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.status,
-    ).toBe('sent');
+      messages.find(msg => msg.messageID === TEST_MSG_4.messageID),
+    ).toBeFalsy();
   });
 
   it('should return message by ID', () => {
