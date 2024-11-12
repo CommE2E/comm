@@ -4,8 +4,8 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { useSearchSidebars } from 'lib/hooks/search-threads.js';
+import type { SidebarThreadItem } from 'lib/shared/sidebar-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import { SidebarItem } from './sidebar-item.react.js';
 import ThreadListModal from './thread-list-modal.react.js';
@@ -33,7 +33,7 @@ function SidebarListModal(props: Props): React.Node {
   const createRenderItem = React.useCallback(
     (onPressItem: (threadInfo: ThreadInfo) => void) =>
       // eslint-disable-next-line react/display-name
-      (row: { +item: SidebarInfo, +index: number, ... }) => {
+      (row: { +item: SidebarThreadItem, +index: number, ... }) => {
         let extendArrow: boolean = false;
         if (row.index < numOfSidebarsWithExtendedArrow) {
           extendArrow = true;
@@ -64,7 +64,7 @@ function SidebarListModal(props: Props): React.Node {
 }
 
 function Item(props: {
-  item: SidebarInfo,
+  item: SidebarThreadItem,
   onPressItem: (threadInfo: ThreadInfo) => void,
   extendArrow: boolean,
 }): React.Node {
@@ -106,7 +106,7 @@ function Item(props: {
         {arrow}
         <View style={styles.spacer} />
         <View style={styles.sidebarItemContainer}>
-          <SidebarItem sidebarInfo={item} />
+          <SidebarItem sidebarItem={item} />
         </View>
       </View>
     </Button>
