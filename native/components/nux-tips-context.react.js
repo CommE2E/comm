@@ -5,7 +5,6 @@ import type { MeasureOnSuccessCallback } from 'react-native/Libraries/Renderer/s
 
 import { values } from 'lib/utils/objects.js';
 
-import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { NUXTipRouteNames } from '../navigation/route-names.js';
 import {
   CommunityDrawerTipRouteName,
@@ -26,9 +25,6 @@ export type NUXTip = $Values<typeof nuxTip>;
 type NUXTipParams = {
   +tooltipLocation: 'below' | 'above' | 'absolute',
   +routeName: NUXTipRouteNames,
-  +exitingCallback?: <Route: NUXTipRouteNames>(
-    navigation: AppNavigationProp<Route>,
-  ) => void,
 };
 
 const firstNUXTipKey = nuxTip.INTRO;
@@ -49,7 +45,6 @@ const nuxTipParams: { +[NUXTip]: NUXTipParams } = {
   [nuxTip.MUTED]: {
     routeName: MutedTabTipRouteName,
     tooltipLocation: 'below',
-    exitingCallback: navigation => navigation.goBack(),
   },
 };
 
