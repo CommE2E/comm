@@ -40,7 +40,7 @@ const sqliteAPI: SQLiteAPI = {
     return messages ? [...messages] : [];
   },
 
-  async getAllOutboundP2PMessages(): Promise<OutboundP2PMessage[]> {
+  async getUnsentOutboundP2PMessages(): Promise<OutboundP2PMessage[]> {
     const sharedWorker = await getCommSharedWorker();
 
     const data = await sharedWorker.schedule({
