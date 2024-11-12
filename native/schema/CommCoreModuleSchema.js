@@ -184,7 +184,7 @@ interface Spec extends TurboModule {
   +getOutboundP2PMessagesByID: (
     ids: $ReadOnlyArray<string>,
   ) => Promise<Array<OutboundP2PMessage>>;
-  +getAllOutboundP2PMessages: () => Promise<Array<OutboundP2PMessage>>;
+  +getUnsentOutboundP2PMessages: () => Promise<Array<OutboundP2PMessage>>;
   +markOutboundP2PMessageAsSent: (
     messageID: string,
     deviceID: string,

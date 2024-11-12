@@ -185,7 +185,7 @@ declare export class SQLiteQueryExecutor {
   getOutboundP2PMessagesByID(
     ids: $ReadOnlyArray<string>,
   ): $ReadOnlyArray<OutboundP2PMessage>;
-  getAllOutboundP2PMessages(): $ReadOnlyArray<OutboundP2PMessage>;
+  getUnsentOutboundP2PMessages(): $ReadOnlyArray<OutboundP2PMessage>;
   setCiphertextForOutboundP2PMessage(
     messageID: string,
     deviceID: string,

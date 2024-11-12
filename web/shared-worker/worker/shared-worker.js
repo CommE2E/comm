@@ -251,7 +251,7 @@ async function processAppRequest(
   ) {
     return {
       type: workerResponseMessageTypes.GET_OUTBOUND_P2P_MESSAGES,
-      outboundP2PMessages: sqliteQueryExecutor.getAllOutboundP2PMessages(),
+      outboundP2PMessages: sqliteQueryExecutor.getUnsentOutboundP2PMessages(),
     };
   } else if (message.type === workerRequestMessageTypes.GET_RELATED_MESSAGES) {
     const webMessageEntities = sqliteQueryExecutor.getRelatedMessagesWeb(

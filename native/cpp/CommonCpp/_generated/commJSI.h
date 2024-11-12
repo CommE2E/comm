@@ -85,7 +85,7 @@ public:
   virtual jsi::Value getAllInboundP2PMessages(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) = 0;
   virtual jsi::Value getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) = 0;
-  virtual jsi::Value getAllOutboundP2PMessages(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getUnsentOutboundP2PMessages(jsi::Runtime &rt) = 0;
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessage(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID) = 0;
@@ -635,13 +635,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getOutboundP2PMessagesByID, jsInvoker_, instance_, std::move(ids));
     }
-    jsi::Value getAllOutboundP2PMessages(jsi::Runtime &rt) override {
+    jsi::Value getUnsentOutboundP2PMessages(jsi::Runtime &rt) override {
       static_assert(
-          bridging::getParameterCount(&T::getAllOutboundP2PMessages) == 1,
-          "Expected getAllOutboundP2PMessages(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getUnsentOutboundP2PMessages) == 1,
+          "Expected getUnsentOutboundP2PMessages(...) to have 1 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getAllOutboundP2PMessages, jsInvoker_, instance_);
+          rt, &T::getUnsentOutboundP2PMessages, jsInvoker_, instance_);
     }
     jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) override {
       static_assert(
