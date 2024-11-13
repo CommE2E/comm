@@ -5,5 +5,13 @@
   },
   "globals": {
     "Blob": false
-  }
+  },
+  "overrides": [
+    {
+      "files": "src/frog/frog.js",
+      "rules": {
+        "react/react-in-jsx-scope": "off"
+      }
+    }
+  ]
 }
