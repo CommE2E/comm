@@ -1,7 +1,6 @@
 // @flow
 
 import olm from '@commapp/olm';
-import { serve } from '@hono/node-server';
 import cluster from 'cluster';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -10,10 +9,8 @@ import crypto from 'crypto';
 import express from 'express';
 import type { $Request, $Response } from 'express';
 import expressWs from 'express-ws';
-import { Button, Frog } from 'frog';
 import os from 'os';
 import qrcode from 'qrcode';
-import * as React from 'React';
 import stoppable from 'stoppable';
 
 import './cron/cron.js';
@@ -26,6 +23,7 @@ import { fetchDBVersion } from './database/db-version.js';
 import { latestWrapInTransactionAndBlockRequestsVersion } from './database/migration-config.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
+import { setUpFrog } from './frog/frog.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import { taggedCommFarcasterResponder } from './responders/farcaster-webhook-responders.js';
@@ -202,23 +200,6 @@ void (async () => {
     server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
 
-    const frogApp = new Frog({ title: 'frog app' });
-
-    frogApp.frame('/', c => {
-      return c.res({
-        image: (
-          <div style={{ color: 'white', display: 'flex', fontSize: 60 }}>
-            Select your fruit!
-          </div>
-        ),
-        intents: [
-          <Button key="invite" value="Invite Link">
-            Invite Link
-          </Button>,
-        ],
-      });
-    });
-
     server.get('/health', (req: $Request, res: $Response) => {
       res.send('OK');
     });
@@ -353,10 +334,6 @@ void (async () => {
       );
 
       server.use(keyserverBaseRoutePath, keyserverRouter);
-      serve({
-        fetch: frogApp.fetch,
-        port: 3001,
-      });
     }
 
     if (isDev && webAppURLFacts) {
@@ -367,5 +344,7 @@ void (async () => {
         res.redirect(newURL);
       });
     }
+
+    setUpFrog();
   }
 })();

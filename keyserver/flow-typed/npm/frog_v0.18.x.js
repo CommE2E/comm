@@ -2,41 +2,37 @@
 // flow-typed version: <<STUB>>/frog_v0.18.x/flow_v0.202.1
 
 declare module 'frog' {
-  declare type FrogOptions = {
-    title: string,
-  };
+
+  import type { Fetch } from '@hono/node-server';
 
   declare type FrameResponse = {
-    image: JSX.Element,
-    intents: Array<>,
+    +image: React$Node,
+    +intents: $ReadOnlyArray<React$Node>,
   };
 
-  declare type TypedResponse<data> = {
-    format:
-      | 'castAction'
-      | 'composerAction'
-      | 'frame'
-      | 'transaction'
-      | 'image'
-      | 'signature'
-  } & OneOf<
-    { data: data; status: 'success' } | { error: BaseError; status: 'error' }
-  >
+  declare export var Button: React$ComponentType<{
+    +value: string,
+    +children: React$Node,
+  }>;
 
-  declare type FrameResponseFn = (
-    response: FrameResponse
-  ) => TypedResponse<FrameResponse>;  
-  );
+  declare opaque type FrogResponse;
 
   declare type FrameContext = {
-    res: FrameResponseFn
+    +res: (response: FrameResponse) => FrogResponse,
+    ...
+  };
+
+  declare type FrogOptions = {
+    +title: string,
+    ...
   };
 
   declare export class Frog {
-    frame(
-      route: string, callback: (c: FrameContext) => FrogResponse
-    ): void;
     constructor(options?: FrogOptions): this;
+    frame(
+      route: string,
+      callback: (c: FrameContext) => FrogResponse,
+    ): void;
+    fetch: Fetch,
   }
 }
-
