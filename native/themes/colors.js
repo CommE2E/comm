@@ -53,6 +53,7 @@ const designSystemColors = Object.freeze({
 });
 
 const light = Object.freeze({
+  blackText: designSystemColors.shadesBlack95,
   blockQuoteBackground: designSystemColors.shadesWhite70,
   blockQuoteBorder: designSystemColors.shadesWhite60,
   codeBackground: designSystemColors.shadesWhite70,
@@ -128,6 +129,7 @@ const light = Object.freeze({
   tabBarActiveTintColor: designSystemColors.violetDark100,
   vibrantGreenButton: designSystemColors.successPrimary,
   vibrantRedButton: designSystemColors.errorPrimary,
+  whiteButton: designSystemColors.shadesWhite100,
   whiteText: designSystemColors.shadesWhite100,
   tooltipBackground: designSystemColors.shadesWhite70,
   logInSpacer: '#FFFFFF33',
@@ -156,6 +158,7 @@ const light = Object.freeze({
 export type Colors = $Exact<typeof light>;
 
 const dark: Colors = Object.freeze({
+  blackText: designSystemColors.shadesBlack95,
   blockQuoteBackground: '#A9A9A9',
   blockQuoteBorder: designSystemColors.shadesBlack50,
   codeBackground: designSystemColors.shadesBlack95,
@@ -231,6 +234,7 @@ const dark: Colors = Object.freeze({
   tabBarActiveTintColor: designSystemColors.violetLight100,
   vibrantGreenButton: designSystemColors.successPrimary,
   vibrantRedButton: designSystemColors.errorPrimary,
+  whiteButton: designSystemColors.shadesWhite100,
   whiteText: designSystemColors.shadesWhite100,
   tooltipBackground: designSystemColors.shadesBlack85,
   logInSpacer: '#FFFFFF33',
