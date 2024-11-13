@@ -24,6 +24,8 @@ exact_by_default=true
 
 format.bracket_spacing=false
 
+react.runtime=automatic
+
 [lints]
 sketchy-null-number=warn
 sketchy-null-mixed=warn
