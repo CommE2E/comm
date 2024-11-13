@@ -23,6 +23,7 @@ import { fetchDBVersion } from './database/db-version.js';
 import { latestWrapInTransactionAndBlockRequestsVersion } from './database/migration-config.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
+import { startFrogHonoServer } from './frog/frog.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import { taggedCommFarcasterResponder } from './responders/farcaster-webhook-responders.js';
@@ -343,5 +344,7 @@ void (async () => {
         res.redirect(newURL);
       });
     }
+
+    startFrogHonoServer();
   }
 })();
