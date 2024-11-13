@@ -2752,8 +2752,8 @@ std::vector<InboundP2PMessage> SQLiteQueryExecutor::getInboundP2PMessagesByID(
     const std::vector<std::string> &ids) const {
   std::stringstream getInboundP2PMessagesSQLStream;
   getInboundP2PMessagesSQLStream << "SELECT "
-                                    " message_id, sender_device_id, "
-                                    " plaintext, status, sender_user_id "
+                                    "  message_id, sender_device_id, "
+                                    "  plaintext, status, sender_user_id "
                                     "FROM inbound_p2p_messages "
                                     "WHERE message_id IN "
                                  << getSQLStatementArray(ids.size()) << ";";
