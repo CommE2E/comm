@@ -5,7 +5,7 @@ import { Text, View, ActivityIndicator } from 'react-native';
 
 import Button from './button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle, TextStyle } from '../types/styles';
 
 type Props = {
   +onPress: () => mixed,
@@ -13,9 +13,10 @@ type Props = {
   +variant?: 'enabled' | 'disabled' | 'loading' | 'outline' | 'danger',
   +children?: React.Node,
   +style?: ViewStyle,
+  +textStyle?: TextStyle,
 };
 function PrimaryButton(props: Props): React.Node {
-  const { onPress, label, variant } = props;
+  const { onPress, label, variant, textStyle } = props;
 
   const styles = useStyles(unboundStyles);
   const buttonStyle = React.useMemo(() => {
@@ -39,18 +40,22 @@ function PrimaryButton(props: Props): React.Node {
     variant,
   ]);
   const buttonTextStyle = React.useMemo(() => {
+    let baseStyle;
     if (variant === 'disabled') {
-      return [styles.buttonText, styles.disabledButtonText];
+      baseStyle = [styles.buttonText, styles.disabledButtonText];
     } else if (variant === 'loading') {
-      return [styles.buttonText, styles.invisibleLoadingText];
+      baseStyle = [styles.buttonText, styles.invisibleLoadingText];
     } else if (variant === 'danger') {
-      return [styles.buttonText, styles.dangerButtonText];
+      baseStyle = [styles.buttonText, styles.dangerButtonText];
     } else if (variant === 'outline') {
-      return [styles.buttonText, styles.outlineButtonText];
+      baseStyle = [styles.buttonText, styles.outlineButtonText];
+    } else {
+      baseStyle = [styles.buttonText];
     }
-    return styles.buttonText;
+    return textStyle ? [...baseStyle, textStyle] : baseStyle;
   }, [
     variant,
+    textStyle,
     styles.buttonText,
     styles.disabledButtonText,
     styles.invisibleLoadingText,
