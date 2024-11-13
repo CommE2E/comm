@@ -15,6 +15,7 @@
 
 [options]
 enums=true
+react.runtime=automatic
 
 module.file_ext=.js
 module.file_ext=.cjs
