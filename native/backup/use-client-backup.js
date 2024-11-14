@@ -14,8 +14,8 @@ import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type ClientBackup = {
-  +createFullBackup: () => Promise<void>,
-  +createUserKeysBackup: () => Promise<void>,
+  +createFullBackup: () => Promise<string>,
+  +createUserKeysBackup: () => Promise<string>,
   +retrieveLatestBackupInfo: () => Promise<LatestBackupInfo>,
 };
 
@@ -33,7 +33,7 @@ function useClientBackup(): ClientBackup {
     }
 
     const backupSecret = await getBackupSecret();
-    await commCoreModule.createFullBackup(backupSecret);
+    return commCoreModule.createFullBackup(backupSecret);
   }, [loggedIn, currentUserID, getBackupSecret]);
 
   const createUserKeysBackup = React.useCallback(async () => {
@@ -42,7 +42,7 @@ function useClientBackup(): ClientBackup {
     }
 
     const backupSecret = await getBackupSecret();
-    await commCoreModule.createUserKeysBackup(backupSecret);
+    return commCoreModule.createUserKeysBackup(backupSecret);
   }, [loggedIn, currentUserID, getBackupSecret]);
 
   const retrieveLatestBackupInfo = React.useCallback(async () => {

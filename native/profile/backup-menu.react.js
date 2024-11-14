@@ -43,9 +43,10 @@ function BackupMenu(props: Props): React.Node {
     useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
-    let message = 'Success';
+    let message;
     try {
-      await createFullBackup();
+      const backupID = await createFullBackup();
+      message = `Success!\n` + `Backup ID: ${backupID}`;
     } catch (e) {
       message = `Backup upload error: ${String(getMessageForException(e))}`;
       console.error(message);
@@ -54,9 +55,10 @@ function BackupMenu(props: Props): React.Node {
   }, [createFullBackup]);
 
   const uploadUserKeys = React.useCallback(async () => {
-    let message = 'Success';
+    let message;
     try {
-      await createUserKeysBackup();
+      const backupID = await createUserKeysBackup();
+      message = `Success!\n` + `Backup ID: ${backupID}`;
     } catch (e) {
       message = `User Keys upload error: ${String(getMessageForException(e))}`;
       console.error(message);
