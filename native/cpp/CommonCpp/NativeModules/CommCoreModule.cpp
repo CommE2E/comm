@@ -2507,15 +2507,46 @@ void CommCoreModule::stopBackupHandler(jsi::Runtime &rt) {
   }
 }
 
-jsi::Value CommCoreModule::createNewBackupInternal(
-    jsi::Runtime &rt,
-    std::string backupSecret,
-    std::string backupMessage) {
+std::string getSIWEBackupMessage() {
+  std::promise<std::string> backupSIWEMessagePromise;
+  std::future<std::string> backupSIWEMessageFuture =
+      backupSIWEMessagePromise.get_future();
+  GlobalDBSingleton::instance.scheduleOrRunCancellable(
+      [&backupSIWEMessagePromise]() {
+        try {
+          std::string backupSecrets =
+              DatabaseManager::getQueryExecutor().getMetadata(
+                  "siweBackupSecrets");
+          if (!backupSecrets.size()) {
+            backupSIWEMessagePromise.set_value("");
+          } else {
+            folly::dynamic backupSecretsJSON = folly::parseJson(backupSecrets);
+            std::string message = backupSecretsJSON["message"].asString();
+            backupSIWEMessagePromise.set_value(message);
+          }
+        } catch (std::system_error &e) {
+          backupSIWEMessagePromise.set_exception(std::make_exception_ptr(e));
+        }
+      });
+  return backupSIWEMessageFuture.get();
+}
+
+jsi::Value
+CommCoreModule::createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) {
+  std::string backupSecretStr = backupSecret.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string backupMessage;
+        try {
+          backupMessage = getSIWEBackupMessage();
+        } catch (std::system_error &e) {
+          this->jsInvoker_->invokeAsync(
+              [=, &innerRt]() { promise->reject(e.what()); });
+          return;
+        }
+
         this->cryptoThread->scheduleTask([=, &innerRt]() {
           std::string error;
-
           std::string backupID;
           try {
             backupID = crypto::Tools::generateRandomURLSafeString(32);
@@ -2542,7 +2573,7 @@ jsi::Value CommCoreModule::createNewBackupInternal(
                 {promise, this->jsInvoker_, innerRt});
             ::createBackup(
                 rust::string(backupID),
-                rust::string(backupSecret),
+                rust::string(backupSecretStr),
                 rust::string(pickleKey),
                 rust::string(pickledAccount),
                 rust::string(backupMessage),
@@ -2555,54 +2586,15 @@ jsi::Value CommCoreModule::createNewBackupInternal(
       });
 }
 
-jsi::Value
-CommCoreModule::createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) {
-  std::string backupSecretStr = backupSecret.utf8(rt);
-  return createNewBackupInternal(rt, backupSecretStr, "");
-}
-
-jsi::Value CommCoreModule::createNewSIWEBackup(
-    jsi::Runtime &rt,
-    jsi::String backupSecret,
-    jsi::String siweBackupMsg) {
-  std::string backupSecretStr = backupSecret.utf8(rt);
-  std::string siweBackupMsgStr = siweBackupMsg.utf8(rt);
-  return createNewBackupInternal(rt, backupSecretStr, siweBackupMsgStr);
-}
-
 jsi::Value CommCoreModule::createUserKeysBackup(
     jsi::Runtime &rt,
     jsi::String backupSecret) {
   std::string backupSecretStr = backupSecret.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        std::promise<std::string> backupSIWEMessagePromise;
-        std::future<std::string> backupSIWEMessageFuture =
-            backupSIWEMessagePromise.get_future();
-
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            [=, &backupSIWEMessagePromise]() {
-              try {
-                std::string backupSecrets =
-                    DatabaseManager::getQueryExecutor().getMetadata(
-                        "siweBackupSecrets");
-                if (!backupSecrets.size()) {
-                  backupSIWEMessagePromise.set_value("");
-                } else {
-                  folly::dynamic backupSecretsJSON =
-                      folly::parseJson(backupSecrets);
-                  std::string message = backupSecretsJSON["message"].asString();
-                  backupSIWEMessagePromise.set_value(message);
-                }
-              } catch (std::system_error &e) {
-                backupSIWEMessagePromise.set_exception(
-                    std::make_exception_ptr(e));
-              }
-            });
-
         std::string backupMessage;
         try {
-          backupMessage = backupSIWEMessageFuture.get();
+          backupMessage = getSIWEBackupMessage();
         } catch (std::system_error &e) {
           this->jsInvoker_->invokeAsync(
               [=, &innerRt]() { promise->reject(e.what()); });
