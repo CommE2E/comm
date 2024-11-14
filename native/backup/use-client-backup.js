@@ -16,6 +16,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type ClientBackup = {
   +uploadBackupProtocol: () => Promise<void>,
+  +createUserKeysBackup: () => Promise<void>,
   +retrieveLatestBackupInfo: () => Promise<LatestBackupInfo>,
 };
 
@@ -51,6 +52,15 @@ function useClientBackup(): ClientBackup {
     console.info('Backup uploaded.');
   }, [loggedIn, currentUserID, currentUserInfo, getBackupSecret]);
 
+  const createUserKeysBackup = React.useCallback(async () => {
+    if (!loggedIn || !currentUserID) {
+      throw new Error('Attempt to upload User Keys for not logged in user.');
+    }
+
+    const backupSecret = await getBackupSecret();
+    await commCoreModule.createUserKeysBackup(backupSecret);
+  }, [loggedIn, currentUserID, getBackupSecret]);
+
   const retrieveLatestBackupInfo = React.useCallback(async () => {
     if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
       throw new Error('Attempt to restore backup for not logged in user.');
@@ -69,9 +79,10 @@ function useClientBackup(): ClientBackup {
   return React.useMemo(
     () => ({
       uploadBackupProtocol,
+      createUserKeysBackup,
       retrieveLatestBackupInfo,
     }),
-    [retrieveLatestBackupInfo, uploadBackupProtocol],
+    [retrieveLatestBackupInfo, uploadBackupProtocol, createUserKeysBackup],
   );
 }
 
