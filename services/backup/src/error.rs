@@ -12,6 +12,8 @@ use grpc_clients::error::Error as IdentityClientError;
 use reqwest::StatusCode;
 use tracing::{error, trace, warn};
 
+use crate::constants::error_types;
+
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
@@ -49,11 +51,17 @@ impl From<&BackupError> for actix_web::Error {
       BackupError::BlobError(
         err @ (BlobServiceError::URLError(_) | BlobServiceError::NotFound),
       ) => {
-        error!("Unexpected blob error: {err}");
+        error!(
+          errorType = error_types::BLOB_ERROR,
+          "Unexpected blob error: {err}"
+        );
         ErrorInternalServerError("server error")
       }
       BackupError::AuthError(err) => {
-        error!("Unexpected auth error: {err}");
+        error!(
+          errorType = error_types::AUTH_ERROR,
+          "Unexpected auth error: {err}"
+        );
         ErrorInternalServerError("server error")
       }
       BackupError::DB(err) => match err {
@@ -66,7 +74,10 @@ impl From<&BackupError> for actix_web::Error {
           ErrorServiceUnavailable("please retry")
         }
         unexpected => {
-          error!("Received an unexpected DB error: {0:?} - {0}", unexpected);
+          error!(
+            errorType = error_types::DDB_ERROR,
+            "Received an unexpected DB error: {0:?} - {0}", unexpected
+          );
           ErrorInternalServerError("server error")
         }
       },

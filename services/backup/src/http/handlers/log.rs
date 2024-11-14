@@ -1,4 +1,4 @@
-use crate::constants::WS_FRAME_SIZE;
+use crate::constants::{error_types, WS_FRAME_SIZE};
 use crate::database::{log_item::LogItem, DatabaseClient};
 use actix::fut::ready;
 use actix::{Actor, ActorContext, ActorFutureExt, AsyncContext, StreamHandler};
@@ -109,7 +109,7 @@ impl LogWSActor {
         );
       }
       Err(err) => {
-        error!("Error: {err:?}");
+        error!(errorType = error_types::WS_ERROR, "Error: {err:?}");
 
         Self::spawn_response_future(
           ctx,
@@ -130,7 +130,7 @@ impl LogWSActor {
         let responses = match responses {
           Ok(responses) => responses,
           Err(err) => {
-            error!("Error: {err:?}");
+            error!(errorType = error_types::WS_ERROR, "Error: {err:?}");
             vec![LogWSResponse::ServerError]
           }
         };
@@ -140,6 +140,7 @@ impl LogWSActor {
             Ok(bytes) => ctx.binary(bytes),
             Err(error) => {
               error!(
+                errorType = error_types::WS_ERROR,
                 "Error serializing a response: {response:?}. Error: {error}"
               );
             }
