@@ -130,36 +130,43 @@ async fn watch_and_upload_files(
       Err(err) => return Err(err.into()),
     };
 
+    let mut compaction_ids = HashSet::new();
+    let mut logs = Vec::new();
+
     while let Some(file) = file_stream.next_entry().await? {
       let path = file.path();
-
-      if logs_waiting_for_confirmation.lock()?.contains(&path) {
-        continue;
-      }
-
-      let Ok(BackupFileInfo {
+      if let Ok(BackupFileInfo {
         backup_id,
         log_id,
         additional_data,
       }) = path.clone().try_into()
-      else {
-        continue;
-      };
+      {
+        // Skip additional data files (attachments). They will be
+        // handled when we iterate over the corresponding files with the
+        // main content
+        if additional_data.is_some() {
+          continue;
+        }
 
-      // Skip additional data files (attachments, user keys). They will be
-      // handled when we iterate over the corresponding files with the
-      // main content
-      if additional_data.is_some() {
+        match log_id {
+          Some(id) => logs.push((path, backup_id, id)),
+          None => {
+            compaction_ids.insert(backup_id);
+          }
+        }
+      }
+    }
+
+    for backup_id in compaction_ids {
+      compaction::upload_files(backup_client, user_identity, backup_id).await?;
+    }
+
+    for (path, backup_id, log_id) in logs {
+      if logs_waiting_for_confirmation.lock()?.contains(&path) {
         continue;
       }
-
-      if let Some(log_id) = log_id {
-        log::upload_files(tx, backup_id, log_id).await?;
-        logs_waiting_for_confirmation.lock()?.insert(path);
-      } else {
-        compaction::upload_files(backup_client, user_identity, backup_id)
-          .await?;
-      }
+      log::upload_files(tx, backup_id, log_id).await?;
+      logs_waiting_for_confirmation.lock()?.insert(path.clone());
     }
 
     TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
