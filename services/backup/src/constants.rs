@@ -43,3 +43,12 @@ pub mod log_table {
     pub const ATTACHMENTS: &str = "attachments";
   }
 }
+
+// Error Types
+
+pub mod error_types {
+  pub const DDB_ERROR: &str = "DDB Error";
+  pub const AUTH_ERROR: &str = "Auth Error";
+  pub const BLOB_ERROR: &str = "Blob Error";
+  pub const WS_ERROR: &str = "WS Error";
+}
