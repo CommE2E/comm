@@ -50,6 +50,7 @@ async fn backup_upload_user_keys() -> Result<(), Error> {
 
   assert_eq!(response.backup_id, backup_data.backup_id);
   assert_eq!(response.user_id, device_info.user_id);
+  assert_eq!(response.siwe_backup_msg, backup_data.siwe_backup_msg);
 
   let user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
@@ -236,6 +237,7 @@ async fn backup_upload_user_keys_and_user_data() -> Result<(), Error> {
 
   assert_eq!(response.backup_id, new_user_keys.backup_id);
   assert_eq!(response.user_id, device_info.user_id);
+  assert_eq!(response.siwe_backup_msg, backup_data.siwe_backup_msg);
 
   // Test User Keys download -> should be updated
   let backup_descriptor = BackupDescriptor::BackupID {
