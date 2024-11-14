@@ -87,6 +87,7 @@ async fn backup_integration_test() -> Result<(), Error> {
     serde_json::from_slice(&backup_info_response)?;
   assert_eq!(response.backup_id, backup_data.backup_id);
   assert_eq!(response.user_id, device_info.user_id);
+  assert_eq!(response.siwe_backup_msg, backup_data.siwe_backup_msg);
 
   let user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)

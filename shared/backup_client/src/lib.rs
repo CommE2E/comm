@@ -81,10 +81,9 @@ impl BackupClient {
           "user_data_hash",
           Sha256::digest(&user_data_value).encode_hex::<String>(),
         )
-        .part("user_data", Part::stream(Body::from(user_data_value)));
+        .part("user_data", Part::stream(Body::from(user_data_value)))
+        .text("attachments", attachments.join("\n"));
     }
-
-    form = form.text("attachments", attachments.join("\n"));
 
     if let Some(siwe_backup_msg_value) = siwe_backup_msg {
       form = form.text("siwe_backup_msg", siwe_backup_msg_value);
