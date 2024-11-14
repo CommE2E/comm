@@ -434,11 +434,6 @@ function LoggedOutModal(props: Props) {
     combinedSetMode('log-in');
   }, [combinedSetMode]);
 
-  const onPressRestore = React.useCallback(
-    () => combinedSetMode('restore'),
-    [combinedSetMode],
-  );
-
   const { navigate } = props.navigation;
   const onPressQRCodeSignIn = React.useCallback(() => {
     navigate(QRCodeSignInNavigatorRouteName);
@@ -522,6 +517,7 @@ function LoggedOutModal(props: Props) {
       );
     }
     if (__DEV__ || usingRestoreFlow) {
+      const buttonText = usingRestoreFlow ? 'Sign in' : 'Sign in (QR)';
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressQRCodeSignIn}
@@ -529,7 +525,7 @@ function LoggedOutModal(props: Props) {
           activeOpacity={0.6}
           key="qr-code-login"
         >
-          <Text style={classicAuthButtonTextStyle}>Sign in (QR)</Text>
+          <Text style={classicAuthButtonTextStyle}>{buttonText}</Text>
         </TouchableOpacity>,
       );
     }
@@ -557,25 +553,10 @@ function LoggedOutModal(props: Props) {
       );
     }
 
-    let restoreButton = null;
-    if (usingRestoreFlow) {
-      restoreButton = (
-        <TouchableOpacity
-          onPress={onPressRestore}
-          style={classicAuthButtonStyle}
-          activeOpacity={0.6}
-          key="qr-code-login"
-        >
-          <Text style={classicAuthButtonTextStyle}>Restore</Text>
-        </TouchableOpacity>
-      );
-    }
-
     return (
       <AnimatedView style={buttonsViewStyle}>
         <LoggedOutStaffInfo />
         {siweSection}
-        {restoreButton}
         <View style={styles.signInButtons}>{signInButtons}</View>
         <View style={styles.registerButtons}>
           <TouchableOpacity
@@ -594,7 +575,6 @@ function LoggedOutModal(props: Props) {
     onPressNewRegister,
     onPressLogIn,
     onPressQRCodeSignIn,
-    onPressRestore,
     onPressSIWE,
     classicAuthButtonStyle,
     classicAuthButtonTextStyle,
