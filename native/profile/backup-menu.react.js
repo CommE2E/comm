@@ -39,22 +39,19 @@ function BackupMenu(props: Props): React.Node {
     state => state.localSettings.isBackupEnabled,
   );
 
-  const {
-    uploadBackupProtocol,
-    retrieveLatestBackupInfo,
-    createUserKeysBackup,
-  } = useClientBackup();
+  const { createFullBackup, retrieveLatestBackupInfo, createUserKeysBackup } =
+    useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
     let message = 'Success';
     try {
-      await uploadBackupProtocol();
+      await createFullBackup();
     } catch (e) {
       message = `Backup upload error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
     Alert.alert('Upload protocol result', message);
-  }, [uploadBackupProtocol]);
+  }, [createFullBackup]);
 
   const uploadUserKeys = React.useCallback(async () => {
     let message = 'Success';
@@ -173,7 +170,7 @@ function BackupMenu(props: Props): React.Node {
           iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
           iosActiveOpacity={0.85}
         >
-          <Text style={styles.submenuText}>Test backup upload protocol</Text>
+          <Text style={styles.submenuText}>Test Full Backup upload</Text>
         </Button>
       </View>
       <View style={styles.section}>
