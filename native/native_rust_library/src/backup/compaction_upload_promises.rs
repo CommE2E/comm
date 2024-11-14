@@ -1,4 +1,4 @@
-use crate::handle_void_result_as_callback;
+use crate::handle_string_result_as_callback;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Mutex};
 
@@ -20,5 +20,11 @@ pub fn resolve(backup_id: &str, result: Result<(), String>) {
   let Some(promise_id) = backups_to_promises.remove(backup_id) else {
     return;
   };
-  handle_void_result_as_callback(result, promise_id);
+
+  let result_with_id: Result<String, String> = match result {
+    Ok(_) => Ok(backup_id.to_string()),
+    Err(e) => Err(e),
+  };
+
+  handle_string_result_as_callback(result_with_id, promise_id);
 }
