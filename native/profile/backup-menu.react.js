@@ -39,7 +39,11 @@ function BackupMenu(props: Props): React.Node {
     state => state.localSettings.isBackupEnabled,
   );
 
-  const { uploadBackupProtocol, retrieveLatestBackupInfo } = useClientBackup();
+  const {
+    uploadBackupProtocol,
+    retrieveLatestBackupInfo,
+    createUserKeysBackup,
+  } = useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
     let message = 'Success';
@@ -51,6 +55,17 @@ function BackupMenu(props: Props): React.Node {
     }
     Alert.alert('Upload protocol result', message);
   }, [uploadBackupProtocol]);
+
+  const uploadUserKeys = React.useCallback(async () => {
+    let message = 'Success';
+    try {
+      await createUserKeysBackup();
+    } catch (e) {
+      message = `User Keys upload error: ${String(getMessageForException(e))}`;
+      console.error(message);
+    }
+    Alert.alert('Upload User Keys result', message);
+  }, [createUserKeysBackup]);
 
   const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
@@ -159,6 +174,17 @@ function BackupMenu(props: Props): React.Node {
           iosActiveOpacity={0.85}
         >
           <Text style={styles.submenuText}>Test backup upload protocol</Text>
+        </Button>
+      </View>
+      <View style={styles.section}>
+        <Button
+          onPress={uploadUserKeys}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>Test User Keys upload</Text>
         </Button>
       </View>
       <View style={styles.section}>
