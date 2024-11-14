@@ -187,6 +187,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewBackup(
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewSIWEBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->createNewSIWEBackup(rt, args[0].asString(rt), args[1].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createUserKeysBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->createUserKeysBackup(rt, args[0].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreBackup(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
@@ -303,6 +306,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["stopBackupHandler"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_stopBackupHandler};
   methodMap_["createNewBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewBackup};
   methodMap_["createNewSIWEBackup"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createNewSIWEBackup};
+  methodMap_["createUserKeysBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createUserKeysBackup};
   methodMap_["restoreBackup"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup};
   methodMap_["restoreBackupData"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData};
   methodMap_["retrieveBackupKeys"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys};
