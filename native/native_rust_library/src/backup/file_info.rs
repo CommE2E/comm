@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 lazy_static! {
   static ref BACKUP_DATA_FILE_REGEX: Regex = Regex::new(
-      r"^backup-(?<backup_id>[^-]*)(?:-log-(?<log_id>\d*))?(?<additional_data>-userkeys|-attachments)?$"
+      r"^backup-(?<backup_id>[^-]*)(-userkeys)?(?:-log-(?<log_id>\d*))?(?<additional_data>-attachments)?$"
     )
     .expect("Regex compilation failed");
 }
