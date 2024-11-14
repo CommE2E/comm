@@ -5,7 +5,9 @@ use self::{
   backup_item::{BackupItem, OrderedBackupItem},
   log_item::LogItem,
 };
-use crate::constants::{backup_table, log_table, LOG_DEFAULT_PAGE_SIZE};
+use crate::constants::{
+  backup_table, error_types, log_table, LOG_DEFAULT_PAGE_SIZE,
+};
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
   types::{AttributeValue, DeleteRequest, ReturnValue, WriteRequest},
@@ -48,7 +50,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to put backup item");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to put backup item"
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -70,7 +75,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to find backup item");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to find backup item"
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -112,7 +120,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to remove backup item");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to remove backup item"
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -191,7 +202,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to put log item");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to put log item"
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -238,7 +252,10 @@ impl DatabaseClient {
     }
 
     let response = query.send().await.map_err(|e| {
-      error!("DynamoDB client failed to fetch logs");
+      error!(
+        errorType = error_types::DDB_ERROR,
+        "DynamoDB client failed to fetch logs"
+      );
       Error::AwsSdk(e.into())
     })?;
 
@@ -346,7 +363,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("DynamoDB client failed to fetch backups");
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to fetch backups"
+        );
         Error::AwsSdk(e.into())
       })?;
 
