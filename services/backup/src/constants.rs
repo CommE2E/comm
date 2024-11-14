@@ -14,6 +14,7 @@ pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:50053";
 // Environment variable names
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
+pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
 
 // DynamoDB constants
 pub mod backup_table {
