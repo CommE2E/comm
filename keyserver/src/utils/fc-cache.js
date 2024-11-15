@@ -10,8 +10,9 @@ import { NeynarClient } from 'lib/utils/neynar-client.js';
 
 import { getNeynarConfig } from './neynar-utils.js';
 
-let getFCNames: ?GetFCNames;
 let neynarClient: ?NeynarClient;
+let fcCache: ?FCCache;
+let getFCNames: ?GetFCNames;
 async function initFCCache() {
   const neynarSecret = await getNeynarConfig();
 
@@ -20,9 +21,10 @@ async function initFCCache() {
     return;
   }
   neynarClient = new NeynarClient(neynarKey);
-  const fcCache = new FCCache(neynarClient);
+  const newFCCache = new FCCache(neynarClient);
+  fcCache = newFCCache;
   getFCNames = <T: ?BaseFCNamesInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
-    baseGetFCNames(fcCache, users);
+    baseGetFCNames(newFCCache, users);
 }
 
-export { initFCCache, getFCNames, neynarClient };
+export { initFCCache, neynarClient, fcCache, getFCNames };

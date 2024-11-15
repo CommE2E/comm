@@ -33,7 +33,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
 
-  const { client } = neynarClientContext;
+  const { client, fcCache } = neynarClientContext;
 
   const [channelOptions, setChannelOptions] = React.useState<
     $ReadOnlyArray<DropdownOption>,
@@ -89,15 +89,13 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
     }
 
     const channelInfo =
-      await neynarClientContext.client.fetchFarcasterChannelByID(
-        channelNameText,
-      );
+      await fcCache.getFarcasterChannelForChannelID(channelNameText);
     if (!channelInfo) {
       setError('channel_not_found');
       return;
     }
     createTag(channelInfo.id);
-  }, [channelNameText, createTag, neynarClientContext.client, selectedOption]);
+  }, [channelNameText, createTag, fcCache, selectedOption]);
 
   const buttonDisabled =
     isLoading ||
