@@ -247,7 +247,6 @@ class TunnelbrokerSocket {
         );
         const payload = await this.encodeQRAuthMessage({
           type: qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS,
-          requestBackupKeys: false,
         });
         if (!payload) {
           this.closeConnection();
