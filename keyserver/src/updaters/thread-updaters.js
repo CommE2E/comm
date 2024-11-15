@@ -67,7 +67,7 @@ import {
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { neynarClient, fcCache } from '../utils/fc-cache.js';
+import { fcCache } from '../utils/fc-cache.js';
 import { findUserIdentities } from '../utils/identity-utils.js';
 import { redisCache } from '../utils/redis-cache.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
@@ -990,7 +990,7 @@ async function userLeadsChannel(
   ignorePromiseRejections(
     (async () => {
       const followedChannels =
-        await neynarClient?.fetchFollowedFarcasterChannels(farcasterID);
+        await fcCache?.getFollowedFarcasterChannelsForFID(farcasterID);
       if (followedChannels) {
         await Promise.allSettled(
           followedChannels.map(followedChannel =>

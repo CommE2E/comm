@@ -41,17 +41,22 @@ function TagChannelButton(props: Props): React.Node {
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
 
-  const { client } = neynarClientContext;
+  const { fcCache } = neynarClientContext;
 
   React.useEffect(() => {
     void (async () => {
-      const channels = await client.fetchFollowedFarcasterChannels(fid);
+      const channels = await fcCache.getFollowedFarcasterChannelsForFID(fid);
+      if (!channels) {
+        return;
+      }
 
-      const sortedChannels = channels.sort((a, b) => a.id.localeCompare(b.id));
+      const sortedChannels = [...channels].sort((a, b) =>
+        a.id.localeCompare(b.id),
+      );
 
       setChannelOptions(sortedChannels);
     })();
-  }, [client, fid]);
+  }, [fcCache, fid]);
 
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
 
