@@ -8,7 +8,7 @@ import { useStyles } from '../themes/colors.js';
 
 const iconSize = 12;
 const buttonSize = 24;
-const hitSlopValue = 6;
+const hitSlopValue = 10;
 const padding = (buttonSize - iconSize) / 2;
 
 const hitSlop = {
