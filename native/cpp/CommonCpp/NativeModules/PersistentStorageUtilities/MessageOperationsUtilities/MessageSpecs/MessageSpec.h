@@ -11,5 +11,7 @@ class MessageSpec {
 public:
   virtual std::unique_ptr<std::string>
   messageContentForClientDB(const folly::dynamic &rawMessageInfo) = 0;
+  virtual ~MessageSpec() {
+  }
 };
 } // namespace comm
