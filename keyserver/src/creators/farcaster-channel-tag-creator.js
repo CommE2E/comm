@@ -32,7 +32,7 @@ import {
 import { Viewer } from '../session/viewer.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { thisKeyserverID } from '../user/identity.js';
-import { neynarClient } from '../utils/fc-cache.js';
+import { fcCache } from '../utils/fc-cache.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 async function createOrUpdateFarcasterChannelTag(
@@ -137,10 +137,10 @@ async function createOrUpdateFarcasterChannelTag(
   }
 
   const neynarChannelDescriptionPromise = (async () => {
-    if (!neynarClient) {
+    if (!fcCache) {
       return '';
     }
-    const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
+    const channelInfo = await fcCache?.getFarcasterChannelForChannelID(
       request.farcasterChannelID,
     );
     return channelInfo?.description ?? '';

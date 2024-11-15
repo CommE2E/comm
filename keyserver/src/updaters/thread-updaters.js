@@ -67,7 +67,7 @@ import {
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { neynarClient } from '../utils/fc-cache.js';
+import { neynarClient, fcCache } from '../utils/fc-cache.js';
 import { findUserIdentities } from '../utils/identity-utils.js';
 import { redisCache } from '../utils/redis-cache.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
@@ -1001,7 +1001,7 @@ async function userLeadsChannel(
     })(),
   );
 
-  const channelInfo = await neynarClient?.fetchFarcasterChannelByID(
+  const channelInfo = await fcCache?.getFarcasterChannelForChannelID(
     communityFarcasterChannelTag,
   );
   if (channelInfo) {
