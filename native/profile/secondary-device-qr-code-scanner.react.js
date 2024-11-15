@@ -119,13 +119,6 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      if (!payload.requestBackupKeys) {
-        Alert.alert('Device added', 'Device registered successfully', [
-          { text: 'OK', onPress: goBack },
-        ]);
-        return;
-      }
-
       Alert.alert('Device added', 'Device registered successfully', [
         { text: 'OK', onPress: goBack },
       ]);
