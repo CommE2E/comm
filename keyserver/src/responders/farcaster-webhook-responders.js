@@ -35,7 +35,7 @@ import { updateRole, joinThread } from '../updaters/thread-updaters.js';
 import { thisKeyserverAdmin, thisKeyserverID } from '../user/identity.js';
 import { getFarcasterBotConfig } from '../utils/farcaster-bot.js';
 import { getVerifiedUserIDForFID } from '../utils/farcaster-utils.js';
-import { neynarClient } from '../utils/fc-cache.js';
+import { neynarClient, fcCache } from '../utils/fc-cache.js';
 import { getNeynarConfig } from '../utils/neynar-utils.js';
 
 const taggedCommFarcasterInputValidator =
@@ -131,7 +131,7 @@ async function createTaggedFarcasterCommunity(
   const keyserverAdminPromise = thisKeyserverAdmin();
 
   const neynarChannel =
-    await neynarClient?.fetchFarcasterChannelByID(channelID);
+    await fcCache?.getFarcasterChannelForChannelID(channelID);
   if (!neynarChannel) {
     throw new ServerError('channel_not_found');
   }
