@@ -126,36 +126,11 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      const [backupSecret, latestBackupInfo] = await Promise.all([
-        getBackupSecret(),
-        retrieveLatestBackupInfo(),
-      ]);
-      const backupKeysResponse = await commCoreModule.retrieveBackupKeys(
-        backupSecret,
-        latestBackupInfo.backupID,
-      );
-      const backupKeys = assertWithValidator<BackupKeys>(
-        JSON.parse(backupKeysResponse),
-        backupKeysValidator,
-      );
-
-      const backupKeyMessage = await composeTunnelbrokerQRAuthMessage(
-        encryptionKey,
-        {
-          type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
-          ...backupKeys,
-        },
-      );
-      await tunnelbrokerContext.sendMessageToDevice({
-        deviceID: targetDeviceID,
-        payload: JSON.stringify(backupKeyMessage),
-      });
-
       Alert.alert('Device added', 'Device registered successfully', [
         { text: 'OK', onPress: goBack },
       ]);
     },
-    [getBackupSecret, goBack, retrieveLatestBackupInfo, tunnelbrokerContext],
+    [goBack],
   );
 
   React.useEffect(() => {
@@ -199,10 +174,26 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       const deviceType = secondaryDeviceType.current;
 
       const sendDeviceListUpdateSuccessMessage = async () => {
+        let backupData = null;
+        if (deviceType !== identityDeviceTypes.KEYSERVER) {
+          const [backupSecret, latestBackupInfo] = await Promise.all([
+            getBackupSecret(),
+            retrieveLatestBackupInfo(),
+          ]);
+          const backupKeysResponse = await commCoreModule.retrieveBackupKeys(
+            backupSecret,
+            latestBackupInfo.backupID,
+          );
+          backupData = assertWithValidator<BackupKeys>(
+            JSON.parse(backupKeysResponse),
+            backupKeysValidator,
+          );
+        }
         const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
           type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
           userID,
           primaryDeviceID,
+          backupData,
         });
         await tunnelbrokerContext.sendMessageToDevice({
           deviceID: targetDeviceID,
@@ -269,9 +260,11 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       goBack();
     }
   }, [
+    getBackupSecret,
     goBack,
     identityContext,
     keyserverDeviceID,
+    retrieveLatestBackupInfo,
     runDeviceListUpdate,
     tunnelbrokerContext,
   ]);
