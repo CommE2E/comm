@@ -190,6 +190,7 @@ public:
       std::optional<std::string> messageIDCursor) const = 0;
   virtual std::vector<MessageEntity> getRelatedMessagesForSearch(
       const std::vector<std::string> &messageIDs) const = 0;
+  virtual ~DatabaseQueryExecutor() = default;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
