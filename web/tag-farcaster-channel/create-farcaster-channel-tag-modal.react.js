@@ -33,7 +33,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
 
-  const { client, fcCache } = neynarClientContext;
+  const { fcCache } = neynarClientContext;
 
   const [channelOptions, setChannelOptions] = React.useState<
     $ReadOnlyArray<DropdownOption>,
@@ -44,9 +44,12 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
 
   React.useEffect(() => {
     void (async () => {
-      const channels = await client.fetchFollowedFarcasterChannels(fid);
+      const channels = await fcCache.getFollowedFarcasterChannelsForFID(fid);
+      if (!channels) {
+        return;
+      }
 
-      const sortedChannels = channels
+      const sortedChannels = [...channels]
         .sort((a, b) => a.id.localeCompare(b.id))
         .map(channel => ({
           id: channel.id,
@@ -57,7 +60,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
 
       setChannelOptions(options);
     })();
-  }, [client, fid]);
+  }, [fcCache, fid]);
 
   const onChangeSelectedOption = React.useCallback((option: string) => {
     setError(null);
