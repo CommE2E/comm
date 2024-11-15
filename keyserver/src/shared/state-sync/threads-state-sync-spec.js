@@ -1,6 +1,6 @@
 // @flow
 
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
+import { mixedThinRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
@@ -47,6 +47,10 @@ async function getServerInfosHash(infos: MixedRawThreadInfos) {
 }
 
 async function getServerInfoHash(info: LegacyRawThreadInfo | RawThreadInfo) {
-  const output = await validateOutput(null, mixedRawThreadInfoValidator, info);
+  const output = await validateOutput(
+    null,
+    mixedThinRawThreadInfoValidator,
+    info,
+  );
   return hash(output);
 }
