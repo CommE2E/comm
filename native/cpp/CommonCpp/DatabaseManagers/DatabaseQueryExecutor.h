@@ -210,6 +210,7 @@ public:
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;
 #endif
+  virtual ~DatabaseQueryExecutor() = default;
 };
 
 } // namespace comm
