@@ -5,16 +5,13 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useBroadcastDeviceListUpdates } from 'lib/hooks/peer-list-hooks.js';
-import { getAllPeerDevices } from 'lib/selectors/user-selectors.js';
-import { removeDeviceFromDeviceList } from 'lib/shared/device-list-utils.js';
+import { useDeviceListUpdate } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { usePeerToPeerCommunication } from 'lib/tunnelbroker/peer-to-peer-context.js';
 import {
   userActionsP2PMessageTypes,
   type DeviceLogoutP2PMessage,
 } from 'lib/types/tunnelbroker/user-actions-peer-to-peer-message-types.js';
-import { useSelector } from 'lib/utils/redux-utils.js';
 
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
@@ -47,11 +44,10 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
-  const { identityClient, getAuthMetadata } = identityContext;
+  const { getAuthMetadata } = identityContext;
 
-  const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
+  const runDeviceListUpdate = useDeviceListUpdate();
   const { broadcastEphemeralMessage } = usePeerToPeerCommunication();
-  const allPeerDevices = useSelector(getAllPeerDevices);
 
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
@@ -72,7 +68,10 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
     }
 
     try {
-      await removeDeviceFromDeviceList(identityClient, userID, deviceID);
+      await runDeviceListUpdate({
+        type: 'remove',
+        deviceID,
+      });
     } catch (err) {
       console.log('Primary device error:', err);
       Alert.alert(
@@ -87,23 +86,17 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
       type: userActionsP2PMessageTypes.LOG_OUT_DEVICE,
     };
 
-    const sendLogoutMessagePromise = broadcastEphemeralMessage(
+    await broadcastEphemeralMessage(
       JSON.stringify(messageContents),
       [{ userID, deviceID }],
       authMetadata,
     );
-    const broadcastUpdatePromise = broadcastDeviceListUpdates(
-      allPeerDevices.filter(peerDeviceID => deviceID !== peerDeviceID),
-    );
-    await Promise.all([sendLogoutMessagePromise, broadcastUpdatePromise]);
     bottomSheetRef.current?.close();
   }, [
-    broadcastDeviceListUpdates,
+    getAuthMetadata,
     broadcastEphemeralMessage,
     deviceID,
-    allPeerDevices,
-    getAuthMetadata,
-    identityClient,
+    runDeviceListUpdate,
   ]);
 
   const confirmDeviceRemoval = () => {
