@@ -3,8 +3,8 @@
 import blobService from 'lib/facts/blob-service.js';
 import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import {
-  getBlobFetchableURL,
   makeBlobServiceEndpointURL,
+  downloadBlob,
 } from 'lib/utils/blob-service.js';
 import {
   uploadBlob,
@@ -112,17 +112,13 @@ export type BlobDownloadResult =
       +blob: Blob,
     };
 async function download(hash: string): Promise<BlobDownloadResult> {
-  const url = getBlobFetchableURL(hash);
   const headers = await createRequestHeaders();
-  const response = await fetch(url, {
-    method: blobService.httpEndpoints.GET_BLOB.method,
-    headers,
-  });
+  const blobResult = await downloadBlob(hash, headers);
 
-  if (!response.ok) {
-    return { found: false, status: response.status };
+  if (blobResult.result !== 'success') {
+    return { found: false, status: blobResult.status };
   }
-  const blob = await response.blob();
+  const blob = await blobResult.response.blob();
   return { found: true, blob };
 }
 
