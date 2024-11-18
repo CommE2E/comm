@@ -125,6 +125,17 @@ function saveMetadata(
   return dbQuery(updateQuery);
 }
 
+function clearMetadata(
+  keys: $ReadOnlyArray<MetadataKey>,
+): Promise<QueryResults> {
+  const deleteQuery = SQL`
+    DELETE FROM metadata
+    WHERE name IN (${keys})
+  `;
+
+  return dbQuery(deleteQuery);
+}
+
 function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   const metadataMap = new Map<MetadataKey, string>();
   metadataMap.set(metadataKeys.USER_ID, userInfo.userId);
@@ -133,10 +144,16 @@ function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   return saveMetadata(metadataMap);
 }
 
+function clearIdentityInfo(): Promise<QueryResults> {
+  const keys = [metadataKeys.USER_ID, metadataKeys.ACCESS_TOKEN];
+  return clearMetadata(keys);
+}
+
 export {
   fetchIdentityInfo,
   thisKeyserverID,
   thisKeyserverAdmin,
   saveIdentityInfo,
+  clearIdentityInfo,
   isAuthoritativeKeyserver,
 };
