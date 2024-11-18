@@ -28,7 +28,6 @@ import {
   type PushModal,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
-import blobService from 'lib/facts/blob-service.js';
 import {
   type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
@@ -85,7 +84,7 @@ import {
 import {
   blobHashFromBlobServiceURI,
   isBlobServiceURI,
-  makeBlobServiceEndpointURL,
+  removeBlobHolder,
 } from 'lib/utils/blob-service.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, SendMessageError } from 'lib/utils/errors.js';
@@ -1210,24 +1209,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               pendingUpload.blobHolder,
               'blob service upload has no holder',
             );
-            const endpoint = blobService.httpEndpoints.DELETE_BLOB;
             const holder = pendingUpload.blobHolder;
             const blobHash = blobHashFromBlobServiceURI(pendingUpload.uri);
             void (async () => {
               const authMetadata = await identityContext.getAuthMetadata();
               const defaultHeaders =
                 createDefaultHTTPRequestHeaders(authMetadata);
-              await fetch(makeBlobServiceEndpointURL(endpoint), {
-                method: endpoint.method,
-                body: JSON.stringify({
-                  holder,
-                  blob_hash: blobHash,
-                }),
-                headers: {
-                  ...defaultHeaders,
-                  'content-type': 'application/json',
-                },
-              });
+              await removeBlobHolder({ blobHash, holder }, defaultHeaders);
             })();
           }
         }
