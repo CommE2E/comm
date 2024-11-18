@@ -1,10 +1,9 @@
 // @flow
 
-import blobService from 'lib/facts/blob-service.js';
 import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import {
-  makeBlobServiceEndpointURL,
   downloadBlob,
+  removeBlobHolder,
   assignBlobHolder,
 } from 'lib/utils/blob-service.js';
 import {
@@ -107,19 +106,9 @@ async function download(hash: string): Promise<BlobDownloadResult> {
 }
 
 async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
-  const { hash, holder } = params;
-  const endpoint = blobService.httpEndpoints.DELETE_BLOB;
-  const url = makeBlobServiceEndpointURL(endpoint);
+  const { hash: blobHash, holder } = params;
   const headers = await createRequestHeaders();
-  await fetch(url, {
-    method: endpoint.method,
-    body: JSON.stringify({
-      holder,
-      blob_hash: hash,
-      instant_delete: !!instant,
-    }),
-    headers,
-  });
+  await removeBlobHolder({ blobHash, holder }, headers, instant);
 }
 
 async function removeBlobHolders(holders: $ReadOnlyArray<BlobHashAndHolder>) {
