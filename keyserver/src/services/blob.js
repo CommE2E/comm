@@ -3,9 +3,9 @@
 import blobService from 'lib/facts/blob-service.js';
 import type { BlobHashAndHolder } from 'lib/types/holder-types.js';
 import {
-  getBlobFetchableURL,
   makeBlobServiceEndpointURL,
   downloadBlob,
+  assignBlobHolder,
 } from 'lib/utils/blob-service.js';
 import {
   uploadBlob,
@@ -45,26 +45,9 @@ type BlobDescriptor = {
 async function assignHolder(
   params: BlobDescriptor,
 ): Promise<BlobOperationResult> {
-  const { hash, holder } = params;
+  const { hash: blobHash, holder } = params;
   const headers = await createRequestHeaders();
-  const assignHolderResponse = await fetch(
-    makeBlobServiceEndpointURL(blobService.httpEndpoints.ASSIGN_HOLDER),
-    {
-      method: blobService.httpEndpoints.ASSIGN_HOLDER.method,
-      body: JSON.stringify({
-        holder,
-        blob_hash: hash,
-      }),
-      headers,
-    },
-  );
-
-  if (!assignHolderResponse.ok) {
-    const { status, statusText } = assignHolderResponse;
-    return { success: false, reason: 'OTHER', status, statusText };
-  }
-
-  return { success: true };
+  return assignBlobHolder({ blobHash, holder }, headers);
 }
 
 async function uploadBlobKeyserverWrapper(
@@ -113,7 +96,6 @@ export type BlobDownloadResult =
       +blob: Blob,
     };
 async function download(hash: string): Promise<BlobDownloadResult> {
-  const url = getBlobFetchableURL(hash);
   const headers = await createRequestHeaders();
   const blobResult = await downloadBlob(hash, headers);
 
