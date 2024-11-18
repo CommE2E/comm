@@ -473,6 +473,12 @@ class Socket {
       serverRequests.push({
         type: serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE,
       });
+      console.log(
+        `Sending serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE 
+         userID = ${viewer.userID}
+         cookieID = ${viewer.cookieID}
+         sessionID = ${viewer.sessionID ?? ''}`,
+      );
     }
 
     if (serverRequests.length > 0 || clientResponses.length > 0) {
