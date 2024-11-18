@@ -8,18 +8,10 @@ import { View, Text } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 import {
-  useBroadcastDeviceListUpdates,
-  useGetAndUpdateDeviceListsForUsers,
-} from 'lib/hooks/peer-list-hooks.js';
-import {
-  getForeignPeerDeviceIDs,
   getOwnPeerDevices,
   getKeyserverDeviceID,
 } from 'lib/selectors/user-selectors.js';
-import {
-  addDeviceToDeviceList,
-  replaceDeviceInDeviceList,
-} from 'lib/shared/device-list-utils.js';
+import { useDeviceListUpdate } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
@@ -40,7 +32,6 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -83,10 +74,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const secondaryDeviceID = React.useRef<?string>(null);
   const secondaryDeviceType = React.useRef<?IdentityDeviceType>(null);
 
-  const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
-  const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
+  const runDeviceListUpdate = useDeviceListUpdate();
 
-  const foreignPeerDevices = useSelector(getForeignPeerDeviceIDs);
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
@@ -130,30 +119,6 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      invariant(identityContext, 'identity context not set');
-      const { getAuthMetadata, identityClient } = identityContext;
-      const { userID, deviceID } = await getAuthMetadata();
-      if (!userID || !deviceID) {
-        throw new Error('missing auth metadata');
-      }
-
-      const deviceLists =
-        await identityClient.getDeviceListHistoryForUser(userID);
-      invariant(deviceLists.length > 0, 'received empty device list history');
-
-      const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
-      const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
-
-      const ownOtherDevices = deviceList.devices.filter(it => it !== deviceID);
-
-      await Promise.all([
-        broadcastDeviceListUpdates(
-          [...ownOtherDevices, ...foreignPeerDevices],
-          lastSignedDeviceList,
-        ),
-        getAndUpdateDeviceListsForUsers([userID]),
-      ]);
-
       if (!payload.requestBackupKeys) {
         Alert.alert('Device added', 'Device registered successfully', [
           { text: 'OK', onPress: goBack },
@@ -190,16 +155,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         { text: 'OK', onPress: goBack },
       ]);
     },
-    [
-      identityContext,
-      broadcastDeviceListUpdates,
-      foreignPeerDevices,
-      getAndUpdateDeviceListsForUsers,
-      getBackupSecret,
-      tunnelbrokerContext,
-      goBack,
-      retrieveLatestBackupInfo,
-    ],
+    [getBackupSecret, goBack, retrieveLatestBackupInfo, tunnelbrokerContext],
   );
 
   React.useEffect(() => {
@@ -259,12 +215,11 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
           if (!keyserverDeviceID) {
             throw new Error('missing keyserver device ID');
           }
-          await replaceDeviceInDeviceList(
-            identityContext.identityClient,
-            userID,
-            keyserverDeviceID,
-            targetDeviceID,
-          );
+          await runDeviceListUpdate({
+            type: 'replace',
+            deviceIDToRemove: keyserverDeviceID,
+            newDeviceID: targetDeviceID,
+          });
           await sendDeviceListUpdateSuccessMessage();
         } catch (err) {
           console.log('Device replacement error:', err);
@@ -282,11 +237,10 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         !keyserverDeviceID ||
         keyserverDeviceID === targetDeviceID
       ) {
-        await addDeviceToDeviceList(
-          identityContext.identityClient,
-          userID,
-          targetDeviceID,
-        );
+        await runDeviceListUpdate({
+          type: 'add',
+          deviceID: targetDeviceID,
+        });
         await sendDeviceListUpdateSuccessMessage();
         return;
       }
@@ -314,7 +268,13 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       ]);
       goBack();
     }
-  }, [goBack, identityContext, keyserverDeviceID, tunnelbrokerContext]);
+  }, [
+    goBack,
+    identityContext,
+    keyserverDeviceID,
+    runDeviceListUpdate,
+    tunnelbrokerContext,
+  ]);
 
   const onPressSave = React.useCallback(async () => {
     if (!urlInput) {
