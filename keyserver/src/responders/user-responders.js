@@ -32,6 +32,8 @@ import {
   userSettingsTypes,
   notificationTypeValues,
   authActionSources,
+  recoveryFromDataHandlerActionSources,
+  recoveryFromReduxActionSources,
 } from 'lib/types/account-types.js';
 import {
   type ClientAvatar,
@@ -781,7 +783,15 @@ async function keyserverAuthResponder(
     initialContentEncryptedMessage,
     initialNotificationsEncryptedMessage,
     doNotRegister,
+    source,
   } = request;
+  if (
+    Object.values(recoveryFromReduxActionSources).includes(source) ||
+    Object.values(recoveryFromDataHandlerActionSources).includes(source)
+  ) {
+    const data = { userID, source };
+    console.log(`Session recovery attempted ${JSON.stringify(data)}`);
+  }
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   // 1. Check if there's already a user for this userID. Simultaneously, get
