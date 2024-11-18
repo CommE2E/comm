@@ -26,6 +26,7 @@ import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/re
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
+import { FarcasterChannelPrefetchHandler } from 'lib/components/farcaster-channel-prefetch-handler.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
 import { GlobalSearchIndexProvider } from 'lib/components/global-search-index-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
@@ -393,6 +394,7 @@ function Root() {
                                                     <BackgroundIdentityLoginHandler />
                                                     <PrekeysHandler />
                                                     <ReportHandler />
+                                                    <FarcasterChannelPrefetchHandler />
                                                     <AutoJoinCommunityHandler />
                                                     <SyncCommunityStoreHandler />
                                                     <InitialStateSharingHandler />
