@@ -3,6 +3,7 @@ use crate::constants::{
   error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
   MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
 };
+use crate::notifs::wns::response::WNSErrorResponse;
 use comm_lib::aws::ddb::error::SdkError;
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use derive_more;
@@ -33,8 +34,6 @@ use tunnelbroker_messages::{
   MessageToDeviceRequest, MessageToTunnelbroker,
 };
 use web_push::WebPushError;
-
-use crate::notifs::apns::response::ErrorReason;
 
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
 use crate::notifs::apns::headers::NotificationHeaders;
@@ -527,12 +526,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         if let Some(apns) = self.notif_client.apns.clone() {
           let response = apns.send(apns_notif).await;
           if let Err(apns::error::Error::ResponseError(body)) = &response {
-            if matches!(
-              body.reason,
-              ErrorReason::BadDeviceToken
-                | ErrorReason::Unregistered
-                | ErrorReason::ExpiredToken
-            ) {
+            if body.reason.should_invalidate_token() {
               if let Err(e) = self
                 .invalidate_device_token(notif.device_id, device_token.clone())
                 .await
@@ -671,6 +665,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
                 "Error invalidating device token {}: {:?}", device_token, e
               );
             };
+          } else {
+            error!(
+              errorType = error_types::WEB_PUSH_ERROR,
+              "Failed sending Web Push notification to: {}. Error: {}",
+              device_token,
+              web_push_error
+            );
           }
         }
         Some(
@@ -714,7 +715,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
         let result = wns_client.send(wns_notif).await;
         if let Err(NotifsWNSError(err)) = &result {
-          if err.should_invalidate_token() {
+          if matches!(err, WNSErrorResponse::NotFound | WNSErrorResponse::Gone)
+          {
             if let Err(e) = self
               .invalidate_device_token(notif.device_id, device_token.clone())
               .await
