@@ -3,7 +3,6 @@ use crate::constants::{
   error_types, CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY,
   MAX_RMQ_MSG_PRIORITY, RMQ_CONSUMER_TAG,
 };
-use crate::notifs::wns::response::WNSErrorResponse;
 use comm_lib::aws::ddb::error::SdkError;
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use derive_more;
@@ -715,8 +714,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
         let result = wns_client.send(wns_notif).await;
         if let Err(NotifsWNSError(err)) = &result {
-          if matches!(err, WNSErrorResponse::NotFound | WNSErrorResponse::Gone)
-          {
+          if err.should_invalidate_token() {
             if let Err(e) = self
               .invalidate_device_token(notif.device_id, device_token.clone())
               .await
