@@ -1,4 +1,4 @@
-use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
+use crate::constants::{error_types, PUSH_SERVICE_REQUEST_TIMEOUT};
 use crate::notifs::apns::config::APNsConfig;
 use crate::notifs::apns::error::Error::ResponseError;
 use crate::notifs::apns::headers::{NotificationHeaders, PushType};
@@ -8,7 +8,7 @@ use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tracing::debug;
+use tracing::{debug, error};
 
 pub mod config;
 pub mod error;
@@ -132,6 +132,16 @@ impl APNsClient {
       StatusCode::OK => Ok(()),
       _ => {
         let error_body: ErrorBody = response.json().await?;
+
+        if !error_body.reason.should_invalidate_token() {
+          error!(
+            errorType = error_types::APNS_ERROR,
+            "Failed sending APNs notification to: {}. Body: {}",
+            notif.device_token,
+            error_body,
+          );
+        }
+
         Err(ResponseError(error_body))
       }
     }

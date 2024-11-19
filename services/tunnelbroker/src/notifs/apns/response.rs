@@ -117,3 +117,14 @@ pub enum ErrorReason {
   /// The server is shutting down.
   Shutdown,
 }
+
+impl ErrorReason {
+  pub fn should_invalidate_token(&self) -> bool {
+    matches!(
+      self,
+      ErrorReason::BadDeviceToken
+        | ErrorReason::Unregistered
+        | ErrorReason::ExpiredToken
+    )
+  }
+}
