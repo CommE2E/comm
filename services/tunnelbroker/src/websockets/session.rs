@@ -34,8 +34,6 @@ use tunnelbroker_messages::{
 };
 use web_push::WebPushError;
 
-use crate::notifs::apns::response::ErrorReason;
-
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
 use crate::notifs::apns::headers::NotificationHeaders;
 use crate::notifs::apns::APNsNotif;
@@ -527,12 +525,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         if let Some(apns) = self.notif_client.apns.clone() {
           let response = apns.send(apns_notif).await;
           if let Err(apns::error::Error::ResponseError(body)) = &response {
-            if matches!(
-              body.reason,
-              ErrorReason::BadDeviceToken
-                | ErrorReason::Unregistered
-                | ErrorReason::ExpiredToken
-            ) {
+            if body.reason.should_invalidate_token() {
               if let Err(e) = self
                 .invalidate_device_token(notif.device_id, device_token.clone())
                 .await
@@ -671,6 +664,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
                 "Error invalidating device token {}: {:?}", device_token, e
               );
             };
+          } else {
+            error!(
+              errorType = error_types::WEB_PUSH_ERROR,
+              "Failed sending Web Push notification to: {}. Error: {}",
+              device_token,
+              web_push_error
+            );
           }
         }
         Some(
