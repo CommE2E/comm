@@ -74,4 +74,7 @@ impl WNSErrorResponse {
       _ => WNSErrorResponse::UnspecifiedError,
     }
   }
+  pub fn should_invalidate_token(&self) -> bool {
+    matches!(self, WNSErrorResponse::NotFound | WNSErrorResponse::Gone)
+  }
 }
