@@ -313,9 +313,10 @@ type Props = {
   +setText: (text: string) => void,
   +textEdited: boolean,
   +setTextEdited: (edited: boolean) => void,
+  +buttonsExpanded: boolean,
+  +setButtonsExpanded: (expanded: boolean) => void,
 };
 type State = {
-  +buttonsExpanded: boolean,
   +isExitingDuringEditMode: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
@@ -341,7 +342,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      buttonsExpanded: true,
       isExitingDuringEditMode: false,
     };
 
@@ -801,7 +801,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         <View style={this.props.styles.inputContainer}>
           <AnimatedView style={this.expandoButtonsStyle}>
             <View style={expandoButtonsViewStyle}>
-              {this.state.buttonsExpanded ? expandoButton : null}
+              {this.props.buttonsExpanded ? expandoButton : null}
               <TouchableOpacity
                 onPress={this.showMediaGallery}
                 activeOpacity={0.4}
@@ -817,7 +817,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               <TouchableOpacity
                 onPress={this.props.openCamera}
                 activeOpacity={0.4}
-                disabled={!this.state.buttonsExpanded}
+                disabled={!this.props.buttonsExpanded}
               >
                 <AnimatedView style={this.cameraIconStyle}>
                   <SWMansionIcon
@@ -827,7 +827,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   />
                 </AnimatedView>
               </TouchableOpacity>
-              {this.state.buttonsExpanded ? null : expandoButton}
+              {this.props.buttonsExpanded ? null : expandoButton}
             </View>
           </AnimatedView>
           <SelectableTextInput
@@ -1168,29 +1168,29 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   expandButtons = () => {
-    if (this.state.buttonsExpanded || this.isEditMode()) {
+    if (this.props.buttonsExpanded || this.isEditMode()) {
       return;
     }
     this.targetExpandoButtonsOpen.setValue(1);
-    this.setState({ buttonsExpanded: true });
+    this.props.setButtonsExpanded(true);
   };
 
   hideButtons() {
     if (
       ChatInputBar.mediaGalleryOpen(this.props) ||
       !this.systemKeyboardShowing ||
-      !this.state.buttonsExpanded
+      !this.props.buttonsExpanded
     ) {
       return;
     }
     this.targetExpandoButtonsOpen.setValue(0);
-    this.setState({ buttonsExpanded: false });
+    this.props.setButtonsExpanded(false);
   }
 
   immediatelyHideButtons() {
     this.expandoButtonsOpen.setValue(0);
     this.targetExpandoButtonsOpen.setValue(0);
-    this.setState({ buttonsExpanded: false });
+    this.props.setButtonsExpanded(false);
   }
 
   showMediaGallery = () => {
@@ -1303,6 +1303,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const [text, setText] = React.useState(draft);
   const [textEdited, setTextEdited] = React.useState(false);
+  const [buttonsExpanded, setButtonsExpanded] = React.useState(true);
 
   const typeaheadRegexMatches = React.useMemo(
     () =>
@@ -1390,6 +1391,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       setText={setText}
       textEdited={textEdited}
       setTextEdited={setTextEdited}
+      buttonsExpanded={buttonsExpanded}
+      setButtonsExpanded={setButtonsExpanded}
     />
   );
 }
