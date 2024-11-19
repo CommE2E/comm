@@ -309,10 +309,12 @@ type Props = {
   +currentUserIsVoiced: boolean,
   +currentUserCanJoin: boolean,
   +threadFrozen: boolean,
+  +text: string,
+  +setText: (text: string) => void,
+  +textEdited: boolean,
+  +setTextEdited: (edited: boolean) => void,
 };
 type State = {
-  +text: string,
-  +textEdited: boolean,
   +buttonsExpanded: boolean,
   +isExitingDuringEditMode: boolean,
 };
@@ -339,8 +341,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      text: props.draft,
-      textEdited: false,
       buttonsExpanded: true,
       isExitingDuringEditMode: false,
     };
@@ -513,10 +513,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (
-      this.state.textEdited &&
-      this.state.text &&
+      this.props.textEdited &&
+      this.props.text &&
       this.props.threadInfo.id !== prevProps.threadInfo.id
     ) {
       this.props.dispatch({
@@ -526,8 +526,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           newKey: draftKeyFromThreadID(this.props.threadInfo.id),
         },
       });
-    } else if (!this.state.textEdited && this.props.draft !== prevProps.draft) {
-      this.setState({ text: this.props.draft });
+    } else if (!this.props.textEdited && this.props.draft !== prevProps.draft) {
+      this.props.setText(this.props.draft);
     }
     if (this.props.isActive && !prevProps.isActive) {
       this.addEditInputMessageListener();
@@ -535,8 +535,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.removeEditInputMessageListener();
     }
 
-    const currentText = trimMessage(this.state.text);
-    const prevText = trimMessage(prevState.text);
+    const currentText = trimMessage(this.props.text);
+    const prevText = trimMessage(prevProps.text);
 
     if (
       (currentText === '' && prevText !== '') ||
@@ -678,7 +678,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     ) {
       typeaheadTooltip = (
         <TypeaheadTooltip
-          text={this.state.text}
+          text={this.props.text}
           matchedStrings={this.props.typeaheadMatchedStrings}
           suggestions={this.props.suggestions}
           focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
@@ -832,7 +832,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           </AnimatedView>
           <SelectableTextInput
             allowImagePasteForThreadID={this.props.threadInfo.id}
-            value={this.state.text}
+            value={this.props.text}
             onChangeText={this.updateText}
             selection={this.props.selectionState.selection}
             onUpdateSyncedSelectionData={this.props.setSelectionState}
@@ -850,7 +850,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               onPress={this.onSend}
               activeOpacity={0.4}
               style={this.props.styles.sendButton}
-              disabled={trimMessage(this.state.text) === ''}
+              disabled={trimMessage(this.props.text) === ''}
             >
               <Icon
                 name="md-send"
@@ -883,7 +883,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.state.isExitingDuringEditMode) {
       return;
     }
-    this.setState({ text, textEdited: true });
+    this.props.setText(text);
+    this.props.setTextEdited(true);
     this.props.messageEditingContext?.setEditedMessageChanged(
       this.isMessageEdited(text),
     );
@@ -905,10 +906,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
     this.selectableTextInput?.prepareForSelectionMutation(text, selection);
-    this.setState({
-      text,
-      textEdited: true,
-    });
+    this.props.setText(text);
+    this.props.setTextEdited(true);
     this.props.setSelectionState({ text, selection });
     this.saveDraft(text);
 
@@ -917,7 +916,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   focusAndUpdateText = (params: EditInputBarMessageParameters) => {
     const { message: text, mode } = params;
-    const currentText = this.state.text;
+    const currentText = this.props.text;
     if (mode === 'replace') {
       this.updateText(text);
     } else if (!currentText.startsWith(text)) {
@@ -940,13 +939,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   onSend = async () => {
-    if (!trimMessage(this.state.text)) {
+    if (!trimMessage(this.props.text)) {
       return;
     }
 
     const editedMessage = this.getEditedMessage();
     if (editedMessage && editedMessage.id) {
-      await this.editMessage(editedMessage.id, this.state.text);
+      await this.editMessage(editedMessage.id, this.props.text);
       return;
     }
 
@@ -993,7 +992,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   isMessageEdited = (newText?: string): boolean => {
-    let text = newText ?? this.state.text;
+    let text = newText ?? this.props.text;
     text = trimMessage(text);
     const originalText = this.props.editedMessageInfo?.text;
     return text !== originalText;
@@ -1102,10 +1101,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (!this.isEditMode()) {
       return;
     }
-    this.setState(
-      { text: this.props.draft, isExitingDuringEditMode: true },
-      this.exitEditMode,
-    );
+    this.props.setText(this.props.draft);
+    this.setState({ isExitingDuringEditMode: true }, this.exitEditMode);
   };
 
   onNavigationBeforeRemove = (e: {
@@ -1304,6 +1301,9 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       selection: { start: 0, end: 0 },
     });
 
+  const [text, setText] = React.useState(draft);
+  const [textEdited, setTextEdited] = React.useState(false);
+
   const typeaheadRegexMatches = React.useMemo(
     () =>
       getTypeaheadRegexMatches(
@@ -1386,6 +1386,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       currentUserIsVoiced={currentUserIsVoiced}
       currentUserCanJoin={currentUserCanJoin}
       threadFrozen={threadFrozen}
+      text={text}
+      setText={setText}
+      textEdited={textEdited}
+      setTextEdited={setTextEdited}
     />
   );
 }
