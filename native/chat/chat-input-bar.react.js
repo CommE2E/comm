@@ -315,11 +315,10 @@ type Props = {
   +setTextEdited: (edited: boolean) => void,
   +buttonsExpanded: boolean,
   +setButtonsExpanded: (expanded: boolean) => void,
+  +isExitingDuringEditModeRef: { current: boolean },
 };
-type State = {
-  +isExitingDuringEditMode: boolean,
-};
-class ChatInputBar extends React.PureComponent<Props, State> {
+
+class ChatInputBar extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
   selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>;
@@ -341,10 +340,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      isExitingDuringEditMode: false,
-    };
-
     this.setUpActionIconAnimations();
     this.setUpSendIconAnimations();
   }
@@ -880,7 +875,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
-    if (this.state.isExitingDuringEditMode) {
+    if (this.props.isExitingDuringEditModeRef.current) {
       return;
     }
     this.props.setText(text);
@@ -1008,7 +1003,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   removeEditMode: RemoveEditMode = action => {
     const { navigation } = this.props;
-    if (!navigation || this.state.isExitingDuringEditMode) {
+    if (!navigation || this.props.isExitingDuringEditModeRef.current) {
       return 'ignore_action';
     }
     if (!this.isMessageEdited()) {
@@ -1094,7 +1089,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   onNavigationFocus = () => {
-    this.setState({ isExitingDuringEditMode: false });
+    this.props.isExitingDuringEditModeRef.current = false;
   };
 
   onNavigationBlur = () => {
@@ -1102,7 +1097,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     this.props.setText(this.props.draft);
-    this.setState({ isExitingDuringEditMode: true }, this.exitEditMode);
+    this.props.isExitingDuringEditModeRef.current = true;
+    this.exitEditMode();
   };
 
   onNavigationBeforeRemove = (e: {
@@ -1117,12 +1113,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     e.preventDefault();
     const saveExit = () => {
       this.props.messageEditingContext?.setEditedMessage(null, () => {
-        this.setState({ isExitingDuringEditMode: true }, () => {
-          if (!this.props.navigation) {
-            return;
-          }
-          this.props.navigation.dispatch(action);
-        });
+        this.props.isExitingDuringEditModeRef.current = true;
+        this.props.navigation?.dispatch(action);
       });
     };
     if (!this.isMessageEdited()) {
@@ -1353,6 +1345,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     threadPermissions.JOIN_THREAD,
   );
 
+  const isExitingDuringEditModeRef = React.useRef(false);
+
   return (
     <ChatInputBar
       {...props}
@@ -1393,6 +1387,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       setTextEdited={setTextEdited}
       buttonsExpanded={buttonsExpanded}
       setButtonsExpanded={setButtonsExpanded}
+      isExitingDuringEditModeRef={isExitingDuringEditModeRef}
     />
   );
 }
