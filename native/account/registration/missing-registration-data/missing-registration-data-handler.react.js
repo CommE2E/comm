@@ -5,8 +5,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
-import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { getOwnPeerDevices, isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   alertTypes,
   type RecordAlertActionPayload,
@@ -23,10 +24,14 @@ function MissingRegistrationDataHandler(): React.Node {
   const loggedIn = useSelector(isLoggedIn);
   const navigation = useNavigation();
   const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const userDevicesInfos = useSelector(getOwnPeerDevices);
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
   const { cachedSelections } = registrationContext;
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'identity context not set');
+  const { getAuthMetadata } = identityContext;
 
   const createSIWEBAckupMessageAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.SIWE_BACKUP_MESSAGE],
@@ -44,6 +49,12 @@ function MissingRegistrationDataHandler(): React.Node {
     }
 
     void (async () => {
+      const primaryDeviceID = userDevicesInfos[0].deviceID;
+      const { deviceID } = await getAuthMetadata();
+      if (primaryDeviceID !== deviceID) {
+        return;
+      }
+
       const nativeSIWEBackupSecrets =
         await commCoreModule.getSIWEBackupSecrets();
 
@@ -72,6 +83,8 @@ function MissingRegistrationDataHandler(): React.Node {
     navigation,
     createSIWEBAckupMessageAlertInfo,
     dispatch,
+    userDevicesInfos,
+    getAuthMetadata,
   ]);
 
   return null;
