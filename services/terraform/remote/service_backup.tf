@@ -1,5 +1,5 @@
 locals {
-  backup_service_image_tag      = local.is_staging ? "0.5.1" : "0.5.0"
+  backup_service_image_tag      = local.is_staging ? "0.5.1" : "0.5.1"
   backup_service_container_name = "backup-service-server"
   backup_service_server_image   = "commapp/backup-server:${local.backup_service_image_tag}"
   backup_service_domain_name    = "backup.${local.root_domain}"
