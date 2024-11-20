@@ -138,50 +138,6 @@ pub mod ffi {
     });
   }
 
-  pub fn restore_backup(
-    backup_secret: String,
-    backup_id: String,
-    max_version: String,
-    promise_id: u32,
-  ) {
-    RUNTIME.spawn(async move {
-      let result = download_backup(backup_secret, backup_id)
-        .await
-        .map_err(|err| err.to_string());
-
-      let result = match result {
-        Ok(result) => result,
-        Err(error) => {
-          void_callback(error, promise_id);
-          return;
-        }
-      };
-
-      let (future_id, future) = future_manager::new_future::<()>().await;
-      restore_from_main_compaction(
-        &result.backup_restoration_path.to_string_lossy(),
-        &result.backup_data_key,
-        &max_version,
-        future_id,
-      );
-
-      if let Err(error) = future.await {
-        void_callback(error, promise_id);
-        return;
-      }
-
-      if let Err(error) =
-        download_and_apply_logs(&result.backup_id, result.backup_log_data_key)
-          .await
-      {
-        void_callback(error.to_string(), promise_id);
-        return;
-      }
-
-      void_callback(String::new(), promise_id);
-    });
-  }
-
   pub fn retrieve_backup_keys(
     backup_secret: String,
     backup_id: String,
@@ -213,12 +169,7 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let backup_keys = BackupKeysResult {
-        backup_id,
-        backup_data_key,
-        backup_log_data_key,
-      };
-      let result = download_backup_data(backup_keys)
+      let result = download_backup_data(backup_id.clone())
         .await
         .map_err(|err| err.to_string());
 
@@ -233,7 +184,7 @@ pub mod ffi {
       let (future_id, future) = future_manager::new_future::<()>().await;
       restore_from_main_compaction(
         &result.backup_restoration_path.to_string_lossy(),
-        &result.backup_data_key,
+        &backup_data_key,
         &max_version,
         future_id,
       );
@@ -244,8 +195,7 @@ pub mod ffi {
       }
 
       if let Err(error) =
-        download_and_apply_logs(&result.backup_id, result.backup_log_data_key)
-          .await
+        download_and_apply_logs(&backup_id, backup_log_data_key).await
       {
         void_callback(error.to_string(), promise_id);
         return;
@@ -367,14 +317,6 @@ pub async fn create_siwe_backup_msg_compaction(
   Ok(())
 }
 
-async fn download_backup(
-  backup_secret: String,
-  backup_id: String,
-) -> Result<CompactionDownloadResult, Box<dyn Error>> {
-  let backup_keys = download_backup_keys(backup_id, backup_secret).await?;
-  download_backup_data(backup_keys).await
-}
-
 async fn download_latest_backup_info(
   user_identifier: String,
 ) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
@@ -402,7 +344,7 @@ async fn download_latest_backup_info(
 async fn download_backup_keys(
   backup_id: String,
   backup_secret: String,
-) -> Result<BackupKeysResult, Box<dyn Error>> {
+) -> Result<UserKeys, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
@@ -415,27 +357,14 @@ async fn download_backup_keys(
     .download_backup_data(&backup_descriptor, RequestedData::UserKeys)
     .await?;
   let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
-  let user_keys =
-    UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
-
-  Ok(BackupKeysResult {
-    backup_id,
-    backup_data_key: user_keys.backup_data_key,
-    backup_log_data_key: user_keys.backup_log_data_key,
-  })
+  UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)
 }
 
 async fn download_backup_data(
-  backup_keys: BackupKeysResult,
+  backup_id: String,
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
-
-  let BackupKeysResult {
-    backup_id,
-    backup_data_key,
-    backup_log_data_key,
-  } = backup_keys;
 
   let backup_data_descriptor = BackupDescriptor::BackupID {
     backup_id: backup_id.clone(),
@@ -453,9 +382,6 @@ async fn download_backup_data(
 
   Ok(CompactionDownloadResult {
     backup_restoration_path,
-    backup_id,
-    backup_data_key,
-    backup_log_data_key,
   })
 }
 
@@ -494,15 +420,6 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
   })
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct BackupKeysResult {
-  #[serde(rename = "backupID")]
-  backup_id: String,
-  backup_data_key: String,
-  backup_log_data_key: String,
-}
-
 // This struct should match `SIWEBackupData` in `lib/types/backup-types.js`
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -524,10 +441,7 @@ struct LatestBackupInfo {
 }
 
 struct CompactionDownloadResult {
-  backup_id: String,
   backup_restoration_path: PathBuf,
-  backup_data_key: String,
-  backup_log_data_key: String,
 }
 
 /// Stores the Olm account in `pickled_account`. However, Olm account
