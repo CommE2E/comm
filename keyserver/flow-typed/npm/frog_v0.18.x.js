@@ -3,7 +3,7 @@
 
 declare module 'frog' {
 
-  import type { Fetch } from '@hono/node-server';
+  import type { Fetch, HonoRequest } from '@hono/node-server';
 
   declare type FrameResponse = {
     +image: React$Node,
@@ -11,16 +11,21 @@ declare module 'frog' {
     ...
   };
 
-  declare export var Button: React$ComponentType<{
-    +value: string,
-    +children: React$Node,
+  declare export var Button: {
+    Link: React$ComponentType<{
+      +children: React$Node,
+      +href: string,
+      ...
+    }>,
     ...
-  }>;
+  };
 
   declare opaque type FrogResponse;
+  declare opaque type FrogRequest;
 
   declare type FrameContext = {
     +res: (response: FrameResponse) => FrogResponse,
+    +req: HonoRequest,
     ...
   };
 
