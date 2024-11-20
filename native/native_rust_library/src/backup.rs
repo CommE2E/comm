@@ -494,7 +494,6 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
   })
 }
 
-// This struct should match `BackupKeys` in `lib/types/backup-types.js`
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct BackupKeysResult {
