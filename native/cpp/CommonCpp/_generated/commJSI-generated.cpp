@@ -194,7 +194,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupDat
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreBackupData(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveBackupKeys(rt, args[0].asString(rt), args[1].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveBackupKeys(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestBackupInfo(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveLatestBackupInfo(rt, args[0].asString(rt));
@@ -305,7 +305,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["createFullBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createFullBackup};
   methodMap_["restoreBackup"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup};
   methodMap_["restoreBackupData"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData};
-  methodMap_["retrieveBackupKeys"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys};
+  methodMap_["retrieveBackupKeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys};
   methodMap_["retrieveLatestBackupInfo"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestBackupInfo};
   methodMap_["setSIWEBackupSecrets"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets};
   methodMap_["getSIWEBackupSecrets"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets};
