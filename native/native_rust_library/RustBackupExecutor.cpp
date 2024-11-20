@@ -36,6 +36,10 @@ void createMainCompaction(rust::Str backupID, size_t futureID) {
       std::string(backupID), futureID);
 }
 
+void setBackupID(rust::Str backupID, size_t futureID) {
+  BackupOperationsExecutor::setBackupID(std::string(backupID), futureID);
+}
+
 void restoreFromMainCompaction(
     rust::Str mainCompactionPath,
     rust::Str mainCompactionEncryptionKey,

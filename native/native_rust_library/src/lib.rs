@@ -527,6 +527,9 @@ mod ffi {
 
     #[cxx_name = "restoreFromBackupLog"]
     fn restore_from_backup_log(backup_log: Vec<u8>, future_id: usize);
+
+    #[cxx_name = "setBackupID"]
+    fn set_backup_id(backup_id: &str, future_id: usize);
   }
 
   // Future handling from C++
