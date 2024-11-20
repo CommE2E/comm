@@ -46,7 +46,7 @@ pub async fn send_emails(
 
   // it's cheap to build this every time
   let client = PostmarkClient::builder()
-    .token(&email_config.postmark_token)
+    .server_token(&email_config.postmark_token)
     .build();
 
   let requests: SendEmailBatchRequest = emails
@@ -65,7 +65,7 @@ pub async fn send_emails(
       let email = email::SendEmailRequest::builder()
         .from(&email_config.sender_email)
         .to(recipient)
-        .body(email::Body::html(item.rendered_message))
+        .body(postmark::api::Body::html(item.rendered_message))
         .subject(item.subject)
         .build();
       Some(email)
