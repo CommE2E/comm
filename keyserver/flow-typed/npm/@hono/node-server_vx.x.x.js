@@ -10,4 +10,8 @@ declare module '@hono/node-server' {
     +port?: ?number,
     ...
   }) => mixed;
+
+  declare export class HonoRequest {
+    param(): { +[key: string]: string };
+  }
 }
