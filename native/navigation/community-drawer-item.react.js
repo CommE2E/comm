@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
+import { getCommunity } from 'lib/shared/thread-utils.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -12,6 +13,7 @@ import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
 import CommunityActionsButton from '../components/community-actions-button.react.js';
 import SingleLine from '../components/single-line.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { CommunityDrawerItemDataFlattened } from '../utils/drawer-utils.react.js';
 
@@ -35,6 +37,19 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     isExpanded,
     toggleExpanded,
   } = props;
+
+  const communityID = getCommunity(threadInfo);
+  const communityInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return state.communityStore.communityInfos[communityID];
+  });
+
+  const farcasterChannelID = communityInfo?.farcasterChannelID;
+  if (threadInfo.avatar?.type === 'farcaster' && farcasterChannelID) {
+    console.log(`rendering CommunityDrawerItem for ${farcasterChannelID}`);
+  }
 
   const styles = useStyles(unboundStyles);
 

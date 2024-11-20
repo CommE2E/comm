@@ -11,9 +11,9 @@ module.exports = {
     // react-native-reanimated must be last
     'react-native-reanimated/plugin',
   ],
-  env: {
-    production: {
-      plugins: ['transform-remove-console'],
-    },
-  },
+  //env: {
+  //  production: {
+  //    plugins: ['transform-remove-console'],
+  //  },
+  //},
 };

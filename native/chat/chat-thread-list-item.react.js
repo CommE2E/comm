@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import { getCommunity } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -20,6 +21,7 @@ import Button from '../components/button.react.js';
 import SingleLine from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -39,6 +41,18 @@ function ChatThreadListItem({
   onSwipeableWillOpen,
   currentlyOpenedSwipeableId,
 }: Props): React.Node {
+  const communityID = getCommunity(data.threadInfo);
+  const communityInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return state.communityStore.communityInfos[communityID];
+  });
+
+  const farcasterChannelID = communityInfo?.farcasterChannelID;
+  if (data.threadInfo.avatar?.type === 'farcaster' && farcasterChannelID) {
+    console.log(`rendering ChatThreadListItem for ${farcasterChannelID}`);
+  }
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
