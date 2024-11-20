@@ -446,14 +446,6 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "restoreBackup"]
-    fn restore_backup(
-      backup_secret: String,
-      backup_id: String,
-      max_version: String,
-      promise_id: u32,
-    );
-
     #[cxx_name = "restoreBackupData"]
     fn restore_backup_data(
       backup_id: String,

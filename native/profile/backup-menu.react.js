@@ -69,14 +69,17 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
     try {
+      // eslint-disable-next-line no-unused-vars
       const [latestBackupInfo, backupSecret] = await Promise.all([
         retrieveLatestBackupInfo(),
         getBackupSecret(),
       ]);
-      await commCoreModule.restoreBackup(
-        backupSecret,
-        persistConfig.version.toString(),
+      //TODO add backup keys
+      await commCoreModule.restoreBackupData(
         latestBackupInfo.backupID,
+        '',
+        '',
+        persistConfig.version.toString(),
       );
       console.info('Backup restored.');
     } catch (e) {
