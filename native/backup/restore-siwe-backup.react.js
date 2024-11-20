@@ -31,19 +31,22 @@ function RestoreSIWEBackup(props: Props): React.Node {
   const { goBack } = props.navigation;
   const { route } = props;
   const {
-    params: { backupID, siweStatement, siweIssuedAt, siweNonce },
+    params: { siweStatement, siweIssuedAt, siweNonce },
   } = route;
 
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
+        // eslint-disable-next-line no-unused-vars
         const { signature } = result;
         let message = 'success';
         try {
-          await commCoreModule.restoreBackup(
-            signature,
+          //TODO add backup keys
+          await commCoreModule.restoreBackupData(
+            '',
+            '',
+            '',
             persistConfig.version.toString(),
-            backupID,
           );
         } catch (e) {
           message = `Backup restore error: ${String(
@@ -55,7 +58,7 @@ function RestoreSIWEBackup(props: Props): React.Node {
         goBack();
       })();
     },
-    [goBack, backupID],
+    [goBack],
   );
 
   return (
