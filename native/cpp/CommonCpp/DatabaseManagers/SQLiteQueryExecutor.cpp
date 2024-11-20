@@ -33,12 +33,7 @@ std::string SQLiteQueryExecutor::sqliteFilePath;
 std::string SQLiteQueryExecutor::encryptionKey;
 std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
-// Should match constant defined in `native_rust_library/src/constants.rs`
-std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
-    "comm.encryptionKey";
 int SQLiteQueryExecutor::backupLogsEncryptionKeySize = 32;
-std::string SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID =
-    "comm.backupLogsEncryptionKey";
 std::string SQLiteQueryExecutor::backupLogsEncryptionKey;
 
 #ifndef EMSCRIPTEN
@@ -2977,10 +2972,9 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
   std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
     SQLiteQueryExecutor::sqliteFilePath = databasePath;
     folly::Optional<std::string> maybeEncryptionKey =
-        CommSecureStore::get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
+        CommSecureStore::get(CommSecureStore::encryptionKey);
     folly::Optional<std::string> maybeBackupLogsEncryptionKey =
-        CommSecureStore::get(
-            SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID);
+        CommSecureStore::get(CommSecureStore::backupLogsEncryptionKey);
 
     if (file_exists(databasePath) && maybeEncryptionKey &&
         maybeBackupLogsEncryptionKey) {
@@ -3135,8 +3129,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 void SQLiteQueryExecutor::generateFreshEncryptionKey() {
   std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
       SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
-  CommSecureStore::set(
-      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  CommSecureStore::set(CommSecureStore::encryptionKey, encryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
   SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey();
 }
@@ -3146,8 +3139,7 @@ void SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey() {
       comm::crypto::Tools::generateRandomHexString(
           SQLiteQueryExecutor::backupLogsEncryptionKeySize);
   CommSecureStore::set(
-      SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID,
-      backupLogsEncryptionKey);
+      CommSecureStore::backupLogsEncryptionKey, backupLogsEncryptionKey);
   SQLiteQueryExecutor::backupLogsEncryptionKey = backupLogsEncryptionKey;
 }
 
