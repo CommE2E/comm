@@ -2686,20 +2686,62 @@ jsi::Value CommCoreModule::restoreBackupData(
       });
 }
 
-jsi::Value CommCoreModule::retrieveBackupKeys(
-    jsi::Runtime &rt,
-    jsi::String backupSecret,
-    jsi::String backupID) {
-  std::string backupSecretStr = backupSecret.utf8(rt);
-  std::string backupIDStr = backupID.utf8(rt);
+jsi::Value CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        auto currentID = RustPromiseManager::instance.addPromise(
-            {promise, this->jsInvoker_, innerRt});
-        ::retrieveBackupKeys(
-            rust::string(backupSecretStr),
-            rust::string(backupIDStr),
-            currentID);
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          std::string backupID;
+          std::string backupDataKey;
+          std::string backupLogDataKey;
+          try {
+            backupID =
+                DatabaseManager::getQueryExecutor().getMetadata("backupID");
+            folly::Optional<std::string> backupDataKeyOpt =
+                CommSecureStore::get(CommSecureStore::encryptionKey);
+            if (backupDataKeyOpt.hasValue()) {
+              backupDataKey = backupDataKeyOpt.value();
+            } else {
+              throw std::runtime_error("missing backupDataKey");
+            }
+            folly::Optional<std::string> backupLogDataKeyOpt =
+                CommSecureStore::get(CommSecureStore::backupLogsEncryptionKey);
+            if (backupLogDataKeyOpt.hasValue()) {
+              backupLogDataKey = backupLogDataKeyOpt.value();
+            } else {
+              throw std::runtime_error("missing backupLogDataKey");
+            }
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         backupID,
+                                         backupDataKey,
+                                         backupLogDataKey,
+                                         promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              auto backupKeys = jsi::Object(innerRt);
+              backupKeys.setProperty(
+                  innerRt,
+                  "backupID",
+                  jsi::String::createFromUtf8(innerRt, backupID));
+              backupKeys.setProperty(
+                  innerRt,
+                  "backupDataKey",
+                  jsi::String::createFromUtf8(innerRt, backupDataKey));
+              backupKeys.setProperty(
+                  innerRt,
+                  "backupLogDataKey",
+                  jsi::String::createFromUtf8(innerRt, backupLogDataKey));
+              promise->resolve(std::move(backupKeys));
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
