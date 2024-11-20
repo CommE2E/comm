@@ -218,11 +218,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
   virtual jsi::Value
   createUserKeysBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
-  virtual jsi::Value restoreBackup(
-      jsi::Runtime &rt,
-      jsi::String backupSecret,
-      jsi::String maxVersion,
-      jsi::String backupID) override;
   virtual jsi::Value restoreBackupData(
       jsi::Runtime &rt,
       jsi::String backupID,

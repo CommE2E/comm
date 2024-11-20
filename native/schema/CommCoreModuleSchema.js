@@ -159,11 +159,6 @@ interface Spec extends TurboModule {
   +stopBackupHandler: () => void;
   +createUserKeysBackup: (backupSecret: string) => Promise<string>;
   +createFullBackup: (backupSecret: string) => Promise<string>;
-  +restoreBackup: (
-    backupSecret: string,
-    maxVersion: string,
-    backupID: string,
-  ) => Promise<string>;
   +restoreBackupData: (
     backupID: string,
     backupDataKey: string,
