@@ -76,7 +76,6 @@ public:
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createUserKeysBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
-  virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String maxVersion, jsi::String backupID) = 0;
   virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey, jsi::String maxVersion) = 0;
   virtual jsi::Value getQRAuthBackupData(jsi::Runtime &rt) = 0;
   virtual jsi::Value retrieveLatestBackupInfo(jsi::Runtime &rt, jsi::String userIdentifier) = 0;
@@ -563,14 +562,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::createFullBackup, jsInvoker_, instance_, std::move(backupSecret));
-    }
-    jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String maxVersion, jsi::String backupID) override {
-      static_assert(
-          bridging::getParameterCount(&T::restoreBackup) == 4,
-          "Expected restoreBackup(...) to have 4 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::restoreBackup, jsInvoker_, instance_, std::move(backupSecret), std::move(maxVersion), std::move(backupID));
     }
     jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey, jsi::String maxVersion) override {
       static_assert(
