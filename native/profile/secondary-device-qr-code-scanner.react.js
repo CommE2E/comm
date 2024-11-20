@@ -15,10 +15,6 @@ import { useDeviceListUpdate } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
-  backupKeysValidator,
-  type BackupKeys,
-} from 'lib/types/backup-types.js';
-import {
   identityDeviceTypes,
   type IdentityDeviceType,
 } from 'lib/types/identity-service-types.js';
@@ -32,11 +28,8 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import { useClientBackup } from '../backup/use-client-backup.js';
-import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secret.js';
 import TextInput from '../components/text-input.react.js';
 import { commCoreModule } from '../native-modules.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
@@ -78,8 +71,6 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
-  const getBackupSecret = useGetBackupSecretForLoggedInUser();
-  const { retrieveLatestBackupInfo } = useClientBackup();
 
   const { panelForegroundTertiaryLabel } = useColors();
 
@@ -169,18 +160,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       const sendDeviceListUpdateSuccessMessage = async () => {
         let backupData = null;
         if (deviceType !== identityDeviceTypes.KEYSERVER) {
-          const [backupSecret, latestBackupInfo] = await Promise.all([
-            getBackupSecret(),
-            retrieveLatestBackupInfo(),
-          ]);
-          const backupKeysResponse = await commCoreModule.retrieveBackupKeys(
-            backupSecret,
-            latestBackupInfo.backupID,
-          );
-          backupData = assertWithValidator<BackupKeys>(
-            JSON.parse(backupKeysResponse),
-            backupKeysValidator,
-          );
+          backupData = await commCoreModule.retrieveBackupKeys();
         }
         const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
           type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
@@ -253,11 +233,9 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       goBack();
     }
   }, [
-    getBackupSecret,
     goBack,
     identityContext,
     keyserverDeviceID,
-    retrieveLatestBackupInfo,
     runDeviceListUpdate,
     tunnelbrokerContext,
   ]);
