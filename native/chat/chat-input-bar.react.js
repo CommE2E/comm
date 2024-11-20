@@ -324,17 +324,19 @@ type Props = {
   +textEdited: boolean,
   +setTextEdited: (edited: boolean) => void,
   +buttonsExpanded: boolean,
-  +setButtonsExpanded: (expanded: boolean) => void,
   +isExitingDuringEditModeRef: { current: boolean },
-  +expandoButtonsOpen: Value,
-  +targetExpandoButtonsOpen: Value,
-  +sendButtonContainerOpen: Value,
-  +targetSendButtonContainerOpen: Value,
   +expandoButtonsStyle: AnimatedViewStyle,
   +cameraRollIconStyle: AnimatedViewStyle,
   +cameraIconStyle: AnimatedViewStyle,
   +expandIconStyle: AnimatedViewStyle,
   +sendButtonContainerStyle: AnimatedViewStyle,
+  +shouldShowTextInput: () => boolean,
+  +isEditMode: () => boolean,
+  +immediatelyShowSendButton: () => void,
+  +updateSendButton: (currentText: string) => void,
+  +expandButtons: () => void,
+  +hideButtons: () => void,
+  +immediatelyHideButtons: () => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -358,19 +360,6 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   get systemKeyboardShowing(): boolean {
     return ChatInputBar.systemKeyboardShowing(this.props);
-  }
-
-  immediatelyShowSendButton() {
-    this.props.sendButtonContainerOpen.setValue(1);
-    this.props.targetSendButtonContainerOpen.setValue(1);
-  }
-
-  updateSendButton(currentText: string) {
-    if (this.shouldShowTextInput) {
-      this.props.targetSendButtonContainerOpen.setValue(
-        currentText === '' ? 0 : 1,
-      );
-    }
   }
 
   componentDidMount() {
@@ -439,7 +428,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       (currentText === '' && prevText !== '') ||
       (currentText !== '' && prevText === '')
     ) {
-      this.updateSendButton(currentText);
+      this.props.updateSendButton(currentText);
     }
 
     const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
@@ -448,17 +437,17 @@ class ChatInputBar extends React.PureComponent<Props> {
     const systemKeyboardWasShowing =
       ChatInputBar.systemKeyboardShowing(prevProps);
     if (systemKeyboardIsShowing && !systemKeyboardWasShowing) {
-      this.hideButtons();
+      this.props.hideButtons();
     } else if (!systemKeyboardIsShowing && systemKeyboardWasShowing) {
-      this.expandButtons();
+      this.props.expandButtons();
     }
 
     const imageGalleryIsOpen = ChatInputBar.mediaGalleryOpen(this.props);
     const imageGalleryWasOpen = ChatInputBar.mediaGalleryOpen(prevProps);
     if (!imageGalleryIsOpen && imageGalleryWasOpen) {
-      this.hideButtons();
+      this.props.hideButtons();
     } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
-      this.expandButtons();
+      this.props.expandButtons();
       this.setIOSKeyboardHeight();
     }
 
@@ -503,28 +492,11 @@ class ChatInputBar extends React.PureComponent<Props> {
     TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
   }
 
-  get shouldShowTextInput(): boolean {
-    if (this.props.currentUserIsVoiced) {
-      return true;
-    }
-    // If the thread is created by somebody else while the viewer is attempting
-    // to create it, the threadInfo might be modified in-place
-    // and won't list the viewer as a member,
-    // which will end up hiding the input.
-    // In this case, we will assume that our creation action
-    // will get translated into a join, and as long
-    // as members are voiced, we can show the input.
-    if (!this.props.threadCreationInProgress) {
-      return false;
-    }
-    return checkIfDefaultMembersAreVoiced(this.props.threadInfo);
-  }
-
   render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
     let joinButton = null;
     const threadColor = `#${this.props.threadInfo.color}`;
-    const isEditMode = this.isEditMode();
+    const isEditMode = this.props.isEditMode();
     if (
       !isMember &&
       this.props.currentUserCanJoin &&
@@ -589,7 +561,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
       this.props.threadInfo,
     );
-    if (this.shouldShowTextInput) {
+    if (this.props.shouldShowTextInput()) {
       content = this.renderInput();
     } else if (
       this.props.threadFrozen &&
@@ -673,7 +645,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   renderInput(): React.Node {
     const expandoButton = (
       <TouchableOpacity
-        onPress={this.expandButtons}
+        onPress={this.props.expandButtons}
         activeOpacity={0.4}
         style={this.props.styles.expandButton}
       >
@@ -690,7 +662,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     const expandoButtonsViewStyle: Array<ViewStyle> = [
       this.props.styles.innerExpandoButtons,
     ];
-    if (this.isEditMode()) {
+    if (this.props.isEditMode()) {
       expandoButtonsViewStyle.push({ display: 'none' });
     }
     return (
@@ -785,7 +757,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.props.messageEditingContext?.setEditedMessageChanged(
       this.isMessageEdited(text),
     );
-    if (this.isEditMode()) {
+    if (this.props.isEditMode()) {
       return;
     }
     this.saveDraft(text);
@@ -830,8 +802,8 @@ class ChatInputBar extends React.PureComponent<Props> {
       return;
     }
 
-    this.immediatelyShowSendButton();
-    this.immediatelyHideButtons();
+    this.props.immediatelyShowSendButton();
+    this.props.immediatelyHideButtons();
     textInput.focus();
   };
 
@@ -846,7 +818,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       return;
     }
 
-    this.updateSendButton('');
+    this.props.updateSendButton('');
 
     const { clearableTextInput } = this;
     invariant(
@@ -879,13 +851,6 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.props.threadInfo,
       this.props.parentThreadInfo,
     );
-  };
-
-  isEditMode = (): boolean => {
-    const editState = this.props.messageEditingContext?.editState;
-    const isThisThread =
-      editState?.editedMessage?.threadID === this.props.threadInfo.id;
-    return editState?.editedMessage !== null && isThisThread;
   };
 
   isMessageEdited = (newText?: string): boolean => {
@@ -986,7 +951,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.unblockNavigation();
       this.updateText(this.props.draft);
       this.focusAndUpdateButtonsVisibility();
-      this.updateSendButton(this.props.draft);
+      this.props.updateSendButton(this.props.draft);
     });
   };
 
@@ -995,7 +960,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onNavigationBlur = () => {
-    if (!this.isEditMode()) {
+    if (!this.props.isEditMode()) {
       return;
     }
     this.props.setText(this.props.draft);
@@ -1008,7 +973,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     +preventDefault: () => void,
     ...
   }) => {
-    if (!this.isEditMode()) {
+    if (!this.props.isEditMode()) {
       return;
     }
     const { action } = e.data;
@@ -1059,32 +1024,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
 
     return await this.props.joinThread(joinThreadInput);
-  }
-
-  expandButtons = () => {
-    if (this.props.buttonsExpanded || this.isEditMode()) {
-      return;
-    }
-    this.props.targetExpandoButtonsOpen.setValue(1);
-    this.props.setButtonsExpanded(true);
-  };
-
-  hideButtons() {
-    if (
-      ChatInputBar.mediaGalleryOpen(this.props) ||
-      !this.systemKeyboardShowing ||
-      !this.props.buttonsExpanded
-    ) {
-      return;
-    }
-    this.props.targetExpandoButtonsOpen.setValue(0);
-    this.props.setButtonsExpanded(false);
-  }
-
-  immediatelyHideButtons() {
-    this.props.expandoButtonsOpen.setValue(0);
-    this.props.targetExpandoButtonsOpen.setValue(0);
-    this.props.setButtonsExpanded(false);
   }
 
   showMediaGallery = () => {
@@ -1372,6 +1311,75 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     [sendButtonContainerWidth],
   );
 
+  const shouldShowTextInput = React.useCallback(() => {
+    if (currentUserIsVoiced) {
+      return true;
+    }
+    // If the thread is created by somebody else while the viewer is attempting
+    // to create it, the threadInfo might be modified in-place
+    // and won't list the viewer as a member,
+    // which will end up hiding the input.
+    // In this case, we will assume that our creation action
+    // will get translated into a join, and as long
+    // as members are voiced, we can show the input.
+    if (!threadCreationInProgress) {
+      return false;
+    }
+    return checkIfDefaultMembersAreVoiced(props.threadInfo);
+  }, [currentUserIsVoiced, props.threadInfo, threadCreationInProgress]);
+
+  const isEditMode = React.useCallback(() => {
+    const editState = messageEditingContext?.editState;
+    const isThisThread =
+      editState?.editedMessage?.threadID === props.threadInfo.id;
+    return editState?.editedMessage !== null && isThisThread;
+  }, [messageEditingContext?.editState, props.threadInfo.id]);
+
+  const immediatelyShowSendButton = React.useCallback(() => {
+    sendButtonContainerOpen.setValue(1);
+    targetSendButtonContainerOpen.setValue(1);
+  }, [sendButtonContainerOpen, targetSendButtonContainerOpen]);
+
+  const updateSendButton = React.useCallback(
+    (currentText: string) => {
+      if (shouldShowTextInput()) {
+        targetSendButtonContainerOpen.setValue(currentText === '' ? 0 : 1);
+      }
+    },
+    [shouldShowTextInput, targetSendButtonContainerOpen],
+  );
+
+  const expandButtons = React.useCallback(() => {
+    if (buttonsExpanded || isEditMode()) {
+      return;
+    }
+    targetExpandoButtonsOpen.setValue(1);
+    setButtonsExpanded(true);
+  }, [buttonsExpanded, isEditMode, targetExpandoButtonsOpen]);
+
+  const hideButtons = React.useCallback(() => {
+    if (
+      keyboardState?.mediaGalleryOpen ||
+      !keyboardState?.systemKeyboardShowing ||
+      !buttonsExpanded
+    ) {
+      return;
+    }
+    targetExpandoButtonsOpen.setValue(0);
+    setButtonsExpanded(false);
+  }, [
+    buttonsExpanded,
+    keyboardState?.mediaGalleryOpen,
+    keyboardState?.systemKeyboardShowing,
+    targetExpandoButtonsOpen,
+  ]);
+
+  const immediatelyHideButtons = React.useCallback(() => {
+    expandoButtonsOpen.setValue(0);
+    targetExpandoButtonsOpen.setValue(0);
+    setButtonsExpanded(false);
+  }, [expandoButtonsOpen, targetExpandoButtonsOpen]);
+
   return (
     <ChatInputBar
       {...props}
@@ -1411,17 +1419,19 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       textEdited={textEdited}
       setTextEdited={setTextEdited}
       buttonsExpanded={buttonsExpanded}
-      setButtonsExpanded={setButtonsExpanded}
       isExitingDuringEditModeRef={isExitingDuringEditModeRef}
-      expandoButtonsOpen={expandoButtonsOpen}
-      targetExpandoButtonsOpen={targetExpandoButtonsOpen}
-      sendButtonContainerOpen={sendButtonContainerOpen}
-      targetSendButtonContainerOpen={targetSendButtonContainerOpen}
       cameraRollIconStyle={cameraRollIconStyle}
       cameraIconStyle={cameraIconStyle}
       expandoButtonsStyle={expandoButtonsStyle}
       expandIconStyle={expandIconStyle}
       sendButtonContainerStyle={sendButtonContainerStyle}
+      shouldShowTextInput={shouldShowTextInput}
+      isEditMode={isEditMode}
+      immediatelyShowSendButton={immediatelyShowSendButton}
+      updateSendButton={updateSendButton}
+      expandButtons={expandButtons}
+      hideButtons={hideButtons}
+      immediatelyHideButtons={immediatelyHideButtons}
     />
   );
 }
