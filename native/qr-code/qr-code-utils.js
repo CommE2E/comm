@@ -1,7 +1,6 @@
 // @flow
 
 import { hexToUintArray } from 'lib/media/data-utils.js';
-import type { BackupKeys } from 'lib/types/backup-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -9,6 +8,7 @@ import {
 import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
+  type QRAuthBackupData,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -79,8 +79,10 @@ function handleSecondaryDeviceLogInError(error: mixed): void {
   }
 }
 
-function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
-  const { backupID, backupDataKey, backupLogDataKey } = backupKeys;
+function performBackupRestore(
+  qrAuthBackupData: QRAuthBackupData,
+): Promise<void> {
+  const { backupID, backupDataKey, backupLogDataKey } = qrAuthBackupData;
   return commCoreModule.restoreBackupData(
     backupID,
     backupDataKey,
