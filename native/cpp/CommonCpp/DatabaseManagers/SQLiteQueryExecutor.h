@@ -29,9 +29,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
-  static std::string secureStoreEncryptionKeyID;
   static int backupLogsEncryptionKeySize;
-  static std::string secureStoreBackupLogsEncryptionKeyID;
   static std::string backupLogsEncryptionKey;
 
 #ifndef EMSCRIPTEN
