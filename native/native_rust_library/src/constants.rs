@@ -12,7 +12,6 @@ pub mod secure_store {
   pub const COMM_SERVICES_ACCESS_TOKEN: &str = "accessToken";
   pub const USER_ID: &str = "userID";
   pub const DEVICE_ID: &str = "deviceID";
-  /// Should match constant defined in `SQLiteQueryExecutor.h`
   pub const SECURE_STORE_ENCRYPTION_KEY_ID: &str = "comm.encryptionKey";
   pub const SECURE_STORE_BACKUP_LOGS_ENCRYPTION_KEY_ID: &str =
     "comm.backupLogsEncryptionKey";
