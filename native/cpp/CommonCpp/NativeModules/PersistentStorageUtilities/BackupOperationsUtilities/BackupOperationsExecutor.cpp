@@ -61,4 +61,19 @@ void BackupOperationsExecutor::restoreFromBackupLog(
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
 }
+
+void BackupOperationsExecutor::setBackupID(
+    std::string backupID,
+    size_t futureID) {
+  taskType job = [backupID, futureID]() {
+    try {
+      DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
+      ::resolveUnitFuture(futureID);
+    } catch (const std::exception &e) {
+      ::rejectFuture(futureID, rust::String(e.what()));
+      Logger::log("Setting backupID failed. Details: " + std::string(e.what()));
+    }
+  };
+  GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
+}
 } // namespace comm
