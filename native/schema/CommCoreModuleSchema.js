@@ -8,7 +8,6 @@ import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.j
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
-import type { BackupKeys } from 'lib/types/backup-types.js';
 import type {
   OneTimeKeysResult,
   SignedPrekeys,
@@ -27,6 +26,7 @@ import type {
   ClientDBStoreOperations,
 } from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 
 type CommServicesAuthMetadata = {
   +userID?: ?string,
@@ -170,7 +170,7 @@ interface Spec extends TurboModule {
     backupLogDataKey: string,
     maxVersion: string,
   ) => Promise<void>;
-  +retrieveBackupKeys: () => Promise<Object>;
+  +getQRAuthBackupData: () => Promise<Object>;
   +retrieveLatestBackupInfo: (userIdentifier: string) => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
@@ -238,7 +238,7 @@ export interface CoreModuleSpec extends Spec {
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
   ) => Promise<void>;
-  +retrieveBackupKeys: () => Promise<BackupKeys>;
+  +getQRAuthBackupData: () => Promise<QRAuthBackupData>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
