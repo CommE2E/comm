@@ -2686,7 +2686,7 @@ jsi::Value CommCoreModule::restoreBackupData(
       });
 }
 
-jsi::Value CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getQRAuthBackupData(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [this, &innerRt, promise]() {
