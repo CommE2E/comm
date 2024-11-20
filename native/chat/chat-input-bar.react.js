@@ -145,8 +145,18 @@ import {
   nativeMentionTypeaheadRegex,
 } from '../utils/typeahead-utils.js';
 
-const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
-  Animated;
+const {
+  Value,
+  Clock,
+  block,
+  set,
+  cond,
+  neq,
+  sub,
+  interpolateNode,
+  stopClock,
+  useValue,
+} = Animated;
 
 const expandoButtonsAnimationConfig = {
   duration: 150,
@@ -316,6 +326,15 @@ type Props = {
   +buttonsExpanded: boolean,
   +setButtonsExpanded: (expanded: boolean) => void,
   +isExitingDuringEditModeRef: { current: boolean },
+  +expandoButtonsOpen: Value,
+  +targetExpandoButtonsOpen: Value,
+  +sendButtonContainerOpen: Value,
+  +targetSendButtonContainerOpen: Value,
+  +expandoButtonsStyle: AnimatedViewStyle,
+  +cameraRollIconStyle: AnimatedViewStyle,
+  +cameraIconStyle: AnimatedViewStyle,
+  +expandIconStyle: AnimatedViewStyle,
+  +sendButtonContainerStyle: AnimatedViewStyle,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -323,126 +342,9 @@ class ChatInputBar extends React.PureComponent<Props> {
   clearableTextInput: ?ClearableTextInput;
   selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>;
 
-  expandoButtonsOpen: Value;
-  targetExpandoButtonsOpen: Value;
-  expandoButtonsStyle: AnimatedViewStyle;
-  cameraRollIconStyle: AnimatedViewStyle;
-  cameraIconStyle: AnimatedViewStyle;
-  expandIconStyle: AnimatedViewStyle;
-
-  sendButtonContainerOpen: Value;
-  targetSendButtonContainerOpen: Value;
-  sendButtonContainerStyle: AnimatedViewStyle;
-
   clearBeforeRemoveListener: () => void;
   clearFocusListener: () => void;
   clearBlurListener: () => void;
-
-  constructor(props: Props) {
-    super(props);
-    this.setUpActionIconAnimations();
-    this.setUpSendIconAnimations();
-  }
-
-  setUpActionIconAnimations() {
-    this.expandoButtonsOpen = new Value(1);
-    this.targetExpandoButtonsOpen = new Value(1);
-    const prevTargetExpandoButtonsOpen = new Value(1);
-    const expandoButtonClock = new Clock();
-    const expandoButtonsOpen = block([
-      cond(neq(this.targetExpandoButtonsOpen, prevTargetExpandoButtonsOpen), [
-        stopClock(expandoButtonClock),
-        set(prevTargetExpandoButtonsOpen, this.targetExpandoButtonsOpen),
-      ]),
-      cond(
-        neq(this.expandoButtonsOpen, this.targetExpandoButtonsOpen),
-        set(
-          this.expandoButtonsOpen,
-          runTiming(
-            expandoButtonClock,
-            this.expandoButtonsOpen,
-            this.targetExpandoButtonsOpen,
-            true,
-            expandoButtonsAnimationConfig,
-          ),
-        ),
-      ),
-      this.expandoButtonsOpen,
-    ]);
-
-    this.cameraRollIconStyle = {
-      ...unboundStyles.cameraRollIcon,
-      opacity: expandoButtonsOpen,
-    };
-    this.cameraIconStyle = {
-      ...unboundStyles.cameraIcon,
-      opacity: expandoButtonsOpen,
-    };
-
-    const expandoButtonsWidth = interpolateNode(expandoButtonsOpen, {
-      inputRange: [0, 1],
-      outputRange: [26, 66],
-    });
-    this.expandoButtonsStyle = {
-      ...unboundStyles.expandoButtons,
-      width: expandoButtonsWidth,
-    };
-
-    const expandOpacity = sub(1, expandoButtonsOpen);
-    this.expandIconStyle = {
-      ...unboundStyles.expandIcon,
-      opacity: expandOpacity,
-    };
-  }
-
-  setUpSendIconAnimations() {
-    const initialSendButtonContainerOpen = trimMessage(this.props.draft)
-      ? 1
-      : 0;
-    this.sendButtonContainerOpen = new Value(initialSendButtonContainerOpen);
-    this.targetSendButtonContainerOpen = new Value(
-      initialSendButtonContainerOpen,
-    );
-    const prevTargetSendButtonContainerOpen = new Value(
-      initialSendButtonContainerOpen,
-    );
-    const sendButtonClock = new Clock();
-    const sendButtonContainerOpen = block([
-      cond(
-        neq(
-          this.targetSendButtonContainerOpen,
-          prevTargetSendButtonContainerOpen,
-        ),
-        [
-          stopClock(sendButtonClock),
-          set(
-            prevTargetSendButtonContainerOpen,
-            this.targetSendButtonContainerOpen,
-          ),
-        ],
-      ),
-      cond(
-        neq(this.sendButtonContainerOpen, this.targetSendButtonContainerOpen),
-        set(
-          this.sendButtonContainerOpen,
-          runTiming(
-            sendButtonClock,
-            this.sendButtonContainerOpen,
-            this.targetSendButtonContainerOpen,
-            true,
-            sendButtonAnimationConfig,
-          ),
-        ),
-      ),
-      this.sendButtonContainerOpen,
-    ]);
-
-    const sendButtonContainerWidth = interpolateNode(sendButtonContainerOpen, {
-      inputRange: [0, 1],
-      outputRange: [4, 38],
-    });
-    this.sendButtonContainerStyle = { width: sendButtonContainerWidth };
-  }
 
   static mediaGalleryOpen(props: Props): boolean {
     const { keyboardState } = props;
@@ -459,15 +361,15 @@ class ChatInputBar extends React.PureComponent<Props> {
   }
 
   immediatelyShowSendButton() {
-    this.sendButtonContainerOpen.setValue(1);
-    this.targetSendButtonContainerOpen.setValue(1);
+    this.props.sendButtonContainerOpen.setValue(1);
+    this.props.targetSendButtonContainerOpen.setValue(1);
   }
 
   updateSendButton(currentText: string) {
     if (this.shouldShowTextInput) {
-      this.targetSendButtonContainerOpen.setValue(currentText === '' ? 0 : 1);
-    } else {
-      this.setUpSendIconAnimations();
+      this.props.targetSendButtonContainerOpen.setValue(
+        currentText === '' ? 0 : 1,
+      );
     }
   }
 
@@ -775,7 +677,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         activeOpacity={0.4}
         style={this.props.styles.expandButton}
       >
-        <AnimatedView style={this.expandIconStyle}>
+        <AnimatedView style={this.props.expandIconStyle}>
           <SWMansionIcon
             name="chevron-right"
             size={22}
@@ -794,14 +696,14 @@ class ChatInputBar extends React.PureComponent<Props> {
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
-          <AnimatedView style={this.expandoButtonsStyle}>
+          <AnimatedView style={this.props.expandoButtonsStyle}>
             <View style={expandoButtonsViewStyle}>
               {this.props.buttonsExpanded ? expandoButton : null}
               <TouchableOpacity
                 onPress={this.showMediaGallery}
                 activeOpacity={0.4}
               >
-                <AnimatedView style={this.cameraRollIconStyle}>
+                <AnimatedView style={this.props.cameraRollIconStyle}>
                   <SWMansionIcon
                     name="image-1"
                     size={28}
@@ -814,7 +716,7 @@ class ChatInputBar extends React.PureComponent<Props> {
                 activeOpacity={0.4}
                 disabled={!this.props.buttonsExpanded}
               >
-                <AnimatedView style={this.cameraIconStyle}>
+                <AnimatedView style={this.props.cameraIconStyle}>
                   <SWMansionIcon
                     name="camera"
                     size={28}
@@ -840,7 +742,7 @@ class ChatInputBar extends React.PureComponent<Props> {
             ref={this.selectableTextInputRef}
             selectionColor={`#${this.props.threadInfo.color}`}
           />
-          <AnimatedView style={this.sendButtonContainerStyle}>
+          <AnimatedView style={this.props.sendButtonContainerStyle}>
             <TouchableOpacity
               onPress={this.onSend}
               activeOpacity={0.4}
@@ -1163,7 +1065,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (this.props.buttonsExpanded || this.isEditMode()) {
       return;
     }
-    this.targetExpandoButtonsOpen.setValue(1);
+    this.props.targetExpandoButtonsOpen.setValue(1);
     this.props.setButtonsExpanded(true);
   };
 
@@ -1175,13 +1077,13 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       return;
     }
-    this.targetExpandoButtonsOpen.setValue(0);
+    this.props.targetExpandoButtonsOpen.setValue(0);
     this.props.setButtonsExpanded(false);
   }
 
   immediatelyHideButtons() {
-    this.expandoButtonsOpen.setValue(0);
-    this.targetExpandoButtonsOpen.setValue(0);
+    this.props.expandoButtonsOpen.setValue(0);
+    this.props.targetExpandoButtonsOpen.setValue(0);
     this.props.setButtonsExpanded(false);
   }
 
@@ -1347,6 +1249,129 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const isExitingDuringEditModeRef = React.useRef(false);
 
+  const expandoButtonsOpen = useValue(1);
+  const targetExpandoButtonsOpen = useValue(1);
+
+  const initialSendButtonContainerOpen = trimMessage(draft) ? 1 : 0;
+  const sendButtonContainerOpen = useValue(initialSendButtonContainerOpen);
+  const targetSendButtonContainerOpen = useValue(
+    initialSendButtonContainerOpen,
+  );
+
+  const iconsOpacity = React.useMemo(() => {
+    const prevTargetExpandoButtonsOpen = new Value(1);
+    const expandoButtonClock = new Clock();
+    return block([
+      cond(neq(targetExpandoButtonsOpen, prevTargetExpandoButtonsOpen), [
+        stopClock(expandoButtonClock),
+        set(prevTargetExpandoButtonsOpen, targetExpandoButtonsOpen),
+      ]),
+      cond(
+        neq(expandoButtonsOpen, targetExpandoButtonsOpen),
+        set(
+          expandoButtonsOpen,
+          runTiming(
+            expandoButtonClock,
+            expandoButtonsOpen,
+            targetExpandoButtonsOpen,
+            true,
+            expandoButtonsAnimationConfig,
+          ),
+        ),
+      ),
+      expandoButtonsOpen,
+    ]);
+  }, [expandoButtonsOpen, targetExpandoButtonsOpen]);
+
+  const expandoButtonsWidth = React.useMemo(() => {
+    return interpolateNode(iconsOpacity, {
+      inputRange: [0, 1],
+      outputRange: [26, 66],
+    });
+  }, [iconsOpacity]);
+
+  const expandOpacity = React.useMemo(() => {
+    return sub(1, iconsOpacity);
+  }, [iconsOpacity]);
+
+  const sendButtonContainerWidth = React.useMemo(() => {
+    const prevTargetSendButtonContainerOpen = new Value(
+      initialSendButtonContainerOpen,
+    );
+    const sendButtonClock = new Clock();
+    const animatedSendButtonContainerOpen = block([
+      cond(
+        neq(targetSendButtonContainerOpen, prevTargetSendButtonContainerOpen),
+        [
+          stopClock(sendButtonClock),
+          set(prevTargetSendButtonContainerOpen, targetSendButtonContainerOpen),
+        ],
+      ),
+      cond(
+        neq(sendButtonContainerOpen, targetSendButtonContainerOpen),
+        set(
+          sendButtonContainerOpen,
+          runTiming(
+            sendButtonClock,
+            sendButtonContainerOpen,
+            targetSendButtonContainerOpen,
+            true,
+            sendButtonAnimationConfig,
+          ),
+        ),
+      ),
+      sendButtonContainerOpen,
+    ]);
+
+    return interpolateNode(animatedSendButtonContainerOpen, {
+      inputRange: [0, 1],
+      outputRange: [4, 38],
+    });
+  }, [
+    initialSendButtonContainerOpen,
+    sendButtonContainerOpen,
+    targetSendButtonContainerOpen,
+  ]);
+
+  const cameraRollIconStyle = React.useMemo(
+    () => ({
+      ...unboundStyles.cameraRollIcon,
+      opacity: iconsOpacity,
+    }),
+    [iconsOpacity],
+  );
+
+  const cameraIconStyle = React.useMemo(
+    () => ({
+      ...unboundStyles.cameraIcon,
+      opacity: iconsOpacity,
+    }),
+    [iconsOpacity],
+  );
+
+  const expandoButtonsStyle = React.useMemo(
+    () => ({
+      ...unboundStyles.expandoButtons,
+      width: expandoButtonsWidth,
+    }),
+    [expandoButtonsWidth],
+  );
+
+  const expandIconStyle = React.useMemo(
+    () => ({
+      ...unboundStyles.expandIcon,
+      opacity: expandOpacity,
+    }),
+    [expandOpacity],
+  );
+
+  const sendButtonContainerStyle = React.useMemo(
+    () => ({
+      width: sendButtonContainerWidth,
+    }),
+    [sendButtonContainerWidth],
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -1388,6 +1413,15 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       buttonsExpanded={buttonsExpanded}
       setButtonsExpanded={setButtonsExpanded}
       isExitingDuringEditModeRef={isExitingDuringEditModeRef}
+      expandoButtonsOpen={expandoButtonsOpen}
+      targetExpandoButtonsOpen={targetExpandoButtonsOpen}
+      sendButtonContainerOpen={sendButtonContainerOpen}
+      targetSendButtonContainerOpen={targetSendButtonContainerOpen}
+      cameraRollIconStyle={cameraRollIconStyle}
+      cameraIconStyle={cameraIconStyle}
+      expandoButtonsStyle={expandoButtonsStyle}
+      expandIconStyle={expandIconStyle}
+      sendButtonContainerStyle={sendButtonContainerStyle}
     />
   );
 }
