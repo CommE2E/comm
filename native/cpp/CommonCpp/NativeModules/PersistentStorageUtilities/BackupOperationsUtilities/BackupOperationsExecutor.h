@@ -15,5 +15,6 @@ public:
   static void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog,
       size_t futureID);
+  static void setBackupID(std::string backupID, size_t futureID);
 };
 } // namespace comm
