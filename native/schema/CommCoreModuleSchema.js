@@ -8,6 +8,7 @@ import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.j
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import type { BackupKeys } from 'lib/types/backup-types.js';
 import type {
   OneTimeKeysResult,
   SignedPrekeys,
@@ -169,10 +170,7 @@ interface Spec extends TurboModule {
     backupLogDataKey: string,
     maxVersion: string,
   ) => Promise<void>;
-  +retrieveBackupKeys: (
-    backupSecret: string,
-    backupID: string,
-  ) => Promise<string>;
+  +retrieveBackupKeys: () => Promise<Object>;
   +retrieveLatestBackupInfo: (userIdentifier: string) => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
@@ -240,6 +238,7 @@ export interface CoreModuleSpec extends Spec {
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
   ) => Promise<void>;
+  +retrieveBackupKeys: () => Promise<BackupKeys>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
