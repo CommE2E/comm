@@ -160,7 +160,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       const sendDeviceListUpdateSuccessMessage = async () => {
         let backupData = null;
         if (deviceType !== identityDeviceTypes.KEYSERVER) {
-          backupData = await commCoreModule.retrieveBackupKeys();
+          backupData = await commCoreModule.getQRAuthBackupData();
         }
         const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
           type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
