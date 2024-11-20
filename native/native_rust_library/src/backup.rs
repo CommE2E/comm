@@ -8,7 +8,7 @@ use crate::ffi::{
   create_main_compaction, get_backup_directory_path,
   get_backup_user_keys_file_path, get_siwe_backup_message_path,
   restore_from_backup_log, restore_from_main_compaction, secure_store_get,
-  string_callback, void_callback,
+  set_backup_id, string_callback, void_callback,
 };
 use crate::utils::future_manager;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
@@ -123,6 +123,13 @@ pub mod ffi {
       .await)
         .is_err()
       {
+        return;
+      }
+
+      let (future_id, future) = future_manager::new_future::<()>().await;
+      set_backup_id(&backup_id, future_id);
+      if let Err(err) = future.await {
+        handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
       }
 
