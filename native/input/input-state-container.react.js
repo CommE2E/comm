@@ -19,6 +19,7 @@ import {
   updateMultimediaMessageMediaActionType,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
   type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
@@ -158,6 +159,7 @@ type Props = {
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +invalidTokenLogOut: () => Promise<void>,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -392,6 +394,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return result;
     } catch (e) {
       const exceptionMessage = getMessageForException(e) ?? '';
+      if (exceptionMessage === 'invalid_csat') {
+        void this.props.invalidTokenLogOut();
+      }
       throw new SendMessageError(
         `Exception when sending multimedia message: ${exceptionMessage}`,
         localID,
@@ -915,6 +920,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
+      if (uploadExceptionMessage === 'invalid_csat') {
+        void this.props.invalidTokenLogOut();
+        return undefined;
+      }
       onUploadFailed('upload failed');
       mediaMissionResult = {
         success: false,
@@ -1709,6 +1718,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
+    const callInvalidTokenLogOut = useInvalidCSATLogOut();
 
     return (
       <InputStateContainer
@@ -1728,6 +1738,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatch={dispatch}
         staffCanSee={staffCanSee}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        invalidTokenLogOut={callInvalidTokenLogOut}
       />
     );
   });
