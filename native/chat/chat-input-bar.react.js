@@ -31,7 +31,6 @@ import {
   newThreadActionTypes,
   useJoinThread,
 } from 'lib/actions/thread-actions.js';
-import type { UseJoinThreadInput } from 'lib/actions/thread-actions.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,
@@ -51,12 +50,10 @@ import {
 } from 'lib/shared/mention-utils.js';
 import {
   messageKey,
-  type MessagePreviewResult,
   trimMessage,
   useMessagePreview,
   getNextLocalID,
 } from 'lib/shared/message-utils.js';
-import SentencePrefixSearchIndex from 'lib/shared/sentence-prefix-search-index.js';
 import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
@@ -65,35 +62,18 @@ import {
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
-import type { CalendarQuery } from 'lib/types/entry-types.js';
-import type { SetState } from 'lib/types/hook-types.js';
-import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
-import type {
-  RelativeMemberInfo,
-  ThreadInfo,
-  RawThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { Dispatch } from 'lib/types/redux-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type {
-  ChatMentionCandidates,
-  ThreadJoinPayload,
-} from 'lib/types/thread-types.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/redux-promise-utils.js';
+import type { ThreadJoinPayload } from 'lib/types/thread-types.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { ChatContext } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react.js';
-import {
-  MessageEditingContext,
-  type MessageEditingContextType,
-} from './message-editing-context.react.js';
+import { MessageEditingContext } from './message-editing-context.react.js';
 import type { RemoveEditMode } from './message-list-types.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
 import MentionTypeaheadTooltipButton from '../chat/mention-typeahead-tooltip-button.react.js';
@@ -110,10 +90,7 @@ import {
   InputStateContext,
 } from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
-import {
-  KeyboardContext,
-  type KeyboardState,
-} from '../keyboard/keyboard-state.js';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import { getKeyboardHeight } from '../keyboard/keyboard.js';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import {
@@ -128,13 +105,9 @@ import {
   type NavigationRoute,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import { useColors, useStyles } from '../themes/colors.js';
 import type { ImagePasteEvent, LayoutEvent } from '../types/react-native.js';
-import {
-  AnimatedView,
-  type AnimatedViewStyle,
-  type ViewStyle,
-} from '../types/styles.js';
+import { AnimatedView, type ViewStyle } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
@@ -282,319 +255,6 @@ const unboundStyles = {
 type BaseProps = {
   +threadInfo: ThreadInfo,
 };
-type Props = {
-  ...BaseProps,
-  +rawThreadInfo: RawThreadInfo,
-  +draft: string,
-  +joinThreadLoadingStatus: LoadingStatus,
-  +threadCreationInProgress: boolean,
-  +calendarQuery: () => CalendarQuery,
-  +colors: Colors,
-  +styles: $ReadOnly<typeof unboundStyles>,
-  +onInputBarLayout?: (event: LayoutEvent) => mixed,
-  +openCamera: () => mixed,
-  +isActive: boolean,
-  +keyboardState: ?KeyboardState,
-  +dispatch: Dispatch,
-  +dispatchActionPromise: DispatchActionPromise,
-  +joinThread: (input: UseJoinThreadInput) => Promise<ThreadJoinPayload>,
-  +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
-  +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
-  +chatMentionCandidates: ChatMentionCandidates,
-  +editedMessagePreview: ?MessagePreviewResult,
-  +editedMessageInfo: ?MessageInfo,
-  +navigation: ?ChatNavigationProp<'MessageList'>,
-  +messageEditingContext: ?MessageEditingContextType,
-  +selectionState: SyncedSelectionData,
-  +setSelectionState: SetState<SyncedSelectionData>,
-  +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
-  +currentUserCanJoin: boolean,
-  +threadFrozen: boolean,
-  +text: string,
-  +setText: (text: string) => void,
-  +textEdited: boolean,
-  +buttonsExpanded: boolean,
-  +expandoButtonsStyle: AnimatedViewStyle,
-  +cameraRollIconStyle: AnimatedViewStyle,
-  +cameraIconStyle: AnimatedViewStyle,
-  +expandIconStyle: AnimatedViewStyle,
-  +sendButtonContainerStyle: AnimatedViewStyle,
-  +shouldShowTextInput: () => boolean,
-  +isEditMode: () => boolean,
-  +updateSendButton: (currentText: string) => void,
-  +expandButtons: () => void,
-  +hideButtons: () => void,
-  +textInputRef: { current: ?React.ElementRef<typeof TextInput> },
-  +clearableTextInputRef: { current: ?ClearableTextInput },
-  +selectableTextInputRef: {
-    current: ?React.ElementRef<typeof SelectableTextInput>,
-  },
-  +setTextInputRef: (ref: ?React.ElementRef<typeof TextInput>) => void,
-  +setClearableTextInputRef: (ref: ?ClearableTextInput) => void,
-  +addEditInputMessageListener: () => void,
-  +removeEditInputMessageListener: () => void,
-  +focusAndUpdateTextAndSelection: (
-    newText: string,
-    selection: Selection,
-  ) => void,
-  +scrollToEditedMessage: () => void,
-  +onPressExitEditMode: () => void,
-  +updateText: (newText: string) => void,
-  +onSend: () => Promise<void>,
-  +isMessageEdited: (newText?: string) => boolean,
-  +blockNavigation: () => void,
-  +onPressJoin: () => void,
-  +setIOSKeyboardHeight: () => void,
-  +showMediaGallery: () => void,
-  +dismissKeyboard: () => void,
-};
-
-class ChatInputBar extends React.PureComponent<Props> {
-  render(): React.Node {
-    const isMember = viewerIsMember(this.props.threadInfo);
-    let joinButton = null;
-    const threadColor = `#${this.props.threadInfo.color}`;
-    const isEditMode = this.props.isEditMode();
-    if (
-      !isMember &&
-      this.props.currentUserCanJoin &&
-      !this.props.threadCreationInProgress
-    ) {
-      let buttonContent;
-      if (this.props.joinThreadLoadingStatus === 'loading') {
-        buttonContent = (
-          <ActivityIndicator
-            size="small"
-            color="white"
-            style={this.props.styles.joinThreadLoadingIndicator}
-          />
-        );
-      } else {
-        const textStyle = colorIsDark(this.props.threadInfo.color)
-          ? this.props.styles.joinButtonTextLight
-          : this.props.styles.joinButtonTextDark;
-        buttonContent = (
-          <View style={this.props.styles.joinButtonContent}>
-            <SWMansionIcon name="plus" style={textStyle} />
-            <Text style={textStyle}>Join Chat</Text>
-          </View>
-        );
-      }
-      joinButton = (
-        <View style={this.props.styles.joinButtonContainer}>
-          <Button
-            onPress={this.props.onPressJoin}
-            iosActiveOpacity={0.85}
-            style={[
-              this.props.styles.joinButton,
-              { backgroundColor: threadColor },
-            ]}
-          >
-            {buttonContent}
-          </Button>
-        </View>
-      );
-    }
-
-    let typeaheadTooltip = null;
-
-    if (
-      this.props.suggestions.length > 0 &&
-      this.props.typeaheadMatchedStrings &&
-      !isEditMode
-    ) {
-      typeaheadTooltip = (
-        <TypeaheadTooltip
-          text={this.props.text}
-          matchedStrings={this.props.typeaheadMatchedStrings}
-          suggestions={this.props.suggestions}
-          focusAndUpdateTextAndSelection={
-            this.props.focusAndUpdateTextAndSelection
-          }
-          typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
-          TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
-        />
-      );
-    }
-
-    let content;
-    const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
-      this.props.threadInfo,
-    );
-    if (this.props.shouldShowTextInput()) {
-      content = this.renderInput();
-    } else if (
-      this.props.threadFrozen &&
-      threadActualMembers(this.props.threadInfo.members).length === 2
-    ) {
-      content = (
-        <Text style={this.props.styles.explanation}>
-          You can&rsquo;t send messages to a user that you&rsquo;ve blocked.
-        </Text>
-      );
-    } else if (isMember) {
-      content = (
-        <Text style={this.props.styles.explanation}>
-          You don&rsquo;t have permission to send messages.
-        </Text>
-      );
-    } else if (defaultMembersAreVoiced && this.props.currentUserCanJoin) {
-      content = null;
-    } else {
-      content = (
-        <Text style={this.props.styles.explanation}>
-          You don&rsquo;t have permission to send messages.
-        </Text>
-      );
-    }
-
-    const keyboardInputHost =
-      Platform.OS === 'android' ? null : (
-        <KeyboardInputHost textInputRef={this.props.textInputRef.current} />
-      );
-
-    let editedMessage;
-    if (isEditMode && this.props.editedMessagePreview) {
-      const { message } = this.props.editedMessagePreview;
-      editedMessage = (
-        <AnimatedView
-          style={this.props.styles.editView}
-          entering={FadeInDown}
-          exiting={FadeOutDown}
-        >
-          <View style={this.props.styles.editViewContent}>
-            <TouchableOpacity
-              onPress={this.props.scrollToEditedMessage}
-              activeOpacity={0.4}
-            >
-              <Text
-                style={[{ color: threadColor }, this.props.styles.editingLabel]}
-              >
-                Editing message
-              </Text>
-              <SingleLine style={this.props.styles.editingMessagePreview}>
-                {message.text}
-              </SingleLine>
-            </TouchableOpacity>
-          </View>
-          <SWMansionIcon
-            style={this.props.styles.exitEditButton}
-            name="cross"
-            size={22}
-            color={threadColor}
-            onPress={this.props.onPressExitEditMode}
-          />
-        </AnimatedView>
-      );
-    }
-
-    return (
-      <AnimatedView
-        style={this.props.styles.container}
-        onLayout={this.props.onInputBarLayout}
-      >
-        {typeaheadTooltip}
-        {joinButton}
-        {editedMessage}
-        {content}
-        {keyboardInputHost}
-      </AnimatedView>
-    );
-  }
-
-  renderInput(): React.Node {
-    const expandoButton = (
-      <TouchableOpacity
-        onPress={this.props.expandButtons}
-        activeOpacity={0.4}
-        style={this.props.styles.expandButton}
-      >
-        <AnimatedView style={this.props.expandIconStyle}>
-          <SWMansionIcon
-            name="chevron-right"
-            size={22}
-            color={`#${this.props.threadInfo.color}`}
-          />
-        </AnimatedView>
-      </TouchableOpacity>
-    );
-    const threadColor = `#${this.props.threadInfo.color}`;
-    const expandoButtonsViewStyle: Array<ViewStyle> = [
-      this.props.styles.innerExpandoButtons,
-    ];
-    if (this.props.isEditMode()) {
-      expandoButtonsViewStyle.push({ display: 'none' });
-    }
-    return (
-      <TouchableWithoutFeedback onPress={this.props.dismissKeyboard}>
-        <View style={this.props.styles.inputContainer}>
-          <AnimatedView style={this.props.expandoButtonsStyle}>
-            <View style={expandoButtonsViewStyle}>
-              {this.props.buttonsExpanded ? expandoButton : null}
-              <TouchableOpacity
-                onPress={this.props.showMediaGallery}
-                activeOpacity={0.4}
-              >
-                <AnimatedView style={this.props.cameraRollIconStyle}>
-                  <SWMansionIcon
-                    name="image-1"
-                    size={28}
-                    color={`#${this.props.threadInfo.color}`}
-                  />
-                </AnimatedView>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={this.props.openCamera}
-                activeOpacity={0.4}
-                disabled={!this.props.buttonsExpanded}
-              >
-                <AnimatedView style={this.props.cameraIconStyle}>
-                  <SWMansionIcon
-                    name="camera"
-                    size={28}
-                    color={`#${this.props.threadInfo.color}`}
-                  />
-                </AnimatedView>
-              </TouchableOpacity>
-              {this.props.buttonsExpanded ? null : expandoButton}
-            </View>
-          </AnimatedView>
-          <SelectableTextInput
-            allowImagePasteForThreadID={this.props.threadInfo.id}
-            value={this.props.text}
-            onChangeText={this.props.updateText}
-            selection={this.props.selectionState.selection}
-            onUpdateSyncedSelectionData={this.props.setSelectionState}
-            placeholder="Send a message..."
-            placeholderTextColor={this.props.colors.listInputButton}
-            multiline={true}
-            style={this.props.styles.textInput}
-            textInputRef={this.props.setTextInputRef}
-            clearableTextInputRef={this.props.setClearableTextInputRef}
-            ref={this.props.selectableTextInputRef}
-            selectionColor={`#${this.props.threadInfo.color}`}
-          />
-          <AnimatedView style={this.props.sendButtonContainerStyle}>
-            <TouchableOpacity
-              onPress={this.props.onSend}
-              activeOpacity={0.4}
-              style={this.props.styles.sendButton}
-              disabled={trimMessage(this.props.text) === ''}
-            >
-              <Icon
-                name="md-send"
-                size={25}
-                style={this.props.styles.sendIcon}
-                color={threadColor}
-              />
-            </TouchableOpacity>
-          </AnimatedView>
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
-}
 
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
@@ -1433,67 +1093,222 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     prevEditedMessage.current = editedMessage;
   }, [blockNavigation, messageEditingContext?.editState.editedMessage]);
 
+  const renderInput = () => {
+    const expandoButton = (
+      <TouchableOpacity
+        onPress={expandButtons}
+        activeOpacity={0.4}
+        style={styles.expandButton}
+      >
+        <AnimatedView style={expandIconStyle}>
+          <SWMansionIcon
+            name="chevron-right"
+            size={22}
+            color={`#${props.threadInfo.color}`}
+          />
+        </AnimatedView>
+      </TouchableOpacity>
+    );
+    const threadColor = `#${props.threadInfo.color}`;
+    const expandoButtonsViewStyle: Array<ViewStyle> = [
+      styles.innerExpandoButtons,
+    ];
+    if (isEditMode()) {
+      expandoButtonsViewStyle.push({ display: 'none' });
+    }
+    return (
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <View style={styles.inputContainer}>
+          <AnimatedView style={expandoButtonsStyle}>
+            <View style={expandoButtonsViewStyle}>
+              {buttonsExpanded ? expandoButton : null}
+              <TouchableOpacity onPress={showMediaGallery} activeOpacity={0.4}>
+                <AnimatedView style={cameraRollIconStyle}>
+                  <SWMansionIcon
+                    name="image-1"
+                    size={28}
+                    color={`#${props.threadInfo.color}`}
+                  />
+                </AnimatedView>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={props.openCamera}
+                activeOpacity={0.4}
+                disabled={!buttonsExpanded}
+              >
+                <AnimatedView style={cameraIconStyle}>
+                  <SWMansionIcon
+                    name="camera"
+                    size={28}
+                    color={`#${props.threadInfo.color}`}
+                  />
+                </AnimatedView>
+              </TouchableOpacity>
+              {buttonsExpanded ? null : expandoButton}
+            </View>
+          </AnimatedView>
+          <SelectableTextInput
+            allowImagePasteForThreadID={props.threadInfo.id}
+            value={text}
+            onChangeText={updateText}
+            selection={selectionState.selection}
+            onUpdateSyncedSelectionData={setSelectionState}
+            placeholder="Send a message..."
+            placeholderTextColor={colors.listInputButton}
+            multiline={true}
+            style={styles.textInput}
+            textInputRef={setTextInputRef}
+            clearableTextInputRef={setClearableTextInputRef}
+            ref={selectableTextInputRef}
+            selectionColor={`#${props.threadInfo.color}`}
+          />
+          <AnimatedView style={sendButtonContainerStyle}>
+            <TouchableOpacity
+              onPress={onSend}
+              activeOpacity={0.4}
+              style={styles.sendButton}
+              disabled={trimMessage(text) === ''}
+            >
+              <Icon
+                name="md-send"
+                size={25}
+                style={styles.sendIcon}
+                color={threadColor}
+              />
+            </TouchableOpacity>
+          </AnimatedView>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
+
+  const isMember = viewerIsMember(props.threadInfo);
+  let joinButton = null;
+  const threadColor = `#${props.threadInfo.color}`;
+
+  if (!isMember && currentUserCanJoin && !threadCreationInProgress) {
+    let buttonContent;
+    if (joinThreadLoadingStatus === 'loading') {
+      buttonContent = (
+        <ActivityIndicator
+          size="small"
+          color="white"
+          style={styles.joinThreadLoadingIndicator}
+        />
+      );
+    } else {
+      const textStyle = colorIsDark(props.threadInfo.color)
+        ? styles.joinButtonTextLight
+        : styles.joinButtonTextDark;
+      buttonContent = (
+        <View style={styles.joinButtonContent}>
+          <SWMansionIcon name="plus" style={textStyle} />
+          <Text style={textStyle}>Join Chat</Text>
+        </View>
+      );
+    }
+    joinButton = (
+      <View style={styles.joinButtonContainer}>
+        <Button
+          onPress={onPressJoin}
+          iosActiveOpacity={0.85}
+          style={[styles.joinButton, { backgroundColor: threadColor }]}
+        >
+          {buttonContent}
+        </Button>
+      </View>
+    );
+  }
+
+  let typeaheadTooltip = null;
+
+  if (suggestions.length > 0 && typeaheadMatchedStrings && !isEditMode()) {
+    typeaheadTooltip = (
+      <TypeaheadTooltip
+        text={text}
+        matchedStrings={typeaheadMatchedStrings}
+        suggestions={suggestions}
+        focusAndUpdateTextAndSelection={focusAndUpdateTextAndSelection}
+        typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
+        TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
+      />
+    );
+  }
+
+  let content;
+  const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
+    props.threadInfo,
+  );
+  if (shouldShowTextInput()) {
+    content = renderInput();
+  } else if (
+    threadFrozen &&
+    threadActualMembers(props.threadInfo.members).length === 2
+  ) {
+    content = (
+      <Text style={styles.explanation}>
+        You can&rsquo;t send messages to a user that you&rsquo;ve blocked.
+      </Text>
+    );
+  } else if (isMember) {
+    content = (
+      <Text style={styles.explanation}>
+        You don&rsquo;t have permission to send messages.
+      </Text>
+    );
+  } else if (defaultMembersAreVoiced && currentUserCanJoin) {
+    content = null;
+  } else {
+    content = (
+      <Text style={styles.explanation}>
+        You don&rsquo;t have permission to send messages.
+      </Text>
+    );
+  }
+
+  const keyboardInputHost =
+    Platform.OS === 'android' ? null : (
+      <KeyboardInputHost textInputRef={textInputRef.current} />
+    );
+
+  let editedMessage;
+  if (isEditMode() && editedMessagePreview) {
+    const { message } = editedMessagePreview;
+    editedMessage = (
+      <AnimatedView
+        style={styles.editView}
+        entering={FadeInDown}
+        exiting={FadeOutDown}
+      >
+        <View style={styles.editViewContent}>
+          <TouchableOpacity onPress={scrollToEditedMessage} activeOpacity={0.4}>
+            <Text style={[{ color: threadColor }, styles.editingLabel]}>
+              Editing message
+            </Text>
+            <SingleLine style={styles.editingMessagePreview}>
+              {message.text}
+            </SingleLine>
+          </TouchableOpacity>
+        </View>
+        <SWMansionIcon
+          style={styles.exitEditButton}
+          name="cross"
+          size={22}
+          color={threadColor}
+          onPress={onPressExitEditMode}
+        />
+      </AnimatedView>
+    );
+  }
+
   return (
-    <ChatInputBar
-      {...props}
-      rawThreadInfo={rawThreadInfo}
-      draft={draft}
-      joinThreadLoadingStatus={joinThreadLoadingStatus}
-      threadCreationInProgress={threadCreationInProgress}
-      calendarQuery={calendarQuery}
-      colors={colors}
-      styles={styles}
-      isActive={isActive}
-      keyboardState={keyboardState}
-      dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-      joinThread={callJoinThread}
-      userMentionsCandidates={userMentionsCandidates}
-      chatMentionSearchIndex={chatMentionSearchIndex}
-      chatMentionCandidates={chatMentionCandidates}
-      editedMessagePreview={editedMessagePreview}
-      editedMessageInfo={editedMessageInfo}
-      navigation={props.navigation}
-      messageEditingContext={messageEditingContext}
-      selectionState={selectionState}
-      setSelectionState={setSelectionState}
-      suggestions={suggestions}
-      typeaheadMatchedStrings={typeaheadMatchedStrings}
-      currentUserCanJoin={currentUserCanJoin}
-      threadFrozen={threadFrozen}
-      text={text}
-      setText={setText}
-      textEdited={textEdited}
-      buttonsExpanded={buttonsExpanded}
-      cameraRollIconStyle={cameraRollIconStyle}
-      cameraIconStyle={cameraIconStyle}
-      expandoButtonsStyle={expandoButtonsStyle}
-      expandIconStyle={expandIconStyle}
-      sendButtonContainerStyle={sendButtonContainerStyle}
-      shouldShowTextInput={shouldShowTextInput}
-      isEditMode={isEditMode}
-      updateSendButton={updateSendButton}
-      expandButtons={expandButtons}
-      hideButtons={hideButtons}
-      textInputRef={textInputRef}
-      clearableTextInputRef={clearableTextInputRef}
-      selectableTextInputRef={selectableTextInputRef}
-      setTextInputRef={setTextInputRef}
-      setClearableTextInputRef={setClearableTextInputRef}
-      addEditInputMessageListener={addEditInputMessageListener}
-      removeEditInputMessageListener={removeEditInputMessageListener}
-      focusAndUpdateTextAndSelection={focusAndUpdateTextAndSelection}
-      scrollToEditedMessage={scrollToEditedMessage}
-      onPressExitEditMode={onPressExitEditMode}
-      updateText={updateText}
-      onSend={onSend}
-      isMessageEdited={isMessageEdited}
-      blockNavigation={blockNavigation}
-      onPressJoin={onPressJoin}
-      setIOSKeyboardHeight={setIOSKeyboardHeight}
-      showMediaGallery={showMediaGallery}
-      dismissKeyboard={dismissKeyboard}
-    />
+    <AnimatedView style={styles.container} onLayout={props.onInputBarLayout}>
+      {typeaheadTooltip}
+      {joinButton}
+      {editedMessage}
+      {content}
+      {keyboardInputHost}
+    </AnimatedView>
   );
 }
 
