@@ -344,6 +344,7 @@ type Props = {
   +onSend: () => Promise<void>,
   +isMessageEdited: (newText?: string) => boolean,
   +blockNavigation: () => void,
+  +onPressJoin: () => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -469,7 +470,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       joinButton = (
         <View style={this.props.styles.joinButtonContainer}>
           <Button
-            onPress={this.onPressJoin}
+            onPress={this.props.onPressJoin}
             iosActiveOpacity={0.85}
             style={[
               this.props.styles.joinButton,
@@ -678,39 +679,6 @@ class ChatInputBar extends React.PureComponent<Props> {
         </View>
       </TouchableWithoutFeedback>
     );
-  }
-
-  onPressJoin = () => {
-    void this.props.dispatchActionPromise(
-      joinThreadActionTypes,
-      this.joinAction(),
-    );
-  };
-
-  async joinAction(): Promise<ThreadJoinPayload> {
-    let joinThreadInput;
-    if (this.props.rawThreadInfo.thick) {
-      joinThreadInput = {
-        thick: true,
-        rawThreadInfo: this.props.rawThreadInfo,
-      };
-    } else {
-      const query = this.props.calendarQuery();
-      joinThreadInput = {
-        thick: false,
-        threadID: this.props.threadInfo.id,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [this.props.threadInfo.id] },
-          ],
-        },
-      };
-    }
-
-    return await this.props.joinThread(joinThreadInput);
   }
 
   showMediaGallery = () => {
@@ -1419,6 +1387,36 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     removeEditInputMessageListener,
   ]);
 
+  const joinAction = React.useCallback(async (): Promise<ThreadJoinPayload> => {
+    let joinThreadInput;
+    if (rawThreadInfo.thick) {
+      joinThreadInput = {
+        thick: true,
+        rawThreadInfo: rawThreadInfo,
+      };
+    } else {
+      const query = calendarQuery();
+      joinThreadInput = {
+        thick: false,
+        threadID: props.threadInfo.id,
+        calendarQuery: {
+          startDate: query.startDate,
+          endDate: query.endDate,
+          filters: [
+            ...query.filters,
+            { type: 'threads', threadIDs: [props.threadInfo.id] },
+          ],
+        },
+      };
+    }
+
+    return await callJoinThread(joinThreadInput);
+  }, [calendarQuery, callJoinThread, props.threadInfo.id, rawThreadInfo]);
+
+  const onPressJoin = React.useCallback(() => {
+    void dispatchActionPromise(joinThreadActionTypes, joinAction());
+  }, [dispatchActionPromise, joinAction]);
+
   return (
     <ChatInputBar
       {...props}
@@ -1475,6 +1473,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       onSend={onSend}
       isMessageEdited={isMessageEdited}
       blockNavigation={blockNavigation}
+      onPressJoin={onPressJoin}
     />
   );
 }
