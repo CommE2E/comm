@@ -351,80 +351,6 @@ type Props = {
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
-  static mediaGalleryOpen(props: Props): boolean {
-    const { keyboardState } = props;
-    return !!(keyboardState && keyboardState.mediaGalleryOpen);
-  }
-
-  static systemKeyboardShowing(props: Props): boolean {
-    const { keyboardState } = props;
-    return !!(keyboardState && keyboardState.systemKeyboardShowing);
-  }
-
-  get systemKeyboardShowing(): boolean {
-    return ChatInputBar.systemKeyboardShowing(this.props);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.textEdited &&
-      this.props.text &&
-      this.props.threadInfo.id !== prevProps.threadInfo.id
-    ) {
-      this.props.dispatch({
-        type: moveDraftActionType,
-        payload: {
-          oldKey: draftKeyFromThreadID(prevProps.threadInfo.id),
-          newKey: draftKeyFromThreadID(this.props.threadInfo.id),
-        },
-      });
-    } else if (!this.props.textEdited && this.props.draft !== prevProps.draft) {
-      this.props.setText(this.props.draft);
-    }
-    if (this.props.isActive && !prevProps.isActive) {
-      this.props.addEditInputMessageListener();
-    } else if (!this.props.isActive && prevProps.isActive) {
-      this.props.removeEditInputMessageListener();
-    }
-
-    const currentText = trimMessage(this.props.text);
-    const prevText = trimMessage(prevProps.text);
-
-    if (
-      (currentText === '' && prevText !== '') ||
-      (currentText !== '' && prevText === '')
-    ) {
-      this.props.updateSendButton(currentText);
-    }
-
-    const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
-      this.props,
-    );
-    const systemKeyboardWasShowing =
-      ChatInputBar.systemKeyboardShowing(prevProps);
-    if (systemKeyboardIsShowing && !systemKeyboardWasShowing) {
-      this.props.hideButtons();
-    } else if (!systemKeyboardIsShowing && systemKeyboardWasShowing) {
-      this.props.expandButtons();
-    }
-
-    const imageGalleryIsOpen = ChatInputBar.mediaGalleryOpen(this.props);
-    const imageGalleryWasOpen = ChatInputBar.mediaGalleryOpen(prevProps);
-    if (!imageGalleryIsOpen && imageGalleryWasOpen) {
-      this.props.hideButtons();
-    } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
-      this.props.expandButtons();
-      this.props.setIOSKeyboardHeight();
-    }
-
-    if (
-      this.props.messageEditingContext?.editState.editedMessage &&
-      !prevProps.messageEditingContext?.editState.editedMessage
-    ) {
-      this.props.blockNavigation();
-    }
-  }
-
   render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
     let joinButton = null;
@@ -1417,6 +1343,80 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const dismissKeyboard = React.useCallback(() => {
     keyboardState?.dismissKeyboard();
   }, [keyboardState]);
+
+  const prevThreadInfoId = React.useRef<?string>();
+  const prevDraft = React.useRef<?string>();
+
+  React.useEffect(() => {
+    if (
+      textEdited &&
+      text &&
+      prevThreadInfoId.current &&
+      props.threadInfo.id !== prevThreadInfoId.current
+    ) {
+      dispatch({
+        type: moveDraftActionType,
+        payload: {
+          oldKey: draftKeyFromThreadID(prevThreadInfoId.current),
+          newKey: draftKeyFromThreadID(props.threadInfo.id),
+        },
+      });
+    } else if (!textEdited && draft !== prevDraft.current) {
+      setText(draft);
+    }
+    prevThreadInfoId.current = props.threadInfo.id;
+    prevDraft.current = draft;
+  }, [dispatch, draft, props.threadInfo.id, text, textEdited]);
+
+  React.useEffect(() => {
+    if (isActive) {
+      addEditInputMessageListener();
+    } else if (!isActive) {
+      removeEditInputMessageListener();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive]);
+
+  const prevTextRef = React.useRef(text);
+  React.useEffect(() => {
+    const currentText = trimMessage(text);
+    const prevText = trimMessage(prevTextRef.current);
+    prevTextRef.current = currentText;
+
+    if (
+      (currentText === '' && prevText !== '') ||
+      (currentText !== '' && prevText === '')
+    ) {
+      updateSendButton(currentText);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+
+  React.useEffect(() => {
+    if (keyboardState?.systemKeyboardShowing) {
+      hideButtons();
+    } else {
+      expandButtons();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyboardState?.systemKeyboardShowing]);
+
+  React.useEffect(() => {
+    if (!keyboardState?.mediaGalleryOpen) {
+      hideButtons();
+    } else {
+      expandButtons();
+      setIOSKeyboardHeight();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyboardState?.mediaGalleryOpen]);
+
+  React.useEffect(() => {
+    if (messageEditingContext?.editState.editedMessage) {
+      blockNavigation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageEditingContext?.editState.editedMessage]);
 
   return (
     <ChatInputBar
