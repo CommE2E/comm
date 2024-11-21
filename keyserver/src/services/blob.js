@@ -13,6 +13,7 @@ import {
 } from 'lib/utils/blob-service.js';
 import { createHTTPAuthorizationHeader } from 'lib/utils/services-utils.js';
 
+import { clearIdentityInfo } from '../user/identity.js';
 import { verifyUserLoggedIn } from '../user/login.js';
 import { getContentSigningKey } from '../utils/olm-utils.js';
 
@@ -46,7 +47,11 @@ async function assignHolder(
 ): Promise<BlobOperationResult> {
   const { hash: blobHash, holder } = params;
   const headers = await createRequestHeaders();
-  return assignBlobHolder({ blobHash, holder }, headers);
+  const assignResult = await assignBlobHolder({ blobHash, holder }, headers);
+  if (!assignResult.success && assignResult.reason === 'INVALID_CSAT') {
+    await clearIdentityInfo();
+  }
+  return assignResult;
 }
 
 async function uploadBlobKeyserverWrapper(
@@ -54,7 +59,11 @@ async function uploadBlobKeyserverWrapper(
   hash: string,
 ): Promise<BlobOperationResult> {
   const authHeaders = await createRequestHeaders(false);
-  return uploadBlob(blob, hash, authHeaders);
+  const uploadResult = await uploadBlob(blob, hash, authHeaders);
+  if (!uploadResult.success && uploadResult.reason === 'INVALID_CSAT') {
+    await clearIdentityInfo();
+  }
+  return uploadResult;
 }
 
 async function upload(
@@ -108,7 +117,14 @@ async function download(hash: string): Promise<BlobDownloadResult> {
 async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
   const { hash: blobHash, holder } = params;
   const headers = await createRequestHeaders();
-  await removeBlobHolder({ blobHash, holder }, headers, instant);
+  const removeResult = await removeBlobHolder(
+    { blobHash, holder },
+    headers,
+    instant,
+  );
+  if (!removeResult.success && removeResult.reason === 'INVALID_CSAT') {
+    await clearIdentityInfo();
+  }
 }
 
 async function removeBlobHolders(holders: $ReadOnlyArray<BlobHashAndHolder>) {
