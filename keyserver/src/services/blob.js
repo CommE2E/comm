@@ -132,7 +132,10 @@ async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
 
 async function removeBlobHolders(holders: $ReadOnlyArray<BlobHashAndHolder>) {
   const headers = await createRequestHeaders(false);
-  await removeMultipleHolders(holders, headers);
+  const removeResult = await removeMultipleHolders(holders, headers);
+  if (removeResult.result === 'invalid_csat') {
+    await clearIdentityInfo();
+  }
 }
 
 export {
