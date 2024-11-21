@@ -337,13 +337,16 @@ type Props = {
   +expandButtons: () => void,
   +hideButtons: () => void,
   +immediatelyHideButtons: () => void,
+  +textInputRef: { current: ?React.ElementRef<typeof TextInput> },
+  +clearableTextInputRef: { current: ?ClearableTextInput },
+  +selectableTextInputRef: {
+    current: ?React.ElementRef<typeof SelectableTextInput>,
+  },
+  +setTextInputRef: (ref: ?React.ElementRef<typeof TextInput>) => void,
+  +setClearableTextInputRef: (ref: ?ClearableTextInput) => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
-  textInput: ?React.ElementRef<typeof TextInput>;
-  clearableTextInput: ?ClearableTextInput;
-  selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>;
-
   clearBeforeRemoveListener: () => void;
   clearFocusListener: () => void;
   clearBlurListener: () => void;
@@ -481,7 +484,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (Platform.OS !== 'ios') {
       return;
     }
-    const { textInput } = this;
+    const textInput = this.props.textInputRef.current;
     if (!textInput) {
       return;
     }
@@ -590,7 +593,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     const keyboardInputHost =
       Platform.OS === 'android' ? null : (
-        <KeyboardInputHost textInputRef={this.textInput} />
+        <KeyboardInputHost textInputRef={this.props.textInputRef.current} />
       );
 
     let editedMessage;
@@ -709,9 +712,9 @@ class ChatInputBar extends React.PureComponent<Props> {
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
             style={this.props.styles.textInput}
-            textInputRef={this.textInputRef}
-            clearableTextInputRef={this.clearableTextInputRef}
-            ref={this.selectableTextInputRef}
+            textInputRef={this.props.setTextInputRef}
+            clearableTextInputRef={this.props.setClearableTextInputRef}
+            ref={this.props.selectableTextInputRef}
             selectionColor={`#${this.props.threadInfo.color}`}
           />
           <AnimatedView style={this.props.sendButtonContainerStyle}>
@@ -733,20 +736,6 @@ class ChatInputBar extends React.PureComponent<Props> {
       </TouchableWithoutFeedback>
     );
   }
-
-  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
-    this.textInput = textInput;
-  };
-
-  clearableTextInputRef = (clearableTextInput: ?ClearableTextInput) => {
-    this.clearableTextInput = clearableTextInput;
-  };
-
-  selectableTextInputRef = (
-    selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>,
-  ) => {
-    this.selectableTextInput = selectableTextInput;
-  };
 
   updateText = (text: string) => {
     if (this.props.isExitingDuringEditModeRef.current) {
@@ -774,7 +763,10 @@ class ChatInputBar extends React.PureComponent<Props> {
   }, 400);
 
   focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
-    this.selectableTextInput?.prepareForSelectionMutation(text, selection);
+    this.props.selectableTextInputRef.current?.prepareForSelectionMutation(
+      text,
+      selection,
+    );
     this.props.setText(text);
     this.props.setTextEdited(true);
     this.props.setSelectionState({ text, selection });
@@ -797,7 +789,8 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   focusAndUpdateButtonsVisibility = () => {
-    const { textInput } = this;
+    const textInput = this.props.textInputRef.current;
+
     if (!textInput) {
       return;
     }
@@ -820,7 +813,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     this.props.updateSendButton('');
 
-    const { clearableTextInput } = this;
+    const clearableTextInput = this.props.clearableTextInputRef.current;
     invariant(
       clearableTextInput,
       'clearableTextInput should be sent in onSend',
@@ -1380,6 +1373,23 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     setButtonsExpanded(false);
   }, [expandoButtonsOpen, targetExpandoButtonsOpen]);
 
+  const textInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
+  const clearableTextInputRef = React.useRef<?ClearableTextInput>();
+  const selectableTextInputRef =
+    React.useRef<?React.ElementRef<typeof SelectableTextInput>>();
+  const setTextInputRef = React.useCallback(
+    (ref: ?React.ElementRef<typeof TextInput>) => {
+      textInputRef.current = ref;
+    },
+    [],
+  );
+  const setClearableTextInputRef = React.useCallback(
+    (ref: ?ClearableTextInput) => {
+      clearableTextInputRef.current = ref;
+    },
+    [],
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -1432,6 +1442,11 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       expandButtons={expandButtons}
       hideButtons={hideButtons}
       immediatelyHideButtons={immediatelyHideButtons}
+      textInputRef={textInputRef}
+      clearableTextInputRef={clearableTextInputRef}
+      selectableTextInputRef={selectableTextInputRef}
+      setTextInputRef={setTextInputRef}
+      setClearableTextInputRef={setClearableTextInputRef}
     />
   );
 }
