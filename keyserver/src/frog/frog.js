@@ -8,12 +8,16 @@ import { serve } from '@hono/node-server';
 import { Button, Frog } from 'frog';
 
 import { inviteLinkURL } from 'lib/facts/links.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
+
+import { neynarClient } from '../utils/fc-cache.js';
+import { redisCache } from '../utils/redis-cache.js';
 
 function startFrogHonoServer() {
   const frogApp = new Frog({ title: 'Comm Frame' });
 
-  frogApp.frame('/:inviteLink', c => {
-    const { inviteLink } = c.req.param();
+  frogApp.frame('/:inviteLink/:channelID', async c => {
+    const { inviteLink, channelID } = c.req.param();
 
     let buttonLink = 'https://comm.app';
     const inviteLinkURLPrefix = inviteLinkURL('');
@@ -22,10 +26,44 @@ function startFrogHonoServer() {
       buttonLink = inviteLink;
     }
 
+    let channelInfo = await redisCache.getChannelInfo(channelID);
+    if (!channelInfo) {
+      channelInfo = await neynarClient?.fetchFarcasterChannelByID(channelID);
+
+      if (channelInfo) {
+        ignorePromiseRejections(
+          redisCache.setChannelInfo(channelID, channelInfo),
+        );
+      }
+    }
+
+    let header_image_url =
+      'https://warpcast.com/~/images/DefaultChannelCoverImage.png';
+    if (channelInfo?.header_image_url) {
+      header_image_url = channelInfo.header_image_url;
+    }
+
     return c.res({
       image: (
-        <div style={{ color: 'white', display: 'flex', fontSize: 60 }}>
-          Hello World!
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <img
+            src={header_image_url}
+            alt="frame background"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
         </div>
       ),
       intents: [
