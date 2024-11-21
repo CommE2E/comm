@@ -7,6 +7,7 @@ import {
   useVerifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -15,6 +16,7 @@ import {
   getKeyserverOverrideForAnInviteLink,
   type KeyserverOverride,
 } from 'lib/shared/invite-links.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -34,6 +36,7 @@ function InviteLinkHandler(): null {
   invariant(identityContext, 'Identity context should be set');
   const { getAuthMetadata } = identityContext;
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
   const { pushModal } = useModalContext();
@@ -61,6 +64,10 @@ function InviteLinkHandler(): null {
         );
         setKeyserverOverride(newKeyserverOverride);
       } catch (e) {
+        if (getMessageForException(e) === 'invalid_csat') {
+          void invalidTokenLogOut();
+          return;
+        }
         console.error('Error while downloading an invite link blob', e);
         pushModal(
           <AcceptInviteModal
@@ -72,7 +79,14 @@ function InviteLinkHandler(): null {
         );
       }
     })();
-  }, [dispatch, getAuthMetadata, inviteSecret, loggedIn, pushModal]);
+  }, [
+    dispatch,
+    getAuthMetadata,
+    inviteSecret,
+    loggedIn,
+    pushModal,
+    invalidTokenLogOut,
+  ]);
 
   const validateLink = useVerifyInviteLink(keyserverOverride);
   const threadInfos = useSelector(threadInfoSelector);
