@@ -345,6 +345,9 @@ type Props = {
   +isMessageEdited: (newText?: string) => boolean,
   +blockNavigation: () => void,
   +onPressJoin: () => void,
+  +setIOSKeyboardHeight: () => void,
+  +showMediaGallery: () => void,
+  +dismissKeyboard: () => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -411,7 +414,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.props.hideButtons();
     } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
       this.props.expandButtons();
-      this.setIOSKeyboardHeight();
+      this.props.setIOSKeyboardHeight();
     }
 
     if (
@@ -420,21 +423,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       this.props.blockNavigation();
     }
-  }
-
-  setIOSKeyboardHeight() {
-    if (Platform.OS !== 'ios') {
-      return;
-    }
-    const textInput = this.props.textInputRef.current;
-    if (!textInput) {
-      return;
-    }
-    const keyboardHeight = getKeyboardHeight();
-    if (keyboardHeight === null || keyboardHeight === undefined) {
-      return;
-    }
-    TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
   }
 
   render(): React.Node {
@@ -613,13 +601,13 @@ class ChatInputBar extends React.PureComponent<Props> {
       expandoButtonsViewStyle.push({ display: 'none' });
     }
     return (
-      <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
+      <TouchableWithoutFeedback onPress={this.props.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
           <AnimatedView style={this.props.expandoButtonsStyle}>
             <View style={expandoButtonsViewStyle}>
               {this.props.buttonsExpanded ? expandoButton : null}
               <TouchableOpacity
-                onPress={this.showMediaGallery}
+                onPress={this.props.showMediaGallery}
                 activeOpacity={0.4}
               >
                 <AnimatedView style={this.props.cameraRollIconStyle}>
@@ -680,17 +668,6 @@ class ChatInputBar extends React.PureComponent<Props> {
       </TouchableWithoutFeedback>
     );
   }
-
-  showMediaGallery = () => {
-    const { keyboardState } = this.props;
-    invariant(keyboardState, 'keyboardState should be initialized');
-    keyboardState.showMediaGallery(this.props.threadInfo);
-  };
-
-  dismissKeyboard = () => {
-    const { keyboardState } = this.props;
-    keyboardState && keyboardState.dismissKeyboard();
-  };
 }
 
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
@@ -1421,6 +1398,30 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     void dispatchActionPromise(joinThreadActionTypes, joinAction());
   }, [dispatchActionPromise, joinAction]);
 
+  const setIOSKeyboardHeight = React.useCallback(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+    const textInput = textInputRef.current;
+    if (!textInput) {
+      return;
+    }
+    const keyboardHeight = getKeyboardHeight();
+    if (keyboardHeight === null || keyboardHeight === undefined) {
+      return;
+    }
+    TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
+  }, []);
+
+  const showMediaGallery = React.useCallback(() => {
+    invariant(keyboardState, 'keyboardState should be initialized');
+    keyboardState.showMediaGallery(props.threadInfo);
+  }, [keyboardState, props.threadInfo]);
+
+  const dismissKeyboard = React.useCallback(() => {
+    keyboardState?.dismissKeyboard();
+  }, [keyboardState]);
+
   return (
     <ChatInputBar
       {...props}
@@ -1478,6 +1479,9 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       isMessageEdited={isMessageEdited}
       blockNavigation={blockNavigation}
       onPressJoin={onPressJoin}
+      setIOSKeyboardHeight={setIOSKeyboardHeight}
+      showMediaGallery={showMediaGallery}
+      dismissKeyboard={dismissKeyboard}
     />
   );
 }
