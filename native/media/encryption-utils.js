@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { uintArrayToHexString, hexToUintArray } from 'lib/media/data-utils.js';
 import {
   replaceExtension,
@@ -25,6 +26,7 @@ import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
 import {
   createDefaultHTTPRequestHeaders,
   usingCommServicesAccessToken,
+  httpResponseIsInvalidCSAT,
 } from 'lib/utils/services-utils.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
@@ -274,8 +276,10 @@ async function fetchAndDecryptMedia(
   const steps: DecryptFileMediaMissionStep[] = [];
 
   // Step 1. Fetch the file and convert it to a Uint8Array
+  const isBlobServiceHosted = isBlobServiceURI(blobURI);
+
   let headers;
-  if (isBlobServiceURI(blobURI) && authMetadata) {
+  if (isBlobServiceHosted && authMetadata) {
     headers = createDefaultHTTPRequestHeaders(authMetadata);
   }
 
@@ -284,6 +288,9 @@ async function fetchAndDecryptMedia(
   try {
     const response = await fetch(getFetchableURI(blobURI), { headers });
     if (!response.ok) {
+      if (isBlobServiceHosted && httpResponseIsInvalidCSAT(response)) {
+        return { steps, result: { success: false, reason: 'invalid_csat' } };
+      }
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
     const blob = await response.blob();
@@ -412,6 +419,8 @@ function useFetchAndDecryptMedia(): (
   invariant(identityContext, 'Identity context should be set');
   const { getAuthMetadata } = identityContext;
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
+
   return React.useCallback(
     async (blobURI, encryptionKey, options) => {
       let authMetadata;
@@ -422,14 +431,19 @@ function useFetchAndDecryptMedia(): (
           console.warn('Failed to get auth metadata:', err);
         }
       }
-      return fetchAndDecryptMedia(
+      const output = await fetchAndDecryptMedia(
         blobURI,
         encryptionKey,
         authMetadata,
         options,
       );
+
+      if (!output.result.success && output.result.reason === 'invalid_csat') {
+        void invalidTokenLogOut();
+      }
+      return output;
     },
-    [getAuthMetadata],
+    [getAuthMetadata, invalidTokenLogOut],
   );
 }
 
