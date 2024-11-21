@@ -169,6 +169,7 @@ export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
 export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
 export const ConnectFarcasterBottomSheetRouteName =
   'ConnectFarcasterBottomSheet';
+export const DirectoryPromptBottomSheetRouteName = 'DirectoryPromptBottomSheet';
 export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
@@ -211,6 +212,7 @@ export type RootParamList = {
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
   +LinkedDevicesBottomSheet: LinkedDevicesBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
+  +DirectoryPromptBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
   +QRAuthNavigator: void,
