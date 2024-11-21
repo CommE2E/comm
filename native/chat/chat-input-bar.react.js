@@ -268,7 +268,12 @@ type ConnectedChatInputBarBaseProps = {
   +openCamera: () => mixed,
   +navigation?: ChatNavigationProp<'MessageList'>,
 };
-function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
+function ConnectedChatInputBarBase({
+  threadInfo,
+  navigation,
+  openCamera,
+  onInputBarLayout,
+}: ConnectedChatInputBarBaseProps) {
   const navContext = React.useContext(NavContext);
   const keyboardState = React.useContext(KeyboardContext);
   const inputState = React.useContext(InputStateContext);
@@ -278,8 +283,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const draft = useSelector(
-    state =>
-      state.draftStore.drafts[draftKeyFromThreadID(props.threadInfo.id)] ?? '',
+    state => state.draftStore.drafts[draftKeyFromThreadID(threadInfo.id)] ?? '',
   );
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
   const createThreadLoadingStatus = useSelector(
@@ -298,21 +302,21 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const colors = useColors();
 
   const isActive = React.useMemo(
-    () => props.threadInfo.id === activeThreadSelector(navContext),
-    [props.threadInfo.id, navContext],
+    () => threadInfo.id === activeThreadSelector(navContext),
+    [threadInfo.id, navContext],
   );
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const rawThreadInfo = useSelector(
-    state => state.threadStore.threadInfos[props.threadInfo.id],
+    state => state.threadStore.threadInfos[threadInfo.id],
   );
   const callJoinThread = useJoinThread();
 
   const { getChatMentionSearchIndex } = useChatMentionContext();
-  const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
+  const chatMentionSearchIndex = getChatMentionSearchIndex(threadInfo);
 
-  const { parentThreadID, community } = props.threadInfo;
+  const { parentThreadID, community } = threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
@@ -321,30 +325,28 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   );
 
   const threadFrozen = useThreadFrozenDueToViewerBlock(
-    props.threadInfo,
+    threadInfo,
     communityThreadInfo,
     viewerID,
     userInfos,
   );
 
   const userMentionsCandidates = useUserMentionsCandidates(
-    props.threadInfo,
+    threadInfo,
     parentThreadInfo,
   );
 
-  const chatMentionCandidates = useThreadChatMentionCandidates(
-    props.threadInfo,
-  );
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
 
   const messageEditingContext = React.useContext(MessageEditingContext);
 
   const editedMessageInfo = messageEditingContext?.editState.editedMessage;
   const editedMessagePreview = useMessagePreview(
     editedMessageInfo,
-    props.threadInfo,
+    threadInfo,
     getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
-  const editMessage = useEditMessage(props.threadInfo);
+  const editMessage = useEditMessage(threadInfo);
 
   const [selectionState, setSelectionState] =
     React.useState<SyncedSelectionData>({
@@ -395,12 +397,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     );
 
   const currentUserIsVoiced = useThreadHasPermission(
-    props.threadInfo,
+    threadInfo,
     threadPermissions.VOICED,
   );
 
   const currentUserCanJoin = useThreadHasPermission(
-    props.threadInfo,
+    threadInfo,
     threadPermissions.JOIN_THREAD,
   );
 
@@ -543,15 +545,14 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     if (!threadCreationInProgress) {
       return false;
     }
-    return checkIfDefaultMembersAreVoiced(props.threadInfo);
-  }, [currentUserIsVoiced, props.threadInfo, threadCreationInProgress]);
+    return checkIfDefaultMembersAreVoiced(threadInfo);
+  }, [currentUserIsVoiced, threadInfo, threadCreationInProgress]);
 
   const isEditMode = React.useCallback(() => {
     const editState = messageEditingContext?.editState;
-    const isThisThread =
-      editState?.editedMessage?.threadID === props.threadInfo.id;
+    const isThisThread = editState?.editedMessage?.threadID === threadInfo.id;
     return editState?.editedMessage !== null && isThisThread;
-  }, [messageEditingContext?.editState, props.threadInfo.id]);
+  }, [messageEditingContext?.editState, threadInfo.id]);
 
   const immediatelyShowSendButton = React.useCallback(() => {
     sendButtonContainerOpen.setValue(1);
@@ -621,12 +622,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
         dispatch({
           type: updateDraftActionType,
           payload: {
-            key: draftKeyFromThreadID(props.threadInfo.id),
+            key: draftKeyFromThreadID(threadInfo.id),
             text: newText,
           },
         });
       }, 400),
-    [dispatch, props.threadInfo.id],
+    [dispatch, threadInfo.id],
   );
 
   const isMessageEdited = React.useCallback(
@@ -668,12 +669,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   }, [immediatelyHideButtons, immediatelyShowSendButton]);
 
   const unblockNavigation = React.useCallback(() => {
-    const { navigation } = props;
-    if (!navigation) {
-      return;
-    }
-    navigation.setParams({ removeEditMode: null });
-  }, [props]);
+    navigation?.setParams({ removeEditMode: null });
+  }, [navigation]);
 
   const exitEditMode = React.useCallback(() => {
     messageEditingContext?.setEditedMessage(null, () => {
@@ -801,12 +798,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       {
         type: messageTypes.TEXT,
         localID,
-        threadID: props.threadInfo.id,
+        threadID: threadInfo.id,
         text: newText,
         creatorID,
         time: Date.now(),
       },
-      props.threadInfo,
+      threadInfo,
       parentThreadInfo,
     );
   }, [
@@ -814,7 +811,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     getEditedMessage,
     inputState,
     parentThreadInfo,
-    props.threadInfo,
+    threadInfo,
     text,
     updateSendButton,
     viewerID,
@@ -822,7 +819,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const removeEditMode: RemoveEditMode = React.useCallback(
     action => {
-      const { navigation } = props;
       if (!navigation || isExitingDuringEditModeRef.current) {
         return 'ignore_action';
       }
@@ -843,7 +839,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       });
       return 'ignore_action';
     },
-    [isMessageEdited, overlayContext, props, unblockNavigation],
+    [isMessageEdited, navigation, overlayContext, unblockNavigation],
   );
 
   const onPressExitEditMode = React.useCallback(() => {
@@ -866,14 +862,13 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   }, [getEditedMessage, inputState]);
 
   const blockNavigation = React.useCallback(() => {
-    const { navigation } = props;
     if (!navigation || !navigation.isFocused()) {
       return;
     }
     navigation.setParams({
       removeEditMode: removeEditMode,
     });
-  }, [props, removeEditMode]);
+  }, [navigation, removeEditMode]);
 
   const onNavigationFocus = React.useCallback(() => {
     isExitingDuringEditModeRef.current = false;
@@ -902,7 +897,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       const saveExit = () => {
         messageEditingContext?.setEditedMessage(null, () => {
           isExitingDuringEditModeRef.current = true;
-          props.navigation?.dispatch(action);
+          navigation?.dispatch(action);
         });
       };
       if (!isMessageEdited()) {
@@ -913,12 +908,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
         onDiscard: saveExit,
       });
     },
-    [isEditMode, isMessageEdited, messageEditingContext, props.navigation],
+    [isEditMode, isMessageEdited, messageEditingContext, navigation],
   );
 
   React.useEffect(() => {
-    const { navigation } = props;
-
     if (isActive) {
       addEditInputMessageListener();
     }
@@ -943,10 +936,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   }, [
     addEditInputMessageListener,
     isActive,
+    navigation,
     onNavigationBeforeRemove,
     onNavigationBlur,
     onNavigationFocus,
-    props,
     removeEditInputMessageListener,
   ]);
 
@@ -961,20 +954,20 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       const query = calendarQuery();
       joinThreadInput = {
         thick: false,
-        threadID: props.threadInfo.id,
+        threadID: threadInfo.id,
         calendarQuery: {
           startDate: query.startDate,
           endDate: query.endDate,
           filters: [
             ...query.filters,
-            { type: 'threads', threadIDs: [props.threadInfo.id] },
+            { type: 'threads', threadIDs: [threadInfo.id] },
           ],
         },
       };
     }
 
     return await callJoinThread(joinThreadInput);
-  }, [calendarQuery, callJoinThread, props.threadInfo.id, rawThreadInfo]);
+  }, [calendarQuery, callJoinThread, threadInfo.id, rawThreadInfo]);
 
   const onPressJoin = React.useCallback(() => {
     void dispatchActionPromise(joinThreadActionTypes, joinAction());
@@ -997,8 +990,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const showMediaGallery = React.useCallback(() => {
     invariant(keyboardState, 'keyboardState should be initialized');
-    keyboardState.showMediaGallery(props.threadInfo);
-  }, [keyboardState, props.threadInfo]);
+    keyboardState.showMediaGallery(threadInfo);
+  }, [keyboardState, threadInfo]);
 
   const dismissKeyboard = React.useCallback(() => {
     keyboardState?.dismissKeyboard();
@@ -1012,21 +1005,21 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       textEdited &&
       text &&
       prevThreadInfoId.current &&
-      props.threadInfo.id !== prevThreadInfoId.current
+      threadInfo.id !== prevThreadInfoId.current
     ) {
       dispatch({
         type: moveDraftActionType,
         payload: {
           oldKey: draftKeyFromThreadID(prevThreadInfoId.current),
-          newKey: draftKeyFromThreadID(props.threadInfo.id),
+          newKey: draftKeyFromThreadID(threadInfo.id),
         },
       });
     } else if (!textEdited && draft !== prevDraft.current) {
       setText(draft);
     }
-    prevThreadInfoId.current = props.threadInfo.id;
+    prevThreadInfoId.current = threadInfo.id;
     prevDraft.current = draft;
-  }, [dispatch, draft, props.threadInfo.id, text, textEdited]);
+  }, [dispatch, draft, threadInfo.id, text, textEdited]);
 
   React.useEffect(() => {
     if (isActive) {
@@ -1089,12 +1082,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
           <SWMansionIcon
             name="chevron-right"
             size={22}
-            color={`#${props.threadInfo.color}`}
+            color={`#${threadInfo.color}`}
           />
         </AnimatedView>
       </TouchableOpacity>
     );
-    const threadColor = `#${props.threadInfo.color}`;
+    const threadColor = `#${threadInfo.color}`;
     const expandoButtonsViewStyle: Array<ViewStyle> = [
       styles.innerExpandoButtons,
     ];
@@ -1112,12 +1105,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
                   <SWMansionIcon
                     name="image-1"
                     size={28}
-                    color={`#${props.threadInfo.color}`}
+                    color={`#${threadInfo.color}`}
                   />
                 </AnimatedView>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={props.openCamera}
+                onPress={openCamera}
                 activeOpacity={0.4}
                 disabled={!buttonsExpanded}
               >
@@ -1125,7 +1118,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
                   <SWMansionIcon
                     name="camera"
                     size={28}
-                    color={`#${props.threadInfo.color}`}
+                    color={`#${threadInfo.color}`}
                   />
                 </AnimatedView>
               </TouchableOpacity>
@@ -1133,7 +1126,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
             </View>
           </AnimatedView>
           <SelectableTextInput
-            allowImagePasteForThreadID={props.threadInfo.id}
+            allowImagePasteForThreadID={threadInfo.id}
             value={text}
             onChangeText={updateText}
             selection={selectionState.selection}
@@ -1145,7 +1138,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
             textInputRef={setTextInputRef}
             clearableTextInputRef={setClearableTextInputRef}
             ref={selectableTextInputRef}
-            selectionColor={`#${props.threadInfo.color}`}
+            selectionColor={`#${threadInfo.color}`}
           />
           <AnimatedView style={sendButtonContainerStyle}>
             <TouchableOpacity
@@ -1167,9 +1160,9 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     );
   };
 
-  const isMember = viewerIsMember(props.threadInfo);
+  const isMember = viewerIsMember(threadInfo);
   let joinButton = null;
-  const threadColor = `#${props.threadInfo.color}`;
+  const threadColor = `#${threadInfo.color}`;
 
   if (!isMember && currentUserCanJoin && !threadCreationInProgress) {
     let buttonContent;
@@ -1182,7 +1175,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
         />
       );
     } else {
-      const textStyle = colorIsDark(props.threadInfo.color)
+      const textStyle = colorIsDark(threadInfo.color)
         ? styles.joinButtonTextLight
         : styles.joinButtonTextDark;
       buttonContent = (
@@ -1221,14 +1214,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   }
 
   let content;
-  const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
-    props.threadInfo,
-  );
+  const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(threadInfo);
   if (shouldShowTextInput()) {
     content = renderInput();
   } else if (
     threadFrozen &&
-    threadActualMembers(props.threadInfo.members).length === 2
+    threadActualMembers(threadInfo.members).length === 2
   ) {
     content = (
       <Text style={styles.explanation}>
@@ -1287,7 +1278,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   }
 
   return (
-    <AnimatedView style={styles.container} onLayout={props.onInputBarLayout}>
+    <AnimatedView style={styles.container} onLayout={onInputBarLayout}>
       {typeaheadTooltip}
       {joinButton}
       {editedMessage}
