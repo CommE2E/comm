@@ -7,6 +7,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { readableFilename, pathFromURI } from 'lib/media/file-utils.js';
 import { isLocalUploadID } from 'lib/media/media-utils.js';
 import type {
@@ -58,6 +59,7 @@ export type IntentionalSaveMedia = (
 function useIntentionalSaveMedia(): IntentionalSaveMedia {
   const dispatch = useDispatch();
   const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+  const invalidTokenLogOut = useInvalidCSATLogOut();
   return React.useCallback(
     async (
       mediaInfo: MediaInfo,
@@ -87,6 +89,9 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       let message;
       if (result.success) {
         message = 'saved!';
+      } else if (result.reason === 'invalid_csat') {
+        void invalidTokenLogOut();
+        return;
       } else if (result.reason === 'save_unsupported') {
         const os: string = Platform.select({
           ios: 'iOS',
@@ -134,7 +139,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
         payload: { reports: [report] },
       });
     },
-    [dispatch, mediaReportsEnabled],
+    [dispatch, mediaReportsEnabled, invalidTokenLogOut],
   );
 }
 
