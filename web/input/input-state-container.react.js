@@ -24,6 +24,7 @@ import {
   useBlobServiceUpload,
   useDeleteUpload,
 } from 'lib/actions/upload-actions.js';
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
   type PushModal,
   useModalContext,
@@ -157,6 +158,7 @@ type Props = {
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +identityContext: ?IdentityClientContextType,
+  +invalidTokenLogOut: () => Promise<void>,
 };
 type WritableState = {
   pendingUploads: {
@@ -931,6 +933,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
+      if (uploadExceptionMessage === 'invalid_csat') {
+        void this.props.invalidTokenLogOut();
+        return;
+      }
       this.handleUploadFailure(threadID, localID);
     }
     userTime = Date.now() - selectTime;
@@ -1203,7 +1209,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             });
           }
           if (isBlobServiceURI(pendingUpload.uri)) {
-            const identityContext = this.props.identityContext;
+            const { invalidTokenLogOut, identityContext } = this.props;
             invariant(identityContext, 'Identity context should be set');
             invariant(
               pendingUpload.blobHolder,
@@ -1215,7 +1221,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               const authMetadata = await identityContext.getAuthMetadata();
               const defaultHeaders =
                 createDefaultHTTPRequestHeaders(authMetadata);
-              await removeBlobHolder({ blobHash, holder }, defaultHeaders);
+              const result = await removeBlobHolder(
+                { blobHash, holder },
+                defaultHeaders,
+              );
+              if (!result.success && result.reason === 'INVALID_CSAT') {
+                void invalidTokenLogOut();
+              }
             })();
           }
         }
@@ -1664,6 +1676,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
     const identityContext = React.useContext(IdentityClientContext);
+    const callInvalidTokenLogOut = useInvalidCSATLogOut();
 
     const [sendCallbacks, setSendCallbacks] = React.useState<
       $ReadOnlyArray<() => mixed>,
@@ -1705,6 +1718,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         unregisterSendCallback={unregisterSendCallback}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         identityContext={identityContext}
+        invalidTokenLogOut={callInvalidTokenLogOut}
       />
     );
   });
