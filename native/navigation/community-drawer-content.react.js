@@ -25,6 +25,7 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityDrawerItem from './community-drawer-item.react.js';
+import { showCommunityDirectory } from './root-navigator.react.js';
 import { CommunityCreationRouteName } from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -169,6 +170,24 @@ function CommunityDrawerContent(): React.Node {
     </TouchableOpacity>
   );
 
+  let exploreCommunitiesButton;
+  if (showCommunityDirectory) {
+    exploreCommunitiesButton = (
+      <TouchableOpacity activeOpacity={0.4}>
+        <View style={styles.exploreCommunitiesContainer}>
+          <View style={styles.exploreCommunitiesIconContainer}>
+            <SWMansionIcon
+              name="search"
+              size={22}
+              style={styles.exploreCommunitiesIcon}
+            />
+          </View>
+          <Text style={styles.exploreCommunitiesText}>Explore communities</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   const flattenedDrawerItemsData = React.useMemo(
     () => flattenDrawerItemsData(drawerItemsData, [...expanded.values()]),
     [drawerItemsData, expanded],
@@ -182,6 +201,7 @@ function CommunityDrawerContent(): React.Node {
         initialNumToRender={30}
       />
       {communityCreationButton}
+      {exploreCommunitiesButton}
     </SafeAreaView>
   );
 }
@@ -195,7 +215,7 @@ const unboundStyles = {
   },
   communityCreationContainer: {
     flexDirection: 'row',
-    padding: 24,
+    padding: 16,
     alignItems: 'center',
     borderTopWidth: 1,
     borderColor: 'panelSeparator',
@@ -216,6 +236,30 @@ const unboundStyles = {
     backgroundColor: 'panelSecondaryForeground',
   },
   communityCreationIcon: {
+    color: 'panelForegroundLabel',
+  },
+  exploreCommunitiesContainer: {
+    flexDirection: 'row',
+    paddingTop: 0,
+    padding: 16,
+    alignItems: 'center',
+  },
+  exploreCommunitiesText: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  exploreCommunitiesIconContainer: {
+    height: 28,
+    width: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+    marginRight: 12,
+    backgroundColor: 'panelSecondaryForeground',
+  },
+  exploreCommunitiesIcon: {
     color: 'panelForegroundLabel',
   },
 };
