@@ -53,6 +53,7 @@ import {
   UserProfileBottomSheetNavigatorRouteName,
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
+  DirectoryPromptBottomSheetRouteName,
   TagFarcasterChannelNavigatorRouteName,
   CreateMissingSIWEBackupMessageRouteName,
   RestoreSIWEBackupRouteName,
@@ -75,6 +76,7 @@ import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
 import CommunityCreationNavigator from '../community-creation/community-creation-navigator.react.js';
 import TagFarcasterChannelNavigator from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-navigator.react.js';
 import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-sheet.react.js';
+import DirectoryPromptBottomSheet from '../components/directory-prompt-bottom-sheet.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import KeyserverSelectionBottomSheet from '../profile/keyserver-selection-bottom-sheet.react.js';
@@ -302,6 +304,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={ConnectFarcasterBottomSheetRouteName}
         component={ConnectFarcasterBottomSheet}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={DirectoryPromptBottomSheetRouteName}
+        component={DirectoryPromptBottomSheet}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
