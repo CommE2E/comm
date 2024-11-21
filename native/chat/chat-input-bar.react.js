@@ -315,7 +315,6 @@ type Props = {
   +setText: (text: string) => void,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
-  +isExitingDuringEditModeRef: { current: boolean },
   +expandoButtonsStyle: AnimatedViewStyle,
   +cameraRollIconStyle: AnimatedViewStyle,
   +cameraIconStyle: AnimatedViewStyle,
@@ -343,16 +342,11 @@ type Props = {
   +onPressExitEditMode: () => void,
   +updateText: (newText: string) => void,
   +onSend: () => Promise<void>,
-  +removeEditMode: RemoveEditMode,
-  +exitEditMode: () => void,
   +isMessageEdited: (newText?: string) => boolean,
+  +blockNavigation: () => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
-  clearBeforeRemoveListener: () => void;
-  clearFocusListener: () => void;
-  clearBlurListener: () => void;
-
   static mediaGalleryOpen(props: Props): boolean {
     const { keyboardState } = props;
     return !!(keyboardState && keyboardState.mediaGalleryOpen);
@@ -368,39 +362,15 @@ class ChatInputBar extends React.PureComponent<Props> {
   }
 
   componentDidMount() {
-    const { isActive, navigation } = this.props;
+    const { isActive } = this.props;
     if (isActive) {
       this.props.addEditInputMessageListener();
     }
-    if (!navigation) {
-      return;
-    }
-    this.clearBeforeRemoveListener = navigation.addListener(
-      'beforeRemove',
-      this.onNavigationBeforeRemove,
-    );
-    this.clearFocusListener = navigation.addListener(
-      'focus',
-      this.onNavigationFocus,
-    );
-    this.clearBlurListener = navigation.addListener(
-      'blur',
-      this.onNavigationBlur,
-    );
   }
 
   componentWillUnmount() {
     if (this.props.isActive) {
       this.props.removeEditInputMessageListener();
-    }
-    if (this.clearBeforeRemoveListener) {
-      this.clearBeforeRemoveListener();
-    }
-    if (this.clearFocusListener) {
-      this.clearFocusListener();
-    }
-    if (this.clearBlurListener) {
-      this.clearBlurListener();
     }
   }
 
@@ -460,7 +430,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.props.messageEditingContext?.editState.editedMessage &&
       !prevProps.messageEditingContext?.editState.editedMessage
     ) {
-      this.blockNavigation();
+      this.props.blockNavigation();
     }
   }
 
@@ -722,54 +692,6 @@ class ChatInputBar extends React.PureComponent<Props> {
       </TouchableWithoutFeedback>
     );
   }
-
-  blockNavigation = () => {
-    const { navigation } = this.props;
-    if (!navigation || !navigation.isFocused()) {
-      return;
-    }
-    navigation.setParams({
-      removeEditMode: this.props.removeEditMode,
-    });
-  };
-
-  onNavigationFocus = () => {
-    this.props.isExitingDuringEditModeRef.current = false;
-  };
-
-  onNavigationBlur = () => {
-    if (!this.props.isEditMode()) {
-      return;
-    }
-    this.props.setText(this.props.draft);
-    this.props.isExitingDuringEditModeRef.current = true;
-    this.props.exitEditMode();
-  };
-
-  onNavigationBeforeRemove = (e: {
-    +data: { +action: GenericNavigationAction },
-    +preventDefault: () => void,
-    ...
-  }) => {
-    if (!this.props.isEditMode()) {
-      return;
-    }
-    const { action } = e.data;
-    e.preventDefault();
-    const saveExit = () => {
-      this.props.messageEditingContext?.setEditedMessage(null, () => {
-        this.props.isExitingDuringEditModeRef.current = true;
-        this.props.navigation?.dispatch(action);
-      });
-    };
-    if (!this.props.isMessageEdited()) {
-      saveExit();
-      return;
-    }
-    exitEditAlert({
-      onDiscard: saveExit,
-    });
-  };
 
   onPressJoin = () => {
     void this.props.dispatchActionPromise(
@@ -1425,6 +1347,79 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     inputState?.scrollToMessage(editedMessageKey);
   }, [getEditedMessage, inputState]);
 
+  const blockNavigation = React.useCallback(() => {
+    const { navigation } = props;
+    if (!navigation || !navigation.isFocused()) {
+      return;
+    }
+    navigation.setParams({
+      removeEditMode: removeEditMode,
+    });
+  }, [props, removeEditMode]);
+
+  const onNavigationFocus = React.useCallback(() => {
+    isExitingDuringEditModeRef.current = false;
+  }, []);
+
+  const onNavigationBlur = React.useCallback(() => {
+    if (!isEditMode()) {
+      return;
+    }
+    setText(draft);
+    isExitingDuringEditModeRef.current = true;
+    exitEditMode();
+  }, [draft, exitEditMode, isEditMode]);
+
+  const onNavigationBeforeRemove = React.useCallback(
+    (e: {
+      +data: { +action: GenericNavigationAction },
+      +preventDefault: () => void,
+      ...
+    }) => {
+      if (!isEditMode()) {
+        return;
+      }
+      const { action } = e.data;
+      e.preventDefault();
+      const saveExit = () => {
+        messageEditingContext?.setEditedMessage(null, () => {
+          isExitingDuringEditModeRef.current = true;
+          props.navigation?.dispatch(action);
+        });
+      };
+      if (!isMessageEdited()) {
+        saveExit();
+        return;
+      }
+      exitEditAlert({
+        onDiscard: saveExit,
+      });
+    },
+    [isEditMode, isMessageEdited, messageEditingContext, props.navigation],
+  );
+
+  React.useEffect(() => {
+    const { navigation } = props;
+    if (!navigation) {
+      return noop;
+    }
+
+    const clearBeforeRemoveListener = navigation.addListener(
+      'beforeRemove',
+      onNavigationBeforeRemove,
+    );
+    const clearFocusListener = navigation.addListener(
+      'focus',
+      onNavigationFocus,
+    );
+    const clearBlurListener = navigation.addListener('blur', onNavigationBlur);
+    return () => {
+      clearBeforeRemoveListener();
+      clearFocusListener();
+      clearBlurListener();
+    };
+  }, [onNavigationBeforeRemove, onNavigationBlur, onNavigationFocus, props]);
+
   return (
     <ChatInputBar
       {...props}
@@ -1457,7 +1452,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       setText={setText}
       textEdited={textEdited}
       buttonsExpanded={buttonsExpanded}
-      isExitingDuringEditModeRef={isExitingDuringEditModeRef}
       cameraRollIconStyle={cameraRollIconStyle}
       cameraIconStyle={cameraIconStyle}
       expandoButtonsStyle={expandoButtonsStyle}
@@ -1480,9 +1474,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       onPressExitEditMode={onPressExitEditMode}
       updateText={updateText}
       onSend={onSend}
-      removeEditMode={removeEditMode}
-      exitEditMode={exitEditMode}
       isMessageEdited={isMessageEdited}
+      blockNavigation={blockNavigation}
     />
   );
 }
