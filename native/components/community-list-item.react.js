@@ -31,16 +31,15 @@ import { nonThreadCalendarQuery } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import type { TextStyle, ViewStyle } from '../types/styles.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +style?: ViewStyle,
-  +textStyle?: TextStyle,
+  +style: ViewStyle,
 };
 
 function CommunityListItem(props: Props): React.Node {
-  const { threadInfo: initialThreadInfo, style, textStyle } = props;
+  const { threadInfo: initialThreadInfo, style } = props;
 
   // `initialThreadInfo` will not update if the user leaves or joins the thread,
   // so we also need `reduxThreadInfo` to track thread membership and
@@ -180,10 +179,7 @@ function CommunityListItem(props: Props): React.Node {
     [style, styles.container],
   );
 
-  const singleLineTextStyle = React.useMemo(
-    () => [styles.text, textStyle],
-    [styles.text, textStyle],
-  );
+  const singleLineTextStyle = React.useMemo(() => [styles.text], [styles.text]);
 
   return (
     <View style={containerStyle}>
