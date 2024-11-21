@@ -1,5 +1,5 @@
 locals {
-  reports_service_image_tag           = local.is_staging ? "0.1.2-staging" : "0.1.2"
+  reports_service_image_tag           = local.is_staging ? "0.1.3" : "0.1.3"
   reports_service_container_name      = "reports-service-server"
   reports_service_server_image        = "commapp/reports-server:${local.reports_service_image_tag}"
   reports_service_container_http_port = 50056
