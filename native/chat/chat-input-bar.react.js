@@ -361,32 +361,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     return ChatInputBar.systemKeyboardShowing(this.props);
   }
 
-  immediatelyShowSendButton() {
-    this.props.sendButtonContainerOpen.setValue(1);
-    this.props.targetSendButtonContainerOpen.setValue(1);
-  }
-
-  updateSendButton(currentText: string) {
-    const targetValue = currentText === '' ? 0 : 1;
-    this.props.targetSendButtonContainerOpen.setValue(targetValue);
-    if (!this.shouldShowTextInput) {
-      this.props.sendButtonContainerOpen.setValue(targetValue);
-    }
-  }
-
-  componentDidMount() {
-    const { isActive } = this.props;
-    if (isActive) {
-      this.props.addEditInputMessageListener();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.isActive) {
-      this.props.removeEditInputMessageListener();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.textEdited &&
@@ -1057,7 +1031,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     (currentText: string) => {
       const targetValue = currentText === '' ? 0 : 1;
       targetSendButtonContainerOpen.setValue(targetValue);
-      if (!shouldShowTextInput) {
+      if (!shouldShowTextInput()) {
         sendButtonContainerOpen.setValue(targetValue);
       }
     },
@@ -1418,24 +1392,33 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   );
 
   React.useEffect(() => {
-    const { navigation } = props;
-    if (!navigation) {
-      return undefined;
+    if (isActive) {
+      addEditInputMessageListener();
     }
 
-    const clearBeforeRemoveListener = navigation.addListener(
+    return () => {
+      if (isActive) {
+        removeEditInputMessageListener();
+      }
+    };
+  }, [addEditInputMessageListener, isActive, removeEditInputMessageListener]);
+
+  React.useEffect(() => {
+    const { navigation } = props;
+
+    const clearBeforeRemoveListener = navigation?.addListener(
       'beforeRemove',
       onNavigationBeforeRemove,
     );
-    const clearFocusListener = navigation.addListener(
+    const clearFocusListener = navigation?.addListener(
       'focus',
       onNavigationFocus,
     );
-    const clearBlurListener = navigation.addListener('blur', onNavigationBlur);
+    const clearBlurListener = navigation?.addListener('blur', onNavigationBlur);
     return () => {
-      clearBeforeRemoveListener();
-      clearFocusListener();
-      clearBlurListener();
+      clearBeforeRemoveListener?.();
+      clearFocusListener?.();
+      clearBlurListener?.();
     };
   }, [onNavigationBeforeRemove, onNavigationBlur, onNavigationFocus, props]);
 
