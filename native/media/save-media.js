@@ -45,6 +45,7 @@ import { getMediaLibraryIdentifier } from './identifier-utils.js';
 import { commCoreModule } from '../native-modules.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { requestAndroidPermission } from '../utils/android-permissions.js';
+import { useInvalidCSATLogOut } from '../../lib/actions/user-actions';
 
 export type IntentionalSaveMedia = (
   mediaInfo: MediaInfo,
@@ -58,6 +59,7 @@ export type IntentionalSaveMedia = (
 function useIntentionalSaveMedia(): IntentionalSaveMedia {
   const dispatch = useDispatch();
   const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+  const invalidTokenLogOut = useInvalidCSATLogOut();
   return React.useCallback(
     async (
       mediaInfo: MediaInfo,
@@ -87,6 +89,9 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       let message;
       if (result.success) {
         message = 'saved!';
+      } else if (result.reason === 'invalid_csat') {
+        void invalidTokenLogOut();
+        return;
       } else if (result.reason === 'save_unsupported') {
         const os: string = Platform.select({
           ios: 'iOS',
@@ -134,7 +139,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
         payload: { reports: [report] },
       });
     },
-    [dispatch, mediaReportsEnabled],
+    [dispatch, mediaReportsEnabled, invalidTokenLogOut],
   );
 }
 
