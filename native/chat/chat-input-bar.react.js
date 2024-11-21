@@ -107,7 +107,6 @@ import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   type EditInputBarMessageParameters,
-  type InputState,
   InputStateContext,
 } from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
@@ -122,7 +121,6 @@ import {
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
-import type { OverlayContextType } from '../navigation/overlay-context.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   ChatCameraModalRouteName,
@@ -286,7 +284,6 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +viewerID: ?string,
   +rawThreadInfo: RawThreadInfo,
   +draft: string,
   +joinThreadLoadingStatus: LoadingStatus,
@@ -301,28 +298,22 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +joinThread: (input: UseJoinThreadInput) => Promise<ThreadJoinPayload>,
-  +inputState: ?InputState,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
-  +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
-  +editMessage: (messageID: string, text: string) => Promise<void>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
-  +overlayContext: ?OverlayContextType,
   +messageEditingContext: ?MessageEditingContextType,
   +selectionState: SyncedSelectionData,
   +setSelectionState: SetState<SyncedSelectionData>,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
-  +currentUserIsVoiced: boolean,
   +currentUserCanJoin: boolean,
   +threadFrozen: boolean,
   +text: string,
   +setText: (text: string) => void,
   +textEdited: boolean,
-  +setTextEdited: (edited: boolean) => void,
   +buttonsExpanded: boolean,
   +isExitingDuringEditModeRef: { current: boolean },
   +expandoButtonsStyle: AnimatedViewStyle,
@@ -332,11 +323,9 @@ type Props = {
   +sendButtonContainerStyle: AnimatedViewStyle,
   +shouldShowTextInput: () => boolean,
   +isEditMode: () => boolean,
-  +immediatelyShowSendButton: () => void,
   +updateSendButton: (currentText: string) => void,
   +expandButtons: () => void,
   +hideButtons: () => void,
-  +immediatelyHideButtons: () => void,
   +textInputRef: { current: ?React.ElementRef<typeof TextInput> },
   +clearableTextInputRef: { current: ?ClearableTextInput },
   +selectableTextInputRef: {
@@ -344,6 +333,19 @@ type Props = {
   },
   +setTextInputRef: (ref: ?React.ElementRef<typeof TextInput>) => void,
   +setClearableTextInputRef: (ref: ?ClearableTextInput) => void,
+  +addEditInputMessageListener: () => void,
+  +removeEditInputMessageListener: () => void,
+  +focusAndUpdateTextAndSelection: (
+    newText: string,
+    selection: Selection,
+  ) => void,
+  +scrollToEditedMessage: () => void,
+  +onPressExitEditMode: () => void,
+  +updateText: (newText: string) => void,
+  +onSend: () => Promise<void>,
+  +removeEditMode: RemoveEditMode,
+  +exitEditMode: () => void,
+  +isMessageEdited: (newText?: string) => boolean,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -368,7 +370,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   componentDidMount() {
     const { isActive, navigation } = this.props;
     if (isActive) {
-      this.addEditInputMessageListener();
+      this.props.addEditInputMessageListener();
     }
     if (!navigation) {
       return;
@@ -389,7 +391,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   componentWillUnmount() {
     if (this.props.isActive) {
-      this.removeEditInputMessageListener();
+      this.props.removeEditInputMessageListener();
     }
     if (this.clearBeforeRemoveListener) {
       this.clearBeforeRemoveListener();
@@ -419,9 +421,9 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.props.setText(this.props.draft);
     }
     if (this.props.isActive && !prevProps.isActive) {
-      this.addEditInputMessageListener();
+      this.props.addEditInputMessageListener();
     } else if (!this.props.isActive && prevProps.isActive) {
-      this.removeEditInputMessageListener();
+      this.props.removeEditInputMessageListener();
     }
 
     const currentText = trimMessage(this.props.text);
@@ -460,24 +462,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       this.blockNavigation();
     }
-  }
-
-  addEditInputMessageListener() {
-    invariant(
-      this.props.inputState,
-      'inputState should be set in addEditInputMessageListener',
-    );
-    this.props.inputState.addEditInputMessageListener(this.focusAndUpdateText);
-  }
-
-  removeEditInputMessageListener() {
-    invariant(
-      this.props.inputState,
-      'inputState should be set in removeEditInputMessageListener',
-    );
-    this.props.inputState.removeEditInputMessageListener(
-      this.focusAndUpdateText,
-    );
   }
 
   setIOSKeyboardHeight() {
@@ -553,7 +537,9 @@ class ChatInputBar extends React.PureComponent<Props> {
           text={this.props.text}
           matchedStrings={this.props.typeaheadMatchedStrings}
           suggestions={this.props.suggestions}
-          focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+          focusAndUpdateTextAndSelection={
+            this.props.focusAndUpdateTextAndSelection
+          }
           typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
           TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
         />
@@ -607,7 +593,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         >
           <View style={this.props.styles.editViewContent}>
             <TouchableOpacity
-              onPress={this.scrollToEditedMessage}
+              onPress={this.props.scrollToEditedMessage}
               activeOpacity={0.4}
             >
               <Text
@@ -625,7 +611,7 @@ class ChatInputBar extends React.PureComponent<Props> {
             name="cross"
             size={22}
             color={threadColor}
-            onPress={this.onPressExitEditMode}
+            onPress={this.props.onPressExitEditMode}
           />
         </AnimatedView>
       );
@@ -705,7 +691,7 @@ class ChatInputBar extends React.PureComponent<Props> {
           <SelectableTextInput
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.props.text}
-            onChangeText={this.updateText}
+            onChangeText={this.props.updateText}
             selection={this.props.selectionState.selection}
             onUpdateSyncedSelectionData={this.props.setSelectionState}
             placeholder="Send a message..."
@@ -719,7 +705,7 @@ class ChatInputBar extends React.PureComponent<Props> {
           />
           <AnimatedView style={this.props.sendButtonContainerStyle}>
             <TouchableOpacity
-              onPress={this.onSend}
+              onPress={this.props.onSend}
               activeOpacity={0.4}
               style={this.props.styles.sendButton}
               disabled={trimMessage(this.props.text) === ''}
@@ -737,214 +723,13 @@ class ChatInputBar extends React.PureComponent<Props> {
     );
   }
 
-  updateText = (text: string) => {
-    if (this.props.isExitingDuringEditModeRef.current) {
-      return;
-    }
-    this.props.setText(text);
-    this.props.setTextEdited(true);
-    this.props.messageEditingContext?.setEditedMessageChanged(
-      this.isMessageEdited(text),
-    );
-    if (this.props.isEditMode()) {
-      return;
-    }
-    this.saveDraft(text);
-  };
-
-  saveDraft: (text: string) => void = _throttle(text => {
-    this.props.dispatch({
-      type: updateDraftActionType,
-      payload: {
-        key: draftKeyFromThreadID(this.props.threadInfo.id),
-        text,
-      },
-    });
-  }, 400);
-
-  focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
-    this.props.selectableTextInputRef.current?.prepareForSelectionMutation(
-      text,
-      selection,
-    );
-    this.props.setText(text);
-    this.props.setTextEdited(true);
-    this.props.setSelectionState({ text, selection });
-    this.saveDraft(text);
-
-    this.focusAndUpdateButtonsVisibility();
-  };
-
-  focusAndUpdateText = (params: EditInputBarMessageParameters) => {
-    const { message: text, mode } = params;
-    const currentText = this.props.text;
-    if (mode === 'replace') {
-      this.updateText(text);
-    } else if (!currentText.startsWith(text)) {
-      const prependedText = text.concat(currentText);
-      this.updateText(prependedText);
-    }
-
-    this.focusAndUpdateButtonsVisibility();
-  };
-
-  focusAndUpdateButtonsVisibility = () => {
-    const textInput = this.props.textInputRef.current;
-
-    if (!textInput) {
-      return;
-    }
-
-    this.props.immediatelyShowSendButton();
-    this.props.immediatelyHideButtons();
-    textInput.focus();
-  };
-
-  onSend = async () => {
-    if (!trimMessage(this.props.text)) {
-      return;
-    }
-
-    const editedMessage = this.getEditedMessage();
-    if (editedMessage && editedMessage.id) {
-      await this.editMessage(editedMessage.id, this.props.text);
-      return;
-    }
-
-    this.props.updateSendButton('');
-
-    const clearableTextInput = this.props.clearableTextInputRef.current;
-    invariant(
-      clearableTextInput,
-      'clearableTextInput should be sent in onSend',
-    );
-    let text = await clearableTextInput.getValueAndReset();
-    text = trimMessage(text);
-    if (!text) {
-      return;
-    }
-
-    const localID = getNextLocalID();
-    const creatorID = this.props.viewerID;
-    invariant(creatorID, 'should have viewer ID in order to send a message');
-    invariant(
-      this.props.inputState,
-      'inputState should be set in ChatInputBar.onSend',
-    );
-
-    await this.props.inputState.sendTextMessage(
-      {
-        type: messageTypes.TEXT,
-        localID,
-        threadID: this.props.threadInfo.id,
-        text,
-        creatorID,
-        time: Date.now(),
-      },
-      this.props.threadInfo,
-      this.props.parentThreadInfo,
-    );
-  };
-
-  isMessageEdited = (newText?: string): boolean => {
-    let text = newText ?? this.props.text;
-    text = trimMessage(text);
-    const originalText = this.props.editedMessageInfo?.text;
-    return text !== originalText;
-  };
-
-  unblockNavigation = () => {
-    const { navigation } = this.props;
-    if (!navigation) {
-      return;
-    }
-    navigation.setParams({ removeEditMode: null });
-  };
-
-  removeEditMode: RemoveEditMode = action => {
-    const { navigation } = this.props;
-    if (!navigation || this.props.isExitingDuringEditModeRef.current) {
-      return 'ignore_action';
-    }
-    if (!this.isMessageEdited()) {
-      this.unblockNavigation();
-      return 'reduce_action';
-    }
-    const unblockAndDispatch = () => {
-      this.unblockNavigation();
-      navigation.dispatch(action);
-    };
-    const onContinueEditing = () => {
-      this.props.overlayContext?.resetScrollBlockingModalStatus();
-    };
-    exitEditAlert({
-      onDiscard: unblockAndDispatch,
-      onContinueEditing,
-    });
-    return 'ignore_action';
-  };
-
   blockNavigation = () => {
     const { navigation } = this.props;
     if (!navigation || !navigation.isFocused()) {
       return;
     }
     navigation.setParams({
-      removeEditMode: this.removeEditMode,
-    });
-  };
-
-  editMessage = async (messageID: string, text: string) => {
-    if (!this.isMessageEdited()) {
-      this.exitEditMode();
-      return;
-    }
-    text = trimMessage(text);
-    try {
-      await this.props.editMessage(messageID, text);
-      this.exitEditMode();
-    } catch (error) {
-      Alert.alert(
-        'Couldn’t edit the message',
-        'Please try again later',
-        [{ text: 'OK' }],
-        {
-          cancelable: true,
-        },
-      );
-    }
-  };
-
-  getEditedMessage = (): ?MessageInfo => {
-    const editState = this.props.messageEditingContext?.editState;
-    return editState?.editedMessage;
-  };
-
-  onPressExitEditMode = () => {
-    if (!this.isMessageEdited()) {
-      this.exitEditMode();
-      return;
-    }
-    exitEditAlert({
-      onDiscard: this.exitEditMode,
-    });
-  };
-
-  scrollToEditedMessage = () => {
-    const editedMessage = this.getEditedMessage();
-    if (!editedMessage) {
-      return;
-    }
-    const editedMessageKey = messageKey(editedMessage);
-    this.props.inputState?.scrollToMessage(editedMessageKey);
-  };
-
-  exitEditMode = () => {
-    this.props.messageEditingContext?.setEditedMessage(null, () => {
-      this.unblockNavigation();
-      this.updateText(this.props.draft);
-      this.focusAndUpdateButtonsVisibility();
-      this.props.updateSendButton(this.props.draft);
+      removeEditMode: this.props.removeEditMode,
     });
   };
 
@@ -958,7 +743,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
     this.props.setText(this.props.draft);
     this.props.isExitingDuringEditModeRef.current = true;
-    this.exitEditMode();
+    this.props.exitEditMode();
   };
 
   onNavigationBeforeRemove = (e: {
@@ -977,7 +762,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         this.props.navigation?.dispatch(action);
       });
     };
-    if (!this.isMessageEdited()) {
+    if (!this.props.isMessageEdited()) {
       saveExit();
       return;
     }
@@ -1396,10 +1181,259 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     [],
   );
 
+  const saveDraft = React.useMemo(
+    () =>
+      _throttle(newText => {
+        dispatch({
+          type: updateDraftActionType,
+          payload: {
+            key: draftKeyFromThreadID(props.threadInfo.id),
+            text: newText,
+          },
+        });
+      }, 400),
+    [dispatch, props.threadInfo.id],
+  );
+
+  const isMessageEdited = React.useCallback(
+    (newText?: string): boolean => {
+      let updatedText = newText ?? text;
+      updatedText = trimMessage(updatedText);
+      const originalText = editedMessageInfo?.text;
+      return updatedText !== originalText;
+    },
+    [editedMessageInfo?.text, text],
+  );
+
+  const updateText = React.useCallback(
+    (newText: string) => {
+      if (isExitingDuringEditModeRef.current) {
+        return;
+      }
+      setText(newText);
+      setTextEdited(true);
+      messageEditingContext?.setEditedMessageChanged(isMessageEdited(newText));
+      if (isEditMode()) {
+        return;
+      }
+      saveDraft(newText);
+    },
+    [isEditMode, isMessageEdited, messageEditingContext, saveDraft],
+  );
+
+  const focusAndUpdateButtonsVisibility = React.useCallback(() => {
+    const textInput = textInputRef.current;
+
+    if (!textInput) {
+      return;
+    }
+
+    immediatelyShowSendButton();
+    immediatelyHideButtons();
+    textInput.focus();
+  }, [immediatelyHideButtons, immediatelyShowSendButton]);
+
+  const unblockNavigation = React.useCallback(() => {
+    const { navigation } = props;
+    if (!navigation) {
+      return;
+    }
+    navigation.setParams({ removeEditMode: null });
+  }, [props]);
+
+  const exitEditMode = React.useCallback(() => {
+    messageEditingContext?.setEditedMessage(null, () => {
+      unblockNavigation();
+      updateText(draft);
+      focusAndUpdateButtonsVisibility();
+      updateSendButton(draft);
+    });
+  }, [
+    draft,
+    focusAndUpdateButtonsVisibility,
+    messageEditingContext,
+    unblockNavigation,
+    updateSendButton,
+    updateText,
+  ]);
+
+  const editMessageInner = React.useCallback(
+    async (messageID: string, newText: string) => {
+      if (!isMessageEdited()) {
+        exitEditMode();
+        return;
+      }
+      newText = trimMessage(newText);
+      try {
+        await editMessage(messageID, newText);
+        exitEditMode();
+      } catch (error) {
+        Alert.alert(
+          'Couldn’t edit the message',
+          'Please try again later',
+          [{ text: 'OK' }],
+          {
+            cancelable: true,
+          },
+        );
+      }
+    },
+    [editMessage, exitEditMode, isMessageEdited],
+  );
+
+  const focusAndUpdateText = React.useCallback(
+    (params: EditInputBarMessageParameters) => {
+      const { message, mode } = params;
+      const currentText = text;
+      if (mode === 'replace') {
+        updateText(message);
+      } else if (!currentText.startsWith(message)) {
+        const prependedText = message.concat(currentText);
+        updateText(prependedText);
+      }
+
+      focusAndUpdateButtonsVisibility();
+    },
+    [focusAndUpdateButtonsVisibility, text, updateText],
+  );
+
+  const addEditInputMessageListener = React.useCallback(() => {
+    invariant(
+      inputState,
+      'inputState should be set in addEditInputMessageListener',
+    );
+    inputState.addEditInputMessageListener(focusAndUpdateText);
+  }, [focusAndUpdateText, inputState]);
+
+  const removeEditInputMessageListener = React.useCallback(() => {
+    invariant(
+      inputState,
+      'inputState should be set in removeEditInputMessageListener',
+    );
+    inputState.removeEditInputMessageListener(focusAndUpdateText);
+  }, [focusAndUpdateText, inputState]);
+
+  const focusAndUpdateTextAndSelection = React.useCallback(
+    (newText: string, selection: Selection) => {
+      selectableTextInputRef.current?.prepareForSelectionMutation(
+        newText,
+        selection,
+      );
+      setText(newText);
+      setTextEdited(true);
+      setSelectionState({ text: newText, selection });
+      saveDraft(newText);
+
+      focusAndUpdateButtonsVisibility();
+    },
+    [focusAndUpdateButtonsVisibility, saveDraft],
+  );
+
+  const getEditedMessage = React.useCallback((): ?MessageInfo => {
+    const editState = messageEditingContext?.editState;
+    return editState?.editedMessage;
+  }, [messageEditingContext?.editState]);
+
+  const onSend = React.useCallback(async () => {
+    if (!trimMessage(text)) {
+      return;
+    }
+
+    const editedMessage = getEditedMessage();
+    if (editedMessage && editedMessage.id) {
+      await editMessageInner(editedMessage.id, text);
+      return;
+    }
+
+    updateSendButton('');
+
+    const clearableTextInput = clearableTextInputRef.current;
+    invariant(
+      clearableTextInput,
+      'clearableTextInput should be sent in onSend',
+    );
+    let newText = await clearableTextInput.getValueAndReset();
+    newText = trimMessage(newText);
+    if (!newText) {
+      return;
+    }
+
+    const localID = getNextLocalID();
+    const creatorID = viewerID;
+    invariant(creatorID, 'should have viewer ID in order to send a message');
+    invariant(inputState, 'inputState should be set in ChatInputBar.onSend');
+
+    await inputState.sendTextMessage(
+      {
+        type: messageTypes.TEXT,
+        localID,
+        threadID: props.threadInfo.id,
+        text: newText,
+        creatorID,
+        time: Date.now(),
+      },
+      props.threadInfo,
+      parentThreadInfo,
+    );
+  }, [
+    editMessageInner,
+    getEditedMessage,
+    inputState,
+    parentThreadInfo,
+    props.threadInfo,
+    text,
+    updateSendButton,
+    viewerID,
+  ]);
+
+  const removeEditMode: RemoveEditMode = React.useCallback(
+    action => {
+      const { navigation } = props;
+      if (!navigation || isExitingDuringEditModeRef.current) {
+        return 'ignore_action';
+      }
+      if (!isMessageEdited()) {
+        unblockNavigation();
+        return 'reduce_action';
+      }
+      const unblockAndDispatch = () => {
+        unblockNavigation();
+        navigation.dispatch(action);
+      };
+      const onContinueEditing = () => {
+        overlayContext?.resetScrollBlockingModalStatus();
+      };
+      exitEditAlert({
+        onDiscard: unblockAndDispatch,
+        onContinueEditing,
+      });
+      return 'ignore_action';
+    },
+    [isMessageEdited, overlayContext, props, unblockNavigation],
+  );
+
+  const onPressExitEditMode = React.useCallback(() => {
+    if (!isMessageEdited()) {
+      exitEditMode();
+      return;
+    }
+    exitEditAlert({
+      onDiscard: exitEditMode,
+    });
+  }, [exitEditMode, isMessageEdited]);
+
+  const scrollToEditedMessage = React.useCallback(() => {
+    const editedMessage = getEditedMessage();
+    if (!editedMessage) {
+      return;
+    }
+    const editedMessageKey = messageKey(editedMessage);
+    inputState?.scrollToMessage(editedMessageKey);
+  }, [getEditedMessage, inputState]);
+
   return (
     <ChatInputBar
       {...props}
-      viewerID={viewerID}
       rawThreadInfo={rawThreadInfo}
       draft={draft}
       joinThreadLoadingStatus={joinThreadLoadingStatus}
@@ -1412,28 +1446,22 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       dispatch={dispatch}
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
-      inputState={inputState}
       userMentionsCandidates={userMentionsCandidates}
       chatMentionSearchIndex={chatMentionSearchIndex}
       chatMentionCandidates={chatMentionCandidates}
-      parentThreadInfo={parentThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
-      editMessage={editMessage}
       navigation={props.navigation}
-      overlayContext={overlayContext}
       messageEditingContext={messageEditingContext}
       selectionState={selectionState}
       setSelectionState={setSelectionState}
       suggestions={suggestions}
       typeaheadMatchedStrings={typeaheadMatchedStrings}
-      currentUserIsVoiced={currentUserIsVoiced}
       currentUserCanJoin={currentUserCanJoin}
       threadFrozen={threadFrozen}
       text={text}
       setText={setText}
       textEdited={textEdited}
-      setTextEdited={setTextEdited}
       buttonsExpanded={buttonsExpanded}
       isExitingDuringEditModeRef={isExitingDuringEditModeRef}
       cameraRollIconStyle={cameraRollIconStyle}
@@ -1443,16 +1471,24 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       sendButtonContainerStyle={sendButtonContainerStyle}
       shouldShowTextInput={shouldShowTextInput}
       isEditMode={isEditMode}
-      immediatelyShowSendButton={immediatelyShowSendButton}
       updateSendButton={updateSendButton}
       expandButtons={expandButtons}
       hideButtons={hideButtons}
-      immediatelyHideButtons={immediatelyHideButtons}
       textInputRef={textInputRef}
       clearableTextInputRef={clearableTextInputRef}
       selectableTextInputRef={selectableTextInputRef}
       setTextInputRef={setTextInputRef}
       setClearableTextInputRef={setClearableTextInputRef}
+      addEditInputMessageListener={addEditInputMessageListener}
+      removeEditInputMessageListener={removeEditInputMessageListener}
+      focusAndUpdateTextAndSelection={focusAndUpdateTextAndSelection}
+      scrollToEditedMessage={scrollToEditedMessage}
+      onPressExitEditMode={onPressExitEditMode}
+      updateText={updateText}
+      onSend={onSend}
+      removeEditMode={removeEditMode}
+      exitEditMode={exitEditMode}
+      isMessageEdited={isMessageEdited}
     />
   );
 }
