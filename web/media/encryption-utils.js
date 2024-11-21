@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
@@ -17,7 +18,10 @@ import type {
 import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
-import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
+import {
+  createDefaultHTTPRequestHeaders,
+  responseIsInvalidCSAT,
+} from 'lib/utils/services-utils.js';
 
 import { base64DecodeBuffer } from '../utils/base64-utils.js';
 
@@ -157,8 +161,10 @@ async function fetchAndDecryptMedia(
   const steps: DecryptFileStep[] = [];
 
   // Step 1 - Fetch the encrypted media and convert it to a Uint8Array
+  const isBlobServiceHosted = isBlobServiceURI(blobURI);
+
   let headers;
-  if (isBlobServiceURI(blobURI)) {
+  if (isBlobServiceHosted) {
     headers = createDefaultHTTPRequestHeaders(authMetadata);
   }
 
@@ -168,6 +174,9 @@ async function fetchAndDecryptMedia(
   try {
     const response = await fetch(url, { headers });
     if (!response.ok) {
+      if (isBlobServiceHosted && responseIsInvalidCSAT(response)) {
+        return { steps, result: { success: false, reason: 'invalid_csat' } };
+      }
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
     const buffer = await response.arrayBuffer();
@@ -259,12 +268,23 @@ function useFetchAndDecryptMedia(): (
   invariant(identityContext, 'Identity context should be set');
   const { getAuthMetadata } = identityContext;
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
+
   return React.useCallback(
     async (blobURI, encryptionKey) => {
       const authMetadata = await getAuthMetadata();
-      return fetchAndDecryptMedia(blobURI, encryptionKey, authMetadata);
+      const output = await fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+      );
+
+      if (!output.result.success && output.result.reason === 'invalid_csat') {
+        void invalidTokenLogOut();
+      }
+      return output;
     },
-    [getAuthMetadata],
+    [getAuthMetadata, invalidTokenLogOut],
   );
 }
 
