@@ -1,5 +1,4 @@
 // @flow
-
 /** @jsxImportSource hono/jsx */
 
 /* eslint-disable react/react-in-jsx-scope */
@@ -16,8 +15,8 @@ import { redisCache } from '../utils/redis-cache.js';
 function startFrogHonoServer() {
   const frogApp = new Frog({ title: 'Comm Frame' });
 
-  frogApp.frame('/:inviteLink/:channelID', async c => {
-    const { inviteLink, channelID } = c.req.param();
+  frogApp.frame('/:inviteLink/:channelID/:taggerUsername', async c => {
+    const { inviteLink, channelID, taggerUsername } = c.req.param();
 
     let buttonLink = 'https://comm.app';
     const inviteLinkURLPrefix = inviteLinkURL('');
@@ -43,6 +42,24 @@ function startFrogHonoServer() {
       header_image_url = channelInfo.header_image_url;
     }
 
+    const displayUsername =
+      taggerUsername.length > 16
+        ? `${taggerUsername.slice(0, 16)}[...]`
+        : taggerUsername;
+
+    const channelIcon = channelInfo?.image_url ? (
+      <img
+        src={channelInfo.image_url}
+        alt="icon"
+        style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '20px',
+          marginRight: '15px',
+        }}
+      />
+    ) : null;
+
     return c.res({
       image: (
         <div
@@ -64,6 +81,58 @@ function startFrogHonoServer() {
               objectFit: 'cover',
             }}
           />
+          <div
+            style={{
+              minWidth: '55%',
+              width: 'auto',
+              height: '37%',
+              position: 'absolute',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              borderRadius: '40px',
+              padding: '20px 40px',
+              border: '4px solid white',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                height: '80%',
+              }}
+            >
+              {channelIcon}
+              <span
+                style={{
+                  color: 'white',
+                  fontSize: '32px',
+                  weight: '500',
+                  textAlign: 'center',
+                }}
+              >
+                Thread Invitation
+              </span>
+            </div>
+
+            <div
+              style={{
+                width: '100%',
+                height: '20%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ color: 'white', weight: '500', fontSize: '32px' }}>
+                @{displayUsername} created a thread on Comm
+              </span>
+            </div>
+          </div>
         </div>
       ),
       intents: [
