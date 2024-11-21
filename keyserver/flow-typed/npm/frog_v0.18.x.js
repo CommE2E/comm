@@ -38,7 +38,7 @@ declare module 'frog' {
     constructor(options?: FrogOptions): this;
     frame(
       route: string,
-      callback: (c: FrameContext) => FrogResponse,
+      callback: (c: FrameContext) => Promise<FrogResponse> | FrogResponse,
     ): void;
     fetch: Fetch,
   }
