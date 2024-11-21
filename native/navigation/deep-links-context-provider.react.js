@@ -10,6 +10,7 @@ import {
   useVerifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
   parseInstallReferrerFromInviteLinkURL,
   parseDataFromDeepLink,
@@ -21,7 +22,10 @@ import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js'
 import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import {
+  errorMessageIsInvalidCSAT,
+  usingCommServicesAccessToken,
+} from 'lib/utils/services-utils.js';
 
 import {
   InviteLinkModalRouteName,
@@ -92,6 +96,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
   invariant(identityContext, 'Identity context should be set');
   const { getAuthMetadata } = identityContext;
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useVerifyInviteLink(keyserverOverride);
@@ -125,6 +130,10 @@ function DeepLinksContextProvider(props: Props): React.Node {
             await getKeyserverOverrideForAnInviteLink(secret, authMetadata);
           setKeyserverOverride(newKeyserverOverride);
         } catch (e) {
+          if (errorMessageIsInvalidCSAT(e)) {
+            void invalidTokenLogOut();
+            return;
+          }
           console.log('Error while downloading an invite link blob', e);
           navigation.navigate<'InviteLinkModal'>({
             name: InviteLinkModalRouteName,
@@ -140,7 +149,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
         navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
       }
     })();
-  }, [currentLink, getAuthMetadata, loggedIn, navigation]);
+  }, [currentLink, getAuthMetadata, loggedIn, navigation, invalidTokenLogOut]);
 
   React.useEffect(() => {
     const secret = inviteLinkSecret.current;
