@@ -107,8 +107,11 @@ async function download(hash: string): Promise<BlobDownloadResult> {
   const headers = await createRequestHeaders();
   const blobResult = await downloadBlob(hash, headers);
 
-  if (blobResult.result !== 'success') {
+  if (blobResult.result === 'error') {
     return { found: false, status: blobResult.status };
+  } else if (blobResult.result === 'invalid_csat') {
+    await clearIdentityInfo();
+    return { found: false, status: 401 };
   }
   const blob = await blobResult.response.blob();
   return { found: true, blob };
