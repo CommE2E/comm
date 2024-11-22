@@ -4,6 +4,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 
 import { serve } from '@hono/node-server';
+// eslint-disable-next-line import/extensions
+import { serveStatic } from '@hono/node-server/serve-static';
 import { Button, Frog } from 'frog';
 
 import { inviteLinkURL } from 'lib/facts/links.js';
@@ -14,6 +16,11 @@ import { redisCache } from '../utils/redis-cache.js';
 
 function startFrogHonoServer() {
   const frogApp = new Frog({ title: 'Comm Frame' });
+
+  frogApp.hono.use(
+    '/default_farcaster_channel_cover.png',
+    serveStatic({ path: './images/default_farcaster_channel_cover.png' }),
+  );
 
   frogApp.frame('/:inviteLink/:channelID/:taggerUsername', async c => {
     const { inviteLink, channelID, taggerUsername } = c.req.param();
@@ -36,8 +43,7 @@ function startFrogHonoServer() {
       }
     }
 
-    let header_image_url =
-      'https://warpcast.com/~/images/DefaultChannelCoverImage.png';
+    let header_image_url = '/default_farcaster_channel_cover.png';
     if (channelInfo?.header_image_url) {
       header_image_url = channelInfo.header_image_url;
     }
