@@ -455,8 +455,9 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "retrieveBackupKeys"]
-    fn retrieve_backup_keys(
+    #[cxx_name = "getBackupUserKeys"]
+    fn get_backup_user_keys(
+      user_identifier: String,
       backup_secret: String,
       backup_id: String,
       promise_id: u32,

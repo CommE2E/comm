@@ -2724,6 +2724,26 @@ jsi::Value CommCoreModule::getQRAuthBackupData(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::getBackupUserKeys(
+    jsi::Runtime &rt,
+    jsi::String userIdentifier,
+    jsi::String backupSecret,
+    jsi::String backupID) {
+  std::string userIdentifierStr = userIdentifier.utf8(rt);
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string backupIDStr = backupID.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto currentID = RustPromiseManager::instance.addPromise(
+            {promise, this->jsInvoker_, innerRt});
+        ::getBackupUserKeys(
+            rust::string(userIdentifierStr),
+            rust::string(backupSecretStr),
+            rust::string(backupIDStr),
+            currentID);
+      });
+}
+
 jsi::Value CommCoreModule::retrieveLatestBackupInfo(
     jsi::Runtime &rt,
     jsi::String userIdentifier) {
