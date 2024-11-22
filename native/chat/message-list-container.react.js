@@ -299,7 +299,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         );
         setAllUsersSupportThickThreads(
           userInfoInputArray.every(userInfo =>
-            usersSupportingThickThreads.has(userInfo.id),
+            usersSupportingThickThreads.get(userInfo.id),
           ),
         );
       })();

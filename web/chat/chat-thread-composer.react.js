@@ -115,7 +115,7 @@ function ChatThreadComposer(props: Props): React.Node {
           allUsersSupportThickThreads:
             user.id === viewerID
               ? true
-              : usersSupportingThickThreads.has(user.id),
+              : !!usersSupportingThickThreads.get(user.id),
         });
         dispatch({
           type: updateNavInfoActionType,
