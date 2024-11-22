@@ -16,10 +16,14 @@ import {
   View,
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
-import Animated, {
-  EasingNode,
+import {
+  Easing,
   FadeInDown,
   FadeOutDown,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 
 import {
@@ -109,33 +113,19 @@ import { useColors, useStyles } from '../themes/colors.js';
 import type { ImagePasteEvent, LayoutEvent } from '../types/react-native.js';
 import { AnimatedView, type ViewStyle } from '../types/styles.js';
 import Alert from '../utils/alert.js';
-import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
 import {
   mentionTypeaheadTooltipActions,
   nativeMentionTypeaheadRegex,
 } from '../utils/typeahead-utils.js';
 
-const {
-  Value,
-  Clock,
-  block,
-  set,
-  cond,
-  neq,
-  sub,
-  interpolateNode,
-  stopClock,
-  useValue,
-} = Animated;
-
 const expandoButtonsAnimationConfig = {
   duration: 150,
-  easing: EasingNode.inOut(EasingNode.ease),
+  easing: Easing.inOut(Easing.ease),
 };
 const sendButtonAnimationConfig = {
   duration: 150,
-  easing: EasingNode.inOut(EasingNode.ease),
+  easing: Easing.inOut(Easing.ease),
 };
 
 const unboundStyles = {
@@ -408,128 +398,36 @@ function ConnectedChatInputBarBase({
 
   const isExitingDuringEditModeRef = React.useRef(false);
 
-  const expandoButtonsOpen = useValue(1);
-  const targetExpandoButtonsOpen = useValue(1);
+  const expandoButtonsOpen = useSharedValue(1);
 
   const initialSendButtonContainerOpen = trimMessage(draft) ? 1 : 0;
-  const sendButtonContainerOpen = useValue(initialSendButtonContainerOpen);
-  const targetSendButtonContainerOpen = useValue(
+  const sendButtonContainerOpen = useSharedValue(
     initialSendButtonContainerOpen,
   );
 
-  const iconsOpacity = React.useMemo(() => {
-    const prevTargetExpandoButtonsOpen = new Value(1);
-    const expandoButtonClock = new Clock();
-    return block([
-      cond(neq(targetExpandoButtonsOpen, prevTargetExpandoButtonsOpen), [
-        stopClock(expandoButtonClock),
-        set(prevTargetExpandoButtonsOpen, targetExpandoButtonsOpen),
-      ]),
-      cond(
-        neq(expandoButtonsOpen, targetExpandoButtonsOpen),
-        set(
-          expandoButtonsOpen,
-          runTiming(
-            expandoButtonClock,
-            expandoButtonsOpen,
-            targetExpandoButtonsOpen,
-            true,
-            expandoButtonsAnimationConfig,
-          ),
-        ),
-      ),
-      expandoButtonsOpen,
-    ]);
-  }, [expandoButtonsOpen, targetExpandoButtonsOpen]);
+  const cameraRollIconStyle = useAnimatedStyle(() => ({
+    ...unboundStyles.cameraRollIcon,
+    opacity: expandoButtonsOpen.value,
+  }));
 
-  const expandoButtonsWidth = React.useMemo(() => {
-    return interpolateNode(iconsOpacity, {
-      inputRange: [0, 1],
-      outputRange: [26, 66],
-    });
-  }, [iconsOpacity]);
+  const cameraIconStyle = useAnimatedStyle(() => ({
+    ...unboundStyles.cameraIcon,
+    opacity: expandoButtonsOpen.value,
+  }));
 
-  const expandOpacity = React.useMemo(() => {
-    return sub(1, iconsOpacity);
-  }, [iconsOpacity]);
+  const expandoButtonsStyle = useAnimatedStyle(() => ({
+    ...unboundStyles.expandoButtons,
+    width: interpolate(expandoButtonsOpen.value, [0, 1], [26, 66]),
+  }));
 
-  const sendButtonContainerWidth = React.useMemo(() => {
-    const prevTargetSendButtonContainerOpen = new Value(
-      initialSendButtonContainerOpen,
-    );
-    const sendButtonClock = new Clock();
-    const animatedSendButtonContainerOpen = block([
-      cond(
-        neq(targetSendButtonContainerOpen, prevTargetSendButtonContainerOpen),
-        [
-          stopClock(sendButtonClock),
-          set(prevTargetSendButtonContainerOpen, targetSendButtonContainerOpen),
-        ],
-      ),
-      cond(
-        neq(sendButtonContainerOpen, targetSendButtonContainerOpen),
-        set(
-          sendButtonContainerOpen,
-          runTiming(
-            sendButtonClock,
-            sendButtonContainerOpen,
-            targetSendButtonContainerOpen,
-            true,
-            sendButtonAnimationConfig,
-          ),
-        ),
-      ),
-      sendButtonContainerOpen,
-    ]);
+  const expandIconStyle = useAnimatedStyle(() => ({
+    ...unboundStyles.expandIcon,
+    opacity: 1 - expandoButtonsOpen.value,
+  }));
 
-    return interpolateNode(animatedSendButtonContainerOpen, {
-      inputRange: [0, 1],
-      outputRange: [4, 38],
-    });
-  }, [
-    initialSendButtonContainerOpen,
-    sendButtonContainerOpen,
-    targetSendButtonContainerOpen,
-  ]);
-
-  const cameraRollIconStyle = React.useMemo(
-    () => ({
-      ...unboundStyles.cameraRollIcon,
-      opacity: iconsOpacity,
-    }),
-    [iconsOpacity],
-  );
-
-  const cameraIconStyle = React.useMemo(
-    () => ({
-      ...unboundStyles.cameraIcon,
-      opacity: iconsOpacity,
-    }),
-    [iconsOpacity],
-  );
-
-  const expandoButtonsStyle = React.useMemo(
-    () => ({
-      ...unboundStyles.expandoButtons,
-      width: expandoButtonsWidth,
-    }),
-    [expandoButtonsWidth],
-  );
-
-  const expandIconStyle = React.useMemo(
-    () => ({
-      ...unboundStyles.expandIcon,
-      opacity: expandOpacity,
-    }),
-    [expandOpacity],
-  );
-
-  const sendButtonContainerStyle = React.useMemo(
-    () => ({
-      width: sendButtonContainerWidth,
-    }),
-    [sendButtonContainerWidth],
-  );
+  const sendButtonContainerStyle = useAnimatedStyle(() => ({
+    width: interpolate(sendButtonContainerOpen.value, [0, 1], [4, 38]),
+  }));
 
   const shouldShowTextInput = React.useCallback(() => {
     if (currentUserIsVoiced) {
@@ -555,26 +453,28 @@ function ConnectedChatInputBarBase({
   }, [messageEditingContext?.editState, threadInfo.id]);
 
   const immediatelyShowSendButton = React.useCallback(() => {
-    sendButtonContainerOpen.setValue(1);
-    targetSendButtonContainerOpen.setValue(1);
-  }, [sendButtonContainerOpen, targetSendButtonContainerOpen]);
+    sendButtonContainerOpen.value = 1;
+  }, [sendButtonContainerOpen]);
 
   const updateSendButton = React.useCallback(
     (currentText: string) => {
       if (shouldShowTextInput()) {
-        targetSendButtonContainerOpen.setValue(currentText === '' ? 0 : 1);
+        sendButtonContainerOpen.value = withTiming(
+          currentText === '' ? 0 : 1,
+          sendButtonAnimationConfig,
+        );
       }
     },
-    [shouldShowTextInput, targetSendButtonContainerOpen],
+    [sendButtonContainerOpen, shouldShowTextInput],
   );
 
   const expandButtons = React.useCallback(() => {
     if (buttonsExpanded || isEditMode()) {
       return;
     }
-    targetExpandoButtonsOpen.setValue(1);
+    expandoButtonsOpen.value = withTiming(1, expandoButtonsAnimationConfig);
     setButtonsExpanded(true);
-  }, [buttonsExpanded, isEditMode, targetExpandoButtonsOpen]);
+  }, [buttonsExpanded, expandoButtonsOpen, isEditMode]);
 
   const hideButtons = React.useCallback(() => {
     if (
@@ -584,20 +484,19 @@ function ConnectedChatInputBarBase({
     ) {
       return;
     }
-    targetExpandoButtonsOpen.setValue(0);
+    expandoButtonsOpen.value = withTiming(0, expandoButtonsAnimationConfig);
     setButtonsExpanded(false);
   }, [
     buttonsExpanded,
+    expandoButtonsOpen,
     keyboardState?.mediaGalleryOpen,
     keyboardState?.systemKeyboardShowing,
-    targetExpandoButtonsOpen,
   ]);
 
   const immediatelyHideButtons = React.useCallback(() => {
-    expandoButtonsOpen.setValue(0);
-    targetExpandoButtonsOpen.setValue(0);
+    expandoButtonsOpen.value = 0;
     setButtonsExpanded(false);
-  }, [expandoButtonsOpen, targetExpandoButtonsOpen]);
+  }, [expandoButtonsOpen]);
 
   const textInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
   const clearableTextInputRef = React.useRef<?ClearableTextInput>();
