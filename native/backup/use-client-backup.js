@@ -16,7 +16,10 @@ import { useSelector } from '../redux/redux-utils.js';
 type ClientBackup = {
   +createFullBackup: () => Promise<string>,
   +createUserKeysBackup: () => Promise<string>,
-  +retrieveLatestBackupInfo: () => Promise<LatestBackupInfo>,
+  +retrieveLatestBackupInfo: () => Promise<{
+    +latestBackupInfo: LatestBackupInfo,
+    +userIdentifier: string,
+  }>,
 };
 
 function useClientBackup(): ClientBackup {
@@ -49,15 +52,16 @@ function useClientBackup(): ClientBackup {
     if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
       throw new Error('Attempt to restore backup for not logged in user.');
     }
-    const userIdentitifer = currentUserInfo?.username;
+    const userIdentifier = currentUserInfo?.username;
 
     const response =
-      await commCoreModule.retrieveLatestBackupInfo(userIdentitifer);
+      await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
 
-    return assertWithValidator<LatestBackupInfo>(
+    const latestBackupInfo = assertWithValidator<LatestBackupInfo>(
       JSON.parse(response),
       latestBackupInfoResponseValidator,
     );
+    return { latestBackupInfo, userIdentifier };
   }, [currentUserID, currentUserInfo, loggedIn]);
 
   return React.useMemo(
