@@ -4,6 +4,7 @@
 declare module 'frog' {
 
   import type { Fetch, HonoRequest } from '@hono/node-server';
+  import type { Hono } from 'hono';
 
   declare type FrameResponse = {
     +image: React$Node,
@@ -40,6 +41,7 @@ declare module 'frog' {
       route: string,
       callback: (c: FrameContext) => Promise<FrogResponse> | FrogResponse,
     ): void;
+    hono: Hono,
     fetch: Fetch,
   }
 }
