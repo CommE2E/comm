@@ -328,23 +328,29 @@ void CryptoModule::removeSessionByDeviceId(const std::string &deviceId) {
   this->sessions.erase(deviceId);
 }
 
+OlmBuffer CryptoModule::pickleAccount(const std::string &secretKey) {
+  OlmAccount *olmAccount = this->getOlmAccount();
+  size_t accountPickleLength = ::olm_pickle_account_length(olmAccount);
+  OlmBuffer accountPickleBuffer(accountPickleLength);
+
+  size_t result = ::olm_pickle_account(
+      olmAccount,
+      secretKey.data(),
+      secretKey.size(),
+      accountPickleBuffer.data(),
+      accountPickleLength);
+
+  if (accountPickleLength != result) {
+    throw std::runtime_error(
+        "Error in pickleAccount => " +
+        std::string(::olm_account_last_error(olmAccount)));
+  }
+  return accountPickleBuffer;
+}
+
 Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
-  size_t accountPickleLength =
-      ::olm_pickle_account_length(this->getOlmAccount());
-  OlmBuffer accountPickleBuffer(accountPickleLength);
-  if (accountPickleLength !=
-      ::olm_pickle_account(
-          this->getOlmAccount(),
-          secretKey.data(),
-          secretKey.size(),
-          accountPickleBuffer.data(),
-          accountPickleLength)) {
-    throw std::runtime_error{
-        "error storeAsB64 => " +
-        std::string{::olm_account_last_error(this->getOlmAccount())}};
-  }
-  persist.account = accountPickleBuffer;
+  persist.account = this->pickleAccount(secretKey);
 
   std::unordered_map<std::string, std::shared_ptr<Session>>::iterator it;
   for (it = this->sessions.begin(); it != this->sessions.end(); ++it) {
@@ -354,6 +360,11 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   }
 
   return persist;
+}
+
+std::string CryptoModule::pickleAccountToString(const std::string &secretKey) {
+  OlmBuffer pickledAccount = this->pickleAccount(secretKey);
+  return std::string(pickledAccount.begin(), pickledAccount.end());
 }
 
 void CryptoModule::restoreFromB64(
