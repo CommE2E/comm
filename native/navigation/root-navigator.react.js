@@ -84,8 +84,6 @@ import LinkedDevicesBottomSheet from '../profile/linked-devices-bottom-sheet.rea
 import RolesNavigator from '../roles/roles-navigator.react.js';
 import UserProfileBottomSheetNavigator from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 
-export const showCommunityDirectory = __DEV__;
-
 enableScreens();
 
 export type RootNavigationHelpers<ParamList: ParamListBase = ParamListBase> = {

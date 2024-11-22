@@ -30,7 +30,6 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityDrawerItem from './community-drawer-item.react.js';
-import { showCommunityDirectory } from './root-navigator.react.js';
 import {
   CommunityCreationRouteName,
   CommunityJoinerModalRouteName,
@@ -40,6 +39,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { showCommunityDirectory } from '../utils/directory-utils.js';
 import {
   flattenDrawerItemsData,
   filterOutThreadAndDescendantIDs,
