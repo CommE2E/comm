@@ -12,7 +12,6 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 import css from './community-drawer.css';
-import { ThreadListProvider } from '../chat/thread-list-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const maxDepth = 2;
@@ -64,12 +63,10 @@ function CommunityDrawer(): React.Node {
   const calStyle = tab !== 'calendar' ? css.hidden : null;
 
   return (
-    <ThreadListProvider>
-      <div className={css.container}>
-        <div className={defaultStyle}>{communitiesComponentsDefault}</div>
-        <div className={calStyle}>{communitiesComponentsCal}</div>
-      </div>
-    </ThreadListProvider>
+    <div className={css.container}>
+      <div className={defaultStyle}>{communitiesComponentsDefault}</div>
+      <div className={calStyle}>{communitiesComponentsCal}</div>
+    </div>
   );
 }
 
