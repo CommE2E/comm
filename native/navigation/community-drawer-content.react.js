@@ -7,6 +7,8 @@ import { FlatList, Platform, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
+  fetchAllCommunityInfosWithNamesActionTypes,
+  fetchAllCommunityInfosWithNames,
   fetchCommunityInfosActionTypes,
   useFetchCommunityInfos,
 } from 'lib/actions/community-actions.js';
@@ -15,7 +17,9 @@ import {
   useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
 import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
+import type { ClientCommunityInfoWithCommunityName } from 'lib/types/community-types.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import {
   createRecursiveDrawerItemsData,
@@ -25,11 +29,15 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityDrawerItem from './community-drawer-item.react.js';
-import { CommunityCreationRouteName } from './route-names.js';
+import {
+  CommunityCreationRouteName,
+  CommunityJoinerModalRouteName,
+} from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 import {
   flattenDrawerItemsData,
   filterOutThreadAndDescendantIDs,
@@ -53,6 +61,11 @@ function CommunityDrawerContent(): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
+  const fetchPromise = useLegacyAshoatKeyserverCall(
+    fetchAllCommunityInfosWithNames,
+  );
+  const [fetchedCommunitiesWithNames, setFetchedCommunitiesWithNames] =
+    React.useState<?$ReadOnlyArray<ClientCommunityInfoWithCommunityName>>(null);
   React.useEffect(() => {
     if (drawerStatus !== 'open') {
       return;
@@ -65,11 +78,20 @@ function CommunityDrawerContent(): React.Node {
       fetchCommunityInfosActionTypes,
       fetchCommunityInfos(),
     );
+    void dispatchActionPromise(
+      fetchAllCommunityInfosWithNamesActionTypes,
+      fetchPromise(),
+    );
+    void (async () => {
+      const response = await fetchPromise();
+      setFetchedCommunitiesWithNames(response.allCommunityInfosWithNames);
+    })();
   }, [
     callFetchPrimaryLinks,
     dispatchActionPromise,
     drawerStatus,
     fetchCommunityInfos,
+    fetchPromise,
   ]);
 
   const [expanded, setExpanded] = React.useState<Set<string>>(() => {
@@ -169,10 +191,29 @@ function CommunityDrawerContent(): React.Node {
     </TouchableOpacity>
   );
 
+  const onPressExploreCommunities = React.useCallback(() => {
+    if (!fetchedCommunitiesWithNames) {
+      Alert.alert(
+        'Couldn’t load communities',
+        'Uhh... try again?',
+        [{ text: 'OK' }],
+        {
+          cancelable: false,
+        },
+      );
+      return;
+    }
+
+    navigate<'CommunityJoinerModal'>({
+      name: CommunityJoinerModalRouteName,
+      params: { communities: fetchedCommunitiesWithNames },
+    });
+  }, [fetchedCommunitiesWithNames, navigate]);
+
   let exploreCommunitiesButton;
   if (__DEV__) {
     exploreCommunitiesButton = (
-      <TouchableOpacity activeOpacity={0.4}>
+      <TouchableOpacity onPress={onPressExploreCommunities} activeOpacity={0.4}>
         <View style={styles.exploreCommunitiesContainer}>
           <View style={styles.exploreCommunitiesIconContainer}>
             <SWMansionIcon
