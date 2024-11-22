@@ -2559,10 +2559,8 @@ CommCoreModule::createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) {
           if (!error.size()) {
             try {
               pickleKey = crypto::Tools::generateRandomString(64);
-              crypto::Persist persist =
-                  this->contentCryptoModule->storeAsB64(pickleKey);
               pickledAccount =
-                  std::string(persist.account.begin(), persist.account.end());
+                  this->contentCryptoModule->pickleAccountToString(pickleKey);
             } catch (const std::exception &e) {
               error = "Failed to pickle crypto account";
             }
@@ -2615,10 +2613,8 @@ jsi::Value CommCoreModule::createUserKeysBackup(
           if (!error.size()) {
             try {
               pickleKey = crypto::Tools::generateRandomString(64);
-              crypto::Persist persist =
-                  this->contentCryptoModule->storeAsB64(pickleKey);
               pickledAccount =
-                  std::string(persist.account.begin(), persist.account.end());
+                  this->contentCryptoModule->pickleAccountToString(pickleKey);
             } catch (const std::exception &e) {
               error = "Failed to pickle crypto account";
             }
