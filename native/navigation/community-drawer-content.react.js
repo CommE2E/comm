@@ -7,15 +7,20 @@ import { FlatList, Platform, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  fetchCommunityInfosActionTypes,
-  useFetchCommunityInfos,
+  fetchAllCommunityInfosWithNamesActionTypes,
+  fetchAllCommunityInfosWithNames,
 } from 'lib/actions/community-actions.js';
 import {
   fetchPrimaryInviteLinkActionTypes,
   useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
 import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
+import type {
+  ClientCommunityInfoWithCommunityName,
+  ClientFetchAllCommunityInfosWithNamesResponse,
+} from 'lib/types/community-types.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import {
   createRecursiveDrawerItemsData,
@@ -26,11 +31,15 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityDrawerItem from './community-drawer-item.react.js';
 import { showCommunityDirectory } from './root-navigator.react.js';
-import { CommunityCreationRouteName } from './route-names.js';
+import {
+  CommunityCreationRouteName,
+  CommunityJoinerModalRouteName,
+} from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 import {
   flattenDrawerItemsData,
   filterOutThreadAndDescendantIDs,
@@ -50,10 +59,16 @@ function CommunityDrawerContent(): React.Node {
   const styles = useStyles(unboundStyles);
 
   const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
-  const fetchCommunityInfos = useFetchCommunityInfos();
 
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
+  const getAllCommunityInfosWithNames = useLegacyAshoatKeyserverCall(
+    fetchAllCommunityInfosWithNames,
+  );
+  const getAllCommunityInfosWithNamesPromiseRef =
+    React.useRef<?Promise<ClientFetchAllCommunityInfosWithNamesResponse>>(null);
+  const [fetchedCommunitiesWithNames, setFetchedCommunitiesWithNames] =
+    React.useState<?$ReadOnlyArray<ClientCommunityInfoWithCommunityName>>(null);
   React.useEffect(() => {
     if (drawerStatus !== 'open') {
       return;
@@ -62,15 +77,23 @@ function CommunityDrawerContent(): React.Node {
       fetchPrimaryInviteLinkActionTypes,
       callFetchPrimaryLinks(),
     );
+    const getAllCommunityInfosWithNamesPromise =
+      getAllCommunityInfosWithNames();
+    getAllCommunityInfosWithNamesPromiseRef.current =
+      getAllCommunityInfosWithNamesPromise;
     void dispatchActionPromise(
-      fetchCommunityInfosActionTypes,
-      fetchCommunityInfos(),
+      fetchAllCommunityInfosWithNamesActionTypes,
+      getAllCommunityInfosWithNamesPromise,
     );
+    void (async () => {
+      const response = await getAllCommunityInfosWithNamesPromise;
+      setFetchedCommunitiesWithNames(response.allCommunityInfosWithNames);
+    })();
   }, [
     callFetchPrimaryLinks,
     dispatchActionPromise,
     drawerStatus,
-    fetchCommunityInfos,
+    getAllCommunityInfosWithNames,
   ]);
 
   const [expanded, setExpanded] = React.useState<Set<string>>(() => {
@@ -170,10 +193,40 @@ function CommunityDrawerContent(): React.Node {
     </TouchableOpacity>
   );
 
+  const onPressExploreCommunities = React.useCallback(async () => {
+    if (fetchedCommunitiesWithNames) {
+      navigate<'CommunityJoinerModal'>({
+        name: CommunityJoinerModalRouteName,
+        params: { communities: fetchedCommunitiesWithNames },
+      });
+      return;
+    }
+    if (getAllCommunityInfosWithNamesPromiseRef.current) {
+      try {
+        const response = await getAllCommunityInfosWithNamesPromiseRef.current;
+        navigate<'CommunityJoinerModal'>({
+          name: CommunityJoinerModalRouteName,
+          params: { communities: response.allCommunityInfosWithNames },
+        });
+        return;
+      } catch (error) {
+        // Handle error silently; fallback to showing the alert below
+      }
+    }
+    Alert.alert(
+      'Couldn’t load communities',
+      'Uhh... try again?',
+      [{ text: 'OK' }],
+      {
+        cancelable: false,
+      },
+    );
+  }, [fetchedCommunitiesWithNames, navigate]);
+
   let exploreCommunitiesButton;
   if (showCommunityDirectory) {
     exploreCommunitiesButton = (
-      <TouchableOpacity activeOpacity={0.4}>
+      <TouchableOpacity onPress={onPressExploreCommunities} activeOpacity={0.4}>
         <View style={styles.exploreCommunitiesContainer}>
           <View style={styles.exploreCommunitiesIconContainer}>
             <SWMansionIcon
