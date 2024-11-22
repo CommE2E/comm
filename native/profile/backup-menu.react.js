@@ -6,8 +6,10 @@ import { Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { userKeysResponseValidator } from 'lib/types/backup-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -69,16 +71,21 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      // eslint-disable-next-line no-unused-vars
-      const [latestBackupInfo, backupSecret] = await Promise.all([
-        retrieveLatestBackupInfo(),
-        getBackupSecret(),
-      ]);
-      //TODO add backup keys
+      const [{ latestBackupInfo, userIdentifier }, backupSecret] =
+        await Promise.all([retrieveLatestBackupInfo(), getBackupSecret()]);
+      const userKeysResponse = await commCoreModule.getBackupUserKeys(
+        userIdentifier,
+        backupSecret,
+        latestBackupInfo.backupID,
+      );
+      const userKeys = assertWithValidator(
+        JSON.parse(userKeysResponse),
+        userKeysResponseValidator,
+      );
       await commCoreModule.restoreBackupData(
         latestBackupInfo.backupID,
-        '',
-        '',
+        userKeys.backupDataKey,
+        userKeys.backupLogDataKey,
         persistConfig.version.toString(),
       );
       console.info('Backup restored.');
@@ -92,8 +99,8 @@ function BackupMenu(props: Props): React.Node {
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
     try {
-      const backupInfo = await retrieveLatestBackupInfo();
-      const { backupID, userID } = backupInfo;
+      const { latestBackupInfo } = await retrieveLatestBackupInfo();
+      const { backupID, userID } = latestBackupInfo;
       message =
         `Success!\n` +
         `Backup ID: ${backupID},\n` +
@@ -111,8 +118,9 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForSIWEUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      const backupInfo = await retrieveLatestBackupInfo();
-      const { siweBackupData, backupID } = backupInfo;
+      const { latestBackupInfo, userIdentifier } =
+        await retrieveLatestBackupInfo();
+      const { siweBackupData, backupID } = latestBackupInfo;
 
       if (!siweBackupData) {
         throw new Error('Missing SIWE message for Wallet user backup');
@@ -131,6 +139,7 @@ function BackupMenu(props: Props): React.Node {
           siweNonce: siweBackupMsgNonce,
           siweStatement: siweBackupMsgStatement,
           siweIssuedAt: siweBackupMsgIssuedAt,
+          userIdentifier,
         },
       });
     } catch (e) {

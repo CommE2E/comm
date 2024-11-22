@@ -4,8 +4,10 @@ import * as React from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { userKeysResponseValidator } from 'lib/types/backup-types.js';
 import { type SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { SignSIWEBackupMessageForRestore } from '../account/registration/siwe-backup-message-creation.react.js';
 import { commCoreModule } from '../native-modules.js';
@@ -19,6 +21,7 @@ export type RestoreSIWEBackupParams = {
   +siweNonce: string,
   +siweStatement: string,
   +siweIssuedAt: string,
+  +userIdentifier: string,
 };
 
 type Props = {
@@ -31,21 +34,34 @@ function RestoreSIWEBackup(props: Props): React.Node {
   const { goBack } = props.navigation;
   const { route } = props;
   const {
-    params: { siweStatement, siweIssuedAt, siweNonce },
+    params: {
+      backupID,
+      siweStatement,
+      siweIssuedAt,
+      siweNonce,
+      userIdentifier,
+    },
   } = route;
 
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
-        // eslint-disable-next-line no-unused-vars
         const { signature } = result;
         let message = 'success';
         try {
-          //TODO add backup keys
+          const userKeysResponse = commCoreModule.getBackupUserKeys(
+            userIdentifier,
+            signature,
+            backupID,
+          );
+          const userKeys = assertWithValidator(
+            userKeysResponse,
+            userKeysResponseValidator,
+          );
           await commCoreModule.restoreBackupData(
-            '',
-            '',
-            '',
+            backupID,
+            userKeys.backupDataKey,
+            userKeys.backupLogDataKey,
             persistConfig.version.toString(),
           );
         } catch (e) {
@@ -58,7 +74,7 @@ function RestoreSIWEBackup(props: Props): React.Node {
         goBack();
       })();
     },
-    [goBack],
+    [backupID, goBack, userIdentifier],
   );
 
   return (
