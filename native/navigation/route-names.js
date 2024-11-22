@@ -41,6 +41,7 @@ import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { TagFarcasterChannelByNameParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-by-name.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
+import type { CommunityJoinerModalParams } from '../components/community-joiner-modal.react.js';
 import type { InviteLinksNavigatorParams } from '../invite-links/invite-links-navigator.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
@@ -170,6 +171,7 @@ export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
 export const ConnectFarcasterBottomSheetRouteName =
   'ConnectFarcasterBottomSheet';
 export const DirectoryPromptBottomSheetRouteName = 'DirectoryPromptBottomSheet';
+export const CommunityJoinerModalRouteName = 'CommunityJoinerModal';
 export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
@@ -213,6 +215,7 @@ export type RootParamList = {
   +LinkedDevicesBottomSheet: LinkedDevicesBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
   +DirectoryPromptBottomSheet: void,
+  +CommunityJoinerModal: CommunityJoinerModalParams,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
   +QRAuthNavigator: void,
