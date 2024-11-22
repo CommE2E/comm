@@ -15,3 +15,15 @@ declare module '@hono/node-server' {
     param(): { +[key: string]: string };
   }
 }
+
+declare module '@hono/node-server/serve-static' {
+
+  import type { MiddlewareHandler } from 'hono';
+
+  declare export type ServeStaticOptions = {
+    +path: ?string,
+    ...
+  }
+
+  declare export var serveStatic: ServeStaticOptions => MiddlewareHandler;
+}
