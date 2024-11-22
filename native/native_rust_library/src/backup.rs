@@ -138,15 +138,17 @@ pub mod ffi {
     });
   }
 
-  pub fn retrieve_backup_keys(
+  pub fn get_backup_user_keys(
+    user_identifier: String,
     backup_secret: String,
     backup_id: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let result = download_backup_keys(backup_id, backup_secret)
-        .await
-        .map_err(|err| err.to_string());
+      let result =
+        download_backup_keys(user_identifier, backup_secret, backup_id)
+          .await
+          .map_err(|err| err.to_string());
 
       let result = match result {
         Ok(result) => result,
@@ -342,16 +344,13 @@ async fn download_latest_backup_info(
 }
 
 async fn download_backup_keys(
-  backup_id: String,
+  user_identifier: String,
   backup_secret: String,
+  backup_id: String,
 ) -> Result<UserKeys, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
-  let user_identity = get_user_identity_from_secure_store()?;
 
-  let backup_descriptor = BackupDescriptor::BackupID {
-    backup_id: backup_id.clone(),
-    user_identity: user_identity.clone(),
-  };
+  let backup_descriptor = BackupDescriptor::Latest { user_identifier };
 
   let mut encrypted_user_keys = backup_client
     .download_backup_data(&backup_descriptor, RequestedData::UserKeys)
@@ -450,7 +449,9 @@ struct CompactionDownloadResult {
 /// The reasoning behind this decision is that the backed-up Olm account
 /// is primarily used for signing an update to the device list. For these
 /// operations only the identity signing key is necessary.
+// This struct should match `UserKeys` in `lib/types/backup-types.js`
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct UserKeys {
   backup_data_key: String,
   backup_log_data_key: String,
