@@ -1,0 +1,208 @@
+// @flow
+
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import {
+  TabView,
+  SceneMap,
+  TabBar,
+  type TabBarProps,
+} from 'react-native-tab-view';
+
+import { useThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils.js';
+import type { ClientCommunityInfoWithCommunityName } from 'lib/types/community-types.js';
+
+import Modal from './modal.react.js';
+import CommunityList from '../components/community-list.react.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, useStyles } from '../themes/colors.js';
+
+export type CommunityJoinerModalParams = {
+  +communities: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>,
+};
+
+type Props = {
+  +navigation: RootNavigationProp<'CommunityJoinerModal'>,
+  +route: NavigationRoute<'CommunityJoinerModal'>,
+};
+
+const defaultCommunities: $ReadOnlyArray<ClientCommunityInfoWithCommunityName> =
+  [];
+
+// This should be updated with the names of the crypto communities on Comm
+const cryptoCommunityIDs: $ReadOnlyArray<string> = [];
+
+function CommunityJoinerModal(props: Props): React.Node {
+  const { params } = props.route;
+  const communities = params?.communities ?? defaultCommunities;
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const userInfos = useSelector(state => state.userStore.userInfos);
+  const styles = useStyles(unboundStyles);
+
+  const generalCommunities = React.useMemo(
+    () =>
+      communities.filter(
+        community => !cryptoCommunityIDs.includes(community.id),
+      ),
+    [communities],
+  );
+  const cryptoCommunities = React.useMemo(
+    () =>
+      communities.filter(community =>
+        cryptoCommunityIDs.includes(community.id),
+      ),
+    [communities],
+  );
+
+  const generateThreadInfos = React.useCallback(
+    (communityList: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>) =>
+      communityList
+        .map(community =>
+          community.threadInfo
+            ? threadInfoFromRawThreadInfo(
+                community.threadInfo,
+                viewerID,
+                userInfos,
+              )
+            : null,
+        )
+        .filter(Boolean),
+    [userInfos, viewerID],
+  );
+
+  const generalThreadInfos = React.useMemo(
+    () => generateThreadInfos(generalCommunities),
+    [generateThreadInfos, generalCommunities],
+  );
+
+  const cryptoThreadInfos = React.useMemo(
+    () => generateThreadInfos(cryptoCommunities),
+    [generateThreadInfos, cryptoCommunities],
+  );
+
+  const generalIndex = useThreadSearchIndex(generalThreadInfos);
+  const cryptoIndex = useThreadSearchIndex(cryptoThreadInfos);
+
+  const renderGeneralTab = React.useCallback(
+    () => (
+      <CommunityList
+        threadInfos={generalThreadInfos}
+        itemStyle={styles.threadListItem}
+        searchIndex={generalIndex}
+      />
+    ),
+    [generalIndex, generalThreadInfos, styles.threadListItem],
+  );
+
+  const renderCryptoTab = React.useCallback(
+    () => (
+      <CommunityList
+        threadInfos={cryptoThreadInfos}
+        itemStyle={styles.threadListItem}
+        searchIndex={cryptoIndex}
+      />
+    ),
+    [cryptoIndex, cryptoThreadInfos, styles.threadListItem],
+  );
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'general', title: 'General' },
+    { key: 'crypto', title: 'Crypto' },
+  ]);
+
+  const navigationState = React.useMemo(
+    () => ({ index, routes }),
+    [index, routes],
+  );
+
+  const renderScene = React.useMemo(() => {
+    return SceneMap({
+      general: renderGeneralTab,
+      crypto: renderCryptoTab,
+    });
+  }, [renderCryptoTab, renderGeneralTab]);
+
+  const colors = useColors();
+  const { tabBarBackground, tabBarAccent } = colors;
+
+  const screenOptions = React.useMemo(
+    () => ({
+      tabBarShowIcon: true,
+      tabBarStyle: {
+        backgroundColor: tabBarBackground,
+      },
+      tabBarItemStyle: {
+        flexDirection: 'row',
+      },
+      tabBarIndicatorStyle: {
+        borderColor: tabBarAccent,
+        borderBottomWidth: 2,
+      },
+    }),
+    [tabBarAccent, tabBarBackground],
+  );
+
+  const initialLayout = React.useMemo(() => ({ width: 400 }), []);
+
+  const renderTabBar = React.useCallback(
+    (tabBarProps: TabBarProps) => (
+      <View style={styles.tabBarContainer}>
+        <TabBar
+          {...tabBarProps}
+          style={screenOptions.tabBarStyle}
+          indicatorStyle={screenOptions.tabBarIndicatorStyle}
+        />
+      </View>
+    ),
+    [
+      screenOptions.tabBarIndicatorStyle,
+      screenOptions.tabBarStyle,
+      styles.tabBarContainer,
+    ],
+  );
+
+  return (
+    <Modal>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Discover communities</Text>
+      </View>
+      <TabView
+        navigationState={navigationState}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={initialLayout}
+        renderTabBar={renderTabBar}
+      />
+    </Modal>
+  );
+}
+
+const unboundStyles = {
+  headerContainer: {
+    padding: 10,
+    paddingBottom: 0,
+  },
+  headerText: {
+    color: 'modalForegroundLabel',
+    fontSize: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  threadListItem: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingVertical: 2,
+  },
+  tabBarContainer: {
+    marginBottom: 15,
+  },
+};
+
+export default CommunityJoinerModal;
