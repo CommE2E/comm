@@ -29,6 +29,7 @@ class CryptoModule {
   // returns number of published keys
   size_t publishOneTimeKeys();
   bool prekeyExistsAndOlderThan(uint64_t threshold);
+  OlmBuffer pickleAccount(const std::string &secretKey);
 
 public:
   const std::string id;
@@ -72,6 +73,7 @@ public:
 
   Persist storeAsB64(const std::string &secretKey);
   void restoreFromB64(const std::string &secretKey, Persist persist);
+  std::string pickleAccountToString(const std::string &secretKey);
 
   EncryptedData
   encrypt(const std::string &targetDeviceId, const std::string &content);
