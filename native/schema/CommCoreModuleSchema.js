@@ -167,6 +167,11 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +getQRAuthBackupData: () => Promise<Object>;
   +retrieveLatestBackupInfo: (userIdentifier: string) => Promise<string>;
+  +getBackupUserKeys: (
+    userIdentifier: string,
+    backupSecret: string,
+    backupID: string,
+  ) => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
   +getAllInboundP2PMessages: () => Promise<Array<InboundP2PMessage>>;
