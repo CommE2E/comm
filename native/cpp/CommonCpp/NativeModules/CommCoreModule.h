@@ -225,6 +225,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String backupLogDataKey,
       jsi::String maxVersion) override;
   virtual jsi::Value getQRAuthBackupData(jsi::Runtime &rt) override;
+  virtual jsi::Value getBackupUserKeys(
+      jsi::Runtime &rt,
+      jsi::String userIdentifier,
+      jsi::String backupSecret,
+      jsi::String backupID) override;
   virtual jsi::Value retrieveLatestBackupInfo(
       jsi::Runtime &rt,
       jsi::String userIdentifier) override;
