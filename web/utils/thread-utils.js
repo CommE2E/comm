@@ -88,7 +88,7 @@ function useThreadInfoForPossiblyPendingThread(
       );
       setAllUsersSupportThickThreads(
         selectedUserInfos.every(userInfo =>
-          usersSupportingThickThreads.has(userInfo.id),
+          usersSupportingThickThreads.get(userInfo.id),
         ),
       );
     })();
