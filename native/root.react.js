@@ -59,6 +59,7 @@ import AccessTokenHandler from './components/access-token-handler.react.js';
 import { AutoJoinCommunityHandler } from './components/auto-join-community-handler.react.js';
 import BackgroundIdentityLoginHandler from './components/background-identity-login-handler.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
+import DisplayCommunityDirectoryPromptHandler from './components/display-community-directory-prompt.react.js';
 import DMActivityHandler from './components/dm-activity-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
@@ -325,6 +326,7 @@ function Root() {
           </ChatContextProvider>
           <NavigationHandler />
           <PersistedStateGate>
+            <DisplayCommunityDirectoryPromptHandler />
             <FarcasterDataHandler>
               <ConnectFarcasterAlertHandler />
             </FarcasterDataHandler>
