@@ -3,6 +3,7 @@
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
   IdentityClientContext,
   type AuthMetadata,
@@ -12,6 +13,7 @@ import type {
   IdentityServiceAuthLayer,
 } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
@@ -83,17 +85,27 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     void ensureThatWorkerClientAuthMetadataIsCurrent();
   }, [ensureThatWorkerClientAuthMetadataIsCurrent]);
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
   const proxyMethodToWorker: CreateMethodWorkerProxy = React.useCallback(
     method =>
       async (...args: $ReadOnlyArray<mixed>) => {
         await ensureThatWorkerClientAuthMetadataIsCurrent();
 
         const sharedWorker = await getCommSharedWorker();
-        const result = await sharedWorker.schedule({
-          type: workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD,
-          method,
-          args,
-        });
+        let result;
+        try {
+          result = await sharedWorker.schedule({
+            type: workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD,
+            method,
+            args,
+          });
+        } catch (e) {
+          const message = getMessageForException(e);
+          if (message === 'bad_credentials') {
+            void invalidTokenLogOut();
+          }
+          throw e;
+        }
 
         if (!result) {
           throw new Error(
@@ -112,7 +124,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         // Worker should return a message with the corresponding return type
         return (result.result: any);
       },
-    [ensureThatWorkerClientAuthMetadataIsCurrent],
+    [ensureThatWorkerClientAuthMetadataIsCurrent, invalidTokenLogOut],
   );
 
   const client = React.useMemo<IdentityServiceClient>(() => {
