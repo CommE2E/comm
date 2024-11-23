@@ -8,21 +8,6 @@ We use Nix to package all of the dependencies for our dev environment. It does s
 
 For how Nix package management works, please refer to the official [how Nix works guide](https://nixos.org/guides/how-nix-works.html).
 
-# Supported workflows
-
-Some workflows require additional steps after the Nix installation. These steps are documented in [Workflow prerequisites](#workflow-specific-prerequisites).
-
-| Workflow                        | macOS supported |
-| ------------------------------- | --------------- |
-| `keyserver` (Node.js)           | ✅              |
-| `web` & `landing` (Webpack)     | ✅              |
-| `native` iOS (React Native)     | ✅              |
-| `native` Android (React Native) | ✅              |
-| C++ services                    | ❌ **\***       |
-| Rust services                   | ✅              |
-
-**\*** Workflow requires documentation; and it requires the RabbitMQ and AWS/Localstack services to be available.
-
 # Requirements
 
 To set up a dev environment using Nix, you will need a macOS or Linux machine.
