@@ -89,10 +89,41 @@ async function uploadOneTimeKeys(
   );
 }
 
+async function publishPrekeys(
+  deviceID: string,
+  contentPrekey: string,
+  contentPrekeySignature: string,
+  notifPrekey: string,
+  notifPrekeySignature: string,
+): Promise<void> {
+  const [rustAPI, identityInfo] = await Promise.all([
+    getRustAPI(),
+    verifyUserLoggedIn(),
+  ]);
+
+  if (!identityInfo) {
+    console.warn(
+      'Attempted to refresh prekeys before registering with Identity service',
+    );
+    return;
+  }
+
+  await rustAPI.publishPrekeys(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    contentPrekey,
+    contentPrekeySignature,
+    notifPrekey,
+    notifPrekeySignature,
+  );
+}
+
 export {
   findUserIdentities,
   privilegedDeleteUsers,
   privilegedResetUserPassword,
   syncPlatformDetails,
   uploadOneTimeKeys,
+  publishPrekeys,
 };
