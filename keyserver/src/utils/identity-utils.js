@@ -6,11 +6,25 @@ import type {
   UserIdentitiesResponse,
   InboundKeyInfoResponse,
 } from 'lib/types/identity-service-types.js';
-import { ServerError } from 'lib/utils/errors.js';
+import { ServerError, getMessageForException } from 'lib/utils/errors.js';
 
 import { getContentSigningKey } from './olm-utils.js';
-import type { IdentityInfo } from '../user/identity.js';
+import { clearIdentityInfo, type IdentityInfo } from '../user/identity.js';
 import { verifyUserLoggedIn } from '../user/login.js';
+
+async function authVerifiedEndpoint<T>(
+  identityRPCPromise: Promise<T>,
+): Promise<T> {
+  try {
+    return await identityRPCPromise;
+  } catch (e) {
+    const message = getMessageForException(e);
+    if (message === 'bad_credentials') {
+      await clearIdentityInfo();
+    }
+    throw e;
+  }
+}
 
 async function findUserIdentities(
   userIDs: $ReadOnlyArray<string>,
@@ -20,11 +34,13 @@ async function findUserIdentities(
     verifyUserLoggedIn(),
     getContentSigningKey(),
   ]);
-  return await rustAPI.findUserIdentities(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    userIDs,
+  return await authVerifiedEndpoint(
+    rustAPI.findUserIdentities(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+      userIDs,
+    ),
   );
 }
 
@@ -36,11 +52,13 @@ async function privilegedDeleteUsers(
     verifyUserLoggedIn(),
     getContentSigningKey(),
   ]);
-  await rustAPI.privilegedDeleteUsers(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    userIDs,
+  await authVerifiedEndpoint(
+    rustAPI.privilegedDeleteUsers(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+      userIDs,
+    ),
   );
 }
 
@@ -53,12 +71,14 @@ async function privilegedResetUserPassword(
     verifyUserLoggedIn(),
     getContentSigningKey(),
   ]);
-  await rustAPI.privilegedResetUserPassword(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    username,
-    password,
+  await authVerifiedEndpoint(
+    rustAPI.privilegedResetUserPassword(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+      username,
+      password,
+    ),
   );
 }
 
@@ -67,10 +87,12 @@ async function syncPlatformDetails(identityInfo: IdentityInfo): Promise<void> {
     getRustAPI(),
     getContentSigningKey(),
   ]);
-  return rustAPI.syncPlatformDetails(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
+  return authVerifiedEndpoint(
+    rustAPI.syncPlatformDetails(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+    ),
   );
 }
 
@@ -84,12 +106,14 @@ async function uploadOneTimeKeys(
     getContentSigningKey(),
   ]);
 
-  await rustAPI.uploadOneTimeKeys(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    contentOneTimeKeys,
-    notifOneTimeKeys,
+  await authVerifiedEndpoint(
+    rustAPI.uploadOneTimeKeys(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+      contentOneTimeKeys,
+      notifOneTimeKeys,
+    ),
   );
 }
 
@@ -112,14 +136,16 @@ async function publishPrekeys(
     return;
   }
 
-  await rustAPI.publishPrekeys(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    contentPrekey,
-    contentPrekeySignature,
-    notifPrekey,
-    notifPrekeySignature,
+  await authVerifiedEndpoint(
+    rustAPI.publishPrekeys(
+      identityInfo.userId,
+      deviceID,
+      identityInfo.accessToken,
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+    ),
   );
 }
 
@@ -137,12 +163,14 @@ async function getInboundKeysForUserDevice(
     throw new ServerError('account_not_registered_on_identity_service');
   }
 
-  return rustAPI.getInboundKeysForUserDevice(
-    identityInfo.userId,
-    authDeviceID,
-    identityInfo.accessToken,
-    userID,
-    deviceID,
+  return authVerifiedEndpoint(
+    rustAPI.getInboundKeysForUserDevice(
+      identityInfo.userId,
+      authDeviceID,
+      identityInfo.accessToken,
+      userID,
+      deviceID,
+    ),
   );
 }
 
