@@ -2,7 +2,6 @@
 
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
-import { getRustAPI } from 'rust-node-addon';
 import { SiweErrorType, SiweMessage } from 'siwe';
 import t, { type TInterface } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
@@ -136,8 +135,8 @@ import {
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { verifyUserLoggedIn } from '../user/login.js';
-import { getOlmUtility, getContentSigningKey } from '../utils/olm-utils.js';
+import { getInboundKeysForUserDevice } from '../utils/identity-utils.js';
+import { getOlmUtility } from '../utils/olm-utils.js';
 
 export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
   tShape<SubscriptionUpdateRequest>({
@@ -796,31 +795,18 @@ async function keyserverAuthResponder(
 
   // 1. Check if there's already a user for this userID. Simultaneously, get
   //    info for identity service auth.
-  const [existingUsername, authDeviceID, identityInfo, rustAPI] =
-    await Promise.all([
-      fetchUsername(userID),
-      getContentSigningKey(),
-      verifyUserLoggedIn(),
-      getRustAPI(),
-      verifyCalendarQueryThreadIDs(calendarQuery),
-    ]);
+  const [existingUsername] = await Promise.all([
+    fetchUsername(userID),
+    verifyCalendarQueryThreadIDs(calendarQuery),
+  ]);
   if (!existingUsername && doNotRegister) {
     throw new ServerError('account_does_not_exist');
-  }
-  if (!identityInfo) {
-    throw new ServerError('account_not_registered_on_identity_service');
   }
 
   // 2. Get user's keys from identity service.
   let inboundKeysForUser;
   try {
-    inboundKeysForUser = await rustAPI.getInboundKeysForUserDevice(
-      identityInfo.userId,
-      authDeviceID,
-      identityInfo.accessToken,
-      userID,
-      deviceID,
-    );
+    inboundKeysForUser = await getInboundKeysForUserDevice(userID, deviceID);
   } catch (e) {
     console.log(e);
     throw new ServerError('failed_to_retrieve_inbound_keys');
