@@ -7,7 +7,6 @@ import type {
   Session as OlmSession,
 } from '@commapp/olm';
 import invariant from 'invariant';
-import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
@@ -21,7 +20,7 @@ import {
   retrieveAccountKeysSet,
 } from 'lib/utils/olm-utils.js';
 
-import { uploadOneTimeKeys } from './identity-utils.js';
+import { publishPrekeys, uploadOneTimeKeys } from './identity-utils.js';
 import {
   fetchCallUpdateOlmAccount,
   fetchOlmAccount,
@@ -274,8 +273,6 @@ async function publishPrekeysToIdentity(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
 ): Promise<void> {
-  const rustAPIPromise = getRustAPI();
-  const verifyUserLoggedInPromise = verifyUserLoggedIn();
   const deviceID = JSON.parse(contentAccount.identity_keys()).ed25519;
 
   const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
@@ -288,22 +285,8 @@ async function publishPrekeysToIdentity(
     return;
   }
 
-  const [rustAPI, identityInfo] = await Promise.all([
-    rustAPIPromise,
-    verifyUserLoggedInPromise,
-  ]);
-
-  if (!identityInfo) {
-    console.warn(
-      'Attempted to refresh prekeys before registering with Identity service',
-    );
-    return;
-  }
-
-  await rustAPI.publishPrekeys(
-    identityInfo.userId,
+  await publishPrekeys(
     deviceID,
-    identityInfo.accessToken,
     contentPrekey,
     contentPrekeySignature,
     notifPrekey,
