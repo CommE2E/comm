@@ -2,7 +2,11 @@
 
 import { getRustAPI } from 'rust-node-addon';
 
-import type { UserIdentitiesResponse } from 'lib/types/identity-service-types.js';
+import type {
+  UserIdentitiesResponse,
+  InboundKeyInfoResponse,
+} from 'lib/types/identity-service-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 import { getContentSigningKey } from './olm-utils.js';
 import type { IdentityInfo } from '../user/identity.js';
@@ -119,6 +123,29 @@ async function publishPrekeys(
   );
 }
 
+async function getInboundKeysForUserDevice(
+  userID: string,
+  deviceID: string,
+): Promise<InboundKeyInfoResponse> {
+  const [authDeviceID, identityInfo, rustAPI] = await Promise.all([
+    getContentSigningKey(),
+    verifyUserLoggedIn(),
+    getRustAPI(),
+  ]);
+
+  if (!identityInfo) {
+    throw new ServerError('account_not_registered_on_identity_service');
+  }
+
+  return rustAPI.getInboundKeysForUserDevice(
+    identityInfo.userId,
+    authDeviceID,
+    identityInfo.accessToken,
+    userID,
+    deviceID,
+  );
+}
+
 export {
   findUserIdentities,
   privilegedDeleteUsers,
@@ -126,4 +153,5 @@ export {
   syncPlatformDetails,
   uploadOneTimeKeys,
   publishPrekeys,
+  getInboundKeysForUserDevice,
 };
