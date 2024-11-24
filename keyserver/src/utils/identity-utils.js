@@ -70,9 +70,29 @@ async function syncPlatformDetails(identityInfo: IdentityInfo): Promise<void> {
   );
 }
 
+async function uploadOneTimeKeys(
+  identityInfo: IdentityInfo,
+  contentOneTimeKeys: $ReadOnlyArray<string>,
+  notifOneTimeKeys: $ReadOnlyArray<string>,
+): Promise<void> {
+  const [rustAPI, deviceID] = await Promise.all([
+    getRustAPI(),
+    getContentSigningKey(),
+  ]);
+
+  await rustAPI.uploadOneTimeKeys(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    contentOneTimeKeys,
+    notifOneTimeKeys,
+  );
+}
+
 export {
   findUserIdentities,
   privilegedDeleteUsers,
   privilegedResetUserPassword,
   syncPlatformDetails,
+  uploadOneTimeKeys,
 };
