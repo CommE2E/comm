@@ -21,6 +21,7 @@ import {
   retrieveAccountKeysSet,
 } from 'lib/utils/olm-utils.js';
 
+import { uploadOneTimeKeys } from './identity-utils.js';
 import {
   fetchCallUpdateOlmAccount,
   fetchOlmAccount,
@@ -207,12 +208,7 @@ async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
 }
 
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
-  const [rustAPI, identityInfo, deviceID] = await Promise.all([
-    getRustAPI(),
-    verifyUserLoggedIn(),
-    getContentSigningKey(),
-  ]);
-
+  const identityInfo = await verifyUserLoggedIn();
   if (!identityInfo) {
     throw new ServerError('missing_identity_info');
   }
@@ -246,13 +242,7 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
     'notif one-time keys not set after fetchCallUpdateOlmAccount',
   );
 
-  await rustAPI.uploadOneTimeKeys(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    contentOneTimeKeys,
-    notifOneTimeKeys,
-  );
+  await uploadOneTimeKeys(identityInfo, contentOneTimeKeys, notifOneTimeKeys);
 }
 
 async function getContentSigningKey(): Promise<string> {
