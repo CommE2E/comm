@@ -47,7 +47,11 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
-import { fetchIdentityInfo, saveIdentityInfo } from '../user/identity.js';
+import {
+  clearIdentityInfo,
+  fetchIdentityInfo,
+  saveIdentityInfo,
+} from '../user/identity.js';
 import type { IdentityInfo } from '../user/identity.js';
 import { encrypt, decrypt } from '../utils/aes-crypto-utils.js';
 import {
@@ -262,6 +266,11 @@ class TunnelbrokerSocket {
           'received ConnectionInitializationResponse with status: Success for already connected socket',
         );
       } else {
+        if (message.status.data?.includes('UnauthorizedDevice')) {
+          await clearIdentityInfo();
+          this.closeConnection();
+          return;
+        }
         this.connected = false;
         console.error(
           'creating session with Tunnelbroker error:',
