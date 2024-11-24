@@ -47,8 +47,13 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
-import { fetchIdentityInfo, saveIdentityInfo } from '../user/identity.js';
+import {
+  clearIdentityInfo,
+  fetchIdentityInfo,
+  saveIdentityInfo,
+} from '../user/identity.js';
 import type { IdentityInfo } from '../user/identity.js';
+import { verifyUserLoggedIn } from '../user/login.js';
 import { encrypt, decrypt } from '../utils/aes-crypto-utils.js';
 import {
   getContentSigningKey,
@@ -83,15 +88,26 @@ async function createAndMaintainTunnelbrokerWebsocket(encryptionKey: ?string) {
     getTBConnectionInfo(),
   ]);
   const createNewTunnelbrokerSocket = async (
+    identityInfo: ?IdentityInfo,
     shouldNotifyPrimaryAfterReopening: boolean,
     primaryDeviceID: ?string,
   ) => {
-    const identityInfo = await fetchIdentityInfo();
     new TunnelbrokerSocket({
       socketURL: tbConnectionInfo.url,
       onClose: async (successfullyAuthed: boolean, primaryID: ?string) => {
         await sleep(clientTunnelbrokerSocketReconnectDelay);
-        await createNewTunnelbrokerSocket(successfullyAuthed, primaryID);
+
+        let newIdentityInfo = identityInfo;
+        if (!encryptionKey) {
+          // for non-QR flow we can retry login
+          newIdentityInfo = await verifyUserLoggedIn();
+        }
+
+        await createNewTunnelbrokerSocket(
+          newIdentityInfo,
+          successfullyAuthed,
+          primaryID,
+        );
       },
       identityInfo,
       deviceID,
@@ -100,7 +116,8 @@ async function createAndMaintainTunnelbrokerWebsocket(encryptionKey: ?string) {
       shouldNotifyPrimaryAfterReopening,
     });
   };
-  await createNewTunnelbrokerSocket(false, null);
+  const identityInfo = await fetchIdentityInfo();
+  await createNewTunnelbrokerSocket(identityInfo, false, null);
 }
 
 type TunnelbrokerSocketParams = {
@@ -262,6 +279,11 @@ class TunnelbrokerSocket {
           'received ConnectionInitializationResponse with status: Success for already connected socket',
         );
       } else {
+        if (message.status.data?.includes('UnauthorizedDevice')) {
+          await clearIdentityInfo();
+          this.closeConnection();
+          return;
+        }
         this.connected = false;
         console.error(
           'creating session with Tunnelbroker error:',
