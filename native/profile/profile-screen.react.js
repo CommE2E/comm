@@ -59,6 +59,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { useShowVersionUnsupportedAlert } from '../utils/hooks.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type ProfileRowProps = {
@@ -564,7 +565,6 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       useSelector(logOutLoadingStatusSelector) === 'loading';
     const colors = useColors();
     const styles = useStyles(unboundStyles);
-    const callLogOut = useLogOut();
     const callPrimaryDeviceLogOut = usePrimaryDeviceLogOut();
     const callSecondaryDeviceLogOut = useSecondaryDeviceLogOut();
     const dispatchActionPromise = useDispatchActionPromise();
@@ -574,6 +574,11 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       accountHasPassword(state.currentUserInfo),
     );
     const currentUserID = useCurrentUserFID();
+
+    const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
+    const callLogOut = useLogOut({
+      handleUseNewFlowResponse: showVersionUnsupportedAlert,
+    });
 
     const userID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
