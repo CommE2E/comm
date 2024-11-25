@@ -17,6 +17,7 @@ async function postMetrics() {
   }
 
   const oneDayAgo = Date.now() - millisecondsPerDay;
+  const oneWeekAgo = Date.now() - millisecondsPerDay * 7;
   const thirtyDaysAgo = Date.now() - millisecondsPerDay * 30;
   const [
     dailyActives,
@@ -26,6 +27,9 @@ async function postMetrics() {
     lastWeekThreeWeekRetention,
     lastDayRetentionSinceLaunch,
     lastWeekRetentionSinceLaunch,
+    dailyUniqueMessageAuthors,
+    weeklyUniqueMessageAuthors,
+    monthlyUniqueMessageAuthors,
   ] = await Promise.all([
     getActiveCountSince(oneDayAgo),
     getActiveCountSince(thirtyDaysAgo),
@@ -34,6 +38,9 @@ async function postMetrics() {
     getRetention(21, 14, 7),
     getRetentionSinceLaunch(1),
     getRetentionSinceLaunch(7),
+    getUniqueMessageAuthorCountSince(oneDayAgo),
+    getUniqueMessageAuthorCountSince(oneWeekAgo),
+    getUniqueMessageAuthorCountSince(thirtyDaysAgo),
   ]);
 
   const metrics = {
@@ -44,6 +51,9 @@ async function postMetrics() {
     'D21 (weekly)': lastWeekThreeWeekRetention,
     'daily retention since launch': lastDayRetentionSinceLaunch,
     'weekly retention since launch': lastWeekRetentionSinceLaunch,
+    'unique message authors (daily)': dailyUniqueMessageAuthors,
+    'unique message authors (weekly)': weeklyUniqueMessageAuthors,
+    'unique message authors (monthly)': monthlyUniqueMessageAuthors,
   };
   const today = new Date().toLocaleString('default', {
     day: 'numeric',
@@ -74,7 +84,7 @@ async function getActiveCountSince(time: number): Promise<number> {
     SELECT COUNT(DISTINCT u.id) AS count
     FROM users u
     LEFT JOIN cookies c ON c.user = u.id
-    WHERE last_used IS NOT NULL AND last_used > ${time}
+    WHERE last_used IS NOT NULL AND last_used >= ${time}
   `);
   const [row] = result;
   return row.count;
@@ -105,7 +115,7 @@ async function getRetention(
 
   const lastUsedSince = Date.now() - millisecondsPerDay * activityCheckDaysAgo;
   const retainedCount = result.filter(
-    ({ lastUsed }) => lastUsed > lastUsedSince,
+    ({ lastUsed }) => lastUsed >= lastUsedSince,
   ).length;
 
   return { retainedCount, totalCount };
@@ -143,6 +153,16 @@ async function getRetentionSinceLaunch(
     totalRetentionResults.totalCount += retentionResult.totalCount;
   }
   return totalRetentionResults;
+}
+
+async function getUniqueMessageAuthorCountSince(time: number): Promise<number> {
+  const [result] = await dbQuery(SQL`
+    SELECT COUNT(DISTINCT user) AS count
+    FROM messages
+    WHERE time >= ${time}
+  `);
+  const [row] = result;
+  return row.count;
 }
 
 export { postMetrics };
