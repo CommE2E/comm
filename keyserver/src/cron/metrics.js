@@ -21,6 +21,7 @@ async function postMetrics() {
   const thirtyDaysAgo = Date.now() - millisecondsPerDay * 30;
   const [
     dailyActives,
+    weeklyActives,
     monthlyActives,
     lastDayOneWeekRetention,
     lastDayTwoWeekRetention,
@@ -32,6 +33,7 @@ async function postMetrics() {
     monthlyUniqueMessageAuthors,
   ] = await Promise.all([
     getActiveCountSince(oneDayAgo),
+    getActiveCountSince(oneWeekAgo),
     getActiveCountSince(thirtyDaysAgo),
     getRetention(7, 6, 1),
     getRetention(14, 13, 1),
@@ -45,6 +47,7 @@ async function postMetrics() {
 
   const metrics = {
     'DAUs': dailyActives,
+    'WAUs': weeklyActives,
     'MAUs': monthlyActives,
     'D7 (daily)': lastDayOneWeekRetention,
     'D14 (daily)': lastDayTwoWeekRetention,
