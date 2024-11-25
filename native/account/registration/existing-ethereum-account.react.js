@@ -97,7 +97,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
         );
       } else if (
         messageForException === 'unsupported_version' ||
-        messageForException === 'client_version_unsupported'
+        messageForException === 'client_version_unsupported' ||
+        messageForException === 'use_new_flow'
       ) {
         Alert.alert(
           appOutOfDateAlertDetails.title,
