@@ -23,13 +23,17 @@ async function postMetrics() {
     monthlyActives,
     lastDayOneWeekRetention,
     lastDayTwoWeekRetention,
+    lastWeekThreeWeekRetention,
     lastDayRetentionSinceLaunch,
+    lastWeekRetentionSinceLaunch,
   ] = await Promise.all([
     getActiveCountSince(oneDayAgo),
     getActiveCountSince(thirtyDaysAgo),
     getRetention(7, 6, 1),
     getRetention(14, 13, 1),
+    getRetention(21, 14, 7),
     getRetentionSinceLaunch(1),
+    getRetentionSinceLaunch(7),
   ]);
 
   const metrics = {
@@ -37,7 +41,9 @@ async function postMetrics() {
     'MAUs': monthlyActives,
     'D7 (daily)': lastDayOneWeekRetention,
     'D14 (daily)': lastDayTwoWeekRetention,
+    'D21 (weekly)': lastWeekThreeWeekRetention,
     'daily retention since launch': lastDayRetentionSinceLaunch,
+    'weekly retention since launch': lastWeekRetentionSinceLaunch,
   };
   const today = new Date().toLocaleString('default', {
     day: 'numeric',
