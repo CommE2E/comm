@@ -40,6 +40,7 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -57,6 +58,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { useShowVersionUnsupportedAlert } from '../utils/hooks.js';
 import { deviceIsEmulator } from '../utils/url-utils.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
@@ -93,6 +95,14 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const { retrieveLatestBackupInfo } = useClientBackup();
 
   const { panelForegroundTertiaryLabel } = useColors();
+
+  const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(true);
+  React.useEffect(() => {
+    // Secondary device auth is unsupported publicly in this version
+    if (!isDev) {
+      showVersionUnsupportedAlert();
+    }
+  }, [showVersionUnsupportedAlert]);
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerToDeviceMessage) => {
