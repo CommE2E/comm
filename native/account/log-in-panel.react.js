@@ -350,7 +350,8 @@ class LogInPanel extends React.PureComponent<Props, State> {
         );
       } else if (
         messageForException === 'unsupported_version' ||
-        messageForException === 'client_version_unsupported'
+        messageForException === 'client_version_unsupported' ||
+        messageForException === 'use_new_flow'
       ) {
         Alert.alert(
           appOutOfDateAlertDetails.title,
