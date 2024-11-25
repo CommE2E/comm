@@ -25,6 +25,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   errorMessageIsInvalidCSAT,
   usingCommServicesAccessToken,
+  usingRestoreFlow,
 } from 'lib/utils/services-utils.js';
 
 import {
@@ -32,7 +33,10 @@ import {
   SecondaryDeviceQRCodeScannerRouteName,
 } from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useOnFirstLaunchEffect } from '../utils/hooks.js';
+import {
+  useShowVersionUnsupportedAlert,
+  useOnFirstLaunchEffect,
+} from '../utils/hooks.js';
 
 type DeepLinksContextType = {
   +setCurrentLinkUrl: SetState<?string>,
@@ -97,6 +101,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
   const { getAuthMetadata } = identityContext;
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
+  const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useVerifyInviteLink(keyserverOverride);
@@ -146,10 +151,21 @@ function DeepLinksContextProvider(props: Props): React.Node {
           });
         }
       } else if (parsedData.type === 'qr-code') {
+        if (!usingRestoreFlow) {
+          showVersionUnsupportedAlert();
+          return;
+        }
         navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
       }
     })();
-  }, [currentLink, getAuthMetadata, loggedIn, navigation, invalidTokenLogOut]);
+  }, [
+    currentLink,
+    getAuthMetadata,
+    loggedIn,
+    navigation,
+    invalidTokenLogOut,
+    showVersionUnsupportedAlert,
+  ]);
 
   React.useEffect(() => {
     const secret = inviteLinkSecret.current;
