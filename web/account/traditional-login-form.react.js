@@ -134,7 +134,8 @@ function TraditionalLoginForm(): React.Node {
         setErrorMessage('incorrect username or password');
       } else if (
         messageForException === 'client_version_unsupported' ||
-        messageForException === 'unsupported_version'
+        messageForException === 'unsupported_version' ||
+        messageForException === 'use_new_flow'
       ) {
         setErrorMessage(getShortVersionUnsupportedError());
       } else if (
