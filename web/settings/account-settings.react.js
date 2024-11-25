@@ -39,11 +39,19 @@ import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
 import TunnelbrokerTestScreen from './tunnelbroker-test.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Button from '../components/button.react.js';
+import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
-  const sendLogoutRequest = useLogOut();
+  const { pushModal, popModal } = useModalContext();
+  const showVersionUnsupportedModal = React.useCallback(() => {
+    pushModal(<VersionUnsupportedModal />);
+  }, [pushModal]);
+  const sendLogoutRequest = useLogOut({
+    handleUseNewFlowResponse: showVersionUnsupportedModal,
+  });
+
   const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
   const logOutUser = React.useCallback(
@@ -70,7 +78,6 @@ function AccountSettings(): React.Node {
     })();
   }, []);
 
-  const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
     () => pushModal(<PasswordChangeModal />),
     [pushModal],
