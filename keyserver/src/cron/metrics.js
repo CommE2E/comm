@@ -21,23 +21,23 @@ async function postMetrics() {
   const [
     dailyActives,
     monthlyActives,
-    oneWeekRetention,
-    twoWeekRetention,
-    retentionSinceLaunch,
+    lastDayOneWeekRetention,
+    lastDayTwoWeekRetention,
+    lastDayRetentionSinceLaunch,
   ] = await Promise.all([
     getActiveCountSince(oneDayAgo),
     getActiveCountSince(thirtyDaysAgo),
-    getRetention(7),
-    getRetention(14),
-    getRetentionSinceLaunch(),
+    getRetention(7, 6, 1),
+    getRetention(14, 13, 1),
+    getRetentionSinceLaunch(1),
   ]);
 
   const metrics = {
     'DAUs': dailyActives,
     'MAUs': monthlyActives,
-    'D7': oneWeekRetention,
-    'D14': twoWeekRetention,
-    'retention since launch': retentionSinceLaunch,
+    'D7 (daily)': lastDayOneWeekRetention,
+    'D14 (daily)': lastDayTwoWeekRetention,
+    'daily retention since launch': lastDayRetentionSinceLaunch,
   };
   const today = new Date().toLocaleString('default', {
     day: 'numeric',
@@ -74,34 +74,43 @@ async function getActiveCountSince(time: number): Promise<number> {
   return row.count;
 }
 
-// Of the users that created their account N days ago,
-// how many were active in the last day?
+// Of the users that created their account between N and M days ago,
+// how many were active in the last X days?
 type RetentionResult = { +retainedCount: number, +totalCount: number };
-async function getRetention(daysAgo: number): Promise<RetentionResult> {
-  const startOfNDaysAgo = Date.now() - millisecondsPerDay * daysAgo;
-  const endOfNDaysAgo = Date.now() - millisecondsPerDay * (daysAgo - 1);
+async function getRetention(
+  registeredDaysAgoStart: number,
+  registeredDaysAgoEnd: number,
+  activityCheckDaysAgo: number,
+): Promise<RetentionResult> {
+  const startOfRegistrationPeriod =
+    Date.now() - millisecondsPerDay * registeredDaysAgoStart;
+  const endOfRegistrationPeriod =
+    Date.now() - millisecondsPerDay * registeredDaysAgoEnd;
   const [result] = await dbQuery(SQL`
     SELECT u.id, MAX(c.last_used) AS lastUsed
     FROM users u
     LEFT JOIN cookies c ON c.user = u.id
-    WHERE u.creation_time >= ${startOfNDaysAgo}
-      AND u.creation_time < ${endOfNDaysAgo}
+    WHERE u.creation_time >= ${startOfRegistrationPeriod}
+      AND u.creation_time < ${endOfRegistrationPeriod}
     GROUP BY u.id
   `);
 
   const totalCount = result.length;
 
-  const oneDayAgo = Date.now() - millisecondsPerDay;
+  const lastUsedSince = Date.now() - millisecondsPerDay * activityCheckDaysAgo;
   const retainedCount = result.filter(
-    ({ lastUsed }) => lastUsed > oneDayAgo,
+    ({ lastUsed }) => lastUsed > lastUsedSince,
   ).length;
 
   return { retainedCount, totalCount };
 }
 
 // We're measuring users that signed up in the 7 days following launch.
-// They count as retained if they've used Comm in the last day.
-async function getRetentionSinceLaunch(): Promise<RetentionResult> {
+// They count as retained if they've used Comm in the last activityCheckDaysAgo
+// days.
+async function getRetentionSinceLaunch(
+  activityCheckDaysAgo: number,
+): Promise<RetentionResult> {
   const launchDate = new Date('2024-10-03');
   const launchDaysAgo = Math.ceil(
     (Date.now() - launchDate.getTime()) / millisecondsPerDay,
@@ -109,7 +118,13 @@ async function getRetentionSinceLaunch(): Promise<RetentionResult> {
 
   const retentionPromises: Array<Promise<RetentionResult>> = [];
   for (let i = 0; i < 7; i++) {
-    retentionPromises.push(getRetention(launchDaysAgo - i));
+    retentionPromises.push(
+      getRetention(
+        launchDaysAgo - i,
+        launchDaysAgo - i - 1,
+        activityCheckDaysAgo,
+      ),
+    );
   }
 
   const totalRetentionResults = {
