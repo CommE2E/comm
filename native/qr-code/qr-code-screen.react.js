@@ -13,6 +13,7 @@ import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { LoggedOutModalRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
@@ -20,7 +21,6 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
 
@@ -40,11 +40,20 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const goToRestoreFlow = React.useCallback(() => {
+    props.navigation.navigate(LoggedOutModalRouteName, {
+      mode: 'restore',
+    });
+  }, [props.navigation]);
+
   let primaryRestoreButton = null;
   if (usingRestoreFlow) {
     primaryRestoreButton = (
       <View style={styles.primaryRestoreButton}>
-        <LinkButton text="Not logged in on another phone?" onPress={() => {}} />
+        <LinkButton
+          text="Not logged in on another phone?"
+          onPress={goToRestoreFlow}
+        />
       </View>
     );
   }

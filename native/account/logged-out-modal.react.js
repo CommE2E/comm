@@ -240,6 +240,10 @@ type Mode = {
   +nextMode: LoggedOutMode,
 };
 
+export type LoggedOutModalParams = {
+  +mode?: ?LoggedOutMode,
+};
+
 type Props = {
   +navigation: RootNavigationProp<'LoggedOutModal'>,
   +route: NavigationRoute<'LoggedOutModal'>,
@@ -327,6 +331,14 @@ function LoggedOutModal(props: Props) {
     },
     [setMode, modeValue],
   );
+
+  React.useEffect(() => {
+    const navMode = props.route.params?.mode;
+    if (navMode) {
+      combinedSetMode(navMode);
+      props.navigation.setParams({ mode: null });
+    }
+  }, [combinedSetMode, props.navigation, props.route.params?.mode]);
 
   const goBackToPrompt = React.useCallback(() => {
     nextModeRef.current = 'prompt';

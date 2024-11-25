@@ -4,6 +4,7 @@ import type { RouteProp } from '@react-navigation/core';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
+import type { LoggedOutModalParams } from '../account/logged-out-modal.react';
 import type { AvatarSelectionParams } from '../account/registration/avatar-selection.react.js';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
 import type { ConnectFarcasterParams } from '../account/registration/connect-farcaster.react.js';
@@ -176,7 +177,7 @@ export const MutedTabTipRouteName = 'MutedTabTip';
 export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
 
 export type RootParamList = {
-  +LoggedOutModal: void,
+  +LoggedOutModal: LoggedOutModalParams,
   +App: void,
   +ThreadPickerModal: ThreadPickerModalParams,
   +AddUsersModal: AddUsersModalParams,
