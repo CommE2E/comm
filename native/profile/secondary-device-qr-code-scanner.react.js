@@ -41,13 +41,13 @@ import TextInput from '../components/text-input.react.js';
 import { commCoreModule } from '../native-modules.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import {
-  composeTunnelbrokerQRAuthMessage,
-  parseTunnelbrokerQRAuthMessage,
-} from '../qr-code/qr-code-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import {
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+} from '../utils/qr-code-utils.js';
 import { deviceIsEmulator } from '../utils/url-utils.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
