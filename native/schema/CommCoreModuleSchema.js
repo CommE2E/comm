@@ -130,6 +130,11 @@ interface Spec extends TurboModule {
     messageID: string,
   ) => Promise<string>;
   +signMessage: (message: string) => Promise<string>;
+  +signMessageUsingAccount: (
+    message: string,
+    pickledAccount: string,
+    pickleKey: string,
+  ) => Promise<string>;
   +verifySignature: (
     publicKey: string,
     message: string,
