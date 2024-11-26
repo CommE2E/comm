@@ -49,7 +49,7 @@ import {
   InviteLinkNavigatorRouteName,
   CommunityCreationRouteName,
   RolesNavigatorRouteName,
-  QRCodeSignInNavigatorRouteName,
+  SignInNavigatorRouteName,
   UserProfileBottomSheetNavigatorRouteName,
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
@@ -78,7 +78,7 @@ import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.j
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import KeyserverSelectionBottomSheet from '../profile/keyserver-selection-bottom-sheet.react.js';
 import LinkedDevicesBottomSheet from '../profile/linked-devices-bottom-sheet.react.js';
-import QRCodeSignInNavigator from '../qr-code/qr-code-sign-in-navigator.react.js';
+import SignInNavigator from '../qr-code/sign-in-navigator.react.js';
 import RolesNavigator from '../roles/roles-navigator.react.js';
 import UserProfileBottomSheetNavigator from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 
@@ -214,8 +214,8 @@ function RootComponent(): React.Node {
         options={disableGesturesScreenOptions}
       />
       <Root.Screen
-        name={QRCodeSignInNavigatorRouteName}
-        component={QRCodeSignInNavigator}
+        name={SignInNavigatorRouteName}
+        component={SignInNavigator}
         options={disableGesturesScreenOptions}
       />
       <Root.Screen
