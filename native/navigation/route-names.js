@@ -149,7 +149,7 @@ export const RegistrationTermsRouteName = 'RegistrationTerms';
 export const RolesNavigatorRouteName = 'RolesNavigator';
 export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
-export const QRCodeSignInNavigatorRouteName = 'QRCodeSignInNavigator';
+export const SignInNavigatorRouteName = 'SignInNavigator';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
@@ -193,7 +193,7 @@ export type RootParamList = {
   +InviteLinkModal: InviteLinkModalParams,
   +InviteLinkNavigator: InviteLinksNavigatorParams,
   +RolesNavigator: void,
-  +QRCodeSignInNavigator: void,
+  +SignInNavigator: void,
   +UserProfileBottomSheetNavigator: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
@@ -333,7 +333,7 @@ export type TagFarcasterChannelParamList = {
   +TagFarcasterChannelByName: TagFarcasterChannelByNameParams,
 };
 
-export type QRCodeSignInParamList = {
+export type SignInParamList = {
   +QRCodeScreen: void,
 };
 
@@ -356,7 +356,7 @@ export type ScreenParamList = {
   ...InviteLinkParamList,
   ...CommunityCreationParamList,
   ...RolesParamList,
-  ...QRCodeSignInParamList,
+  ...SignInParamList,
   ...UserProfileBottomSheetParamList,
   ...TagFarcasterChannelParamList,
 };
@@ -367,7 +367,7 @@ export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
 export const accountModals = [
   LoggedOutModalRouteName,
   RegistrationRouteName,
-  QRCodeSignInNavigatorRouteName,
+  SignInNavigatorRouteName,
 ];
 
 export const scrollBlockingModals = [
