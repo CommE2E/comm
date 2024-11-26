@@ -89,13 +89,6 @@ import {
 import OrientationHandler from './navigation/orientation-handler.react.js';
 import { navStateAsyncStorageKey } from './navigation/persistance.js';
 import RootNavigator from './navigation/root-navigator.react.js';
-import {
-  composeTunnelbrokerQRAuthMessage,
-  handleSecondaryDeviceLogInError,
-  parseTunnelbrokerQRAuthMessage,
-  performBackupRestore,
-  generateQRAuthAESKey,
-} from './qr-code/qr-code-utils.js';
 import ConnectivityUpdater from './redux/connectivity-updater.react.js';
 import { DimensionsUpdater } from './redux/dimensions-updater.react.js';
 import { getPersistor } from './redux/persist.js';
@@ -109,6 +102,13 @@ import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { alchemyKey, ethersProvider } from './utils/ethers-utils.js';
 import { neynarKey } from './utils/neynar-utils.js';
+import {
+  composeTunnelbrokerQRAuthMessage,
+  handleSecondaryDeviceLogInError,
+  parseTunnelbrokerQRAuthMessage,
+  performBackupRestore,
+  generateQRAuthAESKey,
+} from './utils/qr-code-utils.js';
 
 // Add custom items to expo-dev-menu
 import './dev-menu.js';

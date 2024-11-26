@@ -61,6 +61,7 @@ import {
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
+import SignInNavigator from '../account/sign-in-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
 import RestoreSIWEBackup from '../backup/restore-siwe-backup.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
@@ -78,7 +79,6 @@ import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.j
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import KeyserverSelectionBottomSheet from '../profile/keyserver-selection-bottom-sheet.react.js';
 import LinkedDevicesBottomSheet from '../profile/linked-devices-bottom-sheet.react.js';
-import SignInNavigator from '../qr-code/sign-in-navigator.react.js';
 import RolesNavigator from '../roles/roles-navigator.react.js';
 import UserProfileBottomSheetNavigator from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 
