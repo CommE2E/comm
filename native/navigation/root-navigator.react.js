@@ -58,7 +58,7 @@ import {
   RestoreSIWEBackupRouteName,
   LinkedDevicesBottomSheetRouteName,
 } from './route-names.js';
-import LoggedOutModal from '../account/logged-out-modal.react.js';
+import LoggedOutModalWrapper from '../account/logged-out-modal-wrapper.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import SignInNavigator from '../account/sign-in-navigator.react.js';
@@ -205,7 +205,7 @@ function RootComponent(): React.Node {
     <Root.Navigator screenOptions={defaultScreenOptions}>
       <Root.Screen
         name={LoggedOutModalRouteName}
-        component={LoggedOutModal}
+        component={LoggedOutModalWrapper}
         options={disableGesturesScreenOptions}
       />
       <Root.Screen

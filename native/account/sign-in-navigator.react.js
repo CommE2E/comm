@@ -9,11 +9,13 @@ import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import QRCodeScreen from './qr-code-screen.react.js';
+import RestoreScreen from './restore-screen-wrapper.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type ScreenParamList,
   type SignInParamList,
   QRCodeScreenRouteName,
+  RestoreScreenRouteName,
 } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
@@ -57,6 +59,10 @@ function SignInNavigator(props: SignInNavigatorProps): React.Node {
         <QRCodeSignInStack.Screen
           name={QRCodeScreenRouteName}
           component={QRCodeScreen}
+        />
+        <QRCodeSignInStack.Screen
+          name={RestoreScreenRouteName}
+          component={RestoreScreen}
         />
       </QRCodeSignInStack.Navigator>
     </SafeAreaView>
