@@ -8,9 +8,12 @@ import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
+import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
+import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { RestoreScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
@@ -18,7 +21,6 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
 
@@ -37,34 +39,56 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, [platform, qrData]);
 
   const styles = useStyles(unboundStyles);
-  return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Log in to Comm</Text>
-      <Text style={styles.headingSubtext}>
-        Open the Comm app on your logged-in phone and scan the QR code below
-      </Text>
-      <QRCode value={qrCodeURL} size={200} />
-      <View style={styles.instructionsBox}>
-        <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Go to </Text>
-          <Text style={styles.instructionsBold}>Profile</Text>
-        </Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Select </Text>
-          <Text style={styles.instructionsBold}>Linked devices </Text>
-        </Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Click </Text>
-          <Text style={styles.instructionsBold}>Add </Text>
-          <Text>on the top right</Text>
-        </Text>
+
+  let primaryRestoreButton = null;
+  const goToRestoreFlow = React.useCallback(() => {
+    props.navigation.navigate(RestoreScreenRouteName);
+  }, [props.navigation]);
+  if (usingRestoreFlow) {
+    primaryRestoreButton = (
+      <View style={styles.primaryRestoreButton}>
+        <LinkButton
+          text="Not logged in on another phone?"
+          onPress={goToRestoreFlow}
+        />
       </View>
+    );
+  }
+
+  return (
+    <View style={styles.screenContainer}>
+      <View style={styles.container}>
+        <Text style={styles.heading}>Log in to Comm</Text>
+        <Text style={styles.headingSubtext}>
+          Open the Comm app on your logged-in phone and scan the QR code below
+        </Text>
+        <QRCode value={qrCodeURL} size={200} />
+        <View style={styles.instructionsBox}>
+          <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
+          <Text style={styles.instructionsStep}>
+            <Text>Go to </Text>
+            <Text style={styles.instructionsBold}>Profile</Text>
+          </Text>
+          <Text style={styles.instructionsStep}>
+            <Text>Select </Text>
+            <Text style={styles.instructionsBold}>Linked devices </Text>
+          </Text>
+          <Text style={styles.instructionsStep}>
+            <Text>Click </Text>
+            <Text style={styles.instructionsBold}>Add </Text>
+            <Text>on the top right</Text>
+          </Text>
+        </View>
+      </View>
+      {primaryRestoreButton}
     </View>
   );
 }
 
 const unboundStyles = {
+  screenContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -103,6 +127,10 @@ const unboundStyles = {
   },
   instructionsBold: {
     fontWeight: 'bold',
+  },
+  primaryRestoreButton: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
 };
 
