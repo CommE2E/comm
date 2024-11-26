@@ -22,8 +22,6 @@ namespace comm {
 const std::string
     NotificationsCryptoModule::secureStoreNotificationsAccountDataKey =
         "notificationsCryptoAccountDataKey";
-const std::string NotificationsCryptoModule::notificationsCryptoAccountID =
-    "notificationsCryptoAccountDataID";
 const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
     "keyserverHostedNotificationsID";
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
@@ -73,9 +71,7 @@ NotificationsCryptoModule::deserializeCryptoModule(
 
   if (persistJSON["sessions"].isNull()) {
     return std::make_unique<crypto::CryptoModule>(
-        notificationsCryptoAccountID,
-        picklingKey,
-        crypto::Persist({account, sessions}));
+        picklingKey, crypto::Persist({account, sessions}));
   }
   for (auto &sessionKeyValuePair : persistJSON["sessions"].items()) {
     std::string targetUserID = sessionKeyValuePair.first.asString();
@@ -84,9 +80,7 @@ NotificationsCryptoModule::deserializeCryptoModule(
         std::vector<uint8_t>(sessionData.begin(), sessionData.end()), 1};
   }
   return std::make_unique<crypto::CryptoModule>(
-      notificationsCryptoAccountID,
-      picklingKey,
-      crypto::Persist({account, sessions}));
+      picklingKey, crypto::Persist({account, sessions}));
 }
 
 void NotificationsCryptoModule::serializeAndFlushCryptoModule(
@@ -339,7 +333,7 @@ NotificationsCryptoModule::fetchNotificationsAccount() {
 
   std::shared_ptr<crypto::CryptoModule> cryptoModule =
       std::make_shared<crypto::CryptoModule>(
-          notificationsCryptoAccountID, picklingKey, serializedCryptoModule);
+          picklingKey, serializedCryptoModule);
 
   return {{cryptoModule, picklingKey}};
 }
