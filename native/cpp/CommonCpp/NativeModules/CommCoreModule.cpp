@@ -2306,44 +2306,6 @@ void CommCoreModule::reportDBOperationsFailure(jsi::Runtime &rt) {
   DatabaseManager::reportDBOperationsFailure();
 }
 
-jsi::Value CommCoreModule::computeBackupKey(
-    jsi::Runtime &rt,
-    jsi::String password,
-    jsi::String backupID) {
-  std::string passwordStr = password.utf8(rt);
-  std::string backupIDStr = backupID.utf8(rt);
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::array<::std::uint8_t, 32> backupKey;
-          try {
-            backupKey = compute_backup_key(passwordStr, backupIDStr);
-          } catch (const std::exception &e) {
-            error = std::string{"Failed to compute backup key: "} + e.what();
-          }
-
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            auto size = backupKey.size();
-            auto arrayBuffer =
-                innerRt.global()
-                    .getPropertyAsFunction(innerRt, "ArrayBuffer")
-                    .callAsConstructor(innerRt, {static_cast<double>(size)})
-                    .asObject(innerRt)
-                    .getArrayBuffer(innerRt);
-            auto bufferPtr = arrayBuffer.data(innerRt);
-            memcpy(bufferPtr, backupKey.data(), size);
-            promise->resolve(std::move(arrayBuffer));
-          });
-        };
-        this->cryptoThread->scheduleTask(job);
-      });
-}
-
 jsi::Value CommCoreModule::generateRandomString(jsi::Runtime &rt, double size) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
