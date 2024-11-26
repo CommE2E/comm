@@ -37,6 +37,7 @@ import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
 import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
+import type { SignInNavigationProp } from './sign-in-navigator.react';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
@@ -101,17 +102,19 @@ function getPanelPaddingTop(
 // prettier-ignore
 function getPanelOpacity(
   modeValue /*: string */,
-  finishResettingToPrompt/*: () => void */,
+  finishResetting/*: () => void */,
 ) /*: number */ {
   'worklet';
   const targetPanelOpacity =
-    modeValue === 'loading' || modeValue === 'prompt' ? 0 : 1;
+    modeValue === 'loading' || modeValue === 'prompt' || modeValue === 'restore'
+      ? 0
+      : 1;
   return withTiming(
     targetPanelOpacity,
     timingConfig,
     (succeeded /*?: boolean */) => {
       if (succeeded && targetPanelOpacity === 0) {
-        runOnJS(finishResettingToPrompt)();
+        runOnJS(finishResetting)();
       }
     },
   );
@@ -240,11 +243,19 @@ type Mode = {
   +nextMode: LoggedOutMode,
 };
 
-type Props = {
-  +navigation: RootNavigationProp<'LoggedOutModal'>,
-  +route: NavigationRoute<'LoggedOutModal'>,
-};
+type Props =
+  | {
+      +navigation: RootNavigationProp<'LoggedOutModal'>,
+      +route: NavigationRoute<'LoggedOutModal'>,
+      +defaultMode: 'prompt',
+    }
+  | {
+      +navigation: SignInNavigationProp<'RestoreScreen'>,
+      +route: NavigationRoute<'RestoreScreen'>,
+      +defaultMode: 'restore',
+    };
 function LoggedOutModal(props: Props) {
+  const { defaultMode } = props;
   const mountedRef = React.useRef(false);
   React.useEffect(() => {
     mountedRef.current = true;
@@ -276,7 +287,7 @@ function LoggedOutModal(props: Props) {
   );
 
   const persistedStateLoaded = usePersistedStateLoaded();
-  const initialMode = persistedStateLoaded ? 'prompt' : 'loading';
+  const initialMode = persistedStateLoaded ? defaultMode : 'loading';
   const [mode, baseSetMode] = React.useState(() => ({
     curMode: initialMode,
     nextMode: initialMode,
@@ -298,16 +309,16 @@ function LoggedOutModal(props: Props) {
   const modeValue = useSharedValue(initialMode);
   const buttonOpacity = useSharedValue(persistedStateLoaded ? 1 : 0);
 
-  const onPrompt = mode.curMode === 'prompt';
-  const prevOnPromptRef = React.useRef(onPrompt);
+  const onDefault = mode.curMode === defaultMode;
+  const prevOnDefaultRef = React.useRef(onDefault);
   React.useEffect(() => {
-    if (onPrompt && !prevOnPromptRef.current) {
+    if (onDefault && !prevOnDefaultRef.current) {
       buttonOpacity.value = withTiming(1, {
         easing: Easing.out(Easing.ease),
       });
     }
-    prevOnPromptRef.current = onPrompt;
-  }, [onPrompt, buttonOpacity]);
+    prevOnDefaultRef.current = onDefault;
+  }, [buttonOpacity, onDefault]);
 
   const curContentHeight = dimensions.safeAreaHeight;
   const prevContentHeightRef = React.useRef(curContentHeight);
@@ -328,20 +339,20 @@ function LoggedOutModal(props: Props) {
     [setMode, modeValue],
   );
 
-  const goBackToPrompt = React.useCallback(() => {
-    nextModeRef.current = 'prompt';
-    setMode({ nextMode: 'prompt' });
-    modeValue.value = 'prompt';
+  const goBackToDefault = React.useCallback(() => {
+    nextModeRef.current = defaultMode;
+    setMode({ nextMode: defaultMode });
+    modeValue.value = defaultMode;
     Keyboard.dismiss();
-  }, [setMode, modeValue]);
+  }, [defaultMode, setMode, modeValue]);
 
   const loadingCompleteRef = React.useRef(persistedStateLoaded);
   React.useEffect(() => {
     if (!loadingCompleteRef.current && persistedStateLoaded) {
-      combinedSetMode('prompt');
+      combinedSetMode(defaultMode);
       loadingCompleteRef.current = true;
     }
-  }, [persistedStateLoaded, combinedSetMode]);
+  }, [combinedSetMode, defaultMode, persistedStateLoaded]);
 
   const [activeAlert, setActiveAlert] = React.useState(false);
 
@@ -366,19 +377,19 @@ function LoggedOutModal(props: Props) {
   const temporarilyHiddenPassword = React.useRef<?string>();
 
   const curLogInPassword = logInState.passwordInputText;
-  const resetToPrompt = React.useCallback(() => {
-    if (nextModeRef.current === 'prompt') {
+  const resetToDefault = React.useCallback(() => {
+    if (nextModeRef.current === defaultMode) {
       return false;
     }
     if (Platform.OS === 'ios' && curLogInPassword) {
       temporarilyHiddenPassword.current = curLogInPassword;
       setLogInState({ passwordInputText: null });
     }
-    goBackToPrompt();
+    goBackToDefault();
     return true;
-  }, [goBackToPrompt, curLogInPassword, setLogInState]);
+  }, [curLogInPassword, defaultMode, goBackToDefault, setLogInState]);
 
-  const finishResettingToPrompt = React.useCallback(() => {
+  const finishResetting = React.useCallback(() => {
     setMode({ curMode: nextModeRef.current });
     if (temporarilyHiddenPassword.current) {
       setLogInState({ passwordInputText: temporarilyHiddenPassword.current });
@@ -390,11 +401,11 @@ function LoggedOutModal(props: Props) {
     if (!isForeground) {
       return undefined;
     }
-    BackHandler.addEventListener('hardwareBackPress', resetToPrompt);
+    BackHandler.addEventListener('hardwareBackPress', resetToDefault);
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', resetToPrompt);
+      BackHandler.removeEventListener('hardwareBackPress', resetToDefault);
     };
-  }, [isForeground, resetToPrompt]);
+  }, [isForeground, resetToDefault]);
 
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated && navContext),
@@ -448,7 +459,7 @@ function LoggedOutModal(props: Props) {
   }, [navigate]);
 
   const opacityStyle = useAnimatedStyle(() => ({
-    opacity: getPanelOpacity(modeValue.value, finishResettingToPrompt),
+    opacity: getPanelOpacity(modeValue.value, finishResetting),
   }));
 
   const styles = useStyles(unboundStyles);
@@ -641,7 +652,7 @@ function LoggedOutModal(props: Props) {
         <View>
           <Text style={styles.header}>Comm</Text>
           <AnimatedView style={backButtonStyle}>
-            <TouchableOpacity activeOpacity={0.6} onPress={resetToPrompt}>
+            <TouchableOpacity activeOpacity={0.6} onPress={resetToDefault}>
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
           </AnimatedView>
@@ -653,7 +664,7 @@ function LoggedOutModal(props: Props) {
       animatedContentStyle,
       styles.header,
       backButtonStyle,
-      resetToPrompt,
+      resetToDefault,
       panel,
     ],
   );
@@ -666,11 +677,11 @@ function LoggedOutModal(props: Props) {
     }
     return (
       <FullscreenSIWEPanel
-        goBackToPrompt={goBackToPrompt}
+        goBackToPrompt={goBackToDefault}
         closing={nextModeIsPrompt}
       />
     );
-  }, [curModeIsSIWE, goBackToPrompt, nextModeIsPrompt]);
+  }, [curModeIsSIWE, goBackToDefault, nextModeIsPrompt]);
 
   const splashStyle = useSelector(splashStyleSelector);
   const backgroundStyle = React.useMemo(

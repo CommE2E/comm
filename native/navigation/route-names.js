@@ -151,6 +151,7 @@ export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
 export const SignInNavigatorRouteName = 'SignInNavigator';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
+export const RestoreScreenRouteName = 'RestoreScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
@@ -335,6 +336,7 @@ export type TagFarcasterChannelParamList = {
 
 export type SignInParamList = {
   +QRCodeScreen: void,
+  +RestoreScreen: void,
 };
 
 export type UserProfileBottomSheetParamList = {
