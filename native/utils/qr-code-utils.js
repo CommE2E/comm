@@ -12,18 +12,18 @@ import {
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
+import * as AES from './aes-crypto-module.js';
+import {
+  appOutOfDateAlertDetails,
+  unknownErrorAlertDetails,
+} from './alert-messages.js';
+import Alert from './alert.js';
 import {
   convertBytesToObj,
   convertObjToBytes,
 } from '../backup/conversion-utils.js';
 import { commCoreModule, commUtilsModule } from '../native-modules.js';
 import { persistConfig } from '../redux/persist.js';
-import * as AES from '../utils/aes-crypto-module.js';
-import {
-  appOutOfDateAlertDetails,
-  unknownErrorAlertDetails,
-} from '../utils/alert-messages.js';
-import Alert from '../utils/alert.js';
 
 function composeTunnelbrokerQRAuthMessage(
   encryptionKey: string,
