@@ -17,6 +17,7 @@ import {
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import { reduceBackupStore } from 'lib/reducers/backup-reducer.js';
 import { queueDBOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
@@ -327,6 +328,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       ops,
       notificationsCreationData,
     ),
+    backupStore: reduceBackupStore(state.backupStore, action),
   };
 
   return state;
