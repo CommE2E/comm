@@ -66,7 +66,6 @@ public:
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
-  virtual jsi::Value computeBackupKey(jsi::Runtime &rt, jsi::String password, jsi::String backupID) = 0;
   virtual jsi::Value generateRandomString(jsi::Runtime &rt, double size) = 0;
   virtual jsi::Value setCommServicesAuthMetadata(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
@@ -484,14 +483,6 @@ private:
 
       return bridging::callFromJs<void>(
           rt, &T::reportDBOperationsFailure, jsInvoker_, instance_);
-    }
-    jsi::Value computeBackupKey(jsi::Runtime &rt, jsi::String password, jsi::String backupID) override {
-      static_assert(
-          bridging::getParameterCount(&T::computeBackupKey) == 3,
-          "Expected computeBackupKey(...) to have 3 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::computeBackupKey, jsInvoker_, instance_, std::move(password), std::move(backupID));
     }
     jsi::Value generateRandomString(jsi::Runtime &rt, double size) override {
       static_assert(
