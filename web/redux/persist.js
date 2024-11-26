@@ -722,6 +722,12 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     state,
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [86]: (async (state: AppState) => {
+    return {
+      state,
+      ops: {},
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {

@@ -5,6 +5,7 @@ import type { PersistState } from 'redux-persist/es/types.js';
 
 import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
+import type { BackupStore } from 'lib/types/backup-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types';
 import type { QueuedDMOperations } from 'lib/types/dm-ops';
@@ -88,6 +89,7 @@ export type AppState = {
   +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
   +queuedDMOperations: QueuedDMOperations,
   +holderStore: HolderStore,
+  +backupStore: BackupStore,
 };
 
 export { nonUserSpecificFieldsNative };
