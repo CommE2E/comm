@@ -6,6 +6,8 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   latestBackupInfoResponseValidator,
   type LatestBackupInfo,
+  type UserKeys,
+  userKeysResponseValidator,
 } from 'lib/types/backup-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -20,7 +22,28 @@ type ClientBackup = {
     +latestBackupInfo: LatestBackupInfo,
     +userIdentifier: string,
   }>,
+  +getBackupUserKeys: (
+    userIdentifier: string,
+    backupSecret: string,
+    backupID: string,
+  ) => Promise<UserKeys>,
 };
+
+async function getBackupUserKeys(
+  userIdentifier: string,
+  backupSecret: string,
+  backupID: string,
+): Promise<UserKeys> {
+  const userKeysResponse = await commCoreModule.getBackupUserKeys(
+    userIdentifier,
+    backupSecret,
+    backupID,
+  );
+  return assertWithValidator(
+    JSON.parse(userKeysResponse),
+    userKeysResponseValidator,
+  );
+}
 
 function useClientBackup(): ClientBackup {
   const currentUserID = useSelector(
@@ -69,8 +92,9 @@ function useClientBackup(): ClientBackup {
       createFullBackup,
       createUserKeysBackup,
       retrieveLatestBackupInfo,
+      getBackupUserKeys,
     }),
-    [retrieveLatestBackupInfo, createFullBackup, createUserKeysBackup],
+    [createFullBackup, createUserKeysBackup, retrieveLatestBackupInfo],
   );
 }
 
