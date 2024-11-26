@@ -9,12 +9,12 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 
-import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
+import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
-  +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
+  +navigation: SignInNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
