@@ -654,9 +654,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
           taskType cryptoJob = [=]() {
             std::string error;
             this->contentCryptoModule.reset(new crypto::CryptoModule(
-                this->publicCryptoAccountID,
-                storedSecretKey.value(),
-                contentPersist));
+                storedSecretKey.value(), contentPersist));
 
             std::optional<
                 std::pair<std::shared_ptr<crypto::CryptoModule>, std::string>>
@@ -666,9 +664,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                     isNotificationsAccountInitialized()) {
               maybeNotifsCryptoAccountToPersist = {
                   std::make_shared<crypto::CryptoModule>(
-                      this->notifsCryptoAccountID,
-                      storedSecretKey.value(),
-                      notifsPersist),
+                      storedSecretKey.value(), notifsPersist),
                   storedSecretKey.value()};
             }
 
