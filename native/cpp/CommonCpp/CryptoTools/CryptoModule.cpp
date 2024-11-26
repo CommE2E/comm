@@ -17,15 +17,11 @@ namespace crypto {
 const std::string SESSION_DOES_NOT_EXIST_ERROR{"SESSION_DOES_NOT_EXIST"};
 const std::string INVALID_SESSION_VERSION_ERROR{"INVALID_SESSION_VERSION"};
 
-CryptoModule::CryptoModule(std::string id) : id{id} {
+CryptoModule::CryptoModule() {
   this->createAccount();
 }
 
-CryptoModule::CryptoModule(
-    std::string id,
-    std::string secretKey,
-    Persist persist)
-    : id{id} {
+CryptoModule::CryptoModule(std::string secretKey, Persist persist) {
   if (persist.isEmpty()) {
     this->createAccount();
   } else {
