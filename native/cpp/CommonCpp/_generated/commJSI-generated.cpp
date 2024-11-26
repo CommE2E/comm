@@ -120,6 +120,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersis
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->signMessage(rt, args[0].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessageUsingAccount(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->signMessageUsingAccount(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_verifySignature(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->verifySignature(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
@@ -282,6 +285,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["decrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt};
   methodMap_["decryptAndPersist"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist};
   methodMap_["signMessage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage};
+  methodMap_["signMessageUsingAccount"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessageUsingAccount};
   methodMap_["verifySignature"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_verifySignature};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};
   methodMap_["terminate"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate};

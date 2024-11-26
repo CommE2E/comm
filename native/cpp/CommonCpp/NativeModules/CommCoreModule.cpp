@@ -2077,6 +2077,43 @@ jsi::Value CommCoreModule::signMessage(jsi::Runtime &rt, jsi::String message) {
       });
 }
 
+jsi::Value CommCoreModule::signMessageUsingAccount(
+    jsi::Runtime &rt,
+    jsi::String message,
+    jsi::String pickledAccount,
+    jsi::String pickleKey) {
+  std::string messageStr = message.utf8(rt);
+  std::string pickledAccountStr = pickledAccount.utf8(rt);
+  std::string pickleKeyStr = pickleKey.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string signature;
+          try {
+            crypto::Persist persist;
+            persist.account = crypto::OlmBuffer(
+                pickledAccountStr.begin(), pickledAccountStr.end());
+            auto cryptoModule = new crypto::CryptoModule(pickleKeyStr, persist);
+            signature = cryptoModule->signMessage(messageStr);
+          } catch (const std::exception &e) {
+            error = "signing message failed with: " + std::string(e.what());
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            auto jsiSignature{jsi::String::createFromUtf8(innerRt, signature)};
+            promise->resolve(std::move(jsiSignature));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::verifySignature(
     jsi::Runtime &rt,
     jsi::String publicKey,
