@@ -45,7 +45,7 @@ import {
   type NavigationRoute,
   LoggedOutModalRouteName,
   RegistrationRouteName,
-  QRCodeSignInNavigatorRouteName,
+  SignInNavigatorRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
@@ -428,7 +428,7 @@ function LoggedOutModal(props: Props) {
 
   const { navigate } = props.navigation;
   const onPressQRCodeSignIn = React.useCallback(() => {
-    navigate(QRCodeSignInNavigatorRouteName);
+    navigate(SignInNavigatorRouteName);
   }, [navigate]);
 
   const onPressNewRegister = React.useCallback(() => {

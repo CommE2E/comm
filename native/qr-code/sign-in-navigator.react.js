@@ -12,30 +12,29 @@ import QRCodeScreen from './qr-code-screen.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type ScreenParamList,
-  type QRCodeSignInParamList,
+  type SignInParamList,
   QRCodeScreenRouteName,
 } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 const safeAreaEdges = ['bottom'];
 
-export type QRCodeSignInNavigationProp<
-  RouteName: $Keys<QRCodeSignInParamList>,
-> = StackNavigationProp<ScreenParamList, RouteName>;
+export type SignInNavigationProp<RouteName: $Keys<SignInParamList>> =
+  StackNavigationProp<ScreenParamList, RouteName>;
 
-const QRCodeSignInStack = createStackNavigator<
+const SignInStack = createStackNavigator<
   ScreenParamList,
-  QRCodeSignInParamList,
+  SignInParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
 
-type QRCodeSignInNavigatorProps = {
-  +navigation: RootNavigationProp<'QRCodeSignInNavigator'>,
+type SignInNavigatorProps = {
+  +navigation: RootNavigationProp<'SignInNavigator'>,
   ...
 };
 
 // eslint-disable-next-line no-unused-vars
-function QRCodeSignInNavigator(props: QRCodeSignInNavigatorProps): React.Node {
+function SignInNavigator(props: SignInNavigatorProps): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
@@ -54,12 +53,12 @@ function QRCodeSignInNavigator(props: QRCodeSignInNavigatorProps): React.Node {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={safeAreaEdges}>
-      <QRCodeSignInStack.Navigator screenOptions={screenOptions}>
-        <QRCodeSignInStack.Screen
+      <SignInStack.Navigator screenOptions={screenOptions}>
+        <SignInStack.Screen
           name={QRCodeScreenRouteName}
           component={QRCodeScreen}
         />
-      </QRCodeSignInStack.Navigator>
+      </SignInStack.Navigator>
     </SafeAreaView>
   );
 }
@@ -74,4 +73,4 @@ const unboundStyles = {
   },
 };
 
-export default QRCodeSignInNavigator;
+export default SignInNavigator;
