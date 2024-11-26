@@ -172,6 +172,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String messageID) override;
   virtual jsi::Value
   signMessage(jsi::Runtime &rt, jsi::String message) override;
+  virtual jsi::Value signMessageUsingAccount(
+      jsi::Runtime &rt,
+      jsi::String message,
+      jsi::String pickledAccount,
+      jsi::String pickleKey) override;
   virtual jsi::Value verifySignature(
       jsi::Runtime &rt,
       jsi::String publicKey,
