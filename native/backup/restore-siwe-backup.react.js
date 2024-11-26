@@ -4,11 +4,10 @@ import * as React from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { userKeysResponseValidator } from 'lib/types/backup-types.js';
 import { type SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
+import { useClientBackup } from './use-client-backup.js';
 import { SignSIWEBackupMessageForRestore } from '../account/registration/siwe-backup-message-creation.react.js';
 import { commCoreModule } from '../native-modules.js';
 import { type RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -43,25 +42,23 @@ function RestoreSIWEBackup(props: Props): React.Node {
     },
   } = route;
 
+  const { getBackupUserKeys } = useClientBackup();
+
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
         const { signature } = result;
         let message = 'success';
         try {
-          const userKeysResponse = commCoreModule.getBackupUserKeys(
+          const { backupDataKey, backupLogDataKey } = await getBackupUserKeys(
             userIdentifier,
             signature,
             backupID,
           );
-          const userKeys = assertWithValidator(
-            userKeysResponse,
-            userKeysResponseValidator,
-          );
           await commCoreModule.restoreBackupData(
             backupID,
-            userKeys.backupDataKey,
-            userKeys.backupLogDataKey,
+            backupDataKey,
+            backupLogDataKey,
             persistConfig.version.toString(),
           );
         } catch (e) {
@@ -74,7 +71,7 @@ function RestoreSIWEBackup(props: Props): React.Node {
         goBack();
       })();
     },
-    [backupID, goBack, userIdentifier],
+    [backupID, getBackupUserKeys, goBack, userIdentifier],
   );
 
   return (
