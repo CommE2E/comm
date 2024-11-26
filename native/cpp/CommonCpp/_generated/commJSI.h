@@ -55,6 +55,7 @@ public:
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
   virtual jsi::Value decryptAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String userID, jsi::String messageID) = 0;
   virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
+  virtual jsi::Value signMessageUsingAccount(jsi::Runtime &rt, jsi::String message, jsi::String pickledAccount, jsi::String pickleKey) = 0;
   virtual jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
@@ -395,6 +396,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::signMessage, jsInvoker_, instance_, std::move(message));
+    }
+    jsi::Value signMessageUsingAccount(jsi::Runtime &rt, jsi::String message, jsi::String pickledAccount, jsi::String pickleKey) override {
+      static_assert(
+          bridging::getParameterCount(&T::signMessageUsingAccount) == 4,
+          "Expected signMessageUsingAccount(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::signMessageUsingAccount, jsInvoker_, instance_, std::move(message), std::move(pickledAccount), std::move(pickleKey));
     }
     jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) override {
       static_assert(
