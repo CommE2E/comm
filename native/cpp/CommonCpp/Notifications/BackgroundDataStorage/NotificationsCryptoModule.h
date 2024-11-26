@@ -7,8 +7,6 @@
 
 namespace comm {
 class NotificationsCryptoModule {
-  const static std::string notificationsCryptoAccountID;
-
   // Used for handling of legacy notifications sessions
   const static std::string secureStoreNotificationsAccountDataKey;
   const static std::string keyserverHostedNotificationsID;
