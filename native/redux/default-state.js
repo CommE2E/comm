@@ -107,6 +107,9 @@ const defaultState = ({
   holderStore: {
     storedHolders: {},
   },
+  backupStore: {
+    latestBackupInfo: null,
+  },
 }: AppState);
 
 export { defaultState };
