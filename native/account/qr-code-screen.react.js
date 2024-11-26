@@ -8,11 +8,15 @@ import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
+import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
+import RegistrationButtonContainer from './registration/registration-button-container.react.js';
 import RegistrationContainer from './registration/registration-container.react.js';
 import RegistrationContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
+import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { RestorePromptScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
@@ -20,7 +24,6 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
 
@@ -39,6 +42,23 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, [platform, qrData]);
 
   const styles = useStyles(unboundStyles);
+
+  let primaryRestoreButton = null;
+  const goToRestoreFlow = React.useCallback(() => {
+    props.navigation.navigate(RestorePromptScreenRouteName);
+  }, [props.navigation]);
+  if (usingRestoreFlow) {
+    primaryRestoreButton = (
+      <RegistrationButtonContainer>
+        <View style={styles.primaryRestoreButton}>
+          <LinkButton
+            text="Not logged in on another phone?"
+            onPress={goToRestoreFlow}
+          />
+        </View>
+      </RegistrationButtonContainer>
+    );
+  }
 
   const { width } = useWindowDimensions();
   const qrCodeSize = width * 0.7;
@@ -74,6 +94,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
           </View>
         </View>
       </RegistrationContentContainer>
+      {primaryRestoreButton}
     </RegistrationContainer>
   );
 }
@@ -120,6 +141,9 @@ const unboundStyles = {
     padding: 5,
     backgroundColor: 'panelForegroundLabel',
     alignSelf: 'center',
+  },
+  primaryRestoreButton: {
+    alignItems: 'center',
   },
 };
 
