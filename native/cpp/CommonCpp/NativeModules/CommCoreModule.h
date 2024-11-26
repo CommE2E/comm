@@ -193,10 +193,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) override;
-  virtual jsi::Value computeBackupKey(
-      jsi::Runtime &rt,
-      jsi::String password,
-      jsi::String backupID) override;
   virtual jsi::Value
   generateRandomString(jsi::Runtime &rt, double size) override;
   virtual jsi::Value setCommServicesAuthMetadata(
