@@ -149,7 +149,6 @@ interface Spec extends TurboModule {
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
-  +computeBackupKey: (password: string, backupID: string) => Promise<Object>;
   +generateRandomString: (size: number) => Promise<string>;
   +setCommServicesAuthMetadata: (
     userID: string,
@@ -218,10 +217,6 @@ interface Spec extends TurboModule {
 }
 
 export interface CoreModuleSpec extends Spec {
-  +computeBackupKey: (
-    password: string,
-    backupID: string,
-  ) => Promise<ArrayBuffer>;
   +decrypt: (encryptedData: EncryptedData, deviceID: string) => Promise<string>;
   +decryptAndPersist: (
     encryptedData: EncryptedData,
