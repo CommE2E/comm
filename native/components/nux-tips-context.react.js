@@ -11,6 +11,7 @@ import {
   MutedTabTipRouteName,
   HomeTabTipRouteName,
   IntroTipRouteName,
+  CommunityDirectoryTipRouteName,
 } from '../navigation/route-names.js';
 
 const nuxTip = Object.freeze({
@@ -18,6 +19,7 @@ const nuxTip = Object.freeze({
   COMMUNITY_DRAWER: 'community_drawer',
   HOME: 'home',
   MUTED: 'muted',
+  COMMUNITY_DIRECTORY: 'community_directory',
 });
 
 export type NUXTip = $Values<typeof nuxTip>;
@@ -45,6 +47,10 @@ const nuxTipParams: { +[NUXTip]: NUXTipParams } = {
   [nuxTip.MUTED]: {
     routeName: MutedTabTipRouteName,
     tooltipLocation: 'below',
+  },
+  [nuxTip.COMMUNITY_DIRECTORY]: {
+    tooltipLocation: 'below',
+    routeName: CommunityDirectoryTipRouteName,
   },
 };
 

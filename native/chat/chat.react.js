@@ -391,6 +391,7 @@ export default function ChatComponent(props: Props): React.Node {
         element?.measure(callback);
 
       registerTipButton(nuxTip.COMMUNITY_DRAWER, measure);
+      registerTipButton(nuxTip.COMMUNITY_DIRECTORY, measure);
     },
     [registerTipButton],
   );
