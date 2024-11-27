@@ -34,7 +34,9 @@ function QRCodeLogin(): React.Node {
       <div className={css.scanInstructions}>
         Open the Comm app on your phone and scan the QR code below
       </div>
-      <QRCodeSVG value={qrCodeURL} size={300} marginSize={4} level="L" />
+      <div className={css.qrCodeContainer}>
+        <QRCodeSVG value={qrCodeURL} size={300} marginSize={4} level="L" />
+      </div>
       <div className={css.instructionsContainer}>
         <div className={css.instructionsTitle}>How to find the scanner:</div>
         <div className={css.instructionsStep}>
