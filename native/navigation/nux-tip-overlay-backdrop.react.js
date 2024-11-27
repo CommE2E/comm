@@ -7,10 +7,17 @@ import { withTiming } from 'react-native-reanimated';
 import type { AppNavigationProp } from './app-navigator.react.js';
 import { OverlayContext } from './overlay-context.js';
 import type { NUXTipRouteNames, NavigationRoute } from './route-names';
-import { getNUXTipParams } from '../components/nux-tips-context.react.js';
+import {
+  getNUXTipParams,
+  type NUXTip,
+} from '../components/nux-tips-context.react.js';
 import { useStyles } from '../themes/colors.js';
 import { animationDuration } from '../tooltip/nux-tips-overlay.react.js';
 import { AnimatedView } from '../types/styles.js';
+
+export type NUXTipsOverlayBackdropParams = {
+  +orderedTips: $ReadOnlyArray<NUXTip>,
+};
 
 type Props = {
   +navigation: AppNavigationProp<'NUXTipOverlayBackdrop'>,
