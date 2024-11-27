@@ -12,6 +12,7 @@ import expressWs from 'express-ws';
 import os from 'os';
 import qrcode from 'qrcode';
 import stoppable from 'stoppable';
+import { Readable } from 'stream';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
@@ -89,12 +90,10 @@ void (async () => {
       : { maxAge: '1y', immutable: true };
 
   let keyserverCorsOptions = null;
-  if (webAppCorsConfig) {
-    keyserverCorsOptions = {
-      origin: webAppCorsConfig.domain,
-      methods: ['GET', 'POST'],
-    };
-  }
+  keyserverCorsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  };
 
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
@@ -296,9 +295,30 @@ void (async () => {
       if (areEndpointMetricsEnabled) {
         keyserverRouter.use(logEndpointMetrics);
       }
-      if (keyserverCorsOptions) {
-        keyserverRouter.use(cors(keyserverCorsOptions));
-      }
+
+      keyserverRouter.use(cors(keyserverCorsOptions));
+      keyserverRouter.use('/frog', async (req: $Request, res: $Response) => {
+        try {
+          const targetUrl = `http://localhost:3001${req.originalUrl}`;
+
+          let fetchResponse = await fetch(targetUrl, {
+            method: req.method,
+            headers: {
+              ...req.headers,
+              'host': 'localhost:3001',
+              'content-type': 'application/json',
+            },
+            body:
+              req.method !== 'GET' && req.method !== 'HEAD'
+                ? JSON.stringify(req.body)
+                : undefined,
+          });
+
+          Readable.fromWeb(fetchResponse.body).pipe(res);
+        } catch (error) {
+          res.status(500).send('Internal Server Error');
+        }
+      });
 
       keyserverRouter.post(
         '/fc_comm_tagged',
