@@ -3,15 +3,14 @@
 import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
+import Alert from '../utils/alert.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function BackupHandler(): null {
-  const isBackupEnabled = useSelector(
-    state => state.localSettings.isBackupEnabled,
-  );
   const loggedIn = useSelector(isLoggedIn);
   const staffCanSee = useStaffCanSee();
   const isBackground = useSelector(
@@ -23,20 +22,25 @@ function BackupHandler(): null {
       return;
     }
 
-    if (isBackupEnabled && loggedIn && !isBackground) {
+    if (loggedIn && !isBackground) {
       try {
         commCoreModule.startBackupHandler();
       } catch (err) {
-        console.log('Error starting backup handler:', err);
+        const message = getMessageForException(err) ?? 'unknown error';
+        Alert.alert('Error starting backup handler', message);
+        console.log('Error starting backup handler:', message);
       }
-    } else {
-      try {
-        commCoreModule.stopBackupHandler();
-      } catch (err) {
-        console.log('Error stopping backup handler:', err);
-      }
+      return;
     }
-  }, [isBackupEnabled, staffCanSee, loggedIn, isBackground]);
+
+    try {
+      commCoreModule.stopBackupHandler();
+    } catch (err) {
+      const message = getMessageForException(err) ?? 'unknown error';
+      Alert.alert('Error stopping backup handler', message);
+      console.log('Error stopping backup handler:', message);
+    }
+  }, [staffCanSee, loggedIn, isBackground]);
 
   return null;
 }
