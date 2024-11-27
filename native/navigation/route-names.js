@@ -4,6 +4,7 @@ import type { RouteProp } from '@react-navigation/core';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
+import type { NUXTipsOverlayBackdropParams } from './nux-tip-overlay-backdrop.react.js';
 import type { ConnectSecondaryDeviceParams } from '../account/qr-auth/connect-secondary-device.react.js';
 import type { AvatarSelectionParams } from '../account/registration/avatar-selection.react.js';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
@@ -180,6 +181,7 @@ export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
 export const IntroTipRouteName = 'IntroTip';
 export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
+export const CommunityDirectoryTipRouteName = 'CommunityDirectoryTip';
 export const HomeTabTipRouteName = 'HomeTabTip';
 export const MutedTabTipRouteName = 'MutedTabTip';
 export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
@@ -225,7 +227,8 @@ export type NUXTipRouteNames =
   | typeof IntroTipRouteName
   | typeof CommunityDrawerTipRouteName
   | typeof HomeTabTipRouteName
-  | typeof MutedTabTipRouteName;
+  | typeof MutedTabTipRouteName
+  | typeof CommunityDirectoryTipRouteName;
 
 export type MessageTooltipRouteNames =
   | typeof RobotextMessageTooltipModalRouteName
@@ -256,9 +259,10 @@ export type OverlayParamList = {
   +TogglePinModal: TogglePinModalParams,
   +IntroTip: NUXTipsOverlayParams,
   +CommunityDrawerTip: NUXTipsOverlayParams,
+  +CommunityDirectoryTip: NUXTipsOverlayParams,
   +HomeTabTip: NUXTipsOverlayParams,
   +MutedTabTip: NUXTipsOverlayParams,
-  +NUXTipOverlayBackdrop: void,
+  +NUXTipOverlayBackdrop: NUXTipsOverlayBackdropParams,
   ...TooltipModalParamList,
 };
 

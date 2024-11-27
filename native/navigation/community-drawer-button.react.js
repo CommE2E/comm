@@ -33,6 +33,7 @@ function CommunityDrawerButton(props: Props): React.Node {
   React.useEffect(() => {
     return () => {
       registerTipButton(nuxTip.COMMUNITY_DRAWER, null);
+      registerTipButton(nuxTip.COMMUNITY_DIRECTORY, null);
     };
   }, [registerTipButton]);
 
