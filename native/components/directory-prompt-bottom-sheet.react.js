@@ -6,15 +6,21 @@ import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DirectoryPrompt from './directory-prompt.react.js';
+import { type NUXTip, nuxTip } from './nux-tips-context.react.js';
 import PrimaryButton from './primary-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  NUXTipOverlayBackdropRouteName,
+} from '../navigation/route-names.js';
 
 const directoryPromptHeight = 293;
 const marginBottom = 10;
 const buttonHeight = 61;
+
+const orderedTips: $ReadOnlyArray<NUXTip> = [nuxTip.COMMUNITY_DIRECTORY];
 
 type Props = {
   +navigation: RootNavigationProp<'DirectoryPromptBottomSheet'>,
@@ -48,13 +54,19 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
     console.log('User accepted the prompt');
   }, []);
 
-  const onPressDecline = React.useCallback(() => {
-    console.log('User declined the prompt');
-  }, []);
+  const onCloseOrPressDecline = React.useCallback(() => {
+    goBack();
+    navigation.navigate<'NUXTipOverlayBackdrop'>({
+      name: NUXTipOverlayBackdropRouteName,
+      params: {
+        orderedTips,
+      },
+    });
+  }, [goBack, navigation]);
 
   const directoryPromptBottomSheet = React.useMemo(
     () => (
-      <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+      <BottomSheet ref={bottomSheetRef} onClosed={onCloseOrPressDecline}>
         <View style={styles.container}>
           <View style={styles.promptContainer}>
             <DirectoryPrompt />
@@ -66,7 +78,7 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
               variant="enabled"
             />
             <PrimaryButton
-              onPress={onPressDecline}
+              onPress={onCloseOrPressDecline}
               label="No thanks"
               variant="outline"
             />
@@ -74,7 +86,7 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
         </View>
       </BottomSheet>
     ),
-    [goBack, onPressAccept, onPressDecline],
+    [onPressAccept, onCloseOrPressDecline],
   );
 
   return directoryPromptBottomSheet;
