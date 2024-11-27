@@ -43,3 +43,11 @@ div.instructionsStep {
 div.instructionsStep:last-of-type {
   margin-bottom: 20px;
 }
+
+div.qrCodeContainer {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--shades-white-100);
+}
