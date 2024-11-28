@@ -12,7 +12,6 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
-import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
@@ -32,7 +31,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
 import BackupTestRestoreModal from './backup-test-restore-modal.react.js';
-import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
 import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
@@ -71,10 +69,6 @@ function AccountSettings(): React.Node {
   }, []);
 
   const { pushModal, popModal } = useModalContext();
-  const showPasswordChangeModal = React.useCallback(
-    () => pushModal(<PasswordChangeModal />),
-    [pushModal],
-  );
 
   const openFriendList = React.useCallback(
     () => pushModal(<FriendListModal />),
@@ -84,10 +78,6 @@ function AccountSettings(): React.Node {
   const openBlockList = React.useCallback(
     () => pushModal(<BlockListModal />),
     [pushModal],
-  );
-
-  const isAccountWithPassword = useSelector(state =>
-    accountHasPassword(state.currentUserInfo),
   );
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
@@ -170,21 +160,6 @@ function AccountSettings(): React.Node {
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
-  }
-
-  let changePasswordSection;
-  if (isAccountWithPassword) {
-    changePasswordSection = (
-      <li>
-        <span>Password</span>
-        <span className={css.passwordContainer}>
-          <span className={css.password}>******</span>
-          <a className={css.editPasswordLink} onClick={showPasswordChangeModal}>
-            <SWMansionIcon icon="edit-1" size={22} />
-          </a>
-        </span>
-      </li>
-    );
   }
 
   let experimentalLogOutSection;
@@ -328,7 +303,6 @@ function AccountSettings(): React.Node {
               </Button>
             </li>
             {experimentalLogOutSection}
-            {changePasswordSection}
             <li>
               <span>Friend List</span>
               <Button variant="text" onClick={openFriendList}>

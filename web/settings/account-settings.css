@@ -56,20 +56,6 @@
   line-height: var(--line-height-text);
 }
 
-.passwordContainer {
-  display: flex;
-}
-
-.password {
-  align-items: center;
-  padding-right: 16px;
-}
-
-.editPasswordLink {
-  color: var(--text-background-tertiary-default);
-  cursor: pointer;
-}
-
 .preferencesContainer {
   padding-top: 24px;
 }
