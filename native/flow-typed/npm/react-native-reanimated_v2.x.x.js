@@ -589,7 +589,7 @@ declare module 'react-native-reanimated' {
 
   declare type RunOnJS = <F>(func: F) => F;
 
-  declare type CancelAnimation = (animation: number) => void;
+  declare type CancelAnimation = <T>(animation: SharedValue<T>) => void;
 
   declare type AnimatedKeyboardInfo = {|
     +height: SharedValue<number>,
