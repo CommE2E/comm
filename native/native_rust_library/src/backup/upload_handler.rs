@@ -240,11 +240,12 @@ pub mod compaction {
       siwe_backup_msg,
     };
 
-    backup_client
+    let result = backup_client
       .upload_backup(user_identity, backup_data)
-      .await?;
+      .await
+      .map_err(|e| e.to_string());
 
-    compaction_upload_promises::resolve(&backup_id, Ok(()));
+    compaction_upload_promises::resolve(&backup_id, result);
     tokio::spawn(cleanup_files(backup_id));
 
     Ok(())
