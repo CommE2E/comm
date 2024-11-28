@@ -12,8 +12,8 @@ import {
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { getOwnPrimaryDeviceID } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
   type OutboundDMOperationSpecification,
@@ -24,7 +24,6 @@ import type { LogOutResult } from 'lib/types/account-types.js';
 import type { DMCreateThreadOperation } from 'lib/types/dm-ops';
 import { thickThreadTypes } from 'lib/types/thread-types-enum.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
-import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import {
   useDispatchActionPromise,
@@ -167,7 +166,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
-  +primaryDeviceID: ?string,
+  +isPrimaryDevice: boolean,
   +logOutLoading: boolean,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
@@ -232,7 +231,10 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
 
     let passwordEditionUI;
-    if (accountHasPassword(this.props.currentUserInfo)) {
+    if (
+      accountHasPassword(this.props.currentUserInfo) &&
+      this.props.isPrimaryDevice
+    ) {
       passwordEditionUI = (
         <Action.Row>
           <Text style={this.props.styles.label}>Password</Text>
@@ -411,12 +413,9 @@ class ProfileScreen extends React.PureComponent<Props> {
       if (this.loggedOutOrLoggingOut) {
         return;
       }
-      const { primaryDeviceID } = this.props;
-      const currentDeviceID = await getContentSigningKey();
-      const isPrimaryDevice = currentDeviceID === primaryDeviceID;
 
       let alertTitle, alertMessage, onPressAction;
-      if (isPrimaryDevice) {
+      if (this.props.isPrimaryDevice) {
         alertTitle = 'Log out all devices?';
         alertMessage =
           'This device is your primary device, ' +
@@ -559,7 +558,6 @@ const logOutLoadingStatusSelector =
 const ConnectedProfileScreen: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
     const currentUserInfo = useSelector(state => state.currentUserInfo);
-    const primaryDeviceID = useSelector(getOwnPrimaryDeviceID);
     const logOutLoading =
       useSelector(logOutLoadingStatusSelector) === 'loading';
     const colors = useColors();
@@ -574,6 +572,8 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       accountHasPassword(state.currentUserInfo),
     );
     const currentUserID = useCurrentUserFID();
+    const [isPrimaryDevice, setIsPrimaryDevice] = React.useState(false);
+    const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
 
     const userID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -602,11 +602,18 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       await processAndSendDMOperation(specification);
     }, [processAndSendDMOperation, userID]);
 
+    React.useEffect(() => {
+      void (async () => {
+        const checkIfPrimaryDeviceResult = await checkIfPrimaryDevice();
+        setIsPrimaryDevice(checkIfPrimaryDeviceResult);
+      })();
+    }, [checkIfPrimaryDevice]);
+
     return (
       <ProfileScreen
         {...props}
         currentUserInfo={currentUserInfo}
-        primaryDeviceID={primaryDeviceID}
+        isPrimaryDevice={isPrimaryDevice}
         logOutLoading={logOutLoading}
         colors={colors}
         styles={styles}
