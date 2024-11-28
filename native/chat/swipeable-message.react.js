@@ -224,7 +224,7 @@ function SwipeableMessage(props: Props): React.Node {
         ctx /*: { [string]: mixed } */,
       ) => {
         ctx.translationAtStart = translateX.value;
-        cancelAnimation(translateX.value);
+        cancelAnimation(translateX);
       },
       // prettier-ignore
       onActive: (
