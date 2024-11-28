@@ -12,7 +12,7 @@ use hex::ToHex;
 use reqwest::{
   header::InvalidHeaderValue,
   multipart::{Form, Part},
-  Body,
+  Body, StatusCode,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -95,6 +95,13 @@ impl BackupClient {
       .multipart(form)
       .send()
       .await?;
+
+    if matches!(
+      response.status(),
+      StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN
+    ) {
+      return Err(Error::Unauthenticated);
+    }
 
     response.error_for_status()?;
 
