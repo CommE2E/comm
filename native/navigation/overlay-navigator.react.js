@@ -27,6 +27,7 @@ import Animated, {
   EasingNode,
   cancelAnimation,
   makeMutable,
+  runOnJS,
   withTiming,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
@@ -77,7 +78,7 @@ export type OverlayNavigationProp<
   ...OverlayRouterExtraNavigationHelpers,
 };
 
-const { Value, timing, cond, call, lessOrEq, block } = Animated;
+const { Value, timing } = Animated;
 
 type Scene = {
   +route: Route<>,
@@ -107,7 +108,6 @@ type SceneData = $ReadOnly<{
     ...$PropertyType<Scene, 'ordering'>,
     +creationTime: number,
   }>,
-  +listeners: $ReadOnlyArray<Animated.Node>,
 }>;
 
 type Props = $Exact<
@@ -272,7 +272,6 @@ const OverlayNavigator = React.memo<Props>(
         ...scene.ordering,
         creationTime: Date.now(),
       },
-      listeners: [],
     });
 
     // We track two previous states of scrollBlockingModalStatus via refs. We
@@ -313,6 +312,36 @@ const OverlayNavigator = React.memo<Props>(
         ...pendingAnimationsRef.current,
         [key]: toValue,
       };
+    };
+
+    const removeScreen = (key: string) => {
+      // This gets called when the scene is no longer visible and
+      // handles cleaning up our data structures to remove it
+      const curVisibleOverlays = visibleOverlaysRef.current;
+      invariant(curVisibleOverlays, 'visibleOverlaysRef should be set');
+      const newVisibleOverlays = curVisibleOverlays.filter(
+        (overlay: VisibleOverlay) => overlay.routeKey !== key,
+      );
+      if (newVisibleOverlays.length === curVisibleOverlays.length) {
+        return;
+      }
+      visibleOverlaysRef.current = newVisibleOverlays;
+      setSceneData(curSceneData => {
+        const newSceneData: { [string]: SceneData } = {};
+        for (const sceneKey in curSceneData) {
+          if (sceneKey === key) {
+            continue;
+          }
+          newSceneData[sceneKey] = {
+            ...curSceneData[sceneKey],
+            context: {
+              ...curSceneData[sceneKey].context,
+              visibleOverlays: newVisibleOverlays,
+            },
+          };
+        }
+        return newSceneData;
+      });
     };
 
     // This block keeps sceneData updated when our props change. It's the
@@ -389,50 +418,14 @@ const OverlayNavigator = React.memo<Props>(
           continue;
         }
 
-        // A route just got dismissed
-        // We'll watch the animation to determine when to clear the screen
-        const { position } = data.context;
-        const removeScreen = () => {
-          // This gets called when the scene is no longer visible and
-          // handles cleaning up our data structures to remove it
-          const curVisibleOverlays = visibleOverlaysRef.current;
-          invariant(curVisibleOverlays, 'visibleOverlaysRef should be set');
-          const newVisibleOverlays = curVisibleOverlays.filter(
-            (overlay: VisibleOverlay) => overlay.routeKey !== key,
-          );
-          if (newVisibleOverlays.length === curVisibleOverlays.length) {
-            return;
-          }
-          visibleOverlaysRef.current = newVisibleOverlays;
-          setSceneData(curSceneData => {
-            const newSceneData: { [string]: SceneData } = {};
-            for (const sceneKey in curSceneData) {
-              if (sceneKey === key) {
-                continue;
-              }
-              newSceneData[sceneKey] = {
-                ...curSceneData[sceneKey],
-                context: {
-                  ...curSceneData[sceneKey].context,
-                  visibleOverlays: newVisibleOverlays,
-                },
-              };
-            }
-            return newSceneData;
-          });
-        };
-        const listeners = position
-          ? [cond(lessOrEq(position, 0), call([], removeScreen))]
-          : [];
         updatedSceneData[key] = {
           ...data,
           context: {
             ...data.context,
             isDismissing: true,
             shouldRenderScreenContent: false,
-            onExitFinish: removeScreen,
+            onExitFinish: () => removeScreen(key),
           },
-          listeners,
         };
         sceneDataChanged = true;
         queueAnimation(key, 0);
@@ -487,10 +480,18 @@ const OverlayNavigator = React.memo<Props>(
           easing: EasingNode.inOut(EasingNode.ease),
           toValue,
         }).start();
-        positionV2.value = withTiming(toValue, {
-          duration,
-          easing: Easing.inOut(Easing.ease),
-        });
+        positionV2.value = withTiming(
+          toValue,
+          {
+            duration,
+            easing: Easing.inOut(Easing.ease),
+          },
+          () => {
+            if (positionV2.value <= 0) {
+              runOnJS(removeScreen)(key);
+            }
+          },
+        );
       }
       pendingAnimationsRef.current = {};
     }, [positions, positionsV2, pendingAnimations]);
@@ -562,21 +563,17 @@ const OverlayNavigator = React.memo<Props>(
     });
 
     const screens = sceneList.map(scene => {
-      const { route, descriptor, context, listeners } = scene;
+      const { route, descriptor, context } = scene;
       const { render } = descriptor;
 
       const pressable = !context.isDismissing && !route.params?.preventPresses;
       const pointerEvents = pressable ? 'auto' : 'none';
 
-      // These listeners are used to clear routes after they finish dismissing
-      const listenerCode =
-        listeners.length > 0 ? <Animated.Code exec={block(listeners)} /> : null;
       return (
         <OverlayContext.Provider value={context} key={route.key}>
           <View style={styles.scene} pointerEvents={pointerEvents}>
             {render()}
           </View>
-          {listenerCode}
         </OverlayContext.Provider>
       );
     });
