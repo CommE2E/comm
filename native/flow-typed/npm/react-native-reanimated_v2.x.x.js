@@ -547,6 +547,8 @@ declare module 'react-native-reanimated' {
     ...
   };
 
+  declare type MakeMutable = <T>(initialValue: T) => SharedValue<T>;
+
   declare type UseSharedValue = <T>(val: T) => SharedValue<T>;
 
   declare type UseDerivedValue = <T>(
@@ -651,6 +653,7 @@ declare module 'react-native-reanimated' {
   declare export var event: Event;
   declare export var useValue: UseValue;
   declare export var useAnimatedGestureHandler: UseAnimatedGestureHandler;
+  declare export var makeMutable: MakeMutable; 
   declare export var useSharedValue: UseSharedValue;
   declare export var useDerivedValue: UseDerivedValue;
   declare export var useAnimatedStyle: UseAnimatedStyle;
@@ -709,6 +712,7 @@ declare module 'react-native-reanimated' {
     +event: Event,
     +useValue: UseValue,
     +useAnimatedGestureHandler: UseAnimatedGestureHandler,
+    +makeMutable: MakeMutable,
     +useSharedValue: UseSharedValue,
     +useDerivedValue: UseDerivedValue,
     +useAnimatedStyle: UseAnimatedStyle,
