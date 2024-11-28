@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
@@ -9,6 +9,8 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 
+import RegistrationContainer from './registration/registration-container.react.js';
+import RegistrationContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -37,71 +39,79 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, [platform, qrData]);
 
   const styles = useStyles(unboundStyles);
+
+  const windowWidth = Dimensions.get('window').width;
+  const qrCodeSize = windowWidth * 0.7;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Log in to Comm</Text>
-      <Text style={styles.headingSubtext}>
-        Open the Comm app on your logged-in phone and scan the QR code below
-      </Text>
-      <View style={styles.qrCodeContainer}>
-        <QRCode value={qrCodeURL} size={200} />
-      </View>
-      <View style={styles.instructionsBox}>
-        <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Go to </Text>
-          <Text style={styles.instructionsBold}>Profile</Text>
-        </Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Select </Text>
-          <Text style={styles.instructionsBold}>Linked devices </Text>
-        </Text>
-        <Text style={styles.instructionsStep}>
-          <Text>Click </Text>
-          <Text style={styles.instructionsBold}>Add </Text>
-          <Text>on the top right</Text>
-        </Text>
-      </View>
-    </View>
+    <RegistrationContainer>
+      <RegistrationContentContainer>
+        <View style={styles.container}>
+          <Text style={styles.heading}>Log in to Comm</Text>
+          <Text style={styles.headingSubtext}>
+            Open the Comm app on your logged-in phone and scan the QR code below
+          </Text>
+          <View style={styles.qrCodeContainer}>
+            <QRCode value={qrCodeURL} size={qrCodeSize} />
+          </View>
+          <View style={styles.instructionsBox}>
+            <Text style={styles.instructionsTitle}>
+              How to find the scanner:
+            </Text>
+            <Text style={styles.instructionsStep}>
+              <Text>{'\u2022 Go to '}</Text>
+              <Text style={styles.instructionsBold}>Profile</Text>
+            </Text>
+            <Text style={styles.instructionsStep}>
+              <Text>{'\u2022 Select '}</Text>
+              <Text style={styles.instructionsBold}>Linked devices </Text>
+            </Text>
+            <Text style={styles.instructionsStep}>
+              <Text>{'\u2022 Click '}</Text>
+              <Text style={styles.instructionsBold}>Add </Text>
+              <Text>on the top right</Text>
+            </Text>
+          </View>
+        </View>
+      </RegistrationContentContainer>
+    </RegistrationContainer>
   );
 }
 
 const unboundStyles = {
   container: {
     flex: 1,
-    alignItems: 'center',
-    marginTop: 125,
+    backgroundColor: 'panelBackground',
   },
   heading: {
     fontSize: 24,
     color: 'panelForegroundLabel',
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   headingSubtext: {
-    fontSize: 12,
-    color: 'panelForegroundLabel',
-    paddingBottom: 30,
-    textAlign: 'center',
-    width: 300,
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+    paddingBottom: 32,
   },
   instructionsBox: {
-    alignItems: 'center',
-    width: 300,
-    marginTop: 40,
-    padding: 15,
-    borderColor: 'panelForegroundLabel',
-    borderWidth: 2,
-    borderRadius: 8,
+    alignSelf: 'stretch',
+    marginTop: 32,
   },
   instructionsTitle: {
-    fontSize: 12,
-    color: 'panelForegroundLabel',
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
     paddingBottom: 15,
   },
   instructionsStep: {
-    fontSize: 12,
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
     padding: 1,
-    color: 'panelForegroundLabel',
+    color: 'panelForegroundTertiaryLabel',
   },
   instructionsBold: {
     fontWeight: 'bold',
@@ -109,6 +119,7 @@ const unboundStyles = {
   qrCodeContainer: {
     padding: 5,
     backgroundColor: 'panelForegroundLabel',
+    alignSelf: 'center',
   },
 };
 
