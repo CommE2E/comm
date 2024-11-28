@@ -2,13 +2,15 @@
 
 import * as React from 'react';
 
+import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
-  latestBackupInfoResponseValidator,
   type LatestBackupInfo,
+  latestBackupInfoResponseValidator,
   type UserKeys,
   userKeysResponseValidator,
 } from 'lib/types/backup-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { useGetBackupSecretForLoggedInUser } from './use-get-backup-secret.js';
@@ -53,14 +55,31 @@ function useClientBackup(): ClientBackup {
   const loggedIn = useSelector(isLoggedIn);
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
+  const invalidTokenLogOut = useInvalidCSATLogOut();
+  const authVerifiedEndpoint: <T>(backupCallPromise: Promise<T>) => Promise<T> =
+    React.useCallback(
+      async backupCallPromise => {
+        try {
+          return await backupCallPromise;
+        } catch (e) {
+          const message = getMessageForException(e);
+          if (message === 'Unauthenticated') {
+            void invalidTokenLogOut();
+          }
+          throw e;
+        }
+      },
+      [invalidTokenLogOut],
+    );
+
   const createFullBackup = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
       throw new Error('Attempt to upload backup for not logged in user.');
     }
 
     const backupSecret = await getBackupSecret();
-    return commCoreModule.createFullBackup(backupSecret);
-  }, [loggedIn, currentUserID, getBackupSecret]);
+    return authVerifiedEndpoint(commCoreModule.createFullBackup(backupSecret));
+  }, [loggedIn, currentUserID, getBackupSecret, authVerifiedEndpoint]);
 
   const createUserKeysBackup = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
@@ -68,8 +87,10 @@ function useClientBackup(): ClientBackup {
     }
 
     const backupSecret = await getBackupSecret();
-    return commCoreModule.createUserKeysBackup(backupSecret);
-  }, [loggedIn, currentUserID, getBackupSecret]);
+    return authVerifiedEndpoint(
+      commCoreModule.createUserKeysBackup(backupSecret),
+    );
+  }, [loggedIn, currentUserID, getBackupSecret, authVerifiedEndpoint]);
 
   const retrieveLatestBackupInfo = React.useCallback(async () => {
     if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
