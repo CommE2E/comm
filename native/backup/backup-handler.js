@@ -146,6 +146,7 @@ function BackupHandler(): null {
         const timestamp = latestBackupInfo.timestamp;
         // If last upload one less than 24h ago ignore it
         if (timestamp >= Date.now() - millisecondsPerDay) {
+          backupUploadInProgress.current = false;
           return;
         }
 
