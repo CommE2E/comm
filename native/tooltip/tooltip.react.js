@@ -149,17 +149,12 @@ type TooltipProps<Base> = {
   +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
-  +getMargin: () => number,
-  +getTooltipHeight: () => number,
   +getTooltipLocation: () => 'above' | 'below' | 'fixed',
-  +backdropOpacity: Node,
-  +tooltipContainerOpacity: Node,
-  +tooltipVerticalAbove: Node,
-  +tooltipVerticalBelow: Node,
   +tooltipHorizontalOffset: Value,
-  +tooltipHorizontal: Node,
-  +tooltipScale: Node,
-  +fixedTooltipVertical: Node,
+  +opacityStyle: AnimatedViewStyle,
+  +contentContainerStyle: ViewStyle,
+  +buttonStyle: ViewStyle,
+  +tooltipContainerStyle: AnimatedViewStyle,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -181,101 +176,6 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get opacityStyle(): AnimatedViewStyle {
-      return {
-        ...this.props.styles.backdrop,
-        opacity: this.props.backdropOpacity,
-      };
-    }
-
-    get contentContainerStyle(): ViewStyle {
-      const { verticalBounds } = this.props.route.params;
-      const fullScreenHeight = this.props.dimensions.height;
-      const top = verticalBounds.y;
-      const bottom =
-        fullScreenHeight - verticalBounds.y - verticalBounds.height;
-      return {
-        ...this.props.styles.contentContainer,
-        marginTop: top,
-        marginBottom: bottom,
-      };
-    }
-
-    get buttonStyle(): ViewStyle {
-      const { params } = this.props.route;
-      const { initialCoordinates, verticalBounds } = params;
-      const { x, y, width, height } = initialCoordinates;
-      return {
-        width: Math.ceil(width),
-        height: Math.ceil(height),
-        marginTop: y - verticalBounds.y,
-        marginLeft: x,
-      };
-    }
-
-    get tooltipContainerStyle(): AnimatedViewStyle {
-      const { dimensions, route, getMargin } = this.props;
-      const { initialCoordinates, verticalBounds, chatInputBarHeight } =
-        route.params;
-      const { x, y, width, height } = initialCoordinates;
-      const tooltipLocation = this.props.getTooltipLocation();
-
-      const style: WritableAnimatedStyleObj = {};
-      style.position = 'absolute';
-      style.alignItems = 'center';
-      style.opacity = this.props.tooltipContainerOpacity;
-
-      const transform: Array<ReanimatedTransform> = [];
-
-      if (tooltipLocation !== 'fixed') {
-        transform.push({ translateX: this.props.tooltipHorizontal });
-      }
-
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        style.left = 0;
-        style.minWidth = width + 2 * extraLeftSpace;
-      } else {
-        style.right = 0;
-        style.minWidth = width + 2 * extraRightSpace;
-      }
-
-      const inputBarHeight = chatInputBarHeight ?? 0;
-
-      if (tooltipLocation === 'fixed') {
-        const padding = 8;
-
-        style.minWidth = dimensions.width - 16;
-        style.left = 8;
-        style.right = 8;
-        style.bottom =
-          dimensions.height -
-          verticalBounds.height -
-          verticalBounds.y -
-          inputBarHeight +
-          padding;
-        transform.push({ translateY: this.props.fixedTooltipVertical });
-      } else if (tooltipLocation === 'above') {
-        style.bottom =
-          dimensions.height - Math.max(y, verticalBounds.y) + getMargin();
-        transform.push({ translateY: this.props.tooltipVerticalAbove });
-      } else {
-        style.top =
-          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
-          getMargin();
-        transform.push({ translateY: this.props.tooltipVerticalBelow });
-      }
-
-      if (tooltipLocation !== 'fixed') {
-        transform.push({ scale: this.props.tooltipScale });
-      }
-
-      style.transform = transform;
-
-      return style;
-    }
-
     render(): React.Node {
       const {
         dimensions,
@@ -285,17 +185,12 @@ function createTooltip<
         tooltipContext,
         closeTooltip,
         boundTooltipItem,
-        getMargin,
-        getTooltipHeight,
         getTooltipLocation,
-        backdropOpacity,
-        tooltipContainerOpacity,
-        tooltipVerticalAbove,
-        tooltipVerticalBelow,
         tooltipHorizontalOffset,
-        tooltipHorizontal,
-        tooltipScale,
-        fixedTooltipVertical,
+        opacityStyle,
+        contentContainerStyle,
+        buttonStyle,
+        tooltipContainerStyle: _tooltipContainerStyle,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -372,7 +267,7 @@ function createTooltip<
       if (tooltipLocation !== 'fixed') {
         tooltip = (
           <AnimatedView
-            style={this.tooltipContainerStyle}
+            style={this.props.tooltipContainerStyle}
             onLayout={this.onTooltipContainerLayout}
           >
             {triangleUp}
@@ -385,7 +280,7 @@ function createTooltip<
         !this.props.route.params.hideTooltip
       ) {
         tooltip = (
-          <AnimatedView style={this.tooltipContainerStyle}>
+          <AnimatedView style={this.props.tooltipContainerStyle}>
             <View style={itemsStyles}>{items}</View>
           </AnimatedView>
         );
@@ -394,9 +289,9 @@ function createTooltip<
       return (
         <TouchableWithoutFeedback onPress={this.props.closeTooltip}>
           <View style={styles.container}>
-            <AnimatedView style={this.opacityStyle} />
-            <View style={this.contentContainerStyle}>
-              <View style={this.buttonStyle}>
+            <AnimatedView style={this.props.opacityStyle} />
+            <View style={this.props.contentContainerStyle}>
+              <View style={this.props.buttonStyle}>
                 <ButtonComponent {...buttonProps} />
               </View>
             </View>
@@ -594,6 +489,110 @@ function createTooltip<
       [dimensions.height, invertedPosition],
     );
 
+    const opacityStyle: AnimatedViewStyle = React.useMemo(() => {
+      return {
+        ...styles.backdrop,
+        opacity: backdropOpacity,
+      };
+    }, [backdropOpacity, styles.backdrop]);
+
+    const contentContainerStyle: ViewStyle = React.useMemo(() => {
+      const { verticalBounds } = params;
+      const fullScreenHeight = dimensions.height;
+      const top = verticalBounds.y;
+      const bottom =
+        fullScreenHeight - verticalBounds.y - verticalBounds.height;
+      return {
+        ...styles.contentContainer,
+        marginTop: top,
+        marginBottom: bottom,
+      };
+    }, [dimensions.height, params, styles.contentContainer]);
+
+    const buttonStyle: ViewStyle = React.useMemo(() => {
+      const { initialCoordinates, verticalBounds } = params;
+      const { x, y, width, height } = initialCoordinates;
+      return {
+        width: Math.ceil(width),
+        height: Math.ceil(height),
+        marginTop: y - verticalBounds.y,
+        marginLeft: x,
+      };
+    }, [params]);
+
+    const tooltipContainerStyle: AnimatedViewStyle = React.useMemo(() => {
+      const { initialCoordinates, verticalBounds, chatInputBarHeight } = params;
+      const { x, y, width, height } = initialCoordinates;
+      const computedTooltipLocation = getTooltipLocation();
+
+      const style: WritableAnimatedStyleObj = {};
+      style.position = 'absolute';
+      style.alignItems = 'center';
+      style.opacity = tooltipContainerOpacity;
+
+      const transform: Array<ReanimatedTransform> = [];
+
+      if (computedTooltipLocation !== 'fixed') {
+        transform.push({ translateX: tooltipHorizontal });
+      }
+
+      const extraLeftSpace = x;
+      const extraRightSpace = dimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        style.left = 0;
+        style.minWidth = width + 2 * extraLeftSpace;
+      } else {
+        style.right = 0;
+        style.minWidth = width + 2 * extraRightSpace;
+      }
+
+      const inputBarHeight = chatInputBarHeight ?? 0;
+
+      if (computedTooltipLocation === 'fixed') {
+        const padding = 8;
+
+        style.minWidth = dimensions.width - 16;
+        style.left = 8;
+        style.right = 8;
+        style.bottom =
+          dimensions.height -
+          verticalBounds.height -
+          verticalBounds.y -
+          inputBarHeight +
+          padding;
+        transform.push({ translateY: fixedTooltipVertical });
+      } else if (computedTooltipLocation === 'above') {
+        style.bottom =
+          dimensions.height - Math.max(y, verticalBounds.y) + getMargin();
+        transform.push({ translateY: tooltipVerticalAbove });
+      } else {
+        style.top =
+          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
+          getMargin();
+        transform.push({ translateY: tooltipVerticalBelow });
+      }
+
+      if (computedTooltipLocation !== 'fixed') {
+        transform.push({ scale: tooltipScale });
+      }
+
+      style.transform = transform;
+
+      return style;
+    }, [
+      dimensions.height,
+      dimensions.width,
+      fixedTooltipVertical,
+      getMargin,
+      getTooltipLocation,
+      params,
+      tooltipContainerOpacity,
+      tooltipHorizontal,
+      tooltipScale,
+      tooltipVerticalAbove,
+      tooltipVerticalBelow,
+    ]);
+
     return (
       <Tooltip
         {...rest}
@@ -604,17 +603,12 @@ function createTooltip<
         tooltipContext={tooltipContext}
         closeTooltip={closeTooltip}
         boundTooltipItem={boundTooltipItem}
-        getMargin={getMargin}
-        getTooltipHeight={getTooltipHeight}
         getTooltipLocation={getTooltipLocation}
-        backdropOpacity={backdropOpacity}
-        tooltipContainerOpacity={tooltipContainerOpacity}
-        tooltipVerticalAbove={tooltipVerticalAbove}
-        tooltipVerticalBelow={tooltipVerticalBelow}
         tooltipHorizontalOffset={tooltipHorizontalOffset.current}
-        tooltipHorizontal={tooltipHorizontal}
-        tooltipScale={tooltipScale}
-        fixedTooltipVertical={fixedTooltipVertical}
+        opacityStyle={opacityStyle}
+        contentContainerStyle={contentContainerStyle}
+        buttonStyle={buttonStyle}
+        tooltipContainerStyle={tooltipContainerStyle}
       />
     );
   }
