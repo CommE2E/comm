@@ -172,10 +172,6 @@ function createTooltip<
   class Tooltip extends React.PureComponent<
     TooltipProps<BaseTooltipPropsType>,
   > {
-    componentDidMount() {
-      Haptics.impactAsync();
-    }
-
     render(): React.Node {
       const {
         dimensions,
@@ -354,6 +350,10 @@ function createTooltip<
     const isFixed = tooltipLocation === 'fixed';
 
     const { hideTooltip, ...rest } = props;
+
+    React.useEffect(() => {
+      Haptics.impactAsync();
+    }, []);
 
     const { goBackOnce } = props.navigation;
     const closeTooltip = React.useCallback(() => {
