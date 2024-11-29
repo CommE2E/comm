@@ -149,6 +149,7 @@ type TooltipProps<Base> = {
   +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
+  +getMargin: () => number,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -194,15 +195,14 @@ function createTooltip<
         extrapolate: Extrapolate.CLAMP,
       });
 
-      const { margin } = this;
       this.tooltipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [margin + this.tooltipHeight / 2, 0],
+        outputRange: [this.props.getMargin() + this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
       this.tooltipVerticalBelow = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [-margin - this.tooltipHeight / 2, 0],
+        outputRange: [-this.props.getMargin() - this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
 
@@ -251,8 +251,8 @@ function createTooltip<
       const boundsTop = verticalBounds.y;
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
-      const { margin, tooltipHeight: curTooltipHeight } = this;
-      const fullHeight = curTooltipHeight + margin;
+      const { tooltipHeight: curTooltipHeight } = this;
+      const fullHeight = curTooltipHeight + this.props.getMargin();
       if (
         contentBottom + fullHeight > boundsBottom &&
         contentTop - fullHeight > boundsTop
@@ -295,19 +295,12 @@ function createTooltip<
       };
     }
 
-    get margin(): number {
-      const customMargin = this.props.route.params.margin;
-      return customMargin !== null && customMargin !== undefined
-        ? customMargin
-        : 20;
-    }
-
     get tooltipContainerStyle(): AnimatedViewStyle {
-      const { dimensions, route } = this.props;
+      const { dimensions, route, getMargin } = this.props;
       const { initialCoordinates, verticalBounds, chatInputBarHeight } =
         route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin, tooltipLocation } = this;
+      const { tooltipLocation } = this;
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
@@ -347,12 +340,12 @@ function createTooltip<
         transform.push({ translateY: this.fixedTooltipVertical });
       } else if (tooltipLocation === 'above') {
         style.bottom =
-          dimensions.height - Math.max(y, verticalBounds.y) + margin;
+          dimensions.height - Math.max(y, verticalBounds.y) + getMargin();
         transform.push({ translateY: this.tooltipVerticalAbove });
       } else {
         style.top =
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
-          margin;
+          getMargin();
         transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
@@ -374,6 +367,7 @@ function createTooltip<
         tooltipContext,
         closeTooltip,
         boundTooltipItem,
+        getMargin,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -561,6 +555,14 @@ function createTooltip<
 
     const tooltipContext = React.useContext(TooltipContext);
     invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
+
+    const getMargin = React.useCallback(() => {
+      const customMargin = params.margin;
+      return customMargin !== null && customMargin !== undefined
+        ? customMargin
+        : 20;
+    }, [params.margin]);
+
     return (
       <Tooltip
         {...rest}
@@ -571,6 +573,7 @@ function createTooltip<
         tooltipContext={tooltipContext}
         closeTooltip={closeTooltip}
         boundTooltipItem={boundTooltipItem}
+        getMargin={getMargin}
       />
     );
   }
