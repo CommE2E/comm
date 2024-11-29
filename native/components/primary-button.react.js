@@ -5,25 +5,36 @@ import { Text, View, ActivityIndicator } from 'react-native';
 
 import Button from './button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import type { ViewStyle } from '../types/styles';
 
 type Props = {
   +onPress: () => mixed,
-  +label: string,
+  +label?: string,
   +variant?: 'enabled' | 'disabled' | 'loading' | 'outline',
+  +children?: React.Node,
+  +style?: ViewStyle,
 };
 function PrimaryButton(props: Props): React.Node {
   const { onPress, label, variant } = props;
 
   const styles = useStyles(unboundStyles);
   const buttonStyle = React.useMemo(() => {
+    let style;
     if (variant === 'disabled' || variant === 'loading') {
-      return [styles.button, styles.disabledButton];
+      style = [styles.button, styles.disabledButton];
     } else if (variant === 'outline') {
-      return [styles.button, styles.outlineButton];
+      style = [styles.button, styles.outlineButton];
     } else {
-      return styles.button;
+      style = [styles.button];
     }
-  }, [variant, styles.button, styles.disabledButton, styles.outlineButton]);
+    return [...style, props.style];
+  }, [
+    props.style,
+    styles.button,
+    styles.disabledButton,
+    styles.outlineButton,
+    variant,
+  ]);
   const buttonTextStyle = React.useMemo(() => {
     if (variant === 'disabled') {
       return [styles.buttonText, styles.disabledButtonText];
@@ -50,6 +61,13 @@ function PrimaryButton(props: Props): React.Node {
     );
   }, [variant, styles.spinner, colors.panelForegroundLabel]);
 
+  const content = React.useMemo(() => {
+    if (label) {
+      return <Text style={buttonTextStyle}>{label}</Text>;
+    }
+    return props.children;
+  }, [buttonTextStyle, label, props.children]);
+
   return (
     <Button
       onPress={onPress}
@@ -57,7 +75,7 @@ function PrimaryButton(props: Props): React.Node {
       style={buttonStyle}
       disabled={variant === 'disabled' || variant === 'loading'}
     >
-      <Text style={buttonTextStyle}>{label}</Text>
+      {content}
       {spinner}
     </Button>
   );
