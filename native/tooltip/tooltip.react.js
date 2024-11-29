@@ -151,6 +151,7 @@ type TooltipProps<Base> = {
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
   +margin: number,
   +tooltipHeight: number,
+  +computedTooltipLocation: 'above' | 'below' | 'fixed',
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -230,31 +231,6 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get tooltipLocation(): 'above' | 'below' | 'fixed' {
-      const { params } = this.props.route;
-      const { tooltipLocation } = params;
-      if (tooltipLocation) {
-        return tooltipLocation;
-      }
-
-      const { initialCoordinates, verticalBounds } = params;
-      const { y, height } = initialCoordinates;
-      const contentTop = y;
-      const contentBottom = y + height;
-      const boundsTop = verticalBounds.y;
-      const boundsBottom = verticalBounds.y + verticalBounds.height;
-
-      const fullHeight = this.props.tooltipHeight + this.props.margin;
-      if (
-        contentBottom + fullHeight > boundsBottom &&
-        contentTop - fullHeight > boundsTop
-      ) {
-        return 'above';
-      }
-
-      return 'below';
-    }
-
     get opacityStyle(): AnimatedViewStyle {
       return {
         ...this.props.styles.backdrop,
@@ -288,11 +264,10 @@ function createTooltip<
     }
 
     get tooltipContainerStyle(): AnimatedViewStyle {
-      const { dimensions, route, margin } = this.props;
+      const { dimensions, route, margin, computedTooltipLocation } = this.props;
       const { initialCoordinates, verticalBounds, chatInputBarHeight } =
         route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { tooltipLocation } = this;
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
@@ -301,7 +276,7 @@ function createTooltip<
 
       const transform: Array<ReanimatedTransform> = [];
 
-      if (tooltipLocation !== 'fixed') {
+      if (computedTooltipLocation !== 'fixed') {
         transform.push({ translateX: this.tooltipHorizontal });
       }
 
@@ -317,7 +292,7 @@ function createTooltip<
 
       const inputBarHeight = chatInputBarHeight ?? 0;
 
-      if (tooltipLocation === 'fixed') {
+      if (computedTooltipLocation === 'fixed') {
         const padding = 8;
 
         style.minWidth = dimensions.width - 16;
@@ -330,7 +305,7 @@ function createTooltip<
           inputBarHeight +
           padding;
         transform.push({ translateY: this.fixedTooltipVertical });
-      } else if (tooltipLocation === 'above') {
+      } else if (computedTooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
         transform.push({ translateY: this.tooltipVerticalAbove });
@@ -341,7 +316,7 @@ function createTooltip<
         transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
-      if (tooltipLocation !== 'fixed') {
+      if (computedTooltipLocation !== 'fixed') {
         transform.push({ scale: this.tooltipScale });
       }
 
@@ -361,12 +336,13 @@ function createTooltip<
         boundTooltipItem,
         margin,
         tooltipHeight,
+        computedTooltipLocation,
         ...navAndRouteForFlow
       } = this.props;
 
       const tooltipContainerStyle: Array<ViewStyle> = [styles.itemContainer];
 
-      if (this.tooltipLocation === 'fixed') {
+      if (computedTooltipLocation === 'fixed') {
         tooltipContainerStyle.push(styles.itemContainerFixed);
       }
 
@@ -411,10 +387,9 @@ function createTooltip<
 
       let triangleDown = null;
       let triangleUp = null;
-      const { tooltipLocation } = this;
-      if (tooltipLocation === 'above') {
+      if (computedTooltipLocation === 'above') {
         triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else if (tooltipLocation === 'below') {
+      } else if (computedTooltipLocation === 'below') {
         triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
@@ -434,7 +409,7 @@ function createTooltip<
 
       let tooltip = null;
 
-      if (this.tooltipLocation !== 'fixed') {
+      if (computedTooltipLocation !== 'fixed') {
         tooltip = (
           <AnimatedView
             style={this.tooltipContainerStyle}
@@ -446,7 +421,7 @@ function createTooltip<
           </AnimatedView>
         );
       } else if (
-        this.tooltipLocation === 'fixed' &&
+        computedTooltipLocation === 'fixed' &&
         !this.props.route.params.hideTooltip
       ) {
         tooltip = (
@@ -564,6 +539,29 @@ function createTooltip<
       }
     }, [tooltipLocation, tooltipContext]);
 
+    const computedTooltipLocation = React.useMemo(() => {
+      if (tooltipLocation) {
+        return tooltipLocation;
+      }
+
+      const { initialCoordinates, verticalBounds } = params;
+      const { y, height } = initialCoordinates;
+      const contentTop = y;
+      const contentBottom = y + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+      const fullHeight = tooltipHeight + margin;
+      if (
+        contentBottom + fullHeight > boundsBottom &&
+        contentTop - fullHeight > boundsTop
+      ) {
+        return 'above';
+      }
+
+      return 'below';
+    }, [margin, tooltipHeight, params, tooltipLocation]);
+
     return (
       <Tooltip
         {...rest}
@@ -576,6 +574,7 @@ function createTooltip<
         boundTooltipItem={boundTooltipItem}
         margin={margin}
         tooltipHeight={tooltipHeight}
+        computedTooltipLocation={computedTooltipLocation}
       />
     );
   }
