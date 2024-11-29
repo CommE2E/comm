@@ -151,6 +151,7 @@ type TooltipProps<Base> = {
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
   +getMargin: () => number,
   +getTooltipHeight: () => number,
+  +getTooltipLocation: () => 'above' | 'below' | 'fixed',
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -236,31 +237,6 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get tooltipLocation(): 'above' | 'below' | 'fixed' {
-      const { params } = this.props.route;
-      const { tooltipLocation } = params;
-      if (tooltipLocation) {
-        return tooltipLocation;
-      }
-
-      const { initialCoordinates, verticalBounds } = params;
-      const { y, height } = initialCoordinates;
-      const contentTop = y;
-      const contentBottom = y + height;
-      const boundsTop = verticalBounds.y;
-      const boundsBottom = verticalBounds.y + verticalBounds.height;
-
-      const fullHeight = this.props.getTooltipHeight() + this.props.getMargin();
-      if (
-        contentBottom + fullHeight > boundsBottom &&
-        contentTop - fullHeight > boundsTop
-      ) {
-        return 'above';
-      }
-
-      return 'below';
-    }
-
     get opacityStyle(): AnimatedViewStyle {
       return {
         ...this.props.styles.backdrop,
@@ -298,7 +274,7 @@ function createTooltip<
       const { initialCoordinates, verticalBounds, chatInputBarHeight } =
         route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { tooltipLocation } = this;
+      const tooltipLocation = this.props.getTooltipLocation();
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
@@ -367,12 +343,14 @@ function createTooltip<
         boundTooltipItem,
         getMargin,
         getTooltipHeight,
+        getTooltipLocation,
         ...navAndRouteForFlow
       } = this.props;
 
       const tooltipContainerStyle: Array<ViewStyle> = [styles.itemContainer];
+      const tooltipLocation = getTooltipLocation();
 
-      if (this.tooltipLocation === 'fixed') {
+      if (tooltipLocation === 'fixed') {
         tooltipContainerStyle.push(styles.itemContainerFixed);
       }
 
@@ -417,7 +395,6 @@ function createTooltip<
 
       let triangleDown = null;
       let triangleUp = null;
-      const { tooltipLocation } = this;
       if (tooltipLocation === 'above') {
         triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
       } else if (tooltipLocation === 'below') {
@@ -440,7 +417,7 @@ function createTooltip<
 
       let tooltip = null;
 
-      if (this.tooltipLocation !== 'fixed') {
+      if (tooltipLocation !== 'fixed') {
         tooltip = (
           <AnimatedView
             style={this.tooltipContainerStyle}
@@ -452,7 +429,7 @@ function createTooltip<
           </AnimatedView>
         );
       } else if (
-        this.tooltipLocation === 'fixed' &&
+        tooltipLocation === 'fixed' &&
         !this.props.route.params.hideTooltip
       ) {
         tooltip = (
@@ -570,6 +547,29 @@ function createTooltip<
       }
     }, [params.tooltipLocation, tooltipContext]);
 
+    const getTooltipLocation = React.useCallback(() => {
+      if (tooltipLocation) {
+        return tooltipLocation;
+      }
+
+      const { initialCoordinates, verticalBounds } = params;
+      const { y, height } = initialCoordinates;
+      const contentTop = y;
+      const contentBottom = y + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+      const fullHeight = getTooltipHeight() + getMargin();
+      if (
+        contentBottom + fullHeight > boundsBottom &&
+        contentTop - fullHeight > boundsTop
+      ) {
+        return 'above';
+      }
+
+      return 'below';
+    }, [getMargin, getTooltipHeight, params, tooltipLocation]);
+
     return (
       <Tooltip
         {...rest}
@@ -582,6 +582,7 @@ function createTooltip<
         boundTooltipItem={boundTooltipItem}
         getMargin={getMargin}
         getTooltipHeight={getTooltipHeight}
+        getTooltipLocation={getTooltipLocation}
       />
     );
   }
