@@ -458,7 +458,7 @@ function LoggedOutModal(props: Props) {
         <PromptButton
           text="Sign in"
           onPress={onPressLogIn}
-          variant="regular"
+          variant="enabled"
           key="login-form"
         />,
       );
@@ -469,7 +469,7 @@ function LoggedOutModal(props: Props) {
         <PromptButton
           text={buttonText}
           onPress={onPressQRCodeSignIn}
-          variant="regular"
+          variant="enabled"
           key="qr-code-login"
         />,
       );
@@ -514,7 +514,7 @@ function LoggedOutModal(props: Props) {
         <PromptButton
           text="Register"
           onPress={onPressNewRegister}
-          variant="regular"
+          variant="enabled"
         />
       </AnimatedView>
     );
