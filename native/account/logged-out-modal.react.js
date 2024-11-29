@@ -37,6 +37,7 @@ import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
 import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
+import PromptButton from './prompt-button.react.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
@@ -55,7 +56,6 @@ import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';
 import { AnimatedView } from '../types/styles.js';
-import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -116,18 +116,6 @@ const unboundStyles = {
     position: 'absolute',
     top: 13,
   },
-  button: {
-    borderRadius: 4,
-    marginBottom: 4,
-    marginTop: 4,
-    marginLeft: 4,
-    marginRight: 4,
-    paddingBottom: 14,
-    paddingLeft: 18,
-    paddingRight: 18,
-    paddingTop: 14,
-    flex: 1,
-  },
   buttonContainer: {
     bottom: 0,
     left: 0,
@@ -136,17 +124,6 @@ const unboundStyles = {
     paddingBottom: 20,
     position: 'absolute',
     right: 0,
-  },
-  buttonText: {
-    fontFamily: 'OpenSans-Semibold',
-    fontSize: 17,
-    textAlign: 'center',
-  },
-  classicAuthButton: {
-    backgroundColor: 'purpleButton',
-  },
-  classicAuthButtonText: {
-    color: 'whiteText',
   },
   registerButtons: {
     flexDirection: 'row',
@@ -176,15 +153,6 @@ const unboundStyles = {
     right: 0,
     top: 0,
   },
-  siweButton: {
-    backgroundColor: 'siweButton',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  siweButtonText: {
-    color: 'siweButtonText',
-  },
   siweOr: {
     flex: 1,
     flexDirection: 'row',
@@ -209,9 +177,6 @@ const unboundStyles = {
     color: 'whiteText',
     fontSize: 17,
     textAlign: 'center',
-  },
-  siweIcon: {
-    paddingRight: 10,
   },
 };
 
@@ -470,22 +435,6 @@ function LoggedOutModal(props: Props) {
     styles.loadingIndicator,
   ]);
 
-  const classicAuthButtonStyle = React.useMemo(
-    () => [styles.button, styles.classicAuthButton],
-    [styles.button, styles.classicAuthButton],
-  );
-  const classicAuthButtonTextStyle = React.useMemo(
-    () => [styles.buttonText, styles.classicAuthButtonText],
-    [styles.buttonText, styles.classicAuthButtonText],
-  );
-  const siweAuthButtonStyle = React.useMemo(
-    () => [styles.button, styles.siweButton],
-    [styles.button, styles.siweButton],
-  );
-  const siweAuthButtonTextStyle = React.useMemo(
-    () => [styles.buttonText, styles.siweButtonText],
-    [styles.buttonText, styles.siweButtonText],
-  );
   const buttonsViewOpacity = useAnimatedStyle(() => ({
     opacity: buttonOpacity.value,
   }));
@@ -501,27 +450,23 @@ function LoggedOutModal(props: Props) {
     const signInButtons = [];
     if (!usingRestoreFlow) {
       signInButtons.push(
-        <TouchableOpacity
+        <PromptButton
+          text="Sign in"
           onPress={onPressLogIn}
-          style={classicAuthButtonStyle}
-          activeOpacity={0.6}
+          variant="regular"
           key="login-form"
-        >
-          <Text style={classicAuthButtonTextStyle}>Sign in</Text>
-        </TouchableOpacity>,
+        />,
       );
     }
     if (__DEV__ || usingRestoreFlow) {
       const buttonText = usingRestoreFlow ? 'Sign in' : 'Sign in (QR)';
       signInButtons.push(
-        <TouchableOpacity
+        <PromptButton
+          text={buttonText}
           onPress={onPressQRCodeSignIn}
-          style={classicAuthButtonStyle}
-          activeOpacity={0.6}
+          variant="regular"
           key="qr-code-login"
-        >
-          <Text style={classicAuthButtonTextStyle}>{buttonText}</Text>
-        </TouchableOpacity>,
+        />,
       );
     }
 
@@ -529,16 +474,11 @@ function LoggedOutModal(props: Props) {
     if (!usingRestoreFlow) {
       siweSection = (
         <>
-          <TouchableOpacity
+          <PromptButton
+            text="Sign in with Ethereum"
             onPress={onPressSIWE}
-            style={siweAuthButtonStyle}
-            activeOpacity={0.6}
-          >
-            <View style={styles.siweIcon}>
-              <EthereumLogo />
-            </View>
-            <Text style={siweAuthButtonTextStyle}>Sign in with Ethereum</Text>
-          </TouchableOpacity>
+            variant="siwe"
+          />
           <View style={styles.siweOr}>
             <View style={styles.siweOrLeftHR} />
             <Text style={styles.siweOrText}>or</Text>
@@ -554,14 +494,11 @@ function LoggedOutModal(props: Props) {
         {siweSection}
         <View style={styles.signInButtons}>{signInButtons}</View>
         <View style={styles.registerButtons}>
-          <TouchableOpacity
+          <PromptButton
+            text="Register"
             onPress={onPressNewRegister}
-            style={classicAuthButtonStyle}
-            activeOpacity={0.6}
-            key="new"
-          >
-            <Text style={classicAuthButtonTextStyle}>Register</Text>
-          </TouchableOpacity>
+            variant="regular"
+          />
         </View>
       </AnimatedView>
     );
@@ -571,12 +508,7 @@ function LoggedOutModal(props: Props) {
     onPressLogIn,
     onPressQRCodeSignIn,
     onPressSIWE,
-    classicAuthButtonStyle,
-    classicAuthButtonTextStyle,
-    siweAuthButtonStyle,
-    siweAuthButtonTextStyle,
     buttonsViewStyle,
-    styles.siweIcon,
     styles.siweOr,
     styles.siweOrLeftHR,
     styles.siweOrText,
