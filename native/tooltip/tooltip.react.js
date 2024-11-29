@@ -152,6 +152,14 @@ type TooltipProps<Base> = {
   +getMargin: () => number,
   +getTooltipHeight: () => number,
   +getTooltipLocation: () => 'above' | 'below' | 'fixed',
+  +backdropOpacity: Node,
+  +tooltipContainerOpacity: Node,
+  +tooltipVerticalAbove: Node,
+  +tooltipVerticalBelow: Node,
+  +tooltipHorizontalOffset: Value,
+  +tooltipHorizontal: Node,
+  +tooltipScale: Node,
+  +fixedTooltipVertical: Node,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -169,70 +177,6 @@ function createTooltip<
   class Tooltip extends React.PureComponent<
     TooltipProps<BaseTooltipPropsType>,
   > {
-    backdropOpacity: Node;
-    tooltipContainerOpacity: Node;
-    tooltipVerticalAbove: Node;
-    tooltipVerticalBelow: Node;
-    tooltipHorizontalOffset: Value = new Value(0);
-    tooltipHorizontal: Node;
-    tooltipScale: Node;
-    fixedTooltipVertical: Node;
-
-    constructor(props: TooltipProps<BaseTooltipPropsType>) {
-      super(props);
-
-      const { overlayContext } = props;
-      invariant(overlayContext, 'Tooltip should have OverlayContext');
-      const { position } = overlayContext;
-      invariant(position, 'position should be defined in tooltip');
-
-      this.backdropOpacity = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [0, 0.7],
-        extrapolate: Extrapolate.CLAMP,
-      });
-      this.tooltipContainerOpacity = interpolateNode(position, {
-        inputRange: [0, 0.1],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
-      this.tooltipVerticalAbove = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [
-          this.props.getMargin() + this.props.getTooltipHeight() / 2,
-          0,
-        ],
-        extrapolate: Extrapolate.CLAMP,
-      });
-      this.tooltipVerticalBelow = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [
-          -this.props.getMargin() - this.props.getTooltipHeight() / 2,
-          0,
-        ],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
-      const invertedPosition = add(1, multiply(-1, position));
-
-      this.tooltipHorizontal = multiply(
-        invertedPosition,
-        this.tooltipHorizontalOffset,
-      );
-
-      this.tooltipScale = interpolateNode(position, {
-        inputRange: [0, 0.2, 0.8, 1],
-        outputRange: [0, 0, 1, 1],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
-      this.fixedTooltipVertical = multiply(
-        invertedPosition,
-        props.dimensions.height,
-      );
-    }
-
     componentDidMount() {
       Haptics.impactAsync();
     }
@@ -240,7 +184,7 @@ function createTooltip<
     get opacityStyle(): AnimatedViewStyle {
       return {
         ...this.props.styles.backdrop,
-        opacity: this.backdropOpacity,
+        opacity: this.props.backdropOpacity,
       };
     }
 
@@ -279,12 +223,12 @@ function createTooltip<
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
       style.alignItems = 'center';
-      style.opacity = this.tooltipContainerOpacity;
+      style.opacity = this.props.tooltipContainerOpacity;
 
       const transform: Array<ReanimatedTransform> = [];
 
       if (tooltipLocation !== 'fixed') {
-        transform.push({ translateX: this.tooltipHorizontal });
+        transform.push({ translateX: this.props.tooltipHorizontal });
       }
 
       const extraLeftSpace = x;
@@ -311,20 +255,20 @@ function createTooltip<
           verticalBounds.y -
           inputBarHeight +
           padding;
-        transform.push({ translateY: this.fixedTooltipVertical });
+        transform.push({ translateY: this.props.fixedTooltipVertical });
       } else if (tooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + getMargin();
-        transform.push({ translateY: this.tooltipVerticalAbove });
+        transform.push({ translateY: this.props.tooltipVerticalAbove });
       } else {
         style.top =
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
           getMargin();
-        transform.push({ translateY: this.tooltipVerticalBelow });
+        transform.push({ translateY: this.props.tooltipVerticalBelow });
       }
 
       if (tooltipLocation !== 'fixed') {
-        transform.push({ scale: this.tooltipScale });
+        transform.push({ scale: this.props.tooltipScale });
       }
 
       style.transform = transform;
@@ -344,6 +288,14 @@ function createTooltip<
         getMargin,
         getTooltipHeight,
         getTooltipLocation,
+        backdropOpacity,
+        tooltipContainerOpacity,
+        tooltipVerticalAbove,
+        tooltipVerticalBelow,
+        tooltipHorizontalOffset,
+        tooltipHorizontal,
+        tooltipScale,
+        fixedTooltipVertical,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -481,10 +433,14 @@ function createTooltip<
       const actualWidth = event.nativeEvent.layout.width;
       if (extraLeftSpace < extraRightSpace) {
         const minWidth = width + 2 * extraLeftSpace;
-        this.tooltipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
+        this.props.tooltipHorizontalOffset.setValue(
+          (minWidth - actualWidth) / 2,
+        );
       } else {
         const minWidth = width + 2 * extraRightSpace;
-        this.tooltipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
+        this.props.tooltipHorizontalOffset.setValue(
+          (actualWidth - minWidth) / 2,
+        );
       }
     };
   }
@@ -570,6 +526,74 @@ function createTooltip<
       return 'below';
     }, [getMargin, getTooltipHeight, params, tooltipLocation]);
 
+    invariant(overlayContext, 'Tooltip should have OverlayContext');
+    const { position } = overlayContext;
+    invariant(position, 'position should be defined in tooltip');
+
+    const backdropOpacity = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [0, 0.7],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+    const tooltipContainerOpacity = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 0.1],
+          outputRange: [0, 1],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+
+    const tooltipVerticalAbove = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [getMargin() + getTooltipHeight() / 2, 0],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [getMargin, getTooltipHeight, position],
+    );
+    const tooltipVerticalBelow = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [-getMargin() - getTooltipHeight() / 2, 0],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [getMargin, getTooltipHeight, position],
+    );
+
+    const invertedPosition = React.useMemo(
+      () => add(1, multiply(-1, position)),
+      [position],
+    );
+    const tooltipHorizontalOffset = React.useRef(new Value(0));
+
+    const tooltipHorizontal = React.useMemo(
+      () => multiply(invertedPosition, tooltipHorizontalOffset.current),
+      [invertedPosition],
+    );
+
+    const tooltipScale = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 0.2, 0.8, 1],
+          outputRange: [0, 0, 1, 1],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+
+    const fixedTooltipVertical = React.useMemo(
+      () => multiply(invertedPosition, dimensions.height),
+      [dimensions.height, invertedPosition],
+    );
+
     return (
       <Tooltip
         {...rest}
@@ -583,6 +607,14 @@ function createTooltip<
         getMargin={getMargin}
         getTooltipHeight={getTooltipHeight}
         getTooltipLocation={getTooltipLocation}
+        backdropOpacity={backdropOpacity}
+        tooltipContainerOpacity={tooltipContainerOpacity}
+        tooltipVerticalAbove={tooltipVerticalAbove}
+        tooltipVerticalBelow={tooltipVerticalBelow}
+        tooltipHorizontalOffset={tooltipHorizontalOffset.current}
+        tooltipHorizontal={tooltipHorizontal}
+        tooltipScale={tooltipScale}
+        fixedTooltipVertical={fixedTooltipVertical}
       />
     );
   }
