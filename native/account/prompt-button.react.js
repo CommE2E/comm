@@ -10,31 +10,31 @@ import EthereumLogo from '../vectors/ethereum-logo.react.js';
 type Props = {
   +text: string,
   +onPress: () => mixed,
-  +variant: 'regular' | 'siwe',
+  +variant: 'enabled' | 'disabled' | 'loading' | 'siwe',
 };
 
 function PromptButton(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const { text, onPress, variant } = props;
-  if (variant === 'regular') {
+  if (variant === 'siwe') {
     return (
       <View style={styles.container}>
-        <PrimaryButton onPress={onPress} label={text} />
+        <PrimaryButton onPress={onPress} style={styles.siweButton}>
+          <View style={styles.siweIcon}>
+            <EthereumLogo />
+          </View>
+          <Text style={styles.buttonText}>{text}</Text>
+        </PrimaryButton>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <PrimaryButton onPress={onPress} label={text} variant={variant} />
       </View>
     );
   }
-
-  return (
-    <View style={styles.container}>
-      <PrimaryButton onPress={onPress} style={styles.siweButton}>
-        <View style={styles.siweIcon}>
-          <EthereumLogo />
-        </View>
-        <Text style={styles.buttonText}>{text}</Text>
-      </PrimaryButton>
-    </View>
-  );
 }
 
 const unboundStyles = {
