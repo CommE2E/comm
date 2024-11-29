@@ -150,6 +150,7 @@ type TooltipProps<Base> = {
   +closeTooltip: () => mixed,
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
   +margin: number,
+  +tooltipHeight: number,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -197,12 +198,12 @@ function createTooltip<
 
       this.tooltipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [this.props.margin + this.tooltipHeight / 2, 0],
+        outputRange: [this.props.margin + this.props.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
       this.tooltipVerticalBelow = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [-this.props.margin - this.tooltipHeight / 2, 0],
+        outputRange: [-this.props.margin - this.props.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
 
@@ -229,14 +230,6 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get tooltipHeight(): number {
-      if (this.props.route.params.tooltipLocation === 'fixed') {
-        return fixedTooltipHeight;
-      } else {
-        return tooltipHeight(this.props.tooltipContext.getNumVisibleEntries());
-      }
-    }
-
     get tooltipLocation(): 'above' | 'below' | 'fixed' {
       const { params } = this.props.route;
       const { tooltipLocation } = params;
@@ -251,8 +244,7 @@ function createTooltip<
       const boundsTop = verticalBounds.y;
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
-      const { tooltipHeight: curTooltipHeight } = this;
-      const fullHeight = curTooltipHeight + this.props.margin;
+      const fullHeight = this.props.tooltipHeight + this.props.margin;
       if (
         contentBottom + fullHeight > boundsBottom &&
         contentTop - fullHeight > boundsTop
@@ -368,6 +360,7 @@ function createTooltip<
         closeTooltip,
         boundTooltipItem,
         margin,
+        tooltipHeight,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -563,6 +556,14 @@ function createTooltip<
         : 20;
     }, [params.margin]);
 
+    const tooltipHeight = React.useMemo(() => {
+      if (tooltipLocation === 'fixed') {
+        return fixedTooltipHeight;
+      } else {
+        return getTooltipHeight(tooltipContext.getNumVisibleEntries());
+      }
+    }, [tooltipLocation, tooltipContext]);
+
     return (
       <Tooltip
         {...rest}
@@ -574,6 +575,7 @@ function createTooltip<
         closeTooltip={closeTooltip}
         boundTooltipItem={boundTooltipItem}
         margin={margin}
+        tooltipHeight={tooltipHeight}
       />
     );
   }
@@ -601,7 +603,7 @@ function createTooltip<
   return React.memo<BaseTooltipPropsType>(MemoizedTooltip);
 }
 
-function tooltipHeight(numEntries: number): number {
+function getTooltipHeight(numEntries: number): number {
   // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
   return 9 + 38 * numEntries;
 }
