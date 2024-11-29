@@ -148,13 +148,15 @@ type TooltipProps<Base> = {
   +styles: $ReadOnly<typeof unboundStyles>,
   +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
-  +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
   +getTooltipLocation: () => 'above' | 'below' | 'fixed',
-  +tooltipHorizontalOffset: Value,
   +opacityStyle: AnimatedViewStyle,
   +contentContainerStyle: ViewStyle,
   +buttonStyle: ViewStyle,
   +tooltipContainerStyle: AnimatedViewStyle,
+  +getTooltipItem: () => React.ComponentType<TooltipItemBaseProps>,
+  +onPressMore: () => void,
+  +renderMoreIcon: () => React.Node,
+  +onTooltipContainerLayout: (event: LayoutEvent) => void,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -180,13 +182,15 @@ function createTooltip<
         styles,
         tooltipContext,
         closeTooltip,
-        boundTooltipItem,
         getTooltipLocation,
-        tooltipHorizontalOffset,
         opacityStyle,
         contentContainerStyle,
         buttonStyle,
         tooltipContainerStyle: _tooltipContainerStyle,
+        getTooltipItem,
+        onPressMore,
+        renderMoreIcon,
+        onTooltipContainerLayout,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -200,7 +204,7 @@ function createTooltip<
       const items: Array<React.Node> = [
         <MenuComponent
           {...navAndRouteForFlow}
-          tooltipItem={this.getTooltipItem()}
+          tooltipItem={getTooltipItem()}
           key="menu"
         />,
       ];
@@ -210,8 +214,8 @@ function createTooltip<
           <BaseTooltipItem
             id="more"
             text="More"
-            onPress={this.onPressMore}
-            renderIcon={this.renderMoreIcon}
+            onPress={onPressMore}
+            renderIcon={renderMoreIcon}
             containerStyle={tooltipContainerStyle}
             key="more"
           />,
@@ -264,7 +268,7 @@ function createTooltip<
         tooltip = (
           <AnimatedView
             style={this.props.tooltipContainerStyle}
-            onLayout={this.onTooltipContainerLayout}
+            onLayout={onTooltipContainerLayout}
           >
             {triangleUp}
             <View style={styles.items}>{items}</View>
@@ -296,44 +300,6 @@ function createTooltip<
         </TouchableWithoutFeedback>
       );
     }
-
-    getTooltipItem(): React.ComponentType<TooltipItemBaseProps> {
-      const BoundTooltipItem = this.props.boundTooltipItem;
-      return BoundTooltipItem;
-    }
-
-    onPressMore = () => {
-      Keyboard.dismiss();
-      this.props.tooltipContext.showActionSheet();
-    };
-
-    renderMoreIcon = (): React.Node => {
-      const { styles } = this.props;
-      return (
-        <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
-      );
-    };
-
-    onTooltipContainerLayout = (event: LayoutEvent) => {
-      const { route, dimensions } = this.props;
-      const { x, width } = route.params.initialCoordinates;
-
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-
-      const actualWidth = event.nativeEvent.layout.width;
-      if (extraLeftSpace < extraRightSpace) {
-        const minWidth = width + 2 * extraLeftSpace;
-        this.props.tooltipHorizontalOffset.setValue(
-          (minWidth - actualWidth) / 2,
-        );
-      } else {
-        const minWidth = width + 2 * extraRightSpace;
-        this.props.tooltipHorizontalOffset.setValue(
-          (actualWidth - minWidth) / 2,
-        );
-      }
-    };
   }
   function ConnectedTooltip(
     props: $ReadOnly<{
@@ -593,6 +559,46 @@ function createTooltip<
       tooltipVerticalBelow,
     ]);
 
+    const getTooltipItem =
+      React.useCallback((): React.ComponentType<TooltipItemBaseProps> => {
+        const BoundTooltipItem = boundTooltipItem;
+        return BoundTooltipItem;
+      }, [boundTooltipItem]);
+
+    const onPressMore = React.useCallback(() => {
+      Keyboard.dismiss();
+      tooltipContext.showActionSheet();
+    }, [tooltipContext]);
+
+    const renderMoreIcon = React.useCallback((): React.Node => {
+      return (
+        <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
+      );
+    }, [styles.icon]);
+
+    const onTooltipContainerLayout = React.useCallback(
+      (event: LayoutEvent) => {
+        const { x, width } = params.initialCoordinates;
+
+        const extraLeftSpace = x;
+        const extraRightSpace = dimensions.width - width - x;
+
+        const actualWidth = event.nativeEvent.layout.width;
+        if (extraLeftSpace < extraRightSpace) {
+          const minWidth = width + 2 * extraLeftSpace;
+          tooltipHorizontalOffset.current.setValue(
+            (minWidth - actualWidth) / 2,
+          );
+        } else {
+          const minWidth = width + 2 * extraRightSpace;
+          tooltipHorizontalOffset.current.setValue(
+            (actualWidth - minWidth) / 2,
+          );
+        }
+      },
+      [dimensions.width, params.initialCoordinates],
+    );
+
     return (
       <Tooltip
         {...rest}
@@ -602,13 +608,15 @@ function createTooltip<
         styles={styles}
         tooltipContext={tooltipContext}
         closeTooltip={closeTooltip}
-        boundTooltipItem={boundTooltipItem}
         getTooltipLocation={getTooltipLocation}
-        tooltipHorizontalOffset={tooltipHorizontalOffset.current}
         opacityStyle={opacityStyle}
         contentContainerStyle={contentContainerStyle}
         buttonStyle={buttonStyle}
         tooltipContainerStyle={tooltipContainerStyle}
+        getTooltipItem={getTooltipItem}
+        onPressMore={onPressMore}
+        renderMoreIcon={renderMoreIcon}
+        onTooltipContainerLayout={onTooltipContainerLayout}
       />
     );
   }
