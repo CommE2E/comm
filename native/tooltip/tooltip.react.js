@@ -150,6 +150,7 @@ type TooltipProps<Base> = {
   +closeTooltip: () => mixed,
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
   +getMargin: () => number,
+  +getTooltipHeight: () => number,
 };
 
 export type TooltipMenuProps<RouteName> = {
@@ -197,12 +198,18 @@ function createTooltip<
 
       this.tooltipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [this.props.getMargin() + this.tooltipHeight / 2, 0],
+        outputRange: [
+          this.props.getMargin() + this.props.getTooltipHeight() / 2,
+          0,
+        ],
         extrapolate: Extrapolate.CLAMP,
       });
       this.tooltipVerticalBelow = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [-this.props.getMargin() - this.tooltipHeight / 2, 0],
+        outputRange: [
+          -this.props.getMargin() - this.props.getTooltipHeight() / 2,
+          0,
+        ],
         extrapolate: Extrapolate.CLAMP,
       });
 
@@ -229,14 +236,6 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get tooltipHeight(): number {
-      if (this.props.route.params.tooltipLocation === 'fixed') {
-        return fixedTooltipHeight;
-      } else {
-        return tooltipHeight(this.props.tooltipContext.getNumVisibleEntries());
-      }
-    }
-
     get tooltipLocation(): 'above' | 'below' | 'fixed' {
       const { params } = this.props.route;
       const { tooltipLocation } = params;
@@ -251,8 +250,7 @@ function createTooltip<
       const boundsTop = verticalBounds.y;
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
-      const { tooltipHeight: curTooltipHeight } = this;
-      const fullHeight = curTooltipHeight + this.props.getMargin();
+      const fullHeight = this.props.getTooltipHeight() + this.props.getMargin();
       if (
         contentBottom + fullHeight > boundsBottom &&
         contentTop - fullHeight > boundsTop
@@ -368,6 +366,7 @@ function createTooltip<
         closeTooltip,
         boundTooltipItem,
         getMargin,
+        getTooltipHeight,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -563,6 +562,14 @@ function createTooltip<
         : 20;
     }, [params.margin]);
 
+    const getTooltipHeight = React.useCallback(() => {
+      if (params.tooltipLocation === 'fixed') {
+        return fixedTooltipHeight;
+      } else {
+        return tooltipHeight(tooltipContext.getNumVisibleEntries());
+      }
+    }, [params.tooltipLocation, tooltipContext]);
+
     return (
       <Tooltip
         {...rest}
@@ -574,6 +581,7 @@ function createTooltip<
         closeTooltip={closeTooltip}
         boundTooltipItem={boundTooltipItem}
         getMargin={getMargin}
+        getTooltipHeight={getTooltipHeight}
       />
     );
   }
