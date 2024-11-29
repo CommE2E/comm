@@ -60,8 +60,8 @@ export type LogInState = {
   +passwordInputText: ?string,
 };
 type BaseProps = {
-  +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityStyle: ViewStyle,
+  +setActiveAlert?: (activeAlert: boolean) => void,
+  +opacityStyle?: ViewStyle,
   +logInState: StateContainer<LogInState>,
 };
 type Props = {
@@ -230,7 +230,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   onSubmit: () => Promise<void> = async () => {
-    this.props.setActiveAlert(true);
+    this.props.setActiveAlert?.(true);
     if (this.usernameInputText.search(validEmailRegex) > -1) {
       Alert.alert(
         'Can’t log in with email',
@@ -288,7 +288,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
         password: this.passwordInputText,
         authActionSource: logInActionSources.logInFromNativeForm,
       });
-      this.props.setActiveAlert(false);
+      this.props.setActiveAlert?.(false);
       await setNativeCredentials({
         username: result.currentUserInfo.username,
         password: this.passwordInputText,
@@ -331,7 +331,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
         this.usernameInputText,
         this.passwordInputText,
       );
-      this.props.setActiveAlert(false);
+      this.props.setActiveAlert?.(false);
       await setNativeCredentials({
         username: this.usernameInputText,
         password: this.passwordInputText,
@@ -373,7 +373,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   }
 
   onUnsuccessfulLoginAlertAckowledged: () => void = () => {
-    this.props.setActiveAlert(false);
+    this.props.setActiveAlert?.(false);
     this.props.logInState.setState(
       {
         usernameInputText: '',
@@ -384,7 +384,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   onUsernameAlertAcknowledged: () => void = () => {
-    this.props.setActiveAlert(false);
+    this.props.setActiveAlert?.(false);
     this.props.logInState.setState(
       {
         usernameInputText: '',
@@ -394,7 +394,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   onPasswordAlertAcknowledged: () => void = () => {
-    this.props.setActiveAlert(false);
+    this.props.setActiveAlert?.(false);
     this.props.logInState.setState(
       {
         passwordInputText: '',
@@ -404,7 +404,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   onOtherErrorAlertAcknowledged: () => void = () => {
-    this.props.setActiveAlert(false);
+    this.props.setActiveAlert?.(false);
   };
 }
 

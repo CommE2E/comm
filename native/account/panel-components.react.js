@@ -58,7 +58,7 @@ function PanelButton(props: ButtonProps): React.Node {
 }
 
 type PanelProps = {
-  +opacityStyle: ViewStyle,
+  +opacityStyle: ?ViewStyle,
   +children: React.Node,
   +style?: ViewStyle,
 };

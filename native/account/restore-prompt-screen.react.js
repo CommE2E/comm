@@ -9,6 +9,7 @@ import RegistrationContainer from './registration/registration-container.react.j
 import RegistrationContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
+import { RestorePasswordAccountScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -16,9 +17,12 @@ type Props = {
   +route: NavigationRoute<'RestorePromptScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function RestorePromptScreen(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
+
+  const openPasswordRestoreScreen = React.useCallback(() => {
+    props.navigation.navigate(RestorePasswordAccountScreenRouteName);
+  }, [props.navigation]);
 
   return (
     <RegistrationContainer>
@@ -42,7 +46,7 @@ function RestorePromptScreen(props: Props): React.Node {
         <View style={styles.buttonContainer}>
           <PromptButton
             text="Restore with password"
-            onPress={() => {}}
+            onPress={openPasswordRestoreScreen}
             variant="regular"
           />
         </View>
