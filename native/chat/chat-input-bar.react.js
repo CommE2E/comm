@@ -930,7 +930,7 @@ function ConnectedChatInputBarBase({
   React.useEffect(() => {
     if (isActive && !prevIsActiveRef.current) {
       addEditInputMessageListener();
-    } else if (!isActive && prevIsActiveRef) {
+    } else if (!isActive && prevIsActiveRef.current) {
       removeEditInputMessageListener();
     }
     prevIsActiveRef.current = isActive;
