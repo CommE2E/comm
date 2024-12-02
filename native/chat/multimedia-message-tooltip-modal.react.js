@@ -11,7 +11,7 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   createTooltip,
   type TooltipParams,
-  type BaseTooltipProps,
+  type TooltipProps,
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
@@ -97,7 +97,7 @@ function TooltipMenu(
 }
 
 const MultimediaMessageTooltipModal: React.ComponentType<
-  BaseTooltipProps<'MultimediaMessageTooltipModal'>,
+  TooltipProps<'MultimediaMessageTooltipModal'>,
 > = createTooltip<'MultimediaMessageTooltipModal'>(
   MultimediaMessageTooltipButton,
   TooltipMenu,
