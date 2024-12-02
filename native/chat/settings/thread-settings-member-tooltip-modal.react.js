@@ -15,7 +15,7 @@ import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-
 import type { AppNavigationProp } from '../../navigation/app-navigator.react';
 import { ChangeRolesScreenRouteName } from '../../navigation/route-names.js';
 import {
-  type BaseTooltipProps,
+  type TooltipProps,
   createTooltip,
   type TooltipMenuProps,
   type TooltipParams,
@@ -105,7 +105,7 @@ function TooltipMenu(
 }
 
 const ThreadSettingsMemberTooltipModal: React.ComponentType<
-  BaseTooltipProps<'ThreadSettingsMemberTooltipModal'>,
+  TooltipProps<'ThreadSettingsMemberTooltipModal'>,
 > = createTooltip<'ThreadSettingsMemberTooltipModal'>(
   ThreadSettingsMemberTooltipButton,
   TooltipMenu,
