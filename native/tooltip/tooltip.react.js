@@ -15,20 +15,15 @@ import Animated from 'react-native-reanimated';
 import {
   TooltipContextProvider,
   TooltipContext,
-  type TooltipContextType,
 } from './tooltip-context.react.js';
 import BaseTooltipItem, {
   type TooltipItemBaseProps,
 } from './tooltip-item.react.js';
-import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import { ChatContext } from '../chat/chat-context.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import type { TooltipModalParamList } from '../navigation/route-names.js';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import {
@@ -139,25 +134,6 @@ type ButtonProps<Base> = {
   +progress: Node,
   +isOpeningSidebar: boolean,
 };
-type TooltipProps<Base> = {
-  ...Base,
-  // Redux state
-  +dimensions: DimensionsInfo,
-  +overlayContext: ?OverlayContextType,
-  +chatContext: ?ChatContextType,
-  +styles: $ReadOnly<typeof unboundStyles>,
-  +tooltipContext: TooltipContextType,
-  +closeTooltip: () => mixed,
-  +getTooltipLocation: () => 'above' | 'below' | 'fixed',
-  +opacityStyle: AnimatedViewStyle,
-  +contentContainerStyle: ViewStyle,
-  +buttonStyle: ViewStyle,
-  +tooltipContainerStyle: AnimatedViewStyle,
-  +getTooltipItem: () => React.ComponentType<TooltipItemBaseProps>,
-  +onPressMore: () => void,
-  +renderMoreIcon: () => React.Node,
-  +onTooltipContainerLayout: (event: LayoutEvent) => void,
-};
 
 export type TooltipMenuProps<RouteName> = {
   ...BaseTooltipProps<RouteName>,
@@ -171,136 +147,6 @@ function createTooltip<
   ButtonComponent: React.ComponentType<ButtonProps<BaseTooltipPropsType>>,
   MenuComponent: React.ComponentType<TooltipMenuProps<RouteName>>,
 ): React.ComponentType<BaseTooltipPropsType> {
-  class Tooltip extends React.PureComponent<
-    TooltipProps<BaseTooltipPropsType>,
-  > {
-    render(): React.Node {
-      const {
-        dimensions,
-        overlayContext,
-        chatContext,
-        styles,
-        tooltipContext,
-        closeTooltip,
-        getTooltipLocation,
-        opacityStyle,
-        contentContainerStyle,
-        buttonStyle,
-        tooltipContainerStyle: _tooltipContainerStyle,
-        getTooltipItem,
-        onPressMore,
-        renderMoreIcon,
-        onTooltipContainerLayout,
-        ...navAndRouteForFlow
-      } = this.props;
-
-      const tooltipContainerStyle: Array<ViewStyle> = [styles.itemContainer];
-      const tooltipLocation = getTooltipLocation();
-
-      if (tooltipLocation === 'fixed') {
-        tooltipContainerStyle.push(styles.itemContainerFixed);
-      }
-
-      const items: Array<React.Node> = [
-        <MenuComponent
-          {...navAndRouteForFlow}
-          tooltipItem={getTooltipItem()}
-          key="menu"
-        />,
-      ];
-
-      if (this.props.tooltipContext.shouldShowMore()) {
-        items.push(
-          <BaseTooltipItem
-            id="more"
-            text="More"
-            onPress={onPressMore}
-            renderIcon={renderMoreIcon}
-            containerStyle={tooltipContainerStyle}
-            key="more"
-          />,
-        );
-      }
-
-      let triangleStyle;
-      const { route } = this.props;
-      const { initialCoordinates } = route.params;
-      const { x, width } = initialCoordinates;
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        triangleStyle = {
-          alignSelf: 'flex-start',
-          left: extraLeftSpace + (width - 20) / 2,
-        };
-      } else {
-        triangleStyle = {
-          alignSelf: 'flex-end',
-          right: extraRightSpace + (width - 20) / 2,
-        };
-      }
-
-      let triangleDown = null;
-      let triangleUp = null;
-      if (tooltipLocation === 'above') {
-        triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else if (tooltipLocation === 'below') {
-        triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
-      }
-
-      invariant(overlayContext, 'Tooltip should have OverlayContext');
-      const { position } = overlayContext;
-      invariant(position, 'position should be defined in tooltip');
-
-      const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
-
-      const buttonProps: ButtonProps<BaseTooltipPropsType> = {
-        ...navAndRouteForFlow,
-        progress: position,
-        isOpeningSidebar,
-      };
-
-      const itemsStyles = [styles.items, styles.itemsFixed];
-
-      let tooltip = null;
-
-      if (tooltipLocation !== 'fixed') {
-        tooltip = (
-          <AnimatedView
-            style={this.props.tooltipContainerStyle}
-            onLayout={onTooltipContainerLayout}
-          >
-            {triangleUp}
-            <View style={styles.items}>{items}</View>
-            {triangleDown}
-          </AnimatedView>
-        );
-      } else if (
-        tooltipLocation === 'fixed' &&
-        !this.props.route.params.hideTooltip
-      ) {
-        tooltip = (
-          <AnimatedView style={this.props.tooltipContainerStyle}>
-            <View style={itemsStyles}>{items}</View>
-          </AnimatedView>
-        );
-      }
-
-      return (
-        <TouchableWithoutFeedback onPress={this.props.closeTooltip}>
-          <View style={styles.container}>
-            <AnimatedView style={this.props.opacityStyle} />
-            <View style={this.props.contentContainerStyle}>
-              <View style={this.props.buttonStyle}>
-                <ButtonComponent {...buttonProps} />
-              </View>
-            </View>
-            {tooltip}
-          </View>
-        </TouchableWithoutFeedback>
-      );
-    }
-  }
   function ConnectedTooltip(
     props: $ReadOnly<{
       ...BaseTooltipPropsType,
@@ -315,7 +161,7 @@ function createTooltip<
     const { tooltipLocation } = params;
     const isFixed = tooltipLocation === 'fixed';
 
-    const { hideTooltip, ...rest } = props;
+    const { hideTooltip, ...navAndRouteForFlow } = props;
 
     React.useEffect(() => {
       Haptics.impactAsync();
@@ -599,25 +445,101 @@ function createTooltip<
       [dimensions.width, params.initialCoordinates],
     );
 
+    const tooltipItemContainerStyle: Array<ViewStyle> = [styles.itemContainer];
+
+    if (tooltipLocation === 'fixed') {
+      tooltipItemContainerStyle.push(styles.itemContainerFixed);
+    }
+
+    const items: Array<React.Node> = [
+      <MenuComponent
+        {...navAndRouteForFlow}
+        tooltipItem={getTooltipItem()}
+        key="menu"
+      />,
+    ];
+
+    if (tooltipContext.shouldShowMore()) {
+      items.push(
+        <BaseTooltipItem
+          id="more"
+          text="More"
+          onPress={onPressMore}
+          renderIcon={renderMoreIcon}
+          containerStyle={tooltipItemContainerStyle}
+          key="more"
+        />,
+      );
+    }
+
+    let triangleStyle;
+    const { initialCoordinates } = params;
+    const { x, width } = initialCoordinates;
+    const extraLeftSpace = x;
+    const extraRightSpace = dimensions.width - width - x;
+    if (extraLeftSpace < extraRightSpace) {
+      triangleStyle = {
+        alignSelf: 'flex-start',
+        left: extraLeftSpace + (width - 20) / 2,
+      };
+    } else {
+      triangleStyle = {
+        alignSelf: 'flex-end',
+        right: extraRightSpace + (width - 20) / 2,
+      };
+    }
+
+    let triangleDown = null;
+    let triangleUp = null;
+    if (tooltipLocation === 'above') {
+      triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
+    } else if (tooltipLocation === 'below') {
+      triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
+    }
+
+    const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
+
+    const buttonProps: ButtonProps<BaseTooltipPropsType> = {
+      ...navAndRouteForFlow,
+      progress: position,
+      isOpeningSidebar,
+    };
+
+    const itemsStyles = [styles.items, styles.itemsFixed];
+
+    let tooltip = null;
+
+    if (tooltipLocation !== 'fixed') {
+      tooltip = (
+        <AnimatedView
+          style={tooltipContainerStyle}
+          onLayout={onTooltipContainerLayout}
+        >
+          {triangleUp}
+          <View style={styles.items}>{items}</View>
+          {triangleDown}
+        </AnimatedView>
+      );
+    } else if (tooltipLocation === 'fixed' && !params.hideTooltip) {
+      tooltip = (
+        <AnimatedView style={tooltipContainerStyle}>
+          <View style={itemsStyles}>{items}</View>
+        </AnimatedView>
+      );
+    }
+
     return (
-      <Tooltip
-        {...rest}
-        dimensions={dimensions}
-        overlayContext={overlayContext}
-        chatContext={chatContext}
-        styles={styles}
-        tooltipContext={tooltipContext}
-        closeTooltip={closeTooltip}
-        getTooltipLocation={getTooltipLocation}
-        opacityStyle={opacityStyle}
-        contentContainerStyle={contentContainerStyle}
-        buttonStyle={buttonStyle}
-        tooltipContainerStyle={tooltipContainerStyle}
-        getTooltipItem={getTooltipItem}
-        onPressMore={onPressMore}
-        renderMoreIcon={renderMoreIcon}
-        onTooltipContainerLayout={onTooltipContainerLayout}
-      />
+      <TouchableWithoutFeedback onPress={closeTooltip}>
+        <View style={styles.container}>
+          <AnimatedView style={opacityStyle} />
+          <View style={contentContainerStyle}>
+            <View style={buttonStyle}>
+              <ButtonComponent {...buttonProps} />
+            </View>
+          </View>
+          {tooltip}
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
   function MemoizedTooltip(props: BaseTooltipPropsType) {
