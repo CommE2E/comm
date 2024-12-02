@@ -8,7 +8,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   createTooltip,
   type TooltipParams,
-  type BaseTooltipProps,
+  type TooltipProps,
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
@@ -45,7 +45,7 @@ function TooltipMenu(
 }
 
 const RobotextMessageTooltipModal: React.ComponentType<
-  BaseTooltipProps<'RobotextMessageTooltipModal'>,
+  TooltipProps<'RobotextMessageTooltipModal'>,
 > = createTooltip<'RobotextMessageTooltipModal'>(
   RobotextMessageTooltipButton,
   TooltipMenu,

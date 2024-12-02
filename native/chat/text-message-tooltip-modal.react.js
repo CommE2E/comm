@@ -19,7 +19,7 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   createTooltip,
   type TooltipParams,
-  type BaseTooltipProps,
+  type TooltipProps,
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
@@ -191,7 +191,7 @@ function TooltipMenu(
 }
 
 const TextMessageTooltipModal: React.ComponentType<
-  BaseTooltipProps<'TextMessageTooltipModal'>,
+  TooltipProps<'TextMessageTooltipModal'>,
 > = createTooltip<'TextMessageTooltipModal'>(
   TextMessageTooltipButton,
   TooltipMenu,

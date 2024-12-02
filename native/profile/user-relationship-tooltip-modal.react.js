@@ -15,7 +15,7 @@ import { useColors } from '../themes/colors.js';
 import {
   createTooltip,
   type TooltipParams,
-  type BaseTooltipProps,
+  type TooltipProps,
   type TooltipMenuProps,
   type TooltipRoute,
 } from '../tooltip/tooltip.react.js';
@@ -158,7 +158,7 @@ function UserRelationshipTooltipButton(props: Props): React.Node {
 }
 
 const UserRelationshipTooltipModal: React.ComponentType<
-  BaseTooltipProps<'UserRelationshipTooltipModal'>,
+  TooltipProps<'UserRelationshipTooltipModal'>,
 > = createTooltip<'UserRelationshipTooltipModal'>(
   UserRelationshipTooltipButton,
   TooltipMenu,
