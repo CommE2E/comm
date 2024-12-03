@@ -7,42 +7,6 @@ pub const SECRETS_SETUP_FILE: &str = "server_setup.txt";
 
 // DynamoDB
 
-// User table information, supporting opaque_ke 2.0 and X3DH information
-
-// Users can sign in either through username+password or Eth wallet.
-//
-// This structure should be aligned with the messages defined in
-// shared/protos/identity_unauthenticated.proto
-//
-// Structure for a user should be:
-// {
-//   userID: String,
-//   opaqueRegistrationData: Option<String>,
-//   username: Option<String>,
-//   walletAddress: Option<String>,
-//   devices: HashMap<String, Device>
-// }
-//
-// A device is defined as:
-// {
-//     deviceType: String, # client or keyserver
-//     keyPayload: String,
-//     keyPayloadSignature: String,
-//     identityPreKey: String,
-//     identityPreKeySignature: String,
-//     identityOneTimeKeys: Vec<String>,
-//     notifPreKey: String,
-//     notifPreKeySignature: String,
-//     notifOneTimeKeys: Vec<String>,
-//     socialProof: Option<String>
-//   }
-// }
-//
-// Additional context:
-// "devices" uses the signing public identity key of the device as a key for the devices map
-// "keyPayload" is a JSON encoded string containing identity and notif keys (both signature and verification)
-// if "deviceType" == "keyserver", then the device will not have any notif key information
-
 pub const USERS_TABLE: &str = "identity-users";
 pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
 pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "opaqueRegistrationData";
