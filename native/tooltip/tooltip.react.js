@@ -10,7 +10,11 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 import {
   TooltipContextProvider,
@@ -34,12 +38,12 @@ import type { LayoutEvent } from '../types/react-native.js';
 import {
   AnimatedView,
   type ViewStyle,
-  type AnimatedViewStyle,
   type WritableAnimatedStyleObj,
   type ReanimatedTransform,
+  type AnimatedStyleObj,
 } from '../types/styles.js';
 
-const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
+const { Node, Extrapolate } = Animated;
 
 const unboundStyles = {
   backdrop: {
@@ -234,79 +238,23 @@ function createTooltip<
     }, [margin, tooltipHeight, params, tooltipLocation]);
 
     invariant(overlayContext, 'Tooltip should have OverlayContext');
-    const { position } = overlayContext;
+    const { position, positionV2 } = overlayContext;
     invariant(position, 'position should be defined in tooltip');
+    invariant(positionV2, 'position should be defined in tooltip');
 
-    const backdropOpacity = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [0, 0.7],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
-    const tooltipContainerOpacity = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 0.1],
-          outputRange: [0, 1],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
+    const tooltipHorizontalOffset = useSharedValue(0);
 
-    const tooltipVerticalAbove = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [margin + tooltipHeight / 2, 0],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [margin, tooltipHeight, position],
-    );
-    const tooltipVerticalBelow = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [-margin - tooltipHeight / 2, 0],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [margin, tooltipHeight, position],
-    );
-
-    const invertedPosition = React.useMemo(
-      () => add(1, multiply(-1, position)),
-      [position],
-    );
-    const tooltipHorizontalOffset = React.useRef(new Value(0));
-
-    const tooltipHorizontal = React.useMemo(
-      () => multiply(invertedPosition, tooltipHorizontalOffset.current),
-      [invertedPosition],
-    );
-
-    const tooltipScale = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 0.2, 0.8, 1],
-          outputRange: [0, 0, 1, 1],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
-
-    const fixedTooltipVertical = React.useMemo(
-      () => multiply(invertedPosition, dimensions.height),
-      [dimensions.height, invertedPosition],
-    );
-
-    const opacityStyle: AnimatedViewStyle = React.useMemo(() => {
+    const opacityStyle: AnimatedStyleObj = useAnimatedStyle(() => {
+      const backdropOpacity = interpolate(
+        positionV2.value,
+        [0, 1],
+        [0, 0.7],
+        Extrapolate.CLAMP,
+      );
       return {
-        ...styles.backdrop,
         opacity: backdropOpacity,
       };
-    }, [backdropOpacity, styles.backdrop]);
+    });
 
     const contentContainerStyle: ViewStyle = React.useMemo(() => {
       const { verticalBounds } = params;
@@ -332,18 +280,28 @@ function createTooltip<
       };
     }, [params]);
 
-    const tooltipContainerStyle: AnimatedViewStyle = React.useMemo(() => {
+    const tooltipContainerStyle: AnimatedStyleObj = useAnimatedStyle(() => {
       const { initialCoordinates, verticalBounds, chatInputBarHeight } = params;
       const { x, y, width, height } = initialCoordinates;
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
       style.alignItems = 'center';
+      const tooltipContainerOpacity = interpolate(
+        positionV2.value,
+        [0, 0.1],
+        [0, 1],
+        Extrapolate.CLAMP,
+      );
       style.opacity = tooltipContainerOpacity;
+
+      const invertedPosition = 1 - positionV2.value;
 
       const transform: Array<ReanimatedTransform> = [];
 
       if (computedTooltipLocation !== 'fixed') {
+        const tooltipHorizontal =
+          invertedPosition * tooltipHorizontalOffset.value;
         transform.push({ translateX: tooltipHorizontal });
       }
 
@@ -371,19 +329,38 @@ function createTooltip<
           verticalBounds.y -
           inputBarHeight +
           padding;
+        const fixedTooltipVertical = invertedPosition * dimensions.height;
         transform.push({ translateY: fixedTooltipVertical });
       } else if (computedTooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
+        const tooltipVerticalAbove = interpolate(
+          positionV2.value,
+          [0, 1],
+          [margin + tooltipHeight / 2, 0],
+          Extrapolate.CLAMP,
+        );
         transform.push({ translateY: tooltipVerticalAbove });
       } else {
         style.top =
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
           margin;
+        const tooltipVerticalBelow = interpolate(
+          positionV2.value,
+          [0, 1],
+          [-margin - tooltipHeight / 2, 0],
+          Extrapolate.CLAMP,
+        );
         transform.push({ translateY: tooltipVerticalBelow });
       }
 
       if (computedTooltipLocation !== 'fixed') {
+        const tooltipScale = interpolate(
+          positionV2.value,
+          [0, 0.2, 0.8, 1],
+          [0, 0, 1, 1],
+          Extrapolate.CLAMP,
+        );
         transform.push({ scale: tooltipScale });
       }
 
@@ -393,15 +370,10 @@ function createTooltip<
     }, [
       dimensions.height,
       dimensions.width,
-      fixedTooltipVertical,
-      margin,
-      computedTooltipLocation,
       params,
-      tooltipContainerOpacity,
-      tooltipHorizontal,
-      tooltipScale,
-      tooltipVerticalAbove,
-      tooltipVerticalBelow,
+      computedTooltipLocation,
+      margin,
+      tooltipHeight,
     ]);
 
     const onPressMore = React.useCallback(() => {
@@ -425,17 +397,18 @@ function createTooltip<
         const actualWidth = event.nativeEvent.layout.width;
         if (extraLeftSpace < extraRightSpace) {
           const minWidth = width + 2 * extraLeftSpace;
-          tooltipHorizontalOffset.current.setValue(
-            (minWidth - actualWidth) / 2,
-          );
+          tooltipHorizontalOffset.value = (minWidth - actualWidth) / 2;
         } else {
           const minWidth = width + 2 * extraRightSpace;
-          tooltipHorizontalOffset.current.setValue(
-            (actualWidth - minWidth) / 2,
-          );
+          tooltipHorizontalOffset.value = (actualWidth - minWidth) / 2;
         }
       },
-      [dimensions.width, params.initialCoordinates],
+      [dimensions.width, params.initialCoordinates, tooltipHorizontalOffset],
+    );
+
+    const backdropStyle = React.useMemo(
+      () => [opacityStyle, styles.backdrop],
+      [opacityStyle, styles.backdrop],
     );
 
     const tooltipItemContainerStyle: Array<ViewStyle> = [styles.itemContainer];
@@ -524,7 +497,7 @@ function createTooltip<
     return (
       <TouchableWithoutFeedback onPress={closeTooltip}>
         <View style={styles.container}>
-          <AnimatedView style={opacityStyle} />
+          <AnimatedView style={backdropStyle} />
           <View style={contentContainerStyle}>
             <View style={buttonStyle}>
               <ButtonComponent {...buttonProps} />
