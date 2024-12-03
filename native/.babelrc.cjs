@@ -9,7 +9,12 @@ module.exports = {
     'babel-plugin-transform-bigint',
     '@babel/plugin-transform-named-capturing-groups-regex',
     // react-native-reanimated must be last
-    'react-native-reanimated/plugin',
+    [
+      'react-native-reanimated/plugin',
+      {
+        extraPresets: ['@babel/preset-flow'],
+      },
+    ],
   ],
   env: {
     production: {
