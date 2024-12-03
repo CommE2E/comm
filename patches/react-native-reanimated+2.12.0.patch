@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-reanimated/android/build.gradle b/node_modules/react-native-reanimated/android/build.gradle
-index a38b2a5..32cb655 100644
+index a38b2a5..8605d09 100644
 --- a/node_modules/react-native-reanimated/android/build.gradle
 +++ b/node_modules/react-native-reanimated/android/build.gradle
 @@ -658,7 +658,7 @@ if (isNewArchitectureEnabled()) {
@@ -11,3 +11,23 @@ index a38b2a5..32cb655 100644
      if (REACT_NATIVE_MINOR_VERSION < 69) {
          srcUrl = "https://github.com/react-native-community/boost-for-react-native/releases/download/v${transformedVersion}-0/boost_${BOOST_VERSION}.tar.gz"
      }
+diff --git a/node_modules/react-native-reanimated/plugin.js b/node_modules/react-native-reanimated/plugin.js
+index b9ba1c3..0aa9ab7 100644
+--- a/node_modules/react-native-reanimated/plugin.js
++++ b/node_modules/react-native-reanimated/plugin.js
+@@ -360,13 +360,14 @@ function makeWorklet(t, fun, state) {
+   
+   const transformed = transformSync(code, {
+     filename: state.file.opts.filename,
+-    presets: ['@babel/preset-typescript'],
++    presets: ['@babel/preset-typescript', ...(state.opts.extraPresets ?? [])],
+     plugins: [
+       '@babel/plugin-transform-shorthand-properties',
+       '@babel/plugin-transform-arrow-functions',
+       '@babel/plugin-proposal-optional-chaining',
+       '@babel/plugin-proposal-nullish-coalescing-operator',
+       ['@babel/plugin-transform-template-literals', { loose: true }],
++      ...(state.opts.extraPlugins ?? []),
+     ],
+     ast: true,
+     babelrc: false,
