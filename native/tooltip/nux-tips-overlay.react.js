@@ -6,9 +6,7 @@ import { View, TouchableWithoutFeedback, Platform, Text } from 'react-native';
 import Animated, {
   FadeOut,
   withTiming,
-  // eslint-disable-next-line no-unused-vars
   type EntryAnimationsValues,
-  // eslint-disable-next-line no-unused-vars
   type ExitAnimationsValues,
 } from 'react-native-reanimated';
 
@@ -290,31 +288,28 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       }
     }, [coordinates, dimensions.width]);
 
-    // prettier-ignore
     const tipContainerEnteringAnimation = React.useCallback(
-      (values/*: EntryAnimationsValues*/) => {
+      (values: EntryAnimationsValues) => {
         'worklet';
 
         if (!coordinates) {
           return {
             animations: {},
-            initialValues:{},
+            initialValues: {},
           };
         }
 
-        if(tooltipLocation === 'absolute'){
+        if (tooltipLocation === 'absolute') {
           return {
             animations: {
               opacity: withTiming(1, { duration: animationDuration }),
-              transform: [     
+              transform: [
                 { scale: withTiming(1, { duration: animationDuration }) },
               ],
             },
             initialValues: {
               opacity: 0,
-              transform: [
-                { scale: 0 },
-              ],
+              transform: [{ scale: 0 }],
             },
           };
         }
@@ -351,15 +346,14 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       [coordinates, tooltipLocation],
     );
 
-    // prettier-ignore
     const tipContainerExitingAnimation = React.useCallback(
-      (values/*: ExitAnimationsValues*/) => {
+      (values: ExitAnimationsValues) => {
         'worklet';
 
         if (!coordinates) {
           return {
             animations: {},
-            initialValues:{},
+            initialValues: {},
           };
         }
 
