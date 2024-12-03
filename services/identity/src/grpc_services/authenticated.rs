@@ -374,7 +374,21 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
 
-    self.db_client.remove_device(&user_id, &device_id).await?;
+    let is_new_flow_user = self
+      .db_client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_signed_device_list_flow();
+
+    // don't update device list for new flow users
+    if is_new_flow_user {
+      self
+        .db_client
+        .remove_device_data(&user_id, &device_id)
+        .await?;
+    } else {
+      self.db_client.remove_device(&user_id, &device_id).await?;
+    }
 
     self
       .db_client
@@ -421,6 +435,13 @@ impl IdentityClientService for AuthenticatedService {
 
     let blob_client = self.authenticated_blob_client().await?;
     spawn_delete_devices_services_data_task(&blob_client, [device_id].into());
+
+    // for new flow users we should inform it that should use new flow
+    if is_new_flow_user {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_NEW_FLOW,
+      ));
+    }
 
     let response = Empty {};
     Ok(Response::new(response))
