@@ -241,6 +241,7 @@ pub mod tonic_status_messages {
   pub const RETRY_FROM_NATIVE: &str = "retry_from_native";
   pub const USER_IS_NOT_STAFF: &str = "user_is_not_staff";
   pub const USE_NEW_FLOW: &str = "use_new_flow";
+  pub const USE_V1_FLOW: &str = "use_v1_flow";
 }
 
 // Tunnelbroker

@@ -694,6 +694,17 @@ impl IdentityClientService for ClientService {
       redact_sensitive_data(&message.user_id)
     );
 
+    if self
+      .client
+      .get_user_login_flow(&message.user_id)
+      .await?
+      .is_v1_flows()
+    {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_V1_FLOW,
+      ));
+    }
+
     let user_identifier = self
       .client
       .get_user_identity(&message.user_id)
@@ -778,6 +789,17 @@ impl IdentityClientService for ClientService {
 
     let user_id = message.user_id;
     let device_id = flattened_device_key_upload.device_id_key.clone();
+
+    if self
+      .client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_v1_flows()
+    {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_V1_FLOW,
+      ));
+    }
 
     let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
