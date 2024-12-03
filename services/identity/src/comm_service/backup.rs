@@ -44,3 +44,41 @@ pub async fn delete_backup_user_data(
   }
   Ok(())
 }
+
+pub async fn user_has_backup(
+  user_identifier: &str,
+) -> Result<bool, crate::error::Error> {
+  let path = format!("/backups/latest/{user_identifier}/backup_info");
+  let url = CONFIG
+    .backup_service_url
+    .join(&path)
+    .expect("failed to construct backup service URL");
+
+  let client = reqwest::Client::builder().build()?;
+  let response = client.get(url).send().await?;
+
+  use http::StatusCode;
+  match response.status() {
+    StatusCode::OK => Ok(true), // Backup service returned backup info
+    StatusCode::NOT_FOUND => Ok(false), // Backup service returned BackupError::NoBackup
+    StatusCode::BAD_REQUEST => {
+      // Identity has no user with given UserIdentifier
+      Err(crate::error::Error::MissingItem)
+    }
+    response_status => {
+      let response_body = response
+        .text()
+        .await
+        .unwrap_or("[failed to get response text]".to_string());
+      tracing::error!(
+        errorType = error_types::HTTP_LOG,
+        "Backup service failed to get latest backup info: {} - {}",
+        response_status,
+        response_body,
+      );
+      Err(
+        tonic::Status::aborted(tonic_status_messages::UNEXPECTED_ERROR).into(),
+      )
+    }
+  }
+}
