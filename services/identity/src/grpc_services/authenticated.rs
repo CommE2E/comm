@@ -434,6 +434,17 @@ impl IdentityClientService for AuthenticatedService {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
+    if self
+      .db_client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_v1_flow()
+    {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_V1_FLOW,
+      ));
+    }
+
     debug!(
       "Primary device logout request for user_id={}, device_id={}",
       user_id, device_id
@@ -501,6 +512,17 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
+
+    if self
+      .db_client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_v1_flow()
+    {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_V1_FLOW,
+      ));
+    }
 
     debug!(
       "Secondary device logout request for user_id={}, device_id={}",
