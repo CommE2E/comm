@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { type SharedValue } from 'react-native-reanimated';
 
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import {
@@ -32,10 +32,11 @@ type Props = {
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
   +route: TooltipRoute<'TextMessageTooltipModal'>,
   +progress: Node,
+  +progressV2: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
 function TextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progress, isOpeningSidebar } = props;
+  const { navigation, route, progress, progressV2, isOpeningSidebar } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -56,6 +57,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
     progress,
+    progressV2,
     targetInputBarHeight: sidebarInputBarHeight,
   });
 

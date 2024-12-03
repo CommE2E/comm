@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { type SharedValue } from 'react-native-reanimated';
 
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import {
@@ -28,10 +28,11 @@ type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
   +progress: Node,
+  +progressV2: SharedValue<number>,
   ...
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progress } = props;
+  const { navigation, route, progress, progressV2 } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -48,6 +49,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
     progress,
+    progressV2,
     targetInputBarHeight: sidebarInputBarHeight,
   });
 
