@@ -333,6 +333,17 @@ impl IdentityClientService for ClientService {
       ));
     };
 
+    if self
+      .client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_new_flows()
+    {
+      return Err(tonic::Status::failed_precondition(
+        tonic_status_messages::USE_NEW_FLOW,
+      ));
+    }
+
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
     self
@@ -484,6 +495,17 @@ impl IdentityClientService for ClientService {
       .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
       .await?
     {
+      if self
+        .client
+        .get_user_login_flow(&user_id)
+        .await?
+        .is_new_flows()
+      {
+        return Err(tonic::Status::failed_precondition(
+          tonic_status_messages::USE_NEW_FLOW,
+        ));
+      }
+
       self
         .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
         .await?;
@@ -509,6 +531,17 @@ impl IdentityClientService for ClientService {
           tonic_status_messages::USER_NOT_FOUND,
         ));
       };
+
+      if self
+        .client
+        .get_user_login_flow(&user_id)
+        .await?
+        .is_new_flows()
+      {
+        return Err(tonic::Status::failed_precondition(
+          tonic_status_messages::USE_NEW_FLOW,
+        ));
+      }
 
       // It's possible that the user attempting login is already registered
       // on Ashoat's keyserver. If they are, we should try to register them if
