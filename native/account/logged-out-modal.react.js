@@ -67,12 +67,11 @@ const timingConfig = {
   easing: Easing.out(Easing.ease),
 };
 
-// prettier-ignore
 function getPanelPaddingTop(
-  modeValue /*: string */,
-  keyboardHeightValue /*: number */,
-  contentHeightValue /*: number */,
-) /*: number */ {
+  modeValue: string,
+  keyboardHeightValue: number,
+  contentHeightValue: number,
+): number {
   'worklet';
   const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
   let containerSize = headerHeight;
@@ -89,11 +88,10 @@ function getPanelPaddingTop(
   return withTiming(targetPanelPaddingTop, timingConfig);
 }
 
-// prettier-ignore
 function getPanelOpacity(
-  modeValue /*: string */,
-  finishResettingToPrompt/*: () => void */,
-) /*: number */ {
+  modeValue: string,
+  finishResettingToPrompt: () => void,
+): number {
   'worklet';
   const targetPanelOpacity =
     modeValue === 'loading' || modeValue === 'prompt' ? 0 : 1;
