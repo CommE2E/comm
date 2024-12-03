@@ -14,6 +14,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 import {
@@ -136,6 +137,7 @@ export type TooltipProps<RouteName> = {
 type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
+  +progressV2: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
 
@@ -468,6 +470,7 @@ function createTooltip<
     const buttonProps: ButtonProps<TooltipPropsType> = {
       ...navAndRouteForFlow,
       progress: position,
+      progressV2: positionV2,
       isOpeningSidebar,
     };
 
