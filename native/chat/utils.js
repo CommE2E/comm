@@ -2,7 +2,11 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import Animated, { type SharedValue } from 'react-native-reanimated';
+import Animated, {
+  type SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
@@ -187,6 +191,7 @@ function useAnimatedMessageTooltipButton({
   initialCoordinates,
   messageListVerticalBounds,
   progress,
+  progressV2,
   targetInputBarHeight,
 }: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
@@ -246,16 +251,6 @@ function useAnimatedMessageTooltipButton({
     return () => setCurrentTransitionSidebarSourceID(null);
   }, [setCurrentTransitionSidebarSourceID]);
 
-  const bottom = React.useMemo(
-    () =>
-      interpolateNode(progress, {
-        inputRange: [0.3, 1],
-        outputRange: [targetPosition, 0],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-    [progress, targetPosition],
-  );
-
   const [isThreadColorDarkOverride, setThreadColorDarkOverride] =
     React.useState<?boolean>(null);
   const setThreadColorBrightness = React.useCallback(() => {
@@ -292,7 +287,13 @@ function useAnimatedMessageTooltipButton({
     targetColor,
   ]);
 
-  const messageContainerStyle = React.useMemo(() => {
+  const messageContainerStyle = useAnimatedStyle(() => {
+    const bottom = interpolate(
+      progressV2.value,
+      [0.3, 1],
+      [targetPosition, 0],
+      Extrapolate.CLAMP,
+    );
     return {
       bottom: currentTransitionSidebarSourceID ? bottom : 0,
       opacity:
@@ -301,7 +302,7 @@ function useAnimatedMessageTooltipButton({
           ? 0
           : 1,
     };
-  }, [bottom, currentTransitionSidebarSourceID, sidebarAnimationType]);
+  }, [currentTransitionSidebarSourceID, sidebarAnimationType]);
 
   return {
     style: messageContainerStyle,
