@@ -19,7 +19,6 @@ import Animated, {
   Extrapolate,
   type SharedValue,
   // ESLint doesn't understand Flow comment syntax
-  // eslint-disable-next-line no-unused-vars
   type WithSpringConfig,
 } from 'react-native-reanimated';
 import tinycolor from 'tinycolor2';
@@ -35,12 +34,11 @@ const secondaryThreshold = 120;
 const panGestureHandlerActiveOffsetX = [-4, 4];
 const panGestureHandlerFailOffsetY = [-5, 5];
 
-// prettier-ignore
 function dividePastDistance(
-  value /*: number */,
-  distance /*: number */,
-  factor /*: number */,
-) /*: number */ {
+  value: number,
+  distance: number,
+  factor: number,
+): number {
   'worklet';
   const absValue = Math.abs(value);
   if (absValue < distance) {
@@ -50,8 +48,7 @@ function dividePastDistance(
   return absFactor * (distance + (absValue - distance) / factor);
 }
 
-// prettier-ignore
-function makeSpringConfig(velocity /*: number */) /*: WithSpringConfig */ {
+function makeSpringConfig(velocity: number): WithSpringConfig {
   'worklet';
   return {
     stiffness: 257.1370588235294,
@@ -64,31 +61,28 @@ function makeSpringConfig(velocity /*: number */) /*: WithSpringConfig */ {
   };
 }
 
-// prettier-ignore
-function interpolateOpacityForViewerPrimarySnake(
-  translateX /*: number */,
-) /*: number */ {
+function interpolateOpacityForViewerPrimarySnake(translateX: number): number {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
-// prettier-ignore
+
 function interpolateOpacityForNonViewerPrimarySnake(
-  translateX /*: number */,
-) /*: number */ {
+  translateX: number,
+): number {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
-// prettier-ignore
+
 function interpolateTranslateXForViewerSecondarySnake(
-  translateX /*: number */,
-) /*: number */ {
+  translateX: number,
+): number {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
-// prettier-ignore
+
 function interpolateTranslateXForNonViewerSecondarySnake(
-  translateX /*: number */,
-) /*: number */ {
+  translateX: number,
+): number {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
@@ -218,19 +212,12 @@ function SwipeableMessage(props: Props): React.Node {
   const translateX = useSharedValue(0);
   const swipeEvent = useAnimatedGestureHandler<PanGestureEvent>(
     {
-      // prettier-ignore
-      onStart: (
-        event /*: PanGestureEvent */,
-        ctx /*: { [string]: mixed } */,
-      ) => {
+      onStart: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
         ctx.translationAtStart = translateX.value;
         cancelAnimation(translateX);
       },
-      // prettier-ignore
-      onActive: (
-        event /*: PanGestureEvent */,
-        ctx /*: { [string]: mixed } */,
-      ) => {
+
+      onActive: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
         const { translationAtStart } = ctx;
         if (typeof translationAtStart !== 'number') {
           throw new Error('translationAtStart should be number');
@@ -258,8 +245,8 @@ function SwipeableMessage(props: Props): React.Node {
         }
         ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
       },
-      // prettier-ignore
-      onEnd: (event /*: PanGestureEvent */) => {
+
+      onEnd: (event: PanGestureEvent) => {
         const absValue = Math.abs(translateX.value);
         if (absValue >= secondaryThreshold && secondaryActionExists) {
           runOnJS(secondaryAction)();
