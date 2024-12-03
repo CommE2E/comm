@@ -1951,7 +1951,71 @@ mod migration {
   use std::{cmp::Ordering, collections::HashSet};
   use tracing::{debug, error, info};
 
+  use crate::constants::tonic_status_messages;
+
   use super::*;
+
+  pub enum UserLoginFlow {
+    SignedDeviceListFlow,
+    V1Flow,
+  }
+
+  impl UserLoginFlow {
+    pub fn is_signed_device_list_flow(&self) -> bool {
+      matches!(self, Self::SignedDeviceListFlow)
+    }
+
+    pub fn is_v1_flow(&self) -> bool {
+      matches!(self, Self::V1Flow)
+    }
+  }
+
+  impl DatabaseClient {
+    pub async fn get_user_login_flow(
+      &self,
+      user_id: &str,
+    ) -> Result<UserLoginFlow, Error> {
+      let history = self.get_device_list_history(user_id, None).await?;
+      let Some(last_update) = history.last() else {
+        error!(
+          user_id = redact_sensitive_data(user_id),
+          errorType = error_types::DEVICE_LIST_DB_LOG,
+          "User has missing or empty device list!"
+        );
+        return Err(
+          tonic::Status::failed_precondition(
+            tonic_status_messages::NO_DEVICE_LIST,
+          )
+          .into(),
+        );
+      };
+
+      if last_update.current_primary_signature.is_none() {
+        return Ok(UserLoginFlow::V1Flow);
+      }
+
+      if history.len() == 1 {
+        let user_identifier = self
+          .get_user_identity(user_id)
+          .await?
+          .ok_or_else(|| {
+            tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+          })?
+          .identifier;
+        return match crate::comm_service::backup::user_has_backup(
+          user_identifier.username(),
+        )
+        .await
+        {
+          Ok(true) => Ok(UserLoginFlow::SignedDeviceListFlow),
+          Ok(false) => Ok(UserLoginFlow::V1Flow),
+          Err(err) => Err(err),
+        };
+      }
+
+      Ok(UserLoginFlow::SignedDeviceListFlow)
+    }
+  }
 
   #[tracing::instrument(skip_all)]
   pub(super) fn reorder_device_list(
