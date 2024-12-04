@@ -576,9 +576,13 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
 
     const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
-    const callLogOut = useLogOut({
-      handleUseNewFlowResponse: showVersionUnsupportedAlert,
-    });
+    const logOutOptions = React.useMemo(
+      () => ({
+        handleUseNewFlowResponse: showVersionUnsupportedAlert,
+      }),
+      [showVersionUnsupportedAlert],
+    );
+    const callLogOut = useLogOut(logOutOptions);
 
     const userID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
