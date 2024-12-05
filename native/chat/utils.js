@@ -5,7 +5,10 @@ import * as React from 'react';
 import Animated, {
   type SharedValue,
   interpolate,
+  runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
+  interpolateColor,
 } from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
@@ -43,17 +46,7 @@ import type {
 } from '../types/layout-types.js';
 import type { AnimatedViewStyle } from '../types/styles.js';
 
-const {
-  Node,
-  Extrapolate,
-  interpolateNode,
-  interpolateColors,
-  block,
-  call,
-  eq,
-  cond,
-  sub,
-} = Animated;
+const { Node, Extrapolate, interpolateNode, sub } = Animated;
 
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,
@@ -191,12 +184,11 @@ function useAnimatedMessageTooltipButton({
   sourceMessage,
   initialCoordinates,
   messageListVerticalBounds,
-  progress,
   progressV2,
   targetInputBarHeight,
 }: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
-  +threadColorOverride: ?Node,
+  +threadColorOverride: SharedValue<string | null>,
   +isThreadColorDarkOverride: ?boolean,
 } {
   const chatContext = React.useContext(ChatContext);
@@ -262,26 +254,23 @@ function useAnimatedMessageTooltipButton({
     }
   }, [sourceMessage.threadInfo.color, targetColor]);
 
-  const threadColorOverride = React.useMemo(() => {
+  const threadColorOverride = useDerivedValue(() => {
     if (
       sourceMessage.messageShapeType !== 'text' ||
       !currentTransitionSidebarSourceID
     ) {
       return null;
     }
-    return block([
-      cond(eq(progress, 1), call([], setThreadColorBrightness)),
-      interpolateColors(progress, {
-        inputRange: [0, 1],
-        outputColorRange: [
-          `#${targetColor}`,
-          `#${sourceMessage.threadInfo.color}`,
-        ],
-      }),
-    ]);
+    if (progressV2.value === 1) {
+      runOnJS(setThreadColorBrightness)();
+    }
+    return interpolateColor(
+      progressV2.value,
+      [0, 1],
+      [`#${targetColor}`, `#${sourceMessage.threadInfo.color}`],
+    );
   }, [
     currentTransitionSidebarSourceID,
-    progress,
     setThreadColorBrightness,
     sourceMessage.messageShapeType,
     sourceMessage.threadInfo.color,
