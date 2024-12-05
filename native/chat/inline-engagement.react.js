@@ -6,7 +6,9 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import Animated, {
   Extrapolate,
-  interpolateNode,
+  type SharedValue,
+  useAnimatedStyle,
+  interpolate,
 } from 'react-native-reanimated';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
@@ -463,7 +465,7 @@ const unboundStyles = {
 type TooltipInlineEngagementProps = {
   +item: ChatComposedMessageInfoItemWithHeight,
   +isOpeningSidebar: boolean,
-  +progress: Animated.Node,
+  +progressV2: SharedValue<number>,
   +windowWidth: number,
   +positioning: 'left' | 'right' | 'center',
   +initialCoordinates: {
@@ -480,7 +482,7 @@ function TooltipInlineEngagement(
   const {
     item,
     isOpeningSidebar,
-    progress,
+    progressV2,
     windowWidth,
     initialCoordinates,
     positioning,
@@ -504,14 +506,10 @@ function TooltipInlineEngagement(
       `${positioning} is not a valid positioning value for TooltipInlineEngagement`,
     );
   }, [positioning]);
-  const inlineEngagementContainer = React.useMemo(() => {
+  const inlineEngagementContainer = useAnimatedStyle(() => {
     const opacity = isOpeningSidebar
       ? 0
-      : interpolateNode(progress, {
-          inputRange: [0, 1],
-          outputRange: [1, 0],
-          extrapolate: Extrapolate.CLAMP,
-        });
+      : interpolate(progressV2.value, [0, 1], [1, 0], Extrapolate.CLAMP);
     return {
       position: 'absolute',
       width: windowWidth,
@@ -523,7 +521,6 @@ function TooltipInlineEngagement(
     initialCoordinates.height,
     initialCoordinates.x,
     isOpeningSidebar,
-    progress,
     windowWidth,
   ]);
   return (
