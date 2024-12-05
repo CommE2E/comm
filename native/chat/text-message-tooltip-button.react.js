@@ -1,7 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import Animated, { type SharedValue } from 'react-native-reanimated';
+import Animated, {
+  type SharedValue,
+  useAnimatedStyle,
+  interpolate,
+} from 'react-native-reanimated';
 
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import {
@@ -26,7 +30,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
-const { Node, interpolateNode, Extrapolate } = Animated;
+const { Node, Extrapolate } = Animated;
 
 type Props = {
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
@@ -60,13 +64,14 @@ function TextMessageTooltipButton(props: Props): React.Node {
     targetInputBarHeight: sidebarInputBarHeight,
   });
 
-  const headerStyle = React.useMemo(() => {
+  const headerStyle = useAnimatedStyle(() => {
     const bottom = initialCoordinates.height;
-    const opacity = interpolateNode(progress, {
-      inputRange: [0, 0.05],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
+    const opacity = interpolate(
+      progressV2.value,
+      [0, 0.05],
+      [0, 1],
+      Extrapolate.CLAMP,
+    );
     return {
       opacity,
       position: 'absolute',
@@ -74,7 +79,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
       width: windowWidth,
       bottom,
     };
-  }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
+  }, [initialCoordinates.height, initialCoordinates.x, windowWidth]);
 
   const messagePressResponderContext = React.useMemo(
     () => ({
