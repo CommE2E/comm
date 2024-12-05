@@ -81,12 +81,12 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
         item={item}
         positioning={item.messageInfo.creator.isViewer ? 'right' : 'left'}
         isOpeningSidebar={isOpeningSidebar}
-        progress={progress}
+        progressV2={progressV2}
         windowWidth={windowWidth}
         initialCoordinates={initialCoordinates}
       />
     );
-  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
+  }, [initialCoordinates, isOpeningSidebar, item, progressV2, windowWidth]);
 
   const innerMultimediaMessage = React.useMemo(
     () => (
