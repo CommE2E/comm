@@ -9,6 +9,8 @@ import RegistrationButtonContainer from './registration/registration-button-cont
 import RegistrationContainer from './registration/registration-container.react.js';
 import RegistrationContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react';
+import { useSIWEPanelState } from './siwe-hooks.js';
+import SIWEPanel from './siwe-panel.react.js';
 import type { NavigationRoute } from '../navigation/route-names';
 import { RestorePasswordAccountScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -18,6 +20,10 @@ type Props = {
   +route: NavigationRoute<'RestorePromptScreen'>,
 };
 
+const siweSignatureRequestData = {
+  messageType: 'msg_auth',
+};
+
 function RestorePromptScreen(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
@@ -25,43 +31,67 @@ function RestorePromptScreen(props: Props): React.Node {
     props.navigation.navigate(RestorePasswordAccountScreenRouteName);
   }, [props.navigation]);
 
+  const {
+    panelState,
+    openPanel,
+    onPanelClosed,
+    onPanelClosing,
+    siwePanelSetLoading,
+  } = useSIWEPanelState();
+  let siwePanel;
+  if (panelState !== 'closed') {
+    siwePanel = (
+      <SIWEPanel
+        onClosing={onPanelClosing}
+        onClosed={onPanelClosed}
+        closing={panelState === 'closing'}
+        onSuccessfulWalletSignature={() => {}}
+        siweSignatureRequestData={siweSignatureRequestData}
+        setLoading={siwePanelSetLoading}
+      />
+    );
+  }
+
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-        <Text style={styles.header}>Restore account</Text>
-        <Text style={styles.section}>
-          If you’ve lost access to your primary device, you can try recovering
-          your Comm account.
-        </Text>
-        <Text style={styles.section}>
-          To proceed, select the same login method that you used during
-          registration.
-        </Text>
-        <Text style={styles.section}>
-          Note that after completing the recovery flow, you will be logged out
-          from all of your other devices.
-        </Text>
-        <View style={styles.iconContainer}>
-          <MaterialIcon name="backup-restore" size={200} color="white" />
-        </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
-        <View style={styles.buttonContainer}>
-          <PromptButton
-            text="Restore with Ethereum"
-            onPress={() => {}}
-            variant="siwe"
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <PromptButton
-            text="Restore with password"
-            onPress={openPasswordRestoreScreen}
-            variant="enabled"
-          />
-        </View>
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+    <>
+      <RegistrationContainer>
+        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+          <Text style={styles.header}>Restore account</Text>
+          <Text style={styles.section}>
+            If you’ve lost access to your primary device, you can try recovering
+            your Comm account.
+          </Text>
+          <Text style={styles.section}>
+            To proceed, select the same login method that you used during
+            registration.
+          </Text>
+          <Text style={styles.section}>
+            Note that after completing the recovery flow, you will be logged out
+            from all of your other devices.
+          </Text>
+          <View style={styles.iconContainer}>
+            <MaterialIcon name="backup-restore" size={200} color="white" />
+          </View>
+        </RegistrationContentContainer>
+        <RegistrationButtonContainer>
+          <View style={styles.buttonContainer}>
+            <PromptButton
+              text="Restore with Ethereum"
+              onPress={openPanel}
+              variant={panelState === 'opening' ? 'loading' : 'siwe'}
+            />
+          </View>
+          <View style={styles.buttonContainer}>
+            <PromptButton
+              text="Restore with password"
+              onPress={openPasswordRestoreScreen}
+              variant="enabled"
+            />
+          </View>
+        </RegistrationButtonContainer>
+      </RegistrationContainer>
+      {siwePanel}
+    </>
   );
 }
 
@@ -88,6 +118,22 @@ const unboundStyles = {
   },
   scrollViewContentContainer: {
     flexGrow: 1,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backdrop: {
+    backgroundColor: 'black',
+    opacity: 0.6,
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
   },
 };
 

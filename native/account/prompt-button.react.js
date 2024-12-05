@@ -48,7 +48,7 @@ const unboundStyles = {
     backgroundColor: 'siweButton',
     flexDirection: 'row',
     justifyContent: 'center',
-    padding: 12,
+    padding: 10,
   },
   siweIcon: {
     paddingRight: 10,
