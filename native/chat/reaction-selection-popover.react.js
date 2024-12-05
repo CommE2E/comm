@@ -3,7 +3,11 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
-import Animated from 'react-native-reanimated';
+import {
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated';
 
 import {
   useReactionSelectionPopoverPosition,
@@ -31,8 +35,6 @@ type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +sendReaction: (reaction: string) => mixed,
 };
 
-const { Extrapolate, interpolateNode, add, multiply } = Animated;
-
 function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   props: Props<RouteName>,
 ): React.Node {
@@ -51,8 +53,11 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     overlayContext,
     'ReactionSelectionPopover should have OverlayContext',
   );
-  const { position } = overlayContext;
-  invariant(position, 'position should be defined in ReactionSelectionPopover');
+  const { positionV2 } = overlayContext;
+  invariant(
+    positionV2,
+    'position should be defined in ReactionSelectionPopover',
+  );
 
   const dimensions = useSelector(state => state.dimensions);
 
@@ -73,54 +78,52 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   }, [initialCoordinates, dimensions]);
 
   const calculatedMargin = getCalculatedMargin(margin);
-  const animationStyle = React.useMemo(() => {
+  const animationStyle = useAnimatedStyle(() => {
     const style: WritableAnimatedStyleObj = {};
-    style.opacity = interpolateNode(position, {
-      inputRange: [0, 0.1],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
+    style.opacity = interpolate(
+      positionV2.value,
+      [0, 0.1],
+      [0, 1],
+      Extrapolate.CLAMP,
+    );
     const transform: Array<ReanimatedTransform> = [
       {
-        scale: interpolateNode(position, {
-          inputRange: [0.2, 0.8],
-          outputRange: [0, 1],
-          extrapolate: Extrapolate.CLAMP,
-        }),
+        scale: interpolate(
+          positionV2.value,
+          [0.2, 0.8],
+          [0, 1],
+          Extrapolate.CLAMP,
+        ),
       },
       {
-        translateX: multiply(
-          add(1, multiply(-1, position)),
-          popoverHorizontalOffset,
-        ),
+        translateX: (1 - positionV2.value) * popoverHorizontalOffset,
       },
     ];
     if (popoverLocation === 'above') {
       transform.push({
-        translateY: interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [
-            calculatedMargin + reactionSelectionPopoverDimensions.height / 2,
-            0,
-          ],
-          extrapolate: Extrapolate.CLAMP,
-        }),
+        translateY: interpolate(
+          positionV2.value,
+          [0, 1],
+          [calculatedMargin + reactionSelectionPopoverDimensions.height / 2, 0],
+          Extrapolate.CLAMP,
+        ),
       });
     } else {
       transform.push({
-        translateY: interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [
+        translateY: interpolate(
+          positionV2.value,
+          [0, 1],
+          [
             -calculatedMargin - reactionSelectionPopoverDimensions.height / 2,
             0,
           ],
-          extrapolate: Extrapolate.CLAMP,
-        }),
+          Extrapolate.CLAMP,
+        ),
       });
     }
     style.transform = transform;
     return style;
-  }, [position, calculatedMargin, popoverLocation, popoverHorizontalOffset]);
+  }, [calculatedMargin, popoverLocation, popoverHorizontalOffset]);
 
   const styles = useStyles(unboundStyles);
 
@@ -128,13 +131,8 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     () => ({
       ...styles.reactionSelectionPopoverContainer,
       ...popoverContainerStyle,
-      ...animationStyle,
     }),
-    [
-      popoverContainerStyle,
-      styles.reactionSelectionPopoverContainer,
-      animationStyle,
-    ],
+    [popoverContainerStyle, styles.reactionSelectionPopoverContainer],
   );
 
   const tooltipRouteKey = route.key;
@@ -173,7 +171,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   ]);
 
   return (
-    <AnimatedView style={containerStyle}>
+    <AnimatedView style={[containerStyle, animationStyle]}>
       {defaultEmojis}
       <TouchableOpacity onPress={onPressEmojiKeyboardButton}>
         <View style={styles.emojiKeyboardButtonContainer}>
