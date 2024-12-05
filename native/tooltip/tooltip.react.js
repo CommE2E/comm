@@ -10,11 +10,12 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import Animated, {
+import {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   type SharedValue,
+  Extrapolate,
 } from 'react-native-reanimated';
 
 import {
@@ -43,8 +44,6 @@ import {
   type ReanimatedTransform,
   type AnimatedStyleObj,
 } from '../types/styles.js';
-
-const { Node, Extrapolate } = Animated;
 
 const unboundStyles = {
   backdrop: {
@@ -136,7 +135,6 @@ export type BaseTooltipProps<RouteName> = {
 };
 type ButtonProps<Base> = {
   ...Base,
-  +progress: Node,
   +progressV2: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
@@ -240,8 +238,7 @@ function createTooltip<
     }, [getMargin, getTooltipHeight, params, tooltipLocation]);
 
     invariant(overlayContext, 'Tooltip should have OverlayContext');
-    const { position, positionV2 } = overlayContext;
-    invariant(position, 'position should be defined in tooltip');
+    const { positionV2 } = overlayContext;
     invariant(positionV2, 'position should be defined in tooltip');
 
     const tooltipHorizontalOffset = useSharedValue(0);
@@ -474,7 +471,6 @@ function createTooltip<
 
     const buttonProps: ButtonProps<BaseTooltipPropsType> = {
       ...navAndRouteForFlow,
-      progress: position,
       progressV2: positionV2,
       isOpeningSidebar,
     };
