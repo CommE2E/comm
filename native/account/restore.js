@@ -3,6 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { identityRestoreActionTypes } from 'lib/actions/user-actions.js';
+import { useLogIn } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
   IdentityAuthResult,
@@ -12,6 +14,7 @@ import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -113,4 +116,43 @@ function useRestoreProtocol(): (
   );
 }
 
-export { useRestoreProtocol };
+function useRestore(): (
+  userIdentifier: string,
+  secret: string,
+  siweMessage?: string,
+  siweSignature?: string,
+) => Promise<void> {
+  const restoreProtocol = useRestoreProtocol();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const restoreAuth = React.useCallback(
+    (
+      userIdentifier: string,
+      secret: string,
+      siweMessage?: string,
+      siweSignature?: string,
+    ) => {
+      const promise = restoreProtocol(
+        userIdentifier,
+        secret,
+        siweMessage,
+        siweSignature,
+      );
+      void dispatchActionPromise(identityRestoreActionTypes, promise);
+      return promise;
+    },
+    [dispatchActionPromise, restoreProtocol],
+  );
+
+  const logIn = useLogIn();
+  return React.useCallback(
+    (
+      userIdentifier: string,
+      secret: string,
+      siweMessage?: string,
+      siweSignature?: string,
+    ) => logIn(restoreAuth(userIdentifier, secret, siweMessage, siweSignature)),
+    [logIn, restoreAuth],
+  );
+}
+
+export { useRestore };
