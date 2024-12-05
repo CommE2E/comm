@@ -48,7 +48,6 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     sourceMessage: item,
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
-    progress,
     progressV2,
     targetInputBarHeight: sidebarInputBarHeight,
   });
