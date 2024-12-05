@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
 import QRCodeScreen from './qr-code-screen.react.js';
+import RestoreBackupScreen from './restore-backup-screen.react.js';
 import RestorePasswordAccountScreen from './restore-password-account-screen.react.js';
 import RestorePromptScreen from './restore-prompt-screen.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -17,6 +18,7 @@ import {
   QRCodeScreenRouteName,
   RestorePromptScreenRouteName,
   RestorePasswordAccountScreenRouteName,
+  RestoreBackupScreenRouteName,
 } from '../navigation/route-names.js';
 import { useColors } from '../themes/colors.js';
 
@@ -64,6 +66,10 @@ function SignInNavigator(props: SignInNavigatorProps): React.Node {
       <SignInStack.Screen
         name={RestorePasswordAccountScreenRouteName}
         component={RestorePasswordAccountScreen}
+      />
+      <SignInStack.Screen
+        name={RestoreBackupScreenRouteName}
+        component={RestoreBackupScreen}
       />
     </SignInStack.Navigator>
   );

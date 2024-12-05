@@ -14,6 +14,7 @@ import type { PasswordSelectionParams } from '../account/registration/password-s
 import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
 import type { CreateSIWEBackupMessageParams } from '../account/registration/siwe-backup-message-creation.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
+import type { RestoreBackupScreenParams } from '../account/restore-backup-screen.react';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { RestoreSIWEBackupParams } from '../backup/restore-siwe-backup.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -154,6 +155,7 @@ export const QRCodeScreenRouteName = 'QRCodeScreen';
 export const RestorePromptScreenRouteName = 'RestorePromptScreen';
 export const RestorePasswordAccountScreenRouteName =
   'RestorePasswordAccountScreen';
+export const RestoreBackupScreenRouteName = 'RestoreBackupScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
@@ -340,6 +342,7 @@ export type SignInParamList = {
   +QRCodeScreen: void,
   +RestorePromptScreen: void,
   +RestorePasswordAccountScreen: void,
+  +RestoreBackupScreen: RestoreBackupScreenParams,
 };
 
 export type UserProfileBottomSheetParamList = {
