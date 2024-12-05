@@ -9,6 +9,7 @@ import crypto from 'crypto';
 import express from 'express';
 import type { $Request, $Response } from 'express';
 import expressWs from 'express-ws';
+import fetch from 'node-fetch';
 import os from 'os';
 import qrcode from 'qrcode';
 import stoppable from 'stoppable';
@@ -23,7 +24,7 @@ import { fetchDBVersion } from './database/db-version.js';
 import { latestWrapInTransactionAndBlockRequestsVersion } from './database/migration-config.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
-import { startFrogHonoServer } from './frog/frog.js';
+import { startFrogHonoServer, frogHonoURL } from './frog/frog.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import { taggedCommFarcasterResponder } from './responders/farcaster-webhook-responders.js';
@@ -299,6 +300,29 @@ void (async () => {
       if (keyserverCorsOptions) {
         keyserverRouter.use(cors(keyserverCorsOptions));
       }
+      keyserverRouter.use('/frog', async (req: $Request, res: $Response) => {
+        try {
+          const targetUrl = `${frogHonoURL}${req.originalUrl}`;
+
+          const fetchResponse = await fetch(targetUrl, {
+            method: req.method,
+            headers: req.headers,
+            body:
+              req.method !== 'GET' && req.method !== 'HEAD'
+                ? JSON.stringify(req.body)
+                : undefined,
+          });
+
+          for (const [key, value] of fetchResponse.headers.entries()) {
+            res.setHeader(key, value);
+          }
+
+          fetchResponse.body.pipe(res);
+        } catch (error) {
+          console.log('Error forwarding request to frog hono server:', error);
+          res.status(500).send('Internal Server Error');
+        }
+      });
 
       keyserverRouter.post(
         '/fc_comm_tagged',
