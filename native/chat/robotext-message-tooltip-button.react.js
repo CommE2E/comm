@@ -1,7 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import Animated, { type SharedValue } from 'react-native-reanimated';
+import Animated, {
+  type SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import {
@@ -22,7 +26,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
-const { Node, interpolateNode, Extrapolate } = Animated;
+const { Node, Extrapolate } = Animated;
 
 type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
@@ -32,7 +36,7 @@ type Props = {
   ...
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progress, progressV2 } = props;
+  const { navigation, route, progressV2 } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -52,13 +56,14 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     targetInputBarHeight: sidebarInputBarHeight,
   });
 
-  const headerStyle = React.useMemo(() => {
+  const headerStyle = useAnimatedStyle(() => {
     const bottom = initialCoordinates.height;
-    const opacity = interpolateNode(progress, {
-      inputRange: [0, 0.05],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
+    const opacity = interpolate(
+      progressV2.value,
+      [0, 0.05],
+      [0, 1],
+      Extrapolate.CLAMP,
+    );
     return {
       opacity,
       position: 'absolute',
@@ -66,7 +71,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
       width: windowWidth,
       bottom,
     };
-  }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
+  }, [initialCoordinates.height, initialCoordinates.x, windowWidth]);
 
   const { threadInfo, reactions } = item;
   const engagementTargetMessageInfo =
