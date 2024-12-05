@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
@@ -25,8 +25,6 @@ import Markdown from '../markdown/markdown.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors, useColors } from '../themes/colors.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
-
-const { Node } = Animated;
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,
@@ -68,7 +66,7 @@ type Props = {
   +item: ChatTextMessageInfoItemWithHeight,
   +onPress: () => void,
   +messageRef?: (message: ?React.ElementRef<typeof View>) => void,
-  +threadColorOverride?: ?Node,
+  +threadColorOverride?: SharedValue<string | null>,
   +isThreadColorDarkOverride?: ?boolean,
 };
 function InnerTextMessage(props: Props): React.Node {
@@ -83,18 +81,13 @@ function InnerTextMessage(props: Props): React.Node {
     ? activeTheme === 'dark'
     : props.isThreadColorDarkOverride ?? colorIsDark(item.threadInfo.color);
 
-  const messageStyle = React.useMemo(
+  const messageStyle = useAnimatedStyle(
     () => ({
       backgroundColor: !isViewer
         ? boundColors.listChatBubble
-        : props.threadColorOverride ?? `#${item.threadInfo.color}`,
+        : props.threadColorOverride?.value ?? `#${item.threadInfo.color}`,
     }),
-    [
-      boundColors.listChatBubble,
-      isViewer,
-      item.threadInfo.color,
-      props.threadColorOverride,
-    ],
+    [boundColors.listChatBubble, isViewer, item.threadInfo.color],
   );
 
   const cornerStyle = React.useMemo(
