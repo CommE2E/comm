@@ -47,6 +47,9 @@ function BackupMenu(props: Props): React.Node {
   invariant(identityContext, 'Identity context should be set');
   const { identityClient, getAuthMetadata } = identityContext;
 
+  const userIdentifier = useSelector(state => state.currentUserInfo?.username);
+  invariant(userIdentifier, 'userIdentifier should be set');
+
   const {
     createFullBackup,
     retrieveLatestBackupInfo,
@@ -81,15 +84,17 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      const [{ latestBackupInfo, userIdentifier }, backupSecret] =
-        await Promise.all([retrieveLatestBackupInfo(), getBackupSecret()]);
+      const [{ backupID }, backupSecret] = await Promise.all([
+        retrieveLatestBackupInfo(userIdentifier),
+        getBackupSecret(),
+      ]);
       const { backupDataKey, backupLogDataKey } = await getBackupUserKeys(
         userIdentifier,
         backupSecret,
-        latestBackupInfo.backupID,
+        backupID,
       );
       await commCoreModule.restoreBackupData(
-        latestBackupInfo.backupID,
+        backupID,
         backupDataKey,
         backupLogDataKey,
         persistConfig.version.toString(),
@@ -100,13 +105,18 @@ function BackupMenu(props: Props): React.Node {
       console.error(message);
     }
     Alert.alert('Restore protocol result', message);
-  }, [getBackupSecret, getBackupUserKeys, retrieveLatestBackupInfo]);
+  }, [
+    getBackupSecret,
+    getBackupUserKeys,
+    retrieveLatestBackupInfo,
+    userIdentifier,
+  ]);
 
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
     try {
-      const { latestBackupInfo } = await retrieveLatestBackupInfo();
-      const { backupID, userID } = latestBackupInfo;
+      const { backupID, userID } =
+        await retrieveLatestBackupInfo(userIdentifier);
       message =
         `Success!\n` +
         `Backup ID: ${backupID},\n` +
@@ -119,7 +129,7 @@ function BackupMenu(props: Props): React.Node {
       console.error(message);
     }
     Alert.alert('Latest backup info result', message);
-  }, [currentUserInfo?.id, retrieveLatestBackupInfo]);
+  }, [currentUserInfo?.id, userIdentifier, retrieveLatestBackupInfo]);
 
   const testSigning = React.useCallback(async () => {
     // This test only works in the following case:
@@ -130,10 +140,8 @@ function BackupMenu(props: Props): React.Node {
     // 5. Perform this test
     let message;
     try {
-      const {
-        latestBackupInfo: { userID, backupID },
-        userIdentifier,
-      } = await retrieveLatestBackupInfo();
+      const { userID, backupID } =
+        await retrieveLatestBackupInfo(userIdentifier);
 
       if (currentUserInfo?.id !== userID) {
         throw new Error('Backup returned different userID');
@@ -209,20 +217,20 @@ function BackupMenu(props: Props): React.Node {
     }
     Alert.alert('Signing with previous primary Olm Account result', message);
   }, [
+    retrieveLatestBackupInfo,
+    userIdentifier,
     currentUserInfo?.id,
+    identityClient,
     getAuthMetadata,
     getBackupSecret,
     getBackupUserKeys,
-    identityClient,
-    retrieveLatestBackupInfo,
   ]);
 
   const testRestoreForSIWEUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      const { latestBackupInfo, userIdentifier } =
-        await retrieveLatestBackupInfo();
-      const { siweBackupData, backupID } = latestBackupInfo;
+      const { siweBackupData, backupID } =
+        await retrieveLatestBackupInfo(userIdentifier);
 
       if (!siweBackupData) {
         throw new Error('Missing SIWE message for Wallet user backup');
@@ -248,7 +256,7 @@ function BackupMenu(props: Props): React.Node {
       message = `Backup restore error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
-  }, [navigation, retrieveLatestBackupInfo]);
+  }, [retrieveLatestBackupInfo, userIdentifier, navigation]);
 
   const onBackupToggled = React.useCallback(
     (value: boolean) => {

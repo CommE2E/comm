@@ -20,10 +20,9 @@ import { useSelector } from '../redux/redux-utils.js';
 type ClientBackup = {
   +createFullBackup: () => Promise<string>,
   +createUserKeysBackup: () => Promise<string>,
-  +retrieveLatestBackupInfo: () => Promise<{
-    +latestBackupInfo: LatestBackupInfo,
-    +userIdentifier: string,
-  }>,
+  +retrieveLatestBackupInfo: (
+    userIdentifier: string,
+  ) => Promise<LatestBackupInfo>,
   +getBackupUserKeys: (
     userIdentifier: string,
     backupSecret: string,
@@ -47,11 +46,22 @@ async function getBackupUserKeys(
   );
 }
 
+async function retrieveLatestBackupInfo(
+  userIdentifier: string,
+): Promise<LatestBackupInfo> {
+  const response =
+    await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
+
+  return assertWithValidator<LatestBackupInfo>(
+    JSON.parse(response),
+    latestBackupInfoResponseValidator,
+  );
+}
+
 function useClientBackup(): ClientBackup {
   const currentUserID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
   const loggedIn = useSelector(isLoggedIn);
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
@@ -92,22 +102,6 @@ function useClientBackup(): ClientBackup {
     );
   }, [loggedIn, currentUserID, getBackupSecret, authVerifiedEndpoint]);
 
-  const retrieveLatestBackupInfo = React.useCallback(async () => {
-    if (!loggedIn || !currentUserID || !currentUserInfo?.username) {
-      throw new Error('Attempt to restore backup for not logged in user.');
-    }
-    const userIdentifier = currentUserInfo?.username;
-
-    const response =
-      await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
-
-    const latestBackupInfo = assertWithValidator<LatestBackupInfo>(
-      JSON.parse(response),
-      latestBackupInfoResponseValidator,
-    );
-    return { latestBackupInfo, userIdentifier };
-  }, [currentUserID, currentUserInfo, loggedIn]);
-
   return React.useMemo(
     () => ({
       createFullBackup,
@@ -115,7 +109,7 @@ function useClientBackup(): ClientBackup {
       retrieveLatestBackupInfo,
       getBackupUserKeys,
     }),
-    [createFullBackup, createUserKeysBackup, retrieveLatestBackupInfo],
+    [createFullBackup, createUserKeysBackup],
   );
 }
 
