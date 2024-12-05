@@ -7,15 +7,42 @@ import { serve } from '@hono/node-server';
 // eslint-disable-next-line import/extensions
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Button, Frog } from 'frog';
+// eslint-disable-next-line import/extensions
+import { cors } from 'hono/cors';
 
 import { inviteLinkURL } from 'lib/facts/links.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { neynarClient } from '../utils/fc-cache.js';
 import { redisCache } from '../utils/redis-cache.js';
+import { getKeyserverURLFacts } from '../utils/urls.js';
+
+const keyserverURLFacts = getKeyserverURLFacts();
+const frogHonoPort: number = parseInt(process.env.FROG_HONO_PORT, 10) || 3001;
+const frogHonoURL: string = (() => {
+  if (process.env.FROG_HONO_URL) {
+    return process.env.FROG_HONO_URL;
+  } else {
+    return `http://localhost:${frogHonoPort}`;
+  }
+})();
 
 function startFrogHonoServer() {
-  const frogApp = new Frog({ title: 'Comm' });
+  const frogApp = new Frog({
+    title: 'Comm',
+    // Mirrors the express server's reverse proxy path so that
+    // frog constructs URLs with the correct path in the HTML response,
+    // ensuring frame requests are forwarded to the frog hono server.
+    basePath: `${keyserverURLFacts?.baseRoutePath ?? '/'}frog/`,
+  });
+
+  frogApp.hono.use(
+    '*',
+    cors({
+      origin: '*',
+      allowMethods: ['GET'],
+    }),
+  );
 
   frogApp.hono.use(
     '/default_farcaster_channel_cover.png',
@@ -151,8 +178,8 @@ function startFrogHonoServer() {
 
   serve({
     fetch: frogApp.fetch,
-    port: parseInt(process.env.FROG_PORT, 10) || 3001,
+    port: frogHonoPort,
   });
 }
 
-export { startFrogHonoServer };
+export { startFrogHonoServer, frogHonoURL };
