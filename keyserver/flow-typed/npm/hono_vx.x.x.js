@@ -13,3 +13,12 @@ declare module 'hono' {
   }
 }
 
+declare module 'hono/cors' {
+  import type { MiddlewareHandler } from 'hono';
+
+  declare export var cors: ({
+    +origin?: string,
+    +allowMethods?: $ReadOnlyArray<string>,
+  }) => MiddlewareHandler;
+}
+
