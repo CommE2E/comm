@@ -10,6 +10,7 @@ import RegistrationContentContainer from './registration/registration-content-co
 import RegistrationTextInput from './registration/registration-text-input.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { RestoreBackupScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -17,7 +18,6 @@ type Props = {
   +route: NavigationRoute<'RestorePasswordAccountScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function RestorePasswordAccountScreen(props: Props): React.Node {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -28,7 +28,17 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
   }, []);
 
   const areCredentialsPresent = !!username && !!password;
-  const onProceed = React.useCallback(() => {}, []);
+  const onProceed = React.useCallback(() => {
+    if (areCredentialsPresent) {
+      props.navigation.navigate(RestoreBackupScreenRouteName, {
+        username,
+        credentials: {
+          type: 'password',
+          password,
+        },
+      });
+    }
+  }, [areCredentialsPresent, password, props.navigation, username]);
 
   const styles = useStyles(unboundStyles);
   return (
