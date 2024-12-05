@@ -633,7 +633,7 @@ impl From<DeviceListRow> for AttributeMap {
     }
     if let Some(last_signature) = device_list.last_primary_signature {
       attrs.insert(
-        ATTR_CURRENT_SIGNATURE.to_string(),
+        ATTR_LAST_SIGNATURE.to_string(),
         AttributeValue::S(last_signature),
       );
     }
