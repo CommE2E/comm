@@ -3,6 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { identityRestoreActionTypes } from 'lib/actions/user-actions.js';
+import { useLogIn } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
   IdentityAuthResult,
@@ -12,6 +14,7 @@ import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -109,4 +112,27 @@ function useIdentityRestore(): (
   );
 }
 
-export { useIdentityRestore };
+function usePasswordRestore(): (
+  username: string,
+  password: string,
+) => Promise<void> {
+  const identityRestore = useIdentityRestore();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const identityPasswordAuth = React.useCallback(
+    (username: string, password: string) => {
+      const promise = identityRestore(username, password);
+      void dispatchActionPromise(identityRestoreActionTypes, promise);
+      return promise;
+    },
+    [dispatchActionPromise, identityRestore],
+  );
+
+  const logIn = useLogIn();
+  return React.useCallback(
+    (username: string, password: string) =>
+      logIn(identityPasswordAuth(username, password)),
+    [logIn, identityPasswordAuth],
+  );
+}
+
+export { usePasswordRestore };
