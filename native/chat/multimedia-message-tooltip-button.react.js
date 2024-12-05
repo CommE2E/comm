@@ -5,6 +5,7 @@ import Animated, {
   type SharedValue,
   useAnimatedStyle,
   interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
@@ -28,14 +29,11 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
-const { Node, Extrapolate } = Animated;
-
 function noop() {}
 
 type Props = {
   +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
-  +progress: Node,
   +progressV2: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
