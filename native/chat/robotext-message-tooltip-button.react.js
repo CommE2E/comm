@@ -5,6 +5,7 @@ import Animated, {
   type SharedValue,
   interpolate,
   useAnimatedStyle,
+  Extrapolate,
 } from 'react-native-reanimated';
 
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
@@ -26,12 +27,9 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
-const { Node, Extrapolate } = Animated;
-
 type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
-  +progress: Node,
   +progressV2: SharedValue<number>,
   ...
 };
