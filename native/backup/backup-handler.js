@@ -29,6 +29,7 @@ function BackupHandler(): null {
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
   );
+  const userIdentifier = useSelector(state => state.currentUserInfo?.username);
   const dispatchActionPromise = useDispatchActionPromise();
   const { createUserKeysBackup, retrieveLatestBackupInfo, getBackupUserKeys } =
     useClientBackup();
@@ -81,10 +82,10 @@ function BackupHandler(): null {
     if (!latestBackupInfo?.backupID) {
       return;
     }
-    const {
-      latestBackupInfo: { backupID },
-      userIdentifier,
-    } = await retrieveLatestBackupInfo();
+    if (!userIdentifier) {
+      throw new Error('Missing userIdentifier');
+    }
+    const { backupID } = await retrieveLatestBackupInfo(userIdentifier);
 
     const backupSecret = await getBackupSecret();
     const [
@@ -125,6 +126,7 @@ function BackupHandler(): null {
     getBackupUserKeys,
     latestBackupInfo?.backupID,
     retrieveLatestBackupInfo,
+    userIdentifier,
   ]);
 
   React.useEffect(() => {
