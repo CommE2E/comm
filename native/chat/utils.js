@@ -175,7 +175,6 @@ type AnimatedMessageArgs = {
   +sourceMessage: ChatMessageInfoItemWithHeight,
   +initialCoordinates: LayoutCoordinates,
   +messageListVerticalBounds: VerticalBounds,
-  +progress: Node,
   +progressV2: SharedValue<number>,
   +targetInputBarHeight: ?number,
 };
