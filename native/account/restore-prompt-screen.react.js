@@ -3,6 +3,9 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
+
 import PromptButton from './prompt-button.react.js';
 import RegistrationButtonContainer from './registration/registration-button-container.react.js';
 import RegistrationContainer from './registration/registration-container.react.js';
@@ -10,9 +13,15 @@ import RegistrationContentContainer from './registration/registration-content-co
 import type { SignInNavigationProp } from './sign-in-navigator.react';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
+import { useClientBackup } from '../backup/use-client-backup.js';
 import type { NavigationRoute } from '../navigation/route-names';
-import { RestorePasswordAccountScreenRouteName } from '../navigation/route-names.js';
+import {
+  RestoreSIWEBackupRouteName,
+  RestorePasswordAccountScreenRouteName,
+} from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
+import Alert from '../utils/alert.js';
 import RestoreIcon from '../vectors/restore-icon.react.js';
 
 type Props = {
@@ -31,6 +40,53 @@ function RestorePromptScreen(props: Props): React.Node {
     props.navigation.navigate(RestorePasswordAccountScreenRouteName);
   }, [props.navigation]);
 
+  const goBack = React.useCallback(() => {
+    props.navigation.goBack();
+  }, [props.navigation]);
+
+  const { retrieveLatestBackupInfo } = useClientBackup();
+  const onSIWESuccess = React.useCallback(
+    async (result: SIWEResult) => {
+      try {
+        const { address, signature, message } = result;
+        const backupInfo = await retrieveLatestBackupInfo(address);
+        const { siweBackupData } = backupInfo;
+
+        if (!siweBackupData) {
+          throw new Error('Missing SIWE message for Wallet user backup');
+        }
+
+        const {
+          siweBackupMsgNonce,
+          siweBackupMsgIssuedAt,
+          siweBackupMsgStatement,
+        } = siweBackupData;
+
+        props.navigation.navigate(RestoreSIWEBackupRouteName, {
+          siweNonce: siweBackupMsgNonce,
+          siweStatement: siweBackupMsgStatement,
+          siweIssuedAt: siweBackupMsgIssuedAt,
+          userIdentifier: address,
+          signature,
+          message,
+        });
+      } catch (e) {
+        const messageForException = getMessageForException(e);
+        console.log(
+          `SIWE restore error: ${messageForException ?? 'unknown error'}`,
+        );
+        const alertDetails = unknownErrorAlertDetails;
+        Alert.alert(
+          alertDetails.title,
+          alertDetails.message,
+          [{ text: 'OK', onPress: goBack }],
+          { cancelable: false },
+        );
+      }
+    },
+    [goBack, props.navigation, retrieveLatestBackupInfo],
+  );
+
   const {
     panelState,
     openPanel,
@@ -45,7 +101,7 @@ function RestorePromptScreen(props: Props): React.Node {
         onClosing={onPanelClosing}
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
-        onSuccessfulWalletSignature={() => {}}
+        onSuccessfulWalletSignature={onSIWESuccess}
         siweSignatureRequestData={siweSignatureRequestData}
         setLoading={siwePanelSetLoading}
       />

@@ -16,7 +16,7 @@ type Props = {
 };
 
 export type RestoreBackupScreenParams = {
-  +username: string,
+  +userIdentifier: string,
   +credentials:
     | {
         +type: 'password',
@@ -24,6 +24,7 @@ export type RestoreBackupScreenParams = {
       }
     | {
         +type: 'siwe',
+        +secret: string,
         +message: string,
         +signature: string,
       },
