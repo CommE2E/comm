@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
+import { useAnimatedStyle } from 'react-native-reanimated';
 
 import {
   chatMessageItemKey,
@@ -214,6 +215,9 @@ function RobotextMessage(props: Props): React.Node {
   const onLayout = React.useCallback(() => {}, []);
 
   const contentAndHeaderOpacity = useContentAndHeaderOpacity(item);
+  const contentAndHeaderOpacityStyle = useAnimatedStyle(() => {
+    return { opacity: contentAndHeaderOpacity.value };
+  });
 
   const viewStyle: { height?: number } = {};
   if (!__DEV__) {
@@ -224,11 +228,11 @@ function RobotextMessage(props: Props): React.Node {
 
   return (
     <View {...viewProps}>
-      <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
+      <AnimatedView style={contentAndHeaderOpacityStyle}>
         {timestamp}
       </AnimatedView>
       <View onLayout={onLayout} ref={viewRef} style={viewStyle}>
-        <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
+        <AnimatedView style={contentAndHeaderOpacityStyle}>
           <InnerRobotextMessage
             item={item}
             onPress={onPress}
