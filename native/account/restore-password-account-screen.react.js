@@ -31,7 +31,7 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
   const onProceed = React.useCallback(() => {
     if (areCredentialsPresent) {
       props.navigation.navigate(RestoreBackupScreenRouteName, {
-        username,
+        userIdentifier: username,
         credentials: {
           type: 'password',
           password,

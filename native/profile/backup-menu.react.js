@@ -1,12 +1,10 @@
 // @flow
 
-import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { getConfig } from 'lib/utils/config.js';
 import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
@@ -19,9 +17,7 @@ import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secr
 import Button from '../components/button.react.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { RestoreSIWEBackupRouteName } from '../navigation/route-names.js';
 import { setLocalSettingsActionType } from '../redux/action-types.js';
-import { persistConfig } from '../redux/persist.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -36,7 +32,6 @@ function BackupMenu(props: Props): React.Node {
   const dispatch = useDispatch();
   const colors = useColors();
   const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const navigation = useNavigation();
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
 
   const isBackupEnabled = useSelector(
@@ -80,37 +75,6 @@ function BackupMenu(props: Props): React.Node {
     }
     Alert.alert('Upload User Keys result', message);
   }, [createUserKeysBackup]);
-
-  const testRestoreForPasswordUser = React.useCallback(async () => {
-    let message = 'success';
-    try {
-      const [{ backupID }, backupSecret] = await Promise.all([
-        retrieveLatestBackupInfo(userIdentifier),
-        getBackupSecret(),
-      ]);
-      const { backupDataKey, backupLogDataKey } = await getBackupUserKeys(
-        userIdentifier,
-        backupSecret,
-        backupID,
-      );
-      await commCoreModule.restoreBackupData(
-        backupID,
-        backupDataKey,
-        backupLogDataKey,
-        persistConfig.version.toString(),
-      );
-      console.info('Backup restored.');
-    } catch (e) {
-      message = `Backup restore error: ${String(getMessageForException(e))}`;
-      console.error(message);
-    }
-    Alert.alert('Restore protocol result', message);
-  }, [
-    getBackupSecret,
-    getBackupUserKeys,
-    retrieveLatestBackupInfo,
-    userIdentifier,
-  ]);
 
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
@@ -226,38 +190,6 @@ function BackupMenu(props: Props): React.Node {
     getBackupUserKeys,
   ]);
 
-  const testRestoreForSIWEUser = React.useCallback(async () => {
-    let message = 'success';
-    try {
-      const { siweBackupData, backupID } =
-        await retrieveLatestBackupInfo(userIdentifier);
-
-      if (!siweBackupData) {
-        throw new Error('Missing SIWE message for Wallet user backup');
-      }
-
-      const {
-        siweBackupMsgNonce,
-        siweBackupMsgIssuedAt,
-        siweBackupMsgStatement,
-      } = siweBackupData;
-
-      navigation.navigate<'RestoreSIWEBackup'>({
-        name: RestoreSIWEBackupRouteName,
-        params: {
-          backupID,
-          siweNonce: siweBackupMsgNonce,
-          siweStatement: siweBackupMsgStatement,
-          siweIssuedAt: siweBackupMsgIssuedAt,
-          userIdentifier,
-        },
-      });
-    } catch (e) {
-      message = `Backup restore error: ${String(getMessageForException(e))}`;
-      console.error(message);
-    }
-  }, [retrieveLatestBackupInfo, userIdentifier, navigation]);
-
   const onBackupToggled = React.useCallback(
     (value: boolean) => {
       dispatch({
@@ -267,10 +199,6 @@ function BackupMenu(props: Props): React.Node {
     },
     [dispatch],
   );
-
-  const onPressRestoreButton = accountHasPassword(currentUserInfo)
-    ? testRestoreForPasswordUser
-    : testRestoreForSIWEUser;
 
   return (
     <ScrollView
@@ -306,17 +234,6 @@ function BackupMenu(props: Props): React.Node {
           iosActiveOpacity={0.85}
         >
           <Text style={styles.submenuText}>Test User Keys upload</Text>
-        </Button>
-      </View>
-      <View style={styles.section}>
-        <Button
-          onPress={onPressRestoreButton}
-          style={styles.row}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
-          iosActiveOpacity={0.85}
-        >
-          <Text style={styles.submenuText}>Test backup restore protocol</Text>
         </Button>
       </View>
       <View style={styles.section}>
