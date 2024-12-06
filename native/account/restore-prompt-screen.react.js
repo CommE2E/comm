@@ -4,6 +4,8 @@ import MaterialIcon from '@expo/vector-icons/MaterialCommunityIcons.js';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { getMessageForException } from 'lib/utils/errors.js';
+
 import PromptButton from './prompt-button.react.js';
 import RegistrationButtonContainer from './registration/registration-button-container.react.js';
 import RegistrationContainer from './registration/registration-container.react.js';
@@ -11,8 +13,12 @@ import RegistrationContentContainer from './registration/registration-content-co
 import type { SignInNavigationProp } from './sign-in-navigator.react';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
+import { useClientBackup } from '../backup/use-client-backup.js';
 import type { NavigationRoute } from '../navigation/route-names';
-import { RestorePasswordAccountScreenRouteName } from '../navigation/route-names.js';
+import {
+  RestoreSIWEBackupRouteName,
+  RestorePasswordAccountScreenRouteName,
+} from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -31,6 +37,36 @@ function RestorePromptScreen(props: Props): React.Node {
     props.navigation.navigate(RestorePasswordAccountScreenRouteName);
   }, [props.navigation]);
 
+  const { retrieveLatestBackupInfo } = useClientBackup();
+  const onSIWESuccess = React.useCallback(async () => {
+    try {
+      const backupInfo = await retrieveLatestBackupInfo();
+      const { siweBackupData, backupID } = backupInfo;
+
+      if (!siweBackupData) {
+        throw new Error('Missing SIWE message for Wallet user backup');
+      }
+
+      const {
+        siweBackupMsgNonce,
+        siweBackupMsgIssuedAt,
+        siweBackupMsgStatement,
+      } = siweBackupData;
+
+      props.navigation.navigate<'RestoreSIWEBackup'>({
+        name: RestoreSIWEBackupRouteName,
+        params: {
+          backupID,
+          siweNonce: siweBackupMsgNonce,
+          siweStatement: siweBackupMsgStatement,
+          siweIssuedAt: siweBackupMsgIssuedAt,
+        },
+      });
+    } catch (e) {
+      console.log(`Backup restore error: ${String(getMessageForException(e))}`);
+    }
+  }, [props.navigation, retrieveLatestBackupInfo]);
+
   const {
     panelState,
     openPanel,
@@ -45,7 +81,7 @@ function RestorePromptScreen(props: Props): React.Node {
         onClosing={onPanelClosing}
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
-        onSuccessfulWalletSignature={() => {}}
+        onSuccessfulWalletSignature={onSIWESuccess}
         siweSignatureRequestData={siweSignatureRequestData}
         setLoading={siwePanelSetLoading}
       />
