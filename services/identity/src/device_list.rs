@@ -382,6 +382,22 @@ pub mod validation {
     is_added != is_removed
   }
 
+  pub fn new_flow_migration_validator(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+    calling_device_id: &str,
+  ) -> bool {
+    // new primary must be the calling device
+    if new_device_list.first() != Some(&calling_device_id) {
+      return false;
+    }
+
+    // no device added or removed, only reorder allowed
+    let previous_set: HashSet<_> = previous_device_list.iter().collect();
+    let new_set: HashSet<_> = new_device_list.iter().collect();
+    previous_set == new_set
+  }
+
   #[cfg(test)]
   mod tests {
     use super::*;
