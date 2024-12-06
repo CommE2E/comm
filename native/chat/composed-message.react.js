@@ -34,11 +34,7 @@ import CommIcon from '../components/comm-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { useColors } from '../themes/colors.js';
 import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.js';
-import {
-  type AnimatedStyleObj,
-  type ViewStyle,
-  AnimatedView,
-} from '../types/styles.js';
+import { type ViewStyle, AnimatedView } from '../types/styles.js';
 import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
@@ -118,6 +114,10 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       [isViewer],
     );
 
+    const deliveryIconAnimatedStyle = useAnimatedStyle(() => ({
+      opacity: deliveryIconOpacity.value,
+    }));
+
     const deliveryIcon = React.useMemo(() => {
       if (!isViewer) {
         return undefined;
@@ -141,10 +141,8 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
         deliveryIconName = 'circle';
       }
 
-      const animatedStyle: AnimatedStyleObj = { opacity: deliveryIconOpacity };
-
       return (
-        <AnimatedView style={[styles.iconContainer, animatedStyle]}>
+        <AnimatedView style={[styles.iconContainer, deliveryIconAnimatedStyle]}>
           <Icon
             name={deliveryIconName}
             style={[styles.icon, { color: deliveryIconColor }]}
@@ -153,7 +151,7 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       );
     }, [
       colors.redText,
-      deliveryIconOpacity,
+      deliveryIconAnimatedStyle,
       id,
       isViewer,
       item?.localMessageInfo?.outboundP2PMessageIDs,
@@ -236,12 +234,12 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       shouldDisplayPinIndicator,
     ]);
 
-    const messageBoxStyle = React.useMemo(
+    const messageBoxStyle = useAnimatedStyle(
       () => ({
-        opacity: contentAndHeaderOpacity,
+        opacity: contentAndHeaderOpacity.value,
         maxWidth: composedMessageMaxWidth,
       }),
-      [composedMessageMaxWidth, contentAndHeaderOpacity],
+      [composedMessageMaxWidth],
     );
 
     const messageBox = React.useMemo(
@@ -316,12 +314,9 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       item.messageShapeType,
     ]);
 
-    const messageHeaderStyle = React.useMemo(
-      () => ({
-        opacity: contentAndHeaderOpacity,
-      }),
-      [contentAndHeaderOpacity],
-    );
+    const messageHeaderStyle = useAnimatedStyle(() => ({
+      opacity: contentAndHeaderOpacity.value,
+    }));
 
     const animatedContainerStyle = React.useMemo(
       () => [containerStyle, editedMessageStyle],
