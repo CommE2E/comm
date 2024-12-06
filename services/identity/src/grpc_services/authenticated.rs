@@ -787,8 +787,13 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .update_user_password(state.user_id, password_file)
+      .update_user_password(state.user_id.clone(), password_file)
       .await?;
+
+    // Delete backups, blob holders and tunnelbroker device tokens.
+    // This has to be done before resetting device list.
+    self.delete_services_data_for_user(&state.user_id).await?;
+    self.db_client.reset_device_list(&state.user_id).await?;
 
     let response = Empty {};
     Ok(Response::new(response))
