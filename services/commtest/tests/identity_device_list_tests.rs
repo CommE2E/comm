@@ -97,7 +97,10 @@ async fn test_device_list_rotation() {
 #[tokio::test]
 async fn test_update_device_list_rpc() {
   // Register user with primary device
-  let primary_device = register_user_device(None, None).await;
+  let mut primary_account = MockOlmAccount::new();
+  let primary_device_keys = primary_account.public_keys();
+  let primary_device =
+    register_user_device(Some(&primary_device_keys), None).await;
   let mut auth_client = get_auth_client(
     &service_addr::IDENTITY_GRPC.to_string(),
     primary_device.user_id.clone(),
@@ -119,6 +122,14 @@ async fn test_update_device_list_rpc() {
 
   assert!(initial_device_list.len() == 1, "Expected single device");
   let primary_device_id = initial_device_list[0].clone();
+
+  // migrate to signed device lists
+  migrate_device_list(
+    &mut auth_client,
+    &initial_device_list,
+    &mut primary_account,
+  )
+  .await;
 
   // perform update by adding a new device
   let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
@@ -189,7 +200,23 @@ async fn test_device_list_signatures() {
     )
   };
 
-  // now perform a update (remove a device), but sign the device list
+  // perform a migration to signed device list
+  let migration_update: DeviceListHistoryItem = {
+    let latest_device_list = &first_update.1;
+    let updated_device_list = migrate_device_list(
+      &mut auth_client,
+      latest_device_list,
+      &mut primary_account,
+    )
+    .await;
+
+    (
+      updated_device_list.cur_primary_signature.clone(),
+      updated_device_list.into_raw().devices,
+    )
+  };
+
+  // now perform a update (remove a device), but with device list signed
   let second_update: DeviceListHistoryItem = {
     let update_payload = SignedDeviceList::create_signed(
       &RawDeviceList::new(vec![primary_device_id.to_string()]),
@@ -239,6 +266,7 @@ async fn test_device_list_signatures() {
   let expected_devices_lists: Vec<DeviceListHistoryItem> = vec![
     (None, vec![primary_device_id.to_string()]), // auto-generated during registration
     first_update,
+    migration_update,
     second_update,
   ];
   let actual_device_lists: Vec<DeviceListHistoryItem> = device_list_history
@@ -554,4 +582,20 @@ async fn get_raw_device_list_history(
     .into_iter()
     .map(|signed| signed.into_raw())
     .collect()
+}
+
+async fn migrate_device_list(
+  client: &mut ChainedInterceptedAuthClient,
+  last_device_list: &[String],
+  signing_account: &mut MockOlmAccount,
+) -> SignedDeviceList {
+  let raw_list = RawDeviceList::new(Vec::from(last_device_list));
+  let signed_list =
+    SignedDeviceList::create_signed(&raw_list, signing_account, None);
+  client
+    .update_device_list(UpdateDeviceListRequest::from(&signed_list))
+    .await
+    .expect("Failed to perform signed device list migration");
+
+  signed_list
 }

@@ -920,13 +920,58 @@ impl IdentityClientService for AuthenticatedService {
       )
       .await?;
 
+    let is_new_flow_user = self
+      .db_client
+      .get_user_login_flow(&user_id)
+      .await?
+      .is_signed_device_list_flow();
+
     let new_list = SignedDeviceList::try_from(request.into_inner())?;
     let update = DeviceListUpdate::try_from(new_list)?;
-    let validator =
-      crate::device_list::validation::update_device_list_rpc_validator;
+
+    let validator = if is_new_flow_user {
+      // regular device list update
+      Some(crate::device_list::validation::update_device_list_rpc_validator)
+    } else {
+      // new flow migration
+      let Some(current_device_list) =
+        self.db_client.get_current_device_list(&user_id).await?
+      else {
+        tracing::warn!("User {} does not have valid device list. New flow migration impossible.", redact_sensitive_data(&user_id));
+        return Err(tonic::Status::aborted(
+          tonic_status_messages::DEVICE_LIST_ERROR,
+        ));
+      };
+
+      let calling_device_id = &device_id;
+      let previous_device_ids: Vec<&str> = current_device_list
+        .device_ids
+        .iter()
+        .map(AsRef::as_ref)
+        .collect();
+      let new_device_ids: Vec<&str> =
+        update.devices.iter().map(AsRef::as_ref).collect();
+
+      let is_valid =
+        crate::device_list::validation::new_flow_migration_validator(
+          &previous_device_ids,
+          &new_device_ids,
+          calling_device_id,
+        );
+      if !is_valid {
+        return Err(
+          crate::error::Error::DeviceList(
+            crate::error::DeviceListError::InvalidDeviceListUpdate,
+          )
+          .into(),
+        );
+      }
+      // we've already validated it, no further validator required
+      None
+    };
     self
       .db_client
-      .apply_devicelist_update(&user_id, update, Some(validator), true)
+      .apply_devicelist_update(&user_id, update, validator, true)
       .await?;
 
     Ok(Response::new(Empty {}))
