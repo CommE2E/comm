@@ -2,13 +2,14 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import Animated, {
+import {
   type SharedValue,
   interpolate,
   runOnJS,
   useAnimatedStyle,
   useDerivedValue,
   interpolateColor,
+  Extrapolate,
 } from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
@@ -44,8 +45,6 @@ import type {
   VerticalBounds,
 } from '../types/layout-types.js';
 import type { AnimatedViewStyle } from '../types/styles.js';
-
-const { Node, Extrapolate, interpolateNode, sub } = Animated;
 
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,
@@ -290,7 +289,7 @@ function useAnimatedMessageTooltipButton({
           ? 0
           : 1,
     };
-  }, [currentTransitionSidebarSourceID, sidebarAnimationType]);
+  }, [currentTransitionSidebarSourceID, sidebarAnimationType, targetPosition]);
 
   return {
     style: messageContainerStyle,
@@ -318,7 +317,7 @@ function useOverlayPosition(item: ChatMessageInfoItemWithHeight) {
         overlay.routeName === RobotextMessageTooltipModalRouteName) &&
       overlay.routeKey === getMessageTooltipKey(item)
     ) {
-      return overlay.position;
+      return overlay.positionV2;
     }
   }
   return undefined;
@@ -326,32 +325,29 @@ function useOverlayPosition(item: ChatMessageInfoItemWithHeight) {
 
 function useContentAndHeaderOpacity(
   item: ChatMessageInfoItemWithHeight,
-): number | Node {
+): SharedValue<number> {
   const overlayPosition = useOverlayPosition(item);
   const chatContext = React.useContext(ChatContext);
-  return React.useMemo(
-    () =>
-      overlayPosition &&
+  return useDerivedValue(() => {
+    return overlayPosition &&
       chatContext?.sidebarAnimationType === 'move_source_message'
-        ? sub(
-            1,
-            interpolateNode(overlayPosition, {
-              inputRange: [0.05, 0.06],
-              outputRange: [0, 1],
-              extrapolate: Extrapolate.CLAMP,
-            }),
+      ? 1 -
+          interpolate(
+            overlayPosition.value,
+            [0.05, 0.06],
+            [0, 1],
+            Extrapolate.CLAMP,
           )
-        : 1,
-    [chatContext?.sidebarAnimationType, overlayPosition],
-  );
+      : 1;
+  }, [chatContext?.sidebarAnimationType, overlayPosition]);
 }
 
 function useDeliveryIconOpacity(
   item: ChatMessageInfoItemWithHeight,
-): number | Node {
+): SharedValue<number> {
   const overlayPosition = useOverlayPosition(item);
   const chatContext = React.useContext(ChatContext);
-  return React.useMemo(() => {
+  return useDerivedValue(() => {
     if (
       !overlayPosition ||
       !chatContext?.currentTransitionSidebarSourceID ||
@@ -359,11 +355,12 @@ function useDeliveryIconOpacity(
     ) {
       return 1;
     }
-    return interpolateNode(overlayPosition, {
-      inputRange: [0.05, 0.06, 1],
-      outputRange: [1, 0, 0],
-      extrapolate: Extrapolate.CLAMP,
-    });
+    return interpolate(
+      overlayPosition.value,
+      [0.05, 0.06, 1],
+      [1, 0, 0],
+      Extrapolate.CLAMP,
+    );
   }, [
     chatContext?.currentTransitionSidebarSourceID,
     chatContext?.sidebarAnimationType,
