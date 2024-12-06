@@ -1470,6 +1470,33 @@ impl DatabaseClient {
     Ok(())
   }
 
+  /// Reset device list to empty array and remove devices data.
+  /// Ran during privileged password reset
+  #[tracing::instrument(skip_all)]
+  pub async fn reset_device_list(
+    &self,
+    user_id: &str,
+  ) -> Result<DeviceListRow, Error> {
+    let mut devices_being_removed: Vec<String> = Vec::new();
+    let update_result = self
+      .transact_update_devicelist(user_id, |current_list, _| {
+        devices_being_removed.extend(current_list.clone());
+
+        debug!("Resetting device list");
+        *current_list = Vec::new();
+
+        Ok(UpdateOperationInfo::identity_generated())
+      })
+      .await?;
+
+    // delete device data and invalidate CSAT for removed devices
+    self
+      .clean_up_devices_data(user_id, devices_being_removed)
+      .await?;
+
+    Ok(update_result)
+  }
+
   /// applies updated device list received from primary device
   pub async fn apply_devicelist_update<V>(
     &self,
@@ -1523,10 +1550,21 @@ impl DatabaseClient {
       })
       .await?;
 
-    if !remove_device_data {
-      return Ok(update_result);
+    if remove_device_data {
+      self
+        .clean_up_devices_data(user_id, devices_being_removed)
+        .await?;
     }
 
+    Ok(update_result)
+  }
+
+  /// called internally when removing devices from device list
+  async fn clean_up_devices_data(
+    &self,
+    user_id: &str,
+    devices_being_removed: Vec<String>,
+  ) -> Result<(), Error> {
     // delete device data and invalidate CSAT for removed devices
     debug!(
       "{} devices have been removed from device list. Clearing data...",
@@ -1552,8 +1590,7 @@ impl DatabaseClient {
         consume_error(result);
       });
     }
-
-    Ok(update_result)
+    Ok(())
   }
 
   /// Performs a transactional update of the device list for the user. Afterwards
