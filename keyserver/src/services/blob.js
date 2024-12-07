@@ -46,7 +46,7 @@ async function assignHolder(
   params: BlobDescriptor,
 ): Promise<BlobOperationResult> {
   const { hash: blobHash, holder } = params;
-  const headers = await createRequestHeaders();
+  const headers = await createRequestHeaders(false);
   const assignResult = await assignBlobHolder({ blobHash, holder }, headers);
   if (!assignResult.success && assignResult.reason === 'INVALID_CSAT') {
     await clearIdentityInfo();
