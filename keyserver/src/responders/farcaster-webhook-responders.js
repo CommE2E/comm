@@ -323,11 +323,11 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     throw new ServerError('missing_signer_uuid');
   }
 
-  const postCastResponse = await neynarClient?.postCast(
-    neynarConfig.signerUUID,
-    castHash,
-    replyText,
-  );
+  const postCastResponse = await neynarClient?.postCast({
+    signerUUID: neynarConfig.signerUUID,
+    parent: castHash,
+    text: replyText,
+  });
 
   if (!postCastResponse?.success) {
     throw new ServerError('post_cast_failed');
