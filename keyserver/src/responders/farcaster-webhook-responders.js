@@ -37,6 +37,7 @@ import { getFarcasterBotConfig } from '../utils/farcaster-bot.js';
 import { getVerifiedUserIDForFID } from '../utils/farcaster-utils.js';
 import { neynarClient, fcCache } from '../utils/fc-cache.js';
 import { getNeynarConfig } from '../utils/neynar-utils.js';
+import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 const taggedCommFarcasterInputValidator =
   neynarWebhookCastCreatedEventValidator;
@@ -215,7 +216,7 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
 
   const event = assertWithValidator(body, taggedCommFarcasterInputValidator);
   const {
-    author: { fid: eventTaggerFID },
+    author: { fid: eventTaggerFID, username: eventTaggerUsername },
     text: eventText,
     channel: eventChannel,
   } = event.data;
@@ -316,8 +317,12 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
     neynarConfigPromise,
   ]);
 
-  const introText = 'I created a thread on Comm. Join the conversation here:';
-  const replyText = `${introText} ${inviteLinkURL(inviteLink.name)}`;
+  const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
+  const keyserverURL = baseDomain + basePath;
+
+  const frameEmbedURL = `${keyserverURL}frog/${encodeURIComponent(
+    inviteLinkURL(inviteLink.name),
+  )}/${eventChannelID ?? 'comm'}/${eventTaggerUsername}`;
 
   if (!neynarConfig?.signerUUID) {
     throw new ServerError('missing_signer_uuid');
@@ -326,7 +331,11 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
   const postCastResponse = await neynarClient?.postCast({
     signerUUID: neynarConfig.signerUUID,
     parent: castHash,
-    text: replyText,
+    embeds: [
+      {
+        url: frameEmbedURL,
+      },
+    ],
   });
 
   if (!postCastResponse?.success) {
