@@ -326,6 +326,7 @@ async function taggedCommFarcasterResponder(req: $Request): Promise<void> {
   const postCastResponse = await neynarClient?.postCast(
     neynarConfig.signerUUID,
     castHash,
+    undefined,
     replyText,
   );
 
