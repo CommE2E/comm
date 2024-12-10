@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {
   type ChatThreadItem,
-  useChatThreadItems,
+  useCreateChatThreadItem,
 } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
@@ -13,12 +13,13 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import { useSelector } from '../redux/redux-utils.js';
 
 function useChatThreadItem(threadInfo: ?ThreadInfo): ?ChatThreadItem {
-  const threadInfos = React.useMemo(
-    () => [threadInfo].filter(Boolean),
-    [threadInfo],
-  );
-  const [item] = useChatThreadItems(threadInfos);
-  return item;
+  const createChatThreadItem = useCreateChatThreadItem();
+  return React.useMemo(() => {
+    if (!threadInfo) {
+      return null;
+    }
+    return createChatThreadItem(threadInfo);
+  }, [createChatThreadItem, threadInfo]);
 }
 
 function useActiveChatThreadItem(): ?ChatThreadItem {
