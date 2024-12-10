@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import type { SidebarThreadItem } from 'lib/shared/sidebar-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import { sidebarHeight, SidebarItem } from './sidebar-item.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
@@ -15,7 +15,7 @@ import ExtendedArrow from '../vectors/arrow-extended.react.js';
 import Arrow from '../vectors/arrow.react.js';
 
 type Props = {
-  +sidebarItem: SidebarThreadItem,
+  +sidebarInfo: SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
@@ -26,14 +26,14 @@ function ChatThreadListSidebar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const {
-    sidebarItem,
+    sidebarInfo,
     onSwipeableWillOpen,
     currentlyOpenedSwipeableId,
     onPressItem,
     extendArrow = false,
   } = props;
 
-  const { threadInfo } = sidebarItem;
+  const { threadInfo } = sidebarInfo;
 
   const onPress = React.useCallback(
     () => onPressItem(threadInfo),
@@ -58,37 +58,40 @@ function ChatThreadListSidebar(props: Props): React.Node {
   const unreadIndicator = React.useMemo(
     () => (
       <View style={styles.unreadIndicatorContainer}>
-        <UnreadDot unread={threadInfo.currentUser.unread} />
+        <UnreadDot unread={sidebarInfo.threadInfo.currentUser.unread} />
       </View>
     ),
-    [threadInfo.currentUser.unread, styles.unreadIndicatorContainer],
+    [
+      sidebarInfo.threadInfo.currentUser.unread,
+      styles.unreadIndicatorContainer,
+    ],
   );
 
-  const sidebarItemElement = React.useMemo(
-    () => <SidebarItem sidebarItem={sidebarItem} />,
-    [sidebarItem],
+  const sidebarItem = React.useMemo(
+    () => <SidebarItem sidebarInfo={sidebarInfo} />,
+    [sidebarInfo],
   );
 
   const swipeableThread = React.useMemo(
     () => (
       <View style={styles.swipeableThreadContainer}>
         <SwipeableThread
-          threadInfo={threadInfo}
-          mostRecentNonLocalMessage={sidebarItem.mostRecentNonLocalMessage}
+          threadInfo={sidebarInfo.threadInfo}
+          mostRecentNonLocalMessage={sidebarInfo.mostRecentNonLocalMessage}
           onSwipeableWillOpen={onSwipeableWillOpen}
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           iconSize={16}
         >
-          {sidebarItemElement}
+          {sidebarItem}
         </SwipeableThread>
       </View>
     ),
     [
       currentlyOpenedSwipeableId,
       onSwipeableWillOpen,
-      sidebarItem.mostRecentNonLocalMessage,
-      threadInfo,
-      sidebarItemElement,
+      sidebarInfo.mostRecentNonLocalMessage,
+      sidebarInfo.threadInfo,
+      sidebarItem,
       styles.swipeableThreadContainer,
     ],
   );

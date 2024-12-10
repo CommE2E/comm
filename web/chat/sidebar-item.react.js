@@ -3,19 +3,19 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { SidebarThreadItem } from 'lib/shared/sidebar-item-utils.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './chat-thread-list.css';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
-  +sidebarItem: SidebarThreadItem,
+  +sidebarInfo: SidebarInfo,
   +extendArrow?: boolean,
 };
 function SidebarItem(props: Props): React.Node {
   const {
-    sidebarItem: { threadInfo },
+    sidebarInfo: { threadInfo },
     extendArrow = false,
   } = props;
   const {

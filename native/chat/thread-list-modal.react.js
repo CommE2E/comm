@@ -11,11 +11,10 @@ import {
 } from 'react-native';
 
 import type { ThreadSearchState } from 'lib/hooks/search-threads.js';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type {
-  ThreadInfo,
-  RawThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Modal from '../components/modal.react.js';
@@ -25,14 +24,13 @@ import ThreadPill from '../components/thread-pill.react.js';
 import { useIndicatorStyle, useStyles } from '../themes/colors.js';
 import { waitForModalInputFocus } from '../utils/timers.js';
 
-type ChatItem = {
-  +threadInfo: RawThreadInfo | ThreadInfo,
-  ...
-};
-function keyExtractor(sidebarInfo: ChatItem) {
+function keyExtractor(sidebarInfo: SidebarInfo | ChatThreadItem) {
   return sidebarInfo.threadInfo.id;
 }
-function getItemLayout(data: ?$ReadOnlyArray<ChatItem>, index: number) {
+function getItemLayout(
+  data: ?$ReadOnlyArray<SidebarInfo | ChatThreadItem>,
+  index: number,
+) {
   return { length: 24, offset: 24 * index, index };
 }
 
@@ -48,7 +46,9 @@ type Props<U> = {
   +searchPlaceholder?: string,
   +modalTitle: string,
 };
-function ThreadListModal<U: ChatItem>(props: Props<U>): React.Node {
+function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
+  props: Props<U>,
+): React.Node {
   const {
     threadInfo: parentThreadInfo,
     searchState,

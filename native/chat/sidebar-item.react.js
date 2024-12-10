@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { SidebarThreadItem } from 'lib/shared/sidebar-item-utils.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -11,17 +11,17 @@ import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +sidebarItem: SidebarThreadItem,
+  +sidebarInfo: SidebarInfo,
 };
 function SidebarItem(props: Props): React.Node {
-  const { lastUpdatedTime } = props.sidebarItem;
+  const { lastUpdatedTime } = props.sidebarInfo;
 
   const lastActivity = React.useMemo(
     () => shortAbsoluteDate(lastUpdatedTime),
     [lastUpdatedTime],
   );
 
-  const { threadInfo } = props.sidebarItem;
+  const { threadInfo } = props.sidebarInfo;
   const { uiName } = useResolvedThreadInfo(threadInfo);
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;

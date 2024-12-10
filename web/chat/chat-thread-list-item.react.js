@@ -90,11 +90,12 @@ function ChatThreadListItem(props: Props): React.Node {
 
   const sidebars = item.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
+      const { type, ...sidebarInfo } = sidebarItem;
       return (
         <ChatThreadListSidebar
-          sidebarItem={sidebarItem}
+          sidebarInfo={sidebarInfo}
           isSubsequentItem={index > 0}
-          key={sidebarItem.threadInfo.id}
+          key={sidebarInfo.threadInfo.id}
         />
       );
     } else if (sidebarItem.type === 'seeMore') {

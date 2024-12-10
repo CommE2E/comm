@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { SidebarThreadItem } from 'lib/shared/sidebar-item-utils.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react.js';
 import css from './chat-thread-list.css';
@@ -11,12 +11,12 @@ import SidebarItem from './sidebar-item.react.js';
 import { useThreadIsActive } from '../selectors/thread-selectors.js';
 
 type Props = {
-  +sidebarItem: SidebarThreadItem,
+  +sidebarInfo: SidebarInfo,
   +isSubsequentItem: boolean,
 };
 function ChatThreadListSidebar(props: Props): React.Node {
-  const { sidebarItem, isSubsequentItem } = props;
-  const { threadInfo, mostRecentNonLocalMessage } = sidebarItem;
+  const { sidebarInfo, isSubsequentItem } = props;
+  const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
   const {
     currentUser: { unread },
     id: threadID,
@@ -35,7 +35,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
       })}
     >
       <div className={css.dotContainer}>{unreadDot}</div>
-      <SidebarItem sidebarItem={sidebarItem} extendArrow={isSubsequentItem} />
+      <SidebarItem sidebarInfo={sidebarInfo} extendArrow={isSubsequentItem} />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}
