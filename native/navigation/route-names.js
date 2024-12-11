@@ -180,6 +180,7 @@ export const HomeTabTipRouteName = 'HomeTabTip';
 export const MutedTabTipRouteName = 'MutedTabTip';
 export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
 export const QRAuthNavigatorRouteName = 'QRAuthNavigator';
+export const QRAuthNotPrimaryDeviceRouteName = 'QRAuthNotPrimaryDevice';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -354,6 +355,7 @@ export type UserProfileBottomSheetParamList = {
 
 export type QRAuthNavigatorParamList = {
   +SecondaryDeviceQRCodeScanner: void,
+  +QRAuthNotPrimaryDevice: void,
 };
 
 export type ScreenParamList = {
