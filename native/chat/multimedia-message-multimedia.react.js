@@ -5,7 +5,11 @@ import { useRoute } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated from 'react-native-reanimated';
+import {
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated';
 
 import { type MediaInfo } from 'lib/types/media-types.js';
 
@@ -33,8 +37,6 @@ import {
   AnimatedView,
 } from '../types/styles.js';
 
-const { Node, sub, interpolateNode, Extrapolate } = Animated;
-
 type BaseProps = {
   +mediaInfo: MediaInfo,
   +item: ChatMultimediaMessageInfoItem,
@@ -61,18 +63,10 @@ type Props = {
   +viewRef: { current: ?React.ElementRef<typeof View> },
   +onPress: () => void,
   +onLayout: () => void,
+  +animatedWrapperStyle: AnimatedStyleObj,
 };
-type State = {
-  +opacity: number | Node,
-};
-class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      opacity: this.getOpacity(),
-    };
-  }
 
+class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   static getOverlayContext(props: Props): OverlayContextType {
     const { overlayContext } = props;
     invariant(
@@ -82,48 +76,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     return overlayContext;
   }
 
-  static getModalOverlayPosition(props: Props): ?Animated.Value {
-    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(props);
-    const { visibleOverlays } = overlayContext;
-    for (const overlay of visibleOverlays) {
-      if (
-        overlay.routeName === ImageModalRouteName &&
-        overlay.presentedFrom === props.route.key &&
-        overlay.routeKey === getMediaKey(props.item, props.mediaInfo)
-      ) {
-        return overlay.position;
-      }
-    }
-    return undefined;
-  }
-
-  getOpacity(): number | Animated.Node {
-    const overlayPosition = MultimediaMessageMultimedia.getModalOverlayPosition(
-      this.props,
-    );
-    if (!overlayPosition) {
-      return 1;
-    }
-    return sub(
-      1,
-      interpolateNode(overlayPosition, {
-        inputRange: [0.1, 0.11],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-    );
-  }
-
   componentDidUpdate(prevProps: Props) {
-    const overlayPosition = MultimediaMessageMultimedia.getModalOverlayPosition(
-      this.props,
-    );
-    const prevOverlayPosition =
-      MultimediaMessageMultimedia.getModalOverlayPosition(prevProps);
-    if (overlayPosition !== prevOverlayPosition) {
-      this.setState({ opacity: this.getOpacity() });
-    }
-
     const scrollIsDisabled =
       MultimediaMessageMultimedia.getOverlayContext(this.props)
         .scrollBlockingModalStatus !== 'closed';
@@ -136,14 +89,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   render(): React.Node {
-    const { opacity } = this.state;
-    const animatedWrapperStyle: AnimatedStyleObj = { opacity };
-    const wrapperStyles = [
-      styles.container,
-      animatedWrapperStyle,
-      this.props.style,
-    ];
-
     const {
       mediaInfo,
       pendingUpload,
@@ -151,7 +96,14 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       viewRef,
       onPress,
       onLayout,
+      animatedWrapperStyle,
     } = this.props;
+
+    const wrapperStyles = [
+      styles.container,
+      animatedWrapperStyle,
+      this.props.style,
+    ];
     return (
       <AnimatedView style={wrapperStyles}>
         <View style={styles.expand} onLayout={onLayout} ref={viewRef}>
@@ -234,6 +186,39 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
 
     const onLayout = React.useCallback(() => {}, []);
 
+    const overlayPosition = (() => {
+      const { visibleOverlays } = overlayContext;
+      for (const overlay of visibleOverlays) {
+        if (
+          overlay.routeName === ImageModalRouteName &&
+          overlay.presentedFrom === route.key &&
+          overlay.routeKey === getMediaKey(props.item, props.mediaInfo)
+        ) {
+          return overlay.positionV2;
+        }
+      }
+      return undefined;
+    })();
+
+    const animatedWrapperStyle = useAnimatedStyle(() => {
+      let opacity;
+      if (overlayPosition) {
+        opacity =
+          1 -
+          interpolate(
+            overlayPosition.value,
+            [0.1, 0.11],
+            [0, 1],
+            Extrapolate.CLAMP,
+          );
+      } else {
+        opacity = 1;
+      }
+      return {
+        opacity,
+      };
+    });
+
     return (
       <MultimediaMessageMultimedia
         {...props}
@@ -244,6 +229,7 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
         viewRef={viewRef}
         onPress={onPress}
         onLayout={onLayout}
+        animatedWrapperStyle={animatedWrapperStyle}
       />
     );
   });
