@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import type { AppNavigationProp } from './app-navigator.react.js';
 import { OverlayContext } from './overlay-context.js';
@@ -23,7 +23,7 @@ type Props = {
 function ActionResultModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'ActionResultModal should have OverlayContext');
-  const { position } = overlayContext;
+  const { positionV2 } = overlayContext;
 
   // Timer resets whenever message updates
   const { goBackOnce } = props.navigation;
@@ -35,11 +35,16 @@ function ActionResultModal(props: Props): React.Node {
 
   const styles = useOverlayStyles(ourStyles);
   const bottomInset = useSelector(state => state.dimensions.bottomInset);
-  const containerStyle = {
-    ...styles.container,
-    opacity: position,
-    paddingBottom: bottomInset + 100,
-  };
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: positionV2?.value,
+      paddingBottom: bottomInset + 100,
+    };
+  });
+  const containerStyle = React.useMemo(
+    () => [styles.container, animatedContainerStyle],
+    [animatedContainerStyle, styles.container],
+  );
   return (
     <Animated.View style={containerStyle}>
       <View style={styles.message}>
