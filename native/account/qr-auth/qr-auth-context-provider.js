@@ -43,6 +43,7 @@ function QRAuthContextProvider(props: Props): React.Node {
   const aes256Key = React.useRef<?string>(null);
   const secondaryDeviceID = React.useRef<?string>(null);
   const secondaryDeviceType = React.useRef<?IdentityDeviceType>(null);
+  const [connectingInProgress, setConnectingInProgress] = React.useState(false);
 
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
@@ -89,6 +90,8 @@ function QRAuthContextProvider(props: Props): React.Node {
       ) {
         return;
       }
+
+      setConnectingInProgress(false);
 
       Alert.alert('Device added', 'Device registered successfully', [
         { text: 'OK', onPress: goBack },
@@ -189,6 +192,7 @@ function QRAuthContextProvider(props: Props): React.Node {
         ],
       );
     } catch (err) {
+      setConnectingInProgress(false);
       console.log('Primary device error:', err);
       Alert.alert('Adding device failed', 'Failed to update the device list', [
         { text: 'OK' },
@@ -205,6 +209,8 @@ function QRAuthContextProvider(props: Props): React.Node {
 
   const onConnect = React.useCallback(
     async (data: string) => {
+      setConnectingInProgress(true);
+
       const parsedData = parseDataFromDeepLink(data);
       const keysMatch = parsedData?.data?.keys;
 
@@ -214,6 +220,7 @@ function QRAuthContextProvider(props: Props): React.Node {
           'QR code does not contain a valid pair of keys.',
           [{ text: 'OK' }],
         );
+        setConnectingInProgress(false);
         return;
       }
 
@@ -224,6 +231,7 @@ function QRAuthContextProvider(props: Props): React.Node {
         secondaryDeviceID.current = ed25519;
         secondaryDeviceType.current = parsedData.data.deviceType;
       } catch (err) {
+        setConnectingInProgress(false);
         console.log('Failed to decode URI component:', err);
         return;
       }
@@ -236,8 +244,9 @@ function QRAuthContextProvider(props: Props): React.Node {
   const contextValue = React.useMemo(
     () => ({
       onConnect,
+      connectingInProgress,
     }),
-    [onConnect],
+    [onConnect, connectingInProgress],
   );
 
   return (
