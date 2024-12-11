@@ -1,16 +1,21 @@
 // @flow
 
+import { useFocusEffect } from '@react-navigation/core';
 import { useNavigation } from '@react-navigation/native';
 import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import { QRAuthContext } from './qr-auth-context.js';
+import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
+
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
 import TextInput from '../../components/text-input.react.js';
 import HeaderRightTextButton from '../../navigation/header-right-text-button.react.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  ConnectSecondaryDeviceRouteName,
+  QRAuthNotPrimaryDeviceRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 import { deviceIsEmulator } from '../../utils/url-utils.js';
@@ -29,12 +34,9 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const [urlInput, setURLInput] = React.useState('');
 
   const styles = useStyles(unboundStyles);
-  const { goBack, setOptions } = useNavigation();
+  const { goBack, setOptions, navigate } = useNavigation();
   const { panelForegroundTertiaryLabel } = useColors();
-
-  const qrAuthContext = React.useContext(QRAuthContext);
-  invariant(qrAuthContext, 'qrAuthContext should be set');
-  const { onConnect } = qrAuthContext;
+  const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
 
   React.useEffect(() => {
     void (async () => {
@@ -58,8 +60,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       return;
     }
 
-    await onConnect(urlInput);
-  }, [onConnect, urlInput]);
+    navigate(ConnectSecondaryDeviceRouteName, { data: urlInput });
+  }, [navigate, urlInput]);
 
   const buttonDisabled = !urlInput;
   React.useEffect(() => {
@@ -77,6 +79,12 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     });
   }, [buttonDisabled, onPressSave, setOptions]);
 
+  const onFocusCallback = React.useCallback(() => {
+    setScanned(false);
+  }, [setScanned]);
+
+  useFocusEffect(onFocusCallback);
+
   const onChangeText = React.useCallback(
     (text: string) => setURLInput(text),
     [],
@@ -86,24 +94,17 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     (barCodeEvent: BarCodeEvent) => {
       setScanned(true);
       const { data } = barCodeEvent;
-      Alert.alert(
-        'Connect with this device?',
-        'Are you sure you want to allow this device to log in to your account?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: goBack,
-          },
-          {
-            text: 'Connect',
-            onPress: () => onConnect(data),
-          },
-        ],
-        { cancelable: false },
-      );
+      void (async () => {
+        const isPrimaryDevice = await checkIfPrimaryDevice();
+
+        if (isPrimaryDevice) {
+          navigate(ConnectSecondaryDeviceRouteName, { data });
+        } else {
+          navigate(QRAuthNotPrimaryDeviceRouteName);
+        }
+      })();
     },
-    [goBack, onConnect],
+    [checkIfPrimaryDevice, navigate],
   );
 
   if (hasPermission === null) {
