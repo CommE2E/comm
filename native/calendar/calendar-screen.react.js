@@ -60,6 +60,7 @@ import {
 } from './entry.react.js';
 import SectionFooter from './section-footer.react.js';
 import ContentLoading from '../components/content-loading.react.js';
+import { listLoadingIndicatorHeight } from '../components/list-loading-indicator-utils.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
 import {
@@ -585,7 +586,7 @@ class CalendarScreen extends React.PureComponent<Props, State> {
   // eslint-disable-next-line consistent-return
   static itemHeight = (item: CalendarItemWithHeight): number => {
     if (item.itemType === 'loader') {
-      return 56;
+      return listLoadingIndicatorHeight;
     } else if (item.itemType === 'header') {
       return 31;
     } else if (item.itemType === 'entryInfo') {
