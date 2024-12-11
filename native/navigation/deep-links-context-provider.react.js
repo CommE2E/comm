@@ -30,7 +30,7 @@ import {
 
 import {
   InviteLinkModalRouteName,
-  SecondaryDeviceQRCodeScannerRouteName,
+  QRAuthNavigatorRouteName,
 } from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
@@ -155,7 +155,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
           showVersionUnsupportedAlert();
           return;
         }
-        navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
+        navigation.navigate(QRAuthNavigatorRouteName);
       }
     })();
   }, [
