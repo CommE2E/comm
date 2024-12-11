@@ -26,7 +26,7 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
-  useFlattenedChatListData,
+  useFlattenedChatListLoaders,
 } from 'lib/selectors/chat-selectors.js';
 import {
   createPendingThread,
@@ -35,6 +35,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
+import ChatThreadItemLoaderCache from 'lib/utils/chat-thread-item-loader-cache.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
 import ChatThreadListSearch from './chat-thread-list-search.react.js';
@@ -82,8 +83,19 @@ type BaseProps = {
 };
 export type SearchStatus = 'inactive' | 'activating' | 'active';
 
+const pageSize = 25;
+
 function ChatThreadList(props: BaseProps): React.Node {
-  const boundChatListData = useFlattenedChatListData();
+  const chatThreadItemLoaders = useFlattenedChatListLoaders();
+  const chatThreadItemLoaderCache = React.useMemo(
+    () => new ChatThreadItemLoaderCache(chatThreadItemLoaders),
+    [chatThreadItemLoaders],
+  );
+
+  const [boundChatListData, setBoundChatListData] = React.useState<
+    $ReadOnlyArray<ChatThreadItem>,
+  >(() => chatThreadItemLoaderCache.getAllChatThreadItems());
+
   const loggedInUserInfo = useLoggedInUserInfo();
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useSelector(indicatorStyleSelector);
@@ -102,11 +114,22 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const [openedSwipeableID, setOpenedSwipeableID] = React.useState<string>('');
-  const [numItemsToDisplay, setNumItemsToDisplay] = React.useState<number>(25);
+  const [numItemsToDisplay, setNumItemsToDisplay] =
+    React.useState<number>(pageSize);
+
+  React.useEffect(() => {
+    void (async () => {
+      const results =
+        await chatThreadItemLoaderCache.loadMostRecentChatThreadItems(
+          numItemsToDisplay,
+        );
+      setBoundChatListData(results);
+    })();
+  }, [numItemsToDisplay, chatThreadItemLoaderCache]);
 
   const onChangeSearchText = React.useCallback((updatedSearchText: string) => {
     setSearchText(updatedSearchText);
-    setNumItemsToDisplay(25);
+    setNumItemsToDisplay(pageSize);
   }, []);
 
   const scrollPos = React.useRef(0);
@@ -314,7 +337,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     if (partialListData.length === listData.length) {
       return;
     }
-    setNumItemsToDisplay(prevNumItems => prevNumItems + 25);
+    setNumItemsToDisplay(prevNumItems => prevNumItems + pageSize);
   }, [listData.length, partialListData.length]);
 
   const floatingAction = React.useMemo(() => {
@@ -417,7 +440,7 @@ function ChatThreadList(props: BaseProps): React.Node {
 
   React.useEffect(() => {
     const clearNavigationBlurListener = navigation.addListener('blur', () => {
-      setNumItemsToDisplay(25);
+      setNumItemsToDisplay(pageSize);
     });
 
     return () => {
