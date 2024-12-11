@@ -9,17 +9,24 @@ import {
 } from './chat-thread-list-item.react.js';
 import type { Item } from './chat-thread-list.react.js';
 import { sidebarHeight } from './sidebar-item.react.js';
+import { listLoadingIndicatorHeight } from '../components/list-loading-indicator-utils.js';
 
 function keyExtractor(item: Item): string {
   if (item.type === 'chatThreadItem') {
     return item.threadInfo.id;
   } else if (item.type === 'empty') {
     return 'empty';
+  } else if (item.type === 'loader') {
+    return 'loader';
   }
   return 'search';
 }
 
 function itemHeight(item: Item): number {
+  if (item.type === 'loader') {
+    return listLoadingIndicatorHeight;
+  }
+
   if (item.type === 'search') {
     return Platform.OS === 'ios' ? 54.5 : 55;
   }

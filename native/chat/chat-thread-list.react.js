@@ -48,6 +48,7 @@ import type {
   ChatTopTabsNavigationProp,
 } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
+import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {
   BackgroundChatThreadListRouteName,
   HomeChatThreadListRouteName,
@@ -72,7 +73,8 @@ const floatingActions = [
 export type Item =
   | ChatThreadItem
   | { +type: 'search', +searchText: string }
-  | { +type: 'empty', +emptyItem: React.ComponentType<{}> };
+  | { +type: 'empty', +emptyItem: React.ComponentType<{}> }
+  | { +type: 'loader' };
 
 type BaseProps = {
   +navigation:
@@ -272,6 +274,13 @@ function ChatThreadList(props: BaseProps): React.Node {
   const renderItem = React.useCallback(
     (row: { item: Item, ... }) => {
       const item = row.item;
+      if (item.type === 'loader') {
+        return (
+          <View style={styles.listLoadingIndicator}>
+            <ListLoadingIndicator />
+          </View>
+        );
+      }
       if (item.type === 'search') {
         return searchItem;
       }
@@ -295,6 +304,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       onSwipeableWillOpen,
       openedSwipeableID,
       searchItem,
+      styles.listLoadingIndicator,
     ],
   );
 
@@ -393,12 +403,19 @@ function ChatThreadList(props: BaseProps): React.Node {
   const viewerID = loggedInUserInfo?.id;
   const extraData = `${viewerID || ''} ${openedSwipeableID}`;
 
+  const finalListData = React.useMemo(() => {
+    if (partialListData.length === listData.length) {
+      return partialListData;
+    }
+    return [...partialListData, { type: 'loader' }];
+  }, [partialListData, listData.length]);
+
   const chatThreadList = React.useMemo(
     () => (
       <View style={styles.container}>
         {fixedSearch}
         <FlatList
-          data={partialListData}
+          data={finalListData}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           getItemLayout={getItemLayout}
@@ -423,7 +440,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       indicatorStyle,
       onEndReached,
       onScroll,
-      partialListData,
+      finalListData,
       renderItem,
       scrollEnabled,
       styles.container,
@@ -521,6 +538,9 @@ const unboundStyles = {
   flatList: {
     flex: 1,
     backgroundColor: 'listBackground',
+  },
+  listLoadingIndicator: {
+    flex: 1,
   },
 };
 
