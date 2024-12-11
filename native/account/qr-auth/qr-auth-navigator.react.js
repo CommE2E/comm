@@ -7,11 +7,13 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
+import ConnectSecondaryDevice from './connect-secondary-device.react.js';
 import { QRAuthContextProvider } from './qr-auth-context-provider.js';
 import QRAuthNotPrimaryDevice from './qr-auth-not-primary-device.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
+  ConnectSecondaryDeviceRouteName,
   type NavigationRoute,
   type QRAuthNavigatorParamList,
   QRAuthNotPrimaryDeviceRouteName,
@@ -63,6 +65,10 @@ function QRAuthNavigator(props: Props): React.Node {
         <QRAuthStack.Screen
           name={QRAuthNotPrimaryDeviceRouteName}
           component={QRAuthNotPrimaryDevice}
+        />
+        <QRAuthStack.Screen
+          name={ConnectSecondaryDeviceRouteName}
+          component={ConnectSecondaryDevice}
         />
       </QRAuthStack.Navigator>
     </QRAuthContextProvider>
