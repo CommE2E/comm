@@ -67,27 +67,6 @@ type Props = {
 };
 
 class MultimediaMessageMultimedia extends React.PureComponent<Props> {
-  static getOverlayContext(props: Props): OverlayContextType {
-    const { overlayContext } = props;
-    invariant(
-      overlayContext,
-      'MultimediaMessageMultimedia should have OverlayContext',
-    );
-    return overlayContext;
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const scrollIsDisabled =
-      MultimediaMessageMultimedia.getOverlayContext(this.props)
-        .scrollBlockingModalStatus !== 'closed';
-    const scrollWasDisabled =
-      MultimediaMessageMultimedia.getOverlayContext(prevProps)
-        .scrollBlockingModalStatus !== 'closed';
-    if (!scrollIsDisabled && scrollWasDisabled) {
-      this.props.setClickable(true);
-    }
-  }
-
   render(): React.Node {
     const {
       mediaInfo,
@@ -220,6 +199,17 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
         opacity,
       };
     });
+
+    const scrollWasDisabled = React.useRef<?boolean>();
+
+    React.useEffect(() => {
+      const scrollIsDisabled =
+        overlayContext.scrollBlockingModalStatus !== 'closed';
+      if (!scrollIsDisabled && scrollWasDisabled.current) {
+        props.setClickable(true);
+      }
+      scrollWasDisabled.current = scrollIsDisabled;
+    }, [overlayContext.scrollBlockingModalStatus, props]);
 
     return (
       <MultimediaMessageMultimedia
