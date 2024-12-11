@@ -57,8 +57,10 @@ import {
   CreateMissingSIWEBackupMessageRouteName,
   RestoreSIWEBackupRouteName,
   LinkedDevicesBottomSheetRouteName,
+  QRAuthNavigatorRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
+import QRAuthNavigator from '../account/qr-auth/qr-auth-navigator.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import SignInNavigator from '../account/sign-in-navigator.react.js';
@@ -315,6 +317,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={RestoreSIWEBackupRouteName}
         component={RestoreSIWEBackup}
+      />
+      <Root.Screen
+        name={QRAuthNavigatorRouteName}
+        component={QRAuthNavigator}
+        options={disableGesturesScreenOptions}
       />
     </Root.Navigator>
   );
