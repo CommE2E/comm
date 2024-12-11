@@ -480,18 +480,20 @@ const OverlayNavigator = React.memo<Props>(
           easing: EasingNode.inOut(EasingNode.ease),
           toValue,
         }).start();
-        positionV2.value = withTiming(
-          toValue,
-          {
-            duration,
-            easing: Easing.inOut(Easing.ease),
-          },
-          () => {
-            if (positionV2.value <= 0) {
-              runOnJS(removeScreen)(key);
-            }
-          },
-        );
+        requestAnimationFrame(() => {
+          positionV2.value = withTiming(
+            toValue,
+            {
+              duration,
+              easing: Easing.inOut(Easing.ease),
+            },
+            () => {
+              if (positionV2.value <= 0) {
+                runOnJS(removeScreen)(key);
+              }
+            },
+          );
+        });
       }
       pendingAnimationsRef.current = {};
     }, [positions, positionsV2, pendingAnimations]);
