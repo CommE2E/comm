@@ -1,6 +1,5 @@
 // @flow
 
-import type { LeafRoute } from '@react-navigation/core';
 import { useRoute } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -16,26 +15,15 @@ import { type MediaInfo } from 'lib/types/media-types.js';
 import InlineMultimedia from './inline-multimedia.react.js';
 import { getMediaKey } from './multimedia-message-utils.js';
 import { type PendingMultimediaUpload } from '../input/input-state.js';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context.js';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import { ImageModalRouteName } from '../navigation/route-names.js';
-import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
 import type {
   VerticalBounds,
   LayoutCoordinates,
 } from '../types/layout-types.js';
-import {
-  type ViewStyle,
-  type AnimatedStyleObj,
-  AnimatedView,
-} from '../types/styles.js';
+import { type ViewStyle, AnimatedView } from '../types/styles.js';
 
 type BaseProps = {
   +mediaInfo: MediaInfo,
@@ -51,53 +39,6 @@ type BaseProps = {
   +clickable: boolean,
   +setClickable: boolean => void,
 };
-type Props = {
-  ...BaseProps,
-  +route: LeafRoute<>,
-  // Redux state
-  +colors: Colors,
-  // withKeyboardState
-  +keyboardState: ?KeyboardState,
-  // withOverlayContext
-  +overlayContext: ?OverlayContextType,
-  +viewRef: { current: ?React.ElementRef<typeof View> },
-  +onPress: () => void,
-  +onLayout: () => void,
-  +animatedWrapperStyle: AnimatedStyleObj,
-};
-
-class MultimediaMessageMultimedia extends React.PureComponent<Props> {
-  render(): React.Node {
-    const {
-      mediaInfo,
-      pendingUpload,
-      postInProgress,
-      viewRef,
-      onPress,
-      onLayout,
-      animatedWrapperStyle,
-    } = this.props;
-
-    const wrapperStyles = [
-      styles.container,
-      animatedWrapperStyle,
-      this.props.style,
-    ];
-    return (
-      <AnimatedView style={wrapperStyles}>
-        <View style={styles.expand} onLayout={onLayout} ref={viewRef}>
-          <InlineMultimedia
-            mediaInfo={mediaInfo}
-            onPress={onPress}
-            postInProgress={postInProgress}
-            pendingUpload={pendingUpload}
-            spinnerColor={this.props.item.threadInfo.color}
-          />
-        </View>
-      </AnimatedView>
-    );
-  }
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -113,7 +54,6 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedMultimediaMessageMultimedia(
     props: BaseProps,
   ) {
-    const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
     invariant(
@@ -211,18 +151,22 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
       scrollWasDisabled.current = scrollIsDisabled;
     }, [overlayContext.scrollBlockingModalStatus, props]);
 
+    const { mediaInfo, postInProgress, pendingUpload, item, style } = props;
+
+    const wrapperStyles = [styles.container, animatedWrapperStyle, style];
+
     return (
-      <MultimediaMessageMultimedia
-        {...props}
-        colors={colors}
-        route={route}
-        keyboardState={keyboardState}
-        overlayContext={overlayContext}
-        viewRef={viewRef}
-        onPress={onPress}
-        onLayout={onLayout}
-        animatedWrapperStyle={animatedWrapperStyle}
-      />
+      <AnimatedView style={wrapperStyles}>
+        <View style={styles.expand} onLayout={onLayout} ref={viewRef}>
+          <InlineMultimedia
+            mediaInfo={mediaInfo}
+            onPress={onPress}
+            postInProgress={postInProgress}
+            pendingUpload={pendingUpload}
+            spinnerColor={item.threadInfo.color}
+          />
+        </View>
+      </AnimatedView>
     );
   });
 
