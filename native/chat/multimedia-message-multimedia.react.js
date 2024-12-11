@@ -59,6 +59,8 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +viewRef: { current: ?React.ElementRef<typeof View> },
+  +onPress: () => void,
+  +onLayout: () => void,
 };
 type State = {
   +opacity: number | Node,
@@ -142,13 +144,20 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.props.style,
     ];
 
-    const { mediaInfo, pendingUpload, postInProgress, viewRef } = this.props;
+    const {
+      mediaInfo,
+      pendingUpload,
+      postInProgress,
+      viewRef,
+      onPress,
+      onLayout,
+    } = this.props;
     return (
       <AnimatedView style={wrapperStyles}>
-        <View style={styles.expand} onLayout={this.onLayout} ref={viewRef}>
+        <View style={styles.expand} onLayout={onLayout} ref={viewRef}>
           <InlineMultimedia
             mediaInfo={mediaInfo}
-            onPress={this.onPress}
+            onPress={onPress}
             postInProgress={postInProgress}
             pendingUpload={pendingUpload}
             spinnerColor={this.props.item.threadInfo.color}
@@ -157,48 +166,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       </AnimatedView>
     );
   }
-
-  onLayout = () => {};
-
-  onPress = () => {
-    if (!this.props.clickable) {
-      return;
-    }
-
-    if (this.dismissKeyboardIfShowing()) {
-      return;
-    }
-
-    const {
-      props: { verticalBounds, viewRef },
-    } = this;
-    const view = viewRef.current;
-    if (!view || !verticalBounds) {
-      return;
-    }
-
-    const measureCallback = this.props.onPressMultimedia;
-    if (!measureCallback) {
-      return;
-    }
-
-    this.props.setClickable(false);
-
-    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
-      this.props,
-    );
-    overlayContext.setScrollBlockingModalStatus('open');
-
-    view.measure((x, y, width, height, pageX, pageY) => {
-      const coordinates = { x: pageX, y: pageY, width, height };
-      measureCallback(this.props.mediaInfo, coordinates);
-    });
-  };
-
-  dismissKeyboardIfShowing = (): boolean => {
-    const { keyboardState } = this.props;
-    return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  };
 }
 
 const styles = StyleSheet.create({
@@ -218,8 +185,54 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
     const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
+    invariant(
+      overlayContext,
+      'MultimediaMessageMultimedia should have OverlayContext',
+    );
     const route = useRoute();
     const viewRef = React.useRef<?React.ElementRef<typeof View>>();
+
+    const dismissKeyboardIfShowing = React.useCallback((): boolean => {
+      return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
+    }, [keyboardState]);
+
+    const onPress = React.useCallback(() => {
+      const {
+        clickable,
+        verticalBounds,
+        onPressMultimedia,
+        setClickable,
+        mediaInfo,
+      } = props;
+      if (!clickable) {
+        return;
+      }
+
+      if (dismissKeyboardIfShowing()) {
+        return;
+      }
+
+      const view = viewRef.current;
+      if (!view || !verticalBounds) {
+        return;
+      }
+
+      const measureCallback = onPressMultimedia;
+      if (!measureCallback) {
+        return;
+      }
+
+      setClickable(false);
+
+      overlayContext.setScrollBlockingModalStatus('open');
+
+      view.measure((x, y, width, height, pageX, pageY) => {
+        const coordinates = { x: pageX, y: pageY, width, height };
+        measureCallback(mediaInfo, coordinates);
+      });
+    }, [dismissKeyboardIfShowing, overlayContext, props]);
+
+    const onLayout = React.useCallback(() => {}, []);
 
     return (
       <MultimediaMessageMultimedia
@@ -229,6 +242,8 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
         keyboardState={keyboardState}
         overlayContext={overlayContext}
         viewRef={viewRef}
+        onPress={onPress}
+        onLayout={onLayout}
       />
     );
   });
