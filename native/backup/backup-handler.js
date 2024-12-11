@@ -35,16 +35,19 @@ function BackupHandler(): null {
     useClientBackup();
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
   const backupUploadInProgress = React.useRef<boolean>(false);
+  const startingBackupHandlerInProgress = React.useRef<boolean>(false);
   const [handlerStarted, setHandlerStarted] = React.useState(false);
 
   React.useEffect(() => {
-    if (!staffCanSee) {
+    if (!staffCanSee || startingBackupHandlerInProgress.current) {
       return;
     }
 
     void (async () => {
+      startingBackupHandlerInProgress.current = true;
       const isPrimaryDevice = await checkIfPrimaryDevice();
       if (!isPrimaryDevice) {
+        startingBackupHandlerInProgress.current = false;
         return;
       }
 
@@ -69,6 +72,7 @@ function BackupHandler(): null {
           console.log('Error stopping backup handler:', message);
         }
       }
+      startingBackupHandlerInProgress.current = false;
     })();
   }, [
     canPerformBackupOperation,
