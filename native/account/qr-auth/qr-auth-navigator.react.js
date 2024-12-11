@@ -7,6 +7,7 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
+import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   type NavigationRoute,
@@ -14,7 +15,6 @@ import {
   type ScreenParamList,
   SecondaryDeviceQRCodeScannerRouteName,
 } from '../../navigation/route-names.js';
-import SecondaryDeviceQRCodeScanner from '../../profile/secondary-device-qr-code-scanner.react.js';
 import { deviceIsEmulator } from '../../utils/url-utils.js';
 
 export type QRAuthNavigationProp<RouteName: $Keys<QRAuthNavigatorParamList>> =
