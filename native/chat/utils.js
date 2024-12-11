@@ -20,6 +20,7 @@ import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
 import textMessageSendFailed from './text-message-send-failed.js';
 import { timestampHeight } from './timestamp.react.js';
+import { listLoadingIndicatorHeight } from '../components/list-loading-indicator-utils.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import {
@@ -86,7 +87,7 @@ function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
 
 function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
   if (item.itemType === 'loader') {
-    return 56;
+    return listLoadingIndicatorHeight;
   }
   return messageItemHeight(item);
 }
