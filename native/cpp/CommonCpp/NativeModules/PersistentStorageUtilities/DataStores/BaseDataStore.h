@@ -59,8 +59,6 @@ public:
 
       if (error.size()) {
         throw std::runtime_error(error);
-      } else if (!error.size()) {
-        ::triggerBackupFileUpload();
       }
     });
   }

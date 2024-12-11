@@ -526,10 +526,6 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             }
           }
 
-          if (!error.size()) {
-            ::triggerBackupFileUpload();
-          }
-
           this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
