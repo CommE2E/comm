@@ -40,13 +40,15 @@ pub mod ffi {
 
   pub fn start_backup_handler() -> Result<(), Box<dyn Error>> {
     let mut handle = UPLOAD_HANDLER.lock()?;
-    match handle.take() {
-      // Don't start backup handler if it's already running
-      Some(handle) if !handle.is_finished() => (),
-      _ => {
-        *handle = Some(RUNTIME.spawn(super::start()?));
+
+    if let Some(handle) = &*handle {
+      if !handle.is_finished() {
+        return Ok(()); // Early exit if a running future is detected
       }
     }
+
+    // No running future or the existing one is finished
+    *handle = Some(RUNTIME.spawn(super::start()?));
 
     Ok(())
   }
