@@ -58,13 +58,12 @@ type Props = {
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +viewRef: { current: ?React.ElementRef<typeof View> },
 };
 type State = {
   +opacity: number | Node,
 };
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
-  view: ?React.ElementRef<typeof View>;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -143,10 +142,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.props.style,
     ];
 
-    const { mediaInfo, pendingUpload, postInProgress } = this.props;
+    const { mediaInfo, pendingUpload, postInProgress, viewRef } = this.props;
     return (
       <AnimatedView style={wrapperStyles}>
-        <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
+        <View style={styles.expand} onLayout={this.onLayout} ref={viewRef}>
           <InlineMultimedia
             mediaInfo={mediaInfo}
             onPress={this.onPress}
@@ -161,10 +160,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   onLayout = () => {};
 
-  viewRef = (view: ?React.ElementRef<typeof View>) => {
-    this.view = view;
-  };
-
   onPress = () => {
     if (!this.props.clickable) {
       return;
@@ -175,9 +170,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
 
     const {
-      view,
-      props: { verticalBounds },
+      props: { verticalBounds, viewRef },
     } = this;
+    const view = viewRef.current;
     if (!view || !verticalBounds) {
       return;
     }
@@ -224,6 +219,8 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
     const route = useRoute();
+    const viewRef = React.useRef<?React.ElementRef<typeof View>>();
+
     return (
       <MultimediaMessageMultimedia
         {...props}
@@ -231,6 +228,7 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
         route={route}
         keyboardState={keyboardState}
         overlayContext={overlayContext}
+        viewRef={viewRef}
       />
     );
   });
