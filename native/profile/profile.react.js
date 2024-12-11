@@ -28,7 +28,6 @@ import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
-import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import TunnelbrokerMenu from './tunnelbroker-menu.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
@@ -46,7 +45,6 @@ import {
   DefaultNotificationsPreferencesRouteName,
   BlockListRouteName,
   LinkedDevicesRouteName,
-  SecondaryDeviceQRCodeScannerRouteName,
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
   AddKeyserverRouteName,
@@ -57,7 +55,6 @@ import {
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
-import { deviceIsEmulator } from '../utils/url-utils.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
@@ -78,10 +75,6 @@ const keyserverSelectionListOptions = {
 const addKeyserverOptions = { headerTitle: 'Add keyserver' };
 const backupMenuOptions = { headerTitle: 'Backup menu' };
 const tunnelbrokerMenuOptions = { headerTitle: 'Tunnelbroker menu' };
-const secondaryDeviceQRCodeScannerOptions = {
-  headerTitle: deviceIsEmulator ? 'Link device' : '',
-  headerBackTitleVisible: false,
-};
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
@@ -188,11 +181,6 @@ function ProfileComponent(props: Props): React.Node {
             name={TunnelbrokerMenuRouteName}
             component={TunnelbrokerMenu}
             options={tunnelbrokerMenuOptions}
-          />
-          <Profile.Screen
-            name={SecondaryDeviceQRCodeScannerRouteName}
-            component={SecondaryDeviceQRCodeScanner}
-            options={secondaryDeviceQRCodeScannerOptions}
           />
           <Profile.Screen
             name={BuildInfoRouteName}

@@ -179,6 +179,7 @@ export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
 export const HomeTabTipRouteName = 'HomeTabTip';
 export const MutedTabTipRouteName = 'MutedTabTip';
 export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
+export const QRAuthNavigatorRouteName = 'QRAuthNavigator';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -207,6 +208,7 @@ export type RootParamList = {
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
+  +QRAuthNavigator: void,
 };
 
 export type NUXTipRouteNames =
@@ -289,7 +291,6 @@ export type ProfileParamList = {
   +FriendList: void,
   +BlockList: void,
   +LinkedDevices: void,
-  +SecondaryDeviceQRCodeScanner: void,
   +BackupMenu: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionList: void,
@@ -351,6 +352,10 @@ export type UserProfileBottomSheetParamList = {
   +UserRelationshipTooltipModal: UserRelationshipTooltipModalParams,
 };
 
+export type QRAuthNavigatorParamList = {
+  +SecondaryDeviceQRCodeScanner: void,
+};
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -367,6 +372,7 @@ export type ScreenParamList = {
   ...SignInParamList,
   ...UserProfileBottomSheetParamList,
   ...TagFarcasterChannelParamList,
+  ...QRAuthNavigatorParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
