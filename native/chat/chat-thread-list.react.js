@@ -202,13 +202,13 @@ function ChatThreadList(props: BaseProps): React.Node {
 
   const onPressItem = React.useCallback(
     (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {
-      onChangeSearchText('');
+      setSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();
       }
       navigateToThread({ threadInfo, pendingPersonalThreadUserInfo });
     },
-    [navigateToThread, onChangeSearchText],
+    [navigateToThread],
   );
 
   const onPressSeeMoreSidebars = React.useCallback(
@@ -454,18 +454,6 @@ function ChatThreadList(props: BaseProps): React.Node {
       navigation.navigate({ name: HomeChatThreadListRouteName });
     }
   }, [navigation, route.name]);
-
-  React.useEffect(() => {
-    const clearNavigationBlurListener = navigation.addListener('blur', () => {
-      setNumItemsToDisplay(pageSize);
-    });
-
-    return () => {
-      // `.addListener` returns function that can be called to unsubscribe.
-      // https://reactnavigation.org/docs/navigation-events/#navigationaddlistener
-      clearNavigationBlurListener();
-    };
-  }, [navigation]);
 
   React.useEffect(() => {
     const chatNavigation = navigation.getParent<
