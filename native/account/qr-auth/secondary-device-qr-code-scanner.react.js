@@ -29,19 +29,19 @@ import {
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 
-import type { QRAuthNavigationProp } from '../account/qr-auth/qr-auth-navigator.react.js';
-import TextInput from '../components/text-input.react.js';
-import { commCoreModule } from '../native-modules.js';
-import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { useStyles, useColors } from '../themes/colors.js';
-import Alert from '../utils/alert.js';
+import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
+import TextInput from '../../components/text-input.react.js';
+import { commCoreModule } from '../../native-modules.js';
+import HeaderRightTextButton from '../../navigation/header-right-text-button.react.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { useStyles, useColors } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
-} from '../utils/qr-code-utils.js';
-import { deviceIsEmulator } from '../utils/url-utils.js';
+} from '../../utils/qr-code-utils.js';
+import { deviceIsEmulator } from '../../utils/url-utils.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
 
