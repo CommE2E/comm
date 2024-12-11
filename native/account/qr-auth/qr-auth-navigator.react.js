@@ -7,6 +7,7 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
+import { QRAuthContextProvider } from './qr-auth-context-provider.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -50,13 +51,15 @@ const secondaryDeviceQRCodeScannerOptions = {
 // eslint-disable-next-line no-unused-vars
 function QRAuthNavigator(props: Props): React.Node {
   return (
-    <QRAuthStack.Navigator screenOptions={screenOptions}>
-      <QRAuthStack.Screen
-        name={SecondaryDeviceQRCodeScannerRouteName}
-        component={SecondaryDeviceQRCodeScanner}
-        options={secondaryDeviceQRCodeScannerOptions}
-      />
-    </QRAuthStack.Navigator>
+    <QRAuthContextProvider>
+      <QRAuthStack.Navigator screenOptions={screenOptions}>
+        <QRAuthStack.Screen
+          name={SecondaryDeviceQRCodeScannerRouteName}
+          component={SecondaryDeviceQRCodeScanner}
+          options={secondaryDeviceQRCodeScannerOptions}
+        />
+      </QRAuthStack.Navigator>
+    </QRAuthContextProvider>
   );
 }
 
