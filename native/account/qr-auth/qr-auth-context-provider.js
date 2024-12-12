@@ -29,12 +29,18 @@ import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-mess
 
 import { QRAuthContext } from './qr-auth-context.js';
 import { commCoreModule } from '../../native-modules.js';
+import {
+  SecondaryDeviceConnectedRouteName,
+  SecondaryDeviceNotRespondingRouteName,
+} from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import Alert from '../../utils/alert.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
 } from '../../utils/qr-code-utils.js';
+
+const secondaryDeviceTimeout = 30 * 1000;
 
 type Props = {
   +children: React.Node,
@@ -44,10 +50,11 @@ function QRAuthContextProvider(props: Props): React.Node {
   const secondaryDeviceID = React.useRef<?string>(null);
   const secondaryDeviceType = React.useRef<?IdentityDeviceType>(null);
   const [connectingInProgress, setConnectingInProgress] = React.useState(false);
+  const timeout = React.useRef<?TimeoutID>(null);
 
   const ownPeerDevices = useSelector(getOwnPeerDevices);
   const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
-  const { goBack } = useNavigation();
+  const { goBack, navigate } = useNavigation();
   const runDeviceListUpdate = useDeviceListUpdate();
   const { addListener, removeListener, sendMessageToDevice } =
     useTunnelbroker();
@@ -95,12 +102,11 @@ function QRAuthContextProvider(props: Props): React.Node {
       }
 
       setConnectingInProgress(false);
-
-      Alert.alert('Device added', 'Device registered successfully', [
-        { text: 'OK', onPress: goBack },
-      ]);
+      clearTimeout(timeout.current);
+      timeout.current = null;
+      navigate(SecondaryDeviceConnectedRouteName);
     },
-    [goBack, connectingInProgress],
+    [connectingInProgress, navigate],
   );
 
   React.useEffect(() => {
@@ -141,6 +147,10 @@ function QRAuthContextProvider(props: Props): React.Node {
           deviceID: targetDeviceID,
           payload: JSON.stringify(message),
         });
+        timeout.current = setTimeout(() => {
+          setConnectingInProgress(false);
+          navigate(SecondaryDeviceNotRespondingRouteName);
+        }, secondaryDeviceTimeout);
       };
 
       const handleReplaceDevice = async () => {
@@ -206,6 +216,7 @@ function QRAuthContextProvider(props: Props): React.Node {
     goBack,
     identityContext,
     keyserverDeviceID,
+    navigate,
     runDeviceListUpdate,
     sendMessageToDevice,
   ]);
