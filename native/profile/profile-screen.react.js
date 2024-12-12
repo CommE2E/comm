@@ -274,19 +274,6 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    let experimentalLogoutActions;
-    if (__DEV__) {
-      experimentalLogoutActions = (
-        <>
-          <ProfileRow
-            danger
-            content="Log out (new flow)"
-            onPress={this.onPressNewLogout}
-          />
-        </>
-      );
-    }
-
     let dmActions;
     if (staffCanSee) {
       dmActions = (
@@ -353,7 +340,6 @@ class ProfileScreen extends React.PureComponent<Props> {
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
-            {experimentalLogoutActions}
             {dmActions}
           </View>
           <View style={this.props.styles.unpaddedSection}>
@@ -372,6 +358,11 @@ class ProfileScreen extends React.PureComponent<Props> {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
+    if (usingRestoreFlow) {
+      this.onPressNewLogout();
+      return;
+    }
+
     if (!this.props.isAccountWithPassword) {
       Alert.alert(
         'Log out',

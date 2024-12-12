@@ -25,8 +25,8 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
@@ -54,18 +54,20 @@ function AccountSettings(): React.Node {
 
   const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
-  const logOutUser = React.useCallback(
-    () => dispatchActionPromise(logOutActionTypes, sendLogoutRequest()),
-    [dispatchActionPromise, sendLogoutRequest],
-  );
-  const logOutSecondaryDevice = React.useCallback(
-    () =>
-      dispatchActionPromise(
+  const logOutUser = React.useCallback(() => {
+    if (usingRestoreFlow) {
+      return dispatchActionPromise(
         logOutActionTypes,
         sendSecondaryDeviceLogoutRequest(),
-      ),
-    [dispatchActionPromise, sendSecondaryDeviceLogoutRequest],
-  );
+      );
+    }
+    return dispatchActionPromise(logOutActionTypes, sendLogoutRequest());
+  }, [
+    dispatchActionPromise,
+    sendLogoutRequest,
+    sendSecondaryDeviceLogoutRequest,
+  ]);
+
   const identityContext = React.useContext(IdentityClientContext);
 
   const userID = useSelector(state => state.currentUserInfo?.id);
@@ -168,18 +170,6 @@ function AccountSettings(): React.Node {
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
-  }
-
-  let experimentalLogOutSection;
-  if (isDev) {
-    experimentalLogOutSection = (
-      <li>
-        <span>Log out secondary device</span>
-        <Button variant="text" onClick={logOutSecondaryDevice}>
-          <p className={css.buttonText}>Log out</p>
-        </Button>
-      </li>
-    );
   }
 
   let preferences;
@@ -310,7 +300,6 @@ function AccountSettings(): React.Node {
                 <p className={css.buttonText}>Log out</p>
               </Button>
             </li>
-            {experimentalLogOutSection}
             <li>
               <span>Friend List</span>
               <Button variant="text" onClick={openFriendList}>
