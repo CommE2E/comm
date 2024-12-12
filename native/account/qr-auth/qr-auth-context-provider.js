@@ -57,6 +57,9 @@ function QRAuthContextProvider(props: Props): React.Node {
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerToDeviceMessage) => {
+      if (!connectingInProgress) {
+        return;
+      }
       const encryptionKey = aes256Key.current;
       const targetDeviceID = secondaryDeviceID.current;
       if (!encryptionKey || !targetDeviceID) {
@@ -97,7 +100,7 @@ function QRAuthContextProvider(props: Props): React.Node {
         { text: 'OK', onPress: goBack },
       ]);
     },
-    [goBack],
+    [goBack, connectingInProgress],
   );
 
   React.useEffect(() => {
@@ -241,12 +244,25 @@ function QRAuthContextProvider(props: Props): React.Node {
     [processDeviceListUpdate],
   );
 
+  const onRemoveSecondaryDevice = React.useCallback(async () => {
+    if (!secondaryDeviceID.current) {
+      console.log('No secondary device to remove');
+      return;
+    }
+
+    await runDeviceListUpdate({
+      type: 'remove',
+      deviceID: secondaryDeviceID.current,
+    });
+  }, [runDeviceListUpdate]);
+
   const contextValue = React.useMemo(
     () => ({
       onConnect,
       connectingInProgress,
+      onRemoveSecondaryDevice,
     }),
-    [onConnect, connectingInProgress],
+    [onConnect, connectingInProgress, onRemoveSecondaryDevice],
   );
 
   return (
