@@ -10,7 +10,7 @@ import type { ViewStyle } from '../types/styles';
 type Props = {
   +onPress: () => mixed,
   +label?: string,
-  +variant?: 'enabled' | 'disabled' | 'loading' | 'outline',
+  +variant?: 'enabled' | 'disabled' | 'loading' | 'outline' | 'danger',
   +children?: React.Node,
   +style?: ViewStyle,
 };
@@ -24,6 +24,8 @@ function PrimaryButton(props: Props): React.Node {
       style = [styles.button, styles.disabledButton];
     } else if (variant === 'outline') {
       style = [styles.button, styles.outlineButton];
+    } else if (variant === 'danger') {
+      style = [styles.button, styles.dangerButton];
     } else {
       style = [styles.button];
     }
@@ -31,6 +33,7 @@ function PrimaryButton(props: Props): React.Node {
   }, [
     props.style,
     styles.button,
+    styles.dangerButton,
     styles.disabledButton,
     styles.outlineButton,
     variant,
@@ -40,6 +43,8 @@ function PrimaryButton(props: Props): React.Node {
       return [styles.buttonText, styles.disabledButtonText];
     } else if (variant === 'loading') {
       return [styles.buttonText, styles.invisibleLoadingText];
+    } else if (variant === 'danger') {
+      return [styles.buttonText, styles.dangerButtonText];
     }
     return styles.buttonText;
   }, [
@@ -47,6 +52,7 @@ function PrimaryButton(props: Props): React.Node {
     styles.buttonText,
     styles.disabledButtonText,
     styles.invisibleLoadingText,
+    styles.dangerButtonText,
   ]);
 
   const colors = useColors();
@@ -101,11 +107,19 @@ const unboundStyles = {
     borderColor: 'panelForegroundLabel',
     borderWidth: 1,
   },
+  dangerButton: {
+    backgroundColor: 'panelBackground',
+    borderColor: 'vibrantRedButton',
+    borderWidth: 1,
+  },
   disabledButtonText: {
     color: 'disabledButtonText',
   },
   invisibleLoadingText: {
     color: 'transparent',
+  },
+  dangerButtonText: {
+    color: 'redText',
   },
   spinner: {
     position: 'absolute',
