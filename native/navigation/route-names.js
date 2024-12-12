@@ -183,6 +183,7 @@ export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
 export const QRAuthNavigatorRouteName = 'QRAuthNavigator';
 export const QRAuthNotPrimaryDeviceRouteName = 'QRAuthNotPrimaryDevice';
 export const ConnectSecondaryDeviceRouteName = 'ConnectSecondaryDevice';
+export const SecondaryDeviceConnectedRouteName = 'SecondaryDeviceConnected';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -359,6 +360,7 @@ export type QRAuthNavigatorParamList = {
   +SecondaryDeviceQRCodeScanner: void,
   +QRAuthNotPrimaryDevice: void,
   +ConnectSecondaryDevice: ConnectSecondaryDeviceParams,
+  +SecondaryDeviceConnected: void,
 };
 
 export type ScreenParamList = {

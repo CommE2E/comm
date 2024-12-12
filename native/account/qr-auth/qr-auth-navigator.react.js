@@ -10,6 +10,7 @@ import * as React from 'react';
 import ConnectSecondaryDevice from './connect-secondary-device.react.js';
 import { QRAuthContextProvider } from './qr-auth-context-provider.js';
 import QRAuthNotPrimaryDevice from './qr-auth-not-primary-device.react.js';
+import SecondaryDeviceConnected from './secondary-device-connected.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -18,6 +19,7 @@ import {
   type QRAuthNavigatorParamList,
   QRAuthNotPrimaryDeviceRouteName,
   type ScreenParamList,
+  SecondaryDeviceConnectedRouteName,
   SecondaryDeviceQRCodeScannerRouteName,
 } from '../../navigation/route-names.js';
 import { deviceIsEmulator } from '../../utils/url-utils.js';
@@ -51,6 +53,10 @@ const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: deviceIsEmulator ? 'Link device' : '',
   headerBackTitleVisible: false,
 };
+const disableGesturesScreenOptions = {
+  headerLeft: null,
+  gestureEnabled: false,
+};
 
 // eslint-disable-next-line no-unused-vars
 function QRAuthNavigator(props: Props): React.Node {
@@ -69,6 +75,11 @@ function QRAuthNavigator(props: Props): React.Node {
         <QRAuthStack.Screen
           name={ConnectSecondaryDeviceRouteName}
           component={ConnectSecondaryDevice}
+        />
+        <QRAuthStack.Screen
+          name={SecondaryDeviceConnectedRouteName}
+          component={SecondaryDeviceConnected}
+          options={disableGesturesScreenOptions}
         />
       </QRAuthStack.Navigator>
     </QRAuthContextProvider>
