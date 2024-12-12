@@ -29,7 +29,10 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import {
+  usingCommServicesAccessToken,
+  usingRestoreFlow,
+} from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -255,7 +258,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
 
     let linkedDevices;
-    if (__DEV__) {
+    if (usingRestoreFlow) {
       linkedDevices = (
         <ProfileRow content="Linked devices" onPress={this.onPressDevices} />
       );
