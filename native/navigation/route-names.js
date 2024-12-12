@@ -184,6 +184,8 @@ export const QRAuthNavigatorRouteName = 'QRAuthNavigator';
 export const QRAuthNotPrimaryDeviceRouteName = 'QRAuthNotPrimaryDevice';
 export const ConnectSecondaryDeviceRouteName = 'ConnectSecondaryDevice';
 export const SecondaryDeviceConnectedRouteName = 'SecondaryDeviceConnected';
+export const SecondaryDeviceNotRespondingRouteName =
+  'SecondaryDeviceNotResponding';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -361,6 +363,7 @@ export type QRAuthNavigatorParamList = {
   +QRAuthNotPrimaryDevice: void,
   +ConnectSecondaryDevice: ConnectSecondaryDeviceParams,
   +SecondaryDeviceConnected: void,
+  +SecondaryDeviceNotResponding: void,
 };
 
 export type ScreenParamList = {
