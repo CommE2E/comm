@@ -9,7 +9,6 @@ type Props = {
 
 function RestoreIcon(props: Props): React.Node {
   const color = props.color ?? '#373737';
-  console.log(color);
   return (
     <Svg height="237" width="264" fill="none" viewBox="0 0 264 237">
       <Path
