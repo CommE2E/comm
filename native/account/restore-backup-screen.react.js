@@ -4,11 +4,21 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
+import { getMessageForException } from 'lib/utils/errors.js';
+
+import { setNativeCredentials } from './native-credentials.js';
 import RegistrationContainer from './registration/registration-container.react.js';
 import RegistrationContentContainer from './registration/registration-content-container.react.js';
+import { useRestore } from './restore.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import {
+  appOutOfDateAlertDetails,
+  unknownErrorAlertDetails,
+  userNotFoundAlertDetails,
+} from '../utils/alert-messages.js';
+import Alert from '../utils/alert.js';
 
 type Props = {
   +navigation: SignInNavigationProp<'RestoreBackupScreen'>,
@@ -30,10 +40,60 @@ export type RestoreBackupScreenParams = {
       },
 };
 
-// eslint-disable-next-line no-unused-vars
 function RestoreBackupScreen(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+
+  const { userIdentifier, credentials } = props.route.params;
+
+  const restore = useRestore();
+  React.useEffect(() => {
+    void (async () => {
+      try {
+        if (credentials.type === 'password') {
+          await restore(userIdentifier, credentials.password);
+          await setNativeCredentials({
+            username: userIdentifier,
+            password: credentials.password,
+          });
+        } else {
+          await restore(
+            userIdentifier,
+            credentials.secret,
+            credentials.message,
+            credentials.signature,
+          );
+        }
+      } catch (e) {
+        const messageForException = getMessageForException(e);
+        console.log(
+          `Backup restore error: ${messageForException ?? 'unknown error'}`,
+        );
+        let alertDetails = unknownErrorAlertDetails;
+        if (
+          messageForException === 'user_not_found' ||
+          messageForException === 'login_failed'
+        ) {
+          alertDetails = userNotFoundAlertDetails;
+        } else if (
+          messageForException === 'unsupported_version' ||
+          messageForException === 'client_version_unsupported' ||
+          messageForException === 'use_new_flow'
+        ) {
+          alertDetails = appOutOfDateAlertDetails;
+        }
+        Alert.alert(
+          alertDetails.title,
+          alertDetails.message,
+          [{ text: 'OK', onPress: props.navigation.goBack }],
+          { cancelable: false },
+        );
+      }
+    })();
+    // We want this effect to run exactly once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.scrollViewContentContainer}>
