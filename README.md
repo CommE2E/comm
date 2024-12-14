@@ -12,7 +12,7 @@ Learn more at [comm.app](https://comm.app)!
 The client apps and keyserver layer are mostly written in Flow-typed Javascript. These projects are organized in a monorepo structure using Yarn Workspaces.
 
 - `native` contains the code for the React Native app, which supports both iOS and Android.
-- `keyserver` contains the code for the Node/Express server.
+- `keyserver` contains the code for the Node/Express server. This includes the application server for the communities layer (the "keyserver"), and can be configured to serve `web` and `landing` as well (see below).
 - `web` contains the code for the React desktop website.
 - `landing` contains the code for the [Comm landing page](https://comm.app).
 - `lib` contains code that is shared across multiple other workspaces, including most of the Redux stack that is shared across native/web.
