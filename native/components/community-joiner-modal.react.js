@@ -32,6 +32,11 @@ type Props = {
 // This should be updated with the names of the crypto communities on Comm
 const cryptoCommunityIDs: $ReadOnlyArray<string> = [];
 
+const routes = [
+  { key: 'general', title: 'General' },
+  { key: 'crypto', title: 'Crypto' },
+];
+
 function CommunityJoinerModal(props: Props): React.Node {
   const { params } = props.route;
   const communities = params?.communities;
@@ -109,15 +114,8 @@ function CommunityJoinerModal(props: Props): React.Node {
   );
 
   const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'general', title: 'General' },
-    { key: 'crypto', title: 'Crypto' },
-  ]);
 
-  const navigationState = React.useMemo(
-    () => ({ index, routes }),
-    [index, routes],
-  );
+  const navigationState = React.useMemo(() => ({ index, routes }), [index]);
 
   const renderScene = React.useMemo(() => {
     return SceneMap({
@@ -127,7 +125,12 @@ function CommunityJoinerModal(props: Props): React.Node {
   }, [renderCryptoTab, renderGeneralTab]);
 
   const colors = useColors();
-  const { tabBarBackground, tabBarAccent } = colors;
+  const {
+    tabBarBackground,
+    tabBarAccent,
+    modalForegroundLabel,
+    modalForegroundSecondaryLabel,
+  } = colors;
 
   const screenOptions = React.useMemo(
     () => ({
@@ -142,8 +145,15 @@ function CommunityJoinerModal(props: Props): React.Node {
         borderColor: tabBarAccent,
         borderBottomWidth: 2,
       },
+      tabBarActiveColor: modalForegroundLabel,
+      tabBarInactiveColor: modalForegroundSecondaryLabel,
     }),
-    [tabBarAccent, tabBarBackground],
+    [
+      modalForegroundLabel,
+      modalForegroundSecondaryLabel,
+      tabBarAccent,
+      tabBarBackground,
+    ],
   );
 
   const initialLayout = React.useMemo(() => ({ width: 400 }), []);
@@ -155,10 +165,14 @@ function CommunityJoinerModal(props: Props): React.Node {
           {...tabBarProps}
           style={screenOptions.tabBarStyle}
           indicatorStyle={screenOptions.tabBarIndicatorStyle}
+          activeColor={screenOptions.tabBarActiveColor}
+          inactiveColor={screenOptions.tabBarInactiveColor}
         />
       </View>
     ),
     [
+      screenOptions.tabBarActiveColor,
+      screenOptions.tabBarInactiveColor,
       screenOptions.tabBarIndicatorStyle,
       screenOptions.tabBarStyle,
       styles.tabBarContainer,
