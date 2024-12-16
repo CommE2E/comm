@@ -11,6 +11,7 @@ import QRCodeScreen from './qr-code-screen.react.js';
 import RestoreBackupScreen from './restore-backup-screen.react.js';
 import RestorePasswordAccountScreen from './restore-password-account-screen.react.js';
 import RestorePromptScreen from './restore-prompt-screen.react.js';
+import RestoreSIWEBackup from '../backup/restore-siwe-backup.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type ScreenParamList,
@@ -19,6 +20,7 @@ import {
   RestorePromptScreenRouteName,
   RestorePasswordAccountScreenRouteName,
   RestoreBackupScreenRouteName,
+  RestoreSIWEBackupRouteName,
 } from '../navigation/route-names.js';
 import { useColors } from '../themes/colors.js';
 
@@ -70,6 +72,10 @@ function SignInNavigator(props: SignInNavigatorProps): React.Node {
       <SignInStack.Screen
         name={RestoreBackupScreenRouteName}
         component={RestoreBackupScreen}
+      />
+      <SignInStack.Screen
+        name={RestoreSIWEBackupRouteName}
+        component={RestoreSIWEBackup}
       />
     </SignInStack.Navigator>
   );
