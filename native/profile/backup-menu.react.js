@@ -229,8 +229,7 @@ function BackupMenu(props: Props): React.Node {
   const testRestoreForSIWEUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      const { siweBackupData, backupID } =
-        await retrieveLatestBackupInfo(userIdentifier);
+      const { siweBackupData } = await retrieveLatestBackupInfo(userIdentifier);
 
       if (!siweBackupData) {
         throw new Error('Missing SIWE message for Wallet user backup');
@@ -245,11 +244,11 @@ function BackupMenu(props: Props): React.Node {
       navigation.navigate<'RestoreSIWEBackup'>({
         name: RestoreSIWEBackupRouteName,
         params: {
-          backupID,
           siweNonce: siweBackupMsgNonce,
           siweStatement: siweBackupMsgStatement,
           siweIssuedAt: siweBackupMsgIssuedAt,
           userIdentifier,
+          signature: '',
         },
       });
     } catch (e) {
