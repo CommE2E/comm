@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -20,7 +21,10 @@ import {
   RestorePasswordAccountScreenRouteName,
 } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
+import {
+  appOutOfDateAlertDetails,
+  unknownErrorAlertDetails,
+} from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import RestoreIcon from '../vectors/restore-icon.react.js';
 
@@ -40,12 +44,19 @@ function RestorePromptScreen(props: Props): React.Node {
     props.navigation.navigate(RestorePasswordAccountScreenRouteName);
   }, [props.navigation]);
 
+  const [authInProgress, setAuthInProgress] = React.useState(false);
   const { retrieveLatestBackupInfo } = useClientBackup();
+  const walletLogIn = useWalletLogIn();
   const onSIWESuccess = React.useCallback(
     async (result: SIWEResult) => {
       try {
+        setAuthInProgress(true);
         const { address, signature, message } = result;
         const backupInfo = await retrieveLatestBackupInfo(address);
+        if (!backupInfo) {
+          await walletLogIn(result.address, result.message, result.signature);
+          return;
+        }
         const { siweBackupData } = backupInfo;
 
         if (!siweBackupData) {
@@ -71,16 +82,30 @@ function RestorePromptScreen(props: Props): React.Node {
         console.log(
           `SIWE restore error: ${messageForException ?? 'unknown error'}`,
         );
-        const alertDetails = unknownErrorAlertDetails;
+        let alertDetails = unknownErrorAlertDetails;
+        if (
+          messageForException === 'unsupported_version' ||
+          messageForException === 'client_version_unsupported' ||
+          messageForException === 'use_new_flow'
+        ) {
+          alertDetails = appOutOfDateAlertDetails;
+        } else if (messageForException === 'nonce_expired') {
+          alertDetails = {
+            title: 'Login attempt timed out',
+            message: 'Please try again',
+          };
+        }
         Alert.alert(
           alertDetails.title,
           alertDetails.message,
           [{ text: 'OK', onPress: props.navigation.goBack }],
           { cancelable: false },
         );
+      } finally {
+        setAuthInProgress(false);
       }
     },
-    [props.navigation, retrieveLatestBackupInfo],
+    [props.navigation, retrieveLatestBackupInfo, walletLogIn],
   );
 
   const {
@@ -103,6 +128,12 @@ function RestorePromptScreen(props: Props): React.Node {
       />
     );
   }
+
+  const openSIWEPanel = React.useCallback(() => {
+    if (!authInProgress) {
+      openPanel();
+    }
+  }, [authInProgress, openPanel]);
 
   const colors = useColors();
   return (
@@ -130,8 +161,10 @@ function RestorePromptScreen(props: Props): React.Node {
           <View style={styles.buttonContainer}>
             <PromptButton
               text="Restore with Ethereum"
-              onPress={openPanel}
-              variant={panelState === 'opening' ? 'loading' : 'siwe'}
+              onPress={openSIWEPanel}
+              variant={
+                panelState === 'opening' || authInProgress ? 'loading' : 'siwe'
+              }
             />
           </View>
           <View style={styles.buttonContainer}>
