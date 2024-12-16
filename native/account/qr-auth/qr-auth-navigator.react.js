@@ -1,6 +1,7 @@
 // @flow
 
 import type {
+  StackHeaderLeftButtonProps,
   StackNavigationHelpers,
   StackNavigationProp,
 } from '@react-navigation/core';
@@ -13,6 +14,7 @@ import QRAuthNotPrimaryDevice from './qr-auth-not-primary-device.react.js';
 import SecondaryDeviceConnected from './secondary-device-connected.react.js';
 import SecondaryDeviceNotResponding from './secondary-device-not-responding.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
+import HeaderCloseLeftButton from '../../navigation/header-close-left-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   ConnectSecondaryDeviceRouteName,
@@ -51,9 +53,18 @@ const screenOptions = {
   },
   gestureEnabled: true,
 };
+const headerCloseLeftButtonStyle = {
+  paddingLeft: 10,
+};
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: deviceIsEmulator ? 'Link device' : '',
   headerBackTitleVisible: false,
+  headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
+    <HeaderCloseLeftButton
+      style={headerCloseLeftButtonStyle}
+      onPress={headerLeftProps.onPress}
+    />
+  ),
 };
 const disableGesturesScreenOptions = {
   headerLeft: null,
