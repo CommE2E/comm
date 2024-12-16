@@ -1,6 +1,7 @@
 // @flow
 
 import type {
+  StackHeaderLeftButtonProps,
   StackNavigationHelpers,
   StackNavigationProp,
 } from '@react-navigation/core';
@@ -10,6 +11,7 @@ import * as React from 'react';
 import ConnectSecondaryDevice from './connect-secondary-device.react.js';
 import { QRAuthContextProvider } from './qr-auth-context-provider.js';
 import QRAuthNotPrimaryDevice from './qr-auth-not-primary-device.react.js';
+import QRCodeScannerLeftButton from './qr-code-scanner-left-button.react.js';
 import SecondaryDeviceConnected from './secondary-device-connected.react.js';
 import SecondaryDeviceNotResponding from './secondary-device-not-responding.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
@@ -54,6 +56,9 @@ const screenOptions = {
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: deviceIsEmulator ? 'Link device' : '',
   headerBackTitleVisible: false,
+  headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
+    <QRCodeScannerLeftButton {...headerLeftProps} />
+  ),
 };
 const disableGesturesScreenOptions = {
   headerLeft: null,
