@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -13,7 +12,6 @@ import { commCoreModule } from '../native-modules.js';
 import { type RootNavigationProp } from '../navigation/root-navigator.react.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
 import { persistConfig } from '../redux/persist.js';
-import { useStyles } from '../themes/colors.js';
 
 export type RestoreSIWEBackupParams = {
   +backupID: string,
@@ -29,7 +27,6 @@ type Props = {
 };
 
 function RestoreSIWEBackup(props: Props): React.Node {
-  const styles = useStyles(unboundStyles);
   const { goBack } = props.navigation;
   const { route } = props;
   const {
@@ -75,25 +72,14 @@ function RestoreSIWEBackup(props: Props): React.Node {
   );
 
   return (
-    <SafeAreaView edges={safeAreaEdges} style={styles.container}>
-      <SignSIWEBackupMessageForRestore
-        siweNonce={siweNonce}
-        siweStatement={siweStatement}
-        siweIssuedAt={siweIssuedAt}
-        onSkip={goBack}
-        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-      />
-    </SafeAreaView>
+    <SignSIWEBackupMessageForRestore
+      siweNonce={siweNonce}
+      siweStatement={siweStatement}
+      siweIssuedAt={siweIssuedAt}
+      onSkip={goBack}
+      onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+    />
   );
 }
-
-const safeAreaEdges = ['top'];
-const unboundStyles = {
-  container: {
-    flex: 1,
-    backgroundColor: 'panelBackground',
-    justifyContent: 'space-between',
-  },
-};
 
 export default RestoreSIWEBackup;

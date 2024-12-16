@@ -213,7 +213,6 @@ export type RootParamList = {
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
-  +RestoreSIWEBackup: RestoreSIWEBackupParams,
   +QRAuthNavigator: void,
 };
 
@@ -350,6 +349,7 @@ export type SignInParamList = {
   +RestorePromptScreen: void,
   +RestorePasswordAccountScreen: void,
   +RestoreBackupScreen: RestoreBackupScreenParams,
+  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type UserProfileBottomSheetParamList = {

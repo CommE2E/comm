@@ -55,7 +55,6 @@ import {
   ConnectFarcasterBottomSheetRouteName,
   TagFarcasterChannelNavigatorRouteName,
   CreateMissingSIWEBackupMessageRouteName,
-  RestoreSIWEBackupRouteName,
   LinkedDevicesBottomSheetRouteName,
   QRAuthNavigatorRouteName,
 } from './route-names.js';
@@ -65,7 +64,6 @@ import CreateMissingSIWEBackupMessage from '../account/registration/missing-regi
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import SignInNavigator from '../account/sign-in-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
-import RestoreSIWEBackup from '../backup/restore-siwe-backup.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
 import ImagePasteModal from '../chat/image-paste-modal.react.js';
 import MessageReactionsModal from '../chat/message-reactions-modal.react.js';
@@ -313,10 +311,6 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={CreateMissingSIWEBackupMessageRouteName}
         component={CreateMissingSIWEBackupMessage}
-      />
-      <Root.Screen
-        name={RestoreSIWEBackupRouteName}
-        component={RestoreSIWEBackup}
       />
       <Root.Screen
         name={QRAuthNavigatorRouteName}
