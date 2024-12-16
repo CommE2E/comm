@@ -24,6 +24,7 @@ import {
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
+import PromptButton from '../prompt-button.react.js';
 import { useSIWEPanelState } from '../siwe-hooks.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
@@ -243,7 +244,6 @@ function SignSIWEBackupMessageForRestore(
     siweNonce,
     siweStatement,
     onSuccessfulWalletSignature,
-    onSkip,
   } = props;
   const siweSignatureRequestData = React.useMemo(
     () => ({
@@ -283,12 +283,13 @@ function SignSIWEBackupMessageForRestore(
           </View>
         </RegistrationContentContainer>
         <RegistrationButtonContainer>
-          <PrimaryButton
-            onPress={openPanel}
-            label="Decrypt with Ethereum signature"
-            variant="enabled"
-          />
-          <PrimaryButton onPress={onSkip} label="Skip" variant="outline" />
+          <View style={styles.buttonContainer}>
+            <PromptButton
+              onPress={openPanel}
+              text="Decrypt with Ethereum signature"
+              variant={panelState === 'opening' ? 'loading' : 'enabled'}
+            />
+          </View>
         </RegistrationButtonContainer>
       </RegistrationContainer>
       {siwePanel}
@@ -319,6 +320,9 @@ const unboundStyles = {
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
   },
 };
 

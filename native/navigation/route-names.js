@@ -206,7 +206,6 @@ export type RootParamList = {
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
-  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type NUXTipRouteNames =
@@ -343,6 +342,7 @@ export type SignInParamList = {
   +RestorePromptScreen: void,
   +RestorePasswordAccountScreen: void,
   +RestoreBackupScreen: RestoreBackupScreenParams,
+  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type UserProfileBottomSheetParamList = {
