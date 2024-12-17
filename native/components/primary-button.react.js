@@ -45,6 +45,8 @@ function PrimaryButton(props: Props): React.Node {
       return [styles.buttonText, styles.invisibleLoadingText];
     } else if (variant === 'danger') {
       return [styles.buttonText, styles.dangerButtonText];
+    } else if (variant === 'outline') {
+      return [styles.buttonText, styles.outlineButtonText];
     }
     return styles.buttonText;
   }, [
@@ -53,6 +55,7 @@ function PrimaryButton(props: Props): React.Node {
     styles.disabledButtonText,
     styles.invisibleLoadingText,
     styles.dangerButtonText,
+    styles.outlineButtonText,
   ]);
 
   const colors = useColors();
@@ -95,7 +98,7 @@ const unboundStyles = {
   },
   buttonText: {
     fontSize: 18,
-    color: 'panelForegroundLabel',
+    color: 'whiteText',
     textAlign: 'center',
     padding: 12,
   },
@@ -120,6 +123,9 @@ const unboundStyles = {
   },
   dangerButtonText: {
     color: 'redText',
+  },
+  outlineButtonText: {
+    color: 'panelForegroundLabel',
   },
   spinner: {
     position: 'absolute',
