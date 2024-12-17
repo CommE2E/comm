@@ -3,7 +3,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
-import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
+import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -11,7 +11,7 @@ import { getConfig } from 'lib/utils/config.js';
 import css from './qr-code-login.css';
 
 function QRCodeLogin(): React.Node {
-  const { qrData, generateQRCode } = useQRAuthContext();
+  const { qrData, generateQRCode } = useSecondaryDeviceQRAuthContext();
 
   React.useEffect(() => {
     void generateQRCode();
