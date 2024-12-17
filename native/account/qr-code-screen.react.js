@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
+import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -25,7 +25,7 @@ type QRCodeScreenProps = {
 };
 
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const { qrData, generateQRCode } = useQRAuthContext();
+  const { qrData, generateQRCode } = useSecondaryDeviceQRAuthContext();
 
   React.useEffect(() => {
     void generateQRCode();
