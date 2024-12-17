@@ -15,6 +15,7 @@ import QRCodeScannerLeftButton from './qr-code-scanner-left-button.react.js';
 import SecondaryDeviceConnected from './secondary-device-connected.react.js';
 import SecondaryDeviceNotResponding from './secondary-device-not-responding.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
+import HeaderBackButton from '../../navigation/header-back-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   ConnectSecondaryDeviceRouteName,
@@ -64,6 +65,9 @@ const disableGesturesScreenOptions = {
   headerLeft: null,
   gestureEnabled: false,
 };
+const overrideHeaderBackButton = {
+  headerLeft: HeaderBackButton,
+};
 
 // eslint-disable-next-line no-unused-vars
 function QRAuthNavigator(props: Props): React.Node {
@@ -78,10 +82,12 @@ function QRAuthNavigator(props: Props): React.Node {
         <QRAuthStack.Screen
           name={QRAuthNotPrimaryDeviceRouteName}
           component={QRAuthNotPrimaryDevice}
+          options={overrideHeaderBackButton}
         />
         <QRAuthStack.Screen
           name={ConnectSecondaryDeviceRouteName}
           component={ConnectSecondaryDevice}
+          options={overrideHeaderBackButton}
         />
         <QRAuthStack.Screen
           name={SecondaryDeviceConnectedRouteName}
