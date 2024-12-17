@@ -44,7 +44,6 @@ function RestoreBackupScreen(props: Props): React.Node {
           You will be automatically navigated to the app after this process is
           finished.
         </Text>
-        <Text style={styles.detail}>Backup date:</Text>
         <View style={styles.progressContainer}>
           <Progress.CircleSnail
             indeterminate
@@ -70,12 +69,6 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
-  },
-  detail: {
-    fontFamily: 'Arial',
-    fontSize: 15,
-    lineHeight: 20,
-    color: 'panelForegroundTertiaryLabel',
   },
   progressContainer: {
     flexGrow: 1,
