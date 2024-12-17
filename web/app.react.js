@@ -24,7 +24,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
-import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
+import { SecondaryDeviceQRAuthContextProvider } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
@@ -572,7 +572,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
             >
               <BadgeHandler />
               <IdentitySearchProvider>
-                <QRAuthProvider
+                <SecondaryDeviceQRAuthContextProvider
                   parseTunnelbrokerQRAuthMessage={
                     parseTunnelbrokerQRAuthMessage
                   }
@@ -591,7 +591,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
                     dispatch={dispatch}
                     modals={modals}
                   />
-                </QRAuthProvider>
+                </SecondaryDeviceQRAuthContextProvider>
                 <DBOpsHandler />
               </IdentitySearchProvider>
             </TunnelbrokerProvider>

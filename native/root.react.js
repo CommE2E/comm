@@ -34,7 +34,7 @@ import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
-import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
+import { SecondaryDeviceQRAuthContextProvider } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
 import { UserIdentityCacheProvider } from 'lib/components/user-identity-cache.react.js';
@@ -345,7 +345,7 @@ function Root() {
               <NeynarClientProvider apiKey={neynarKey}>
                 <TunnelbrokerProvider>
                   <IdentitySearchProvider>
-                    <QRAuthProvider
+                    <SecondaryDeviceQRAuthContextProvider
                       parseTunnelbrokerQRAuthMessage={
                         parseTunnelbrokerQRAuthMessage
                       }
@@ -414,7 +414,7 @@ function Root() {
                           </RootContext.Provider>
                         </NavContext.Provider>
                       </FeatureFlagsProvider>
-                    </QRAuthProvider>
+                    </SecondaryDeviceQRAuthContextProvider>
                   </IdentitySearchProvider>
                 </TunnelbrokerProvider>
               </NeynarClientProvider>
