@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { QRAuthContext } from './qr-auth-context.js';
+import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
 import RegistrationButtonContainer from '../../account/registration/registration-button-container.react.js';
 import RegistrationContainer from '../../account/registration/registration-container.react.js';
@@ -28,9 +28,14 @@ function ConnectSecondaryDevice(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
-  const qrAuthContext = React.useContext(QRAuthContext);
-  invariant(qrAuthContext, 'qrAuthContext should be set');
-  const { onConnect, connectingInProgress } = qrAuthContext;
+  const primaryDeviceQRAuthContext = React.useContext(
+    PrimaryDeviceQRAuthContext,
+  );
+  invariant(
+    primaryDeviceQRAuthContext,
+    'primaryDeviceQRAuthContext should be set',
+  );
+  const { onConnect, connectingInProgress } = primaryDeviceQRAuthContext;
 
   const onPressConnect = React.useCallback(() => {
     void onConnect(data);
