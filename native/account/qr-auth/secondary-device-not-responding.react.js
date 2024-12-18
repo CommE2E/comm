@@ -11,7 +11,7 @@ import { Text } from 'react-native';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 
-import { QRAuthContext } from './qr-auth-context.js';
+import { PrimaryDeviceQRAuthContext } from './primary-device-q-r-auth-context.js';
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
 import RegistrationButtonContainer from '../../account/registration/registration-button-container.react.js';
 import RegistrationContainer from '../../account/registration/registration-container.react.js';
@@ -32,9 +32,14 @@ type Props = {
 function SecondaryDeviceNotResponding(props: Props): React.Node {
   const { navigation } = props;
 
-  const qrAuthContext = React.useContext(QRAuthContext);
-  invariant(qrAuthContext, 'qrAuthContext should be set');
-  const { onRemoveSecondaryDevice } = qrAuthContext;
+  const primaryDeviceQRAuthContext = React.useContext(
+    PrimaryDeviceQRAuthContext,
+  );
+  invariant(
+    primaryDeviceQRAuthContext,
+    'primaryDeviceQRAuthContext should be set',
+  );
+  const { onRemoveSecondaryDevice } = primaryDeviceQRAuthContext;
 
   const navigateToLinkedDevices = React.useCallback(() => {
     navigation
