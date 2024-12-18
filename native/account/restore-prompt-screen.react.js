@@ -4,9 +4,9 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import PromptButton from './prompt-button.react.js';
-import RegistrationButtonContainer from './registration/registration-button-container.react.js';
-import RegistrationContainer from './registration/registration-container.react.js';
-import RegistrationContentContainer from './registration/registration-content-container.react.js';
+import AuthButtonContainer from './registration/registration-button-container.react.js';
+import AuthContainer from './registration/registration-container.react.js';
+import AuthContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
@@ -55,8 +55,8 @@ function RestorePromptScreen(props: Props): React.Node {
   const colors = useColors();
   return (
     <>
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+      <AuthContainer>
+        <AuthContentContainer style={styles.scrollViewContentContainer}>
           <Text style={styles.header}>Restore account</Text>
           <Text style={styles.section}>
             If you’ve lost access to your primary device, you can try recovering
@@ -73,8 +73,8 @@ function RestorePromptScreen(props: Props): React.Node {
           <View style={styles.iconContainer}>
             <RestoreIcon color={colors.panelForegroundIcon} />
           </View>
-        </RegistrationContentContainer>
-        <RegistrationButtonContainer>
+        </AuthContentContainer>
+        <AuthButtonContainer>
           <View style={styles.buttonContainer}>
             <PromptButton
               text="Restore with Ethereum"
@@ -89,8 +89,8 @@ function RestorePromptScreen(props: Props): React.Node {
               variant="enabled"
             />
           </View>
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
+        </AuthButtonContainer>
+      </AuthContainer>
       {siwePanel}
     </>
   );

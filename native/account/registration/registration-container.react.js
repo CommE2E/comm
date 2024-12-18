@@ -12,7 +12,7 @@ type Props = {
   +children: React.Node,
   +style?: ViewStyle,
 };
-function RegistrationContainer(props: Props): React.Node {
+function AuthContainer(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const style = React.useMemo(
     () => [styles.container, props.style],
@@ -33,4 +33,4 @@ const unboundStyles = {
   },
 };
 
-export default RegistrationContainer;
+export default AuthContainer;

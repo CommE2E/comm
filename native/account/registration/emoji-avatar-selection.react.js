@@ -8,8 +8,8 @@ import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types';
 
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import { useNativeSetUserAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
@@ -48,16 +48,16 @@ function EmojiAvatarSelection(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Select an emoji</Text>
         <EmojiAvatarCreation
           saveAvatarCall={onSuccess}
           saveAvatarCallLoading={userAvatarSaveInProgress}
           savedEmojiAvatarFunc={savedEmojiAvatarFunc}
         />
-      </RegistrationContentContainer>
-    </RegistrationContainer>
+      </AuthContentContainer>
+    </AuthContainer>
   );
 }
 
