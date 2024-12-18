@@ -7,8 +7,8 @@ import * as Progress from 'react-native-progress';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { setNativeCredentials } from './native-credentials.js';
-import RegistrationContainer from './registration/registration-container.react.js';
-import RegistrationContentContainer from './registration/registration-content-container.react.js';
+import AuthContainer from './registration/registration-container.react.js';
+import AuthContentContainer from './registration/registration-content-container.react.js';
 import { useRestore } from './restore.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -95,8 +95,8 @@ function RestoreBackupScreen(props: Props): React.Node {
   }, []);
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Restoring from backup</Text>
         <Text style={styles.section}>
           Your data is currently being restored.
@@ -113,8 +113,8 @@ function RestoreBackupScreen(props: Props): React.Node {
             strokeCap="round"
           />
         </View>
-      </RegistrationContentContainer>
-    </RegistrationContainer>
+      </AuthContentContainer>
+    </AuthContainer>
   );
 }
 

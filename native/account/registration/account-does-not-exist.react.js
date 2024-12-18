@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { Text, View, Image } from 'react-native';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
@@ -27,8 +27,8 @@ function AccountDoesNotExist(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>New Comm account</Text>
         <Text style={styles.body}>
           It looks like this is your first time logging into Comm.
@@ -39,11 +39,11 @@ function AccountDoesNotExist(props: Props): React.Node {
         <View style={styles.commSwooshContainer}>
           <Image source={commSwooshSource} style={styles.commSwoosh} />
         </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton onPress={onSubmit} label="Next" variant="enabled" />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 
