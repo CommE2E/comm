@@ -9,7 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
 import ConnectSecondaryDevice from './connect-secondary-device.react.js';
-import { QRAuthContextProvider } from './qr-auth-context-provider.js';
+import { PrimaryDeviceQRAuthContextProvider } from './primary-device-qr-auth-context-provider.js';
 import QRAuthNotPrimaryDevice from './qr-auth-not-primary-device.react.js';
 import SecondaryDeviceConnected from './secondary-device-connected.react.js';
 import SecondaryDeviceNotResponding from './secondary-device-not-responding.react.js';
@@ -78,7 +78,7 @@ const overrideHeaderBackButton = {
 // eslint-disable-next-line no-unused-vars
 function QRAuthNavigator(props: Props): React.Node {
   return (
-    <QRAuthContextProvider>
+    <PrimaryDeviceQRAuthContextProvider>
       <QRAuthStack.Navigator screenOptions={screenOptions}>
         <QRAuthStack.Screen
           name={SecondaryDeviceQRCodeScannerRouteName}
@@ -106,7 +106,7 @@ function QRAuthNavigator(props: Props): React.Node {
           options={disableGesturesScreenOptions}
         />
       </QRAuthStack.Navigator>
-    </QRAuthContextProvider>
+    </PrimaryDeviceQRAuthContextProvider>
   );
 }
 
