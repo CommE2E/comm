@@ -27,7 +27,7 @@ import {
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 
-import { QRAuthContext } from './qr-auth-context.js';
+import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
 import { commCoreModule } from '../../native-modules.js';
 import {
   SecondaryDeviceConnectedRouteName,
@@ -45,7 +45,7 @@ const secondaryDeviceTimeout = 30 * 1000;
 type Props = {
   +children: React.Node,
 };
-function QRAuthContextProvider(props: Props): React.Node {
+function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
   const aes256Key = React.useRef<?string>(null);
   const secondaryDeviceID = React.useRef<?string>(null);
   const secondaryDeviceType = React.useRef<?IdentityDeviceType>(null);
@@ -285,10 +285,10 @@ function QRAuthContextProvider(props: Props): React.Node {
   );
 
   return (
-    <QRAuthContext.Provider value={contextValue}>
+    <PrimaryDeviceQRAuthContext.Provider value={contextValue}>
       {props.children}
-    </QRAuthContext.Provider>
+    </PrimaryDeviceQRAuthContext.Provider>
   );
 }
 
-export { QRAuthContextProvider };
+export { PrimaryDeviceQRAuthContextProvider };
