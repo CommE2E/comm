@@ -16,9 +16,9 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
-import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
-import RegistrationContainer from '../account/registration/registration-container.react.js';
-import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
+import AuthButtonContainer from '../account/registration/registration-button-container.react.js';
+import AuthContainer from '../account/registration/registration-container.react.js';
+import AuthContentContainer from '../account/registration/registration-content-container.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import {
   ThreadSettingsCategoryFooter,
@@ -119,8 +119,8 @@ function CommunityConfiguration(props: Props): React.Node {
     'the root channel of the community.';
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.containerPaddingOverride}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.containerPaddingOverride}>
         <CommunityCreationKeyserverLabel />
         <ThreadSettingsCategoryHeader type="full" title="COMMUNITY INFO" />
         <View style={styles.communityNameRow}>
@@ -154,7 +154,7 @@ function CommunityConfiguration(props: Props): React.Node {
           />
         </View>
         <ThreadSettingsCategoryFooter type="full" />
-        <RegistrationButtonContainer>
+        <AuthButtonContainer>
           <PrimaryButton
             onPress={createNewCommunity}
             label="Create community"
@@ -164,12 +164,12 @@ function CommunityConfiguration(props: Props): React.Node {
                 : 'enabled'
             }
           />
-        </RegistrationButtonContainer>
+        </AuthButtonContainer>
         <View style={styles.errorMessageContainer}>
           <Text style={styles.errorMessageText}>{errorMessage}</Text>
         </View>
-      </RegistrationContentContainer>
-    </RegistrationContainer>
+      </AuthContentContainer>
+    </AuthContainer>
   );
 }
 

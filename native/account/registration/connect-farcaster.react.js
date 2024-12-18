@@ -9,9 +9,9 @@ import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { BaseFCAvatarInfo } from 'lib/utils/farcaster-helpers.js';
 
 import { siweNonceExpired } from './ethereum-utils.js';
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -231,12 +231,12 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const connectFarcaster = React.useMemo(
     () => (
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+      <AuthContainer>
+        <AuthContentContainer style={styles.scrollViewContentContainer}>
           <FarcasterPrompt textType="connect" />
-        </RegistrationContentContainer>
+        </AuthContentContainer>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
-        <RegistrationButtonContainer>
+        <AuthButtonContainer>
           {alreadyConnectedButton}
           <PrimaryButton
             onPress={onPressConnectFarcaster}
@@ -248,8 +248,8 @@ function ConnectFarcaster(prop: Props): React.Node {
             label="Do not connect"
             variant="outline"
           />
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
+        </AuthButtonContainer>
+      </AuthContainer>
     ),
     [
       alreadyConnectedButton,

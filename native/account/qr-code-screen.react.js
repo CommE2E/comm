@@ -10,9 +10,9 @@ import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.j
 import { getConfig } from 'lib/utils/config.js';
 import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
-import RegistrationButtonContainer from './registration/registration-button-container.react.js';
-import RegistrationContainer from './registration/registration-container.react.js';
-import RegistrationContentContainer from './registration/registration-content-container.react.js';
+import AuthButtonContainer from './registration/registration-button-container.react.js';
+import AuthContainer from './registration/registration-container.react.js';
+import AuthContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -49,14 +49,14 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, [props.navigation]);
   if (usingRestoreFlow) {
     primaryRestoreButton = (
-      <RegistrationButtonContainer>
+      <AuthButtonContainer>
         <View style={styles.primaryRestoreButton}>
           <LinkButton
             text="Not logged in on another phone?"
             onPress={goToRestoreFlow}
           />
         </View>
-      </RegistrationButtonContainer>
+      </AuthButtonContainer>
     );
   }
 
@@ -64,8 +64,8 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const qrCodeSize = width * 0.7;
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <View style={styles.container}>
           <Text style={styles.heading}>Log in to Comm</Text>
           <Text style={styles.headingSubtext}>
@@ -93,9 +93,9 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
             </Text>
           </View>
         </View>
-      </RegistrationContentContainer>
+      </AuthContentContainer>
       {primaryRestoreButton}
-    </RegistrationContainer>
+    </AuthContainer>
   );
 }
 

@@ -6,9 +6,9 @@ import { Text, View, Image, Linking } from 'react-native';
 
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
@@ -148,22 +148,22 @@ function RegistrationTerms(props: Props): React.Node {
   );
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Finish registration</Text>
         {termsNotice}
         <View style={styles.commSwooshContainer}>
           <Image source={commSwooshSource} style={styles.commSwoosh} />
         </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onProceed}
           label="Register"
           variant={registrationInProgress ? 'loading' : 'enabled'}
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 

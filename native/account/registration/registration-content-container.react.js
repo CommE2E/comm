@@ -11,7 +11,7 @@ type Props = {
   ...ViewProps,
   +children: React.Node,
 };
-function RegistrationContentContainer(props: Props): React.Node {
+function AuthContentContainer(props: Props): React.Node {
   const { children, style, ...rest } = props;
 
   const headerHeight = useHeaderHeight();
@@ -50,4 +50,4 @@ const styles = {
   },
 };
 
-export default RegistrationContentContainer;
+export default AuthContentContainer;

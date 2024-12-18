@@ -7,9 +7,9 @@ import { View, Text } from 'react-native';
 
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import { type RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
@@ -98,10 +98,8 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
 
       return (
         <>
-          <RegistrationContainer>
-            <RegistrationContentContainer
-              style={styles.scrollViewContentContainer}
-            >
+          <AuthContainer>
+            <AuthContentContainer style={styles.scrollViewContentContainer}>
               <Text style={styles.header}>Encrypting your Comm backup</Text>
               <Text style={styles.body}>
                 To make sure we can’t see your data, Comm encrypts your backup
@@ -118,8 +116,8 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
               <View style={styles.siweBackupIconContainer}>
                 <Icon name="backup" size={200} style={styles.siweBackupIcon} />
               </View>
-            </RegistrationContentContainer>
-            <RegistrationButtonContainer>
+            </AuthContentContainer>
+            <AuthButtonContainer>
               {useExistingSignatureButton}
               <PrimaryButton
                 onPress={openPanel}
@@ -127,8 +125,8 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
                 variant={newSignatureButtonVariant}
               />
               {onSkipButton}
-            </RegistrationButtonContainer>
-          </RegistrationContainer>
+            </AuthButtonContainer>
+          </AuthContainer>
           {siwePanel}
         </>
       );
@@ -271,8 +269,8 @@ function SignSIWEBackupMessageForRestore(
 
   return (
     <>
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+      <AuthContainer>
+        <AuthContentContainer style={styles.scrollViewContentContainer}>
           <Text style={styles.header}>Decrypting your Comm backup</Text>
           <Text style={styles.body}>
             To make sure we can’t see your data, Comm encrypts your backup using
@@ -281,8 +279,8 @@ function SignSIWEBackupMessageForRestore(
           <View style={styles.siweBackupIconContainer}>
             <Icon name="backup" size={200} style={styles.siweBackupIcon} />
           </View>
-        </RegistrationContentContainer>
-        <RegistrationButtonContainer>
+        </AuthContentContainer>
+        <AuthButtonContainer>
           <View style={styles.buttonContainer}>
             <PromptButton
               onPress={openPanel}
@@ -290,8 +288,8 @@ function SignSIWEBackupMessageForRestore(
               variant={panelState === 'opening' ? 'loading' : 'enabled'}
             />
           </View>
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
+        </AuthButtonContainer>
+      </AuthContainer>
       {siwePanel}
     </>
   );

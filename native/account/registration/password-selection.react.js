@@ -6,9 +6,9 @@ import { View, Text, Platform, TextInput } from 'react-native';
 
 import sleep from 'lib/utils/sleep.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
@@ -184,8 +184,8 @@ function PasswordSelection(props: Props): React.Node {
   const autoFocus = Platform.OS !== 'android' && shouldAutoFocus.current;
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>Pick a password</Text>
         <RegistrationTextInput
           value={password}
@@ -217,15 +217,15 @@ function PasswordSelection(props: Props): React.Node {
           ref={confirmPasswordInputRef}
         />
         <View style={styles.error}>{errorText}</View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onProceed}
           label="Next"
           variant={passwordsMatch && !passwordIsEmpty ? 'enabled' : 'disabled'}
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 

@@ -6,7 +6,7 @@ import { View } from 'react-native';
 type Props = {
   +children: React.Node,
 };
-function RegistrationButtonContainer(props: Props): React.Node {
+function AuthButtonContainer(props: Props): React.Node {
   return <View style={styles.container}>{props.children}</View>;
 }
 
@@ -17,4 +17,4 @@ const styles = {
   },
 };
 
-export default RegistrationButtonContainer;
+export default AuthButtonContainer;

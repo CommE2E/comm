@@ -17,9 +17,9 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
@@ -138,8 +138,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const { goBack } = navigation;
   const styles = useStyles(unboundStyles);
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>Account already exists for wallet</Text>
         <Text style={styles.body}>
           You can proceed to log in with this wallet, or go back and use a
@@ -155,8 +155,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
             </Text>
           </View>
         </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onProceedToLogIn}
           label="Log in to account"
@@ -167,8 +167,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
           label="Use a different wallet"
           variant="outline"
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 

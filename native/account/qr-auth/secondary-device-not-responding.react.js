@@ -13,9 +13,9 @@ import { getMessageForException } from 'lib/utils/errors.js';
 
 import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
-import RegistrationButtonContainer from '../../account/registration/registration-button-container.react.js';
-import RegistrationContainer from '../../account/registration/registration-container.react.js';
-import RegistrationContentContainer from '../../account/registration/registration-content-container.react.js';
+import AuthButtonContainer from '../../account/registration/registration-button-container.react.js';
+import AuthContainer from '../../account/registration/registration-container.react.js';
+import AuthContentContainer from '../../account/registration/registration-content-container.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -69,15 +69,15 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>New device not responding</Text>
         <Text style={styles.body}>
           Has the new device successfully logged in? If not, we&apos;d suggest
           removing it and trying again.
         </Text>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onPressRemove}
           label="Remove"
@@ -88,8 +88,8 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
           label="Ignore"
           variant="enabled"
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 
