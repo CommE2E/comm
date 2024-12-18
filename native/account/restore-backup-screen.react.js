@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
-import RegistrationContainer from './registration/registration-container.react.js';
-import RegistrationContentContainer from './registration/registration-content-container.react.js';
+import AuthContainer from './registration/registration-container.react.js';
+import AuthContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
@@ -34,8 +34,8 @@ function RestoreBackupScreen(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Restoring from backup</Text>
         <Text style={styles.section}>
           Your data is currently being restored.
@@ -53,8 +53,8 @@ function RestoreBackupScreen(props: Props): React.Node {
             strokeCap="round"
           />
         </View>
-      </RegistrationContentContainer>
-    </RegistrationContainer>
+      </AuthContentContainer>
+    </AuthContainer>
   );
 }
 

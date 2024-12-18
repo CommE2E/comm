@@ -14,9 +14,9 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
@@ -181,8 +181,8 @@ function UsernameSelection(props: Props): React.Node {
 
   const shouldAutoFocus = React.useRef(!cachedSelections.username);
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>Pick a username</Text>
         <RegistrationTextInput
           value={username}
@@ -200,15 +200,15 @@ function UsernameSelection(props: Props): React.Node {
           onBlur={checkUsernameValidity}
         />
         <View style={styles.error}>{errorText}</View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onProceed}
           label="Next"
           variant={buttonVariant}
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 
