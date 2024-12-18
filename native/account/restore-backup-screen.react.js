@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
-import AuthContainer from './registration/registration-container.react.js';
-import AuthContentContainer from './registration/registration-content-container.react.js';
+import AuthContainer from './auth-components/auth-container.react.js';
+import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';

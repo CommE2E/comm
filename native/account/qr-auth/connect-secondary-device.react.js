@@ -6,12 +6,12 @@ import { Text } from 'react-native';
 
 import { PrimaryDeviceQRAuthContext } from './primary-device-q-r-auth-context.js';
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
-import AuthButtonContainer from '../../account/registration/registration-button-container.react.js';
-import AuthContainer from '../../account/registration/registration-container.react.js';
-import AuthContentContainer from '../../account/registration/registration-content-container.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 export type ConnectSecondaryDeviceParams = {
   +data: string,

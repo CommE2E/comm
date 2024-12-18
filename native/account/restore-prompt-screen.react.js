@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import AuthButtonContainer from './auth-components/auth-button-container.react.js';
+import AuthContainer from './auth-components/auth-container.react.js';
+import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import PromptButton from './prompt-button.react.js';
-import AuthButtonContainer from './registration/registration-button-container.react.js';
-import AuthContainer from './registration/registration-container.react.js';
-import AuthContentContainer from './registration/registration-content-container.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
