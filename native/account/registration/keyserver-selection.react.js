@@ -8,9 +8,6 @@ import { getVersionActionTypes } from 'lib/actions/device-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 
-import AuthButtonContainer from './registration-button-container.react.js';
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
@@ -28,6 +25,9 @@ import {
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 import { defaultURLPrefix } from '../../utils/url-utils.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 type Selection = 'ashoat' | 'custom';
 

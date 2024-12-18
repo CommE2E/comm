@@ -6,9 +6,9 @@ import * as Progress from 'react-native-progress';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 
+import AuthContainer from './auth-components/auth-container.react.js';
+import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import { setNativeCredentials } from './native-credentials.js';
-import AuthContainer from './registration/registration-container.react.js';
-import AuthContentContainer from './registration/registration-content-container.react.js';
 import { useRestore } from './restore.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';

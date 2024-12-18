@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { Text, TextInput, View } from 'react-native';
 
+import AuthButtonContainer from './auth-components/auth-button-container.react.js';
+import AuthContainer from './auth-components/auth-container.react.js';
+import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import PromptButton from './prompt-button.react.js';
-import AuthButtonContainer from './registration/registration-button-container.react.js';
-import AuthContainer from './registration/registration-container.react.js';
-import AuthContentContainer from './registration/registration-content-container.react.js';
 import RegistrationTextInput from './registration/registration-text-input.react.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';

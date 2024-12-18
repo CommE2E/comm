@@ -18,9 +18,6 @@ import {
   useGetEthereumAccountFromSIWEResult,
   siweNonceExpired,
 } from './ethereum-utils.js';
-import AuthButtonContainer from './registration-button-container.react.js';
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -36,6 +33,9 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { defaultURLPrefix } from '../../utils/url-utils.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 import { useSIWEPanelState } from '../siwe-hooks.js';
 import SIWEPanel from '../siwe-panel.react.js';
 

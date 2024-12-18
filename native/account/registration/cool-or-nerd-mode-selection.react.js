@@ -4,9 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import AuthButtonContainer from './registration-button-container.react.js';
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
@@ -20,6 +17,9 @@ import {
   KeyserverSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 type Props = {
   +navigation: RegistrationNavigationProp<'CoolOrNerdModeSelection'>,

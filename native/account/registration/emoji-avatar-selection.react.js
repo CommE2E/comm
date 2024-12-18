@@ -8,13 +8,13 @@ import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types';
 
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import { useNativeSetUserAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 export type EmojiAvatarSelectionParams = {
   +usernameOrEthAddress: string,

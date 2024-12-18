@@ -9,9 +9,6 @@ import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { BaseFCAvatarInfo } from 'lib/utils/farcaster-helpers.js';
 
 import { siweNonceExpired } from './ethereum-utils.js';
-import AuthButtonContainer from './registration-button-container.react.js';
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -29,6 +26,9 @@ import {
   type AlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 export type ConnectFarcasterParams = ?{
   +userSelections?: {
