@@ -6,9 +6,6 @@ import { View, Text, Platform, TextInput } from 'react-native';
 
 import sleep from 'lib/utils/sleep.js';
 
-import AuthButtonContainer from './registration-button-container.react.js';
-import AuthContainer from './registration-container.react.js';
-import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
@@ -20,6 +17,9 @@ import {
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import type { KeyPressEvent } from '../../types/react-native.js';
+import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 export type PasswordSelectionParams = {
   +userSelections: {

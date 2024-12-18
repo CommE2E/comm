@@ -16,9 +16,9 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
-import AuthButtonContainer from '../account/registration/registration-button-container.react.js';
-import AuthContainer from '../account/registration/registration-container.react.js';
-import AuthContentContainer from '../account/registration/registration-content-container.react.js';
+import AuthButtonContainer from '../account/auth-components/auth-button-container.react.js';
+import AuthContainer from '../account/auth-components/auth-container.react.js';
+import AuthContentContainer from '../account/auth-components/auth-content-container.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import {
   ThreadSettingsCategoryFooter,
