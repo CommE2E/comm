@@ -56,7 +56,7 @@ struct Thread {
     bindStringPtrToSQL(name, sql, idx + 2);
     bindStringPtrToSQL(description, sql, idx + 3);
     bindStringToSQL(color, sql, idx + 4);
-    bindInt64ToSQL(reinterpret_cast<sqlite3_int64>(time), sql, idx + 5);
+    bindInt64ToSQL(creation_time, sql, idx + 5);
     bindStringPtrToSQL(parent_thread_id, sql, idx + 6);
     bindStringPtrToSQL(containing_thread_id, sql, idx + 7);
     bindStringPtrToSQL(community, sql, idx + 8);
