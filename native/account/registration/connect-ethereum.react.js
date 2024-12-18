@@ -18,9 +18,9 @@ import {
   useGetEthereumAccountFromSIWEResult,
   siweNonceExpired,
 } from './ethereum-utils.js';
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -271,8 +271,8 @@ function ConnectEthereum(props: Props): React.Node {
 
   return (
     <>
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+      <AuthContainer>
+        <AuthContentContainer style={styles.scrollViewContentContainer}>
           <Text style={styles.header}>
             Do you want to connect an Ethereum wallet?
           </Text>
@@ -280,8 +280,8 @@ function ConnectEthereum(props: Props): React.Node {
           <View style={styles.ethereumLogoContainer}>
             <EthereumLogoDark />
           </View>
-        </RegistrationContentContainer>
-        <RegistrationButtonContainer>
+        </AuthContentContainer>
+        <AuthButtonContainer>
           {alreadyConnectedButton}
           <PrimaryButton
             onPress={openPanel}
@@ -293,8 +293,8 @@ function ConnectEthereum(props: Props): React.Node {
             label="Do not connect"
             variant="outline"
           />
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
+        </AuthButtonContainer>
+      </AuthContainer>
       {siwePanel}
     </>
   );

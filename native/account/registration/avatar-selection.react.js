@@ -9,9 +9,9 @@ import {
   type UserAvatarSelection,
 } from 'lib/components/edit-user-avatar-provider.react.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
@@ -174,8 +174,8 @@ function AvatarSelection(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Pick an avatar</Text>
         <View style={styles.stagedAvatarSection}>
           <View style={styles.editUserAvatar}>
@@ -187,11 +187,11 @@ function AvatarSelection(props: Props): React.Node {
             />
           </View>
         </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton onPress={onProceed} label="Next" />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 

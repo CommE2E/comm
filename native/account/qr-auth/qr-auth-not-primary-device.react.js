@@ -9,9 +9,9 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import { type QRAuthNavigationProp } from './qr-auth-navigator.react.js';
-import RegistrationButtonContainer from '../../account/registration/registration-button-container.react.js';
-import RegistrationContainer from '../../account/registration/registration-container.react.js';
-import RegistrationContentContainer from '../../account/registration/registration-content-container.react.js';
+import AuthButtonContainer from '../../account/registration/registration-button-container.react.js';
+import AuthContainer from '../../account/registration/registration-container.react.js';
+import AuthContentContainer from '../../account/registration/registration-content-container.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -43,22 +43,22 @@ function QRAuthNotPrimaryDevice(prop: Props): React.Node {
   }, [navigation]);
 
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>Device not primary</Text>
         <Text style={styles.body}>
           This mobile device is not your primary device, and cannot be used to
           authorize new devices. Please try your other mobile device(s).
         </Text>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton
           onPress={onPressGoBack}
           label="Go back"
           variant="enabled"
         />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 

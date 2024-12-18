@@ -8,9 +8,9 @@ import { getVersionActionTypes } from 'lib/actions/device-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 
-import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationContainer from './registration-container.react.js';
-import RegistrationContentContainer from './registration-content-container.react.js';
+import AuthButtonContainer from './registration-button-container.react.js';
+import AuthContainer from './registration-container.react.js';
+import AuthContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
@@ -149,8 +149,8 @@ function KeyserverSelection(props: Props): React.Node {
 
   const colors = useColors();
   return (
-    <RegistrationContainer>
-      <RegistrationContentContainer>
+    <AuthContainer>
+      <AuthContentContainer>
         <Text style={styles.header}>Select a keyserver to join</Text>
         <Text style={styles.body}>
           Chat communities on Comm are hosted on keyservers, which are
@@ -199,11 +199,11 @@ function KeyserverSelection(props: Props): React.Node {
           />
         </RegistrationTile>
         <View style={styles.error}>{errorText}</View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
+      </AuthContentContainer>
+      <AuthButtonContainer>
         <PrimaryButton onPress={onSubmit} label="Next" variant={buttonState} />
-      </RegistrationButtonContainer>
-    </RegistrationContainer>
+      </AuthButtonContainer>
+    </AuthContainer>
   );
 }
 
