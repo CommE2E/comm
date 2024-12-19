@@ -62,7 +62,11 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     (user: UserInfo): boolean => user.id !== deletedUserID,
   );
 
-  ignorePromiseRejections(deleteUploadsForUser(deletedUserID));
+  if (viewer.isScriptViewer) {
+    await deleteUploadsForUser(deletedUserID);
+  } else {
+    ignorePromiseRejections(deleteUploadsForUser(deletedUserID));
+  }
 
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
@@ -124,14 +128,17 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     };
     const message = JSON.stringify(reservedUsernameMessage);
 
-    ignorePromiseRejections(
-      (async () => {
-        const rustAPI = await getRustAPI();
-        const accountInfo = await fetchOlmAccount('content');
-        const signature = accountInfo.account.sign(message);
-        await rustAPI.removeReservedUsername(message, signature);
-      })(),
-    );
+    const removeReservedUsernamePromise = (async () => {
+      const rustAPI = await getRustAPI();
+      const accountInfo = await fetchOlmAccount('content');
+      const signature = accountInfo.account.sign(message);
+      await rustAPI.removeReservedUsername(message, signature);
+    })();
+    if (viewer.isScriptViewer) {
+      await removeReservedUsernamePromise;
+    } else {
+      ignorePromiseRejections(removeReservedUsernamePromise);
+    }
   }
 
   if (anonymousViewerData) {
