@@ -333,4 +333,5 @@ pub const MAX_ONE_TIME_KEYS: usize = 100; // as defined in olm
 // Comm staff
 pub mod staff {
   pub const STAFF_USER_IDS: [&str; 1] = ["256"];
+  pub const AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: &str = "256";
 }
