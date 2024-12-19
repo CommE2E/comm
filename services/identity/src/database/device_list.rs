@@ -1590,26 +1590,26 @@ impl DatabaseClient {
       "{} devices have been removed from device list. Clearing data...",
       devices_being_removed.len()
     );
-    for device_id in devices_being_removed {
+    for device_id in &devices_being_removed {
       trace!("Invalidating CSAT for device {}", device_id);
-      self.delete_access_token_data(user_id, &device_id).await?;
+      self.delete_access_token_data(user_id, device_id).await?;
       trace!("Clearing keys for device {}", device_id);
-      self.remove_device_data(user_id, &device_id).await?;
+      self.remove_device_data(user_id, device_id).await?;
       trace!("Pruning OTKs for device {}", device_id);
       self
-        .delete_otks_table_rows_for_user_device(user_id, &device_id)
+        .delete_otks_table_rows_for_user_device(user_id, device_id)
         .await?;
-
-      let device_id = device_id.to_string();
-      tokio::spawn(async move {
-        debug!(
-          "Attempting to delete Tunnelbroker data for device: {}",
-          &device_id
-        );
-        let result = tunnelbroker::delete_devices_data(&[device_id]).await;
-        consume_error(result);
-      });
     }
+
+    tokio::spawn(async move {
+      debug!(
+        "Attempting to delete Tunnelbroker data for {} devices",
+        devices_being_removed.len()
+      );
+      let result =
+        tunnelbroker::delete_devices_data(&devices_being_removed).await;
+      consume_error(result);
+    });
     Ok(())
   }
 
