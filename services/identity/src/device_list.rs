@@ -14,9 +14,9 @@ use crate::{
 // serde helper for serializing/deserializing
 // device list JSON payload
 #[derive(serde::Serialize, serde::Deserialize)]
-struct RawDeviceList {
-  devices: Vec<String>,
-  timestamp: i64,
+pub struct RawDeviceList {
+  pub devices: Vec<String>,
+  pub timestamp: i64,
 }
 
 /// Signed device list payload that is serializable to JSON.
