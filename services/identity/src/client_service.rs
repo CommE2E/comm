@@ -14,6 +14,7 @@ use tracing::{debug, error, info, warn};
 use crate::comm_service::tunnelbroker;
 // Workspace crate imports
 use crate::config::CONFIG;
+use crate::constants::staff::AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
 use crate::constants::{error_types, tonic_status_messages};
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload, UserInfoAndPasswordFile,
@@ -296,6 +297,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<OpaqueLoginStartRequest>,
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     debug!("Attempting to log in user: {:?}", &message.username);
@@ -333,11 +335,16 @@ impl IdentityClientService for ClientService {
       ));
     };
 
-    if self
-      .client
-      .get_user_login_flow(&user_id)
-      .await?
-      .is_signed_device_list_flow()
+    let caller_is_authoritative_keyserver = user_id
+      == AUTHORITATIVE_KEYSERVER_OWNER_USER_ID
+      && platform_metadata.device_type == "keyserver";
+
+    if !caller_is_authoritative_keyserver
+      && self
+        .client
+        .get_user_login_flow(&user_id)
+        .await?
+        .is_signed_device_list_flow()
     {
       return Err(tonic::Status::failed_precondition(
         tonic_status_messages::USE_NEW_FLOW,
