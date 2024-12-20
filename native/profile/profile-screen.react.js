@@ -7,7 +7,7 @@ import uuid from 'uuid';
 
 import {
   logOutActionTypes,
-  useLogOut,
+  useBaseLogOut,
   usePrimaryDeviceLogOut,
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
@@ -572,11 +572,12 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
     const logOutOptions = React.useMemo(
       () => ({
+        logOutType: 'legacy',
         handleUseNewFlowResponse: showVersionUnsupportedAlert,
       }),
       [showVersionUnsupportedAlert],
     );
-    const callLogOut = useLogOut(logOutOptions);
+    const callLegayLogOut = useBaseLogOut(logOutOptions);
 
     const userID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -620,7 +621,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         logOutLoading={logOutLoading}
         colors={colors}
         styles={styles}
-        logOut={callLogOut}
+        logOut={callLegayLogOut}
         logOutPrimaryDevice={callPrimaryDeviceLogOut}
         logOutSecondaryDevice={callSecondaryDeviceLogOut}
         dispatchActionPromise={dispatchActionPromise}
