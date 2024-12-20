@@ -5,7 +5,7 @@ import * as React from 'react';
 import uuid from 'uuid';
 
 import {
-  useLogOut,
+  useBaseLogOut,
   logOutActionTypes,
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
@@ -48,9 +48,12 @@ function AccountSettings(): React.Node {
     const showVersionUnsupportedModal = () => {
       pushModal(<VersionUnsupportedModal />);
     };
-    return { handleUseNewFlowResponse: showVersionUnsupportedModal };
+    return {
+      logOutType: 'legacy',
+      handleUseNewFlowResponse: showVersionUnsupportedModal,
+    };
   }, [pushModal]);
-  const sendLogoutRequest = useLogOut(logOutOptions);
+  const sendLegacyLogoutRequest = useBaseLogOut(logOutOptions);
 
   const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -61,10 +64,10 @@ function AccountSettings(): React.Node {
         sendSecondaryDeviceLogoutRequest(),
       );
     }
-    return dispatchActionPromise(logOutActionTypes, sendLogoutRequest());
+    return dispatchActionPromise(logOutActionTypes, sendLegacyLogoutRequest());
   }, [
     dispatchActionPromise,
-    sendLogoutRequest,
+    sendLegacyLogoutRequest,
     sendSecondaryDeviceLogoutRequest,
   ]);
 
