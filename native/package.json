@@ -49,7 +49,7 @@
     "react-devtools": "^4.27.0",
     "react-native-codegen": "^0.70.6",
     "react-test-renderer": "18.1.0",
-    "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
+    "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git#c9c1600d71edc34e585ec8e3006d847a975fcea0",
     "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git"
   },
   "dependencies": {
