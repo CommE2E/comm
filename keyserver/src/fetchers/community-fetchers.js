@@ -6,6 +6,7 @@ import type {
 } from 'lib/types/community-types.js';
 
 import { fetchPrivilegedThreadInfos } from './thread-fetchers.js';
+import { viewerIsMember } from './thread-permission-fetchers.js';
 import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import { Viewer } from '../session/viewer.js';
 
@@ -93,13 +94,27 @@ async function fetchAllCommunityInfosWithNames(
 
   const [result] = await dbQuery(query);
 
-  const threadIDs = new Set(result.map(row => row.id.toString()));
+  const membershipChecks = await Promise.all(
+    result.map(async row => {
+      const isMember = await viewerIsMember(viewer, row.id.toString());
+      return {
+        ...row,
+        isMember,
+      };
+    }),
+  );
+
+  const filteredResult = membershipChecks.filter(
+    row => !!row.farcasterChannelID || row.isMember,
+  );
+
+  const threadIDs = new Set(filteredResult.map(row => row.id.toString()));
 
   const threadInfosResult = await fetchPrivilegedThreadInfos(viewer, {
     threadIDs,
   });
 
-  const communityInfos = result.map(
+  const communityInfos = filteredResult.map(
     (row): ServerCommunityInfoWithCommunityName => ({
       id: row.id.toString(),
       farcasterChannelID: row.farcasterChannelID,
