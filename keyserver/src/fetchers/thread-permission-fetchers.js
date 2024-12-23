@@ -71,6 +71,19 @@ function viewerIsMember(viewer: Viewer, threadID: string): Promise<boolean> {
   return checkThread(viewer, threadID, [{ check: 'is_member' }]);
 }
 
+async function viewerIsMemberOfThreads(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<Map<string, boolean>> {
+  const validThreadIDs = await checkThreads(viewer, threadIDs, [
+    { check: 'is_member' },
+  ]);
+
+  return new Map(
+    threadIDs.map(threadID => [threadID, validThreadIDs.has(threadID)]),
+  );
+}
+
 async function viewerHasPositiveRole(
   viewer: Viewer,
   threadID: string,
@@ -448,6 +461,7 @@ export {
   fetchThreadPermissionsBlob,
   checkThreadPermission,
   viewerIsMember,
+  viewerIsMemberOfThreads,
   checkThreads,
   getValidThreads,
   checkThread,
