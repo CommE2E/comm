@@ -50,13 +50,6 @@ function Team(): React.Node {
             imageURL={`${assetsCacheURLPrefix}/varun.jpeg`}
           />
           <TeamProfile
-            name="William Wang"
-            role="Software Engineer"
-            imageURL={`${assetsCacheURLPrefix}/will.jpg`}
-            githubHandle="wyilio"
-            farcasterHandle="wyilio"
-          />
-          <TeamProfile
             name="Yiannis Tselekounis"
             role="Research Scientist"
             imageURL={`${assetsCacheURLPrefix}/yiannis.jpeg`}
