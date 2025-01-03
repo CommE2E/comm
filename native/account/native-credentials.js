@@ -6,7 +6,7 @@ import {
   resetInternetCredentials,
 } from 'react-native-keychain';
 
-type UserCredentials = {
+export type UserCredentials = {
   +username: string,
   +password: string,
 };
