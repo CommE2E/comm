@@ -6,7 +6,11 @@ import { Text, TextInput, View } from 'react-native';
 import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
-import { setNativeCredentials } from './native-credentials.js';
+import {
+  fetchNativeCredentials,
+  setNativeCredentials,
+} from './native-credentials.js';
+import type { UserCredentials } from './native-credentials.js';
 import PromptButton from './prompt-button.react.js';
 import RegistrationButtonContainer from './registration/registration-button-container.react.js';
 import RegistrationContainer from './registration/registration-container.react.js';
@@ -30,8 +34,41 @@ type Props = {
 };
 
 function RestorePasswordAccountScreen(props: Props): React.Node {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [credentials, setCredentials] = React.useState<UserCredentials>({
+    username: '',
+    password: '',
+  });
+  const setUsername = React.useCallback(
+    (username: string) =>
+      setCredentials(prevCredentials => ({
+        ...prevCredentials,
+        username,
+      })),
+    [],
+  );
+  const setPassword = React.useCallback(
+    (password: string) =>
+      setCredentials(prevCredentials => ({
+        ...prevCredentials,
+        password,
+      })),
+    [],
+  );
+
+  React.useEffect(() => {
+    void (async () => {
+      const nativeCredentials = await fetchNativeCredentials();
+      if (!nativeCredentials) {
+        return;
+      }
+      setCredentials(prevCredentials => {
+        if (!prevCredentials.username && !prevCredentials.password) {
+          return nativeCredentials;
+        }
+        return prevCredentials;
+      });
+    })();
+  }, []);
 
   const passwordInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
   const focusPasswordInput = React.useCallback(() => {
@@ -44,14 +81,14 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
   }, []);
 
   const onUnsuccessfulLoginAlertAcknowledged = React.useCallback(() => {
-    setUsername('');
-    setPassword('');
+    setCredentials({ username: '', password: '' });
     focusUsernameInput();
   }, [focusUsernameInput]);
 
   const identityPasswordLogIn = usePasswordLogIn();
   const { retrieveLatestBackupInfo } = useClientBackup();
-  const areCredentialsPresent = !!username && !!password;
+  const areCredentialsPresent =
+    !!credentials.username && !!credentials.password;
   const [isProcessing, setIsProcessing] = React.useState(false);
   const onProceed = React.useCallback(async () => {
     if (!areCredentialsPresent) {
@@ -59,20 +96,19 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
     }
     setIsProcessing(true);
     try {
-      const latestBackupInfo = await retrieveLatestBackupInfo(username);
+      const latestBackupInfo = await retrieveLatestBackupInfo(
+        credentials.username,
+      );
       if (!latestBackupInfo) {
-        await identityPasswordLogIn(username, password);
-        await setNativeCredentials({
-          username,
-          password,
-        });
+        await identityPasswordLogIn(credentials.username, credentials.password);
+        await setNativeCredentials(credentials);
         return;
       }
       props.navigation.navigate(RestoreBackupScreenRouteName, {
-        userIdentifier: username,
+        userIdentifier: credentials.username,
         credentials: {
           type: 'password',
-          password,
+          password: credentials.password,
         },
       });
     } catch (e) {
@@ -103,12 +139,11 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
     }
   }, [
     areCredentialsPresent,
+    credentials,
     identityPasswordLogIn,
     onUnsuccessfulLoginAlertAcknowledged,
-    password,
     props.navigation,
     retrieveLatestBackupInfo,
-    username,
   ]);
 
   let restoreButtonVariant = 'loading';
@@ -122,7 +157,7 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
       <RegistrationContentContainer>
         <Text style={styles.header}>Restore with password</Text>
         <RegistrationTextInput
-          value={username}
+          value={credentials.username}
           onChangeText={setUsername}
           placeholder="Username"
           autoFocus={true}
@@ -136,7 +171,7 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
           ref={usernameInputRef}
         />
         <RegistrationTextInput
-          value={password}
+          value={credentials.password}
           onChangeText={setPassword}
           placeholder="Password"
           secureTextEntry={true}
