@@ -2,14 +2,16 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
+import { Platform } from 'react-native';
 
-import { restoreUserActionTypes } from 'lib/actions/user-actions.js';
+import {
+  restoreUserActionTypes,
+  type RestoreUserResult,
+} from 'lib/actions/user-actions.js';
 import { useLogIn } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import type {
-  IdentityAuthResult,
-  SignedDeviceList,
-} from 'lib/types/identity-service-types.js';
+import type { SignedDeviceList } from 'lib/types/identity-service-types.js';
+import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
@@ -19,6 +21,7 @@ import { useSelector } from 'lib/utils/redux-utils.js';
 
 import { useClientBackup } from '../backup/use-client-backup.js';
 import { commCoreModule } from '../native-modules.js';
+import { codeVersion, persistConfig } from '../redux/persist.js';
 
 function useRestoreProtocol(): (
   // username or wallet address
@@ -28,7 +31,7 @@ function useRestoreProtocol(): (
   // social proof for SIWE restore
   siweMessage?: string,
   siweSignature?: string,
-) => Promise<IdentityAuthResult> {
+) => Promise<RestoreUserResult> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
   const { identityClient } = identityContext;
@@ -101,10 +104,21 @@ function useRestoreProtocol(): (
         );
       }
 
-      //6. Return IdentityAuthResult result
+      //6. Return the result
+      const platformDetails = {
+        deviceType: platformToIdentityDeviceType[Platform.OS],
+        codeVersion,
+        stateVersion: persistConfig.version,
+      };
       return {
         ...result,
         preRequestUserState,
+        deviceLists: { [userID]: initialDeviceList },
+        usersPlatformDetails: {
+          [userID]: {
+            [primaryDeviceID]: platformDetails,
+          },
+        },
       };
     },
     [
