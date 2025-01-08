@@ -6,7 +6,7 @@ import type {
   StackOptions,
 } from '@react-navigation/core';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { type QRAuthNavigationProp } from './qr-auth-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
@@ -16,6 +16,7 @@ import {
   type ScreenParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import DeviceNotPrimaryIcon from '../../vectors/device-not-primary-icon.react.js';
 import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
@@ -44,12 +45,15 @@ function QRAuthNotPrimaryDevice(prop: Props): React.Node {
 
   return (
     <AuthContainer>
-      <AuthContentContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Device not primary</Text>
         <Text style={styles.body}>
           This mobile device is not your primary device, and cannot be used to
           authorize new devices. Please try your other mobile device(s).
         </Text>
+        <View style={styles.iconContainer}>
+          <DeviceNotPrimaryIcon />
+        </View>
       </AuthContentContainer>
       <AuthButtonContainer>
         <PrimaryButton
@@ -74,6 +78,15 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
+  },
+  iconContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 32,
+  },
+  scrollViewContentContainer: {
+    flexGrow: 1,
   },
 };
 
