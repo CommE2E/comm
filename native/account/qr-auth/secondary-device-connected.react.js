@@ -6,7 +6,7 @@ import type {
   StackOptions,
 } from '@react-navigation/core';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { QRAuthNavigationProp } from './qr-auth-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
@@ -16,6 +16,7 @@ import {
   type ScreenParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import SecondaryDeviceAddedIcon from '../../vectors/secondary-device-added-icon.react.js';
 import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
@@ -44,11 +45,14 @@ function SecondaryDeviceConnected(prop: Props): React.Node {
 
   return (
     <AuthContainer>
-      <AuthContentContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Device added</Text>
         <Text style={styles.body}>
           Your new device has been successfully registered!
         </Text>
+        <View style={styles.iconContainer}>
+          <SecondaryDeviceAddedIcon />
+        </View>
       </AuthContentContainer>
       <AuthButtonContainer>
         <PrimaryButton onPress={onPress} label="OK" variant="enabled" />
@@ -69,6 +73,15 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
+  },
+  iconContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 32,
+  },
+  scrollViewContentContainer: {
+    flexGrow: 1,
   },
 };
 
