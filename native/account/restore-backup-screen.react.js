@@ -11,6 +11,7 @@ import AuthContentContainer from './auth-components/auth-content-container.react
 import { setNativeCredentials } from './native-credentials.js';
 import { useRestore } from './restore.js';
 import type { SignInNavigationProp } from './sign-in-navigator.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
@@ -63,6 +64,10 @@ function RestoreBackupScreen(props: Props): React.Node {
             credentials.message,
             credentials.signature,
           );
+          await commCoreModule.setSIWEBackupSecrets({
+            message: credentials.message,
+            signature: credentials.signature,
+          });
         }
       } catch (e) {
         const messageForException = getMessageForException(e);
