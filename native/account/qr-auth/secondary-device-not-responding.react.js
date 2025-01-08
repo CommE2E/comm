@@ -7,7 +7,7 @@ import type {
 } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -20,6 +20,7 @@ import {
   type ScreenParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import SecondaryDeviceNotRespondingIcon from '../../vectors/secondary-device-not-responding-icon.react.js';
 import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
@@ -70,12 +71,15 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
 
   return (
     <AuthContainer>
-      <AuthContentContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>New device not responding</Text>
         <Text style={styles.body}>
           Has the new device successfully logged in? If not, we&apos;d suggest
           removing it and trying again.
         </Text>
+        <View style={styles.iconContainer}>
+          <SecondaryDeviceNotRespondingIcon />
+        </View>
       </AuthContentContainer>
       <AuthButtonContainer>
         <PrimaryButton
@@ -105,6 +109,14 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
+  },
+  iconContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollViewContentContainer: {
+    flexGrow: 1,
   },
 };
 
