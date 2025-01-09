@@ -139,7 +139,6 @@ impl BackupClient {
     let response = request.send().await?;
 
     let result = response.error_for_status()?.bytes().await?.to_vec();
-
     Ok(result)
   }
 }
@@ -398,6 +397,17 @@ pub enum Error {
   Unauthenticated,
   InvalidRequest,
 }
+
+impl Error {
+  pub fn is_user_not_found(&self) -> bool {
+    matches!(self, Self::ReqwestError(err) if err.status() == Some(StatusCode::BAD_REQUEST))
+  }
+
+  pub fn is_backup_not_found(&self) -> bool {
+    matches!(self, Self::ReqwestError(err) if err.status() == Some(StatusCode::NOT_FOUND))
+  }
+}
+
 impl std::error::Error for Error {}
 
 impl From<InvalidHeaderValue> for Error {
