@@ -295,6 +295,7 @@ function RelationshipList(props: Props): React.Node {
 
   const { setOptions } = navigation;
   const prevNoCurrentTags = React.useRef(noCurrentTags);
+  const prevOnPressAdd = React.useRef(onPressAdd);
   const loadingStatus = useSelector(loadingStatusSelector);
   React.useEffect(() => {
     let setSaveButtonDisabled;
@@ -304,9 +305,14 @@ function RelationshipList(props: Props): React.Node {
       setSaveButtonDisabled = false;
     }
     prevNoCurrentTags.current = noCurrentTags;
-    if (setSaveButtonDisabled === undefined) {
+    if (
+      setSaveButtonDisabled === undefined &&
+      prevOnPressAdd.current === onPressAdd
+    ) {
       return;
     }
+    prevOnPressAdd.current = onPressAdd;
+
     setOptions({
       headerRight: () => (
         <LinkButton
