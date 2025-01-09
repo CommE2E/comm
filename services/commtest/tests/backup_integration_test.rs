@@ -73,7 +73,13 @@ async fn backup_integration_test() -> Result<(), Error> {
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
     .await;
 
-  assert_reqwest_error(nonexistent_user_response, StatusCode::BAD_REQUEST);
+  assert!(
+    matches!(
+      nonexistent_user_response,
+      Err(backup_client::Error::UserNotFound)
+    ),
+    "Backup expected to return UserNotFound"
+  );
 
   // Test latest backup lookup
   let latest_backup_descriptor = BackupDescriptor::Latest {
@@ -121,7 +127,10 @@ async fn backup_integration_test() -> Result<(), Error> {
     .download_backup_data(&removed_backup_descriptor, RequestedData::UserKeys)
     .await;
 
-  assert_reqwest_error(response, StatusCode::NOT_FOUND);
+  assert!(
+    matches!(response, Err(backup_client::Error::BackupNotFound)),
+    "Backup expected to return BackupNotFound"
+  );
 
   // Test log cleanup
   let log_stream = backup_client
