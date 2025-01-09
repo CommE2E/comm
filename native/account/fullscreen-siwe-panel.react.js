@@ -19,7 +19,7 @@ import SIWEPanel from './siwe-panel.react.js';
 import { commRustModule } from '../native-modules.js';
 import {
   AccountDoesNotExistRouteName,
-  RegistrationRouteName,
+  AuthRouteName,
 } from '../navigation/route-names.js';
 import {
   unknownErrorAlertDetails,
@@ -58,7 +58,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
       await getEthereumAccountFromSIWEResult(result);
       setSkipEthereumLoginOnce(true);
       goBackToPrompt();
-      navigate<'Registration'>(RegistrationRouteName, {
+      navigate<'Auth'>(AuthRouteName, {
         screen: AccountDoesNotExistRouteName,
       });
     },
