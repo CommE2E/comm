@@ -8,8 +8,8 @@ import { getVersionActionTypes } from 'lib/actions/device-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import {
   RegistrationTile,
@@ -44,7 +44,7 @@ const getVersionLoadingStatusSelector = createLoadingStatusSelector(
 type KeyserverSelectionError = 'cant_reach_keyserver';
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
+  +navigation: AuthNavigationProp<'KeyserverSelection'>,
   +route: NavigationRoute<'KeyserverSelection'>,
 };
 function KeyserverSelection(props: Props): React.Node {

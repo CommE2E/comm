@@ -9,7 +9,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import { setNativeCredentials } from './native-credentials.js';
-import type { RegistrationNavigationProp } from './registration/registration-navigator.react.js';
+import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import { useRestore } from './restore.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -22,7 +22,7 @@ import {
 import Alert from '../utils/alert.js';
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'RestoreBackupScreen'>,
+  +navigation: AuthNavigationProp<'RestoreBackupScreen'>,
   +route: NavigationRoute<'RestoreBackupScreen'>,
 };
 

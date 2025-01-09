@@ -7,8 +7,8 @@ import { View, Text } from 'react-native';
 
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 
+import { type AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import { type RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
   AccountSelection,
@@ -145,7 +145,7 @@ export type CreateSIWEBackupMessageParams = {
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'CreateSIWEBackupMessage'>,
+  +navigation: AuthNavigationProp<'CreateSIWEBackupMessage'>,
   +route: NavigationRoute<'CreateSIWEBackupMessage'>,
 };
 function CreateSIWEBackupMessage(props: Props): React.Node {

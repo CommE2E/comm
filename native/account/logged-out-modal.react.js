@@ -49,7 +49,7 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type NavigationRoute,
   LoggedOutModalRouteName,
-  RegistrationRouteName,
+  AuthRouteName,
   QRCodeScreenRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -401,13 +401,13 @@ function LoggedOutModal(props: Props) {
 
   const { navigate } = useNavigation();
   const onPressQRCodeSignIn = React.useCallback(() => {
-    navigate(RegistrationRouteName, {
+    navigate(AuthRouteName, {
       screen: QRCodeScreenRouteName,
     });
   }, [navigate]);
 
   const onPressNewRegister = React.useCallback(() => {
-    navigate(RegistrationRouteName);
+    navigate(AuthRouteName);
   }, [navigate]);
 
   const opacityStyle = useAnimatedStyle(() => ({

@@ -8,9 +8,9 @@ import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { BaseFCAvatarInfo } from 'lib/utils/farcaster-helpers.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { siweNonceExpired } from './ethereum-utils.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../../components/farcaster-web-view.react.js';
@@ -38,7 +38,7 @@ export type ConnectFarcasterParams = ?{
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'ConnectFarcaster'>,
+  +navigation: AuthNavigationProp<'ConnectFarcaster'>,
   +route: NavigationRoute<'ConnectFarcaster'>,
 };
 
