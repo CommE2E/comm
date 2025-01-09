@@ -79,8 +79,11 @@ function BackupMenu(props: Props): React.Node {
   const testLatestBackupInfo = React.useCallback(async () => {
     let message;
     try {
-      const { backupID, userID } =
-        await retrieveLatestBackupInfo(userIdentifier);
+      const retrievedInfo = await retrieveLatestBackupInfo(userIdentifier);
+      if (!retrievedInfo) {
+        throw new Error('No backup found for user');
+      }
+      const { backupID, userID } = retrievedInfo;
       message =
         `Success!\n` +
         `Backup ID: ${backupID},\n` +
@@ -104,8 +107,11 @@ function BackupMenu(props: Props): React.Node {
     // 5. Perform this test
     let message;
     try {
-      const { userID, backupID } =
-        await retrieveLatestBackupInfo(userIdentifier);
+      const retrievedInfo = await retrieveLatestBackupInfo(userIdentifier);
+      if (!retrievedInfo) {
+        throw new Error('No backup found for user');
+      }
+      const { userID, backupID } = retrievedInfo;
 
       if (currentUserInfo?.id !== userID) {
         throw new Error('Backup returned different userID');

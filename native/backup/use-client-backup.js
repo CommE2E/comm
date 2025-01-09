@@ -22,7 +22,7 @@ type ClientBackup = {
   +createUserKeysBackup: () => Promise<string>,
   +retrieveLatestBackupInfo: (
     userIdentifier: string,
-  ) => Promise<LatestBackupInfo>,
+  ) => Promise<?LatestBackupInfo>,
   +getBackupUserKeys: (
     userIdentifier: string,
     backupSecret: string,
@@ -48,12 +48,17 @@ async function getBackupUserKeys(
 
 async function retrieveLatestBackupInfo(
   userIdentifier: string,
-): Promise<LatestBackupInfo> {
+): Promise<?LatestBackupInfo> {
   const response =
     await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
 
+  const parsedResponse = JSON.parse(response);
+  if (!parsedResponse) {
+    return null;
+  }
+
   return assertWithValidator<LatestBackupInfo>(
-    JSON.parse(response),
+    parsedResponse,
     latestBackupInfoResponseValidator,
   );
 }
