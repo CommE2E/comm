@@ -13,14 +13,14 @@ import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 import AuthButtonContainer from './auth-components/auth-button-container.react.js';
 import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
-import type { SignInNavigationProp } from './sign-in-navigator.react.js';
+import type { RegistrationNavigationProp } from './registration/registration-navigator.react.js';
 import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { RestorePromptScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
-  +navigation: SignInNavigationProp<'QRCodeScreen'>,
+  +navigation: RegistrationNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
