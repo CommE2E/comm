@@ -34,6 +34,7 @@ import RegistrationRouter, {
 import RegistrationTerms from './registration-terms.react.js';
 import { CreateSIWEBackupMessage } from './siwe-backup-message-creation.react.js';
 import UsernameSelection from './username-selection.react.js';
+import RestoreSIWEBackup from '../../backup/restore-siwe-backup.react.js';
 import RegistrationUserAvatarCameraModal from '../../media/registration-user-avatar-camera-modal.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -52,7 +53,16 @@ import {
   AccountDoesNotExistRouteName,
   type ScreenParamList,
   type RegistrationParamList,
+  QRCodeScreenRouteName,
+  RestorePromptScreenRouteName,
+  RestorePasswordAccountScreenRouteName,
+  RestoreBackupScreenRouteName,
+  RestoreSIWEBackupRouteName,
 } from '../../navigation/route-names.js';
+import QRCodeScreen from '../qr-code-screen.react.js';
+import RestoreBackupScreen from '../restore-backup-screen.react.js';
+import RestorePasswordAccountScreen from '../restore-password-account-screen.react.js';
+import RestorePromptScreen from '../restore-prompt-screen.react.js';
 
 export type RegistrationNavigationHelpers<
   ParamList: ParamListBase = ParamListBase,
@@ -197,6 +207,26 @@ function RegistrationComponent(props: Props): React.Node {
       <Registration.Screen
         name={AccountDoesNotExistRouteName}
         component={AccountDoesNotExist}
+      />
+      <Registration.Screen
+        name={QRCodeScreenRouteName}
+        component={QRCodeScreen}
+      />
+      <Registration.Screen
+        name={RestorePromptScreenRouteName}
+        component={RestorePromptScreen}
+      />
+      <Registration.Screen
+        name={RestorePasswordAccountScreenRouteName}
+        component={RestorePasswordAccountScreen}
+      />
+      <Registration.Screen
+        name={RestoreBackupScreenRouteName}
+        component={RestoreBackupScreen}
+      />
+      <Registration.Screen
+        name={RestoreSIWEBackupRouteName}
+        component={RestoreSIWEBackup}
       />
     </Registration.Navigator>
   );
