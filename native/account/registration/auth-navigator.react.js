@@ -19,6 +19,10 @@ import { StackView } from '@react-navigation/stack';
 import * as React from 'react';
 
 import AccountDoesNotExist from './account-does-not-exist.react.js';
+import AuthRouter, {
+  type AuthRouterExtraNavigationHelpers,
+  type AuthRouterNavigationAction,
+} from './auth-router.js';
 import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
 import ConnectFarcaster from './connect-farcaster.react.js';
@@ -27,10 +31,6 @@ import EmojiAvatarSelection from './emoji-avatar-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import PasswordSelection from './password-selection.react.js';
-import RegistrationRouter, {
-  type RegistrationRouterExtraNavigationHelpers,
-  type RegistrationRouterNavigationAction,
-} from './registration-router.js';
 import RegistrationTerms from './registration-terms.react.js';
 import { CreateSIWEBackupMessage } from './siwe-backup-message-creation.react.js';
 import UsernameSelection from './username-selection.react.js';
@@ -52,7 +52,7 @@ import {
   RegistrationTermsRouteName,
   AccountDoesNotExistRouteName,
   type ScreenParamList,
-  type RegistrationParamList,
+  type AuthParamList,
   QRCodeScreenRouteName,
   RestorePromptScreenRouteName,
   RestorePasswordAccountScreenRouteName,
@@ -64,17 +64,13 @@ import RestoreBackupScreen from '../restore-backup-screen.react.js';
 import RestorePasswordAccountScreen from '../restore-password-account-screen.react.js';
 import RestorePromptScreen from '../restore-prompt-screen.react.js';
 
-export type RegistrationNavigationHelpers<
-  ParamList: ParamListBase = ParamListBase,
-> = {
+type AuthNavigationHelpers<ParamList: ParamListBase = ParamListBase> = {
   ...$Exact<StackNavigationHelpers<ParamList>>,
-  ...RegistrationRouterExtraNavigationHelpers,
+  ...AuthRouterExtraNavigationHelpers,
 };
 
-type RegistrationNavigatorProps = StackNavigatorProps<
-  RegistrationNavigationHelpers<>,
->;
-function RegistrationNavigator({
+type AuthNavigatorProps = StackNavigatorProps<AuthNavigationHelpers<>>;
+function AuthNavigator({
   initialRouteName,
   children,
   screenOptions,
@@ -82,16 +78,16 @@ function RegistrationNavigator({
   screenListeners,
   id,
   ...rest
-}: RegistrationNavigatorProps) {
+}: AuthNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder<
     StackNavigationState,
-    RegistrationRouterNavigationAction,
+    AuthRouterNavigationAction,
     StackOptions,
     StackRouterOptions,
-    RegistrationNavigationHelpers<>,
+    AuthNavigationHelpers<>,
     StackNavigationEventMap,
     ExtraStackNavigatorProps,
-  >(RegistrationRouter, {
+  >(AuthRouter, {
     id,
     initialRouteName,
     children,
@@ -108,24 +104,24 @@ function RegistrationNavigator({
     />
   );
 }
-const createRegistrationNavigator = createNavigatorFactory<
+const createAuthNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
-  RegistrationNavigationHelpers<>,
+  AuthNavigationHelpers<>,
   ExtraStackNavigatorProps,
->(RegistrationNavigator);
+>(AuthNavigator);
 
-export type RegistrationNavigationProp<
-  RouteName: $Keys<RegistrationParamList> = $Keys<RegistrationParamList>,
+export type AuthNavigationProp<
+  RouteName: $Keys<AuthParamList> = $Keys<AuthParamList>,
 > = {
   ...StackNavigationProp<ScreenParamList, RouteName>,
-  ...RegistrationRouterExtraNavigationHelpers,
+  ...AuthRouterExtraNavigationHelpers,
 };
 
-const Registration = createRegistrationNavigator<
+const Auth = createAuthNavigator<
   ScreenParamList,
-  RegistrationParamList,
+  AuthParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
 
@@ -145,91 +141,88 @@ const cameraScreenOptions = {
 };
 
 type Props = {
-  +navigation: RootNavigationProp<'Registration'>,
+  +navigation: RootNavigationProp<'Auth'>,
   ...
 };
 // eslint-disable-next-line no-unused-vars
-function RegistrationComponent(props: Props): React.Node {
+function AuthComponent(props: Props): React.Node {
   return (
-    <Registration.Navigator
+    <Auth.Navigator
       screenOptions={screenOptions}
       initialRouteName={ConnectFarcasterRouteName}
     >
-      <Registration.Screen
+      <Auth.Screen
         name={CoolOrNerdModeSelectionRouteName}
         component={CoolOrNerdModeSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={KeyserverSelectionRouteName}
         component={KeyserverSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={ConnectEthereumRouteName}
         component={ConnectEthereum}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={ExistingEthereumAccountRouteName}
         component={ExistingEthereumAccount}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={ConnectFarcasterRouteName}
         component={ConnectFarcaster}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={CreateSIWEBackupMessageRouteName}
         component={CreateSIWEBackupMessage}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={UsernameSelectionRouteName}
         component={UsernameSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={PasswordSelectionRouteName}
         component={PasswordSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={AvatarSelectionRouteName}
         component={AvatarSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={EmojiAvatarSelectionRouteName}
         component={EmojiAvatarSelection}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={RegistrationUserAvatarCameraModalRouteName}
         component={RegistrationUserAvatarCameraModal}
         options={cameraScreenOptions}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={RegistrationTermsRouteName}
         component={RegistrationTerms}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={AccountDoesNotExistRouteName}
         component={AccountDoesNotExist}
       />
-      <Registration.Screen
-        name={QRCodeScreenRouteName}
-        component={QRCodeScreen}
-      />
-      <Registration.Screen
+      <Auth.Screen name={QRCodeScreenRouteName} component={QRCodeScreen} />
+      <Auth.Screen
         name={RestorePromptScreenRouteName}
         component={RestorePromptScreen}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={RestorePasswordAccountScreenRouteName}
         component={RestorePasswordAccountScreen}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={RestoreBackupScreenRouteName}
         component={RestoreBackupScreen}
       />
-      <Registration.Screen
+      <Auth.Screen
         name={RestoreSIWEBackupRouteName}
         component={RestoreSIWEBackup}
       />
-    </Registration.Navigator>
+    </Auth.Navigator>
   );
 }
 
-export default RegistrationComponent;
+export default AuthComponent;

@@ -15,7 +15,7 @@ import {
 } from './native-credentials.js';
 import type { UserCredentials } from './native-credentials.js';
 import PromptButton from './prompt-button.react.js';
-import type { RegistrationNavigationProp } from './registration/registration-navigator.react.js';
+import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import RegistrationTextInput from './registration/registration-text-input.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -29,7 +29,7 @@ import {
 import Alert from '../utils/alert.js';
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'RestorePasswordAccountScreen'>,
+  +navigation: AuthNavigationProp<'RestorePasswordAccountScreen'>,
   +route: NavigationRoute<'RestorePasswordAccountScreen'>,
 };
 
