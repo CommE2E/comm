@@ -140,7 +140,12 @@ function BackupHandler(): null {
     if (!userIdentifier) {
       throw new Error('Missing userIdentifier');
     }
-    const { backupID } = await retrieveLatestBackupInfo(userIdentifier);
+
+    const retrievedBackupInfo = await retrieveLatestBackupInfo(userIdentifier);
+    if (!retrievedBackupInfo) {
+      throw new Error('latestBackupInfo not retrieved');
+    }
+    const { backupID } = retrievedBackupInfo;
 
     const backupSecret = await getBackupSecret();
     const [
@@ -296,7 +301,7 @@ function BackupHandler(): null {
             let fetchedBackupInfo =
               await retrieveLatestBackupInfo(userIdentifier);
 
-            while (fetchedBackupInfo.backupID !== backupID) {
+            while (fetchedBackupInfo?.backupID !== backupID) {
               retryCount++;
               if (retryCount >= 3) {
                 throw new Error(`Backup ID mismatched ${retryCount} times`);

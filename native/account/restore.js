@@ -57,8 +57,12 @@ function useRestoreProtocol(): (
       await olmAPI.initializeCryptoAccount();
 
       //2. Retrieve User Keys Backup and `userID`
-      const { userID, backupID } =
-        await retrieveLatestBackupInfo(userIdentifier);
+      const latestBackupInfo = await retrieveLatestBackupInfo(userIdentifier);
+      if (!latestBackupInfo) {
+        throw new Error('Backup not found');
+      }
+      const { userID, backupID } = latestBackupInfo;
+
       const { pickledAccount, pickleKey } = await getBackupUserKeys(
         userIdentifier,
         secret,
