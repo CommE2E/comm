@@ -242,7 +242,11 @@ pub mod ffi {
           .map_err(|err| err.to_string());
 
       let result = match latest_backup_id_response {
-        Ok(result) => result,
+        Ok(Some(result)) => result,
+        Ok(None) => {
+          string_callback("".to_string(), promise_id, "null".to_string());
+          return;
+        }
         Err(error) => {
           string_callback(error, promise_id, "".to_string());
           return;
@@ -321,14 +325,22 @@ pub async fn create_siwe_backup_msg_compaction(
 
 async fn download_latest_backup_info(
   user_identifier: String,
-) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
+) -> Result<Option<LatestBackupInfoResponse>, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
 
   let latest_backup_descriptor = BackupDescriptor::Latest { user_identifier };
 
-  let backup_info_response = backup_client
+  let backup_info_response = match backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
-    .await?;
+    .await
+  {
+    Ok(response) => response,
+    Err(err) if err.is_backup_not_found() => return Ok(None),
+    Err(err) if err.is_user_not_found() => {
+      return Err(Box::new(UserNotFoundError))
+    }
+    Err(err) => return Err(err.into()),
+  };
 
   let LatestBackupInfoResponse {
     backup_id,
@@ -336,11 +348,11 @@ async fn download_latest_backup_info(
     siwe_backup_msg,
   } = serde_json::from_slice(&backup_info_response)?;
 
-  Ok(LatestBackupInfoResponse {
+  Ok(Some(LatestBackupInfoResponse {
     backup_id,
     user_id,
     siwe_backup_msg,
-  })
+  }))
 }
 
 async fn download_backup_keys(
@@ -418,6 +430,11 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
     device_id: secure_store_get(secure_store::DEVICE_ID)?,
   })
 }
+
+/// helper struct to generate proper error message string
+#[derive(Debug, derive_more::Error, derive_more::Display)]
+#[display(fmt = "user_not_found")]
+struct UserNotFoundError;
 
 // This struct should match `SIWEBackupData` in `lib/types/backup-types.js`
 #[derive(Debug, Clone, Serialize, Deserialize)]
