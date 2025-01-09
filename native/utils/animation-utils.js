@@ -18,12 +18,8 @@ const {
   cond,
   not,
   greaterThan,
-  lessThan,
   eq,
-  neq,
-  add,
   sub,
-  divide,
   set,
   startClock,
   stopClock,
@@ -156,56 +152,6 @@ function useSharedValueForBoolean(booleanValue: boolean): SharedValue<boolean> {
   return sharedValue;
 }
 
-// Target can be either 0 or 1. Caller handles interpolating
-function animateTowards(
-  target: Node,
-  fullAnimationLength: number, // in ms
-): Node {
-  const curValue = new Value(-1);
-  const prevTarget = new Value(-1);
-  const clock = new Clock();
-
-  const prevClockValue = new Value(0);
-  const curDeltaClockValue = new Value(0);
-  const deltaClockValue = [
-    set(
-      curDeltaClockValue,
-      cond(eq(prevClockValue, 0), 0, sub(clock, prevClockValue)),
-    ),
-    set(prevClockValue, clock),
-    curDeltaClockValue,
-  ];
-  const progressPerFrame = divide(deltaClockValue, fullAnimationLength);
-
-  return block([
-    [
-      cond(eq(curValue, -1), set(curValue, target)),
-      cond(eq(prevTarget, -1), set(prevTarget, target)),
-    ],
-    cond(neq(target, prevTarget), [stopClock(clock), set(prevTarget, target)]),
-    cond(neq(curValue, target), [
-      cond(not(clockRunning(clock)), [
-        set(prevClockValue, 0),
-        startClock(clock),
-      ]),
-      set(
-        curValue,
-        cond(
-          eq(target, 1),
-          add(curValue, progressPerFrame),
-          sub(curValue, progressPerFrame),
-        ),
-      ),
-    ]),
-    [
-      cond(greaterThan(curValue, 1), set(curValue, 1)),
-      cond(lessThan(curValue, 0), set(curValue, 0)),
-    ],
-    cond(eq(curValue, target), [stopClock(clock)]),
-    curValue,
-  ]);
-}
-
 export {
   clamp,
   delta,
@@ -214,5 +160,4 @@ export {
   runTiming,
   runSpring,
   useSharedValueForBoolean,
-  animateTowards,
 };
