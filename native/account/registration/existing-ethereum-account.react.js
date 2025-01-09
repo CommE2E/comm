@@ -17,8 +17,8 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import type {
@@ -39,7 +39,7 @@ import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 export type ExistingEthereumAccountParams = SIWEResult;
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'ExistingEthereumAccount'>,
+  +navigation: AuthNavigationProp<'ExistingEthereumAccount'>,
   +route: NavigationRoute<'ExistingEthereumAccount'>,
 };
 function ExistingEthereumAccount(props: Props): React.Node {
@@ -57,11 +57,11 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const { navigation } = props;
   const goBackToHome = navigation.getParent<
     ScreenParamList,
-    'Registration',
+    'Auth',
     StackNavigationState,
     StackOptions,
     StackNavigationEventMap,
-    RootNavigationProp<'Registration'>,
+    RootNavigationProp<'Auth'>,
   >()?.goBack;
   const onProceedToLogIn = React.useCallback(async () => {
     if (logInPending) {

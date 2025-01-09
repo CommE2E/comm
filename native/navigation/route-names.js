@@ -128,7 +128,7 @@ export const TogglePinModalRouteName = 'TogglePinModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const ViewInviteLinksRouteName = 'ViewInviteLinks';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
-export const RegistrationRouteName = 'Registration';
+export const AuthRouteName = 'Auth';
 export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
@@ -199,7 +199,7 @@ export type RootParamList = {
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
-  +Registration: void,
+  +Auth: void,
   +CommunityCreation: void,
   +InviteLinkModal: InviteLinkModalParams,
   +InviteLinkNavigator: InviteLinksNavigatorParams,
@@ -307,7 +307,7 @@ export type CalendarParamList = {
 
 export type CommunityDrawerParamList = { +TabNavigator: void };
 
-export type RegistrationParamList = {
+export type AuthParamList = {
   +CoolOrNerdModeSelection: void,
   +KeyserverSelection: KeyserverSelectionParams,
   +ConnectEthereum: ConnectEthereumParams,
@@ -370,7 +370,7 @@ export type ScreenParamList = {
   ...ProfileParamList,
   ...CalendarParamList,
   ...CommunityDrawerParamList,
-  ...RegistrationParamList,
+  ...AuthParamList,
   ...InviteLinkParamList,
   ...CommunityCreationParamList,
   ...RolesParamList,
@@ -382,7 +382,7 @@ export type ScreenParamList = {
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
   RouteProp<ScreenParamList, RouteName>;
 
-export const accountModals = [LoggedOutModalRouteName, RegistrationRouteName];
+export const accountModals = [LoggedOutModalRouteName, AuthRouteName];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,

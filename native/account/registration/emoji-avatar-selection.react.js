@@ -8,7 +8,7 @@ import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types';
 
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { useNativeSetUserAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
@@ -21,7 +21,7 @@ export type EmojiAvatarSelectionParams = {
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'EmojiAvatarSelection'>,
+  +navigation: AuthNavigationProp<'EmojiAvatarSelection'>,
   +route: NavigationRoute<'EmojiAvatarSelection'>,
 };
 function EmojiAvatarSelection(props: Props): React.Node {

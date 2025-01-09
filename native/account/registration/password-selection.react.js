@@ -6,8 +6,8 @@ import { View, Text, Platform, TextInput } from 'react-native';
 
 import sleep from 'lib/utils/sleep.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import PrimaryButton from '../../components/primary-button.react.js';
@@ -34,7 +34,7 @@ export type PasswordSelectionParams = {
 type PasswordError = 'passwords_dont_match' | 'empty_password';
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'PasswordSelection'>,
+  +navigation: AuthNavigationProp<'PasswordSelection'>,
   +route: NavigationRoute<'PasswordSelection'>,
 };
 function PasswordSelection(props: Props): React.Node {

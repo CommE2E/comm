@@ -9,8 +9,8 @@ import {
   type UserAvatarSelection,
 } from 'lib/components/edit-user-avatar-provider.react.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
   type CoolOrNerdMode,
   type AccountSelection,
@@ -45,7 +45,7 @@ export type AvatarSelectionParams = {
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'AvatarSelection'>,
+  +navigation: AuthNavigationProp<'AvatarSelection'>,
   +route: NavigationRoute<'AvatarSelection'>,
 };
 function AvatarSelection(props: Props): React.Node {

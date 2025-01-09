@@ -14,12 +14,12 @@ import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import {
   useGetEthereumAccountFromSIWEResult,
   siweNonceExpired,
 } from './ethereum-utils.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import { commRustModule } from '../../native-modules.js';
@@ -57,7 +57,7 @@ export type ConnectEthereumParams = {
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'ConnectEthereum'>,
+  +navigation: AuthNavigationProp<'ConnectEthereum'>,
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {

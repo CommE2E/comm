@@ -6,8 +6,8 @@ import { Text, View, Image, Linking } from 'react-native';
 
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
   AccountSelection,
@@ -44,7 +44,7 @@ const onPrivacyPolicyPressed = () => {
 };
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'RegistrationTerms'>,
+  +navigation: AuthNavigationProp<'RegistrationTerms'>,
   +route: NavigationRoute<'RegistrationTerms'>,
 };
 function RegistrationTerms(props: Props): React.Node {

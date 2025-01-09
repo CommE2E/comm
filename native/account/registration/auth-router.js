@@ -24,17 +24,15 @@ type ReconnectEthereumAction = {
     +params: ConnectEthereumParams,
   },
 };
-export type RegistrationRouterNavigationAction =
-  | StackAction
-  | ReconnectEthereumAction;
+export type AuthRouterNavigationAction = StackAction | ReconnectEthereumAction;
 
-export type RegistrationRouterExtraNavigationHelpers = {
+export type AuthRouterExtraNavigationHelpers = {
   +reconnectEthereum: ConnectEthereumParams => void,
 };
 
-function RegistrationRouter(
+function AuthRouter(
   routerOptions: StackRouterOptions,
-): Router<StackNavigationState, RegistrationRouterNavigationAction> {
+): Router<StackNavigationState, AuthRouterNavigationAction> {
   const {
     getStateForAction: baseGetStateForAction,
     actionCreators: baseActionCreators,
@@ -44,7 +42,7 @@ function RegistrationRouter(
     ...rest,
     getStateForAction: (
       lastState: StackNavigationState,
-      action: RegistrationRouterNavigationAction,
+      action: AuthRouterNavigationAction,
       options: RouterConfigOptions,
     ) => {
       if (action.type === reconnectEthereumActionType) {
@@ -101,4 +99,4 @@ function RegistrationRouter(
   };
 }
 
-export default RegistrationRouter;
+export default AuthRouter;
