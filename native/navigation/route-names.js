@@ -151,7 +151,6 @@ export const RegistrationTermsRouteName = 'RegistrationTerms';
 export const RolesNavigatorRouteName = 'RolesNavigator';
 export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
-export const SignInNavigatorRouteName = 'SignInNavigator';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
 export const RestorePromptScreenRouteName = 'RestorePromptScreen';
 export const RestorePasswordAccountScreenRouteName =
@@ -206,7 +205,6 @@ export type RootParamList = {
   +InviteLinkModal: InviteLinkModalParams,
   +InviteLinkNavigator: InviteLinksNavigatorParams,
   +RolesNavigator: void,
-  +SignInNavigator: void,
   +UserProfileBottomSheetNavigator: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
@@ -325,6 +323,11 @@ export type RegistrationParamList = {
   +RegistrationUserAvatarCameraModal: void,
   +RegistrationTerms: RegistrationTermsParams,
   +AccountDoesNotExist: void,
+  +QRCodeScreen: void,
+  +RestorePromptScreen: void,
+  +RestorePasswordAccountScreen: void,
+  +RestoreBackupScreen: RestoreBackupScreenParams,
+  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type InviteLinkParamList = {
@@ -344,14 +347,6 @@ export type RolesParamList = {
 export type TagFarcasterChannelParamList = {
   +TagFarcasterChannel: TagFarcasterChannelParams,
   +TagFarcasterChannelByName: TagFarcasterChannelByNameParams,
-};
-
-export type SignInParamList = {
-  +QRCodeScreen: void,
-  +RestorePromptScreen: void,
-  +RestorePasswordAccountScreen: void,
-  +RestoreBackupScreen: RestoreBackupScreenParams,
-  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type UserProfileBottomSheetParamList = {
@@ -381,7 +376,6 @@ export type ScreenParamList = {
   ...InviteLinkParamList,
   ...CommunityCreationParamList,
   ...RolesParamList,
-  ...SignInParamList,
   ...UserProfileBottomSheetParamList,
   ...TagFarcasterChannelParamList,
   ...QRAuthNavigatorParamList,
@@ -390,11 +384,7 @@ export type ScreenParamList = {
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
   RouteProp<ScreenParamList, RouteName>;
 
-export const accountModals = [
-  LoggedOutModalRouteName,
-  RegistrationRouteName,
-  SignInNavigatorRouteName,
-];
+export const accountModals = [LoggedOutModalRouteName, RegistrationRouteName];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,

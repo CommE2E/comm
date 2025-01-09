@@ -11,7 +11,7 @@ import AuthButtonContainer from './auth-components/auth-button-container.react.j
 import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import PromptButton from './prompt-button.react.js';
-import type { SignInNavigationProp } from './sign-in-navigator.react';
+import type { RegistrationNavigationProp } from './registration/registration-navigator.react.js';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -29,7 +29,7 @@ import Alert from '../utils/alert.js';
 import RestoreIcon from '../vectors/restore-icon.react.js';
 
 type Props = {
-  +navigation: SignInNavigationProp<'RestorePromptScreen'>,
+  +navigation: RegistrationNavigationProp<'RestorePromptScreen'>,
   +route: NavigationRoute<'RestorePromptScreen'>,
 };
 

@@ -49,7 +49,6 @@ import {
   InviteLinkNavigatorRouteName,
   CommunityCreationRouteName,
   RolesNavigatorRouteName,
-  SignInNavigatorRouteName,
   UserProfileBottomSheetNavigatorRouteName,
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
@@ -63,7 +62,6 @@ import LoggedOutModal from '../account/logged-out-modal.react.js';
 import QRAuthNavigator from '../account/qr-auth/qr-auth-navigator.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
-import SignInNavigator from '../account/sign-in-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
 import ImagePasteModal from '../chat/image-paste-modal.react.js';
@@ -213,11 +211,6 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={RegistrationRouteName}
         component={RegistrationNavigator}
-        options={disableGesturesScreenOptions}
-      />
-      <Root.Screen
-        name={SignInNavigatorRouteName}
-        component={SignInNavigator}
         options={disableGesturesScreenOptions}
       />
       <Root.Screen

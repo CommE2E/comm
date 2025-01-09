@@ -1,6 +1,7 @@
 // @flow
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import {
   View,
@@ -49,7 +50,7 @@ import {
   type NavigationRoute,
   LoggedOutModalRouteName,
   RegistrationRouteName,
-  SignInNavigatorRouteName,
+  QRCodeScreenRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
@@ -203,6 +204,7 @@ type Props = {
   +navigation: RootNavigationProp<'LoggedOutModal'>,
   +route: NavigationRoute<'LoggedOutModal'>,
 };
+// eslint-disable-next-line no-unused-vars
 function LoggedOutModal(props: Props) {
   const mountedRef = React.useRef(false);
   React.useEffect(() => {
@@ -397,9 +399,11 @@ function LoggedOutModal(props: Props) {
     combinedSetMode('log-in');
   }, [combinedSetMode]);
 
-  const { navigate } = props.navigation;
+  const { navigate } = useNavigation();
   const onPressQRCodeSignIn = React.useCallback(() => {
-    navigate(SignInNavigatorRouteName);
+    navigate(RegistrationRouteName, {
+      screen: QRCodeScreenRouteName,
+    });
   }, [navigate]);
 
   const onPressNewRegister = React.useCallback(() => {
