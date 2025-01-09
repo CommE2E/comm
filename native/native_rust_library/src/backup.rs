@@ -242,7 +242,11 @@ pub mod ffi {
           .map_err(|err| err.to_string());
 
       let result = match latest_backup_id_response {
-        Ok(result) => result,
+        Ok(Some(result)) => result,
+        Ok(None) => {
+          string_callback("".to_string(), promise_id, "null".to_string());
+          return;
+        }
         Err(error) => {
           string_callback(error, promise_id, "".to_string());
           return;
@@ -321,14 +325,20 @@ pub async fn create_siwe_backup_msg_compaction(
 
 async fn download_latest_backup_info(
   user_identifier: String,
-) -> Result<LatestBackupInfoResponse, Box<dyn Error>> {
+) -> Result<Option<LatestBackupInfoResponse>, Box<dyn Error>> {
+  use backup_client::Error as BackupError;
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
 
   let latest_backup_descriptor = BackupDescriptor::Latest { user_identifier };
 
-  let backup_info_response = backup_client
+  let backup_info_response = match backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupInfo)
-    .await?;
+    .await
+  {
+    Ok(response) => response,
+    Err(BackupError::BackupNotFound) => return Ok(None),
+    Err(e) => return Err(e.into()),
+  };
 
   let LatestBackupInfoResponse {
     backup_id,
@@ -336,11 +346,11 @@ async fn download_latest_backup_info(
     siwe_backup_msg,
   } = serde_json::from_slice(&backup_info_response)?;
 
-  Ok(LatestBackupInfoResponse {
+  Ok(Some(LatestBackupInfoResponse {
     backup_id,
     user_id,
     siwe_backup_msg,
-  })
+  }))
 }
 
 async fn download_backup_keys(

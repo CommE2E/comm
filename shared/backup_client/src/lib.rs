@@ -138,8 +138,15 @@ impl BackupClient {
 
     let response = request.send().await?;
 
-    let result = response.error_for_status()?.bytes().await?.to_vec();
+    // this should be kept in sync with HTTP error conversions
+    // from `services/backup/src/error.rs`
+    match response.status() {
+      StatusCode::NOT_FOUND => return Err(Error::BackupNotFound),
+      StatusCode::BAD_REQUEST => return Err(Error::UserNotFound),
+      _ => (),
+    };
 
+    let result = response.error_for_status()?.bytes().await?.to_vec();
     Ok(result)
   }
 }
@@ -397,7 +404,11 @@ pub enum Error {
   WSClosed,
   Unauthenticated,
   InvalidRequest,
+  #[display(fmt = "user_not_found")]
+  UserNotFound,
+  BackupNotFound,
 }
+
 impl std::error::Error for Error {}
 
 impl From<InvalidHeaderValue> for Error {
