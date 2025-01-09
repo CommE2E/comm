@@ -121,7 +121,13 @@ async fn backup_integration_test() -> Result<(), Error> {
     .download_backup_data(&removed_backup_descriptor, RequestedData::UserKeys)
     .await;
 
-  assert_reqwest_error(response, StatusCode::NOT_FOUND);
+  match response {
+    Err(backup_client::Error::BackupNotFound) => (),
+    result => panic!(
+      "Backup should return BackupNotFound, instead got response: {:?}",
+      result
+    ),
+  };
 
   // Test log cleanup
   let log_stream = backup_client
