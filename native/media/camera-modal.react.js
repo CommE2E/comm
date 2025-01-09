@@ -38,7 +38,7 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import SendMediaButton from './send-media-button.react.js';
-import type { RegistrationNavigationProp } from '../account/registration/registration-navigator.react.js';
+import type { AuthNavigationProp } from '../account/registration/auth-navigator.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -234,7 +234,7 @@ type BaseProps = {
     | AppNavigationProp<'ChatCameraModal'>
     | AppNavigationProp<'UserAvatarCameraModal'>
     | AppNavigationProp<'ThreadAvatarCameraModal'>
-    | RegistrationNavigationProp<'RegistrationUserAvatarCameraModal'>,
+    | AuthNavigationProp<'RegistrationUserAvatarCameraModal'>,
 };
 type Props = {
   ...BaseProps,

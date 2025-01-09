@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View, Image } from 'react-native';
 
-import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import type { AuthNavigationProp } from './auth-navigator.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
 import {
@@ -16,7 +16,7 @@ import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 type Props = {
-  +navigation: RegistrationNavigationProp<'AccountDoesNotExist'>,
+  +navigation: AuthNavigationProp<'AccountDoesNotExist'>,
   +route: NavigationRoute<'AccountDoesNotExist'>,
 };
 function AccountDoesNotExist(props: Props): React.Node {
