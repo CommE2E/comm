@@ -6,12 +6,19 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import filesystem from 'react-native-fs';
-import {
-  TapGestureHandler,
-  type TapGestureEvent,
-} from 'react-native-gesture-handler';
+// $FlowFixMe: we don't have yet flow types for GH v2 API
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  interpolate,
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+  Extrapolate,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
@@ -35,7 +42,6 @@ import type {
   LayoutCoordinates,
 } from '../types/layout-types.js';
 import type { NativeMethods } from '../types/react-native.js';
-import { gestureJustEnded, animateTowards } from '../utils/animation-utils.js';
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
@@ -46,31 +52,6 @@ type VideoRef = {
   +seek: number => mixed,
   ...
 };
-
-const {
-  Extrapolate,
-  and,
-  or,
-  block,
-  cond,
-  eq,
-  ceil,
-  call,
-  set,
-  add,
-  sub,
-  multiply,
-  divide,
-  not,
-  max,
-  min,
-  lessThan,
-  greaterThan,
-  abs,
-  interpolateNode,
-  useValue,
-  event,
-} = Animated;
 
 export type VideoPlaybackModalParams = {
   +presentedFrom: string,
@@ -151,10 +132,10 @@ function VideoPlaybackModal(props: Props): React.Node {
     };
   }, [mediaInfo, mediaCache, fetchAndDecryptMedia]);
 
-  const closeButtonX = useValue(-1);
-  const closeButtonY = useValue(-1);
-  const closeButtonWidth = useValue(-1);
-  const closeButtonHeight = useValue(-1);
+  const closeButtonX = useSharedValue(-1);
+  const closeButtonY = useSharedValue(-1);
+  const closeButtonWidth = useSharedValue(-1);
+  const closeButtonHeight = useSharedValue(-1);
   const closeButtonRef =
     React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
   const closeButton = closeButtonRef.current;
@@ -168,10 +149,10 @@ function VideoPlaybackModal(props: Props): React.Node {
       return;
     }
     closeButton.measure((x, y, width, height, pageX, pageY) => {
-      closeButtonX.setValue(pageX);
-      closeButtonY.setValue(pageY);
-      closeButtonWidth.setValue(width);
-      closeButtonHeight.setValue(height);
+      closeButtonX.value = pageX;
+      closeButtonY.value = pageY;
+      closeButtonWidth.value = width;
+      closeButtonHeight.value = height;
     });
   }, [
     closeButton,
@@ -182,10 +163,10 @@ function VideoPlaybackModal(props: Props): React.Node {
     closeButtonHeight,
   ]);
 
-  const footerX = useValue(-1);
-  const footerY = useValue(-1);
-  const footerWidth = useValue(-1);
-  const footerHeight = useValue(-1);
+  const footerX = useSharedValue(-1);
+  const footerY = useSharedValue(-1);
+  const footerWidth = useSharedValue(-1);
+  const footerHeight = useSharedValue(-1);
   const footerRef = React.useRef<?React.ElementRef<typeof View>>();
   const footer = footerRef.current;
   const onFooterLayoutCalledRef = React.useRef(false);
@@ -198,10 +179,10 @@ function VideoPlaybackModal(props: Props): React.Node {
       return;
     }
     footer.measure((x, y, width, height, pageX, pageY) => {
-      footerX.setValue(pageX);
-      footerY.setValue(pageY);
-      footerWidth.setValue(width);
-      footerHeight.setValue(height);
+      footerX.value = pageX;
+      footerY.value = pageY;
+      footerWidth.value = width;
+      footerHeight.value = height;
     });
   }, [
     footer,
@@ -212,88 +193,50 @@ function VideoPlaybackModal(props: Props): React.Node {
     footerHeight,
   ]);
 
-  const controlsShowing = useValue(1);
+  const controlsShowing = useSharedValue<number>(1);
   const outsideButtons = React.useCallback(
-    (x: Animated.Value, y: Animated.Value) =>
-      and(
-        or(
-          eq(controlsShowing, 0),
-          lessThan(x, closeButtonX),
-          greaterThan(x, add(closeButtonX, closeButtonWidth)),
-          lessThan(y, closeButtonY),
-          greaterThan(y, add(closeButtonY, closeButtonHeight)),
-        ),
-        or(
-          eq(controlsShowing, 0),
-          lessThan(x, footerX),
-          greaterThan(x, add(footerX, footerWidth)),
-          lessThan(y, footerY),
-          greaterThan(y, add(footerY, footerHeight)),
-        ),
-      ),
+    (x: number, y: number) => {
+      'worklet';
+      if (controlsShowing.value === 0) {
+        return true;
+      }
+      const isOutsideCloseButton =
+        x < closeButtonX.value ||
+        x > closeButtonX.value + closeButtonWidth.value ||
+        y < closeButtonY.value ||
+        y > closeButtonY.value + closeButtonHeight.value;
+      const isOutsideFooter =
+        x < footerX.value ||
+        x > footerX.value + footerWidth.value ||
+        y < footerY.value ||
+        y > footerY.value + footerHeight.value;
+      return isOutsideCloseButton && isOutsideFooter;
+    },
     [
-      controlsShowing,
+      closeButtonHeight,
+      closeButtonWidth,
       closeButtonX,
       closeButtonY,
-      closeButtonWidth,
-      closeButtonHeight,
+      controlsShowing,
+      footerHeight,
+      footerWidth,
       footerX,
       footerY,
-      footerWidth,
-      footerHeight,
     ],
   );
 
   /* ===== START FADE CONTROL ANIMATION ===== */
 
-  const singleTapState = useValue(-1);
-  const singleTapX = useValue(0);
-  const singleTapY = useValue(0);
+  const activeControlsOpacity = useSharedValue<number>(1);
 
-  const singleTapEvent = React.useMemo(
-    () =>
-      event<TapGestureEvent>([
-        {
-          nativeEvent: {
-            state: singleTapState,
-            x: singleTapX,
-            y: singleTapY,
-          },
-        },
-      ]),
-    [singleTapState, singleTapX, singleTapY],
-  );
-
-  const lastTapX = useValue(-1);
-  const lastTapY = useValue(-1);
-
-  const activeControlsOpacity = React.useMemo(
-    () =>
-      animateTowards(
-        block([
-          cond(
-            and(
-              gestureJustEnded(singleTapState),
-              outsideButtons(lastTapX, lastTapY),
-            ),
-            set(controlsShowing, not(controlsShowing)),
-          ),
-          set(lastTapX, singleTapX),
-          set(lastTapY, singleTapY),
-          controlsShowing,
-        ]),
-        150,
-      ),
-    [
-      singleTapState,
-      controlsShowing,
-      outsideButtons,
-      lastTapX,
-      lastTapY,
-      singleTapX,
-      singleTapY,
-    ],
-  );
+  const singleTap = Gesture.Tap().onEnd(({ x, y }) => {
+    if (outsideButtons(x, y)) {
+      controlsShowing.value = 1 - controlsShowing.value;
+      activeControlsOpacity.value = withTiming(controlsShowing.value, {
+        duration: 150,
+      });
+    }
+  });
 
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const enableControls = React.useCallback(() => setControlsEnabled(true), []);
@@ -302,33 +245,17 @@ function VideoPlaybackModal(props: Props): React.Node {
     [],
   );
 
-  const previousOpacityCeiling = useValue(-1);
-  const opacityCeiling = React.useMemo(
-    () => ceil(activeControlsOpacity),
-    [activeControlsOpacity],
-  );
-
-  const opacityJustChanged = React.useMemo(
-    () =>
-      cond(eq(previousOpacityCeiling, opacityCeiling), 0, [
-        set(previousOpacityCeiling, opacityCeiling),
-        1,
-      ]),
-    [previousOpacityCeiling, opacityCeiling],
-  );
-
-  const toggleControls = React.useMemo(
-    () => [
-      cond(
-        and(eq(opacityJustChanged, 1), eq(opacityCeiling, 0)),
-        call([], disableControls),
-      ),
-      cond(
-        and(eq(opacityJustChanged, 1), eq(opacityCeiling, 1)),
-        call([], enableControls),
-      ),
-    ],
-    [opacityJustChanged, opacityCeiling, disableControls, enableControls],
+  useAnimatedReaction(
+    () => Math.ceil(activeControlsOpacity.value),
+    (currentOpacityCeiling, previousOpacityCeiling) => {
+      if (previousOpacityCeiling !== currentOpacityCeiling) {
+        if (currentOpacityCeiling === 0) {
+          runOnJS(disableControls)();
+        } else {
+          runOnJS(enableControls)();
+        }
+      }
+    },
   );
 
   /* ===== END FADE CONTROL ANIMATION ===== */
@@ -375,25 +302,25 @@ function VideoPlaybackModal(props: Props): React.Node {
     }
   }, [frame, mediaDimensions]);
 
-  const centerX = useValue(frame.width / 2);
-  const centerY = useValue(frame.height / 2 + screenDimensions.topInset);
-  const frameWidth = useValue(frame.width);
-  const frameHeight = useValue(frame.height);
-  const imageWidth = useValue(mediaDisplayDimensions.width);
-  const imageHeight = useValue(mediaDisplayDimensions.height);
+  const centerX = useSharedValue(frame.width / 2);
+  const centerY = useSharedValue(frame.height / 2 + screenDimensions.topInset);
+  const frameWidth = useSharedValue(frame.width);
+  const frameHeight = useSharedValue(frame.height);
+  const imageWidth = useSharedValue(mediaDisplayDimensions.width);
+  const imageHeight = useSharedValue(mediaDisplayDimensions.height);
 
   React.useEffect(() => {
     const { width: frameW, height: frameH } = frame;
     const { topInset } = screenDimensions;
-    frameWidth.setValue(frameW);
-    frameHeight.setValue(frameH);
+    frameWidth.value = frameW;
+    frameHeight.value = frameH;
 
-    centerX.setValue(frameW / 2);
-    centerY.setValue(frameH / 2 + topInset);
+    centerX.value = frameW / 2;
+    centerY.value = frameH / 2 + topInset;
 
     const { width, height } = mediaDisplayDimensions;
-    imageWidth.setValue(width);
-    imageHeight.setValue(height);
+    imageWidth.value = width;
+    imageHeight.value = height;
   }, [
     screenDimensions,
     frame,
@@ -406,158 +333,84 @@ function VideoPlaybackModal(props: Props): React.Node {
     imageHeight,
   ]);
 
-  const left = React.useMemo(
-    () => sub(centerX, divide(imageWidth, 2)),
-    [centerX, imageWidth],
-  );
-  const top = React.useMemo(
-    () => sub(centerY, divide(imageHeight, 2)),
-    [centerY, imageHeight],
-  );
-
   const { initialCoordinates } = props.route.params;
 
-  const initialScale = React.useMemo(
-    () => divide(initialCoordinates.width, imageWidth),
-    [initialCoordinates, imageWidth],
-  );
+  const curScale = useSharedValue(1);
+  const curX = useSharedValue(0);
+  const curY = useSharedValue(0);
 
-  const initialTranslateX = React.useMemo(
-    () =>
-      sub(
-        initialCoordinates.x + initialCoordinates.width / 2,
-        add(left, divide(imageWidth, 2)),
+  const curBackdropOpacity = useDerivedValue(() => {
+    return Math.max(
+      Math.min(
+        1 - Math.abs(curX.value / frameWidth.value),
+        1 - Math.abs(curY.value / frameHeight.value),
       ),
-    [initialCoordinates, left, imageWidth],
-  );
-
-  const initialTranslateY = React.useMemo(
-    () =>
-      sub(
-        initialCoordinates.y + initialCoordinates.height / 2,
-        add(top, divide(imageHeight, 2)),
-      ),
-    [initialCoordinates, top, imageHeight],
-  );
-
-  // The all-important outputs
-  const curScale = useValue(1);
-  const curX = useValue(0);
-  const curY = useValue(0);
-  const curBackdropOpacity = useValue(1);
-
-  const progressiveOpacity = React.useMemo(
-    () =>
-      max(
-        min(
-          sub(1, abs(divide(curX, frameWidth))),
-          sub(1, abs(divide(curY, frameHeight))),
-        ),
-        0,
-      ),
-    [curX, curY, frameWidth, frameHeight],
-  );
-
-  const updates = React.useMemo(
-    () => [toggleControls, set(curBackdropOpacity, progressiveOpacity)],
-    [curBackdropOpacity, progressiveOpacity, toggleControls],
-  );
-  const updatedScale = React.useMemo(
-    () => [updates, curScale],
-    [updates, curScale],
-  );
-  const updatedCurX = React.useMemo(() => [updates, curX], [updates, curX]);
-  const updatedCurY = React.useMemo(() => [updates, curY], [updates, curY]);
-  const updatedBackdropOpacity = React.useMemo(
-    () => [updates, curBackdropOpacity],
-    [updates, curBackdropOpacity],
-  );
-
-  const updatedActiveControlsOpacity = React.useMemo(
-    () => block([updates, activeControlsOpacity]),
-    [updates, activeControlsOpacity],
-  );
+      0,
+    );
+  });
 
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'VideoPlaybackModal should have OverlayContext');
-  const navigationProgress = overlayContext.position;
+  const navigationProgress = overlayContext.positionV2;
   invariant(
     navigationProgress,
     'position should be defined in VideoPlaybackModal',
   );
 
-  const reverseNavigationProgress = React.useMemo(
-    () => sub(1, navigationProgress),
-    [navigationProgress],
-  );
-
-  const dismissalButtonOpacity = interpolateNode(updatedBackdropOpacity, {
-    inputRange: [0.95, 1],
-    outputRange: [0, 1],
-    extrapolate: Extrapolate.CLAMP,
+  const controlsAnimatedStyle = useAnimatedStyle(() => {
+    const dismissalButtonOpacity = interpolate(
+      curBackdropOpacity.value,
+      [0.95, 1],
+      [0, 1],
+      Extrapolate.CLAMP,
+    );
+    const controlsOpacity =
+      navigationProgress.value *
+      dismissalButtonOpacity *
+      activeControlsOpacity.value;
+    return {
+      opacity: controlsOpacity,
+    };
   });
-  const controlsOpacity = multiply(
-    navigationProgress,
-    dismissalButtonOpacity,
-    updatedActiveControlsOpacity,
-  );
-
-  const scale = React.useMemo(
-    () =>
-      add(
-        multiply(reverseNavigationProgress, initialScale),
-        multiply(navigationProgress, updatedScale),
-      ),
-    [reverseNavigationProgress, initialScale, navigationProgress, updatedScale],
-  );
-
-  const x = React.useMemo(
-    () =>
-      add(
-        multiply(reverseNavigationProgress, initialTranslateX),
-        multiply(navigationProgress, updatedCurX),
-      ),
-    [
-      reverseNavigationProgress,
-      initialTranslateX,
-      navigationProgress,
-      updatedCurX,
-    ],
-  );
-
-  const y = React.useMemo(
-    () =>
-      add(
-        multiply(reverseNavigationProgress, initialTranslateY),
-        multiply(navigationProgress, updatedCurY),
-      ),
-    [
-      reverseNavigationProgress,
-      initialTranslateY,
-      navigationProgress,
-      updatedCurY,
-    ],
-  );
-
-  const backdropOpacity = React.useMemo(
-    () => multiply(navigationProgress, updatedBackdropOpacity),
-    [navigationProgress, updatedBackdropOpacity],
-  );
-
-  const imageContainerOpacity = React.useMemo(
-    () =>
-      interpolateNode(navigationProgress, {
-        inputRange: [0, 0.1],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-    [navigationProgress],
-  );
 
   const { verticalBounds } = props.route.params;
-  const videoContainerStyle = React.useMemo(() => {
+  const videoContainerStyle = useAnimatedStyle(() => {
     const { height, width } = mediaDisplayDimensions;
     const { height: frameH, width: frameW } = frame;
+
+    const imageContainerOpacity = interpolate(
+      navigationProgress.value,
+      [0, 0.1],
+      [0, 1],
+      Extrapolate.CLAMP,
+    );
+
+    const reverseNavigationProgress = 1 - navigationProgress.value;
+
+    const left = centerX.value - imageWidth.value / 2;
+    const top = centerY.value - imageHeight.value / 2;
+
+    const initialScale = initialCoordinates.width / imageWidth.value;
+
+    const initialTranslateX =
+      initialCoordinates.x +
+      initialCoordinates.width / 2 -
+      (left + imageWidth.value / 2);
+
+    const initialTranslateY =
+      initialCoordinates.y +
+      initialCoordinates.height / 2 -
+      (top + imageHeight.value / 2);
+
+    const scale =
+      reverseNavigationProgress * initialScale +
+      navigationProgress.value * curScale.value;
+    const x =
+      reverseNavigationProgress * initialTranslateX +
+      navigationProgress.value * curX.value;
+    const y =
+      reverseNavigationProgress * initialTranslateY +
+      navigationProgress.value * curY.value;
 
     return {
       height,
@@ -573,10 +426,7 @@ function VideoPlaybackModal(props: Props): React.Node {
     frame,
     screenDimensions.topInset,
     verticalBounds.y,
-    imageContainerOpacity,
-    x,
-    y,
-    scale,
+    initialCoordinates,
   ]);
 
   const styles = useStyles(unboundStyles);
@@ -592,7 +442,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   React.useEffect(() => {
     if (backgroundedOrInactive) {
       setPaused(true);
-      controlsShowing.setValue(1);
+      controlsShowing.value = 1;
     }
   }, [backgroundedOrInactive, controlsShowing]);
 
@@ -626,10 +476,12 @@ function VideoPlaybackModal(props: Props): React.Node {
     <ConnectedStatusBar hidden />
   );
 
-  const backdropStyle = React.useMemo(
-    () => ({ opacity: backdropOpacity }),
-    [backdropOpacity],
-  );
+  const backdropAnimatedStyle = useAnimatedStyle(() => {
+    const backdropOpacity = navigationProgress.value * curBackdropOpacity.value;
+    return {
+      opacity: backdropOpacity,
+    };
+  });
 
   const contentContainerStyle = React.useMemo(() => {
     const fullScreenHeight = screenDimensions.height;
@@ -648,11 +500,21 @@ function VideoPlaybackModal(props: Props): React.Node {
     styles.contentContainer,
   ]);
 
+  const controlsContainerStyle = React.useMemo(
+    () => [styles.controls, controlsAnimatedStyle],
+    [controlsAnimatedStyle, styles.controls],
+  );
+
+  const backdropStyle = React.useMemo(
+    () => [styles.backdrop, backdropAnimatedStyle],
+    [backdropAnimatedStyle, styles.backdrop],
+  );
+
   let controls;
   if (videoSource) {
     controls = (
       <Animated.View
-        style={[styles.controls, { opacity: controlsOpacity }]}
+        style={controlsContainerStyle}
         pointerEvents={controlsEnabled ? 'box-none' : 'none'}
       >
         <SafeAreaView style={styles.fill}>
@@ -730,10 +592,10 @@ function VideoPlaybackModal(props: Props): React.Node {
   }
 
   return (
-    <TapGestureHandler onHandlerStateChange={singleTapEvent} minPointers={1}>
+    <GestureDetector gesture={singleTap}>
       <Animated.View style={styles.expand}>
         {statusBar}
-        <Animated.View style={[styles.backdrop, backdropStyle]} />
+        <Animated.View style={backdropStyle} />
         <View style={contentContainerStyle}>
           {spinner}
           <Animated.View style={videoContainerStyle}>
@@ -742,7 +604,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         </View>
         {controls}
       </Animated.View>
-    </TapGestureHandler>
+    </GestureDetector>
   );
 }
 
