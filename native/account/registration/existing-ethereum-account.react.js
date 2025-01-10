@@ -12,18 +12,25 @@ import { Text, View } from 'react-native';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
+import type { SIWEBackupData } from 'lib/types/backup-types.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import {
+  usingCommServicesAccessToken,
+  usingRestoreFlow,
+} from 'lib/utils/services-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
+import LinkButton from '../../components/link-button.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
-import type {
-  NavigationRoute,
-  ScreenParamList,
+import {
+  type NavigationRoute,
+  type ScreenParamList,
+  QRCodeScreenRouteName,
+  RestoreSIWEBackupRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import {
@@ -36,7 +43,10 @@ import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
-export type ExistingEthereumAccountParams = SIWEResult;
+export type ExistingEthereumAccountParams = $ReadOnly<{
+  ...SIWEResult,
+  +backupData: ?SIWEBackupData,
+}>;
 
 type Props = {
   +navigation: AuthNavigationProp<'ExistingEthereumAccount'>,
@@ -53,6 +63,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const { setCachedSelections } = registrationContext;
 
   const { params } = props.route;
+  const { address, message, signature, backupData } = params;
   const dispatch = useDispatch();
   const { navigation } = props;
   const goBackToHome = navigation.getParent<
@@ -63,6 +74,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
     StackNavigationEventMap,
     RootNavigationProp<'Auth'>,
   >()?.goBack;
+
   const onProceedToLogIn = React.useCallback(async () => {
     if (logInPending) {
       return;
@@ -130,13 +142,80 @@ function ExistingEthereumAccount(props: Props): React.Node {
     setCachedSelections,
   ]);
 
-  const { address } = params;
+  const useLegacyFlow = !backupData || !usingRestoreFlow;
+
+  const openRestoreFlow = React.useCallback(() => {
+    if (useLegacyFlow || !backupData) {
+      return;
+    }
+    const {
+      siweBackupMsgNonce,
+      siweBackupMsgIssuedAt,
+      siweBackupMsgStatement,
+    } = backupData;
+    navigation.navigate(RestoreSIWEBackupRouteName, {
+      siweNonce: siweBackupMsgNonce,
+      siweStatement: siweBackupMsgStatement,
+      siweIssuedAt: siweBackupMsgIssuedAt,
+      userIdentifier: address,
+      signature,
+      message,
+    });
+  }, [address, backupData, message, navigation, signature, useLegacyFlow]);
+
+  const openQRScreen = React.useCallback(() => {
+    navigation.navigate(QRCodeScreenRouteName);
+  }, [navigation]);
+
   const walletIdentifier = useENSName(address);
   const walletIdentifierTitle =
     walletIdentifier === address ? 'Ethereum wallet' : 'ENS name';
 
   const { goBack } = navigation;
   const styles = useStyles(unboundStyles);
+
+  let newFlowSection = null;
+  if (!useLegacyFlow) {
+    newFlowSection = (
+      <>
+        <Text style={styles.section}>
+          If you’ve lost access to your logged-in device, you can try recovering
+          your Comm account. Note that after completing the recovery flow, you
+          will be logged out from all of your other devices.
+        </Text>
+        <View style={styles.linkButton}>
+          <LinkButton
+            text="Not logged in on another phone?"
+            onPress={openRestoreFlow}
+          />
+        </View>
+        <Text style={styles.section}>
+          If you still have access to your logged-in device, you can use it to
+          log in by scanning the QR code.
+        </Text>
+      </>
+    );
+  }
+
+  const primaryAction = React.useMemo(() => {
+    if (useLegacyFlow) {
+      return (
+        <PrimaryButton
+          onPress={onProceedToLogIn}
+          label="Log in to account"
+          variant={logInPending ? 'loading' : 'enabled'}
+        />
+      );
+    }
+    return (
+      <PrimaryButton
+        onPress={openQRScreen}
+        label="Log in via QR code"
+        variant="enabled"
+      />
+    );
+  }, [logInPending, onProceedToLogIn, openQRScreen, useLegacyFlow]);
+
   return (
     <AuthContainer>
       <AuthContentContainer>
@@ -155,13 +234,10 @@ function ExistingEthereumAccount(props: Props): React.Node {
             </Text>
           </View>
         </View>
+        {newFlowSection}
       </AuthContentContainer>
       <AuthButtonContainer>
-        <PrimaryButton
-          onPress={onProceedToLogIn}
-          label="Log in to account"
-          variant={logInPending ? 'loading' : 'enabled'}
-        />
+        {primaryAction}
         <PrimaryButton
           onPress={goBack}
           label="Use a different wallet"
@@ -207,6 +283,17 @@ const unboundStyles = {
   walletIdentifierText: {
     fontSize: 15,
     color: 'panelForegroundLabel',
+  },
+  section: {
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+    paddingTop: 32,
+    paddingBottom: 16,
+  },
+  linkButton: {
+    alignItems: 'center',
   },
 };
 

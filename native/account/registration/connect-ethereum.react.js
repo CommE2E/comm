@@ -21,6 +21,7 @@ import {
 } from './ethereum-utils.js';
 import { RegistrationContext } from './registration-context.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import { useClientBackup } from '../../backup/use-client-backup.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import { commRustModule } from '../../native-modules.js';
 import {
@@ -139,6 +140,7 @@ function ConnectEthereum(props: Props): React.Node {
   const getEthereumAccountFromSIWEResult =
     useGetEthereumAccountFromSIWEResult();
 
+  const { retrieveLatestBackupInfo } = useClientBackup();
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
       let userAlreadyExists;
@@ -156,9 +158,11 @@ function ConnectEthereum(props: Props): React.Node {
       }
 
       if (userAlreadyExists) {
+        const backupInfo = await retrieveLatestBackupInfo(result.address);
+
         navigate<'ExistingEthereumAccount'>({
           name: ExistingEthereumAccountRouteName,
-          params: result,
+          params: { ...result, backupData: backupInfo?.siweBackupData },
         });
         return;
       }
@@ -182,6 +186,7 @@ function ConnectEthereum(props: Props): React.Node {
       dispatchActionPromise,
       navigate,
       getEthereumAccountFromSIWEResult,
+      retrieveLatestBackupInfo,
     ],
   );
 
