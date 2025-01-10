@@ -6,11 +6,11 @@ import { dbQuery, SQL } from '../database/database.js';
 async function fetchCommCommunityIDsByFarcasterChannelIDs(
   farcasterChannelIDs: $ReadOnlyArray<string>,
 ): Promise<{
-  communityIDs: $ReadOnlyArray<string>,
+  communityMappings: $ReadOnlyArray<[string, string]>,
   unresolvedFarcasterChannelIDs: $ReadOnlyArray<string>,
 }> {
   if (farcasterChannelIDs.length === 0) {
-    return { communityIDs: [], unresolvedFarcasterChannelIDs: [] };
+    return { communityMappings: [], unresolvedFarcasterChannelIDs: [] };
   }
 
   const query = SQL`
@@ -24,21 +24,28 @@ async function fetchCommCommunityIDsByFarcasterChannelIDs(
   const resolvedFarcasterChannelIDs = result.map(
     row => row.farcaster_channel_id,
   );
-  const communityIDs = result.map(row => row.id.toString());
+  const communityMappings = result.map(row => [
+    row.farcaster_channel_id,
+    row.id.toString(),
+  ]);
   const unresolvedFarcasterChannelIDs = farcasterChannelIDs.filter(
     farcasterChannelID =>
       !resolvedFarcasterChannelIDs.includes(farcasterChannelID),
   );
 
-  return { communityIDs, unresolvedFarcasterChannelIDs };
+  return { communityMappings, unresolvedFarcasterChannelIDs };
 }
 
 async function fetchCommunityIDsByFarcasterChannelIDsScript() {
-  // Replace with actual community names
+  // Replace with actual Farcaster channel IDs
   const farcasterChannelIDs: $ReadOnlyArray<string> = [];
-  const { communityIDs, unresolvedFarcasterChannelIDs } =
+  const { communityMappings, unresolvedFarcasterChannelIDs } =
     await fetchCommCommunityIDsByFarcasterChannelIDs(farcasterChannelIDs);
-  console.log('Comm community IDs:', communityIDs);
+
+  console.log('Comm community ID mappings (FarcasterChannelID, CommunityID):');
+  communityMappings.forEach(([farcasterChannelID, communityID]) =>
+    console.log(`(${farcasterChannelID}, ${communityID})`),
+  );
 
   if (unresolvedFarcasterChannelIDs.length > 0) {
     console.log(
