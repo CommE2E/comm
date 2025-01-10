@@ -112,7 +112,6 @@ function SIWEPanel(props: Props): React.Node {
       const siwePrimaryIdentityPublicKey =
         getPublicKeyFromSIWEStatement(siweStatement);
       setPrimaryIdentityPublicKey(siwePrimaryIdentityPublicKey);
-      onSuccessOrCancel();
       return;
     }
     if (nonceNotNeededRef.current) {
