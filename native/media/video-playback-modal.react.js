@@ -725,6 +725,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         onProgress={progressCallback}
         onEnd={resetVideo}
         onReadyForDisplay={readyForDisplayCallback}
+        resizeMode="contain"
       />
     );
   }
