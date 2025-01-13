@@ -8,6 +8,7 @@ use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
 use crate::log::redact_sensitive_data;
+use crate::token::AuthType;
 use crate::{
   client_service::{handle_db_error, WorkflowInProgress},
   constants::{error_types, request_metadata, staff, tonic_status_messages},
@@ -17,6 +18,7 @@ use crate::{
 use chrono::DateTime;
 use comm_lib::auth::AuthService;
 use comm_lib::blob::client::BlobServiceClient;
+use comm_lib::crypto::siwe::is_valid_ethereum_address;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, trace};
@@ -731,25 +733,39 @@ impl IdentityClientService for AuthenticatedService {
       &message.username
     );
 
-    let user_id_and_password_file = self
-      .db_client
-      .get_user_info_and_password_file_from_username(&message.username)
-      .await?
-      .ok_or(tonic::Status::not_found(
-        tonic_status_messages::USER_NOT_FOUND,
-      ))?;
+    let user_id = if !message.skip_password_reset {
+      // this returns USER_NOT_FOUND when user is not a password user
+      self
+        .db_client
+        .get_user_info_and_password_file_from_username(&message.username)
+        .await?
+        .ok_or(tonic::Status::not_found(
+          tonic_status_messages::USER_NOT_FOUND,
+        ))?
+        .user_id
+    } else {
+      let username = message.username.clone();
+      let auth_type = AuthType::from_user_identifier(&username);
+      self
+        .db_client
+        .get_user_id_from_user_info(username, &auth_type)
+        .await?
+        .ok_or(tonic::Status::not_found(
+          tonic_status_messages::USER_NOT_FOUND,
+        ))?
+    };
 
     let server_registration = comm_opaque2::server::Registration::new();
     let registration_response = server_registration
       .start(
         &CONFIG.server_setup,
         &message.opaque_registration_request,
-        &message.username.to_lowercase().as_bytes(),
+        message.username.to_lowercase().as_bytes(),
       )
       .map_err(protocol_error_to_grpc_status)?;
 
     let reset_state =
-      PrivilegedPasswordResetInfo::new(user_id_and_password_file.user_id);
+      PrivilegedPasswordResetInfo::new(user_id, message.skip_password_reset);
     let session_id = self
       .db_client
       .insert_workflow(WorkflowInProgress::PrivilegedPasswordReset(Box::new(
@@ -791,10 +807,12 @@ impl IdentityClientService for AuthenticatedService {
       .finish(&message.opaque_registration_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
-    self
-      .db_client
-      .update_user_password(state.user_id.clone(), password_file)
-      .await?;
+    if !state.skip_password_reset {
+      self
+        .db_client
+        .update_user_password(state.user_id.clone(), password_file)
+        .await?;
+    }
 
     // Delete backups, blob holders and tunnelbroker device tokens.
     // This has to be done before resetting device list.
@@ -1257,4 +1275,5 @@ pub struct UpdatePasswordInfo {
 )]
 pub struct PrivilegedPasswordResetInfo {
   pub user_id: String,
+  pub skip_password_reset: bool,
 }
