@@ -8,6 +8,7 @@ pub async fn privileged_reset_user_password(
   auth_access_token: String,
   username: String,
   password: String,
+  skip_password_reset: bool,
 ) -> Result<()> {
   let mut identity_client = get_authenticated_identity_client(
     auth_user_id,
@@ -16,9 +17,16 @@ pub async fn privileged_reset_user_password(
   )
   .await?;
 
+  let new_password = if skip_password_reset {
+    // dummy password for opaque, it won't be updated server-side
+    "[dummy]".to_string()
+  } else {
+    password
+  };
+
   let mut opaque_registration = comm_opaque2::client::Registration::new();
   let opaque_registration_request =
-    opaque_registration.start(&password).map_err(|_| {
+    opaque_registration.start(&new_password).map_err(|_| {
       Error::from_reason("Failed to create opaque registration request")
     })?;
 
@@ -40,7 +48,7 @@ pub async fn privileged_reset_user_password(
 
   let opaque_registration_upload = opaque_registration
     .finish(
-      &password,
+      &new_password,
       &privileged_reset_user_password_start_response
         .opaque_registration_response,
     )
