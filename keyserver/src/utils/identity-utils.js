@@ -65,6 +65,7 @@ async function privilegedDeleteUsers(
 async function privilegedResetUserPassword(
   username: string,
   password: string,
+  skipPasswordReset: boolean,
 ): Promise<void> {
   const [rustAPI, identityInfo, deviceID] = await Promise.all([
     getRustAPI(),
@@ -78,6 +79,7 @@ async function privilegedResetUserPassword(
       identityInfo.accessToken,
       username,
       password,
+      skipPasswordReset,
     ),
   );
 }
