@@ -95,6 +95,7 @@ type RustNativeBindingAPI = {
     authAccessToken: string,
     username: string,
     password: string,
+    skipPasswordReset: boolean,
   ) => Promise<void>,
   +syncPlatformDetails: (
     userId: string,
