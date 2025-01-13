@@ -26,6 +26,7 @@ pub async fn privileged_reset_user_password(
     PrivilegedResetUserPasswordStartRequest {
       opaque_registration_request,
       username,
+      skip_password_reset: false,
     };
 
   let response = identity_client
