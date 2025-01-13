@@ -466,6 +466,9 @@ declare export class PrivilegedResetUserPasswordStartRequest extends Message {
   getUsername(): string;
   setUsername(value: string): PrivilegedResetUserPasswordStartRequest;
 
+  getSkipPasswordReset(): boolean;
+  setSkipPasswordReset(value: boolean): PrivilegedResetUserPasswordStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PrivilegedResetUserPasswordStartRequestObject;
   static toObject(includeInstance: boolean, msg: PrivilegedResetUserPasswordStartRequest): PrivilegedResetUserPasswordStartRequestObject;
@@ -477,6 +480,7 @@ declare export class PrivilegedResetUserPasswordStartRequest extends Message {
 export type PrivilegedResetUserPasswordStartRequestObject = {
   opaqueRegistrationRequest: Uint8Array | string,
   username: string,
+  skipPasswordReset: boolean,
 }
 
 declare export class PrivilegedResetUserPasswordStartResponse extends Message {

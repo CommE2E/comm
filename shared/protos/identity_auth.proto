@@ -264,6 +264,8 @@ message PrivilegedResetUserPasswordStartRequest {
   // Initiate PAKE registration with new password
   bytes opaque_registration_request = 1;
   string username = 2;
+  // when true, user is reset to unsigned device list without password change
+  bool skip_password_reset = 3;
 }
 
 message PrivilegedResetUserPasswordStartResponse {
