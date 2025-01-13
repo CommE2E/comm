@@ -4513,7 +4513,8 @@ proto.identity.auth.PrivilegedResetUserPasswordStartRequest.prototype.toObject =
 proto.identity.auth.PrivilegedResetUserPasswordStartRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     opaqueRegistrationRequest: msg.getOpaqueRegistrationRequest_asB64(),
-    username: jspb.Message.getFieldWithDefault(msg, 2, "")
+    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    skipPasswordReset: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -4558,6 +4559,10 @@ proto.identity.auth.PrivilegedResetUserPasswordStartRequest.deserializeBinaryFro
       var value = /** @type {string} */ (reader.readString());
       msg.setUsername(value);
       break;
+    case 3:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setSkipPasswordReset(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -4598,6 +4603,13 @@ proto.identity.auth.PrivilegedResetUserPasswordStartRequest.serializeBinaryToWri
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getSkipPasswordReset();
+  if (f) {
+    writer.writeBool(
+      3,
       f
     );
   }
@@ -4661,6 +4673,24 @@ proto.identity.auth.PrivilegedResetUserPasswordStartRequest.prototype.getUsernam
  */
 proto.identity.auth.PrivilegedResetUserPasswordStartRequest.prototype.setUsername = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional bool skip_password_reset = 3;
+ * @return {boolean}
+ */
+proto.identity.auth.PrivilegedResetUserPasswordStartRequest.prototype.getSkipPasswordReset = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.identity.auth.PrivilegedResetUserPasswordStartRequest} returns this
+ */
+proto.identity.auth.PrivilegedResetUserPasswordStartRequest.prototype.setSkipPasswordReset = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
