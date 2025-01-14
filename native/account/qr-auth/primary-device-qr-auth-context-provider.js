@@ -62,6 +62,11 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
 
+  const backupExists = useSelector(
+    state => !!state.backupStore.latestBackupInfo,
+  );
+  const [backupNotReady, setBackupNotReady] = React.useState(false);
+
   React.useEffect(() => {
     return () => {
       if (timeout.current) {
@@ -258,10 +263,26 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
         return;
       }
 
-      await processDeviceListUpdate();
+      if (backupExists) {
+        await processDeviceListUpdate();
+      } else {
+        setBackupNotReady(true);
+      }
     },
-    [processDeviceListUpdate],
+    [processDeviceListUpdate, backupExists],
   );
+
+  React.useEffect(() => {
+    if (backupExists && backupNotReady && connectingInProgress) {
+      void processDeviceListUpdate();
+      setBackupNotReady(false);
+    }
+  }, [
+    backupExists,
+    backupNotReady,
+    connectingInProgress,
+    processDeviceListUpdate,
+  ]);
 
   const onRemoveSecondaryDevice = React.useCallback(async () => {
     if (!secondaryDeviceID.current) {
