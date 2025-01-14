@@ -5,8 +5,8 @@ import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
 import {
-  fetchAllCommunityInfosWithNamesActionTypes,
-  fetchAllCommunityInfosWithNames,
+  fetchNativeDrawerAndDirectoryInfosActionTypes,
+  fetchNativeDrawerAndDirectoryInfos,
 } from 'lib/actions/community-actions.js';
 import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
@@ -62,12 +62,12 @@ function DisplayCommunityDirectoryPromptHandlerInner(): React.Node {
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const fetchPromise = useLegacyAshoatKeyserverCall(
-    fetchAllCommunityInfosWithNames,
+    fetchNativeDrawerAndDirectoryInfos,
   )();
 
   React.useEffect(() => {
     void dispatchActionPromise(
-      fetchAllCommunityInfosWithNamesActionTypes,
+      fetchNativeDrawerAndDirectoryInfosActionTypes,
       fetchPromise,
     );
 

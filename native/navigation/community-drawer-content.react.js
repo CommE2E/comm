@@ -7,8 +7,8 @@ import { FlatList, Platform, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  fetchAllCommunityInfosWithNamesActionTypes,
-  fetchAllCommunityInfosWithNames,
+  fetchNativeDrawerAndDirectoryInfosActionTypes,
+  fetchNativeDrawerAndDirectoryInfos,
 } from 'lib/actions/community-actions.js';
 import {
   fetchPrimaryInviteLinkActionTypes,
@@ -20,7 +20,7 @@ import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type {
   ClientCommunityInfoWithCommunityName,
-  ClientFetchAllCommunityInfosWithNamesResponse,
+  ClientFetchNativeDrawerAndDirectoryInfosResponse,
 } from 'lib/types/community-types.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import {
@@ -64,10 +64,12 @@ function CommunityDrawerContent(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
   const getAllCommunityInfosWithNames = useLegacyAshoatKeyserverCall(
-    fetchAllCommunityInfosWithNames,
+    fetchNativeDrawerAndDirectoryInfos,
   );
   const getAllCommunityInfosWithNamesPromiseRef =
-    React.useRef<?Promise<ClientFetchAllCommunityInfosWithNamesResponse>>(null);
+    React.useRef<?Promise<ClientFetchNativeDrawerAndDirectoryInfosResponse>>(
+      null,
+    );
   const [fetchedCommunitiesWithNames, setFetchedCommunitiesWithNames] =
     React.useState<?$ReadOnlyArray<ClientCommunityInfoWithCommunityName>>(null);
   React.useEffect(() => {
@@ -83,7 +85,7 @@ function CommunityDrawerContent(): React.Node {
     getAllCommunityInfosWithNamesPromiseRef.current =
       getAllCommunityInfosWithNamesPromise;
     void dispatchActionPromise(
-      fetchAllCommunityInfosWithNamesActionTypes,
+      fetchNativeDrawerAndDirectoryInfosActionTypes,
       getAllCommunityInfosWithNamesPromise,
     );
     void (async () => {
