@@ -19,7 +19,7 @@ import {
 } from './responders/activity-responders.js';
 import {
   fetchCommunityInfosResponder,
-  fetchAllCommunityInfosWithNamesResponder,
+  fetchNativeDrawerAndDirectoryInfosResponder,
 } from './responders/community-responders.js';
 import {
   deviceTokenUpdateResponder,
@@ -506,8 +506,8 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
     inputValidator: ignoredArgumentValidator,
     policies: baseLegalPolicies,
   },
-  fetch_all_community_infos_with_names: {
-    responder: fetchAllCommunityInfosWithNamesResponder,
+  fetch_native_drawer_and_directory_infos: {
+    responder: fetchNativeDrawerAndDirectoryInfosResponder,
     inputValidator: ignoredArgumentValidator,
     policies: baseLegalPolicies,
   },
