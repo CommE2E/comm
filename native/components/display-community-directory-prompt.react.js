@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
 import {
-  fetchAllCommunityInfosWithNamesActionTypes,
-  fetchAllCommunityInfosWithNames,
+  fetchNativeDrawerAndDirectoryInfosActionTypes,
+  fetchNativeDrawerAndDirectoryInfos,
 } from 'lib/actions/community-actions.js';
 import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
@@ -73,12 +73,12 @@ function DisplayCommunityDirectoryPromptHandlerInner(): React.Node {
   const { navigate } = useNavigation();
   const dispatchActionPromise = useDispatchActionPromise();
   const fetchPromise = useLegacyAshoatKeyserverCall(
-    fetchAllCommunityInfosWithNames,
+    fetchNativeDrawerAndDirectoryInfos,
   )();
 
   const effect = React.useCallback(async () => {
     void dispatchActionPromise(
-      fetchAllCommunityInfosWithNamesActionTypes,
+      fetchNativeDrawerAndDirectoryInfosActionTypes,
       fetchPromise,
     );
     const response = await fetchPromise;
