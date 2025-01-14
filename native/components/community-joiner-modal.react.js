@@ -65,55 +65,64 @@ function CommunityJoinerModal(props: Props): React.Node {
     [communities],
   );
 
-  const generateThreadInfos = React.useCallback(
+  const generateThreadInfosAndFCChannelIDs = React.useCallback(
     (communityList: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>) =>
       communityList
-        .map(community =>
-          community.threadInfo
-            ? threadInfoFromRawThreadInfo(
-                community.threadInfo,
-                viewerID,
-                userInfos,
-              )
-            : null,
-        )
+        .map(community => {
+          const { farcasterChannelID, threadInfo } = community;
+          if (!farcasterChannelID || !threadInfo) {
+            return null;
+          }
+          return {
+            threadInfo: threadInfoFromRawThreadInfo(
+              threadInfo,
+              viewerID,
+              userInfos,
+            ),
+            farcasterChannelID,
+          };
+        })
         .filter(Boolean),
     [userInfos, viewerID],
   );
 
-  const generalThreadInfos = React.useMemo(
-    () => generateThreadInfos(generalCommunities),
-    [generateThreadInfos, generalCommunities],
+  const generalThreadInfosAndFCChannelIDs = React.useMemo(
+    () => generateThreadInfosAndFCChannelIDs(generalCommunities),
+    [generateThreadInfosAndFCChannelIDs, generalCommunities],
   );
 
-  const cryptoThreadInfos = React.useMemo(
-    () => generateThreadInfos(cryptoCommunities),
-    [generateThreadInfos, cryptoCommunities],
+  const cryptoThreadInfosAndFCChannelIDs = React.useMemo(
+    () => generateThreadInfosAndFCChannelIDs(cryptoCommunities),
+    [generateThreadInfosAndFCChannelIDs, cryptoCommunities],
   );
 
-  const generalIndex = useThreadSearchIndex(generalThreadInfos);
-  const cryptoIndex = useThreadSearchIndex(cryptoThreadInfos);
+  const generalIndex = useThreadSearchIndex(
+    generalThreadInfosAndFCChannelIDs.map(item => item.threadInfo),
+  );
+  const cryptoIndex = useThreadSearchIndex(
+    cryptoThreadInfosAndFCChannelIDs.map(item => item.threadInfo),
+  );
 
   const renderGeneralTab = React.useCallback(
     () => (
       <CommunityList
-        threadInfos={generalThreadInfos}
+        threadInfosAndFCChannelIDs={generalThreadInfosAndFCChannelIDs}
         itemStyle={styles.threadListItem}
         searchIndex={generalIndex}
       />
     ),
-    [generalIndex, generalThreadInfos, styles.threadListItem],
+    [generalIndex, generalThreadInfosAndFCChannelIDs, styles.threadListItem],
   );
 
   const renderCryptoTab = React.useCallback(
     () => (
       <CommunityList
-        threadInfos={cryptoThreadInfos}
+        threadInfosAndFCChannelIDs={cryptoThreadInfosAndFCChannelIDs}
         itemStyle={styles.threadListItem}
         searchIndex={cryptoIndex}
       />
     ),
-    [cryptoIndex, cryptoThreadInfos, styles.threadListItem],
+    [cryptoIndex, cryptoThreadInfosAndFCChannelIDs, styles.threadListItem],
   );
 
   const [index, setIndex] = React.useState(0);
