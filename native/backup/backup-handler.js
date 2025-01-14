@@ -250,14 +250,14 @@ function BackupHandler(): null {
       }
 
       const shouldDoMigration =
-        usingRestoreFlow && !latestBackupInfo && !deviceListIsSigned;
+        usingRestoreFlow && (!latestBackupInfo || !deviceListIsSigned);
       if (!shouldDoMigration && !isPrimaryDevice) {
         backupUploadInProgress.current = false;
         return;
       }
       try {
         const promise = (async () => {
-          if (shouldDoMigration) {
+          if (shouldDoMigration && !deviceListIsSigned) {
             if (!userID || !deviceID) {
               throw new Error('Missing auth metadata');
             }
