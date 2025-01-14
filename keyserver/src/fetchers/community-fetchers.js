@@ -82,7 +82,7 @@ async function fetchCommunityFarcasterChannelTag(
   return communityInfo?.farcasterChannelID;
 }
 
-async function fetchAllCommunityInfosWithNames(
+async function fetchNativeDrawerAndDirectoryInfos(
   viewer: Viewer,
 ): Promise<$ReadOnlyArray<ServerCommunityInfoWithCommunityName>> {
   const query = SQL`
@@ -128,5 +128,5 @@ async function fetchAllCommunityInfosWithNames(
 export {
   fetchCommunityInfos,
   fetchCommunityFarcasterChannelTag,
-  fetchAllCommunityInfosWithNames,
+  fetchNativeDrawerAndDirectoryInfos,
 };

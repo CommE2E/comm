@@ -2,12 +2,12 @@
 
 import type {
   FetchCommunityInfosResponse,
-  ServerFetchAllCommunityInfosWithNamesResponse,
+  ServerFetchNativeDrawerAndDirectoryInfosResponse,
 } from 'lib/types/community-types.js';
 
 import {
   fetchCommunityInfos,
-  fetchAllCommunityInfosWithNames,
+  fetchNativeDrawerAndDirectoryInfos,
 } from '../fetchers/community-fetchers.js';
 import { Viewer } from '../session/viewer.js';
 
@@ -24,20 +24,20 @@ async function fetchCommunityInfosResponder(
   return { communityInfos };
 }
 
-async function fetchAllCommunityInfosWithNamesResponder(
+async function fetchNativeDrawerAndDirectoryInfosResponder(
   viewer: Viewer,
-): Promise<ServerFetchAllCommunityInfosWithNamesResponse> {
+): Promise<ServerFetchNativeDrawerAndDirectoryInfosResponse> {
   if (!viewer.loggedIn) {
     return { allCommunityInfosWithNames: [] };
   }
 
   const allCommunityInfosWithNames =
-    await fetchAllCommunityInfosWithNames(viewer);
+    await fetchNativeDrawerAndDirectoryInfos(viewer);
 
   return { allCommunityInfosWithNames };
 }
 
 export {
   fetchCommunityInfosResponder,
-  fetchAllCommunityInfosWithNamesResponder,
+  fetchNativeDrawerAndDirectoryInfosResponder,
 };
