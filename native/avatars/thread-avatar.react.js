@@ -23,10 +23,11 @@ import { useSelector } from '../redux/redux-utils.js';
 type Props = {
   +threadInfo: RawThreadInfo | ThreadInfo | ResolvedThreadInfo,
   +size: AvatarSize,
+  +farcasterChannelID?: string,
 };
 
 function ThreadAvatar(props: Props): React.Node {
-  const { threadInfo, size } = props;
+  const { threadInfo, size, farcasterChannelID } = props;
 
   const avatarInfo = useAvatarForThread(threadInfo);
 
@@ -66,7 +67,9 @@ function ThreadAvatar(props: Props): React.Node {
 
   const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, {
     userProfileInfo: displayUser,
-    channelInfo: { fcChannelID: communityInfo?.farcasterChannelID },
+    channelInfo: {
+      fcChannelID: farcasterChannelID ?? communityInfo?.farcasterChannelID,
+    },
   });
 
   return <Avatar size={size} avatarInfo={resolvedThreadAvatar} />;

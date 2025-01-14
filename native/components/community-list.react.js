@@ -13,6 +13,11 @@ import Search from './search.react.js';
 import { useIndicatorStyle, useStyles } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
 
+export type ThreadInfoAndFarcasterChannelID = {
+  +threadInfo: ThreadInfo,
+  +farcasterChannelID: string,
+};
+
 const unboundStyles = {
   search: {
     marginBottom: 8,
@@ -20,22 +25,24 @@ const unboundStyles = {
 };
 
 type Props = {
-  +threadInfos: $ReadOnlyArray<ThreadInfo>,
+  +threadInfosAndFCChannelIDs: $ReadOnlyArray<ThreadInfoAndFarcasterChannelID>,
   +itemStyle: ViewStyle,
   +searchIndex: SearchIndex,
 };
 
-const keyExtractor = (threadInfo: ThreadInfo): string => threadInfo.id;
+const keyExtractor = (
+  threadInfoAndFarcasterChannelID: ThreadInfoAndFarcasterChannelID,
+): string => threadInfoAndFarcasterChannelID.threadInfo.id;
 
 const getItemLayout = (
-  data: ?$ReadOnlyArray<ThreadInfo>,
+  data: ?$ReadOnlyArray<ThreadInfoAndFarcasterChannelID>,
   index: number,
 ): { length: number, offset: number, index: number } => {
   return { length: 24, offset: 24 * index, index };
 };
 
 function CommunityList(props: Props): React.Node {
-  const { threadInfos, itemStyle, searchIndex } = props;
+  const { threadInfosAndFCChannelIDs, itemStyle, searchIndex } = props;
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();
 
@@ -45,14 +52,17 @@ function CommunityList(props: Props): React.Node {
   >([]);
 
   const listData = React.useMemo(
-    () => (searchText ? searchResults : threadInfos),
-    [searchText, searchResults, threadInfos],
+    () => (searchText ? searchResults : threadInfosAndFCChannelIDs),
+    [searchText, searchResults, threadInfosAndFCChannelIDs],
   );
 
   const onChangeSearchText = React.useCallback(
     (text: string) => {
       invariant(searchIndex, 'searchIndex should be set');
       const results = searchIndex.getSearchResults(text);
+      const threadInfos = threadInfosAndFCChannelIDs.map(
+        item => item.threadInfo,
+      );
       const threadInfoResults = reorderThreadSearchResults(
         threadInfos,
         results,
@@ -60,12 +70,16 @@ function CommunityList(props: Props): React.Node {
       setSearchText(text);
       setSearchResults(threadInfoResults);
     },
-    [searchIndex, threadInfos],
+    [searchIndex, threadInfosAndFCChannelIDs],
   );
 
   const renderItem = React.useCallback(
-    ({ item }: { +item: ThreadInfo, ... }): React.Node => (
-      <CommunityListItem threadInfo={item} style={itemStyle} />
+    ({ item }: { +item: ThreadInfoAndFarcasterChannelID, ... }): React.Node => (
+      <CommunityListItem
+        threadInfo={item.threadInfo}
+        style={itemStyle}
+        farcasterChannelID={item.farcasterChannelID}
+      />
     ),
     [itemStyle],
   );
