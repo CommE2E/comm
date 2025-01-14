@@ -2,7 +2,7 @@
 
 import { main } from './utils.js';
 import { deleteFarcasterChannelTag } from '../deleters/farcaster-channel-tag-deleters.js';
-import { fetchAllCommunityInfosWithNames } from '../fetchers/community-fetchers.js';
+import { fetchNativeDrawerAndDirectoryInfos } from '../fetchers/community-fetchers.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { thisKeyserverAdmin } from '../user/identity.js';
 
@@ -11,7 +11,7 @@ async function deleteAllFCChannelTags() {
   const adminViewer = createScriptViewer(admin.id);
 
   const allCommunityInfosWithNames =
-    await fetchAllCommunityInfosWithNames(adminViewer);
+    await fetchNativeDrawerAndDirectoryInfos(adminViewer);
 
   const deleteFarcasterChannelTagPromises = allCommunityInfosWithNames
     .map(communityInfoWithName => {
