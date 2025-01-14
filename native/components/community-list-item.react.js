@@ -36,10 +36,11 @@ import type { ViewStyle } from '../types/styles.js';
 type Props = {
   +threadInfo: ThreadInfo,
   +style: ViewStyle,
+  +farcasterChannelID?: ?string,
 };
 
 function CommunityListItem(props: Props): React.Node {
-  const { threadInfo: initialThreadInfo, style } = props;
+  const { threadInfo: initialThreadInfo, style, farcasterChannelID } = props;
 
   // `initialThreadInfo` will not update if the user leaves or joins the thread,
   // so we also need `reduxThreadInfo` to track thread membership and
@@ -183,7 +184,11 @@ function CommunityListItem(props: Props): React.Node {
 
   return (
     <View style={containerStyle}>
-      <ThreadAvatar size="S" threadInfo={resolvedThreadInfo} />
+      <ThreadAvatar
+        size="S"
+        threadInfo={resolvedThreadInfo}
+        farcasterChannelID={farcasterChannelID}
+      />
       <SingleLine style={singleLineTextStyle}>
         {resolvedThreadInfo.uiName}
       </SingleLine>

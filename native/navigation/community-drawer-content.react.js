@@ -17,6 +17,7 @@ import {
 import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
+import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type {
   ClientCommunityInfoWithCommunityName,
   ClientFetchAllCommunityInfosWithNamesResponse,
@@ -87,7 +88,11 @@ function CommunityDrawerContent(): React.Node {
     );
     void (async () => {
       const response = await getAllCommunityInfosWithNamesPromise;
-      setFetchedCommunitiesWithNames(response.allCommunityInfosWithNames);
+      setFetchedCommunitiesWithNames(
+        response.allCommunityInfosWithNames.filter(
+          community => !viewerIsMember(community.threadInfo),
+        ),
+      );
     })();
   }, [
     callFetchPrimaryLinks,
