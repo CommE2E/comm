@@ -632,13 +632,196 @@ declare module 'react-native-gesture-handler/GestureHandler' {
   declare export var GestureHandlerRootView: React$ComponentType<{...}>;
 }
 
+declare const State: {
+  +UNDETERMINED: 0,
+  +FAILED: 1,
+  +BEGAN: 2,
+  +CANCELLED: 3,
+  +ACTIVE: 4,
+  +END: 5,
+};
+
+interface GestureEventPayload {
+  handlerTag: number;
+  numberOfPointers: number;
+  state: $Values<typeof State>;
+}
+
+interface HandlerStateChangeEventPayload extends GestureEventPayload {
+  oldState: $Values<typeof State>;
+}
+
+declare type GestureStateChangeEvent<GestureStateChangeEventPayloadT> =
+  HandlerStateChangeEventPayload & GestureStateChangeEventPayloadT;
+
+declare class BaseGesture<EventPayloadT> {
+  onBegin(
+    callback: (event: GestureStateChangeEvent<EventPayloadT>) => void,
+  ): this;
+  onStart(
+    callback: (event: GestureStateChangeEvent<EventPayloadT>) => void,
+  ): this;
+  onEnd(
+    callback: (
+      event: GestureStateChangeEvent<EventPayloadT>,
+      success: boolean,
+    ) => void,
+  ): this;
+  onFinalize(
+    callback: (
+      event: GestureStateChangeEvent<EventPayloadT>,
+      success: boolean,
+    ) => void,
+  ): this;
+}
+
+declare type TapGestureHandlerEventPayload = {
+  x: number,
+  y: number,
+  absoluteX: number,
+  absoluteY: number,
+};
+
+declare export class TapGesture
+  extends BaseGesture<TapGestureHandlerEventPayload>
+{
+  minPointers(minPointers: number): this;
+  numberOfTaps(count: number): this;
+  maxDistance(maxDist: number): this;
+  maxDuration(duration: number): this;
+  maxDelay(delay: number): this;
+  maxDeltaX(delta: number): this;
+  maxDeltaY(delta: number): this;
+}
+
+declare type GestureUpdateEvent<GestureEventPayloadT> = GestureEventPayload &
+  GestureEventPayloadT;
+
+declare class ContinousBaseGesture<EventPayloadT, EventChangePayloadT>
+  extends BaseGesture<EventPayloadT>
+{
+  onUpdate(callback: (event: GestureUpdateEvent<EventPayloadT>) => void): this;
+  onChange(
+    callback: (
+      event: GestureUpdateEvent<EventPayloadT & EventChangePayloadT>,
+    ) => void,
+  ): this;
+  manualActivation(manualActivation: boolean): this;
+}
+
+declare type PanGestureChangeEventPayload = {
+  changeX: number,
+  changeY: number,
+};
+
+declare type PanGestureHandlerEventPayload = {
+  x: number,
+  y: number,
+  absoluteX: number,
+  absoluteY: number,
+  translationX: number,
+  translationY: number,
+  velocityX: number,
+  velocityY: number,
+};
+
+declare class PanGesture
+  extends
+    ContinousBaseGesture<
+      PanGestureHandlerEventPayload,
+      PanGestureChangeEventPayload,
+    >
+{
+  activeOffsetY(offset: number | Array<number>): this;
+  activeOffsetX(offset: number | Array<number>): this;
+  failOffsetY(offset: number | Array<number>): this;
+  failOffsetX(offset: number | Array<number>): this;
+  minPointers(minPointers: number): this;
+  maxPointers(maxPointers: number): this;
+  minDistance(distance: number): this;
+  minVelocity(velocity: number): this;
+  minVelocityX(velocity: number): this;
+  minVelocityY(velocity: number): this;
+  averageTouches(value: boolean): this;
+  enableTrackpadTwoFingerGesture(value: boolean): this;
+  activateAfterLongPress(duration: number): this;
+  onChange(
+    callback: (
+      event: GestureUpdateEvent<
+        PanGestureHandlerEventPayload & PanGestureChangeEventPayload,
+      >,
+    ) => void,
+  ): this;
+}
+
+declare type PinchGestureChangeEventPayload = {
+  scaleChange: number,
+};
+
+declare type PinchGestureHandlerEventPayload = {
+  scale: number,
+  focalX: number,
+  focalY: number,
+  velocity: number,
+};
+
+declare class PinchGesture
+  extends
+    ContinousBaseGesture<
+      PinchGestureHandlerEventPayload,
+      PinchGestureChangeEventPayload,
+    >
+{
+  onChange(
+    callback: (
+      event: GestureUpdateEvent<
+        PinchGestureHandlerEventPayload & PinchGestureChangeEventPayload,
+      >,
+    ) => void,
+  ): this;
+}
+
+declare type GestureType =
+  | BaseGesture<{ [string]: mixed }>
+  | BaseGesture<{ [string]: empty }>
+  | BaseGesture<TapGestureHandlerEventPayload>
+  | BaseGesture<PanGestureHandlerEventPayload>
+  | BaseGesture<PinchGestureHandlerEventPayload>;
+
+declare interface Gesture {
+  toGestureArray(): GestureType[];
+  initialize(): void;
+  prepare(): void;
+}
+
+declare class ComposedGesture {
+  constructor(...gestures: Array<Gesture>): ComposedGesture;
+  prepare(): void;
+  initialize(): void;
+  toGestureArray(): Array<GestureType>;
+}
+
+declare type UserSelect = 'none' | 'auto' | 'text';
+
+interface GestureDetectorProps {
+  gesture: ComposedGesture | GestureType;
+  userSelect?: UserSelect;
+  children?: React$Node;
+}
+
+declare const GestureObject: {
+  Tap: () => TapGesture,
+  Pan: () => PanGesture,
+  Pinch: () => PinchGesture,
+};
+
 declare module 'react-native-gesture-handler' {
-  declare export {
-    default as Swipeable,
-  } from 'react-native-gesture-handler/Swipeable';
-  declare export {
-    default as DrawerLayout,
-  } from 'react-native-gesture-handler/DrawerLayout';
-  declare export * from 'react-native-gesture-handler/GestureHandler'
-  declare export * from 'react-native-gesture-handler/touchables'
+  declare export { default as Swipeable } from 'react-native-gesture-handler/Swipeable';
+  declare export { default as DrawerLayout } from 'react-native-gesture-handler/DrawerLayout';
+  declare export * from 'react-native-gesture-handler/GestureHandler';
+  declare export * from 'react-native-gesture-handler/touchables';
+  declare export { GestureObject as Gesture };
+  declare export const GestureDetector: (
+    props: GestureDetectorProps,
+  ) => React$Element<any>;
 }
