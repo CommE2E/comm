@@ -247,6 +247,7 @@ type Props = {
   +dispatch: Dispatch,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +isActive: boolean,
 };
 type State = {
   +zoom: number,
@@ -506,35 +507,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   }
 
-  static isActive(props: Props): boolean {
-    const { overlayContext } = props;
-    if (!overlayContext) {
-      return true;
-    }
-    return !overlayContext.isDismissing;
-  }
-
-  componentDidMount() {
-    if (CameraModal.isActive(this.props)) {
-      Orientation.unlockAllOrientations();
-    }
-  }
-
-  componentWillUnmount() {
-    if (CameraModal.isActive(this.props)) {
-      Orientation.lockToPortrait();
-    }
-  }
-
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const isActive = CameraModal.isActive(this.props);
-    const wasActive = CameraModal.isActive(prevProps);
-    if (isActive && !wasActive) {
-      Orientation.unlockAllOrientations();
-    } else if (!isActive && wasActive) {
-      Orientation.lockToPortrait();
-    }
-
     if (!this.state.hasCamerasOnBothSides && prevState.hasCamerasOnBothSides) {
       this.switchCameraButtonX.setValue(-1);
       this.switchCameraButtonY.setValue(-1);
@@ -760,7 +733,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   render(): React.Node {
-    const statusBar = CameraModal.isActive(this.props) ? (
+    const statusBar = this.props.isActive ? (
       <ConnectedStatusBar hidden />
     ) : null;
     const type = this.state.useFrontCamera
@@ -1203,6 +1176,16 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const dispatch = useDispatch();
 
+    const isActive = !overlayContext || !overlayContext.isDismissing;
+
+    React.useEffect(() => {
+      if (isActive) {
+        Orientation.unlockAllOrientations();
+      } else {
+        Orientation.lockToPortrait();
+      }
+    }, [isActive]);
+
     return (
       <CameraModal
         {...props}
@@ -1212,6 +1195,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         foreground={foreground}
         dispatch={dispatch}
         overlayContext={overlayContext}
+        isActive={isActive}
       />
     );
   });
