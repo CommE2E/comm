@@ -332,6 +332,37 @@ pub const MAX_ONE_TIME_KEYS: usize = 100; // as defined in olm
 
 // Comm staff
 pub mod staff {
-  pub const STAFF_USER_IDS: [&str; 1] = ["256"];
-  pub const AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: &str = "256";
+  use once_cell::sync::Lazy;
+  use std::collections::HashSet;
+
+  const DEFAULT_STAFF_USER_IDS: [&str; 1] = ["256"];
+  const DEFAULT_AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: &str = "256";
+
+  const KEYSERVER_OWNER_ENV_VAR: &str = "AUTHORITATIVE_KEYSERVER_OWNER_USER_ID";
+
+  pub static STAFF_USER_IDS: Lazy<HashSet<String>> = Lazy::new(|| {
+    if let Some(user_id_from_env) = std::env::var(KEYSERVER_OWNER_ENV_VAR)
+      .ok()
+      .filter(|it| !it.is_empty())
+    {
+      HashSet::from([user_id_from_env])
+    } else {
+      DEFAULT_STAFF_USER_IDS
+        .iter()
+        .map(ToString::to_string)
+        .collect()
+    }
+  });
+
+  pub static AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: Lazy<String> =
+    Lazy::new(|| {
+      if let Some(user_id_from_env) = std::env::var(KEYSERVER_OWNER_ENV_VAR)
+        .ok()
+        .filter(|it| !it.is_empty())
+      {
+        user_id_from_env
+      } else {
+        DEFAULT_AUTHORITATIVE_KEYSERVER_OWNER_USER_ID.to_string()
+      }
+    });
 }

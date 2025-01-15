@@ -480,7 +480,7 @@ impl IdentityClientService for AuthenticatedService {
       )
       .await?;
 
-    if user_id == AUTHORITATIVE_KEYSERVER_OWNER_USER_ID {
+    if user_id == *AUTHORITATIVE_KEYSERVER_OWNER_USER_ID {
       self.log_out_authoritative_keyserver_owner().await?;
       return Ok(Response::new(Empty {}));
     }
@@ -694,7 +694,7 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<PrivilegedDeleteUsersRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (user_id, _) = get_user_and_device_id(&request)?;
-    if !staff::STAFF_USER_IDS.contains(&user_id.as_str()) {
+    if !staff::STAFF_USER_IDS.contains(&user_id) {
       return Err(Status::permission_denied(
         tonic_status_messages::USER_IS_NOT_STAFF,
       ));
@@ -720,7 +720,7 @@ impl IdentityClientService for AuthenticatedService {
     tonic::Status,
   > {
     let (staff_user_id, _) = get_user_and_device_id(&request)?;
-    if !staff::STAFF_USER_IDS.contains(&staff_user_id.as_str()) {
+    if !staff::STAFF_USER_IDS.contains(&staff_user_id) {
       return Err(Status::permission_denied(
         tonic_status_messages::USER_IS_NOT_STAFF,
       ));
@@ -785,7 +785,7 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<PrivilegedResetUserPasswordFinishRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (staff_user_id, _) = get_user_and_device_id(&request)?;
-    if !staff::STAFF_USER_IDS.contains(&staff_user_id.as_str()) {
+    if !staff::STAFF_USER_IDS.contains(&staff_user_id) {
       return Err(Status::permission_denied(
         tonic_status_messages::USER_IS_NOT_STAFF,
       ));
@@ -1229,7 +1229,7 @@ impl AuthenticatedService {
   async fn log_out_authoritative_keyserver_owner(
     &self,
   ) -> Result<(), tonic::Status> {
-    let user_id = AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
+    let user_id = &*AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
     let devices = self.db_client.get_current_devices(user_id).await?;
     let keyserver_device_id = devices
       .iter()
