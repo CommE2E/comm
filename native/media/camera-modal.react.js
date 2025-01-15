@@ -221,6 +221,16 @@ function runIndicatorAnimation(
   ]);
 }
 
+async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
+  const path = pathFromURI(pendingPhotoCapture.uri);
+  if (!path) {
+    return;
+  }
+  try {
+    await filesystem.unlink(path);
+  } catch (e) {}
+}
+
 type RNCameraStatus = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
 
 type TouchableOpacityInstance = React.AbstractComponent<
@@ -275,6 +285,10 @@ type Props = {
   +pendingPhotoCapture: ?PhotoCapture,
   +setPendingPhotoCapture: (?PhotoCapture) => void,
   +camera: { current: ?RNCamera },
+  +takePhoto: () => Promise<void>,
+  +close: () => void,
+  +sendPhoto: () => Promise<void>,
+  +clearPendingImage: () => void,
 };
 
 class CameraModal extends React.PureComponent<Props> {
@@ -549,21 +563,9 @@ class CameraModal extends React.PureComponent<Props> {
       !this.props.pendingPhotoCapture &&
       prevProps.pendingPhotoCapture
     ) {
-      void CameraModal.cleanUpPendingPhotoCapture(
-        prevProps.pendingPhotoCapture,
-      );
+      void cleanUpPendingPhotoCapture(prevProps.pendingPhotoCapture);
       this.sendButtonProgress.setValue(0);
     }
-  }
-
-  static async cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
-    const path = pathFromURI(pendingPhotoCapture.uri);
-    if (!path) {
-      return;
-    }
-    try {
-      await filesystem.unlink(path);
-    } catch (e) {}
   }
 
   get containerStyle(): AnimatedViewStyle {
@@ -609,7 +611,7 @@ class CameraModal extends React.PureComponent<Props> {
         <View style={styles.fill}>
           {this.renderCameraContent(status)}
           <TouchableOpacity
-            onPress={this.close}
+            onPress={this.props.close}
             onLayout={this.onCloseButtonLayout}
             style={styles.closeButton}
             ref={this.closeButtonRef}
@@ -637,13 +639,13 @@ class CameraModal extends React.PureComponent<Props> {
         <SafeAreaView style={styles.stagingViewOverlay}>
           <View style={styles.fill}>
             <TouchableOpacity
-              onPress={this.clearPendingImage}
+              onPress={this.props.clearPendingImage}
               style={styles.retakeButton}
             >
               <Icon name="ios-arrow-back" style={styles.retakeIcon} />
             </TouchableOpacity>
             <SendMediaButton
-              onPress={this.sendPhoto}
+              onPress={this.props.sendPhoto}
               pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
               containerStyle={styles.sendButtonContainer}
               style={this.sendButtonStyle}
@@ -721,7 +723,7 @@ class CameraModal extends React.PureComponent<Props> {
               </TouchableOpacity>
               <View style={styles.bottomButtonsContainer}>
                 <TouchableOpacity
-                  onPress={this.takePhoto}
+                  onPress={this.props.takePhoto}
                   onLayout={this.onPhotoButtonLayout}
                   style={styles.saveButton}
                   ref={this.photoButtonRef}
@@ -840,90 +842,6 @@ class CameraModal extends React.PureComponent<Props> {
       this.flashButtonWidth.setValue(width);
       this.flashButtonHeight.setValue(height);
     });
-  };
-
-  close = () => {
-    const { overlayContext, navigation } = this.props;
-    if (overlayContext && navigation.goBackOnce) {
-      navigation.goBackOnce();
-    } else {
-      navigation.goBack();
-    }
-  };
-
-  takePhoto = async () => {
-    const camera = this.props.camera.current;
-    invariant(camera, 'camera ref should be set');
-    this.props.setStagingMode(true);
-
-    // We avoid flipping this.props.useFrontCamera if we discover we don't
-    // actually have a back camera since it causes a bit of lag, but this
-    // means there are cases where it is false but we are actually using the
-    // front camera
-    const { hasCamerasOnBothSides, defaultUseFrontCamera } =
-      this.props.deviceCameraInfo;
-    const usingFrontCamera =
-      this.props.useFrontCamera ||
-      (!hasCamerasOnBothSides && defaultUseFrontCamera);
-
-    const startTime = Date.now();
-    const photoPromise = camera.takePictureAsync({
-      pauseAfterCapture: Platform.OS === 'android',
-      mirrorImage: usingFrontCamera,
-      fixOrientation: true,
-    });
-
-    if (Platform.OS === 'ios') {
-      camera.pausePreview();
-    }
-    const { uri, width, height } = await photoPromise;
-    const filename = filenameFromPathOrURI(uri);
-    invariant(
-      filename,
-      `unable to parse filename out of react-native-camera URI ${uri}`,
-    );
-
-    const now = Date.now();
-    const pendingPhotoCapture = {
-      step: 'photo_capture',
-      uri,
-      dimensions: { width, height },
-      filename,
-      time: now - startTime,
-      captureTime: now,
-      selectTime: 0,
-      sendTime: 0,
-      retries: 0,
-    };
-
-    this.props.setAutoFocusPointOfInterest(undefined);
-    this.props.setZoom(0);
-    this.props.setPendingPhotoCapture(pendingPhotoCapture);
-  };
-
-  sendPhoto = async () => {
-    const { pendingPhotoCapture } = this.props;
-    if (!pendingPhotoCapture) {
-      return;
-    }
-
-    const now = Date.now();
-    const capture = {
-      ...pendingPhotoCapture,
-      selectTime: now,
-      sendTime: now,
-    };
-
-    this.close();
-
-    this.props.handlePhotoCapture(capture);
-  };
-
-  clearPendingImage = () => {
-    invariant(this.props.camera.current, 'camera ref should be set');
-    this.props.camera.current.resumePreview();
-    this.props.setStagingMode(false);
-    this.props.setPendingPhotoCapture();
   };
 }
 
@@ -1085,6 +1003,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const dispatch = useDispatch();
 
+    const { navigation, handlePhotoCapture } = props;
+
     const isActive = !overlayContext || !overlayContext.isDismissing;
 
     React.useEffect(() => {
@@ -1218,6 +1138,89 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
 
     const cameraRef = React.useRef<?RNCamera>();
 
+    const takePhoto = React.useCallback(async () => {
+      const camera = cameraRef.current;
+      invariant(camera, 'camera ref should be set');
+      setStagingMode(true);
+
+      // We avoid flipping useFrontCamera if we discover we don't
+      // actually have a back camera since it causes a bit of lag, but this
+      // means there are cases where it is false but we are actually using the
+      // front camera
+      const {
+        hasCamerasOnBothSides: hasCamerasOnBothSidesFromDeviceInfo,
+        defaultUseFrontCamera,
+      } = deviceCameraInfo;
+      const usingFrontCamera =
+        useFrontCamera ||
+        (!hasCamerasOnBothSidesFromDeviceInfo && defaultUseFrontCamera);
+
+      const startTime = Date.now();
+      const photoPromise = camera.takePictureAsync({
+        pauseAfterCapture: Platform.OS === 'android',
+        mirrorImage: usingFrontCamera,
+        fixOrientation: true,
+      });
+
+      if (Platform.OS === 'ios') {
+        camera.pausePreview();
+      }
+      const { uri, width, height } = await photoPromise;
+      const filename = filenameFromPathOrURI(uri);
+      invariant(
+        filename,
+        `unable to parse filename out of react-native-camera URI ${uri}`,
+      );
+
+      const now = Date.now();
+      const nextPendingPhotoCapture = {
+        step: 'photo_capture',
+        uri,
+        dimensions: { width, height },
+        filename,
+        time: now - startTime,
+        captureTime: now,
+        selectTime: 0,
+        sendTime: 0,
+        retries: 0,
+      };
+
+      setAutoFocusPointOfInterest(undefined);
+      setZoom(0);
+      setPendingPhotoCapture(nextPendingPhotoCapture);
+    }, [deviceCameraInfo, useFrontCamera]);
+
+    const close = React.useCallback(() => {
+      if (overlayContext && navigation.goBackOnce) {
+        navigation.goBackOnce();
+      } else {
+        navigation.goBack();
+      }
+    }, [navigation, overlayContext]);
+
+    const sendPhoto = React.useCallback(async () => {
+      if (!pendingPhotoCapture) {
+        return;
+      }
+
+      const now = Date.now();
+      const capture = {
+        ...pendingPhotoCapture,
+        selectTime: now,
+        sendTime: now,
+      };
+
+      close();
+      handlePhotoCapture(capture);
+    }, [close, handlePhotoCapture, pendingPhotoCapture]);
+
+    const clearPendingImage = React.useCallback(() => {
+      invariant(cameraRef.current, 'camera ref should be set');
+      cameraRef.current.resumePreview();
+      setStagingMode(false);
+      setPendingPhotoCapture();
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1245,6 +1248,10 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         pendingPhotoCapture={pendingPhotoCapture}
         setPendingPhotoCapture={setPendingPhotoCapture}
         camera={cameraRef}
+        takePhoto={takePhoto}
+        close={close}
+        sendPhoto={sendPhoto}
+        clearPendingImage={clearPendingImage}
       />
     );
   });
