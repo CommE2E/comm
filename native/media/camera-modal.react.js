@@ -266,9 +266,10 @@ type Props = {
   +zoom: number,
   +setZoom: (zoom: number) => void,
   +updateZoom: (zoom: [number]) => void,
+  +stagingMode: boolean,
+  +setStagingMode: (stagingMode: boolean) => void,
 };
 type State = {
-  +stagingMode: boolean,
   +pendingPhotoCapture: ?PhotoCapture,
 };
 class CameraModal extends React.PureComponent<Props, State> {
@@ -320,7 +321,6 @@ class CameraModal extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      stagingMode: false,
       pendingPhotoCapture: undefined,
     };
 
@@ -526,14 +526,14 @@ class CameraModal extends React.PureComponent<Props, State> {
       void this.camera.refreshAuthorizationStatus();
     }
 
-    if (this.state.stagingMode && !prevState.stagingMode) {
+    if (this.props.stagingMode && !prevProps.stagingMode) {
       this.cancelIndicatorAnimation.setValue(1);
       this.focusIndicatorOpacity.setValue(0);
       timing(this.stagingModeProgress, {
         ...stagingModeAnimationConfig,
         toValue: 1,
       }).start();
-    } else if (!this.state.stagingMode && prevState.stagingMode) {
+    } else if (!this.props.stagingMode && prevProps.stagingMode) {
       this.stagingModeProgress.setValue(0);
     }
 
@@ -597,7 +597,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (camera && camera._cameraHandle) {
       void this.props.fetchCameraIDs(camera);
     }
-    if (this.state.stagingMode) {
+    if (this.props.stagingMode) {
       return this.renderStagingView();
     }
 
@@ -855,7 +855,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   takePhoto = async () => {
     const { camera } = this;
     invariant(camera, 'camera ref should be set');
-    this.setState({ stagingMode: true });
+    this.props.setStagingMode(true);
 
     // We avoid flipping this.props.useFrontCamera if we discover we don't
     // actually have a back camera since it causes a bit of lag, but this
@@ -925,8 +925,8 @@ class CameraModal extends React.PureComponent<Props, State> {
   clearPendingImage = () => {
     invariant(this.camera, 'camera ref should be set');
     this.camera.resumePreview();
+    this.props.setStagingMode(false);
     this.setState({
-      stagingMode: false,
       pendingPhotoCapture: undefined,
     });
   };
@@ -1220,6 +1220,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       setZoom(nextZoom);
     }, []);
 
+    const [stagingMode, setStagingMode] = React.useState(false);
+
     return (
       <CameraModal
         {...props}
@@ -1242,6 +1244,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         zoom={zoom}
         setZoom={setZoom}
         updateZoom={updateZoom}
+        stagingMode={stagingMode}
+        setStagingMode={setStagingMode}
       />
     );
   });
