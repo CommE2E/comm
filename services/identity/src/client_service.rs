@@ -336,7 +336,7 @@ impl IdentityClientService for ClientService {
     };
 
     let caller_is_authoritative_keyserver = user_id
-      == AUTHORITATIVE_KEYSERVER_OWNER_USER_ID
+      == *AUTHORITATIVE_KEYSERVER_OWNER_USER_ID
       && platform_metadata.device_type == "keyserver";
 
     if !caller_is_authoritative_keyserver
