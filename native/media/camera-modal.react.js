@@ -268,11 +268,11 @@ type Props = {
   +updateZoom: (zoom: [number]) => void,
   +stagingMode: boolean,
   +setStagingMode: (stagingMode: boolean) => void,
-};
-type State = {
   +pendingPhotoCapture: ?PhotoCapture,
+  +setPendingPhotoCapture: (?PhotoCapture) => void,
 };
-class CameraModal extends React.PureComponent<Props, State> {
+
+class CameraModal extends React.PureComponent<Props> {
   camera: ?RNCamera;
 
   pinchEvent: EventResult<PinchGestureEvent>;
@@ -319,10 +319,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      pendingPhotoCapture: undefined,
-    };
 
     const sendButtonScale = this.sendButtonProgress.interpolate({
       inputRange: [0, 1],
@@ -509,7 +505,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.hasCamerasOnBothSides && prevProps.hasCamerasOnBothSides) {
       this.switchCameraButtonX.setValue(-1);
       this.switchCameraButtonY.setValue(-1);
@@ -537,17 +533,17 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.stagingModeProgress.setValue(0);
     }
 
-    if (this.state.pendingPhotoCapture && !prevState.pendingPhotoCapture) {
+    if (this.props.pendingPhotoCapture && !prevProps.pendingPhotoCapture) {
       Animated.timing(this.sendButtonProgress, {
         ...sendButtonAnimationConfig,
         toValue: 1,
       }).start();
     } else if (
-      !this.state.pendingPhotoCapture &&
-      prevState.pendingPhotoCapture
+      !this.props.pendingPhotoCapture &&
+      prevProps.pendingPhotoCapture
     ) {
       void CameraModal.cleanUpPendingPhotoCapture(
-        prevState.pendingPhotoCapture,
+        prevProps.pendingPhotoCapture,
       );
       this.sendButtonProgress.setValue(0);
     }
@@ -620,7 +616,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   renderStagingView(): React.Node {
     let image = null;
-    const { pendingPhotoCapture } = this.state;
+    const { pendingPhotoCapture } = this.props;
     if (pendingPhotoCapture) {
       const imageSource = { uri: pendingPhotoCapture.uri };
       image = <Image source={imageSource} style={styles.stagingImage} />;
@@ -899,13 +895,11 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     this.props.setAutoFocusPointOfInterest(undefined);
     this.props.setZoom(0);
-    this.setState({
-      pendingPhotoCapture,
-    });
+    this.props.setPendingPhotoCapture(pendingPhotoCapture);
   };
 
   sendPhoto = async () => {
-    const { pendingPhotoCapture } = this.state;
+    const { pendingPhotoCapture } = this.props;
     if (!pendingPhotoCapture) {
       return;
     }
@@ -926,9 +920,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     invariant(this.camera, 'camera ref should be set');
     this.camera.resumePreview();
     this.props.setStagingMode(false);
-    this.setState({
-      pendingPhotoCapture: undefined,
-    });
+    this.props.setPendingPhotoCapture();
   };
 }
 
@@ -1221,6 +1213,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
     }, []);
 
     const [stagingMode, setStagingMode] = React.useState(false);
+    const [pendingPhotoCapture, setPendingPhotoCapture] =
+      React.useState<?PhotoCapture>();
 
     return (
       <CameraModal
@@ -1246,6 +1240,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         updateZoom={updateZoom}
         stagingMode={stagingMode}
         setStagingMode={setStagingMode}
+        pendingPhotoCapture={pendingPhotoCapture}
+        setPendingPhotoCapture={setPendingPhotoCapture}
       />
     );
   });
