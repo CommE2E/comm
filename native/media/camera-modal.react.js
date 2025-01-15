@@ -270,11 +270,10 @@ type Props = {
   +setStagingMode: (stagingMode: boolean) => void,
   +pendingPhotoCapture: ?PhotoCapture,
   +setPendingPhotoCapture: (?PhotoCapture) => void,
+  +camera: { current: ?RNCamera },
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  camera: ?RNCamera;
-
   pinchEvent: EventResult<PinchGestureEvent>;
   pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
   tapEvent: EventResult<TapGestureEvent>;
@@ -518,8 +517,12 @@ class CameraModal extends React.PureComponent<Props> {
       this.cancelIndicatorAnimation.setValue(1);
     }
 
-    if (this.props.foreground && !prevProps.foreground && this.camera) {
-      void this.camera.refreshAuthorizationStatus();
+    if (
+      this.props.foreground &&
+      !prevProps.foreground &&
+      this.props.camera.current
+    ) {
+      void this.props.camera.current.refreshAuthorizationStatus();
     }
 
     if (this.props.stagingMode && !prevProps.stagingMode) {
@@ -750,7 +753,7 @@ class CameraModal extends React.PureComponent<Props> {
           autoFocusPointOfInterest={this.props.autoFocusPointOfInterest}
           style={styles.fill}
           androidCameraPermissionOptions={null}
-          ref={this.cameraRef}
+          ref={this.props.camera}
         >
           {this.renderCamera}
         </RNCamera>
@@ -758,10 +761,6 @@ class CameraModal extends React.PureComponent<Props> {
       </Reanimated.View>
     );
   }
-
-  cameraRef = (camera: ?RNCamera) => {
-    this.camera = camera;
-  };
 
   closeButtonRef = (
     closeButton: ?React.ElementRef<typeof TouchableOpacity>,
@@ -849,7 +848,7 @@ class CameraModal extends React.PureComponent<Props> {
   };
 
   takePhoto = async () => {
-    const { camera } = this;
+    const camera = this.props.camera.current;
     invariant(camera, 'camera ref should be set');
     this.props.setStagingMode(true);
 
@@ -917,8 +916,8 @@ class CameraModal extends React.PureComponent<Props> {
   };
 
   clearPendingImage = () => {
-    invariant(this.camera, 'camera ref should be set');
-    this.camera.resumePreview();
+    invariant(this.props.camera.current, 'camera ref should be set');
+    this.props.camera.current.resumePreview();
     this.props.setStagingMode(false);
     this.props.setPendingPhotoCapture();
   };
@@ -1216,6 +1215,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
     const [pendingPhotoCapture, setPendingPhotoCapture] =
       React.useState<?PhotoCapture>();
 
+    const cameraRef = React.useRef<?RNCamera>();
+
     return (
       <CameraModal
         {...props}
@@ -1242,6 +1243,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         setStagingMode={setStagingMode}
         pendingPhotoCapture={pendingPhotoCapture}
         setPendingPhotoCapture={setPendingPhotoCapture}
+        camera={cameraRef}
       />
     );
   });
