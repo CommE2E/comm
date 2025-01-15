@@ -248,12 +248,13 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +isActive: boolean,
+  +flashMode: number,
+  +changeFlashMode: () => void,
 };
 type State = {
   +zoom: number,
   +useFrontCamera: boolean,
   +hasCamerasOnBothSides: boolean,
-  +flashMode: number,
   +autoFocusPointOfInterest: ?{
     x: number,
     y: number,
@@ -316,7 +317,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       zoom: 0,
       useFrontCamera: props.deviceCameraInfo.defaultUseFrontCamera,
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
-      flashMode: RNCamera.Constants.FlashMode.off,
       autoFocusPointOfInterest: undefined,
       stagingMode: false,
       pendingPhotoCapture: undefined,
@@ -677,9 +677,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     let flashIcon;
-    if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
+    if (this.props.flashMode === RNCamera.Constants.FlashMode.on) {
       flashIcon = <Icon name="ios-flash" style={styles.flashIcon} />;
-    } else if (this.state.flashMode === RNCamera.Constants.FlashMode.off) {
+    } else if (this.props.flashMode === RNCamera.Constants.FlashMode.off) {
       flashIcon = <Icon name="ios-flash-off" style={styles.flashIcon} />;
     } else {
       flashIcon = (
@@ -707,7 +707,7 @@ class CameraModal extends React.PureComponent<Props, State> {
             <Reanimated.View style={styles.fill}>
               <Reanimated.View style={this.focusIndicatorStyle} />
               <TouchableOpacity
-                onPress={this.changeFlashMode}
+                onPress={this.props.changeFlashMode}
                 onLayout={this.onFlashButtonLayout}
                 style={styles.flashButton}
                 ref={this.flashButtonRef}
@@ -748,7 +748,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           captureAudio={false}
           maxZoom={maxZoom}
           zoom={this.state.zoom}
-          flashMode={this.state.flashMode}
+          flashMode={this.props.flashMode}
           autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
           style={styles.fill}
           androidCameraPermissionOptions={null}
@@ -937,16 +937,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   updateZoom = ([zoom]: [number]) => {
     this.setState({ zoom });
-  };
-
-  changeFlashMode = () => {
-    if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
-      this.setState({ flashMode: RNCamera.Constants.FlashMode.off });
-    } else if (this.state.flashMode === RNCamera.Constants.FlashMode.off) {
-      this.setState({ flashMode: RNCamera.Constants.FlashMode.auto });
-    } else {
-      this.setState({ flashMode: RNCamera.Constants.FlashMode.on });
-    }
   };
 
   focusOnPoint = ([inputX, inputY]: [number, number]) => {
@@ -1189,6 +1179,21 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       };
     }, [isActive]);
 
+    const [flashMode, setFlashMode] = React.useState(
+      RNCamera.Constants.FlashMode.off,
+    );
+
+    const changeFlashMode = React.useCallback(() => {
+      setFlashMode(prevFlashMode => {
+        if (prevFlashMode === RNCamera.Constants.FlashMode.on) {
+          return RNCamera.Constants.FlashMode.off;
+        } else if (prevFlashMode === RNCamera.Constants.FlashMode.off) {
+          return RNCamera.Constants.FlashMode.auto;
+        }
+        return RNCamera.Constants.FlashMode.on;
+      });
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1199,6 +1204,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         dispatch={dispatch}
         overlayContext={overlayContext}
         isActive={isActive}
+        flashMode={flashMode}
+        changeFlashMode={changeFlashMode}
       />
     );
   });
