@@ -252,10 +252,11 @@ type Props = {
   +changeFlashMode: () => void,
   +useFrontCamera: boolean,
   +switchCamera: () => void,
+  +hasCamerasOnBothSides: boolean,
+  +fetchCameraIDs: (camera: RNCamera) => Promise<void>,
 };
 type State = {
   +zoom: number,
-  +hasCamerasOnBothSides: boolean,
   +autoFocusPointOfInterest: ?{
     x: number,
     y: number,
@@ -304,8 +305,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   cancelIndicatorAnimation: Value = new Value(0);
 
-  cameraIDsFetched = false;
-
   stagingModeProgress: Value = new Value(0);
   sendButtonProgress: Animated.Value = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
@@ -316,7 +315,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     this.state = {
       zoom: 0,
-      hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
       autoFocusPointOfInterest: undefined,
       stagingMode: false,
       pendingPhotoCapture: undefined,
@@ -508,7 +506,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (!this.state.hasCamerasOnBothSides && prevState.hasCamerasOnBothSides) {
+    if (!this.props.hasCamerasOnBothSides && prevProps.hasCamerasOnBothSides) {
       this.switchCameraButtonX.setValue(-1);
       this.switchCameraButtonY.setValue(-1);
       this.switchCameraButtonWidth.setValue(0);
@@ -593,7 +591,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     ...
   }): React.Node => {
     if (camera && camera._cameraHandle) {
-      void this.fetchCameraIDs(camera);
+      void this.props.fetchCameraIDs(camera);
     }
     if (this.state.stagingMode) {
       return this.renderStagingView();
@@ -663,7 +661,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     let switchCameraButton = null;
-    if (this.state.hasCamerasOnBothSides) {
+    if (this.props.hasCamerasOnBothSides) {
       switchCameraButton = (
         <TouchableOpacity
           onPress={this.props.switchCamera}
@@ -959,47 +957,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       Platform.OS === 'ios' ? { x, y, autoExposure: true } : { x, y };
     this.setState({ autoFocusPointOfInterest });
   };
-
-  fetchCameraIDs = async (camera: RNCamera) => {
-    if (this.cameraIDsFetched) {
-      return;
-    }
-    this.cameraIDsFetched = true;
-
-    const deviceCameras = await camera.getCameraIdsAsync();
-
-    let hasFront = false,
-      hasBack = false,
-      i = 0;
-    while ((!hasFront || !hasBack) && i < deviceCameras.length) {
-      const deviceCamera = deviceCameras[i];
-      if (deviceCamera.type === RNCamera.Constants.Type.front) {
-        hasFront = true;
-      } else if (deviceCamera.type === RNCamera.Constants.Type.back) {
-        hasBack = true;
-      }
-      i++;
-    }
-
-    const hasCamerasOnBothSides = hasFront && hasBack;
-    const defaultUseFrontCamera = !hasBack && hasFront;
-    if (hasCamerasOnBothSides !== this.state.hasCamerasOnBothSides) {
-      this.setState({ hasCamerasOnBothSides });
-    }
-    const {
-      hasCamerasOnBothSides: oldHasCamerasOnBothSides,
-      defaultUseFrontCamera: oldDefaultUseFrontCamera,
-    } = this.props.deviceCameraInfo;
-    if (
-      hasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
-      defaultUseFrontCamera !== oldDefaultUseFrontCamera
-    ) {
-      this.props.dispatch({
-        type: updateDeviceCameraInfoActionType,
-        payload: { hasCamerasOnBothSides, defaultUseFrontCamera },
-      });
-    }
-  };
 }
 
 const styles = StyleSheet.create({
@@ -1196,6 +1153,59 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       setUseFrontCamera(prevUseFrontCamera => !prevUseFrontCamera);
     }, []);
 
+    const [hasCamerasOnBothSides, setHasCamerasOnBothSides] = React.useState(
+      deviceCameraInfo.hasCamerasOnBothSides,
+    );
+
+    const cameraIDsFetched = React.useRef(false);
+
+    const fetchCameraIDs = React.useCallback(
+      async (camera: RNCamera) => {
+        if (cameraIDsFetched.current) {
+          return;
+        }
+        cameraIDsFetched.current = true;
+
+        const deviceCameras = await camera.getCameraIdsAsync();
+
+        let hasFront = false,
+          hasBack = false,
+          i = 0;
+        while ((!hasFront || !hasBack) && i < deviceCameras.length) {
+          const deviceCamera = deviceCameras[i];
+          if (deviceCamera.type === RNCamera.Constants.Type.front) {
+            hasFront = true;
+          } else if (deviceCamera.type === RNCamera.Constants.Type.back) {
+            hasBack = true;
+          }
+          i++;
+        }
+
+        const nextHasCamerasOnBothSides = hasFront && hasBack;
+        const defaultUseFrontCamera = !hasBack && hasFront;
+        if (nextHasCamerasOnBothSides !== hasCamerasOnBothSides) {
+          setHasCamerasOnBothSides(nextHasCamerasOnBothSides);
+        }
+        const {
+          hasCamerasOnBothSides: oldHasCamerasOnBothSides,
+          defaultUseFrontCamera: oldDefaultUseFrontCamera,
+        } = deviceCameraInfo;
+        if (
+          nextHasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
+          defaultUseFrontCamera !== oldDefaultUseFrontCamera
+        ) {
+          dispatch({
+            type: updateDeviceCameraInfoActionType,
+            payload: {
+              hasCamerasOnBothSides: nextHasCamerasOnBothSides,
+              defaultUseFrontCamera,
+            },
+          });
+        }
+      },
+      [deviceCameraInfo, dispatch, hasCamerasOnBothSides],
+    );
+
     return (
       <CameraModal
         {...props}
@@ -1210,6 +1220,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         changeFlashMode={changeFlashMode}
         useFrontCamera={useFrontCamera}
         switchCamera={switchCamera}
+        hasCamerasOnBothSides={hasCamerasOnBothSides}
+        fetchCameraIDs={fetchCameraIDs}
       />
     );
   });
