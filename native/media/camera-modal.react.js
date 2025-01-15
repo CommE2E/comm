@@ -263,9 +263,11 @@ type Props = {
   +autoFocusPointOfInterest: AutoFocusPointOfInterest,
   +setAutoFocusPointOfInterest: AutoFocusPointOfInterest => void,
   +focusOnPoint: (input: [number, number]) => void,
+  +zoom: number,
+  +setZoom: (zoom: number) => void,
+  +updateZoom: (zoom: [number]) => void,
 };
 type State = {
-  +zoom: number,
   +stagingMode: boolean,
   +pendingPhotoCapture: ?PhotoCapture,
 };
@@ -318,7 +320,6 @@ class CameraModal extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      zoom: 0,
       stagingMode: false,
       pendingPhotoCapture: undefined,
     };
@@ -406,7 +407,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         ),
         [
           set(zoomReported, resolvedZoom),
-          call([cameraZoomFactor], this.updateZoom),
+          call([cameraZoomFactor], this.props.updateZoom),
         ],
       ),
     ]);
@@ -748,7 +749,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           type={type}
           captureAudio={false}
           maxZoom={maxZoom}
-          zoom={this.state.zoom}
+          zoom={this.props.zoom}
           flashMode={this.props.flashMode}
           autoFocusPointOfInterest={this.props.autoFocusPointOfInterest}
           style={styles.fill}
@@ -897,9 +898,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
 
     this.props.setAutoFocusPointOfInterest(undefined);
+    this.props.setZoom(0);
     this.setState({
       pendingPhotoCapture,
-      zoom: 0,
     });
   };
 
@@ -928,10 +929,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       stagingMode: false,
       pendingPhotoCapture: undefined,
     });
-  };
-
-  updateZoom = ([zoom]: [number]) => {
-    this.setState({ zoom });
   };
 }
 
@@ -1214,6 +1211,12 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       [deviceOrientation, dimensions],
     );
 
+    const [zoom, setZoom] = React.useState(0);
+
+    const updateZoom = React.useCallback(([nextZoom]: [number]) => {
+      setZoom(nextZoom);
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1233,6 +1236,9 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         autoFocusPointOfInterest={autoFocusPointOfInterest}
         setAutoFocusPointOfInterest={setAutoFocusPointOfInterest}
         focusOnPoint={focusOnPoint}
+        zoom={zoom}
+        setZoom={setZoom}
+        updateZoom={updateZoom}
       />
     );
   });
