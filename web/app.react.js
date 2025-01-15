@@ -32,6 +32,7 @@ import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
+import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -92,6 +93,7 @@ import DangerZone from './settings/danger-zone.react.js';
 import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
 import { getCommSharedWorker } from './shared-worker/shared-worker-provider.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
+import Socket from './socket.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
@@ -593,6 +595,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
                   />
                 </SecondaryDeviceQRAuthContextProvider>
                 <DBOpsHandler />
+                <KeyserverConnectionsHandler socketComponent={Socket} />
               </IdentitySearchProvider>
             </TunnelbrokerProvider>
           </NeynarClientProvider>

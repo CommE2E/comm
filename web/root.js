@@ -16,7 +16,6 @@ import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
 import { UserIdentityCacheProvider } from 'lib/components/user-identity-cache.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
-import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { getWagmiConfig } from 'lib/utils/wagmi-utils.js';
 
@@ -34,7 +33,6 @@ import {
 import history from './router-history.js';
 import { SQLiteDataHandler } from './shared-worker/sqlite-data-handler.js';
 import { localforageConfig } from './shared-worker/utils/constants.js';
-import Socket from './socket.react.js';
 
 localforage.config(localforageConfig);
 
@@ -73,7 +71,6 @@ const RootProvider = (): React.Node => (
                   <Router history={history.getHistoryObject()}>
                     <Route path="*" component={App} />
                   </Router>
-                  <KeyserverConnectionsHandler socketComponent={Socket} />
                   <PrekeysHandler />
                   <SQLiteDataHandler />
                   <IntegrityHandler />
