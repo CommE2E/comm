@@ -250,10 +250,11 @@ type Props = {
   +isActive: boolean,
   +flashMode: number,
   +changeFlashMode: () => void,
+  +useFrontCamera: boolean,
+  +switchCamera: () => void,
 };
 type State = {
   +zoom: number,
-  +useFrontCamera: boolean,
   +hasCamerasOnBothSides: boolean,
   +autoFocusPointOfInterest: ?{
     x: number,
@@ -315,7 +316,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     this.state = {
       zoom: 0,
-      useFrontCamera: props.deviceCameraInfo.defaultUseFrontCamera,
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
       autoFocusPointOfInterest: undefined,
       stagingMode: false,
@@ -666,7 +666,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (this.state.hasCamerasOnBothSides) {
       switchCameraButton = (
         <TouchableOpacity
-          onPress={this.switchCamera}
+          onPress={this.props.switchCamera}
           onLayout={this.onSwitchCameraButtonLayout}
           style={styles.switchCameraButton}
           ref={this.switchCameraButtonRef}
@@ -736,7 +736,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     const statusBar = this.props.isActive ? (
       <ConnectedStatusBar hidden />
     ) : null;
-    const type = this.state.useFrontCamera
+    const type = this.props.useFrontCamera
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
     return (
@@ -855,14 +855,14 @@ class CameraModal extends React.PureComponent<Props, State> {
     invariant(camera, 'camera ref should be set');
     this.setState({ stagingMode: true });
 
-    // We avoid flipping this.state.useFrontCamera if we discover we don't
+    // We avoid flipping this.props.useFrontCamera if we discover we don't
     // actually have a back camera since it causes a bit of lag, but this
     // means there are cases where it is false but we are actually using the
     // front camera
     const { hasCamerasOnBothSides, defaultUseFrontCamera } =
       this.props.deviceCameraInfo;
     const usingFrontCamera =
-      this.state.useFrontCamera ||
+      this.props.useFrontCamera ||
       (!hasCamerasOnBothSides && defaultUseFrontCamera);
 
     const startTime = Date.now();
@@ -927,12 +927,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       stagingMode: false,
       pendingPhotoCapture: undefined,
     });
-  };
-
-  switchCamera = () => {
-    this.setState((prevState: State) => ({
-      useFrontCamera: !prevState.useFrontCamera,
-    }));
   };
 
   updateZoom = ([zoom]: [number]) => {
@@ -1194,6 +1188,14 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       });
     }, []);
 
+    const [useFrontCamera, setUseFrontCamera] = React.useState(
+      deviceCameraInfo.defaultUseFrontCamera,
+    );
+
+    const switchCamera = React.useCallback(() => {
+      setUseFrontCamera(prevUseFrontCamera => !prevUseFrontCamera);
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1206,6 +1208,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         isActive={isActive}
         flashMode={flashMode}
         changeFlashMode={changeFlashMode}
+        useFrontCamera={useFrontCamera}
+        switchCamera={switchCamera}
       />
     );
   });
