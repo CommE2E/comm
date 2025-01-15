@@ -254,14 +254,22 @@ type Props = {
   +switchCamera: () => void,
   +hasCamerasOnBothSides: boolean,
   +fetchCameraIDs: (camera: RNCamera) => Promise<void>,
-};
-type State = {
-  +zoom: number,
   +autoFocusPointOfInterest: ?{
     x: number,
     y: number,
     autoExposure?: boolean,
   },
+  +setAutoFocusPointOfInterest: (
+    ?{
+      x: number,
+      y: number,
+      autoExposure?: boolean,
+    },
+  ) => void,
+  +focusOnPoint: (input: [number, number]) => void,
+};
+type State = {
+  +zoom: number,
   +stagingMode: boolean,
   +pendingPhotoCapture: ?PhotoCapture,
 };
@@ -315,7 +323,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     this.state = {
       zoom: 0,
-      autoFocusPointOfInterest: undefined,
       stagingMode: false,
       pendingPhotoCapture: undefined,
     };
@@ -428,7 +435,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     return block([
       cond(fingerJustReleased, [
-        call([tapX, tapY], this.focusOnPoint),
+        call([tapX, tapY], this.props.focusOnPoint),
         set(this.focusIndicatorX, tapX),
         set(this.focusIndicatorY, tapY),
         stopClock(indicatorSpringClock),
@@ -514,7 +521,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
-      this.setState({ autoFocusPointOfInterest: null });
+      this.props.setAutoFocusPointOfInterest(null);
       this.cancelIndicatorAnimation.setValue(1);
     }
 
@@ -747,7 +754,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           maxZoom={maxZoom}
           zoom={this.state.zoom}
           flashMode={this.props.flashMode}
-          autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
+          autoFocusPointOfInterest={this.props.autoFocusPointOfInterest}
           style={styles.fill}
           androidCameraPermissionOptions={null}
           ref={this.cameraRef}
@@ -893,10 +900,10 @@ class CameraModal extends React.PureComponent<Props, State> {
       retries: 0,
     };
 
+    this.props.setAutoFocusPointOfInterest(undefined);
     this.setState({
       pendingPhotoCapture,
       zoom: 0,
-      autoFocusPointOfInterest: undefined,
     });
   };
 
@@ -929,33 +936,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   updateZoom = ([zoom]: [number]) => {
     this.setState({ zoom });
-  };
-
-  focusOnPoint = ([inputX, inputY]: [number, number]) => {
-    const { width: screenWidth, height: screenHeight } = this.props.dimensions;
-    const relativeX = inputX / screenWidth;
-    const relativeY = inputY / screenHeight;
-
-    // react-native-camera's autoFocusPointOfInterest prop is based on a
-    // LANDSCAPE-LEFT orientation, so we need to map to that
-    let x, y;
-    if (this.props.deviceOrientation === 'LANDSCAPE-LEFT') {
-      x = relativeX;
-      y = relativeY;
-    } else if (this.props.deviceOrientation === 'LANDSCAPE-RIGHT') {
-      x = 1 - relativeX;
-      y = 1 - relativeY;
-    } else if (this.props.deviceOrientation === 'PORTRAIT-UPSIDEDOWN') {
-      x = 1 - relativeY;
-      y = relativeX;
-    } else {
-      x = relativeY;
-      y = 1 - relativeX;
-    }
-
-    const autoFocusPointOfInterest =
-      Platform.OS === 'ios' ? { x, y, autoExposure: true } : { x, y };
-    this.setState({ autoFocusPointOfInterest });
   };
 }
 
@@ -1202,6 +1182,42 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       [deviceCameraInfo, dispatch, hasCamerasOnBothSides],
     );
 
+    const [autoFocusPointOfInterest, setAutoFocusPointOfInterest] =
+      React.useState<?{
+        x: number,
+        y: number,
+        autoExposure?: boolean,
+      }>();
+
+    const focusOnPoint = React.useCallback(
+      ([inputX, inputY]: [number, number]) => {
+        const { width: screenWidth, height: screenHeight } = dimensions;
+        const relativeX = inputX / screenWidth;
+        const relativeY = inputY / screenHeight;
+
+        // react-native-camera's autoFocusPointOfInterest prop is based on a
+        // LANDSCAPE-LEFT orientation, so we need to map to that
+        let x, y;
+        if (deviceOrientation === 'LANDSCAPE-LEFT') {
+          x = relativeX;
+          y = relativeY;
+        } else if (deviceOrientation === 'LANDSCAPE-RIGHT') {
+          x = 1 - relativeX;
+          y = 1 - relativeY;
+        } else if (deviceOrientation === 'PORTRAIT-UPSIDEDOWN') {
+          x = 1 - relativeY;
+          y = relativeX;
+        } else {
+          x = relativeY;
+          y = 1 - relativeX;
+        }
+        setAutoFocusPointOfInterest(
+          Platform.OS === 'ios' ? { x, y, autoExposure: true } : { x, y },
+        );
+      },
+      [deviceOrientation, dimensions],
+    );
+
     return (
       <CameraModal
         {...props}
@@ -1218,6 +1234,9 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         switchCamera={switchCamera}
         hasCamerasOnBothSides={hasCamerasOnBothSides}
         fetchCameraIDs={fetchCameraIDs}
+        autoFocusPointOfInterest={autoFocusPointOfInterest}
+        setAutoFocusPointOfInterest={setAutoFocusPointOfInterest}
+        focusOnPoint={focusOnPoint}
       />
     );
   });
