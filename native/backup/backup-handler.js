@@ -28,12 +28,9 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
 import { useClientBackup } from './use-client-backup.js';
-import { useGetBackupSecretForLoggedInUser } from './use-get-backup-secret.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-
-const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
 async function reorderAndSignDeviceList(
   thisDeviceID: string,
@@ -73,9 +70,7 @@ function BackupHandler(): null {
   );
   const userIdentifier = useSelector(state => state.currentUserInfo?.username);
   const dispatchActionPromise = useDispatchActionPromise();
-  const { createUserKeysBackup, retrieveLatestBackupInfo, getBackupUserKeys } =
-    useClientBackup();
-  const getBackupSecret = useGetBackupSecretForLoggedInUser();
+  const { createUserKeysBackup, retrieveLatestBackupInfo } = useClientBackup();
   const backupUploadInProgress = React.useRef<boolean>(false);
   const startingBackupHandlerInProgress = React.useRef<boolean>(false);
   const [handlerStarted, setHandlerStarted] = React.useState(false);
@@ -133,62 +128,6 @@ function BackupHandler(): null {
     staffCanSee,
   ]);
 
-  const testUserKeysRestore = React.useCallback(async () => {
-    if (!latestBackupInfo?.backupID) {
-      return;
-    }
-    if (!userIdentifier) {
-      throw new Error('Missing userIdentifier');
-    }
-
-    const retrievedBackupInfo = await retrieveLatestBackupInfo(userIdentifier);
-    if (!retrievedBackupInfo) {
-      throw new Error('latestBackupInfo not retrieved');
-    }
-    const { backupID } = retrievedBackupInfo;
-
-    const backupSecret = await getBackupSecret();
-    const [
-      {
-        backupDataKey: backupDataKeyFromBackup,
-        backupLogDataKey: backupLogDataKeyFromBackup,
-      },
-      {
-        backupID: localBackupID,
-        backupDataKey: localBackupDataKey,
-        backupLogDataKey: localBackupLogDataKey,
-      },
-    ] = await Promise.all([
-      getBackupUserKeys(userIdentifier, backupSecret, backupID),
-      commCoreModule.getQRAuthBackupData(),
-    ]);
-
-    const backupIDCheck =
-      latestBackupInfo.backupID === backupID && backupID === localBackupID;
-    const keysCheck =
-      backupDataKeyFromBackup === localBackupDataKey &&
-      backupLogDataKeyFromBackup === localBackupLogDataKey;
-
-    if (!backupIDCheck || !keysCheck) {
-      throw new Error(
-        '\n' +
-          `backupID: ${backupID}\n` +
-          `latestBackupInfo.backupID: ${latestBackupInfo.backupID}\n` +
-          `localBackupID: ${localBackupID}\n` +
-          `backupDataKeyFromBackup: ${backupDataKeyFromBackup}\n` +
-          `backupLogDataKeyFromBackup: ${backupLogDataKeyFromBackup}\n` +
-          `localBackupDataKey: ${localBackupDataKey}\n` +
-          `localBackupLogDataKey: ${localBackupLogDataKey}\n`,
-      );
-    }
-  }, [
-    getBackupSecret,
-    getBackupUserKeys,
-    latestBackupInfo?.backupID,
-    retrieveLatestBackupInfo,
-    userIdentifier,
-  ]);
-
   React.useEffect(() => {
     if (
       !staffCanSee ||
@@ -231,22 +170,6 @@ function BackupHandler(): null {
         console.log('Error fetching current device list:', message);
         backupUploadInProgress.current = false;
         return;
-      }
-
-      if (isPrimaryDevice && latestBackupInfo) {
-        const timestamp = latestBackupInfo.timestamp;
-        if (timestamp >= Date.now() - millisecondsPerDay) {
-          backupUploadInProgress.current = false;
-          return;
-        }
-
-        try {
-          await testUserKeysRestore();
-        } catch (err) {
-          const message = getMessageForException(err) ?? 'unknown error';
-          showAlertToStaff('Error restoring User Keys backup', message);
-          console.log('Error restoring User Keys backup:', message);
-        }
       }
 
       const shouldDoMigration =
@@ -352,7 +275,6 @@ function BackupHandler(): null {
     retrieveLatestBackupInfo,
     showAlertToStaff,
     staffCanSee,
-    testUserKeysRestore,
     userIdentifier,
   ]);
 

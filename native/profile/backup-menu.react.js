@@ -37,6 +37,9 @@ function BackupMenu(props: Props): React.Node {
   const isBackupEnabled = useSelector(
     state => state.localSettings.isBackupEnabled,
   );
+  const latestBackupInfo = useSelector(
+    state => state.backupStore.latestBackupInfo,
+  );
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
@@ -196,6 +199,68 @@ function BackupMenu(props: Props): React.Node {
     getBackupUserKeys,
   ]);
 
+  const testUserKeysRestore = React.useCallback(async () => {
+    let message;
+    try {
+      const retrievedBackupInfo =
+        await retrieveLatestBackupInfo(userIdentifier);
+      if (!retrievedBackupInfo) {
+        throw new Error('latestBackupInfo not retrieved');
+      }
+      const { backupID } = retrievedBackupInfo;
+
+      const backupSecret = await getBackupSecret();
+      const [
+        {
+          backupDataKey: backupDataKeyFromBackup,
+          backupLogDataKey: backupLogDataKeyFromBackup,
+        },
+        {
+          backupID: localBackupID,
+          backupDataKey: localBackupDataKey,
+          backupLogDataKey: localBackupLogDataKey,
+        },
+      ] = await Promise.all([
+        getBackupUserKeys(userIdentifier, backupSecret, backupID),
+        commCoreModule.getQRAuthBackupData(),
+      ]);
+
+      const backupIDCheck =
+        latestBackupInfo?.backupID === backupID && backupID === localBackupID;
+      const keysCheck =
+        backupDataKeyFromBackup === localBackupDataKey &&
+        backupLogDataKeyFromBackup === localBackupLogDataKey;
+
+      if (!backupIDCheck || !keysCheck) {
+        throw new Error(
+          '\n' +
+            `backupID: ${backupID}\n` +
+            `latestBackupInfo.backupID: ${
+              latestBackupInfo?.backupID ?? 'undefined'
+            }\n` +
+            `localBackupID: ${localBackupID}\n` +
+            `backupDataKeyFromBackup: ${backupDataKeyFromBackup}\n` +
+            `backupLogDataKeyFromBackup: ${backupLogDataKeyFromBackup}\n` +
+            `localBackupDataKey: ${localBackupDataKey}\n` +
+            `localBackupLogDataKey: ${localBackupLogDataKey}\n`,
+        );
+      }
+      message = 'Success!';
+    } catch (e) {
+      message = `Error restoring User Keys backup: ${String(
+        getMessageForException(e),
+      )}`;
+      console.error(message);
+    }
+    Alert.alert('Restoring User Keys result', message);
+  }, [
+    getBackupSecret,
+    getBackupUserKeys,
+    latestBackupInfo?.backupID,
+    retrieveLatestBackupInfo,
+    userIdentifier,
+  ]);
+
   const onBackupToggled = React.useCallback(
     (value: boolean) => {
       dispatch({
@@ -266,6 +331,17 @@ function BackupMenu(props: Props): React.Node {
           <Text style={styles.submenuText}>
             Test signing with previous primary Olm Account
           </Text>
+        </Button>
+      </View>
+      <View style={styles.section}>
+        <Button
+          onPress={testUserKeysRestore}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>Test User Keys restore</Text>
         </Button>
       </View>
     </ScrollView>
