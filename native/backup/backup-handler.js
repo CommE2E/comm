@@ -3,59 +3,21 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { setPeerDeviceListsActionType } from 'lib/actions/aux-user-actions.js';
 import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
-import {
-  useBroadcastDeviceListUpdates,
-  useCurrentIdentityUserState,
-  useGetAndUpdateDeviceListsForUsers,
-} from 'lib/hooks/peer-list-hooks.js';
+import { useCurrentIdentityUserState } from 'lib/hooks/peer-list-hooks.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
-import { isLoggedIn, getAllPeerDevices } from 'lib/selectors/user-selectors.js';
-import { signDeviceListUpdate } from 'lib/shared/device-list-utils.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
-import type {
-  RawDeviceList,
-  SignedDeviceList,
-} from 'lib/types/identity-service-types.js';
-import {
-  composeRawDeviceList,
-  rawDeviceListFromSignedList,
-} from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
 import { useClientBackup } from './use-client-backup.js';
+import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-
-async function reorderAndSignDeviceList(
-  thisDeviceID: string,
-  currentDeviceList: RawDeviceList,
-): Promise<{
-  +rawList: RawDeviceList,
-  +signedList: SignedDeviceList,
-}> {
-  const currentDevices = [...currentDeviceList.devices];
-
-  const thisDeviceIndex = currentDevices.indexOf(thisDeviceID);
-  if (thisDeviceIndex < 0) {
-    throw new Error("Device list doesn't contain current device ID");
-  }
-
-  const newDevices =
-    thisDeviceIndex === 0
-      ? currentDevices
-      : [thisDeviceID, ...currentDevices.splice(thisDeviceIndex, 1)];
-
-  const rawList = composeRawDeviceList(newDevices);
-  const signedList = await signDeviceListUpdate(rawList);
-  return { rawList, signedList };
-}
 
 function BackupHandler(): null {
   const loggedIn = useSelector(isLoggedIn);
@@ -69,9 +31,8 @@ function BackupHandler(): null {
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
   );
-  const userIdentifier = useSelector(state => state.currentUserInfo?.username);
   const dispatchActionPromise = useDispatchActionPromise();
-  const { createUserKeysBackup, retrieveLatestBackupInfo } = useClientBackup();
+  const { createUserKeysBackup } = useClientBackup();
   const backupUploadInProgress = React.useRef<boolean>(false);
   const startingBackupHandlerInProgress = React.useRef<boolean>(false);
   const [handlerStarted, setHandlerStarted] = React.useState(false);
@@ -79,12 +40,8 @@ function BackupHandler(): null {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
 
-  const dispatch = useDispatch();
-
-  const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
-  const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
-  const allPeerDevices = useSelector(getAllPeerDevices);
+  const migrateToNewFlow = useMigrationToNewFlow();
 
   React.useEffect(() => {
     if (!staffCanSee || startingBackupHandlerInProgress.current) {
@@ -144,7 +101,7 @@ function BackupHandler(): null {
       backupUploadInProgress.current = true;
 
       const isPrimaryDevice = await checkIfPrimaryDevice();
-      const { getAuthMetadata, identityClient } = identityContext;
+      const { getAuthMetadata } = identityContext;
       const { userID, deviceID } = await getAuthMetadata();
       let currentIdentityUserState, deviceListIsSigned;
       try {
@@ -173,70 +130,11 @@ function BackupHandler(): null {
       try {
         const promise = (async () => {
           if (shouldDoMigration && !deviceListIsSigned) {
-            if (!userID || !deviceID) {
-              throw new Error('Missing auth metadata');
-            }
-
-            const { updateDeviceList } = identityClient;
-            invariant(
-              updateDeviceList,
-              'updateDeviceList() should be defined on native. ' +
-                'Are you calling it on a non-primary device?',
-            );
-
-            // 1. upload UserKeys (without updating the store)
-            let backupID = await createUserKeysBackup();
-
-            // 2. create in-memory device list (reorder and sign)
-            const newDeviceList = await reorderAndSignDeviceList(
+            return await migrateToNewFlow(
+              userID,
               deviceID,
-              rawDeviceListFromSignedList(
-                currentIdentityUserState.currentDeviceList,
-              ),
+              currentIdentityUserState,
             );
-
-            if (!userID || !userIdentifier) {
-              throw new Error('Missing userID or userIdentifier');
-            }
-            // 3. UpdateDeviceList RPC transaction
-            await updateDeviceList(newDeviceList.signedList);
-            dispatch({
-              type: setPeerDeviceListsActionType,
-              payload: {
-                deviceLists: { [userID]: newDeviceList.rawList },
-                usersPlatformDetails: {
-                  [userID]: currentIdentityUserState.currentUserPlatformDetails,
-                },
-              },
-            });
-
-            // 4. Broadcast update to peers
-            void getAndUpdateDeviceListsForUsers([userID]);
-            void broadcastDeviceListUpdates(
-              allPeerDevices.filter(id => id !== deviceID),
-            );
-
-            // 5. fetch backupID again and compare
-            let retryCount = 0;
-            let fetchedBackupInfo =
-              await retrieveLatestBackupInfo(userIdentifier);
-
-            while (fetchedBackupInfo?.backupID !== backupID) {
-              retryCount++;
-              if (retryCount >= 3) {
-                throw new Error(`Backup ID mismatched ${retryCount} times`);
-              }
-
-              backupID = await createUserKeysBackup();
-              fetchedBackupInfo =
-                await retrieveLatestBackupInfo(userIdentifier);
-            }
-
-            // 6. Set store value (dispatchActionPromise success return value)
-            return {
-              backupID,
-              timestamp: Date.now(),
-            };
           } else {
             const backupID = await createUserKeysBackup();
             return {
@@ -258,22 +156,17 @@ function BackupHandler(): null {
       backupUploadInProgress.current = false;
     })();
   }, [
-    allPeerDevices,
-    broadcastDeviceListUpdates,
     canPerformBackupOperation,
     checkIfPrimaryDevice,
     createUserKeysBackup,
-    dispatch,
     dispatchActionPromise,
-    getAndUpdateDeviceListsForUsers,
     getCurrentIdentityUserState,
     handlerStarted,
     identityContext,
     latestBackupInfo,
-    retrieveLatestBackupInfo,
+    migrateToNewFlow,
     showAlertToStaff,
     staffCanSee,
-    userIdentifier,
   ]);
 
   return null;
