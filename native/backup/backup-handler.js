@@ -104,10 +104,19 @@ function BackupHandler(): null {
     void (async () => {
       backupUploadInProgress.current = true;
 
-      const [isPrimaryDevice, { userID, deviceID }] = await Promise.all([
-        checkIfPrimaryDevice(),
-        getAuthMetadata(),
-      ]);
+      let isPrimaryDevice, userID, deviceID;
+      try {
+        const [isPrimaryDeviceResult, authMetadata] = await Promise.all([
+          checkIfPrimaryDevice(),
+          getAuthMetadata(),
+        ]);
+        isPrimaryDevice = isPrimaryDeviceResult;
+        userID = authMetadata.userID;
+        deviceID = authMetadata.deviceID;
+      } catch (e) {
+        backupUploadInProgress.current = false;
+        return;
+      }
 
       // CurrentIdentityUserState is required to check if migration to
       // new flow is needed.
