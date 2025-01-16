@@ -7,6 +7,7 @@ import { setPeerDeviceListsActionType } from 'lib/actions/aux-user-actions.js';
 import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
 import {
   useBroadcastDeviceListUpdates,
+  useCurrentIdentityUserState,
   useGetAndUpdateDeviceListsForUsers,
 } from 'lib/hooks/peer-list-hooks.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
@@ -82,6 +83,7 @@ function BackupHandler(): null {
 
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
+  const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const allPeerDevices = useSelector(getAllPeerDevices);
 
   React.useEffect(() => {
@@ -144,22 +146,12 @@ function BackupHandler(): null {
       const isPrimaryDevice = await checkIfPrimaryDevice();
       const { getAuthMetadata, identityClient } = identityContext;
       const { userID, deviceID } = await getAuthMetadata();
-      let currentDeviceList, currentUserPlatformDetails, deviceListIsSigned;
+      let currentIdentityUserState, deviceListIsSigned;
       try {
-        if (!userID || !userIdentifier) {
-          throw new Error('Missing userID or userIdentifier');
-        }
-        const deviceListsResponse = await identityClient.getDeviceListsForUsers(
-          [userID],
-        );
-        currentDeviceList = deviceListsResponse.usersSignedDeviceLists[userID];
-        currentUserPlatformDetails =
-          deviceListsResponse.usersDevicesPlatformDetails[userID];
-        if (!currentDeviceList || !currentUserPlatformDetails) {
-          throw new Error('Device list not found for current user');
-        }
+        currentIdentityUserState = await getCurrentIdentityUserState();
 
-        deviceListIsSigned = !!currentDeviceList.curPrimarySignature;
+        deviceListIsSigned =
+          !!currentIdentityUserState.currentDeviceList.curPrimarySignature;
         if (!isPrimaryDevice && deviceListIsSigned) {
           backupUploadInProgress.current = false;
           return;
@@ -198,9 +190,14 @@ function BackupHandler(): null {
             // 2. create in-memory device list (reorder and sign)
             const newDeviceList = await reorderAndSignDeviceList(
               deviceID,
-              rawDeviceListFromSignedList(currentDeviceList),
+              rawDeviceListFromSignedList(
+                currentIdentityUserState.currentDeviceList,
+              ),
             );
 
+            if (!userID || !userIdentifier) {
+              throw new Error('Missing userID or userIdentifier');
+            }
             // 3. UpdateDeviceList RPC transaction
             await updateDeviceList(newDeviceList.signedList);
             dispatch({
@@ -208,7 +205,7 @@ function BackupHandler(): null {
               payload: {
                 deviceLists: { [userID]: newDeviceList.rawList },
                 usersPlatformDetails: {
-                  [userID]: currentUserPlatformDetails,
+                  [userID]: currentIdentityUserState.currentUserPlatformDetails,
                 },
               },
             });
@@ -269,6 +266,7 @@ function BackupHandler(): null {
     dispatch,
     dispatchActionPromise,
     getAndUpdateDeviceListsForUsers,
+    getCurrentIdentityUserState,
     handlerStarted,
     identityContext,
     latestBackupInfo,
