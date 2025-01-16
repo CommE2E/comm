@@ -29,6 +29,7 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
   type EventResult,
+  useSharedValue,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -76,7 +77,6 @@ const {
   or,
   eq,
   greaterThan,
-  lessThan,
   add,
   sub,
   multiply,
@@ -240,6 +240,13 @@ type TouchableOpacityInstance = React.AbstractComponent<
   NativeMethods,
 >;
 
+type Dimensions = {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+};
+
 type BaseProps = {
   +handlePhotoCapture: (capture: PhotoCapture) => mixed,
   +navigation:
@@ -292,6 +299,16 @@ type Props = {
   +sendPhoto: () => Promise<void>,
   +clearPendingImage: () => void,
   +gesture: ExclusiveGesture,
+  +closeButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
+  +photoButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
+  +switchCameraButtonRef: {
+    current: ?React.ElementRef<TouchableOpacityInstance>,
+  },
+  +flashButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
+  +onCloseButtonLayout: () => void,
+  +onPhotoButtonLayout: () => void,
+  +onSwitchCameraButtonLayout: () => void,
+  +onFlashButtonLayout: () => void,
 };
 
 class CameraModal extends React.PureComponent<Props> {
@@ -300,30 +317,6 @@ class CameraModal extends React.PureComponent<Props> {
   tapEvent: EventResult<TapGestureEvent>;
   tapHandler: ReactRef<TapGestureHandler> = React.createRef();
   animationCode: Node;
-
-  closeButton: ?React.ElementRef<TouchableOpacityInstance>;
-  closeButtonX: Value = new Value(-1);
-  closeButtonY: Value = new Value(-1);
-  closeButtonWidth: Value = new Value(0);
-  closeButtonHeight: Value = new Value(0);
-
-  photoButton: ?React.ElementRef<TouchableOpacityInstance>;
-  photoButtonX: Value = new Value(-1);
-  photoButtonY: Value = new Value(-1);
-  photoButtonWidth: Value = new Value(0);
-  photoButtonHeight: Value = new Value(0);
-
-  switchCameraButton: ?React.ElementRef<TouchableOpacityInstance>;
-  switchCameraButtonX: Value = new Value(-1);
-  switchCameraButtonY: Value = new Value(-1);
-  switchCameraButtonWidth: Value = new Value(0);
-  switchCameraButtonHeight: Value = new Value(0);
-
-  flashButton: ?React.ElementRef<TouchableOpacityInstance>;
-  flashButtonX: Value = new Value(-1);
-  flashButtonY: Value = new Value(-1);
-  flashButtonWidth: Value = new Value(0);
-  flashButtonHeight: Value = new Value(0);
 
   focusIndicatorX: Value = new Value(-1);
   focusIndicatorY: Value = new Value(-1);
@@ -434,7 +427,10 @@ class CameraModal extends React.PureComponent<Props> {
     const lastTapY = new Value(0);
     const fingerJustReleased = and(
       gestureJustEnded(tapState),
-      this.outsideButtons(lastTapX, lastTapY),
+      // TODO: it should be outsideButtons(lastTapX, lastTapY) here but
+      // outsideButtons is migrated so we can't call it
+      // for now focus is broken, but we'll fix it in the next diffs
+      0,
     );
 
     const indicatorSpringClock = new Clock();
@@ -478,61 +474,7 @@ class CameraModal extends React.PureComponent<Props> {
     ]);
   }
 
-  outsideButtons(x: Node, y: Node): Node {
-    const {
-      closeButtonX,
-      closeButtonY,
-      closeButtonWidth,
-      closeButtonHeight,
-      photoButtonX,
-      photoButtonY,
-      photoButtonWidth,
-      photoButtonHeight,
-      switchCameraButtonX,
-      switchCameraButtonY,
-      switchCameraButtonWidth,
-      switchCameraButtonHeight,
-      flashButtonX,
-      flashButtonY,
-      flashButtonWidth,
-      flashButtonHeight,
-    } = this;
-    return and(
-      or(
-        lessThan(x, closeButtonX),
-        greaterThan(x, add(closeButtonX, closeButtonWidth)),
-        lessThan(y, closeButtonY),
-        greaterThan(y, add(closeButtonY, closeButtonHeight)),
-      ),
-      or(
-        lessThan(x, photoButtonX),
-        greaterThan(x, add(photoButtonX, photoButtonWidth)),
-        lessThan(y, photoButtonY),
-        greaterThan(y, add(photoButtonY, photoButtonHeight)),
-      ),
-      or(
-        lessThan(x, switchCameraButtonX),
-        greaterThan(x, add(switchCameraButtonX, switchCameraButtonWidth)),
-        lessThan(y, switchCameraButtonY),
-        greaterThan(y, add(switchCameraButtonY, switchCameraButtonHeight)),
-      ),
-      or(
-        lessThan(x, flashButtonX),
-        greaterThan(x, add(flashButtonX, flashButtonWidth)),
-        lessThan(y, flashButtonY),
-        greaterThan(y, add(flashButtonY, flashButtonHeight)),
-      ),
-    );
-  }
-
   componentDidUpdate(prevProps: Props) {
-    if (!this.props.hasCamerasOnBothSides && prevProps.hasCamerasOnBothSides) {
-      this.switchCameraButtonX.setValue(-1);
-      this.switchCameraButtonY.setValue(-1);
-      this.switchCameraButtonWidth.setValue(0);
-      this.switchCameraButtonHeight.setValue(0);
-    }
-
     if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
       this.props.setAutoFocusPointOfInterest(null);
       this.cancelIndicatorAnimation.setValue(1);
@@ -615,9 +557,9 @@ class CameraModal extends React.PureComponent<Props> {
           {this.renderCameraContent(status)}
           <TouchableOpacity
             onPress={this.props.close}
-            onLayout={this.onCloseButtonLayout}
+            onLayout={this.props.onCloseButtonLayout}
             style={styles.closeButton}
-            ref={this.closeButtonRef}
+            ref={this.props.closeButtonRef}
           >
             <Text style={styles.closeIcon}>×</Text>
           </TouchableOpacity>
@@ -677,9 +619,9 @@ class CameraModal extends React.PureComponent<Props> {
       switchCameraButton = (
         <TouchableOpacity
           onPress={this.props.switchCamera}
-          onLayout={this.onSwitchCameraButtonLayout}
+          onLayout={this.props.onSwitchCameraButtonLayout}
           style={styles.switchCameraButton}
-          ref={this.switchCameraButtonRef}
+          ref={this.props.switchCameraButtonRef}
         >
           <Icon name="ios-camera-reverse" style={styles.switchCameraIcon} />
         </TouchableOpacity>
@@ -706,18 +648,18 @@ class CameraModal extends React.PureComponent<Props> {
           <Reanimated.View style={this.focusIndicatorStyle} />
           <TouchableOpacity
             onPress={this.props.changeFlashMode}
-            onLayout={this.onFlashButtonLayout}
+            onLayout={this.props.onFlashButtonLayout}
             style={styles.flashButton}
-            ref={this.flashButtonRef}
+            ref={this.props.flashButtonRef}
           >
             {flashIcon}
           </TouchableOpacity>
           <View style={styles.bottomButtonsContainer}>
             <TouchableOpacity
               onPress={this.props.takePhoto}
-              onLayout={this.onPhotoButtonLayout}
+              onLayout={this.props.onPhotoButtonLayout}
               style={styles.saveButton}
-              ref={this.photoButtonRef}
+              ref={this.props.photoButtonRef}
             >
               <View style={styles.saveButtonInner} />
             </TouchableOpacity>
@@ -756,82 +698,6 @@ class CameraModal extends React.PureComponent<Props> {
       </Reanimated.View>
     );
   }
-
-  closeButtonRef = (
-    closeButton: ?React.ElementRef<typeof TouchableOpacity>,
-  ) => {
-    this.closeButton = (closeButton: any);
-  };
-
-  onCloseButtonLayout = () => {
-    const { closeButton } = this;
-    if (!closeButton) {
-      return;
-    }
-    closeButton.measure((x, y, width, height, pageX, pageY) => {
-      this.closeButtonX.setValue(pageX);
-      this.closeButtonY.setValue(pageY);
-      this.closeButtonWidth.setValue(width);
-      this.closeButtonHeight.setValue(height);
-    });
-  };
-
-  photoButtonRef = (
-    photoButton: ?React.ElementRef<typeof TouchableOpacity>,
-  ) => {
-    this.photoButton = (photoButton: any);
-  };
-
-  onPhotoButtonLayout = () => {
-    const { photoButton } = this;
-    if (!photoButton) {
-      return;
-    }
-    photoButton.measure((x, y, width, height, pageX, pageY) => {
-      this.photoButtonX.setValue(pageX);
-      this.photoButtonY.setValue(pageY);
-      this.photoButtonWidth.setValue(width);
-      this.photoButtonHeight.setValue(height);
-    });
-  };
-
-  switchCameraButtonRef = (
-    switchCameraButton: ?React.ElementRef<typeof TouchableOpacity>,
-  ) => {
-    this.switchCameraButton = (switchCameraButton: any);
-  };
-
-  onSwitchCameraButtonLayout = () => {
-    const { switchCameraButton } = this;
-    if (!switchCameraButton) {
-      return;
-    }
-    switchCameraButton.measure((x, y, width, height, pageX, pageY) => {
-      this.switchCameraButtonX.setValue(pageX);
-      this.switchCameraButtonY.setValue(pageY);
-      this.switchCameraButtonWidth.setValue(width);
-      this.switchCameraButtonHeight.setValue(height);
-    });
-  };
-
-  flashButtonRef = (
-    flashButton: ?React.ElementRef<typeof TouchableOpacity>,
-  ) => {
-    this.flashButton = (flashButton: any);
-  };
-
-  onFlashButtonLayout = () => {
-    const { flashButton } = this;
-    if (!flashButton) {
-      return;
-    }
-    flashButton.measure((x, y, width, height, pageX, pageY) => {
-      this.flashButtonX.setValue(pageX);
-      this.flashButtonY.setValue(pageY);
-      this.flashButtonWidth.setValue(width);
-      this.flashButtonHeight.setValue(height);
-    });
-  };
 }
 
 const styles = StyleSheet.create({
@@ -1217,6 +1083,136 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       return Gesture.Exclusive(pinchGesture, tapGesture);
     }, []);
 
+    const closeButtonRef =
+      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const closeButtonDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const photoButtonRef =
+      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const photoButtonDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const switchCameraButtonRef =
+      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const switchCameraButtonDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const flashButtonRef =
+      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const flashButtonDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const onCloseButtonLayout = React.useCallback(() => {
+      if (!closeButtonRef.current) {
+        return;
+      }
+      closeButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      });
+    }, [closeButtonDimensions]);
+
+    const onPhotoButtonLayout = React.useCallback(() => {
+      if (!photoButtonRef.current) {
+        return;
+      }
+      photoButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        photoButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      });
+    }, [photoButtonDimensions]);
+
+    const onSwitchCameraButtonLayout = React.useCallback(() => {
+      if (!switchCameraButtonRef.current) {
+        return;
+      }
+      switchCameraButtonRef.current.measure(
+        (x, y, width, height, pageX, pageY) => {
+          switchCameraButtonDimensions.value = {
+            x: pageX,
+            y: pageY,
+            width,
+            height,
+          };
+        },
+      );
+    }, [switchCameraButtonDimensions]);
+
+    React.useEffect(() => {
+      if (!hasCamerasOnBothSides) {
+        switchCameraButtonDimensions.value = {
+          x: -1,
+          y: -1,
+          width: 0,
+          height: 0,
+        };
+      }
+    }, [hasCamerasOnBothSides, switchCameraButtonDimensions]);
+
+    const onFlashButtonLayout = React.useCallback(() => {
+      if (!flashButtonRef.current) {
+        return;
+      }
+      flashButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        flashButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      });
+    }, [flashButtonDimensions]);
+
+    // TODO: temporarily it's unused, will be fixed in the next diff
+    // eslint-disable-next-line no-unused-vars
+    const outsideButtons = React.useCallback(
+      (x: number, y: number) => {
+        'worklet';
+        const isOutsideButton = (dim: Dimensions) => {
+          return (
+            x < dim.x ||
+            x > dim.x + dim.width ||
+            y < dim.y ||
+            y > dim.y + dim.height
+          );
+        };
+        const isOutsideCloseButton = isOutsideButton(
+          closeButtonDimensions.value,
+        );
+        const isOutsidePhotoButton = isOutsideButton(
+          photoButtonDimensions.value,
+        );
+        const isOutsideSwitchCameraButton = isOutsideButton(
+          switchCameraButtonDimensions.value,
+        );
+        const isOutsideFlashButton = isOutsideButton(
+          flashButtonDimensions.value,
+        );
+        return (
+          isOutsideCloseButton &&
+          isOutsidePhotoButton &&
+          isOutsideSwitchCameraButton &&
+          isOutsideFlashButton
+        );
+      },
+      [
+        closeButtonDimensions,
+        flashButtonDimensions,
+        photoButtonDimensions,
+        switchCameraButtonDimensions,
+      ],
+    );
+
     return (
       <CameraModal
         {...props}
@@ -1249,6 +1245,14 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         sendPhoto={sendPhoto}
         clearPendingImage={clearPendingImage}
         gesture={gesture}
+        closeButtonRef={closeButtonRef}
+        photoButtonRef={photoButtonRef}
+        switchCameraButtonRef={switchCameraButtonRef}
+        flashButtonRef={flashButtonRef}
+        onCloseButtonLayout={onCloseButtonLayout}
+        onPhotoButtonLayout={onPhotoButtonLayout}
+        onSwitchCameraButtonLayout={onSwitchCameraButtonLayout}
+        onFlashButtonLayout={onFlashButtonLayout}
       />
     );
   });
