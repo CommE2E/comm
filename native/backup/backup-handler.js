@@ -47,6 +47,28 @@ function BackupHandler(): null {
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const migrateToNewFlow = useMigrationToNewFlow();
 
+  const startBackupHandler = React.useCallback(() => {
+    try {
+      commCoreModule.startBackupHandler();
+      setHandlerStarted(true);
+    } catch (err) {
+      const message = getMessageForException(err) ?? 'unknown error';
+      showAlertToStaff('Error starting backup handler', message);
+      console.log('Error starting backup handler:', message);
+    }
+  }, [showAlertToStaff]);
+
+  const stopBackupHandler = React.useCallback(() => {
+    try {
+      commCoreModule.stopBackupHandler();
+      setHandlerStarted(false);
+    } catch (err) {
+      const message = getMessageForException(err) ?? 'unknown error';
+      showAlertToStaff('Error stopping backup handler', message);
+      console.log('Error stopping backup handler:', message);
+    }
+  }, [showAlertToStaff]);
+
   React.useEffect(() => {
     if (!staffCanSee || startingBackupHandlerInProgress.current) {
       return;
@@ -61,25 +83,11 @@ function BackupHandler(): null {
       }
 
       if (!handlerStarted && canPerformBackupOperation) {
-        try {
-          commCoreModule.startBackupHandler();
-          setHandlerStarted(true);
-        } catch (err) {
-          const message = getMessageForException(err) ?? 'unknown error';
-          showAlertToStaff('Error starting backup handler', message);
-          console.log('Error starting backup handler:', message);
-        }
+        startBackupHandler();
       }
 
       if (handlerStarted && !canPerformBackupOperation) {
-        try {
-          commCoreModule.stopBackupHandler();
-          setHandlerStarted(false);
-        } catch (err) {
-          const message = getMessageForException(err) ?? 'unknown error';
-          showAlertToStaff('Error stopping backup handler', message);
-          console.log('Error stopping backup handler:', message);
-        }
+        stopBackupHandler();
       }
       startingBackupHandlerInProgress.current = false;
     })();
@@ -89,13 +97,14 @@ function BackupHandler(): null {
     handlerStarted,
     showAlertToStaff,
     staffCanSee,
+    startBackupHandler,
+    stopBackupHandler,
   ]);
 
   React.useEffect(() => {
     if (
       !staffCanSee ||
       !canPerformBackupOperation ||
-      !handlerStarted ||
       backupUploadInProgress.current
     ) {
       return;
@@ -141,13 +150,21 @@ function BackupHandler(): null {
       // When this is a primary device and there is no latest backup it
       // needs to be updated. This handles cases after restoration
       // or after registration.
-      const shouldCreateUserKeysBackup = isPrimaryDevice && !latestBackupInfo;
+      const shouldCreateUserKeysBackup =
+        isPrimaryDevice && !latestBackupInfo && handlerStarted;
 
       if (!shouldDoMigration && !shouldCreateUserKeysBackup) {
         backupUploadInProgress.current = false;
         return;
       }
       try {
+        if (shouldDoMigration && !handlerStarted) {
+          //  By default, the handler is started only on the primary device,
+          //  in case of migrating to a new flow on a non-primary device
+          //  this needs to be done here.
+          startBackupHandler();
+        }
+
         const promise = (async () => {
           if (shouldDoMigration) {
             // Early return without checking `shouldCreateUserKeysBackup`
@@ -189,6 +206,7 @@ function BackupHandler(): null {
     migrateToNewFlow,
     showAlertToStaff,
     staffCanSee,
+    startBackupHandler,
   ]);
 
   return null;
