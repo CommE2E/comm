@@ -135,27 +135,35 @@ function BackupHandler(): null {
         return;
       }
 
-      const shouldDoMigration =
-        usingRestoreFlow && (!latestBackupInfo || !deviceListIsSigned);
-      if (!shouldDoMigration && !isPrimaryDevice) {
+      // In case of unsigned device list migration and backup upload is needed.
+      // Uploading backup in this case is handled by `migrateToNewFlow`.
+      const shouldDoMigration = usingRestoreFlow && !deviceListIsSigned;
+      // When this is a primary device and there is no latest backup it
+      // needs to be updated. This handles cases after restoration
+      // or after registration.
+      const shouldCreateUserKeysBackup = isPrimaryDevice && !latestBackupInfo;
+
+      if (!shouldDoMigration && !shouldCreateUserKeysBackup) {
         backupUploadInProgress.current = false;
         return;
       }
       try {
         const promise = (async () => {
-          if (shouldDoMigration && !deviceListIsSigned) {
+          if (shouldDoMigration) {
+            // Early return without checking `shouldCreateUserKeysBackup`
+            // is safe because migration is uploading User Keys backup.
             return await migrateToNewFlow(
               userID,
               deviceID,
               currentIdentityUserState,
             );
-          } else {
-            const backupID = await createUserKeysBackup();
-            return {
-              backupID,
-              timestamp: Date.now(),
-            };
           }
+
+          const backupID = await createUserKeysBackup();
+          return {
+            backupID,
+            timestamp: Date.now(),
+          };
         })();
         void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
         await promise;
