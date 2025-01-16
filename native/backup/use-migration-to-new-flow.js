@@ -53,7 +53,7 @@ async function reorderAndSignDeviceList(
 function useMigrationToNewFlow(): (
   userID: ?string,
   deviceID: ?string,
-  currentIdentityUserState: CurrentIdentityUserState,
+  currentIdentityUserState: ?CurrentIdentityUserState,
 ) => Promise<LocalLatestBackupInfo> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
@@ -71,10 +71,14 @@ function useMigrationToNewFlow(): (
     async (
       userID: ?string,
       deviceID: ?string,
-      currentIdentityUserState: CurrentIdentityUserState,
+      currentIdentityUserState: ?CurrentIdentityUserState,
     ): Promise<LocalLatestBackupInfo> => {
       if (!userID || !deviceID) {
         throw new Error('Missing auth metadata');
+      }
+
+      if (!currentIdentityUserState) {
+        throw new Error('Missing currentIdentityUserState');
       }
 
       const { updateDeviceList } = identityClient;
