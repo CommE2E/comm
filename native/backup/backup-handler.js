@@ -4,7 +4,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
-import { useCurrentIdentityUserState } from 'lib/hooks/peer-list-hooks.js';
+import {
+  useCurrentIdentityUserState,
+  type CurrentIdentityUserState,
+} from 'lib/hooks/peer-list-hooks.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
@@ -39,6 +42,7 @@ function BackupHandler(): null {
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
 
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const migrateToNewFlow = useMigrationToNewFlow();
@@ -100,23 +104,33 @@ function BackupHandler(): null {
     void (async () => {
       backupUploadInProgress.current = true;
 
-      const isPrimaryDevice = await checkIfPrimaryDevice();
-      const { getAuthMetadata } = identityContext;
-      const { userID, deviceID } = await getAuthMetadata();
-      let currentIdentityUserState, deviceListIsSigned;
-      try {
-        currentIdentityUserState = await getCurrentIdentityUserState();
+      const [isPrimaryDevice, { userID, deviceID }] = await Promise.all([
+        checkIfPrimaryDevice(),
+        getAuthMetadata(),
+      ]);
 
-        deviceListIsSigned =
-          !!currentIdentityUserState.currentDeviceList.curPrimarySignature;
-        if (!isPrimaryDevice && deviceListIsSigned) {
-          backupUploadInProgress.current = false;
-          return;
-        }
+      // CurrentIdentityUserState is required to check if migration to
+      // new flow is needed.
+      let currentIdentityUserState: ?CurrentIdentityUserState = null;
+      try {
+        currentIdentityUserState = await getCurrentIdentityUserState(userID);
       } catch (err) {
         const message = getMessageForException(err) ?? 'unknown error';
         showAlertToStaff('Error fetching current device list:', message);
         console.log('Error fetching current device list:', message);
+        backupUploadInProgress.current = false;
+        return;
+      }
+
+      const deviceListIsSigned =
+        currentIdentityUserState.currentDeviceList.curPrimarySignature;
+
+      // Early return is safe:
+      // - in the case of non-primary device, the attempt to upload
+      //   a backup is not needed
+      // - in the case of a signed device list there is no need
+      //   to perform the migration.
+      if (!isPrimaryDevice && deviceListIsSigned) {
         backupUploadInProgress.current = false;
         return;
       }
@@ -160,9 +174,9 @@ function BackupHandler(): null {
     checkIfPrimaryDevice,
     createUserKeysBackup,
     dispatchActionPromise,
+    getAuthMetadata,
     getCurrentIdentityUserState,
     handlerStarted,
-    identityContext,
     latestBackupInfo,
     migrateToNewFlow,
     showAlertToStaff,
