@@ -43,7 +43,10 @@ async function reorderAndSignDeviceList(
   const newDevices =
     thisDeviceIndex === 0
       ? currentDevices
-      : [thisDeviceID, ...currentDevices.splice(thisDeviceIndex, 1)];
+      : [
+          thisDeviceID,
+          ...currentDevices.filter(deviceID => deviceID !== thisDeviceID),
+        ];
 
   const rawList = composeRawDeviceList(newDevices);
   const signedList = await signDeviceListUpdate(rawList);
