@@ -17,19 +17,25 @@ import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
 import {
   PinchGestureHandler,
-  TapGestureHandler,
   State as GestureState,
   type PinchGestureEvent,
-  type TapGestureEvent,
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
-  EasingNode as ReanimatedEasing,
+  EasingNode as ReanimatedEasingNode,
+  Easing as ReanimatedEasing,
   type EventResult,
+  useAnimatedReaction,
+  useAnimatedStyle,
   useSharedValue,
+  withSpring,
+  withDelay,
+  withTiming,
+  cancelAnimation,
+  runOnJS,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -60,35 +66,26 @@ import {
   type ViewStyle,
   type AnimatedViewStyle,
 } from '../types/styles.js';
-import { clamp, gestureJustEnded } from '../utils/animation-utils.js';
+import { gestureJustEnded } from '../utils/animation-utils.js';
 
 const {
   Value,
   Node,
-  Clock,
   event,
   Extrapolate,
   block,
   set,
   call,
   cond,
-  not,
-  and,
   or,
   eq,
   greaterThan,
-  add,
   sub,
   multiply,
   divide,
   abs,
   interpolateNode,
-  startClock,
-  stopClock,
-  clockRunning,
   timing,
-  spring,
-  SpringUtils,
 } = Reanimated;
 
 const maxZoom = 16;
@@ -107,7 +104,7 @@ const zoomUpdateFactor = (() => {
 
 const stagingModeAnimationConfig = {
   duration: 150,
-  easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
+  easing: ReanimatedEasingNode.inOut(ReanimatedEasingNode.ease),
 };
 const sendButtonAnimationConfig = {
   duration: 150,
@@ -116,112 +113,13 @@ const sendButtonAnimationConfig = {
 };
 
 const indicatorSpringConfig = {
-  ...SpringUtils.makeDefaultConfig(),
   damping: 0,
   mass: 0.6,
-  toValue: 1,
 };
 const indicatorTimingConfig = {
   duration: 500,
   easing: ReanimatedEasing.out(ReanimatedEasing.ease),
-  toValue: 0,
 };
-function runIndicatorAnimation(
-  // Inputs
-  springClock: Clock,
-  delayClock: Clock,
-  timingClock: Clock,
-  animationRunning: Node,
-  // Outputs
-  scale: Value,
-  opacity: Value,
-): Node {
-  const delayStart = new Value(0);
-
-  const springScale = new Value(0.75);
-  const delayScale = new Value(0);
-  const timingScale = new Value(0.75);
-
-  const animatedScale = cond(
-    clockRunning(springClock),
-    springScale,
-    cond(clockRunning(delayClock), delayScale, timingScale),
-  );
-  const lastAnimatedScale = new Value(0.75);
-  const numScaleLoops = new Value(0);
-
-  const springState = {
-    finished: new Value(1),
-    velocity: new Value(0),
-    time: new Value(0),
-    position: springScale,
-  };
-  const timingState = {
-    finished: new Value(1),
-    frameTime: new Value(0),
-    time: new Value(0),
-    position: timingScale,
-  };
-
-  return block([
-    cond(not(animationRunning), [
-      set(springState.finished, 0),
-      set(springState.velocity, 0),
-      set(springState.time, 0),
-      set(springScale, 0.75),
-      set(lastAnimatedScale, 0.75),
-      set(numScaleLoops, 0),
-      set(opacity, 1),
-      startClock(springClock),
-    ]),
-    [
-      cond(
-        clockRunning(springClock),
-        spring(springClock, springState, indicatorSpringConfig),
-      ),
-      timing(timingClock, timingState, indicatorTimingConfig),
-    ],
-    [
-      cond(
-        and(
-          greaterThan(animatedScale, 1.2),
-          not(greaterThan(lastAnimatedScale, 1.2)),
-        ),
-        [
-          set(numScaleLoops, add(numScaleLoops, 1)),
-          cond(greaterThan(numScaleLoops, 1), [
-            set(springState.finished, 1),
-            stopClock(springClock),
-            set(delayScale, springScale),
-            set(delayStart, delayClock),
-            startClock(delayClock),
-          ]),
-        ],
-      ),
-      set(lastAnimatedScale, animatedScale),
-    ],
-    cond(
-      and(
-        clockRunning(delayClock),
-        greaterThan(delayClock, add(delayStart, 400)),
-      ),
-      [
-        stopClock(delayClock),
-        set(timingState.finished, 0),
-        set(timingState.frameTime, 0),
-        set(timingState.time, 0),
-        set(timingScale, delayScale),
-        startClock(timingClock),
-      ],
-    ),
-    cond(
-      and(springState.finished, timingState.finished),
-      stopClock(timingClock),
-    ),
-    set(scale, animatedScale),
-    cond(clockRunning(timingClock), set(opacity, clamp(animatedScale, 0, 1))),
-  ]);
-}
 
 async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
   const path = pathFromURI(pendingPhotoCapture.uri);
@@ -305,21 +203,14 @@ type Props = {
   +onPhotoButtonLayout: () => void,
   +onSwitchCameraButtonLayout: () => void,
   +onFlashButtonLayout: () => void,
+  +cancelFocusAnimation: () => void,
+  +focusIndicatorStyle: ViewStyle,
 };
 
 class CameraModal extends React.PureComponent<Props> {
   pinchEvent: EventResult<PinchGestureEvent>;
   pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
-  tapEvent: EventResult<TapGestureEvent>;
-  tapHandler: ReactRef<TapGestureHandler> = React.createRef();
   animationCode: Node;
-
-  focusIndicatorX: Value = new Value(-1);
-  focusIndicatorY: Value = new Value(-1);
-  focusIndicatorScale: Value = new Value(0);
-  focusIndicatorOpacity: Value = new Value(0);
-
-  cancelIndicatorAnimation: Value = new Value(0);
 
   stagingModeProgress: Value = new Value(0);
   sendButtonProgress: Animated.Value = new Animated.Value(0);
@@ -359,22 +250,8 @@ class CameraModal extends React.PureComponent<Props> {
       },
     ]);
 
-    const tapState = new Value(-1);
-    const tapX = new Value(0);
-    const tapY = new Value(0);
-    this.tapEvent = event([
-      {
-        nativeEvent: {
-          state: tapState,
-          x: tapX,
-          y: tapY,
-        },
-      },
-    ]);
-
     this.animationCode = block([
       this.zoomAnimationCode(pinchState, pinchScale),
-      this.focusAnimationCode(tapState, tapX, tapY),
     ]);
   }
 
@@ -418,62 +295,10 @@ class CameraModal extends React.PureComponent<Props> {
     ]);
   }
 
-  focusAnimationCode(tapState: Node, tapX: Node, tapY: Node): Node {
-    const lastTapX = new Value(0);
-    const lastTapY = new Value(0);
-    const fingerJustReleased = and(
-      gestureJustEnded(tapState),
-      // TODO: it should be outsideButtons(lastTapX, lastTapY) here but
-      // outsideButtons is migrated so we can't call it
-      // for now focus is broken, but we'll fix it in the next diffs
-      0,
-    );
-
-    const indicatorSpringClock = new Clock();
-    const indicatorDelayClock = new Clock();
-    const indicatorTimingClock = new Clock();
-    const indicatorAnimationRunning = or(
-      clockRunning(indicatorSpringClock),
-      clockRunning(indicatorDelayClock),
-      clockRunning(indicatorTimingClock),
-    );
-
-    return block([
-      cond(fingerJustReleased, [
-        call([tapX, tapY], this.props.focusOnPoint),
-        set(this.focusIndicatorX, tapX),
-        set(this.focusIndicatorY, tapY),
-        stopClock(indicatorSpringClock),
-        stopClock(indicatorDelayClock),
-        stopClock(indicatorTimingClock),
-      ]),
-      cond(this.cancelIndicatorAnimation, [
-        set(this.cancelIndicatorAnimation, 0),
-        stopClock(indicatorSpringClock),
-        stopClock(indicatorDelayClock),
-        stopClock(indicatorTimingClock),
-        set(this.focusIndicatorOpacity, 0),
-      ]),
-      cond(
-        or(fingerJustReleased, indicatorAnimationRunning),
-        runIndicatorAnimation(
-          indicatorSpringClock,
-          indicatorDelayClock,
-          indicatorTimingClock,
-          indicatorAnimationRunning,
-          this.focusIndicatorScale,
-          this.focusIndicatorOpacity,
-        ),
-      ),
-      set(lastTapX, tapX),
-      set(lastTapY, tapY),
-    ]);
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
       this.props.setAutoFocusPointOfInterest(null);
-      this.cancelIndicatorAnimation.setValue(1);
+      this.props.cancelFocusAnimation();
     }
 
     if (
@@ -485,8 +310,7 @@ class CameraModal extends React.PureComponent<Props> {
     }
 
     if (this.props.stagingMode && !prevProps.stagingMode) {
-      this.cancelIndicatorAnimation.setValue(1);
-      this.focusIndicatorOpacity.setValue(0);
+      this.props.cancelFocusAnimation();
       timing(this.stagingModeProgress, {
         ...stagingModeAnimationConfig,
         toValue: 1,
@@ -517,18 +341,6 @@ class CameraModal extends React.PureComponent<Props> {
     return {
       ...styles.container,
       opacity: overlayContext.position,
-    };
-  }
-
-  get focusIndicatorStyle(): AnimatedViewStyle {
-    return {
-      ...styles.focusIndicator,
-      opacity: this.focusIndicatorOpacity,
-      transform: [
-        { translateX: this.focusIndicatorX },
-        { translateY: this.focusIndicatorY },
-        { scale: this.focusIndicatorScale },
-      ],
     };
   }
 
@@ -641,7 +453,7 @@ class CameraModal extends React.PureComponent<Props> {
     return (
       <GestureDetector gesture={this.props.gesture}>
         <Reanimated.View style={styles.fill}>
-          <Reanimated.View style={this.focusIndicatorStyle} />
+          <Reanimated.View style={this.props.focusIndicatorStyle} />
           <TouchableOpacity
             onPress={this.props.changeFlashMode}
             onLayout={this.props.onFlashButtonLayout}
@@ -1075,13 +887,6 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       setPendingPhotoCapture();
     }, []);
 
-    const gesture = React.useMemo(() => {
-      // TODO: we'll use this in the next diffs
-      const pinchGesture = Gesture.Pinch().onUpdate((/* { scale } */) => {});
-      const tapGesture = Gesture.Tap().onStart((/* { x, y } */) => {});
-      return Gesture.Exclusive(pinchGesture, tapGesture);
-    }, []);
-
     const closeButtonRef =
       React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
     const closeButtonDimensions = useSharedValue({
@@ -1172,8 +977,6 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       });
     }, [flashButtonDimensions]);
 
-    // TODO: temporarily it's unused, will be fixed in the next diff
-    // eslint-disable-next-line no-unused-vars
     const outsideButtons = React.useCallback(
       (x: number, y: number) => {
         'worklet';
@@ -1211,6 +1014,83 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         switchCameraButtonDimensions,
       ],
     );
+
+    const focusIndicatorScale = useSharedValue(0.75);
+    const focusIndicatorPosition = useSharedValue({ x: 0, y: 0 });
+    const focusIndicatorOpacity = useSharedValue(0);
+    const numScaleLoops = useSharedValue(0);
+
+    const startFocusAnimation = React.useCallback(
+      (x: number, y: number) => {
+        'worklet';
+        focusIndicatorPosition.value = { x, y };
+        focusIndicatorOpacity.value = 1;
+        numScaleLoops.value = 0;
+        focusIndicatorScale.value = 0.75;
+        focusIndicatorScale.value = withSpring(1, indicatorSpringConfig);
+      },
+      [
+        focusIndicatorOpacity,
+        focusIndicatorPosition,
+        focusIndicatorScale,
+        numScaleLoops,
+      ],
+    );
+
+    useAnimatedReaction(
+      () => focusIndicatorScale.value,
+      (prevScale, currScale) => {
+        if (prevScale <= 1.2 && currScale > 1.2) {
+          numScaleLoops.value++;
+        }
+        if (numScaleLoops.value > 1) {
+          numScaleLoops.value = 0;
+          focusIndicatorScale.value = withDelay(
+            400,
+            withTiming(0, indicatorTimingConfig),
+          );
+          focusIndicatorOpacity.value = withDelay(
+            400,
+            withTiming(0, indicatorTimingConfig),
+          );
+        }
+      },
+    );
+
+    const cancelFocusAnimation = React.useCallback(() => {
+      cancelAnimation(focusIndicatorScale);
+      cancelAnimation(focusIndicatorOpacity);
+      focusIndicatorOpacity.value = 0;
+    }, [focusIndicatorOpacity, focusIndicatorScale]);
+
+    const focusIndicatorAnimatedStyle = useAnimatedStyle(
+      () => ({
+        opacity: focusIndicatorOpacity.value,
+        transform: [
+          { translateX: focusIndicatorPosition.value.x },
+          { translateY: focusIndicatorPosition.value.y },
+          { scale: focusIndicatorScale.value },
+        ],
+      }),
+      [],
+    );
+
+    const focusIndicatorStyle = React.useMemo(
+      () => [styles.focusIndicator, focusIndicatorAnimatedStyle],
+      [focusIndicatorAnimatedStyle],
+    );
+
+    const gesture = React.useMemo(() => {
+      // TODO: we'll use this in the next diffs
+      const pinchGesture = Gesture.Pinch().onUpdate((/* { scale } */) => {});
+      const tapGesture = Gesture.Tap().onStart(({ x, y }) => {
+        if (outsideButtons(x, y)) {
+          runOnJS(focusOnPoint)([x, y]);
+          startFocusAnimation(x, y);
+        }
+      });
+      return Gesture.Exclusive(pinchGesture, tapGesture);
+    }, [focusOnPoint, outsideButtons, startFocusAnimation]);
 
     return (
       <CameraModal
@@ -1252,6 +1132,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         onPhotoButtonLayout={onPhotoButtonLayout}
         onSwitchCameraButtonLayout={onSwitchCameraButtonLayout}
         onFlashButtonLayout={onFlashButtonLayout}
+        cancelFocusAnimation={cancelFocusAnimation}
+        focusIndicatorStyle={focusIndicatorStyle}
       />
     );
   });
