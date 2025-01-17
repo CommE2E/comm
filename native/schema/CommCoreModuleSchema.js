@@ -16,7 +16,7 @@ import type {
   OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
-import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+import type { SignedMessage } from 'lib/types/siwe-types.js';
 import type {
   InboundP2PMessage,
   OutboundP2PMessage,
@@ -231,10 +231,8 @@ export interface CoreModuleSpec extends Spec {
     sessionVersion: number,
     overwrite: boolean,
   ) => Promise<string>;
-  +setSIWEBackupSecrets: (
-    siweBackupSecrets: SIWEBackupSecrets,
-  ) => Promise<void>;
-  +getSIWEBackupSecrets: () => Promise<?SIWEBackupSecrets>;
+  +setSIWEBackupSecrets: (siweBackupSecrets: SignedMessage) => Promise<void>;
+  +getSIWEBackupSecrets: () => Promise<?SignedMessage>;
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
   ) => Promise<void>;

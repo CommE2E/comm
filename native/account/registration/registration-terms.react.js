@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View, Image, Linking } from 'react-native';
 
-import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+import type { SignedMessage } from 'lib/types/siwe-types.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -30,7 +30,7 @@ export type RegistrationTermsParams = {
     +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
-    +siweBackupSecrets?: ?SIWEBackupSecrets,
+    +siweBackupSecrets?: ?SignedMessage,
     +farcasterAvatarURL: ?string,
   },
 };
