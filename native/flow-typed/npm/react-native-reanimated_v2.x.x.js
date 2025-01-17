@@ -589,6 +589,11 @@ declare module 'react-native-reanimated' {
     callback?: AnimationCallback,
   ) => T;
 
+  declare type WithDelay = <T: AnimatableValue>(
+    delayMs: number,
+    delayedAnimation: T,
+  ) => T;
+
   declare type RunOnJS = <F>(func: F) => F;
 
   declare type CancelAnimation = <T>(animation: SharedValue<T>) => void;
@@ -659,6 +664,7 @@ declare module 'react-native-reanimated' {
   declare export var useAnimatedStyle: UseAnimatedStyle;
   declare export var withSpring: WithSpring;
   declare export var withTiming: WithTiming;
+  declare export var withDelay: WithDelay;
   declare export var runOnJS: RunOnJS;
   declare export var cancelAnimation: CancelAnimation;
   declare export var useAnimatedKeyboard: UseAnimatedKeyboard;
