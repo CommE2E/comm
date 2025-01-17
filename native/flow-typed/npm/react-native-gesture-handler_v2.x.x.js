@@ -673,6 +673,9 @@ declare class BaseGesture<EventPayloadT> {
       success: boolean,
     ) => void,
   ): this;
+  initialize(): void;
+  toGestureArray(): Array<GestureType>;
+  prepare(): void;
 }
 
 declare type TapGestureHandlerEventPayload = {
@@ -801,6 +804,10 @@ declare class ComposedGesture {
   toGestureArray(): Array<GestureType>;
 }
 
+declare class ExclusiveGesture extends ComposedGesture {
+  prepare(): void;
+}
+
 declare type UserSelect = 'none' | 'auto' | 'text';
 
 interface GestureDetectorProps {
@@ -813,6 +820,7 @@ declare const GestureObject: {
   Tap: () => TapGesture,
   Pan: () => PanGesture,
   Pinch: () => PinchGesture,
+  Exclusive: (...gestures: Array<Gesture>) => ExclusiveGesture,
 };
 
 declare module 'react-native-gesture-handler' {
