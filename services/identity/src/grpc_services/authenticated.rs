@@ -935,13 +935,6 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
-    self
-      .verify_device_on_device_list(
-        &user_id,
-        &device_id,
-        DeviceListItemKind::Primary,
-      )
-      .await?;
 
     let is_new_flow_user = self
       .db_client
@@ -953,7 +946,14 @@ impl IdentityClientService for AuthenticatedService {
     let update = DeviceListUpdate::try_from(new_list)?;
 
     let validator = if is_new_flow_user {
-      // regular device list update
+      // Regular device list update. Issuer must be the primary device.
+      self
+        .verify_device_on_device_list(
+          &user_id,
+          &device_id,
+          DeviceListItemKind::Primary,
+        )
+        .await?;
       Some(crate::device_list::validation::update_device_list_rpc_validator)
     } else {
       // new flow migration
