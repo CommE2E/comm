@@ -21,6 +21,8 @@ import {
   State as GestureState,
   type PinchGestureEvent,
   type TapGestureEvent,
+  Gesture,
+  GestureDetector,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import type { Orientations } from 'react-native-orientation-locker';
@@ -285,6 +287,7 @@ type Props = {
   +close: () => void,
   +sendPhoto: () => Promise<void>,
   +clearPendingImage: () => void,
+  +gesture: ExclusiveGesture,
 };
 
 class CameraModal extends React.PureComponent<Props> {
@@ -694,44 +697,30 @@ class CameraModal extends React.PureComponent<Props> {
     }
 
     return (
-      <PinchGestureHandler
-        onGestureEvent={this.pinchEvent}
-        onHandlerStateChange={this.pinchEvent}
-        simultaneousHandlers={this.tapHandler}
-        ref={this.pinchHandler}
-      >
+      <GestureDetector gesture={this.props.gesture}>
         <Reanimated.View style={styles.fill}>
-          <TapGestureHandler
-            onHandlerStateChange={this.tapEvent}
-            simultaneousHandlers={this.pinchHandler}
-            waitFor={this.pinchHandler}
-            ref={this.tapHandler}
+          <Reanimated.View style={this.focusIndicatorStyle} />
+          <TouchableOpacity
+            onPress={this.props.changeFlashMode}
+            onLayout={this.onFlashButtonLayout}
+            style={styles.flashButton}
+            ref={this.flashButtonRef}
           >
-            <Reanimated.View style={styles.fill}>
-              <Reanimated.View style={this.focusIndicatorStyle} />
-              <TouchableOpacity
-                onPress={this.props.changeFlashMode}
-                onLayout={this.onFlashButtonLayout}
-                style={styles.flashButton}
-                ref={this.flashButtonRef}
-              >
-                {flashIcon}
-              </TouchableOpacity>
-              <View style={styles.bottomButtonsContainer}>
-                <TouchableOpacity
-                  onPress={this.props.takePhoto}
-                  onLayout={this.onPhotoButtonLayout}
-                  style={styles.saveButton}
-                  ref={this.photoButtonRef}
-                >
-                  <View style={styles.saveButtonInner} />
-                </TouchableOpacity>
-                {switchCameraButton}
-              </View>
-            </Reanimated.View>
-          </TapGestureHandler>
+            {flashIcon}
+          </TouchableOpacity>
+          <View style={styles.bottomButtonsContainer}>
+            <TouchableOpacity
+              onPress={this.props.takePhoto}
+              onLayout={this.onPhotoButtonLayout}
+              style={styles.saveButton}
+              ref={this.photoButtonRef}
+            >
+              <View style={styles.saveButtonInner} />
+            </TouchableOpacity>
+            {switchCameraButton}
+          </View>
         </Reanimated.View>
-      </PinchGestureHandler>
+      </GestureDetector>
     );
   }
 
@@ -1217,6 +1206,13 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       setPendingPhotoCapture();
     }, []);
 
+    const gesture = React.useMemo(() => {
+      // TODO: we'll use this in the next diffs
+      const pinchGesture = Gesture.Pinch().onUpdate((/* { scale } */) => {});
+      const tapGesture = Gesture.Tap().onStart((/* { x, y } */) => {});
+      return Gesture.Exclusive(pinchGesture, tapGesture);
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1248,6 +1244,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         close={close}
         sendPhoto={sendPhoto}
         clearPendingImage={clearPendingImage}
+        gesture={gesture}
       />
     );
   });
