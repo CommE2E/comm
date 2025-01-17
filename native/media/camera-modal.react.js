@@ -16,9 +16,6 @@ import {
 import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
 import {
-  PinchGestureHandler,
-  State as GestureState,
-  type PinchGestureEvent,
   // $FlowFixMe
   Gesture,
   // $FlowFixMe
@@ -29,7 +26,6 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasingNode,
   Easing as ReanimatedEasing,
-  type EventResult,
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
@@ -38,13 +34,13 @@ import Reanimated, {
   withTiming,
   cancelAnimation,
   runOnJS,
+  interpolate,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
-import type { ReactRef } from 'lib/types/react-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -68,27 +64,8 @@ import {
   type ViewStyle,
   type AnimatedViewStyle,
 } from '../types/styles.js';
-import { gestureJustEnded } from '../utils/animation-utils.js';
 
-const {
-  Value,
-  Node,
-  event,
-  Extrapolate,
-  block,
-  set,
-  call,
-  cond,
-  or,
-  eq,
-  greaterThan,
-  sub,
-  multiply,
-  divide,
-  abs,
-  interpolateNode,
-  timing,
-} = Reanimated;
+const { Value, Extrapolate, interpolateNode, timing } = Reanimated;
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
@@ -188,7 +165,6 @@ type Props = {
   +focusOnPoint: (input: [number, number]) => void,
   +zoom: number,
   +setZoom: (zoom: number) => void,
-  +updateZoom: (zoom: [number]) => void,
   +stagingMode: boolean,
   +setStagingMode: (stagingMode: boolean) => void,
   +pendingPhotoCapture: ?PhotoCapture,
@@ -214,10 +190,6 @@ type Props = {
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  pinchEvent: EventResult<PinchGestureEvent>;
-  pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
-  animationCode: Node;
-
   stagingModeProgress: Value = new Value(0);
   sendButtonProgress: Animated.Value = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
@@ -244,61 +216,6 @@ class CameraModal extends React.PureComponent<Props> {
       ...styles.overlay,
       opacity: overlayOpacity,
     };
-
-    const pinchState = new Value(-1);
-    const pinchScale = new Value(1);
-    this.pinchEvent = event([
-      {
-        nativeEvent: {
-          state: pinchState,
-          scale: pinchScale,
-        },
-      },
-    ]);
-
-    this.animationCode = block([
-      this.zoomAnimationCode(pinchState, pinchScale),
-    ]);
-  }
-
-  zoomAnimationCode(pinchState: Node, pinchScale: Node): Node {
-    const pinchJustEnded = gestureJustEnded(pinchState);
-
-    const zoomBase = new Value(1);
-    const zoomReported = new Value(1);
-
-    const currentZoom = interpolateNode(multiply(zoomBase, pinchScale), {
-      inputRange: [1, 8],
-      outputRange: [1, 8],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    const cameraZoomFactor = interpolateNode(zoomReported, {
-      inputRange: [1, 8],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    const resolvedZoom = cond(
-      eq(pinchState, GestureState.ACTIVE),
-      currentZoom,
-      zoomBase,
-    );
-
-    return block([
-      cond(pinchJustEnded, set(zoomBase, currentZoom)),
-      cond(
-        or(
-          pinchJustEnded,
-          greaterThan(
-            abs(sub(divide(resolvedZoom, zoomReported), 1)),
-            zoomUpdateFactor,
-          ),
-        ),
-        [
-          set(zoomReported, resolvedZoom),
-          call([cameraZoomFactor], this.props.updateZoom),
-        ],
-      ),
-    ]);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -494,7 +411,6 @@ class CameraModal extends React.PureComponent<Props> {
     return (
       <Reanimated.View style={this.containerStyle}>
         {statusBar}
-        <Reanimated.Code exec={this.animationCode} />
         <RNCamera
           type={type}
           captureAudio={false}
@@ -797,7 +713,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
 
     const [zoom, setZoom] = React.useState(0);
 
-    const updateZoom = React.useCallback(([nextZoom]: [number]) => {
+    const updateZoom = React.useCallback((nextZoom: number) => {
       setZoom(nextZoom);
     }, []);
 
@@ -1082,6 +998,50 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       [focusIndicatorAnimatedStyle],
     );
 
+    const zoomBase = useSharedValue(1);
+    const zoomReported = useSharedValue(1);
+    const currentZoom = useSharedValue(1);
+
+    const onPinchUpdate = React.useCallback(
+      (pinchScale: number) => {
+        'worklet';
+        currentZoom.value = interpolate(
+          zoomBase.value * pinchScale,
+          [1, 8],
+          [1, 8],
+          Extrapolate.CLAMP,
+        );
+
+        if (
+          Math.abs(currentZoom.value / zoomReported.value - 1) >
+          zoomUpdateFactor
+        ) {
+          zoomReported.value = currentZoom.value;
+          const cameraZoomFactor = interpolate(
+            zoomReported.value,
+            [1, 8],
+            [0, 1],
+            Extrapolate.CLAMP,
+          );
+          runOnJS(updateZoom)(cameraZoomFactor);
+        }
+      },
+      [currentZoom, updateZoom, zoomBase.value, zoomReported],
+    );
+
+    const onPinchEnd = React.useCallback(() => {
+      'worklet';
+      zoomReported.value = currentZoom.value;
+      zoomBase.value = currentZoom.value;
+      const cameraZoomFactor = interpolate(
+        zoomReported.value,
+        [1, 8],
+        [0, 1],
+        Extrapolate.CLAMP,
+      );
+      runOnJS(updateZoom)(cameraZoomFactor);
+    }, [currentZoom, updateZoom, zoomBase, zoomReported]);
+
     const gesture = React.useMemo(() => {
       const tapGesture = Gesture.Tap().onStart(({ x, y }) => {
         if (outsideButtons(x, y)) {
@@ -1089,10 +1049,17 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
           startFocusAnimation(x, y);
         }
       });
-      // TODO: we'll use this in the next diffs
-      const pinchGesture = Gesture.Pinch().onUpdate((/* { scale } */) => {});
+      const pinchGesture = Gesture.Pinch()
+        .onUpdate(({ scale }) => onPinchUpdate(scale))
+        .onEnd(() => onPinchEnd());
       return Gesture.Exclusive(pinchGesture, tapGesture);
-    }, [focusOnPoint, outsideButtons, startFocusAnimation]);
+    }, [
+      focusOnPoint,
+      onPinchEnd,
+      onPinchUpdate,
+      outsideButtons,
+      startFocusAnimation,
+    ]);
 
     return (
       <CameraModal
@@ -1115,7 +1082,6 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         focusOnPoint={focusOnPoint}
         zoom={zoom}
         setZoom={setZoom}
-        updateZoom={updateZoom}
         stagingMode={stagingMode}
         setStagingMode={setStagingMode}
         pendingPhotoCapture={pendingPhotoCapture}
