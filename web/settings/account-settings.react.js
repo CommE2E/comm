@@ -12,6 +12,7 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
@@ -57,8 +58,11 @@ function AccountSettings(): React.Node {
 
   const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
-  const logOutUser = React.useCallback(() => {
-    if (usingRestoreFlow) {
+  const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
+  const logOutUser = React.useCallback(async () => {
+    // if web is primary device, we're on legacy flow
+    const isPrimaryDevice = await checkIfPrimaryDevice();
+    if (usingRestoreFlow && !isPrimaryDevice) {
       return dispatchActionPromise(
         logOutActionTypes,
         sendSecondaryDeviceLogoutRequest(),
@@ -66,6 +70,7 @@ function AccountSettings(): React.Node {
     }
     return dispatchActionPromise(logOutActionTypes, sendLegacyLogoutRequest());
   }, [
+    checkIfPrimaryDevice,
     dispatchActionPromise,
     sendLegacyLogoutRequest,
     sendSecondaryDeviceLogoutRequest,
