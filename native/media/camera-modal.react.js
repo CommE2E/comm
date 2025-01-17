@@ -24,7 +24,6 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
-  EasingNode as ReanimatedEasingNode,
   Easing as ReanimatedEasing,
   useAnimatedReaction,
   useAnimatedStyle,
@@ -35,6 +34,8 @@ import Reanimated, {
   cancelAnimation,
   runOnJS,
   interpolate,
+  Extrapolate,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -59,13 +60,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
 import { type DeviceCameraInfo } from '../types/camera.js';
 import type { NativeMethods } from '../types/react-native.js';
-import {
-  AnimatedView,
-  type ViewStyle,
-  type AnimatedViewStyle,
-} from '../types/styles.js';
-
-const { Value, Extrapolate, interpolateNode, timing } = Reanimated;
+import { type ViewStyle, type AnimatedViewStyle } from '../types/styles.js';
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
@@ -83,7 +78,7 @@ const zoomUpdateFactor = (() => {
 
 const stagingModeAnimationConfig = {
   duration: 150,
-  easing: ReanimatedEasingNode.inOut(ReanimatedEasingNode.ease),
+  easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
 };
 const sendButtonAnimationConfig = {
   duration: 150,
@@ -187,13 +182,13 @@ type Props = {
   +onFlashButtonLayout: () => void,
   +cancelFocusAnimation: () => void,
   +focusIndicatorStyle: ViewStyle,
+  +stagingModeProgress: SharedValue<number>,
+  +overlayStyle: ViewStyle,
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  stagingModeProgress: Value = new Value(0);
   sendButtonProgress: Animated.Value = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
-  overlayStyle: AnimatedViewStyle;
 
   constructor(props: Props) {
     super(props);
@@ -205,16 +200,6 @@ class CameraModal extends React.PureComponent<Props> {
     this.sendButtonStyle = {
       opacity: this.sendButtonProgress,
       transform: [{ scale: sendButtonScale }],
-    };
-
-    const overlayOpacity = interpolateNode(this.stagingModeProgress, {
-      inputRange: [0, 0.01, 1],
-      outputRange: [0, 0.5, 0],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    this.overlayStyle = {
-      ...styles.overlay,
-      opacity: overlayOpacity,
     };
   }
 
@@ -234,12 +219,12 @@ class CameraModal extends React.PureComponent<Props> {
 
     if (this.props.stagingMode && !prevProps.stagingMode) {
       this.props.cancelFocusAnimation();
-      timing(this.stagingModeProgress, {
-        ...stagingModeAnimationConfig,
-        toValue: 1,
-      }).start();
+      this.props.stagingModeProgress.value = withTiming(
+        1,
+        stagingModeAnimationConfig,
+      );
     } else if (!this.props.stagingMode && prevProps.stagingMode) {
-      this.stagingModeProgress.setValue(0);
+      this.props.stagingModeProgress.value = 0;
     }
 
     if (this.props.pendingPhotoCapture && !prevProps.pendingPhotoCapture) {
@@ -424,7 +409,7 @@ class CameraModal extends React.PureComponent<Props> {
         >
           {this.renderCamera}
         </RNCamera>
-        <AnimatedView style={this.overlayStyle} pointerEvents="none" />
+        <Reanimated.View style={this.props.overlayStyle} pointerEvents="none" />
       </Reanimated.View>
     );
   }
@@ -1061,6 +1046,25 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       startFocusAnimation,
     ]);
 
+    const stagingModeProgress = useSharedValue(0);
+
+    const overlayAnimatedStyle = useAnimatedStyle(() => {
+      const overlayOpacity = interpolate(
+        stagingModeProgress.value,
+        [0, 0.01, 1],
+        [0, 0.5, 0],
+        Extrapolate.CLAMP,
+      );
+      return {
+        opacity: overlayOpacity,
+      };
+    });
+
+    const overlayStyle = React.useMemo(
+      () => [styles.overlay, overlayAnimatedStyle],
+      [overlayAnimatedStyle],
+    );
+
     return (
       <CameraModal
         {...props}
@@ -1102,6 +1106,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         onFlashButtonLayout={onFlashButtonLayout}
         cancelFocusAnimation={cancelFocusAnimation}
         focusIndicatorStyle={focusIndicatorStyle}
+        stagingModeProgress={stagingModeProgress}
+        overlayStyle={overlayStyle}
       />
     );
   });
