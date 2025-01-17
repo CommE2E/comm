@@ -35,9 +35,12 @@ export type RestoreBackupScreenParams = {
       }
     | {
         +type: 'siwe',
-        +secret: string,
         +message: string,
         +signature: string,
+        +backup: {
+          +message: string,
+          +signature: string,
+        },
       },
 };
 
@@ -60,14 +63,11 @@ function RestoreBackupScreen(props: Props): React.Node {
         } else {
           await restore(
             userIdentifier,
-            credentials.secret,
+            credentials.backup.signature,
             credentials.message,
             credentials.signature,
           );
-          await commCoreModule.setSIWEBackupSecrets({
-            message: credentials.message,
-            signature: credentials.signature,
-          });
+          await commCoreModule.setSIWEBackupSecrets(credentials.backup);
         }
       } catch (e) {
         const messageForException = getMessageForException(e);

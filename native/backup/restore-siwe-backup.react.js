@@ -45,9 +45,12 @@ function RestoreSIWEBackup(props: Props): React.Node {
         userIdentifier,
         credentials: {
           type: 'siwe',
-          secret: result.signature,
           message,
           signature,
+          backup: {
+            message: result.message,
+            signature: result.signature,
+          },
         },
       });
     },
