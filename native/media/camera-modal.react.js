@@ -176,25 +176,11 @@ type Props = {
   +focusIndicatorStyle: ViewStyle,
   +stagingModeProgress: SharedValue<number>,
   +overlayStyle: ViewStyle,
+  +sendButtonProgress: Animated.Value,
+  +sendButtonStyle: ViewStyle,
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  sendButtonProgress: Animated.Value = new Animated.Value(0);
-  sendButtonStyle: ViewStyle;
-
-  constructor(props: Props) {
-    super(props);
-
-    const sendButtonScale = this.sendButtonProgress.interpolate({
-      inputRange: [0, 1],
-      outputRange: ([1.1, 1]: number[]), // Flow...
-    });
-    this.sendButtonStyle = {
-      opacity: this.sendButtonProgress,
-      transform: [{ scale: sendButtonScale }],
-    };
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
       this.props.setAutoFocusPointOfInterest(null);
@@ -220,7 +206,7 @@ class CameraModal extends React.PureComponent<Props> {
     }
 
     if (this.props.pendingPhotoCapture && !prevProps.pendingPhotoCapture) {
-      Animated.timing(this.sendButtonProgress, {
+      Animated.timing(this.props.sendButtonProgress, {
         ...sendButtonAnimationConfig,
         toValue: 1,
       }).start();
@@ -229,7 +215,7 @@ class CameraModal extends React.PureComponent<Props> {
       prevProps.pendingPhotoCapture
     ) {
       void cleanUpPendingPhotoCapture(prevProps.pendingPhotoCapture);
-      this.sendButtonProgress.setValue(0);
+      this.props.sendButtonProgress.setValue(0);
     }
   }
 
@@ -301,7 +287,7 @@ class CameraModal extends React.PureComponent<Props> {
               onPress={this.props.sendPhoto}
               pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
               containerStyle={styles.sendButtonContainer}
-              style={this.sendButtonStyle}
+              style={this.props.sendButtonStyle}
             />
           </View>
         </SafeAreaView>
@@ -896,6 +882,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         const isOutsideFlashButton = isOutsideButton(
           flashButtonDimensions.value,
         );
+
         return (
           isOutsideCloseButton &&
           isOutsidePhotoButton &&
@@ -1052,6 +1039,19 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       [overlayAnimatedStyle],
     );
 
+    const sendButtonProgress = React.useRef(new Animated.Value(0));
+
+    const sendButtonStyle = React.useMemo(() => {
+      const sendButtonScale = sendButtonProgress.current.interpolate({
+        inputRange: [0, 1],
+        outputRange: ([1.1, 1]: number[]), // Flow...
+      });
+      return {
+        opacity: sendButtonProgress.current,
+        transform: [{ scale: sendButtonScale }],
+      };
+    }, []);
+
     return (
       <CameraModal
         {...props}
@@ -1095,6 +1095,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         focusIndicatorStyle={focusIndicatorStyle}
         stagingModeProgress={stagingModeProgress}
         overlayStyle={overlayStyle}
+        sendButtonProgress={sendButtonProgress.current}
+        sendButtonStyle={sendButtonStyle}
       />
     );
   });
