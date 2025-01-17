@@ -41,6 +41,11 @@ function clamp(
   );
 }
 
+function clampV2(value: number, min: number, max: number): number {
+  'worklet';
+  return Math.max(Math.min(value, max), min);
+}
+
 function delta(value: Node): Node {
   const prevValue = new Value(0);
   const deltaValue = new Value(0);
@@ -154,6 +159,7 @@ function useSharedValueForBoolean(booleanValue: boolean): SharedValue<boolean> {
 
 export {
   clamp,
+  clampV2,
   delta,
   gestureJustStarted,
   gestureJustEnded,
