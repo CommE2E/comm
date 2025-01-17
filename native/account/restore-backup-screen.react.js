@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
+import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import AuthContainer from './auth-components/auth-container.react.js';
@@ -35,9 +36,8 @@ export type RestoreBackupScreenParams = {
       }
     | {
         +type: 'siwe',
-        +secret: string,
-        +message: string,
-        +signature: string,
+        +socialProof: SignedMessage,
+        +backup: SignedMessage,
       },
 };
 
@@ -60,14 +60,11 @@ function RestoreBackupScreen(props: Props): React.Node {
         } else {
           await restore(
             userIdentifier,
-            credentials.secret,
-            credentials.message,
-            credentials.signature,
+            credentials.backup.signature,
+            credentials.socialProof.message,
+            credentials.socialProof.signature,
           );
-          await commCoreModule.setSIWEBackupSecrets({
-            message: credentials.message,
-            signature: credentials.signature,
-          });
+          await commCoreModule.setSIWEBackupSecrets(credentials.backup);
         }
       } catch (e) {
         const messageForException = getMessageForException(e);
