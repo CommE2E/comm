@@ -17,7 +17,6 @@ import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
-import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   Easing as ReanimatedEasing,
   useAnimatedReaction,
@@ -30,14 +29,12 @@ import Reanimated, {
   runOnJS,
   interpolate,
   Extrapolate,
-  type SharedValue,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
-import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import SendMediaButton from './send-media-button.react.js';
@@ -45,17 +42,11 @@ import type { AuthNavigationProp } from '../account/registration/auth-navigator.
 import ContentLoading from '../components/content-loading.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
-import { type DeviceCameraInfo } from '../types/camera.js';
 import type { NativeMethods } from '../types/react-native.js';
-import { type ViewStyle } from '../types/styles.js';
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
@@ -114,7 +105,7 @@ type Dimensions = {
   height: number,
 };
 
-type BaseProps = {
+type Props = {
   +handlePhotoCapture: (capture: PhotoCapture) => mixed,
   +navigation:
     | AppNavigationProp<'ChatCameraModal'>
@@ -122,231 +113,6 @@ type BaseProps = {
     | AppNavigationProp<'ThreadAvatarCameraModal'>
     | AuthNavigationProp<'RegistrationUserAvatarCameraModal'>,
 };
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +dimensions: DimensionsInfo,
-  +deviceCameraInfo: DeviceCameraInfo,
-  +deviceOrientation: Orientations,
-  +foreground: boolean,
-  // Redux dispatch functions
-  +dispatch: Dispatch,
-  // withOverlayContext
-  +overlayContext: ?OverlayContextType,
-  +isActive: boolean,
-  +flashMode: number,
-  +changeFlashMode: () => void,
-  +useFrontCamera: boolean,
-  +switchCamera: () => void,
-  +hasCamerasOnBothSides: boolean,
-  +fetchCameraIDs: (camera: RNCamera) => Promise<void>,
-  +autoFocusPointOfInterest: ?{
-    x: number,
-    y: number,
-    autoExposure?: boolean,
-  },
-  +setAutoFocusPointOfInterest: (
-    ?{
-      x: number,
-      y: number,
-      autoExposure?: boolean,
-    },
-  ) => void,
-  +focusOnPoint: (input: [number, number]) => void,
-  +zoom: number,
-  +setZoom: (zoom: number) => void,
-  +stagingMode: boolean,
-  +setStagingMode: (stagingMode: boolean) => void,
-  +pendingPhotoCapture: ?PhotoCapture,
-  +setPendingPhotoCapture: (?PhotoCapture) => void,
-  +camera: { current: ?RNCamera },
-  +takePhoto: () => Promise<void>,
-  +close: () => void,
-  +sendPhoto: () => Promise<void>,
-  +clearPendingImage: () => void,
-  +gesture: ExclusiveGesture,
-  +closeButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
-  +photoButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
-  +switchCameraButtonRef: {
-    current: ?React.ElementRef<TouchableOpacityInstance>,
-  },
-  +flashButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
-  +onCloseButtonLayout: () => void,
-  +onPhotoButtonLayout: () => void,
-  +onSwitchCameraButtonLayout: () => void,
-  +onFlashButtonLayout: () => void,
-  +cancelFocusAnimation: () => void,
-  +focusIndicatorStyle: ViewStyle,
-  +stagingModeProgress: SharedValue<number>,
-  +overlayStyle: ViewStyle,
-  +sendButtonProgress: Animated.Value,
-  +sendButtonStyle: ViewStyle,
-  +containerStyle: ViewStyle,
-};
-
-class CameraModal extends React.PureComponent<Props> {
-  renderCamera = ({
-    camera,
-    status,
-  }: {
-    +camera: RNCamera & { +_cameraHandle?: mixed, ... },
-    status: RNCameraStatus,
-    ...
-  }): React.Node => {
-    if (camera && camera._cameraHandle) {
-      void this.props.fetchCameraIDs(camera);
-    }
-    if (this.props.stagingMode) {
-      return this.renderStagingView();
-    }
-
-    return (
-      <SafeAreaView style={styles.fill}>
-        <View style={styles.fill}>
-          {this.renderCameraContent(status)}
-          <TouchableOpacity
-            onPress={this.props.close}
-            onLayout={this.props.onCloseButtonLayout}
-            style={styles.closeButton}
-            ref={this.props.closeButtonRef}
-          >
-            <Text style={styles.closeIcon}>×</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  };
-
-  renderStagingView(): React.Node {
-    let image = null;
-    const { pendingPhotoCapture } = this.props;
-    if (pendingPhotoCapture) {
-      const imageSource = { uri: pendingPhotoCapture.uri };
-      image = <Image source={imageSource} style={styles.stagingImage} />;
-    } else {
-      image = <ContentLoading fillType="flex" colors={colors.dark} />;
-    }
-
-    return (
-      <>
-        {image}
-        <SafeAreaView style={styles.stagingViewOverlay}>
-          <View style={styles.fill}>
-            <TouchableOpacity
-              onPress={this.props.clearPendingImage}
-              style={styles.retakeButton}
-            >
-              <Icon name="ios-arrow-back" style={styles.retakeIcon} />
-            </TouchableOpacity>
-            <SendMediaButton
-              onPress={this.props.sendPhoto}
-              pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
-              containerStyle={styles.sendButtonContainer}
-              style={this.props.sendButtonStyle}
-            />
-          </View>
-        </SafeAreaView>
-      </>
-    );
-  }
-
-  renderCameraContent(status: RNCameraStatus): React.Node {
-    if (status === 'PENDING_AUTHORIZATION') {
-      return <ContentLoading fillType="flex" colors={colors.dark} />;
-    } else if (status === 'NOT_AUTHORIZED') {
-      return (
-        <View style={styles.authorizationDeniedContainer}>
-          <Text style={styles.authorizationDeniedText}>
-            {'don’t have permission :('}
-          </Text>
-        </View>
-      );
-    }
-
-    let switchCameraButton = null;
-    if (this.props.hasCamerasOnBothSides) {
-      switchCameraButton = (
-        <TouchableOpacity
-          onPress={this.props.switchCamera}
-          onLayout={this.props.onSwitchCameraButtonLayout}
-          style={styles.switchCameraButton}
-          ref={this.props.switchCameraButtonRef}
-        >
-          <Icon name="ios-camera-reverse" style={styles.switchCameraIcon} />
-        </TouchableOpacity>
-      );
-    }
-
-    let flashIcon;
-    if (this.props.flashMode === RNCamera.Constants.FlashMode.on) {
-      flashIcon = <Icon name="ios-flash" style={styles.flashIcon} />;
-    } else if (this.props.flashMode === RNCamera.Constants.FlashMode.off) {
-      flashIcon = <Icon name="ios-flash-off" style={styles.flashIcon} />;
-    } else {
-      flashIcon = (
-        <>
-          <Icon name="ios-flash" style={styles.flashIcon} />
-          <Text style={styles.flashIconAutoText}>A</Text>
-        </>
-      );
-    }
-
-    return (
-      <GestureDetector gesture={this.props.gesture}>
-        <Reanimated.View style={styles.fill}>
-          <Reanimated.View style={this.props.focusIndicatorStyle} />
-          <TouchableOpacity
-            onPress={this.props.changeFlashMode}
-            onLayout={this.props.onFlashButtonLayout}
-            style={styles.flashButton}
-            ref={this.props.flashButtonRef}
-          >
-            {flashIcon}
-          </TouchableOpacity>
-          <View style={styles.bottomButtonsContainer}>
-            <TouchableOpacity
-              onPress={this.props.takePhoto}
-              onLayout={this.props.onPhotoButtonLayout}
-              style={styles.saveButton}
-              ref={this.props.photoButtonRef}
-            >
-              <View style={styles.saveButtonInner} />
-            </TouchableOpacity>
-            {switchCameraButton}
-          </View>
-        </Reanimated.View>
-      </GestureDetector>
-    );
-  }
-
-  render(): React.Node {
-    const statusBar = this.props.isActive ? (
-      <ConnectedStatusBar hidden />
-    ) : null;
-    const type = this.props.useFrontCamera
-      ? RNCamera.Constants.Type.front
-      : RNCamera.Constants.Type.back;
-    return (
-      <Reanimated.View style={this.props.containerStyle}>
-        {statusBar}
-        <RNCamera
-          type={type}
-          captureAudio={false}
-          maxZoom={maxZoom}
-          zoom={this.props.zoom}
-          flashMode={this.props.flashMode}
-          autoFocusPointOfInterest={this.props.autoFocusPointOfInterest}
-          style={styles.fill}
-          androidCameraPermissionOptions={null}
-          ref={this.props.camera}
-        >
-          {this.renderCamera}
-        </RNCamera>
-        <Reanimated.View style={this.props.overlayStyle} pointerEvents="none" />
-      </Reanimated.View>
-    );
-  }
-}
 
 const styles = StyleSheet.create({
   authorizationDeniedContainer: {
@@ -497,8 +263,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedCameraModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedCameraModal(props: BaseProps) {
+const CameraModal: React.ComponentType<Props> = React.memo<Props>(
+  function CameraModal(props: Props) {
     const dimensions = useSelector(state => state.dimensions);
     const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
     const deviceOrientation = useSelector(state => state.deviceOrientation);
@@ -1062,54 +828,163 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       return [styles.container, containerAnimatedStyle];
     }, [containerAnimatedStyle, overlayContext]);
 
-    return (
-      <CameraModal
-        {...props}
-        dimensions={dimensions}
-        deviceCameraInfo={deviceCameraInfo}
-        deviceOrientation={deviceOrientation}
-        foreground={foreground}
-        dispatch={dispatch}
-        overlayContext={overlayContext}
-        isActive={isActive}
-        flashMode={flashMode}
-        changeFlashMode={changeFlashMode}
-        useFrontCamera={useFrontCamera}
-        switchCamera={switchCamera}
-        hasCamerasOnBothSides={hasCamerasOnBothSides}
-        fetchCameraIDs={fetchCameraIDs}
-        autoFocusPointOfInterest={autoFocusPointOfInterest}
-        setAutoFocusPointOfInterest={setAutoFocusPointOfInterest}
-        focusOnPoint={focusOnPoint}
-        zoom={zoom}
-        setZoom={setZoom}
-        stagingMode={stagingMode}
-        setStagingMode={setStagingMode}
-        pendingPhotoCapture={pendingPhotoCapture}
-        setPendingPhotoCapture={setPendingPhotoCapture}
-        camera={cameraRef}
-        takePhoto={takePhoto}
-        close={close}
-        sendPhoto={sendPhoto}
-        clearPendingImage={clearPendingImage}
-        gesture={gesture}
-        closeButtonRef={closeButtonRef}
-        photoButtonRef={photoButtonRef}
-        switchCameraButtonRef={switchCameraButtonRef}
-        flashButtonRef={flashButtonRef}
-        onCloseButtonLayout={onCloseButtonLayout}
-        onPhotoButtonLayout={onPhotoButtonLayout}
-        onSwitchCameraButtonLayout={onSwitchCameraButtonLayout}
-        onFlashButtonLayout={onFlashButtonLayout}
-        cancelFocusAnimation={cancelFocusAnimation}
-        focusIndicatorStyle={focusIndicatorStyle}
-        stagingModeProgress={stagingModeProgress}
-        overlayStyle={overlayStyle}
-        sendButtonProgress={sendButtonProgress.current}
-        sendButtonStyle={sendButtonStyle}
-        containerStyle={containerStyle}
-      />
-    );
-  });
+    const renderCamera = ({
+      camera,
+      status,
+    }: {
+      +camera: RNCamera & { +_cameraHandle?: mixed, ... },
+      status: RNCameraStatus,
+      ...
+    }): React.Node => {
+      if (camera && camera._cameraHandle) {
+        void fetchCameraIDs(camera);
+      }
+      if (stagingMode) {
+        return renderStagingView();
+      }
 
-export default ConnectedCameraModal;
+      return (
+        <SafeAreaView style={styles.fill}>
+          <View style={styles.fill}>
+            {renderCameraContent(status)}
+            <TouchableOpacity
+              onPress={close}
+              onLayout={onCloseButtonLayout}
+              style={styles.closeButton}
+              ref={closeButtonRef}
+            >
+              <Text style={styles.closeIcon}>×</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    };
+
+    const renderStagingView = (): React.Node => {
+      let image = null;
+      if (pendingPhotoCapture) {
+        const imageSource = { uri: pendingPhotoCapture.uri };
+        image = <Image source={imageSource} style={styles.stagingImage} />;
+      } else {
+        image = <ContentLoading fillType="flex" colors={colors.dark} />;
+      }
+
+      return (
+        <>
+          {image}
+          <SafeAreaView style={styles.stagingViewOverlay}>
+            <View style={styles.fill}>
+              <TouchableOpacity
+                onPress={clearPendingImage}
+                style={styles.retakeButton}
+              >
+                <Icon name="ios-arrow-back" style={styles.retakeIcon} />
+              </TouchableOpacity>
+              <SendMediaButton
+                onPress={sendPhoto}
+                pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
+                containerStyle={styles.sendButtonContainer}
+                style={sendButtonStyle}
+              />
+            </View>
+          </SafeAreaView>
+        </>
+      );
+    };
+
+    const renderCameraContent = (status: RNCameraStatus): React.Node => {
+      if (status === 'PENDING_AUTHORIZATION') {
+        return <ContentLoading fillType="flex" colors={colors.dark} />;
+      } else if (status === 'NOT_AUTHORIZED') {
+        return (
+          <View style={styles.authorizationDeniedContainer}>
+            <Text style={styles.authorizationDeniedText}>
+              {'don’t have permission :('}
+            </Text>
+          </View>
+        );
+      }
+
+      let switchCameraButton = null;
+      if (hasCamerasOnBothSides) {
+        switchCameraButton = (
+          <TouchableOpacity
+            onPress={switchCamera}
+            onLayout={onSwitchCameraButtonLayout}
+            style={styles.switchCameraButton}
+            ref={switchCameraButtonRef}
+          >
+            <Icon name="ios-camera-reverse" style={styles.switchCameraIcon} />
+          </TouchableOpacity>
+        );
+      }
+
+      let flashIcon;
+      if (flashMode === RNCamera.Constants.FlashMode.on) {
+        flashIcon = <Icon name="ios-flash" style={styles.flashIcon} />;
+      } else if (flashMode === RNCamera.Constants.FlashMode.off) {
+        flashIcon = <Icon name="ios-flash-off" style={styles.flashIcon} />;
+      } else {
+        flashIcon = (
+          <>
+            <Icon name="ios-flash" style={styles.flashIcon} />
+            <Text style={styles.flashIconAutoText}>A</Text>
+          </>
+        );
+      }
+
+      return (
+        <GestureDetector gesture={gesture}>
+          <Reanimated.View style={styles.fill}>
+            <Reanimated.View style={focusIndicatorStyle} />
+            <TouchableOpacity
+              onPress={changeFlashMode}
+              onLayout={onFlashButtonLayout}
+              style={styles.flashButton}
+              ref={flashButtonRef}
+            >
+              {flashIcon}
+            </TouchableOpacity>
+            <View style={styles.bottomButtonsContainer}>
+              <TouchableOpacity
+                onPress={takePhoto}
+                onLayout={onPhotoButtonLayout}
+                style={styles.saveButton}
+                ref={photoButtonRef}
+              >
+                <View style={styles.saveButtonInner} />
+              </TouchableOpacity>
+              {switchCameraButton}
+            </View>
+          </Reanimated.View>
+        </GestureDetector>
+      );
+    };
+
+    const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+    const type = useFrontCamera
+      ? RNCamera.Constants.Type.front
+      : RNCamera.Constants.Type.back;
+    return (
+      <Reanimated.View style={containerStyle}>
+        {statusBar}
+        <RNCamera
+          type={type}
+          captureAudio={false}
+          maxZoom={maxZoom}
+          zoom={zoom}
+          flashMode={flashMode}
+          autoFocusPointOfInterest={autoFocusPointOfInterest}
+          style={styles.fill}
+          androidCameraPermissionOptions={null}
+          ref={cameraRef}
+        >
+          {renderCamera}
+        </RNCamera>
+        <Reanimated.View style={overlayStyle} pointerEvents="none" />
+      </Reanimated.View>
+    );
+  },
+);
+
+export default CameraModal;
