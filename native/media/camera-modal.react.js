@@ -30,7 +30,10 @@ import Reanimated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
@@ -580,6 +583,8 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       });
     }, [flashButtonDimensions]);
 
+    const insets = useSafeAreaInsets();
+
     const outsideButtons = React.useCallback(
       (x: number, y: number) => {
         'worklet';
@@ -587,8 +592,8 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
           return (
             x < dim.x ||
             x > dim.x + dim.width ||
-            y < dim.y ||
-            y > dim.y + dim.height
+            y + insets.top < dim.y ||
+            y + insets.top > dim.y + dim.height
           );
         };
         const isOutsideCloseButton = isOutsideButton(
@@ -612,10 +617,11 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
         );
       },
       [
-        closeButtonDimensions,
-        flashButtonDimensions,
-        photoButtonDimensions,
-        switchCameraButtonDimensions,
+        closeButtonDimensions.value,
+        flashButtonDimensions.value,
+        insets.top,
+        photoButtonDimensions.value,
+        switchCameraButtonDimensions.value,
       ],
     );
 
