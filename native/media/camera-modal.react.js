@@ -55,7 +55,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
 import { type DeviceCameraInfo } from '../types/camera.js';
 import type { NativeMethods } from '../types/react-native.js';
-import { type ViewStyle, type AnimatedViewStyle } from '../types/styles.js';
+import { type ViewStyle } from '../types/styles.js';
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
@@ -181,20 +181,10 @@ type Props = {
   +overlayStyle: ViewStyle,
   +sendButtonProgress: Animated.Value,
   +sendButtonStyle: ViewStyle,
+  +containerStyle: ViewStyle,
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  get containerStyle(): AnimatedViewStyle {
-    const { overlayContext } = this.props;
-    if (!overlayContext) {
-      return styles.container;
-    }
-    return {
-      ...styles.container,
-      opacity: overlayContext.position,
-    };
-  }
-
   renderCamera = ({
     camera,
     status,
@@ -337,7 +327,7 @@ class CameraModal extends React.PureComponent<Props> {
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
     return (
-      <Reanimated.View style={this.containerStyle}>
+      <Reanimated.View style={this.props.containerStyle}>
         {statusBar}
         <RNCamera
           type={type}
@@ -1058,6 +1048,20 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
       prevPendingPhotoCapture.current = pendingPhotoCapture;
     }, [pendingPhotoCapture]);
 
+    const containerAnimatedStyle = useAnimatedStyle(
+      () => ({
+        opacity: overlayContext?.positionV2?.value,
+      }),
+      [overlayContext],
+    );
+
+    const containerStyle = React.useMemo(() => {
+      if (!overlayContext) {
+        return styles.container;
+      }
+      return [styles.container, containerAnimatedStyle];
+    }, [containerAnimatedStyle, overlayContext]);
+
     return (
       <CameraModal
         {...props}
@@ -1103,6 +1107,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         overlayStyle={overlayStyle}
         sendButtonProgress={sendButtonProgress.current}
         sendButtonStyle={sendButtonStyle}
+        containerStyle={containerStyle}
       />
     );
   });
