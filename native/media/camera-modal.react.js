@@ -181,44 +181,6 @@ type Props = {
 };
 
 class CameraModal extends React.PureComponent<Props> {
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
-      this.props.setAutoFocusPointOfInterest(null);
-      this.props.cancelFocusAnimation();
-    }
-
-    if (
-      this.props.foreground &&
-      !prevProps.foreground &&
-      this.props.camera.current
-    ) {
-      void this.props.camera.current.refreshAuthorizationStatus();
-    }
-
-    if (this.props.stagingMode && !prevProps.stagingMode) {
-      this.props.cancelFocusAnimation();
-      this.props.stagingModeProgress.value = withTiming(
-        1,
-        stagingModeAnimationConfig,
-      );
-    } else if (!this.props.stagingMode && prevProps.stagingMode) {
-      this.props.stagingModeProgress.value = 0;
-    }
-
-    if (this.props.pendingPhotoCapture && !prevProps.pendingPhotoCapture) {
-      Animated.timing(this.props.sendButtonProgress, {
-        ...sendButtonAnimationConfig,
-        toValue: 1,
-      }).start();
-    } else if (
-      !this.props.pendingPhotoCapture &&
-      prevProps.pendingPhotoCapture
-    ) {
-      void cleanUpPendingPhotoCapture(prevProps.pendingPhotoCapture);
-      this.props.sendButtonProgress.setValue(0);
-    }
-  }
-
   get containerStyle(): AnimatedViewStyle {
     const { overlayContext } = this.props;
     if (!overlayContext) {
@@ -1054,6 +1016,46 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         transform: [{ scale: sendButtonScale }],
       };
     }, []);
+
+    const prevDeviceOrientation = React.useRef<?Orientations>();
+    React.useEffect(() => {
+      if (deviceOrientation !== prevDeviceOrientation.current) {
+        setAutoFocusPointOfInterest(null);
+        cancelFocusAnimation();
+      }
+      prevDeviceOrientation.current = deviceOrientation;
+    }, [cancelFocusAnimation, deviceOrientation]);
+
+    React.useEffect(() => {
+      if (foreground && cameraRef.current) {
+        void cameraRef.current.refreshAuthorizationStatus();
+      }
+    }, [foreground]);
+
+    const prevStagingMode = React.useRef(false);
+    React.useEffect(() => {
+      if (stagingMode && !prevStagingMode.current) {
+        cancelFocusAnimation();
+        stagingModeProgress.value = withTiming(1, stagingModeAnimationConfig);
+      } else if (!stagingMode && prevStagingMode.current) {
+        stagingModeProgress.value = 0;
+      }
+      prevStagingMode.current = stagingMode;
+    }, [cancelFocusAnimation, stagingMode, stagingModeProgress]);
+
+    const prevPendingPhotoCapture = React.useRef<?PhotoCapture>();
+    React.useEffect(() => {
+      if (pendingPhotoCapture && !prevPendingPhotoCapture.current) {
+        Animated.timing(sendButtonProgress.current, {
+          ...sendButtonAnimationConfig,
+          toValue: 1,
+        }).start();
+      } else if (!pendingPhotoCapture && prevPendingPhotoCapture.current) {
+        void cleanUpPendingPhotoCapture(prevPendingPhotoCapture.current);
+        sendButtonProgress.current.setValue(0);
+      }
+      prevPendingPhotoCapture.current = pendingPhotoCapture;
+    }, [pendingPhotoCapture]);
 
     return (
       <CameraModal
