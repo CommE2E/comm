@@ -8,7 +8,7 @@ import {
   useCurrentIdentityUserState,
   type CurrentIdentityUserState,
 } from 'lib/hooks/peer-list-hooks.js';
-import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
+import { useDeviceKind } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
@@ -29,7 +29,7 @@ function BackupHandler(): null {
     state => state.lifecycleState === 'background',
   );
   const canPerformBackupOperation = loggedIn && !isBackground;
-  const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
+  const deviceKind = useDeviceKind();
   const { showAlertToStaff } = useStaffAlert();
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
@@ -48,44 +48,38 @@ function BackupHandler(): null {
   const migrateToNewFlow = useMigrationToNewFlow();
 
   React.useEffect(() => {
-    if (!staffCanSee || startingBackupHandlerInProgress.current) {
+    if (
+      !staffCanSee ||
+      startingBackupHandlerInProgress.current ||
+      deviceKind !== 'primary'
+    ) {
       return;
     }
 
-    void (async () => {
-      startingBackupHandlerInProgress.current = true;
-      const isPrimaryDevice = await checkIfPrimaryDevice();
-      if (!isPrimaryDevice) {
-        startingBackupHandlerInProgress.current = false;
-        return;
+    if (!handlerStarted && canPerformBackupOperation) {
+      try {
+        commCoreModule.startBackupHandler();
+        setHandlerStarted(true);
+      } catch (err) {
+        const message = getMessageForException(err) ?? 'unknown error';
+        showAlertToStaff('Error starting backup handler', message);
+        console.log('Error starting backup handler:', message);
       }
+    }
 
-      if (!handlerStarted && canPerformBackupOperation) {
-        try {
-          commCoreModule.startBackupHandler();
-          setHandlerStarted(true);
-        } catch (err) {
-          const message = getMessageForException(err) ?? 'unknown error';
-          showAlertToStaff('Error starting backup handler', message);
-          console.log('Error starting backup handler:', message);
-        }
+    if (handlerStarted && !canPerformBackupOperation) {
+      try {
+        commCoreModule.stopBackupHandler();
+        setHandlerStarted(false);
+      } catch (err) {
+        const message = getMessageForException(err) ?? 'unknown error';
+        showAlertToStaff('Error stopping backup handler', message);
+        console.log('Error stopping backup handler:', message);
       }
-
-      if (handlerStarted && !canPerformBackupOperation) {
-        try {
-          commCoreModule.stopBackupHandler();
-          setHandlerStarted(false);
-        } catch (err) {
-          const message = getMessageForException(err) ?? 'unknown error';
-          showAlertToStaff('Error stopping backup handler', message);
-          console.log('Error stopping backup handler:', message);
-        }
-      }
-      startingBackupHandlerInProgress.current = false;
-    })();
+    }
   }, [
     canPerformBackupOperation,
-    checkIfPrimaryDevice,
+    deviceKind,
     handlerStarted,
     showAlertToStaff,
     staffCanSee,
@@ -96,7 +90,8 @@ function BackupHandler(): null {
       !staffCanSee ||
       !canPerformBackupOperation ||
       !handlerStarted ||
-      backupUploadInProgress.current
+      backupUploadInProgress.current ||
+      deviceKind === 'unknown'
     ) {
       return;
     }
@@ -104,13 +99,9 @@ function BackupHandler(): null {
     void (async () => {
       backupUploadInProgress.current = true;
 
-      let isPrimaryDevice, userID, deviceID;
+      let userID, deviceID;
       try {
-        const [isPrimaryDeviceResult, authMetadata] = await Promise.all([
-          checkIfPrimaryDevice(),
-          getAuthMetadata(),
-        ]);
-        isPrimaryDevice = isPrimaryDeviceResult;
+        const authMetadata = await getAuthMetadata();
         userID = authMetadata.userID;
         deviceID = authMetadata.deviceID;
       } catch (e) {
@@ -141,7 +132,8 @@ function BackupHandler(): null {
       // When this is a primary device and there is no latest backup it
       // needs to be updated. This handles cases after restoration
       // or after registration.
-      const shouldCreateUserKeysBackup = isPrimaryDevice && !latestBackupInfo;
+      const shouldCreateUserKeysBackup =
+        deviceKind === 'primary' && !latestBackupInfo;
 
       if (!shouldDoMigration && !shouldCreateUserKeysBackup) {
         backupUploadInProgress.current = false;
@@ -184,8 +176,8 @@ function BackupHandler(): null {
     })();
   }, [
     canPerformBackupOperation,
-    checkIfPrimaryDevice,
     createUserKeysBackup,
+    deviceKind,
     dispatchActionPromise,
     getAuthMetadata,
     getCurrentIdentityUserState,
