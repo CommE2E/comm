@@ -54,8 +54,6 @@ async function reorderAndSignDeviceList(
 }
 
 function useMigrationToNewFlow(): (
-  userID: ?string,
-  deviceID: ?string,
   currentIdentityUserState: CurrentIdentityUserState,
 ) => Promise<LocalLatestBackupInfo> {
   const identityContext = React.useContext(IdentityClientContext);
@@ -72,14 +70,8 @@ function useMigrationToNewFlow(): (
 
   return React.useCallback(
     async (
-      userID: ?string,
-      deviceID: ?string,
       currentIdentityUserState: CurrentIdentityUserState,
     ): Promise<LocalLatestBackupInfo> => {
-      if (!userID || !deviceID) {
-        throw new Error('Missing auth metadata');
-      }
-
       const { updateDeviceList } = identityClient;
       invariant(
         updateDeviceList,
@@ -87,13 +79,20 @@ function useMigrationToNewFlow(): (
           'Are you calling it on a non-primary device?',
       );
 
+      const {
+        deviceID,
+        userID,
+        currentDeviceList,
+        currentUserPlatformDetails,
+      } = currentIdentityUserState;
+
       // 1. upload UserKeys (without updating the store)
       let backupID = await createUserKeysBackup();
 
       // 2. create in-memory device list (reorder and sign)
       const newDeviceList = await reorderAndSignDeviceList(
         deviceID,
-        rawDeviceListFromSignedList(currentIdentityUserState.currentDeviceList),
+        rawDeviceListFromSignedList(currentDeviceList),
       );
 
       if (!userID || !userIdentifier) {
@@ -106,7 +105,7 @@ function useMigrationToNewFlow(): (
         payload: {
           deviceLists: { [userID]: newDeviceList.rawList },
           usersPlatformDetails: {
-            [userID]: currentIdentityUserState.currentUserPlatformDetails,
+            [userID]: currentUserPlatformDetails,
           },
         },
       });
