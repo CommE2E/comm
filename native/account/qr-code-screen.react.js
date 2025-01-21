@@ -1,5 +1,6 @@
 // @flow
 
+import { useFocusEffect } from '@react-navigation/core';
 import * as React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -25,11 +26,15 @@ type QRCodeScreenProps = {
 };
 
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const { qrData, generateQRCode } = useSecondaryDeviceQRAuthContext();
+  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
+    useSecondaryDeviceQRAuthContext();
 
-  React.useEffect(() => {
-    void generateQRCode();
-  }, [generateQRCode]);
+  useFocusEffect(
+    React.useCallback(() => {
+      void openSecondaryQRAuth();
+      return closeSecondaryQRAuth;
+    }, [closeSecondaryQRAuth, openSecondaryQRAuth]),
+  );
 
   const { platform } = getConfig().platformDetails;
   const qrCodeURL = React.useMemo(() => {
