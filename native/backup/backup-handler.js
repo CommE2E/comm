@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
@@ -10,7 +9,6 @@ import {
 } from 'lib/hooks/peer-list-hooks.js';
 import { useDeviceKind } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -39,10 +37,6 @@ function BackupHandler(): null {
   const backupUploadInProgress = React.useRef<boolean>(false);
   const startingBackupHandlerInProgress = React.useRef<boolean>(false);
   const [handlerStarted, setHandlerStarted] = React.useState(false);
-
-  const identityContext = React.useContext(IdentityClientContext);
-  invariant(identityContext, 'Identity context should be set');
-  const { getAuthMetadata } = identityContext;
 
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const migrateToNewFlow = useMigrationToNewFlow();
@@ -99,16 +93,6 @@ function BackupHandler(): null {
     void (async () => {
       backupUploadInProgress.current = true;
 
-      let userID, deviceID;
-      try {
-        const authMetadata = await getAuthMetadata();
-        userID = authMetadata.userID;
-        deviceID = authMetadata.deviceID;
-      } catch (e) {
-        backupUploadInProgress.current = false;
-        return;
-      }
-
       // CurrentIdentityUserState is required to check if migration to
       // new flow is needed.
       let currentIdentityUserState: ?CurrentIdentityUserState = null;
@@ -149,11 +133,7 @@ function BackupHandler(): null {
 
             // Early return without checking `shouldCreateUserKeysBackup`
             // is safe because migration is uploading User Keys backup.
-            return await migrateToNewFlow(
-              userID,
-              deviceID,
-              currentIdentityUserState,
-            );
+            return await migrateToNewFlow(currentIdentityUserState);
           }
 
           const backupID = await createUserKeysBackup();
@@ -179,7 +159,6 @@ function BackupHandler(): null {
     createUserKeysBackup,
     deviceKind,
     dispatchActionPromise,
-    getAuthMetadata,
     getCurrentIdentityUserState,
     handlerStarted,
     latestBackupInfo,
