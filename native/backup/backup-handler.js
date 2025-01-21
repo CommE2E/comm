@@ -128,10 +128,16 @@ function BackupHandler(): null {
     if (
       !staffCanSee ||
       !canPerformBackupOperation ||
-      !handlerStarted ||
       backupUploadInProgress.current ||
       deviceKind === 'unknown'
     ) {
+      return;
+    }
+
+    // In case of primary we need to wait for starting the handler.
+    // In case of secondary, we want to proceed and start handler
+    // on demand.
+    if (deviceKind === 'primary' && !handlerStarted) {
       return;
     }
 
@@ -151,27 +157,16 @@ function BackupHandler(): null {
         return;
       }
 
-      const deviceListIsSigned =
-        currentIdentityUserState.currentDeviceList.curPrimarySignature;
+      const shouldDoMigration =
+        usingRestoreFlow &&
+        !currentIdentityUserState.currentDeviceList.curPrimarySignature;
 
-      // In case of unsigned device list migration and backup upload is needed.
-      // Uploading backup in this case is handled by `migrateToNewFlow`.
-      const shouldDoMigration = usingRestoreFlow && !deviceListIsSigned;
-
-      // When this is a primary device and there is no latest backup it
-      // needs to be updated. This handles cases after restoration
-      // or after registration.
-      const shouldCreateUserKeysBackup =
-        deviceKind === 'primary' && !latestBackupInfo;
-
-      if (!shouldDoMigration && !shouldCreateUserKeysBackup) {
-        backupUploadInProgress.current = false;
-        return;
-      }
-
-      if (shouldDoMigration) {
+      if (shouldDoMigration && deviceKind === 'primary') {
         await performMigrationToNewFlow(currentIdentityUserState);
-      } else {
+      } else if (shouldDoMigration && deviceKind === 'secondary') {
+        startBackupHandler();
+        await performMigrationToNewFlow(currentIdentityUserState);
+      } else if (deviceKind === 'primary' && !latestBackupInfo) {
         await performBackupUpload();
       }
 
@@ -187,6 +182,7 @@ function BackupHandler(): null {
     performMigrationToNewFlow,
     showAlertToStaff,
     staffCanSee,
+    startBackupHandler,
   ]);
 
   return null;
