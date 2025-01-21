@@ -10,6 +10,7 @@ import {
 import { useDeviceKind } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingRestoreFlow } from 'lib/utils/services-utils.js';
@@ -40,6 +41,7 @@ function BackupHandler(): null {
 
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const migrateToNewFlow = useMigrationToNewFlow();
+  const { socketState } = useTunnelbroker();
 
   const startBackupHandler = React.useCallback(() => {
     try {
@@ -161,6 +163,11 @@ function BackupHandler(): null {
         usingRestoreFlow &&
         !currentIdentityUserState.currentDeviceList.curPrimarySignature;
 
+      if (shouldDoMigration && !socketState.isAuthorized) {
+        backupUploadInProgress.current = false;
+        return;
+      }
+
       if (shouldDoMigration && deviceKind === 'primary') {
         await performMigrationToNewFlow(currentIdentityUserState);
       } else if (shouldDoMigration && deviceKind === 'secondary') {
@@ -181,6 +188,7 @@ function BackupHandler(): null {
     performBackupUpload,
     performMigrationToNewFlow,
     showAlertToStaff,
+    socketState.isAuthorized,
     staffCanSee,
     startBackupHandler,
   ]);
