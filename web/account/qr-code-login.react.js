@@ -11,11 +11,13 @@ import { getConfig } from 'lib/utils/config.js';
 import css from './qr-code-login.css';
 
 function QRCodeLogin(): React.Node {
-  const { qrData, generateQRCode } = useSecondaryDeviceQRAuthContext();
+  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
+    useSecondaryDeviceQRAuthContext();
 
   React.useEffect(() => {
-    void generateQRCode();
-  }, [generateQRCode]);
+    void openSecondaryQRAuth();
+    return closeSecondaryQRAuth;
+  }, [closeSecondaryQRAuth, openSecondaryQRAuth]);
 
   const { platform } = getConfig().platformDetails;
   const qrCodeURL = React.useMemo(() => {
