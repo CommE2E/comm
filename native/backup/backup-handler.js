@@ -41,6 +41,28 @@ function BackupHandler(): null {
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const migrateToNewFlow = useMigrationToNewFlow();
 
+  const startBackupHandler = React.useCallback(() => {
+    try {
+      commCoreModule.startBackupHandler();
+      setHandlerStarted(true);
+    } catch (err) {
+      const message = getMessageForException(err) ?? 'unknown error';
+      showAlertToStaff('Error starting backup handler', message);
+      console.log('Error starting backup handler:', message);
+    }
+  }, [showAlertToStaff]);
+
+  const stopBackupHandler = React.useCallback(() => {
+    try {
+      commCoreModule.stopBackupHandler();
+      setHandlerStarted(false);
+    } catch (err) {
+      const message = getMessageForException(err) ?? 'unknown error';
+      showAlertToStaff('Error stopping backup handler', message);
+      console.log('Error stopping backup handler:', message);
+    }
+  }, [showAlertToStaff]);
+
   React.useEffect(() => {
     if (
       !staffCanSee ||
@@ -51,33 +73,56 @@ function BackupHandler(): null {
     }
 
     if (!handlerStarted && canPerformBackupOperation) {
-      try {
-        commCoreModule.startBackupHandler();
-        setHandlerStarted(true);
-      } catch (err) {
-        const message = getMessageForException(err) ?? 'unknown error';
-        showAlertToStaff('Error starting backup handler', message);
-        console.log('Error starting backup handler:', message);
-      }
+      startBackupHandler();
     }
 
     if (handlerStarted && !canPerformBackupOperation) {
-      try {
-        commCoreModule.stopBackupHandler();
-        setHandlerStarted(false);
-      } catch (err) {
-        const message = getMessageForException(err) ?? 'unknown error';
-        showAlertToStaff('Error stopping backup handler', message);
-        console.log('Error stopping backup handler:', message);
-      }
+      stopBackupHandler();
     }
   }, [
     canPerformBackupOperation,
     deviceKind,
     handlerStarted,
-    showAlertToStaff,
     staffCanSee,
+    startBackupHandler,
+    stopBackupHandler,
   ]);
+
+  const performMigrationToNewFlow = React.useCallback(
+    async (currentIdentityUserState: CurrentIdentityUserState) => {
+      try {
+        const promise = migrateToNewFlow(currentIdentityUserState);
+        void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
+        await promise;
+      } catch (err) {
+        const errorMessage = getMessageForException(err) ?? 'unknown error';
+        showAlertToStaff(
+          'Error migrating to signed device lists',
+          errorMessage,
+        );
+        console.log('Error migrating to signed device lists', errorMessage);
+      }
+    },
+    [dispatchActionPromise, migrateToNewFlow, showAlertToStaff],
+  );
+
+  const performBackupUpload = React.useCallback(async () => {
+    try {
+      const promise = (async () => {
+        const backupID = await createUserKeysBackup();
+        return {
+          backupID,
+          timestamp: Date.now(),
+        };
+      })();
+      void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
+      await promise;
+    } catch (err) {
+      const errorMessage = getMessageForException(err) ?? 'unknown error';
+      showAlertToStaff('Error creating User Keys backup', errorMessage);
+      console.log('Error creating User Keys backup', errorMessage);
+    }
+  }, [createUserKeysBackup, dispatchActionPromise, showAlertToStaff]);
 
   React.useEffect(() => {
     if (
@@ -124,45 +169,22 @@ function BackupHandler(): null {
         return;
       }
 
-      try {
-        const promise = (async () => {
-          if (shouldDoMigration) {
-            if (!currentIdentityUserState) {
-              throw new Error('Missing currentIdentityUserState');
-            }
-
-            // Early return without checking `shouldCreateUserKeysBackup`
-            // is safe because migration is uploading User Keys backup.
-            return await migrateToNewFlow(currentIdentityUserState);
-          }
-
-          const backupID = await createUserKeysBackup();
-          return {
-            backupID,
-            timestamp: Date.now(),
-          };
-        })();
-        void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
-        await promise;
-      } catch (err) {
-        const errorMessage = getMessageForException(err) ?? 'unknown error';
-        const errorTitle = shouldDoMigration
-          ? 'migrating to signed device lists'
-          : 'creating User Keys backup';
-        showAlertToStaff(`Error ${errorTitle}`, errorMessage);
-        console.log(`Error ${errorTitle}:`, errorMessage);
+      if (shouldDoMigration) {
+        await performMigrationToNewFlow(currentIdentityUserState);
+      } else {
+        await performBackupUpload();
       }
+
       backupUploadInProgress.current = false;
     })();
   }, [
     canPerformBackupOperation,
-    createUserKeysBackup,
     deviceKind,
-    dispatchActionPromise,
     getCurrentIdentityUserState,
     handlerStarted,
     latestBackupInfo,
-    migrateToNewFlow,
+    performBackupUpload,
+    performMigrationToNewFlow,
     showAlertToStaff,
     staffCanSee,
   ]);
