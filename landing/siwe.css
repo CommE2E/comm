@@ -46,12 +46,21 @@ div.connectedWalletInfo > div {
 }
 
 .button {
+  all: unset;
+  color: white;
+  font-family: sans-serif;
   margin-top: 20px;
   background: #6a20e3;
   border-radius: 4px;
   text-align: center;
   padding: 10px;
   width: 100%;
+  transition: 150ms;
+}
+
+.disabled {
+  background-color: var(--black-80);
+  color: var(--black-60);
 }
 
 /* Classes from node_modules/@rainbow-me/rainbowkit/dist/components/index.css */

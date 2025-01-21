@@ -7,6 +7,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import classnames from 'classnames';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
@@ -79,24 +80,31 @@ function SIWE(): React.Node {
     siweMessageIssuedAt,
   } = React.useContext(SIWEContext);
 
-  const onClick = React.useCallback(() => {
+  const [inProgress, setInProgress] = React.useState(false);
+
+  const onClick = React.useCallback(async () => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(siweMessageType, 'message type must be set during SIWE attempt');
     invariant(
       siwePrimaryIdentityPublicKey,
       'primaryIdentityPublicKey must be present during SIWE attempt',
     );
-    const statement = getSIWEStatementForPublicKey(
-      siwePrimaryIdentityPublicKey,
-      siweMessageType,
-    );
-    void signInWithEthereum(
-      address,
-      signer,
-      siweNonce,
-      statement,
-      siweMessageIssuedAt,
-    );
+    try {
+      setInProgress(true);
+      const statement = getSIWEStatementForPublicKey(
+        siwePrimaryIdentityPublicKey,
+        siweMessageType,
+      );
+      await signInWithEthereum(
+        address,
+        signer,
+        siweNonce,
+        statement,
+        siweMessageIssuedAt,
+      );
+    } finally {
+      setInProgress(false);
+    }
   }, [
     address,
     signer,
@@ -186,6 +194,11 @@ function SIWE(): React.Node {
       );
     }
 
+    const buttonClasses = classnames({
+      [css.button]: true,
+      [css.disabled]: inProgress,
+    });
+
     return (
       <div className={css.wrapper}>
         <span className={css.walletDisplayText}>
@@ -196,9 +209,13 @@ function SIWE(): React.Node {
         </div>
         <p>{explanationStatement}</p>
         {termsOfUseAndPolicyInfo}
-        <div className={css.button} onClick={onClick}>
+        <button
+          className={buttonClasses}
+          onClick={onClick}
+          disabled={inProgress}
+        >
           {buttonStatement}
-        </div>
+        </button>
       </div>
     );
   }
