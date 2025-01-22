@@ -21,9 +21,12 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
-import Animated from 'react-native-reanimated';
+import Animated, { useSharedValue } from 'react-native-reanimated';
 import type { EventResult } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { type Dimensions } from 'lib/types/media-types.js';
 import type { ReactRef } from 'lib/types/react-types.js';
@@ -67,7 +70,6 @@ const {
   eq,
   neq,
   greaterThan,
-  lessThan,
   add,
   sub,
   multiply,
@@ -144,6 +146,13 @@ type TouchableOpacityInstance = React.AbstractComponent<
   NativeMethods,
 >;
 
+type ButtonDimensions = {
+  +x: number,
+  +y: number,
+  +width: number,
+  +height: number,
+};
+
 type BaseProps = {
   +navigation:
     | AppNavigationProp<'ImageModal'>
@@ -168,20 +177,14 @@ type Props = {
   +updateCloseButtonEnabled: ([number]) => void,
   +updateActionLinksEnabled: ([number]) => void,
   +gesture: ExclusiveGesture,
+  +closeButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
+  +mediaIconsRef: { current: ?React.ElementRef<typeof View> },
+  +onCloseButtonLayout: () => void,
+  +onMediaIconsLayout: () => void,
 };
 
 class FullScreenViewModal extends React.PureComponent<Props> {
-  closeButton: ?React.ElementRef<TouchableOpacityInstance>;
-  mediaIconsContainer: ?React.ElementRef<typeof View>;
-  closeButtonX: Value = new Value(-1);
-  closeButtonY: Value = new Value(-1);
-  closeButtonWidth: Value = new Value(0);
-  closeButtonHeight: Value = new Value(0);
   closeButtonLastState: Value = new Value(1);
-  mediaIconsX: Value = new Value(-1);
-  mediaIconsY: Value = new Value(-1);
-  mediaIconsWidth: Value = new Value(0);
-  mediaIconsHeight: Value = new Value(0);
   actionLinksLastState: Value = new Value(1);
 
   centerX: Value;
@@ -282,10 +285,12 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       cond(
         and(
           gestureJustStarted(panState),
-          this.outsideButtons(
-            sub(panAbsoluteX, panTranslationX),
-            sub(panAbsoluteY, panTranslationY),
-          ),
+          // TODO: migrate this in the next diffs
+          // this.outsideButtons(
+          //   sub(panAbsoluteX, panTranslationX),
+          //   sub(panAbsoluteY, panTranslationY),
+          // ),
+          1,
         ),
         set(curPanActive, 1),
       ),
@@ -532,37 +537,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
   }
 
-  outsideButtons(x: Node, y: Node): Node {
-    const {
-      closeButtonX,
-      closeButtonY,
-      closeButtonWidth,
-      closeButtonHeight,
-      closeButtonLastState,
-      mediaIconsX,
-      mediaIconsY,
-      mediaIconsWidth,
-      mediaIconsHeight,
-      actionLinksLastState,
-    } = this;
-    return and(
-      or(
-        eq(closeButtonLastState, 0),
-        lessThan(x, closeButtonX),
-        greaterThan(x, add(closeButtonX, closeButtonWidth)),
-        lessThan(y, closeButtonY),
-        greaterThan(y, add(closeButtonY, closeButtonHeight)),
-      ),
-      or(
-        eq(actionLinksLastState, 0),
-        lessThan(x, mediaIconsX),
-        greaterThan(x, add(mediaIconsX, mediaIconsWidth)),
-        lessThan(y, mediaIconsY),
-        greaterThan(y, add(mediaIconsY, mediaIconsHeight)),
-      ),
-    );
-  }
-
   panUpdate(
     // Inputs
     panActive: Node,
@@ -594,7 +568,9 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const lastTapY = new Value(0);
     const fingerJustReleased = and(
       gestureJustEnded(singleTapState),
-      this.outsideButtons(lastTapX, lastTapY),
+      // TODO: migrate this in the next diffs
+      //this.outsideButtons(lastTapX, lastTapY),
+      1,
     );
 
     const wasZoomed = new Value(0);
@@ -718,7 +694,9 @@ class FullScreenViewModal extends React.PureComponent<Props> {
 
     const fingerJustReleased = and(
       gestureJustEnded(doubleTapState),
-      this.outsideButtons(doubleTapX, doubleTapY),
+      // TODO: migrate this in the next diffs
+      // this.outsideButtons(doubleTapX, doubleTapY),
+      1,
     );
 
     return cond(
@@ -1024,8 +1002,8 @@ class FullScreenViewModal extends React.PureComponent<Props> {
         >
           <View
             style={styles.mediaIconsRow}
-            onLayout={this.onMediaIconsLayout}
-            ref={this.mediaIconsRef}
+            onLayout={this.props.onMediaIconsLayout}
+            ref={this.props.mediaIconsRef}
           >
             {saveButton}
             {copyButton}
@@ -1051,8 +1029,8 @@ class FullScreenViewModal extends React.PureComponent<Props> {
               <TouchableOpacity
                 onPress={this.close}
                 disabled={!this.props.closeButtonEnabled}
-                onLayout={this.onCloseButtonLayout}
-                ref={this.closeButtonRef}
+                onLayout={this.props.onCloseButtonLayout}
+                ref={this.props.closeButtonRef}
               >
                 <Text style={styles.closeButton}>×</Text>
               </TouchableOpacity>
@@ -1069,43 +1047,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
 
   close = () => {
     this.props.navigation.goBackOnce();
-  };
-
-  closeButtonRef = (
-    closeButton: ?React.ElementRef<typeof TouchableOpacity>,
-  ) => {
-    this.closeButton = (closeButton: any);
-  };
-
-  mediaIconsRef = (mediaIconsContainer: ?React.ElementRef<typeof View>) => {
-    this.mediaIconsContainer = mediaIconsContainer;
-  };
-
-  onCloseButtonLayout = () => {
-    const { closeButton } = this;
-    if (!closeButton) {
-      return;
-    }
-    closeButton.measure((x, y, width, height, pageX, pageY) => {
-      this.closeButtonX.setValue(pageX);
-      this.closeButtonY.setValue(pageY);
-      this.closeButtonWidth.setValue(width);
-      this.closeButtonHeight.setValue(height);
-    });
-  };
-
-  onMediaIconsLayout = () => {
-    const { mediaIconsContainer } = this;
-    if (!mediaIconsContainer) {
-      return;
-    }
-
-    mediaIconsContainer.measure((x, y, width, height, pageX, pageY) => {
-      this.mediaIconsX.setValue(pageX);
-      this.mediaIconsY.setValue(pageY);
-      this.mediaIconsWidth.setValue(width);
-      this.mediaIconsHeight.setValue(height);
-    });
   };
 }
 
@@ -1226,6 +1167,83 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       [actionLinksEnabled],
     );
 
+    const closeButtonRef =
+      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const mediaIconsRef = React.useRef<?React.ElementRef<typeof View>>();
+
+    const closeButtonDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const mediaIconsDimensions = useSharedValue({
+      x: -1,
+      y: -1,
+      width: 0,
+      height: 0,
+    });
+
+    const closeButtonLastState = useSharedValue<boolean>(true);
+    const actionLinksLastState = useSharedValue<boolean>(true);
+
+    const onCloseButtonLayout = React.useCallback(() => {
+      const closeButton = closeButtonRef.current;
+      if (!closeButton) {
+        return;
+      }
+      closeButton.measure((x, y, width, height, pageX, pageY) => {
+        closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      });
+    }, [closeButtonDimensions]);
+
+    const onMediaIconsLayout = React.useCallback(() => {
+      const mediaIconsContainer = mediaIconsRef.current;
+      if (!mediaIconsContainer) {
+        return;
+      }
+
+      mediaIconsContainer.measure((x, y, width, height, pageX, pageY) => {
+        mediaIconsDimensions.value = { x: pageX, y: pageY, width, height };
+      });
+    }, [mediaIconsDimensions]);
+
+    const insets = useSafeAreaInsets();
+
+    // TODO: use this in the next diffs
+    // eslint-disable-next-line no-unused-vars
+    const outsideButtons = React.useCallback(
+      (x: number, y: number): boolean => {
+        'worklet';
+        const isOutsideButton = (dim: ButtonDimensions) => {
+          return (
+            x < dim.x ||
+            x > dim.x + dim.width ||
+            y + insets.top < dim.y ||
+            y + insets.top > dim.y + dim.height
+          );
+        };
+
+        const isOutsideCloseButton = isOutsideButton(
+          closeButtonDimensions.value,
+        );
+        const isOutsideMediaIcons = isOutsideButton(mediaIconsDimensions.value);
+
+        return (
+          (closeButtonLastState.value === false || isOutsideCloseButton) &&
+          (actionLinksLastState.value === false || isOutsideMediaIcons)
+        );
+      },
+      [
+        actionLinksLastState,
+        closeButtonDimensions,
+        closeButtonLastState,
+        insets.top,
+        mediaIconsDimensions,
+      ],
+    );
+
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch();
       const panGesture = Gesture.Pan();
@@ -1250,6 +1268,10 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         updateCloseButtonEnabled={updateCloseButtonEnabled}
         updateActionLinksEnabled={updateActionLinksEnabled}
         gesture={gesture}
+        closeButtonRef={closeButtonRef}
+        mediaIconsRef={mediaIconsRef}
+        onCloseButtonLayout={onCloseButtonLayout}
+        onMediaIconsLayout={onMediaIconsLayout}
       />
     );
   });
