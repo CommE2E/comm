@@ -83,3 +83,72 @@ div.form_qrcode_login {
   flex-direction: column;
   margin-top: 12px;
 }
+
+div.new_modal_body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 350px;
+  padding: 19px 17px;
+  border-radius: 12px;
+  background-color: #191723;
+  border: #272537 solid 1px;
+}
+
+div.new_modal_body h1 {
+  color: white;
+  font-size: var(--xl-font-20);
+  line-height: var(--line-height-display);
+  font-weight: 700;
+}
+
+div.new_modal_body .content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+div.new_modal_body .modal_text {
+  color: white;
+  font-size: var(--s-font-14);
+  font-weight: var(--normal);
+  line-height: var(--line-height-text);
+}
+
+div.new_modal_body ul {
+  list-style-position: inside;
+}
+
+div.new_modal_body .qrCodeContainer {
+  display: flex;
+  justify-content: center;
+}
+
+div.new_modal_body .qrCodeWrapper {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  background: var(--fg);
+}
+
+div.new_modal_body .buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+div.new_modal_body button {
+  all: unset;
+  cursor: pointer;
+  color: #8c889a;
+  font-size: var(--xs-font-12);
+  line-height: var(--line-height-text);
+}
+
+div.new_modal_body button:hover {
+  color: var(--violet-dark-100);
+}
+
+div.new_modal_body.small_modal {
+  width: 320px;
+  min-width: auto;
+}
