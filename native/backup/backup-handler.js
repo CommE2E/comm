@@ -130,7 +130,6 @@ function BackupHandler(): null {
     if (
       !staffCanSee ||
       !canPerformBackupOperation ||
-      backupUploadInProgress.current ||
       deviceKind === 'unknown'
     ) {
       return;
@@ -144,8 +143,6 @@ function BackupHandler(): null {
     }
 
     void (async () => {
-      backupUploadInProgress.current = true;
-
       // CurrentIdentityUserState is required to check if migration to
       // new flow is needed.
       let currentIdentityUserState: ?CurrentIdentityUserState = null;
@@ -155,7 +152,6 @@ function BackupHandler(): null {
         const message = getMessageForException(err) ?? 'unknown error';
         showAlertToStaff('Error fetching current device list:', message);
         console.log('Error fetching current device list:', message);
-        backupUploadInProgress.current = false;
         return;
       }
 
@@ -164,9 +160,14 @@ function BackupHandler(): null {
         !currentIdentityUserState.currentDeviceList.curPrimarySignature;
 
       if (shouldDoMigration && !socketState.isAuthorized) {
-        backupUploadInProgress.current = false;
         return;
       }
+
+      if (backupUploadInProgress.current) {
+        return;
+      }
+
+      backupUploadInProgress.current = true;
 
       if (shouldDoMigration && deviceKind === 'primary') {
         await performMigrationToNewFlow(currentIdentityUserState);
