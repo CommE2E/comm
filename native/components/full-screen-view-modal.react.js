@@ -160,6 +160,7 @@ type Props = {
   +dimensions: DerivedDimensionsInfo,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +isActive: boolean,
 };
 type State = {
   +closeButtonEnabled: boolean,
@@ -930,29 +931,9 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidMount() {
-    if (FullScreenViewModal.isActive(this.props)) {
-      Orientation.unlockAllOrientations();
-    }
-  }
-
-  componentWillUnmount() {
-    if (FullScreenViewModal.isActive(this.props)) {
-      Orientation.lockToPortrait();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (this.props.dimensions !== prevProps.dimensions) {
       this.updateDimensions();
-    }
-
-    const isActive = FullScreenViewModal.isActive(this.props);
-    const wasActive = FullScreenViewModal.isActive(prevProps);
-    if (isActive && !wasActive) {
-      Orientation.unlockAllOrientations();
-    } else if (!isActive && wasActive) {
-      Orientation.lockToPortrait();
     }
   }
 
@@ -981,12 +962,6 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     };
   }
 
-  static isActive(props: Props): boolean {
-    const { overlayContext } = props;
-    invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
-    return !overlayContext.isDismissing;
-  }
-
   get contentContainerStyle(): ViewStyle {
     const { verticalBounds } = this.props.route.params;
     const fullScreenHeight = this.props.dimensions.height;
@@ -994,7 +969,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
     // margin will clip, but padding won't
-    const verticalStyle = FullScreenViewModal.isActive(this.props)
+    const verticalStyle = this.props.isActive
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
     return [styles.contentContainer, verticalStyle];
@@ -1003,7 +978,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
   render(): React.Node {
     const { children, saveContentCallback, copyContentCallback } = this.props;
 
-    const statusBar = FullScreenViewModal.isActive(this.props) ? (
+    const statusBar = this.props.isActive ? (
       <ConnectedStatusBar hidden />
     ) : null;
     const backdropStyle = { opacity: this.backdropOpacity };
@@ -1263,11 +1238,31 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
   ) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
+
+    invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
+
+    const isActive = !overlayContext.isDismissing;
+
+    React.useEffect(() => {
+      if (isActive) {
+        Orientation.unlockAllOrientations();
+      } else {
+        Orientation.lockToPortrait();
+      }
+    }, [isActive]);
+
+    React.useEffect(() => {
+      return () => {
+        Orientation.lockToPortrait();
+      };
+    }, []);
+
     return (
       <FullScreenViewModal
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
+        isActive={isActive}
       />
     );
   });
