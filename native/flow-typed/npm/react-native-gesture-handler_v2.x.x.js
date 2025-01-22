@@ -808,6 +808,10 @@ declare class ExclusiveGesture extends ComposedGesture {
   prepare(): void;
 }
 
+declare class SimultaneousGesture extends ComposedGesture {
+  prepare(): void;
+}
+
 declare type UserSelect = 'none' | 'auto' | 'text';
 
 interface GestureDetectorProps {
@@ -816,12 +820,13 @@ interface GestureDetectorProps {
   children?: React$Node;
 }
 
-declare const GestureObject: {
-  Tap: () => TapGesture,
-  Pan: () => PanGesture,
-  Pinch: () => PinchGesture,
-  Exclusive: (...gestures: Array<Gesture>) => ExclusiveGesture,
-};
+declare const GestureObject: {|
+  +Tap: () => TapGesture,
+  +Pan: () => PanGesture,
+  +Pinch: () => PinchGesture,
+  +Exclusive: (...gestures: $ReadOnlyArray<Gesture>) => ExclusiveGesture,
+  +Simultaneous: (...gestures: $ReadOnlyArray<Gesture>) => SimultaneousGesture,
+|};
 
 declare module 'react-native-gesture-handler' {
   declare export { default as Swipeable } from 'react-native-gesture-handler/Swipeable';
