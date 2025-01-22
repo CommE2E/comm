@@ -808,6 +808,10 @@ declare class ExclusiveGesture extends ComposedGesture {
   prepare(): void;
 }
 
+declare class SimultaneousGesture extends ComposedGesture {
+  prepare(): void;
+}
+
 declare type UserSelect = 'none' | 'auto' | 'text';
 
 interface GestureDetectorProps {
@@ -821,6 +825,7 @@ declare const GestureObject: {
   Pan: () => PanGesture,
   Pinch: () => PinchGesture,
   Exclusive: (...gestures: Array<Gesture>) => ExclusiveGesture,
+  Simultaneous: (...gestures: Array<Gesture>) => SimultaneousGesture,
 };
 
 declare module 'react-native-gesture-handler' {
