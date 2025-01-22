@@ -74,7 +74,8 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         <View style={styles.container}>
           <Text style={styles.heading}>Log in to Comm</Text>
           <Text style={styles.headingSubtext}>
-            Open the Comm app on your logged-in phone and scan the QR code below
+            Open the Comm app on your logged-in phone and scan the QR code
+            below:
           </Text>
           <View style={styles.qrCodeContainer}>
             <QRCode value={qrCodeURL} size={qrCodeSize} />
