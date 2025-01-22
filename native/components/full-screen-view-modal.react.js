@@ -17,6 +17,8 @@ import {
   type PinchGestureEvent,
   type PanGestureEvent,
   type TapGestureEvent,
+  GestureDetector,
+  Gesture,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
@@ -165,6 +167,7 @@ type Props = {
   +actionLinksEnabled: boolean,
   +updateCloseButtonEnabled: ([number]) => void,
   +updateActionLinksEnabled: ([number]) => void,
+  +gesture: ExclusiveGesture,
 };
 
 class FullScreenViewModal extends React.PureComponent<Props> {
@@ -1060,44 +1063,7 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       </Animated.View>
     );
     return (
-      <PinchGestureHandler
-        onGestureEvent={this.pinchEvent}
-        onHandlerStateChange={this.pinchEvent}
-        simultaneousHandlers={this.handlerRefs}
-        ref={this.pinchHandler}
-      >
-        <Animated.View style={styles.container}>
-          <PanGestureHandler
-            onGestureEvent={this.panEvent}
-            onHandlerStateChange={this.panEvent}
-            simultaneousHandlers={this.handlerRefs}
-            ref={this.panHandler}
-            avgTouches
-          >
-            <Animated.View style={styles.container}>
-              <TapGestureHandler
-                onHandlerStateChange={this.doubleTapEvent}
-                simultaneousHandlers={this.handlerRefs}
-                ref={this.doubleTapHandler}
-                waitFor={this.beforeDoubleTapRefs}
-                numberOfTaps={2}
-              >
-                <Animated.View style={styles.container}>
-                  <TapGestureHandler
-                    onHandlerStateChange={this.singleTapEvent}
-                    simultaneousHandlers={this.handlerRefs}
-                    ref={this.singleTapHandler}
-                    waitFor={this.beforeSingleTapRefs}
-                    numberOfTaps={1}
-                  >
-                    {view}
-                  </TapGestureHandler>
-                </Animated.View>
-              </TapGestureHandler>
-            </Animated.View>
-          </PanGestureHandler>
-        </Animated.View>
-      </PinchGestureHandler>
+      <GestureDetector gesture={this.props.gesture}>{view}</GestureDetector>
     );
   }
 
@@ -1260,6 +1226,19 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       [actionLinksEnabled],
     );
 
+    const gesture = React.useMemo(() => {
+      const pinchGesture = Gesture.Pinch();
+      const panGesture = Gesture.Pan();
+      const doubleTapGesture = Gesture.Tap().numberOfTaps(2);
+      const singleTapGesture = Gesture.Tap().numberOfTaps(1);
+
+      return Gesture.Exclusive(
+        Gesture.Simultaneous(pinchGesture, panGesture),
+        doubleTapGesture,
+        singleTapGesture,
+      );
+    }, []);
+
     return (
       <FullScreenViewModal
         {...props}
@@ -1270,6 +1249,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         actionLinksEnabled={actionLinksEnabled}
         updateCloseButtonEnabled={updateCloseButtonEnabled}
         updateActionLinksEnabled={updateActionLinksEnabled}
+        gesture={gesture}
       />
     );
   });
