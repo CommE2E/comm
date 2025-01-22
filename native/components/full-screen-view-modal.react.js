@@ -161,17 +161,13 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +isActive: boolean,
-};
-type State = {
   +closeButtonEnabled: boolean,
   +actionLinksEnabled: boolean,
+  +updateCloseButtonEnabled: ([number]) => void,
+  +updateActionLinksEnabled: ([number]) => void,
 };
-class FullScreenViewModal extends React.PureComponent<Props, State> {
-  state: State = {
-    closeButtonEnabled: true,
-    actionLinksEnabled: true,
-  };
 
+class FullScreenViewModal extends React.PureComponent<Props> {
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
   mediaIconsContainer: ?React.ElementRef<typeof View>;
   closeButtonX: Value = new Value(-1);
@@ -660,8 +656,8 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       set(wasZoomed, isZoomed),
       set(lastTapX, singleTapX),
       set(lastTapY, singleTapY),
-      call([eq(curCloseButtonOpacity, 1)], this.setCloseButtonEnabled),
-      call([eq(curActionLinksOpacity, 1)], this.setActionLinksEnabled),
+      call([eq(curCloseButtonOpacity, 1)], this.props.updateCloseButtonEnabled),
+      call([eq(curActionLinksOpacity, 1)], this.props.updateActionLinksEnabled),
     ]);
   }
 
@@ -994,7 +990,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       saveButton = (
         <TouchableOpacity
           onPress={saveContentCallback}
-          disabled={!this.state.actionLinksEnabled}
+          disabled={!this.props.actionLinksEnabled}
           style={styles.mediaIconButtons}
         >
           <SWMansionIcon name="save" style={styles.mediaIcon} />
@@ -1008,7 +1004,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       copyButton = (
         <TouchableOpacity
           onPress={copyContentCallback}
-          disabled={!this.state.actionLinksEnabled}
+          disabled={!this.props.actionLinksEnabled}
           style={styles.mediaIconButtons}
         >
           <SWMansionIcon name="copy" style={styles.mediaIcon} />
@@ -1051,7 +1047,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
             >
               <TouchableOpacity
                 onPress={this.close}
-                disabled={!this.state.closeButtonEnabled}
+                disabled={!this.props.closeButtonEnabled}
                 onLayout={this.onCloseButtonLayout}
                 ref={this.closeButtonRef}
               >
@@ -1107,20 +1103,6 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
 
   close = () => {
     this.props.navigation.goBackOnce();
-  };
-
-  setCloseButtonEnabled = ([enabledNum]: [number]) => {
-    const enabled = !!enabledNum;
-    if (this.state.closeButtonEnabled !== enabled) {
-      this.setState({ closeButtonEnabled: enabled });
-    }
-  };
-
-  setActionLinksEnabled = ([enabledNum]: [number]) => {
-    const enabled = !!enabledNum;
-    if (this.state.actionLinksEnabled !== enabled) {
-      this.setState({ actionLinksEnabled: enabled });
-    }
   };
 
   closeButtonRef = (
@@ -1255,12 +1237,39 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       };
     }, []);
 
+    const [closeButtonEnabled, setCloseButtonEnabled] = React.useState(true);
+    const [actionLinksEnabled, setActionLinksEnabled] = React.useState(true);
+
+    const updateCloseButtonEnabled = React.useCallback(
+      ([enabledNum]: [number]) => {
+        const enabled = !!enabledNum;
+        if (closeButtonEnabled !== enabled) {
+          setCloseButtonEnabled(enabled);
+        }
+      },
+      [closeButtonEnabled],
+    );
+
+    const updateActionLinksEnabled = React.useCallback(
+      ([enabledNum]: [number]) => {
+        const enabled = !!enabledNum;
+        if (actionLinksEnabled !== enabled) {
+          setActionLinksEnabled(enabled);
+        }
+      },
+      [actionLinksEnabled],
+    );
+
     return (
       <FullScreenViewModal
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
         isActive={isActive}
+        closeButtonEnabled={closeButtonEnabled}
+        actionLinksEnabled={actionLinksEnabled}
+        updateCloseButtonEnabled={updateCloseButtonEnabled}
+        updateActionLinksEnabled={updateActionLinksEnabled}
       />
     );
   });
