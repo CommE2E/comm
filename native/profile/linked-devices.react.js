@@ -57,7 +57,7 @@ function LinkedDevices(props: Props): React.Node {
 
   const userDevicesInfos: $ReadOnlyArray<DeviceIDAndPlatformDetails> =
     useSelector(getOwnPeerDevices);
-  const primaryDeviceID = userDevicesInfos[0].deviceID;
+  const primaryDeviceID: ?string = userDevicesInfos[0]?.deviceID;
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
