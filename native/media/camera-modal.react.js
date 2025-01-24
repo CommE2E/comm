@@ -104,16 +104,16 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type AutoFocusPointOfInterest = ?{
-  x: number,
-  y: number,
-  autoExposure?: boolean,
+  +x: number,
+  +y: number,
+  +autoExposure?: boolean,
 };
 
 type Dimensions = {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
+  +x: number,
+  +y: number,
+  +width: number,
+  +height: number,
 };
 
 type Props = {
