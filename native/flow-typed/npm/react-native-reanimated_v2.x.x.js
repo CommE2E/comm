@@ -606,7 +606,7 @@ declare module 'react-native-reanimated' {
     +isStatusBarTranslucentAndroid?: boolean,
   |}) => AnimatedKeyboardInfo;
 
-  declare type UseAnimatedReaction = <T: AnimatableValue>(
+  declare type UseAnimatedReaction = <T>(
     () => T,
     (currentValue: T, previousValue: T) => mixed,
   ) => void;
