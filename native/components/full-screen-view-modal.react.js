@@ -21,7 +21,14 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
-import Animated, { useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  runOnJS,
+  useAnimatedReaction,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import type { EventResult } from 'react-native-reanimated';
 import {
   SafeAreaView,
@@ -141,6 +148,11 @@ function runDecay(
   ]);
 }
 
+const defaultTimingConfig = {
+  duration: 250,
+  easing: Easing.out(Easing.ease),
+};
+
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
@@ -174,8 +186,6 @@ type Props = {
   +isActive: boolean,
   +closeButtonEnabled: boolean,
   +actionLinksEnabled: boolean,
-  +updateCloseButtonEnabled: ([number]) => void,
-  +updateActionLinksEnabled: ([number]) => void,
   +gesture: ExclusiveGesture,
   +closeButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
   +mediaIconsRef: { current: ?React.ElementRef<typeof View> },
@@ -184,9 +194,6 @@ type Props = {
 };
 
 class FullScreenViewModal extends React.PureComponent<Props> {
-  closeButtonLastState: Value = new Value(1);
-  actionLinksLastState: Value = new Value(1);
-
   centerX: Value;
   centerY: Value;
   frameWidth: Value;
@@ -376,14 +383,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
 
     const updates = [
-      this.singleTapUpdate(
-        singleTapState,
-        singleTapX,
-        singleTapY,
-        roundedCurScale,
-        curCloseButtonOpacity,
-        curActionLinksOpacity,
-      ),
       this.doubleTapUpdate(
         doubleTapState,
         doubleTapX,
@@ -494,92 +493,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  singleTapUpdate(
-    // Inputs
-    singleTapState: Node,
-    singleTapX: Node,
-    singleTapY: Node,
-    roundedCurScale: Node,
-    // Outputs
-    curCloseButtonOpacity: Value,
-    curActionLinksOpacity: Value,
-  ): Node {
-    const lastTapX = new Value(0);
-    const lastTapY = new Value(0);
-    const fingerJustReleased = and(
-      gestureJustEnded(singleTapState),
-      // TODO: migrate this in the next diffs
-      //this.outsideButtons(lastTapX, lastTapY),
-      1,
-    );
-
-    const wasZoomed = new Value(0);
-    const isZoomed = greaterThan(roundedCurScale, 1);
-    const becameUnzoomed = and(wasZoomed, not(isZoomed));
-
-    const closeButtonState = cond(
-      or(
-        fingerJustReleased,
-        and(becameUnzoomed, eq(this.closeButtonLastState, 0)),
-      ),
-      sub(1, this.closeButtonLastState),
-      this.closeButtonLastState,
-    );
-
-    const actionLinksState = cond(
-      isZoomed,
-      0,
-      cond(
-        or(fingerJustReleased, becameUnzoomed),
-        sub(1, this.actionLinksLastState),
-        this.actionLinksLastState,
-      ),
-    );
-
-    const closeButtonAppearClock = new Clock();
-    const closeButtonDisappearClock = new Clock();
-    const actionLinksAppearClock = new Clock();
-    const actionLinksDisappearClock = new Clock();
-    return block([
-      fingerJustReleased,
-      set(
-        curCloseButtonOpacity,
-        cond(
-          eq(closeButtonState, 1),
-          [
-            stopClock(closeButtonDisappearClock),
-            runTiming(closeButtonAppearClock, curCloseButtonOpacity, 1),
-          ],
-          [
-            stopClock(closeButtonAppearClock),
-            runTiming(closeButtonDisappearClock, curCloseButtonOpacity, 0),
-          ],
-        ),
-      ),
-      set(
-        curActionLinksOpacity,
-        cond(
-          eq(actionLinksState, 1),
-          [
-            stopClock(actionLinksDisappearClock),
-            runTiming(actionLinksAppearClock, curActionLinksOpacity, 1),
-          ],
-          [
-            stopClock(actionLinksAppearClock),
-            runTiming(actionLinksDisappearClock, curActionLinksOpacity, 0),
-          ],
-        ),
-      ),
-      set(this.actionLinksLastState, actionLinksState),
-      set(this.closeButtonLastState, closeButtonState),
-      set(wasZoomed, isZoomed),
-      set(lastTapX, singleTapX),
-      set(lastTapY, singleTapY),
-      call([eq(curCloseButtonOpacity, 1)], this.props.updateCloseButtonEnabled),
-      call([eq(curActionLinksOpacity, 1)], this.props.updateActionLinksEnabled),
-    ]);
   }
 
   doubleTapUpdate(
@@ -1090,7 +1003,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     const [actionLinksEnabled, setActionLinksEnabled] = React.useState(true);
 
     const updateCloseButtonEnabled = React.useCallback(
-      ([enabledNum]: [number]) => {
+      (enabledNum: number) => {
         const enabled = !!enabledNum;
         if (closeButtonEnabled !== enabled) {
           setCloseButtonEnabled(enabled);
@@ -1100,7 +1013,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     );
 
     const updateActionLinksEnabled = React.useCallback(
-      ([enabledNum]: [number]) => {
+      (enabledNum: number) => {
         const enabled = !!enabledNum;
         if (actionLinksEnabled !== enabled) {
           setActionLinksEnabled(enabled);
@@ -1188,6 +1101,10 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     const curY = useSharedValue(0);
     const curScale = useSharedValue(1);
 
+    const roundedCurScale = useDerivedValue(() => {
+      return Math.round(curScale.value * 1000) / 1000;
+    });
+
     const centerX = useSharedValue(dimensions.width / 2);
     const centerY = useSharedValue(dimensions.safeAreaHeight / 2);
 
@@ -1258,6 +1175,74 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       panActive.value = false;
     }, [panActive]);
 
+    const curCloseButtonOpacity = useSharedValue(1);
+    const curActionLinksOpacity = useSharedValue(1);
+    const targetCloseButtonOpacity = useSharedValue<0 | 1>(1);
+    const targetActionLinksOpacity = useSharedValue<0 | 1>(1);
+
+    const toggleCloseButton = React.useCallback(() => {
+      'worklet';
+      targetCloseButtonOpacity.value =
+        targetCloseButtonOpacity.value === 0 ? 1 : 0;
+      curCloseButtonOpacity.value = withTiming(
+        targetCloseButtonOpacity.value,
+        defaultTimingConfig,
+        isFinished => {
+          if (isFinished) {
+            runOnJS(updateCloseButtonEnabled)(targetCloseButtonOpacity.value);
+          }
+        },
+      );
+    }, [
+      curCloseButtonOpacity,
+      targetCloseButtonOpacity,
+      updateCloseButtonEnabled,
+    ]);
+
+    const toggleActionLinks = React.useCallback(() => {
+      'worklet';
+      targetActionLinksOpacity.value =
+        targetActionLinksOpacity.value === 0 ? 1 : 0;
+      curActionLinksOpacity.value = withTiming(
+        targetActionLinksOpacity.value,
+        defaultTimingConfig,
+        isFinished => {
+          if (isFinished) {
+            runOnJS(updateActionLinksEnabled)(targetActionLinksOpacity.value);
+          }
+        },
+      );
+    }, [
+      curActionLinksOpacity,
+      targetActionLinksOpacity,
+      updateActionLinksEnabled,
+    ]);
+
+    // when image became unzoomed then toggle buttons opacity accordingly
+    useAnimatedReaction(
+      () => roundedCurScale.value > 1,
+      (isZoomed, wasZoomed) => {
+        if (wasZoomed && !isZoomed) {
+          if (targetCloseButtonOpacity.value === 0) {
+            toggleCloseButton();
+          }
+          toggleActionLinks();
+        }
+      },
+    );
+
+    const singleTapUpdate = React.useCallback(
+      ({ x, y }: TapGestureEvent) => {
+        'worklet';
+        if (!outsideButtons(x, y)) {
+          return;
+        }
+        toggleCloseButton();
+        toggleActionLinks();
+      },
+      [outsideButtons, toggleActionLinks, toggleCloseButton],
+    );
+
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch()
         .onStart(pinchStart)
@@ -1267,14 +1252,16 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         .onUpdate(panUpdate)
         .onEnd(panEnd);
       const doubleTapGesture = Gesture.Tap().numberOfTaps(2);
-      const singleTapGesture = Gesture.Tap().numberOfTaps(1);
+      const singleTapGesture = Gesture.Tap()
+        .numberOfTaps(1)
+        .onEnd(singleTapUpdate);
 
       return Gesture.Exclusive(
         Gesture.Simultaneous(pinchGesture, panGesture),
         doubleTapGesture,
         singleTapGesture,
       );
-    }, [panEnd, panStart, panUpdate, pinchStart, pinchUpdate]);
+    }, [panEnd, panStart, panUpdate, pinchStart, pinchUpdate, singleTapUpdate]);
 
     return (
       <FullScreenViewModal
@@ -1284,8 +1271,6 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         isActive={isActive}
         closeButtonEnabled={closeButtonEnabled}
         actionLinksEnabled={actionLinksEnabled}
-        updateCloseButtonEnabled={updateCloseButtonEnabled}
-        updateActionLinksEnabled={updateActionLinksEnabled}
         gesture={gesture}
         closeButtonRef={closeButtonRef}
         mediaIconsRef={mediaIconsRef}
