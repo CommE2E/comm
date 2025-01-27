@@ -376,15 +376,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
 
     const updates = [
-      this.pinchUpdate(
-        pinchActive,
-        pinchScale,
-        pinchFocalX,
-        pinchFocalY,
-        curScale,
-        curX,
-        curY,
-      ),
       this.singleTapUpdate(
         singleTapState,
         singleTapX,
@@ -503,37 +494,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  pinchUpdate(
-    // Inputs
-    pinchActive: Node,
-    pinchScale: Node,
-    pinchFocalX: Node,
-    pinchFocalY: Node,
-    // Outputs
-    curScale: Value,
-    curX: Value,
-    curY: Value,
-  ): Node {
-    const deltaScale = scaleDelta(pinchScale, pinchActive);
-    const deltaPinchX = multiply(
-      sub(1, deltaScale),
-      sub(pinchFocalX, curX, this.centerX),
-    );
-    const deltaPinchY = multiply(
-      sub(1, deltaScale),
-      sub(pinchFocalY, curY, this.centerY),
-    );
-
-    return cond(
-      [deltaScale, pinchActive],
-      [
-        set(curX, add(curX, deltaPinchX)),
-        set(curY, add(curY, deltaPinchY)),
-        set(curScale, multiply(curScale, deltaScale)),
-      ],
-    );
   }
 
   singleTapUpdate(
@@ -1226,6 +1186,35 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
 
     const curX = useSharedValue(0);
     const curY = useSharedValue(0);
+    const curScale = useSharedValue(1);
+
+    const centerX = useSharedValue(dimensions.width / 2);
+    const centerY = useSharedValue(dimensions.safeAreaHeight / 2);
+
+    const lastPinchScale = useSharedValue(1);
+
+    const pinchStart = React.useCallback(() => {
+      'worklet';
+      lastPinchScale.value = 1;
+    }, [lastPinchScale]);
+
+    const pinchUpdate = React.useCallback(
+      ({ scale, focalX, focalY }: PinchGestureEvent) => {
+        'worklet';
+        const deltaScale = scale / lastPinchScale.value;
+        const deltaPinchX =
+          (1 - deltaScale) * (focalX - curX.value - centerX.value);
+        const deltaPinchY =
+          (1 - deltaScale) * (focalY - curY.value - centerY.value);
+
+        curX.value += deltaPinchX;
+        curY.value += deltaPinchY;
+        curScale.value *= deltaScale;
+
+        lastPinchScale.value = scale;
+      },
+      [centerX, centerY, curScale, curX, curY, lastPinchScale],
+    );
 
     const panActive = useSharedValue(false);
 
@@ -1270,7 +1259,9 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     }, [panActive]);
 
     const gesture = React.useMemo(() => {
-      const pinchGesture = Gesture.Pinch();
+      const pinchGesture = Gesture.Pinch()
+        .onStart(pinchStart)
+        .onUpdate(pinchUpdate);
       const panGesture = Gesture.Pan()
         .averageTouches(true)
         .onStart(panStart)
@@ -1284,7 +1275,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         doubleTapGesture,
         singleTapGesture,
       );
-    }, [panEnd, panStart, panUpdate]);
+    }, [panEnd, panStart, panUpdate, pinchStart, pinchUpdate]);
 
     return (
       <FullScreenViewModal
