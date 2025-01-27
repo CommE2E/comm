@@ -385,7 +385,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
         curX,
         curY,
       ),
-      this.panUpdate(panActive, panTranslationX, panTranslationY, curX, curY),
       this.singleTapUpdate(
         singleTapState,
         singleTapX,
@@ -534,23 +533,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
         set(curY, add(curY, deltaPinchY)),
         set(curScale, multiply(curScale, deltaScale)),
       ],
-    );
-  }
-
-  panUpdate(
-    // Inputs
-    panActive: Node,
-    panTranslationX: Node,
-    panTranslationY: Node,
-    // Outputs
-    curX: Value,
-    curY: Value,
-  ): Node {
-    const deltaX = panDelta(panTranslationX, panActive);
-    const deltaY = panDelta(panTranslationY, panActive);
-    return cond(
-      [deltaX, deltaY, panActive],
-      [set(curX, add(curX, deltaX)), set(curY, add(curY, deltaY))],
     );
   }
 
@@ -1211,8 +1193,6 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
 
     const insets = useSafeAreaInsets();
 
-    // TODO: use this in the next diffs
-    // eslint-disable-next-line no-unused-vars
     const outsideButtons = React.useCallback(
       (x: number, y: number): boolean => {
         'worklet';
@@ -1244,9 +1224,57 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       ],
     );
 
+    const curX = useSharedValue(0);
+    const curY = useSharedValue(0);
+
+    const panActive = useSharedValue(false);
+
+    const lastPanTranslationX = useSharedValue(0);
+    const lastPanTranslationY = useSharedValue(0);
+
+    const panStart = React.useCallback(
+      ({
+        absoluteX,
+        absoluteY,
+        translationX,
+        translationY,
+      }: PanGestureEvent) => {
+        'worklet';
+        lastPanTranslationX.value = 0;
+        lastPanTranslationY.value = 0;
+        panActive.value = outsideButtons(
+          absoluteX - translationX,
+          absoluteY - translationY,
+        );
+      },
+      [lastPanTranslationX, lastPanTranslationY, outsideButtons, panActive],
+    );
+
+    const panUpdate = React.useCallback(
+      ({ translationX, translationY }: PanGestureEvent) => {
+        'worklet';
+        if (!panActive.value) {
+          return;
+        }
+        curX.value += translationX - lastPanTranslationX.value;
+        curY.value += translationY - lastPanTranslationY.value;
+        lastPanTranslationX.value = translationX;
+        lastPanTranslationY.value = translationY;
+      },
+      [curX, curY, lastPanTranslationX, lastPanTranslationY, panActive],
+    );
+
+    const panEnd = React.useCallback(() => {
+      'worklet';
+      panActive.value = false;
+    }, [panActive]);
+
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch();
-      const panGesture = Gesture.Pan();
+      const panGesture = Gesture.Pan()
+        .onStart(panStart)
+        .onUpdate(panUpdate)
+        .onEnd(panEnd);
       const doubleTapGesture = Gesture.Tap().numberOfTaps(2);
       const singleTapGesture = Gesture.Tap().numberOfTaps(1);
 
@@ -1255,7 +1283,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         doubleTapGesture,
         singleTapGesture,
       );
-    }, []);
+    }, [panEnd, panStart, panUpdate]);
 
     return (
       <FullScreenViewModal
