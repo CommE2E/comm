@@ -82,8 +82,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
   virtual jsi::Value restoreUser(
       jsi::Runtime &rt,
       jsi::String userID,
-      std::optional<jsi::String> siweMessage,
-      std::optional<jsi::String> siweSignature,
+      std::optional<jsi::String> siweSocialProofMessage,
+      std::optional<jsi::String> siweSocialProofSignature,
       jsi::String keyPayload,
       jsi::String keyPayloadSignature,
       jsi::String contentPrekey,

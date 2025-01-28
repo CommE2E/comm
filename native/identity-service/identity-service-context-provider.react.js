@@ -551,8 +551,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       restoreUser: async (
         userID: string,
         deviceList: SignedDeviceList,
-        siweMessage?: string,
-        siweSignature?: string,
+        siweSocialProofMessage?: string,
+        siweSocialProofSignature?: string,
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
@@ -566,8 +566,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         ]);
         const restoreResult = await commRustModule.restoreUser(
           userID,
-          siweMessage,
-          siweSignature,
+          siweSocialProofMessage,
+          siweSocialProofSignature,
           blobPayload,
           signature,
           prekeys.contentPrekey,
