@@ -32,6 +32,7 @@ import {
   type UsersDevicesPlatformDetails,
   peersDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
+import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -551,8 +552,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       restoreUser: async (
         userID: string,
         deviceList: SignedDeviceList,
-        siweSocialProofMessage?: string,
-        siweSocialProofSignature?: string,
+        siweSocialProof?: SignedMessage,
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
@@ -566,8 +566,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         ]);
         const restoreResult = await commRustModule.restoreUser(
           userID,
-          siweSocialProofMessage,
-          siweSocialProofSignature,
+          siweSocialProof?.message,
+          siweSocialProof?.signature,
           blobPayload,
           signature,
           prekeys.contentPrekey,

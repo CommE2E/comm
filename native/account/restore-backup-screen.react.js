@@ -61,8 +61,7 @@ function RestoreBackupScreen(props: Props): React.Node {
           await restore(
             userIdentifier,
             credentials.backup.signature,
-            credentials.socialProof.message,
-            credentials.socialProof.signature,
+            credentials.socialProof,
           );
           await commCoreModule.setSIWEBackupSecrets(credentials.backup);
         }
