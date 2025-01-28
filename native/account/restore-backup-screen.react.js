@@ -58,12 +58,12 @@ function RestoreBackupScreen(props: Props): React.Node {
             password: credentials.password,
           });
         } else {
+          await commCoreModule.setSIWEBackupSecrets(credentials.backup);
           await restore(
             userIdentifier,
             credentials.backup.signature,
             credentials.socialProof,
           );
-          await commCoreModule.setSIWEBackupSecrets(credentials.backup);
         }
       } catch (e) {
         const messageForException = getMessageForException(e);
