@@ -59,6 +59,7 @@ import {
   gestureJustStarted,
   gestureJustEnded,
   runTiming,
+  clampV2,
 } from '../utils/animation-utils.js';
 
 const {
@@ -92,34 +93,6 @@ const {
   clockRunning,
   decay,
 } = Animated;
-
-function scaleDelta(value: Node, gestureActive: Node): Node {
-  const diffThisFrame = new Value(1);
-  const prevValue = new Value(1);
-  return cond(
-    gestureActive,
-    [
-      set(diffThisFrame, divide(value, prevValue)),
-      set(prevValue, value),
-      diffThisFrame,
-    ],
-    set(prevValue, 1),
-  );
-}
-
-function panDelta(value: Node, gestureActive: Node): Node {
-  const diffThisFrame = new Value(0);
-  const prevValue = new Value(0);
-  return cond(
-    gestureActive,
-    [
-      set(diffThisFrame, sub(value, prevValue)),
-      set(prevValue, value),
-      diffThisFrame,
-    ],
-    set(prevValue, 0),
-  );
-}
 
 function runDecay(
   clock: Clock,
@@ -383,17 +356,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
 
     const updates = [
-      this.doubleTapUpdate(
-        doubleTapState,
-        doubleTapX,
-        doubleTapY,
-        roundedCurScale,
-        zoomClock,
-        gestureActive,
-        curScale,
-        curX,
-        curY,
-      ),
       this.backdropOpacityUpdate(
         panJustEnded,
         pinchActive,
@@ -493,79 +455,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  doubleTapUpdate(
-    // Inputs
-    doubleTapState: Node,
-    doubleTapX: Node,
-    doubleTapY: Node,
-    roundedCurScale: Node,
-    zoomClock: Clock,
-    gestureActive: Node,
-    // Outputs
-    curScale: Value,
-    curX: Value,
-    curY: Value,
-  ): Node {
-    const zoomClockRunning = clockRunning(zoomClock);
-    const zoomActive = and(not(gestureActive), zoomClockRunning);
-    const targetScale = cond(greaterThan(roundedCurScale, 1), 1, 3);
-
-    const tapXDiff = sub(doubleTapX, this.centerX, curX);
-    const tapYDiff = sub(doubleTapY, this.centerY, curY);
-    const tapXPercent = divide(tapXDiff, this.imageWidth, curScale);
-    const tapYPercent = divide(tapYDiff, this.imageHeight, curScale);
-
-    const horizPanSpace = this.horizontalPanSpace(targetScale);
-    const vertPanSpace = this.verticalPanSpace(targetScale);
-    const horizPanPercent = divide(horizPanSpace, this.imageWidth, targetScale);
-    const vertPanPercent = divide(vertPanSpace, this.imageHeight, targetScale);
-
-    const tapXPercentClamped = clamp(
-      tapXPercent,
-      multiply(-1, horizPanPercent),
-      horizPanPercent,
-    );
-    const tapYPercentClamped = clamp(
-      tapYPercent,
-      multiply(-1, vertPanPercent),
-      vertPanPercent,
-    );
-    const targetX = multiply(tapXPercentClamped, this.imageWidth, targetScale);
-    const targetY = multiply(tapYPercentClamped, this.imageHeight, targetScale);
-
-    const targetRelativeScale = divide(targetScale, curScale);
-    const targetRelativeX = multiply(-1, add(targetX, curX));
-    const targetRelativeY = multiply(-1, add(targetY, curY));
-
-    const zoomScale = runTiming(zoomClock, 1, targetRelativeScale);
-    const zoomX = runTiming(zoomClock, 0, targetRelativeX, false);
-    const zoomY = runTiming(zoomClock, 0, targetRelativeY, false);
-
-    const deltaScale = scaleDelta(zoomScale, zoomActive);
-    const deltaX = panDelta(zoomX, zoomActive);
-    const deltaY = panDelta(zoomY, zoomActive);
-
-    const fingerJustReleased = and(
-      gestureJustEnded(doubleTapState),
-      // TODO: migrate this in the next diffs
-      // this.outsideButtons(doubleTapX, doubleTapY),
-      1,
-    );
-
-    return cond(
-      [fingerJustReleased, deltaX, deltaY, deltaScale, gestureActive],
-      stopClock(zoomClock),
-      cond(or(zoomClockRunning, fingerJustReleased), [
-        zoomX,
-        zoomY,
-        zoomScale,
-        set(curX, add(curX, deltaX)),
-        set(curY, add(curY, deltaY)),
-        set(curScale, multiply(curScale, deltaScale)),
-      ]),
-    );
   }
 
   backdropOpacityUpdate(
@@ -1107,6 +996,32 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
 
     const centerX = useSharedValue(dimensions.width / 2);
     const centerY = useSharedValue(dimensions.safeAreaHeight / 2);
+    const frameWidth = useSharedValue(dimensions.width);
+    const frameHeight = useSharedValue(dimensions.safeAreaHeight);
+    const imageWidth = useSharedValue(props.contentDimensions.width);
+    const imageHeight = useSharedValue(props.contentDimensions.height);
+
+    // How much space do we have to pan the image horizontally?
+    const getHorizontalPanSpace = React.useCallback(
+      (scale: number): number => {
+        'worklet';
+        const apparentWidth = imageWidth.value * scale;
+        const horizPop = (apparentWidth - frameWidth.value) / 2;
+        return Math.max(horizPop, 0);
+      },
+      [frameWidth, imageWidth],
+    );
+
+    // How much space do we have to pan the image vertically?
+    const getVerticalPanSpace = React.useCallback(
+      (scale: number): number => {
+        'worklet';
+        const apparentHeight = imageHeight.value * scale;
+        const vertPop = (apparentHeight - frameHeight.value) / 2;
+        return Math.max(vertPop, 0);
+      },
+      [frameHeight, imageHeight],
+    );
 
     const lastPinchScale = useSharedValue(1);
 
@@ -1243,6 +1158,57 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       [outsideButtons, toggleActionLinks, toggleCloseButton],
     );
 
+    const doubleTapUpdate = React.useCallback(
+      ({ x, y }: TapGestureEvent) => {
+        'worklet';
+        if (!outsideButtons(x, y)) {
+          return;
+        }
+        const targetScale = roundedCurScale.value > 1 ? 1 : 3;
+
+        const tapXDiff = x - centerX.value - curX.value;
+        const tapYDiff = y - centerY.value - curY.value;
+        const tapXPercent = tapXDiff / imageWidth.value / curScale.value;
+        const tapYPercent = tapYDiff / imageHeight.value / curScale.value;
+
+        const horizPanSpace = getHorizontalPanSpace(targetScale);
+        const vertPanSpace = getVerticalPanSpace(targetScale);
+        const horizPanPercent = horizPanSpace / imageWidth.value / targetScale;
+        const vertPanPercent = vertPanSpace / imageHeight.value / targetScale;
+
+        const tapXPercentClamped = clampV2(
+          tapXPercent,
+          -horizPanPercent,
+          horizPanPercent,
+        );
+        const tapYPercentClamped = clampV2(
+          tapYPercent,
+          -vertPanPercent,
+          vertPanPercent,
+        );
+
+        const targetX = tapXPercentClamped * imageWidth.value * targetScale;
+        const targetY = tapYPercentClamped * imageHeight.value * targetScale;
+
+        curScale.value = withTiming(targetScale, defaultTimingConfig);
+        curX.value = withTiming(targetX, defaultTimingConfig);
+        curY.value = withTiming(targetY, defaultTimingConfig);
+      },
+      [
+        centerX,
+        centerY,
+        curScale,
+        curX,
+        curY,
+        getHorizontalPanSpace,
+        imageHeight,
+        imageWidth,
+        outsideButtons,
+        roundedCurScale,
+        getVerticalPanSpace,
+      ],
+    );
+
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch()
         .onStart(pinchStart)
@@ -1251,7 +1217,9 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         .onStart(panStart)
         .onUpdate(panUpdate)
         .onEnd(panEnd);
-      const doubleTapGesture = Gesture.Tap().numberOfTaps(2);
+      const doubleTapGesture = Gesture.Tap()
+        .numberOfTaps(2)
+        .onEnd(doubleTapUpdate);
       const singleTapGesture = Gesture.Tap()
         .numberOfTaps(1)
         .onEnd(singleTapUpdate);
@@ -1261,7 +1229,15 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         doubleTapGesture,
         singleTapGesture,
       );
-    }, [panEnd, panStart, panUpdate, pinchStart, pinchUpdate, singleTapUpdate]);
+    }, [
+      doubleTapUpdate,
+      panEnd,
+      panStart,
+      panUpdate,
+      pinchStart,
+      pinchUpdate,
+      singleTapUpdate,
+    ]);
 
     return (
       <FullScreenViewModal
