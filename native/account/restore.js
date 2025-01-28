@@ -12,6 +12,7 @@ import { useLogIn } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { SignedDeviceList } from 'lib/types/identity-service-types.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
+import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
@@ -29,8 +30,7 @@ function useRestoreProtocol(): (
   // password or SIWE signature
   secret: string,
   // social proof for SIWE restore
-  siweMessage?: string,
-  siweSignature?: string,
+  siweSocialProof?: SignedMessage,
 ) => Promise<RestoreUserResult> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
@@ -49,8 +49,7 @@ function useRestoreProtocol(): (
     async (
       userIdentifier: string,
       secret: string,
-      siweMessage?: string,
-      siweSignature?: string,
+      siweSocialProof?: SignedMessage,
     ) => {
       //1. Runs Key Generation
       const { olmAPI } = getConfig();
@@ -94,8 +93,7 @@ function useRestoreProtocol(): (
       const result = await restoreUser(
         userID,
         signedDeviceList,
-        siweMessage,
-        siweSignature,
+        siweSocialProof,
       );
 
       //5. Mark keys as published
@@ -137,8 +135,7 @@ function useRestoreProtocol(): (
 function useRestore(): (
   userIdentifier: string,
   secret: string,
-  siweMessage?: string,
-  siweSignature?: string,
+  siweSocialProof?: SignedMessage,
 ) => Promise<void> {
   const restoreProtocol = useRestoreProtocol();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -146,15 +143,9 @@ function useRestore(): (
     (
       userIdentifier: string,
       secret: string,
-      siweMessage?: string,
-      siweSignature?: string,
+      siweSocialProof?: SignedMessage,
     ) => {
-      const promise = restoreProtocol(
-        userIdentifier,
-        secret,
-        siweMessage,
-        siweSignature,
-      );
+      const promise = restoreProtocol(userIdentifier, secret, siweSocialProof);
       void dispatchActionPromise(restoreUserActionTypes, promise);
       return promise;
     },
@@ -163,12 +154,8 @@ function useRestore(): (
 
   const logIn = useLogIn();
   return React.useCallback(
-    (
-      userIdentifier: string,
-      secret: string,
-      siweMessage?: string,
-      siweSignature?: string,
-    ) => logIn(restoreAuth(userIdentifier, secret, siweMessage, siweSignature)),
+    (userIdentifier: string, secret: string, siweSocialProof?: SignedMessage) =>
+      logIn(restoreAuth(userIdentifier, secret, siweSocialProof)),
     [logIn, restoreAuth],
   );
 }
