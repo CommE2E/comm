@@ -553,6 +553,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         userID: string,
         deviceList: SignedDeviceList,
         siweSocialProof?: SignedMessage,
+        backupSecret: string,
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
@@ -577,6 +578,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
           JSON.stringify(deviceList),
+          backupSecret,
         );
 
         return await processAuthResult(

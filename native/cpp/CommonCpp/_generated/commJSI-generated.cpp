@@ -248,7 +248,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages(js
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->fetchMessages(rt, args[0].asString(rt), args[1].asNumber(), args[2].asNumber());
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreUser(rt, args[0].asString(rt), args[1].isNull() || args[1].isUndefined() ? std::nullopt : std::make_optional(args[1].asString(rt)), args[2].isNull() || args[2].isUndefined() ? std::nullopt : std::make_optional(args[2].asString(rt)), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asString(rt), args[9].asObject(rt).asArray(rt), args[10].asObject(rt).asArray(rt), args[11].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreUser(rt, args[0].asString(rt), args[1].isNull() || args[1].isUndefined() ? std::nullopt : std::make_optional(args[1].asString(rt)), args[2].isNull() || args[2].isUndefined() ? std::nullopt : std::make_optional(args[2].asString(rt)), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asString(rt), args[9].asObject(rt).asArray(rt), args[10].asObject(rt).asArray(rt), args[11].asString(rt), args[12].asString(rt));
 }
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
@@ -329,7 +329,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getRelatedMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessages};
   methodMap_["searchMessages"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages};
   methodMap_["fetchMessages"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages};
-  methodMap_["restoreUser"] = MethodMetadata {12, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreUser};
+  methodMap_["restoreUser"] = MethodMetadata {13, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreUser};
 }
 
 
