@@ -3391,31 +3391,33 @@ jsi::Value CommCoreModule::restoreUser(
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        std::string error;
-        try {
-          auto currentID = RustPromiseManager::instance.addPromise(
-              {promise, this->jsInvoker_, innerRt});
-          identityRestoreUser(
-              userIDRust,
-              siweSocialProofMessageRust,
-              siweSocialProofSignatureRust,
-              keyPayloadRust,
-              keyPayloadSignatureRust,
-              contentPrekeyRust,
-              contentPrekeySignatureRust,
-              notifPrekeyRust,
-              notifPrekeySignatureRust,
-              contentOneTimeKeysRust,
-              notifOneTimeKeysRust,
-              deviceListRust,
-              currentID);
-        } catch (const std::exception &e) {
-          error = e.what();
-        };
-        if (!error.empty()) {
-          this->jsInvoker_->invokeAsync(
-              [error, promise]() { promise->reject(error); });
-        }
+        this->cryptoThread->scheduleTask([=, &innerRt]() {
+          std::string error;
+          try {
+            auto currentID = RustPromiseManager::instance.addPromise(
+                {promise, this->jsInvoker_, innerRt});
+            identityRestoreUser(
+                userIDRust,
+                siweSocialProofMessageRust,
+                siweSocialProofSignatureRust,
+                keyPayloadRust,
+                keyPayloadSignatureRust,
+                contentPrekeyRust,
+                contentPrekeySignatureRust,
+                notifPrekeyRust,
+                notifPrekeySignatureRust,
+                contentOneTimeKeysRust,
+                notifOneTimeKeysRust,
+                deviceListRust,
+                currentID);
+          } catch (const std::exception &e) {
+            error = e.what();
+          };
+          if (!error.empty()) {
+            this->jsInvoker_->invokeAsync(
+                [error, promise]() { promise->reject(error); });
+          }
+        });
       });
 }
 
