@@ -3421,28 +3421,59 @@ jsi::Value CommCoreModule::restoreUser(
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string backupMessage;
+        try {
+          backupMessage = getSIWEBackupMessage();
+        } catch (std::system_error &e) {
+          this->jsInvoker_->invokeAsync(
+              [=, &innerRt]() { promise->reject(e.what()); });
+          return;
+        }
+
         this->cryptoThread->scheduleTask([=, &innerRt]() {
           std::string error;
+          std::string backupID;
           try {
-            auto currentID = RustPromiseManager::instance.addPromise(
-                {promise, this->jsInvoker_, innerRt});
-            identityRestoreUser(
-                userIDRust,
-                siweSocialProofMessageRust,
-                siweSocialProofSignatureRust,
-                keyPayloadRust,
-                keyPayloadSignatureRust,
-                contentPrekeyRust,
-                contentPrekeySignatureRust,
-                notifPrekeyRust,
-                notifPrekeySignatureRust,
-                contentOneTimeKeysRust,
-                notifOneTimeKeysRust,
-                deviceListRust,
-                currentID);
+            backupID = crypto::Tools::generateRandomURLSafeString(32);
           } catch (const std::exception &e) {
-            error = e.what();
-          };
+            error = "Failed to generate backupID";
+          }
+
+          std::string pickleKey;
+          std::string pickledAccount;
+          if (!error.size()) {
+            try {
+              pickleKey = crypto::Tools::generateRandomString(64);
+              pickledAccount =
+                  this->contentCryptoModule->pickleAccountToString(pickleKey);
+            } catch (const std::exception &e) {
+              error = "Failed to pickle crypto account";
+            }
+          }
+
+          if (!error.size()) {
+            try {
+              auto currentID = RustPromiseManager::instance.addPromise(
+                  {promise, this->jsInvoker_, innerRt});
+              identityRestoreUser(
+                  userIDRust,
+                  siweSocialProofMessageRust,
+                  siweSocialProofSignatureRust,
+                  keyPayloadRust,
+                  keyPayloadSignatureRust,
+                  contentPrekeyRust,
+                  contentPrekeySignatureRust,
+                  notifPrekeyRust,
+                  notifPrekeySignatureRust,
+                  contentOneTimeKeysRust,
+                  notifOneTimeKeysRust,
+                  deviceListRust,
+                  currentID);
+            } catch (const std::exception &e) {
+              error = e.what();
+            };
+          }
+
           if (!error.empty()) {
             this->jsInvoker_->invokeAsync(
                 [error, promise]() { promise->reject(error); });
