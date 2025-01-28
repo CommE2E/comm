@@ -76,8 +76,8 @@ export interface Spec extends TurboModule {
   ) => Promise<string>;
   +restoreUser: (
     userID: string,
-    siweMessage: ?string,
-    siweSignature: ?string,
+    siweSocialProofMessage: ?string,
+    siweSocialProofSignature: ?string,
     keyPayload: string,
     keyPayloadSignature: string,
     contentPrekey: string,

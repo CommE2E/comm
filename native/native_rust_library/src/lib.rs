@@ -132,8 +132,8 @@ mod ffi {
     #[cxx_name = "identityRestoreUser"]
     fn restore_user(
       user_id: String,
-      siwe_message: String,
-      siwe_signature: String,
+      siwe_social_proof_message: String,
+      siwe_social_proof_signature: String,
       key_payload: String,
       key_payload_signature: String,
       content_prekey: String,

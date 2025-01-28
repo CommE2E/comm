@@ -320,8 +320,8 @@ jsi::Value CommRustModule::logInWalletUser(
 jsi::Value CommRustModule::restoreUser(
     jsi::Runtime &rt,
     jsi::String userID,
-    std::optional<jsi::String> siweMessage,
-    std::optional<jsi::String> siweSignature,
+    std::optional<jsi::String> siweSocialProofMessage,
+    std::optional<jsi::String> siweSocialProofSignature,
     jsi::String keyPayload,
     jsi::String keyPayloadSignature,
     jsi::String contentPrekey,
@@ -331,13 +331,15 @@ jsi::Value CommRustModule::restoreUser(
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys,
     jsi::String deviceList) {
-  rust::String siweMessageRust = "";
-  if (siweMessage.has_value()) {
-    siweMessageRust = jsiStringToRustString(siweMessage.value(), rt);
+  rust::String siweSocialProofMessageRust = "";
+  if (siweSocialProofMessage.has_value()) {
+    siweSocialProofMessageRust =
+        jsiStringToRustString(siweSocialProofMessage.value(), rt);
   }
-  rust::String siweSignatureRust = "";
-  if (siweSignature.has_value()) {
-    siweSignatureRust = jsiStringToRustString(siweSignature.value(), rt);
+  rust::String siweSocialProofSignatureRust = "";
+  if (siweSocialProofSignature.has_value()) {
+    siweSocialProofSignatureRust =
+        jsiStringToRustString(siweSocialProofSignature.value(), rt);
   }
   auto userIDRust = jsiStringToRustString(userID, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -360,8 +362,8 @@ jsi::Value CommRustModule::restoreUser(
               {promise, this->jsInvoker_, innerRt});
           identityRestoreUser(
               userIDRust,
-              siweMessageRust,
-              siweSignatureRust,
+              siweSocialProofMessageRust,
+              siweSocialProofSignatureRust,
               keyPayloadRust,
               keyPayloadSignatureRust,
               contentPrekeyRust,
