@@ -214,6 +214,20 @@ interface Spec extends TurboModule {
     limit: number,
     offset: number,
   ) => Promise<Array<ClientDBMessageInfo>>;
+  +restoreUser: (
+    userID: string,
+    siweSocialProofMessage: ?string,
+    siweSocialProofSignature: ?string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+    deviceList: string,
+  ) => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {

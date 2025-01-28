@@ -564,7 +564,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const restoreResult = await commRustModule.restoreUser(
+        const restoreResult = await commCoreModule.restoreUser(
           userID,
           siweSocialProof?.message,
           siweSocialProof?.signature,

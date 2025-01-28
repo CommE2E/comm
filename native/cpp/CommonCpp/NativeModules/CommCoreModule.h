@@ -271,6 +271,20 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String threadID,
       double limit,
       double offset) override;
+  virtual jsi::Value restoreUser(
+      jsi::Runtime &rt,
+      jsi::String userID,
+      std::optional<jsi::String> siweSocialProofMessage,
+      std::optional<jsi::String> siweSocialProofSignature,
+      jsi::String keyPayload,
+      jsi::String keyPayloadSignature,
+      jsi::String contentPrekey,
+      jsi::String contentPrekeySignature,
+      jsi::String notifPrekey,
+      jsi::String notifPrekeySignature,
+      jsi::Array contentOneTimeKeys,
+      jsi::Array notifOneTimeKeys,
+      jsi::String deviceList) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
