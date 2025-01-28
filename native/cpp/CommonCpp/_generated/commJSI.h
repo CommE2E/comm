@@ -96,6 +96,7 @@ public:
   virtual jsi::Value getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) = 0;
   virtual jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) = 0;
   virtual jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) = 0;
+  virtual jsi::Value restoreUser(jsi::Runtime &rt, jsi::String userID, std::optional<jsi::String> siweSocialProofMessage, std::optional<jsi::String> siweSocialProofSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String deviceList) = 0;
 
 };
 
@@ -724,6 +725,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::fetchMessages, jsInvoker_, instance_, std::move(threadID), std::move(limit), std::move(offset));
+    }
+    jsi::Value restoreUser(jsi::Runtime &rt, jsi::String userID, std::optional<jsi::String> siweSocialProofMessage, std::optional<jsi::String> siweSocialProofSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String deviceList) override {
+      static_assert(
+          bridging::getParameterCount(&T::restoreUser) == 13,
+          "Expected restoreUser(...) to have 13 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::restoreUser, jsInvoker_, instance_, std::move(userID), std::move(siweSocialProofMessage), std::move(siweSocialProofSignature), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys), std::move(deviceList));
     }
 
   private:
