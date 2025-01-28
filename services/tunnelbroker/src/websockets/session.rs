@@ -745,6 +745,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
   pub async fn send_message_to_device(&mut self, message: Message) {
     if let Err(e) = self.tx.send(message).await {
+      if should_ignore_error(&e) {
+        debug!("Ignored error when sending message to device: {e:?}");
+        return;
+      }
       error!(
         errorType = error_types::WEBSOCKET_ERROR,
         "Failed to send message to device: {}", e
@@ -864,5 +868,20 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       .map_err(SessionError::DatabaseError)?;
 
     Ok(())
+  }
+}
+
+fn should_ignore_error(err: &hyper_tungstenite::tungstenite::Error) -> bool {
+  use hyper_tungstenite::tungstenite::Error as E;
+  use std::io::ErrorKind;
+
+  match err {
+    E::ConnectionClosed | E::AlreadyClosed => true,
+    E::Io(io_error) => match io_error.kind() {
+      // The operation failed because a pipe was closed.
+      ErrorKind::BrokenPipe => true,
+      _ => false,
+    },
+    _ => false,
   }
 }
