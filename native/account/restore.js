@@ -97,6 +97,7 @@ function useRestoreProtocol(): (
         userID,
         signedDeviceList,
         siweSocialProof,
+        secret,
       );
 
       //6. Mark keys as published
