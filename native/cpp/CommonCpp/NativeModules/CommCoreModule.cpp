@@ -3395,7 +3395,8 @@ jsi::Value CommCoreModule::restoreUser(
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys,
-    jsi::String deviceList) {
+    jsi::String deviceList,
+    jsi::String backupSecret) {
   rust::String siweSocialProofMessageRust = "";
   if (siweSocialProofMessage.has_value()) {
     siweSocialProofMessageRust =
@@ -3418,6 +3419,7 @@ jsi::Value CommCoreModule::restoreUser(
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
   auto deviceListRust = jsiStringToRustString(deviceList, rt);
+  auto backupSecretRust = jsiStringToRustString(backupSecret, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

@@ -231,6 +231,7 @@ interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
     deviceList: string,
+    backupSecret: string,
   ) => Promise<string>;
 }
 
