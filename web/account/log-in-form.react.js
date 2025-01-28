@@ -13,7 +13,6 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import stores from 'lib/facts/stores.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingRestoreFlow } from 'lib/utils/services-utils.js';
 
@@ -40,12 +39,8 @@ function LegacyLoginForm() {
     });
   }, [dispatch]);
 
-  const qrCodeLoginButton = React.useMemo(() => {
-    if (!isDev) {
-      return null;
-    }
-
-    return (
+  const qrCodeLoginButton = React.useMemo(
+    () => (
       <div className={css.form_qrcode_login}>
         <Button
           variant="outline"
@@ -55,8 +50,9 @@ function LegacyLoginForm() {
           Sign in via QR Code
         </Button>
       </div>
-    );
-  }, [onQRCodeLoginButtonClick]);
+    ),
+    [onQRCodeLoginButtonClick],
+  );
 
   const [siweAuthFlowSelected, setSIWEAuthFlowSelected] =
     React.useState<boolean>(false);
