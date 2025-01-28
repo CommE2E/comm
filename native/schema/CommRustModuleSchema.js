@@ -74,20 +74,6 @@ export interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
-  +restoreUser: (
-    userID: string,
-    siweSocialProofMessage: ?string,
-    siweSocialProofSignature: ?string,
-    keyPayload: string,
-    keyPayloadSignature: string,
-    contentPrekey: string,
-    contentPrekeySignature: string,
-    notifPrekey: string,
-    notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
-    deviceList: string,
-  ) => Promise<string>;
   +updatePassword: (
     userID: string,
     deviceID: string,
