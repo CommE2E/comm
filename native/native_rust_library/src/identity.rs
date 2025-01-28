@@ -147,8 +147,8 @@ pub struct RegisterWalletUserInfo {
 
 pub struct RestoreUserInfo {
   pub user_id: String,
-  pub siwe_message: Option<String>,
-  pub siwe_signature: Option<String>,
+  pub siwe_social_proof_message: Option<String>,
+  pub siwe_social_proof_signature: Option<String>,
   pub device_keys: DeviceKeys,
   pub device_list: String,
 }

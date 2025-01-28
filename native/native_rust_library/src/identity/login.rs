@@ -96,8 +96,8 @@ pub mod ffi {
   #[instrument]
   pub fn restore_user(
     user_id: String,
-    siwe_message: String,
-    siwe_signature: String,
+    siwe_social_proof_message: String,
+    siwe_social_proof_signature: String,
     key_payload: String,
     key_payload_signature: String,
     content_prekey: String,
@@ -110,12 +110,14 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let siwe_message = Some(siwe_message).filter(|it| !it.is_empty());
-      let siwe_signature = Some(siwe_signature).filter(|it| !it.is_empty());
+      let siwe_social_proof_message =
+        Some(siwe_social_proof_message).filter(|it| !it.is_empty());
+      let siwe_social_proof_signature =
+        Some(siwe_social_proof_signature).filter(|it| !it.is_empty());
       let restored_user_info = RestoreUserInfo {
         user_id,
-        siwe_message,
-        siwe_signature,
+        siwe_social_proof_message,
+        siwe_social_proof_signature,
         device_list,
         device_keys: DeviceKeys {
           key_payload,
@@ -268,8 +270,8 @@ async fn restore_user_helper(
 ) -> Result<String, Error> {
   let restore_request = RestoreUserRequest {
     user_id: wallet_user_info.user_id,
-    siwe_message: wallet_user_info.siwe_message,
-    siwe_signature: wallet_user_info.siwe_signature,
+    siwe_message: wallet_user_info.siwe_social_proof_message,
+    siwe_signature: wallet_user_info.siwe_social_proof_signature,
     device_list: wallet_user_info.device_list,
     device_key_upload: Some(wallet_user_info.device_keys.into()),
   };
