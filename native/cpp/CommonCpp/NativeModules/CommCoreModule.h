@@ -288,7 +288,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys,
-      jsi::String deviceList) override;
+      jsi::String deviceList,
+      jsi::String backupSecret) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
