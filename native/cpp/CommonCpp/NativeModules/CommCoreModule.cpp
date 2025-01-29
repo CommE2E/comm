@@ -2664,14 +2664,14 @@ jsi::Value CommCoreModule::getQRAuthBackupData(jsi::Runtime &rt) {
             backupID =
                 DatabaseManager::getQueryExecutor().getMetadata("backupID");
             folly::Optional<std::string> backupDataKeyOpt =
-                CommSecureStore::get(CommSecureStore::encryptionKey);
+                CommSecureStore::get(CommSecureStore::backupDataKey);
             if (backupDataKeyOpt.hasValue()) {
               backupDataKey = backupDataKeyOpt.value();
             } else {
               throw std::runtime_error("missing backupDataKey");
             }
             folly::Optional<std::string> backupLogDataKeyOpt =
-                CommSecureStore::get(CommSecureStore::backupLogsEncryptionKey);
+                CommSecureStore::get(CommSecureStore::backupLogDataKey);
             if (backupLogDataKeyOpt.hasValue()) {
               backupLogDataKey = backupLogDataKeyOpt.value();
             } else {

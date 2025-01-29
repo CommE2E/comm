@@ -28,15 +28,15 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void closeConnection();
 
   static std::once_flag initialized;
-  static int sqlcipherEncryptionKeySize;
-  static int backupLogsEncryptionKeySize;
-  static std::string backupLogsEncryptionKey;
+  static int backupDataKeySize;
+  static std::string backupLogDataKey;
+  static int backupLogDataKeySize;
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
   static std::unordered_set<std::string> backedUpTablesBlocklist;
-  static void generateFreshEncryptionKey();
-  static void generateFreshBackupLogsEncryptionKey();
+  static void generateBackupDataKey();
+  static void generateBackupLogDataKey();
   static void initializeTablesForLogMonitoring();
 #else
   static SQLiteConnectionManager connectionManager;
@@ -51,7 +51,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
 public:
   static std::string sqliteFilePath;
-  static std::string encryptionKey;
+  static std::string backupDataKey;
 
   SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
