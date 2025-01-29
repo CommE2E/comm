@@ -3160,6 +3160,30 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
   }
   this->setMetadata("logID", std::to_string(std::stoi(logID) + 1));
 }
+
+void SQLiteQueryExecutor::setUserDataKeys(
+    const std::string &backupDataKey,
+    const std::string &backupLogDataKey) const {
+  if (backupDataKey.size() != SQLiteQueryExecutor::backupDataKeySize) {
+    throw std::runtime_error("invalid backupDataKey size");
+  }
+
+  if (backupLogDataKey.size() != SQLiteQueryExecutor::backupLogDataKeySize) {
+    throw std::runtime_error("invalid backupLogDataKey size");
+  }
+
+  std::string rekey_encryption_key_query =
+      "PRAGMA rekey = \"x'" + backupDataKey + "'\";";
+
+  executeQuery(
+      SQLiteQueryExecutor::getConnection(), rekey_encryption_key_query);
+
+  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  SQLiteQueryExecutor::backupDataKey = backupDataKey;
+
+  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+}
 #endif
 
 void SQLiteQueryExecutor::restoreFromMainCompaction(
