@@ -13,8 +13,9 @@ use super::{
   IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo,
   RestoreUserInfo, PLATFORM_METADATA,
 };
+use crate::backup::create_ephemeral_user_keys_compaction;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
-use crate::{Error, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
+use crate::{Error, StringError, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
 #[allow(clippy::too_many_arguments)]
 pub mod ffi {
@@ -276,15 +277,28 @@ async fn log_in_wallet_user_helper(
 }
 
 async fn restore_user_helper(
-  wallet_user_info: RestoreUserInfo,
+  user_info: RestoreUserInfo,
 ) -> Result<String, Error> {
   let restore_request = RestoreUserRequest {
-    user_id: wallet_user_info.user_id,
-    siwe_message: wallet_user_info.siwe_social_proof_message,
-    siwe_signature: wallet_user_info.siwe_social_proof_signature,
-    device_list: wallet_user_info.device_list,
-    device_key_upload: Some(wallet_user_info.device_keys.into()),
+    user_id: user_info.user_id,
+    siwe_message: user_info.siwe_social_proof_message,
+    siwe_signature: user_info.siwe_social_proof_signature,
+    device_list: user_info.device_list,
+    device_key_upload: Some(user_info.device_keys.into()),
   };
+
+  // TODO: use this value after RPC update is finished
+  let _user_keys = create_ephemeral_user_keys_compaction(
+    user_info.backup_id,
+    user_info.backup_secret,
+    user_info.pickle_key,
+    user_info.pickled_account,
+  )
+  .await
+  .map_err(|err| Error::Generic(StringError(err.to_string())))?;
+  // we should also add `backupID` `and `siwe_backup_msg`
+  // note that `siwe_backup_msg` should be optional in RPC here
+  // we should decide on this based on whether this is empty string or not
 
   let mut identity_client =
     get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())

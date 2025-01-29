@@ -284,12 +284,12 @@ pub mod ffi {
   }
 }
 
-pub async fn create_user_keys_compaction(
+pub async fn get_encrypted_user_keys(
   backup_id: String,
   backup_secret: String,
   pickle_key: String,
   pickled_account: String,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<Vec<u8>, Box<dyn Error>> {
   let mut backup_key =
     compute_backup_key(backup_secret.as_bytes(), backup_id.as_bytes())?;
 
@@ -305,12 +305,48 @@ pub async fn create_user_keys_compaction(
     pickle_key,
     pickled_account,
   };
-  let encrypted_user_keys = user_keys.encrypt(&mut backup_key)?;
+  user_keys.encrypt(&mut backup_key)
+}
+
+pub async fn create_user_keys_compaction(
+  backup_id: String,
+  backup_secret: String,
+  pickle_key: String,
+  pickled_account: String,
+) -> Result<(), Box<dyn Error>> {
+  let encrypted_user_keys = get_encrypted_user_keys(
+    backup_id.clone(),
+    backup_secret,
+    pickle_key,
+    pickled_account,
+  )
+  .await?;
 
   let user_keys_file = get_backup_user_keys_file_path(&backup_id)?;
   tokio::fs::write(user_keys_file, encrypted_user_keys).await?;
 
   Ok(())
+}
+
+pub async fn create_ephemeral_user_keys_compaction(
+  backup_id: String,
+  backup_secret: String,
+  pickle_key: String,
+  pickled_account: String,
+) -> Result<Vec<u8>, Box<dyn Error>> {
+  let encrypted_user_keys = get_encrypted_user_keys(
+    backup_id.clone(),
+    backup_secret,
+    pickle_key,
+    pickled_account,
+  )
+  .await?;
+
+  let (future_id, future) = future_manager::new_future::<()>().await;
+  set_backup_id(&backup_id, future_id);
+  future.await?;
+
+  Ok(encrypted_user_keys)
 }
 
 pub async fn create_siwe_backup_msg_compaction(
