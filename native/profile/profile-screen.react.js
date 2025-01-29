@@ -31,7 +31,7 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import {
   usingCommServicesAccessToken,
-  usingRestoreFlow,
+  useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -183,6 +183,7 @@ type Props = {
   +isAccountWithPassword: boolean,
   +onCreateDMThread: () => Promise<void>,
   +currentUserFID: ?string,
+  +usingRestoreFlow: boolean,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -258,7 +259,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
 
     let linkedDevices;
-    if (usingRestoreFlow) {
+    if (this.props.usingRestoreFlow) {
       linkedDevices = (
         <ProfileRow content="Linked devices" onPress={this.onPressDevices} />
       );
@@ -358,7 +359,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
-    if (usingRestoreFlow) {
+    if (this.props.usingRestoreFlow) {
       this.onPressNewLogout();
       return;
     }
@@ -613,6 +614,8 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       })();
     }, [checkIfPrimaryDevice]);
 
+    const usingRestoreFlow = useIsRestoreFlowEnabled();
+
     return (
       <ProfileScreen
         {...props}
@@ -630,6 +633,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         isAccountWithPassword={isAccountWithPassword}
         onCreateDMThread={onCreateDMThread}
         currentUserFID={currentUserID}
+        usingRestoreFlow={usingRestoreFlow}
       />
     );
   });

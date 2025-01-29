@@ -19,7 +19,7 @@ import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingRestoreFlow } from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import { useClientBackup } from './use-client-backup.js';
 import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
@@ -98,6 +98,8 @@ function BackupHandler(): null {
       stopBackupHandler();
     }
   }, [canPerformBackupOperation, stopBackupHandler]);
+
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
 
   const process = React.useCallback(async () => {
     let step = 'starting backup handler';
@@ -202,6 +204,7 @@ function BackupHandler(): null {
     showAlertToStaff,
     socketState.isAuthorized,
     startBackupHandler,
+    usingRestoreFlow,
   ]);
 
   React.useEffect(() => {

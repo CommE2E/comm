@@ -25,7 +25,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   errorMessageIsInvalidCSAT,
   usingCommServicesAccessToken,
-  usingRestoreFlow,
+  useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
 import {
@@ -106,6 +106,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useVerifyInviteLink(keyserverOverride);
   const navigation = useNavigation();
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
   React.useEffect(() => {
     void (async () => {
       if (!loggedIn || !currentLink) {
@@ -165,6 +166,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     navigation,
     invalidTokenLogOut,
     showVersionUnsupportedAlert,
+    usingRestoreFlow,
   ]);
 
   React.useEffect(() => {

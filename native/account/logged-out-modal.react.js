@@ -30,7 +30,7 @@ import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   usingCommServicesAccessToken,
-  usingRestoreFlow,
+  useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
@@ -442,6 +442,8 @@ function LoggedOutModal(props: Props) {
     styles.loadingIndicator,
   ]);
 
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
+
   const buttonsViewOpacity = useAnimatedStyle(() => ({
     opacity: buttonOpacity.value,
   }));
@@ -534,6 +536,7 @@ function LoggedOutModal(props: Props) {
     styles.siweOrText,
     styles.siweOrRightHR,
     styles.signInButtons,
+    usingRestoreFlow,
   ]);
 
   const windowWidth = dimensions.width;

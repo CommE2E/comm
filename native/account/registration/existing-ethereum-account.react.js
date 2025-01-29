@@ -18,7 +18,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   usingCommServicesAccessToken,
-  usingRestoreFlow,
+  useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
@@ -142,6 +142,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
     setCachedSelections,
   ]);
 
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
   const useLegacyFlow = !backupData || !usingRestoreFlow;
 
   const openRestoreFlow = React.useCallback(() => {
