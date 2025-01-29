@@ -294,10 +294,10 @@ pub async fn create_user_keys_compaction(
     compute_backup_key(backup_secret.as_bytes(), backup_id.as_bytes())?;
 
   let backup_data_key =
-    secure_store_get(secure_store::SECURE_STORE_ENCRYPTION_KEY_ID)?;
+    secure_store_get(secure_store::SECURE_STORE_BACKUP_DATA_KEY_ID)?;
 
   let backup_log_data_key =
-    secure_store_get(secure_store::SECURE_STORE_BACKUP_LOGS_ENCRYPTION_KEY_ID)?;
+    secure_store_get(secure_store::SECURE_STORE_BACKUP_LOG_DATA_KEY_ID)?;
 
   let user_keys = UserKeys {
     backup_data_key,

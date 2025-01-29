@@ -14,8 +14,8 @@ public:
   inline static const std::string commServicesAccessToken = "accessToken";
   inline static const std::string userID = "userID";
   inline static const std::string deviceID = "deviceID";
-  inline static const std::string encryptionKey = "comm.encryptionKey";
-  inline static const std::string backupLogsEncryptionKey =
+  inline static const std::string backupDataKey = "comm.encryptionKey";
+  inline static const std::string backupLogDataKey =
       "comm.backupLogsEncryptionKey";
 };
 
