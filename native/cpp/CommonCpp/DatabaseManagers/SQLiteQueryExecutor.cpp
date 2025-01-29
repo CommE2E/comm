@@ -30,11 +30,13 @@ const int NOTIFS_ACCOUNT_ID = 2;
 namespace comm {
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
-std::string SQLiteQueryExecutor::encryptionKey;
 std::once_flag SQLiteQueryExecutor::initialized;
-int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
-int SQLiteQueryExecutor::backupLogsEncryptionKeySize = 32;
-std::string SQLiteQueryExecutor::backupLogsEncryptionKey;
+
+std::string SQLiteQueryExecutor::backupDataKey;
+int SQLiteQueryExecutor::backupDataKeySize = 64;
+
+std::string SQLiteQueryExecutor::backupLogDataKey;
+int SQLiteQueryExecutor::backupLogDataKeySize = 32;
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -1024,7 +1026,7 @@ bool create_schema(sqlite3 *db) {
 
 void set_encryption_key(
     sqlite3 *db,
-    const std::string &encryptionKey = SQLiteQueryExecutor::encryptionKey) {
+    const std::string &encryptionKey = SQLiteQueryExecutor::backupDataKey) {
   std::string set_encryption_key_query =
       "PRAGMA key = \"x'" + encryptionKey + "'\";";
 
@@ -1115,7 +1117,7 @@ bool is_database_queryable(
     sqlite3 *db,
     bool use_encryption_key,
     const std::string &path = SQLiteQueryExecutor::sqliteFilePath,
-    const std::string &encryptionKey = SQLiteQueryExecutor::encryptionKey) {
+    const std::string &encryptionKey = SQLiteQueryExecutor::backupDataKey) {
   char *err_msg;
   sqlite3_open(path.c_str(), &db);
   // According to SQLCipher documentation running some SELECT is the only way to
@@ -1186,7 +1188,7 @@ void validate_encryption() {
       temp_encrypted_db_path +
       "' AS encrypted_comm "
       "KEY \"x'" +
-      SQLiteQueryExecutor::encryptionKey +
+      SQLiteQueryExecutor::backupDataKey +
       "'\";"
       "SELECT sqlcipher_export('encrypted_comm');"
       "DETACH DATABASE encrypted_comm;";
@@ -2964,30 +2966,29 @@ void SQLiteQueryExecutor::clearSensitiveData() {
                 << strerror(errno);
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
-  SQLiteQueryExecutor::generateFreshEncryptionKey();
+  SQLiteQueryExecutor::generateBackupDataKey();
   SQLiteQueryExecutor::migrate();
 }
 
 void SQLiteQueryExecutor::initialize(std::string &databasePath) {
   std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
     SQLiteQueryExecutor::sqliteFilePath = databasePath;
-    folly::Optional<std::string> maybeEncryptionKey =
-        CommSecureStore::get(CommSecureStore::encryptionKey);
-    folly::Optional<std::string> maybeBackupLogsEncryptionKey =
-        CommSecureStore::get(CommSecureStore::backupLogsEncryptionKey);
+    folly::Optional<std::string> maybeBackupDataKey =
+        CommSecureStore::get(CommSecureStore::backupDataKey);
+    folly::Optional<std::string> maybeBackupLogDataKey =
+        CommSecureStore::get(CommSecureStore::backupLogDataKey);
 
-    if (file_exists(databasePath) && maybeEncryptionKey &&
-        maybeBackupLogsEncryptionKey) {
-      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
-      SQLiteQueryExecutor::backupLogsEncryptionKey =
-          maybeBackupLogsEncryptionKey.value();
+    if (file_exists(databasePath) && maybeBackupDataKey &&
+        maybeBackupLogDataKey) {
+      SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
+      SQLiteQueryExecutor::backupLogDataKey = maybeBackupLogDataKey.value();
       return;
-    } else if (file_exists(databasePath) && maybeEncryptionKey) {
-      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
-      SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey();
+    } else if (file_exists(databasePath) && maybeBackupDataKey) {
+      SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
+      SQLiteQueryExecutor::generateBackupLogDataKey();
       return;
     }
-    SQLiteQueryExecutor::generateFreshEncryptionKey();
+    SQLiteQueryExecutor::generateBackupDataKey();
   });
 }
 
@@ -3126,21 +3127,19 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   }
 }
 
-void SQLiteQueryExecutor::generateFreshEncryptionKey() {
-  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
-  CommSecureStore::set(CommSecureStore::encryptionKey, encryptionKey);
-  SQLiteQueryExecutor::encryptionKey = encryptionKey;
-  SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey();
+void SQLiteQueryExecutor::generateBackupDataKey() {
+  std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::backupDataKeySize);
+  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  SQLiteQueryExecutor::backupDataKey = backupDataKey;
+  SQLiteQueryExecutor::generateBackupLogDataKey();
 }
 
-void SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey() {
-  std::string backupLogsEncryptionKey =
-      comm::crypto::Tools::generateRandomHexString(
-          SQLiteQueryExecutor::backupLogsEncryptionKeySize);
-  CommSecureStore::set(
-      CommSecureStore::backupLogsEncryptionKey, backupLogsEncryptionKey);
-  SQLiteQueryExecutor::backupLogsEncryptionKey = backupLogsEncryptionKey;
+void SQLiteQueryExecutor::generateBackupLogDataKey() {
+  std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::backupLogDataKeySize);
+  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
 }
 
 void SQLiteQueryExecutor::captureBackupLogs() const {
@@ -3155,7 +3154,7 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
   }
 
   bool newLogCreated = SQLiteQueryExecutor::connectionManager.captureLogs(
-      backupID, logID, SQLiteQueryExecutor::backupLogsEncryptionKey);
+      backupID, logID, SQLiteQueryExecutor::backupLogDataKey);
   if (!newLogCreated) {
     return;
   }
