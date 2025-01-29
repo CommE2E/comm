@@ -82,6 +82,7 @@ public:
   virtual jsi::Value getBackupUserKeys(jsi::Runtime &rt, jsi::String userIdentifier, jsi::String backupSecret, jsi::String backupID) = 0;
   virtual jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) = 0;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
+  virtual jsi::Value setUserDataKeys(jsi::Runtime &rt, jsi::String backupDataKey, jsi::String backupLogDataKey) = 0;
   virtual jsi::Value getAllInboundP2PMessages(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) = 0;
   virtual jsi::Value getInboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) = 0;
@@ -611,6 +612,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getSIWEBackupSecrets, jsInvoker_, instance_);
+    }
+    jsi::Value setUserDataKeys(jsi::Runtime &rt, jsi::String backupDataKey, jsi::String backupLogDataKey) override {
+      static_assert(
+          bridging::getParameterCount(&T::setUserDataKeys) == 3,
+          "Expected setUserDataKeys(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::setUserDataKeys, jsInvoker_, instance_, std::move(backupDataKey), std::move(backupLogDataKey));
     }
     jsi::Value getAllInboundP2PMessages(jsi::Runtime &rt) override {
       static_assert(
