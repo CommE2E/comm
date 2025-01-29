@@ -107,6 +107,11 @@ pub mod ffi {
     content_one_time_keys: Vec<String>,
     notif_one_time_keys: Vec<String>,
     device_list: String,
+    backup_id: String,
+    backup_secret: String,
+    pickle_key: String,
+    pickled_account: String,
+    siwe_backup_msg: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -129,6 +134,11 @@ pub mod ffi {
           content_one_time_keys,
           notif_one_time_keys,
         },
+        backup_id,
+        backup_secret,
+        pickle_key,
+        pickled_account,
+        siwe_backup_msg,
       };
       let result = restore_user_helper(restored_user_info).await;
       handle_string_result_as_callback(result, promise_id);
