@@ -2820,6 +2820,36 @@ jsi::Value CommCoreModule::getSIWEBackupSecrets(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::setUserDataKeys(
+    jsi::Runtime &rt,
+    jsi::String backupDataKey,
+    jsi::String backupLogDataKey) {
+  auto backupDataKeyCpp{backupDataKey.utf8(rt)};
+  auto backupLogDataKeyCpp{backupLogDataKey.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().setUserDataKeys(
+                backupDataKeyCpp, backupLogDataKeyCpp);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::getAllInboundP2PMessages(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
