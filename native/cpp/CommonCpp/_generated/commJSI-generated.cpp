@@ -205,6 +205,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSec
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getSIWEBackupSecrets(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setUserDataKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setUserDataKeys(rt, args[0].asString(rt), args[1].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllInboundP2PMessages(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getAllInboundP2PMessages(rt);
 }
@@ -309,6 +312,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getBackupUserKeys"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getBackupUserKeys};
   methodMap_["setSIWEBackupSecrets"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets};
   methodMap_["getSIWEBackupSecrets"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets};
+  methodMap_["setUserDataKeys"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setUserDataKeys};
   methodMap_["getAllInboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllInboundP2PMessages};
   methodMap_["removeInboundP2PMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeInboundP2PMessages};
   methodMap_["getInboundP2PMessagesByID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getInboundP2PMessagesByID};
