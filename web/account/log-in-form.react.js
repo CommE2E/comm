@@ -176,7 +176,7 @@ function LoginForm() {
         </div>
         <div className={css.qrCodeContainer}>
           <div className={css.qrCodeWrapper}>
-            <QRCodeSVG value={qrCodeURL} size={195} marginSize={4} level="L" />
+            <QRCodeSVG value={qrCodeURL} size={195} level="L" />
           </div>
         </div>
         <div className={css.modal_text}>
