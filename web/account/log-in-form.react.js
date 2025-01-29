@@ -14,7 +14,7 @@ import stores from 'lib/facts/stores.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingRestoreFlow } from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
@@ -207,6 +207,7 @@ function LoginForm() {
 }
 
 function LoginFormWrapper(): React.Node {
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
   if (!usingRestoreFlow) {
     return <LegacyLoginForm />;
   }

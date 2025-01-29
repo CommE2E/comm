@@ -27,7 +27,7 @@ import {
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingRestoreFlow } from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
@@ -59,6 +59,7 @@ function AccountSettings(): React.Node {
   const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
   const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
   const logOutUser = React.useCallback(async () => {
     // if web is primary device, we're on legacy flow
     const isPrimaryDevice = await checkIfPrimaryDevice();
@@ -74,6 +75,7 @@ function AccountSettings(): React.Node {
     dispatchActionPromise,
     sendLegacyLogoutRequest,
     sendSecondaryDeviceLogoutRequest,
+    usingRestoreFlow,
   ]);
 
   const identityContext = React.useContext(IdentityClientContext);
