@@ -1,6 +1,7 @@
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use grpc_clients::identity::protos::unauth::DeviceType;
 use lazy_static::lazy_static;
+use std::error::Error as StdError;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::Status;
@@ -540,6 +541,11 @@ mod ffi {
   }
 }
 
+#[derive(Debug, derive_more::Display)]
+pub struct StringError(String);
+
+impl StdError for StringError {}
+
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
@@ -552,6 +558,8 @@ pub enum Error {
   MissingResponseData,
   #[display(fmt = "{}", "_0")]
   GRPClient(grpc_clients::error::Error),
+  #[display(fmt = "Generic error: {}", "_0")]
+  Generic(StringError),
 }
 
 #[cfg(test)]
