@@ -9,7 +9,7 @@ import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
-import { usingRestoreFlow } from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import AuthButtonContainer from './auth-components/auth-button-container.react.js';
 import AuthContainer from './auth-components/auth-container.react.js';
@@ -47,6 +47,8 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, [platform, qrData]);
 
   const styles = useStyles(unboundStyles);
+
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
 
   let primaryRestoreButton = null;
   const goToRestoreFlow = React.useCallback(() => {
