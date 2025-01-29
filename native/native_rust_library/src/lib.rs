@@ -143,6 +143,11 @@ mod ffi {
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
       device_list: String,
+      backup_id: String,
+      backup_secret: String,
+      pickle_key: String,
+      pickled_account: String,
+      siwe_backup_msg: String,
       promise_id: u32,
     );
 

@@ -3470,6 +3470,11 @@ jsi::Value CommCoreModule::restoreUser(
                   contentOneTimeKeysRust,
                   notifOneTimeKeysRust,
                   deviceListRust,
+                  rust::string(backupID),
+                  backupSecretRust,
+                  rust::string(pickleKey),
+                  rust::string(pickledAccount),
+                  rust::string(backupMessage),
                   currentID);
             } catch (const std::exception &e) {
               error = e.what();
