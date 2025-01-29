@@ -13,8 +13,9 @@ use super::{
   IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo,
   RestoreUserInfo, PLATFORM_METADATA,
 };
+use crate::backup::create_ephemeral_user_keys_compaction;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
-use crate::{Error, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
+use crate::{Error, StringError, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
 #[allow(clippy::too_many_arguments)]
 pub mod ffi {
@@ -276,18 +277,32 @@ async fn log_in_wallet_user_helper(
 }
 
 async fn restore_user_helper(
-  wallet_user_info: RestoreUserInfo,
+  user_info: RestoreUserInfo,
 ) -> Result<String, Error> {
+  let user_keys = create_ephemeral_user_keys_compaction(
+    user_info.backup_id.clone(),
+    user_info.backup_secret,
+    user_info.pickle_key,
+    user_info.pickled_account,
+  )
+  .await
+  .map_err(|err| Error::Generic(StringError(err.to_string())))?;
+
+  let siwe_backup_msg = if user_info.siwe_backup_msg.is_empty() {
+    None
+  } else {
+    Some(user_info.siwe_backup_msg)
+  };
+
   let restore_request = RestoreUserRequest {
-    user_id: wallet_user_info.user_id,
-    siwe_message: wallet_user_info.siwe_social_proof_message,
-    siwe_signature: wallet_user_info.siwe_social_proof_signature,
-    device_list: wallet_user_info.device_list,
-    device_key_upload: Some(wallet_user_info.device_keys.into()),
-    // TODO: Replace empty defaults with actual values
-    new_backup_id: "".to_string(),
-    encrypted_user_keys: Vec::<u8>::new(),
-    siwe_backup_msg: None,
+    user_id: user_info.user_id,
+    siwe_message: user_info.siwe_social_proof_message,
+    siwe_signature: user_info.siwe_social_proof_signature,
+    device_list: user_info.device_list,
+    device_key_upload: Some(user_info.device_keys.into()),
+    new_backup_id: user_info.backup_id,
+    encrypted_user_keys: user_keys,
+    siwe_backup_msg,
   };
 
   let mut identity_client =
