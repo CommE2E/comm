@@ -63,13 +63,16 @@ function useRestoreProtocol(): (
       }
       const { userID, backupID } = latestBackupInfo;
 
-      const { pickledAccount, pickleKey } = await getBackupUserKeys(
-        userIdentifier,
-        secret,
-        backupID,
-      );
+      const { pickledAccount, pickleKey, backupDataKey, backupLogDataKey } =
+        await getBackupUserKeys(userIdentifier, secret, backupID);
 
-      //3. Create signed singleton device list
+      //3. Set User Data keys to keep using the previous User Data keys.
+      // It is required to upload User Keys during restoring RPC
+      // and be able to restore again even if User Data upload fails
+      // (which is not part of a single RPC).
+      await commCoreModule.setUserDataKeys(backupDataKey, backupLogDataKey);
+
+      //4. Create signed singleton device list
       const primaryDeviceID = await getContentSigningKey();
       const initialDeviceList = composeRawDeviceList([primaryDeviceID]);
       const rawDeviceList = JSON.stringify(initialDeviceList);
@@ -87,7 +90,7 @@ function useRestoreProtocol(): (
         lastPrimarySignature,
       };
 
-      //4. Call single RPC, this:
+      //5. Call single RPC, this:
       // - runs Key Upload
       // - send device list to Comm
       // - get new CSAT
@@ -98,7 +101,7 @@ function useRestoreProtocol(): (
         siweSignature,
       );
 
-      //5. Mark keys as published
+      //6. Mark keys as published
       try {
         await olmAPI.markPrekeysAsPublished();
       } catch (e) {
@@ -108,7 +111,7 @@ function useRestoreProtocol(): (
         );
       }
 
-      //6. Return the result
+      //7. Return the result
       const platformDetails = {
         deviceType: platformToIdentityDeviceType[Platform.OS],
         codeVersion,
