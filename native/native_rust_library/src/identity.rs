@@ -151,6 +151,11 @@ pub struct RestoreUserInfo {
   pub siwe_social_proof_signature: Option<String>,
   pub device_keys: DeviceKeys,
   pub device_list: String,
+  pub backup_id: String,
+  pub backup_secret: String,
+  pub pickle_key: String,
+  pub pickled_account: String,
+  pub siwe_backup_msg: String,
 }
 
 /// Counterpart of proto [`AuthResponse`] message
