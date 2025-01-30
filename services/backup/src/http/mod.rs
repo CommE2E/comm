@@ -95,6 +95,11 @@ pub async fn run_http_server(
               .route(web::delete().to(handlers::user_data::delete_user_data)),
           ),
       )
+      .service(
+        web::resource("/utils/prepare_user_keys")
+          .wrap(get_comm_authentication_middleware())
+          .route(web::post().to(handlers::backup::prepare_user_keys)),
+      )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
   .run()
