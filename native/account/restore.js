@@ -92,6 +92,7 @@ function useRestoreProtocol(): (
       //5. Call single RPC, this:
       // - runs Key Upload
       // - send device list to Comm
+      // - create User Keys backup
       // - get new CSAT
       const result = await restoreUser(
         userID,
