@@ -9,6 +9,7 @@ use comm_lib::{
       DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
     },
   },
+  backup::database::BackupItem,
   database::{
     batch_operations::ExponentialBackoffConfig, AttributeExtractor,
     AttributeMap, DBItemAttributeError, DBItemError, DynamoDBError,
@@ -1324,6 +1325,7 @@ impl DatabaseClient {
     platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
     singleton_device_list: DeviceListUpdate,
+    backup_item: Option<BackupItem>,
   ) -> Result<(), Error> {
     let user_id: String = user_id.into();
     self
@@ -1368,9 +1370,15 @@ impl DatabaseClient {
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
-        let update_info =
+        let mut update_info =
           UpdateOperationInfo::primary_device_issued(singleton_device_list)
             .with_ddb_operation(put_device_operation);
+
+        if let Some(backup_item) = backup_item {
+          let operation = prepare_user_keys_ddb_operation(backup_item);
+          update_info = update_info.with_ddb_operation(operation);
+        }
+
         Ok(update_info)
       })
       .await?;
@@ -1993,6 +2001,20 @@ impl UpdateOperationInfo {
     self.ddb_operations.push(operation);
     self
   }
+}
+
+fn prepare_user_keys_ddb_operation(
+  backup_item: BackupItem,
+) -> TransactWriteItem {
+  use comm_lib::backup::database::backup_table;
+
+  let put_user_keys = Put::builder()
+    .table_name(backup_table::TABLE_NAME)
+    .set_item(Some(backup_item.into()))
+    .build()
+    .expect("table_name or item not set in Put builder");
+
+  TransactWriteItem::builder().put(put_user_keys).build()
 }
 
 // Helper module for "migration" code into new device list schema.
