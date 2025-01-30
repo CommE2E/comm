@@ -104,7 +104,11 @@ async fn main() -> Result<(), BoxedError> {
         AuthService::new(&aws_config, "http://localhost:50054".to_string());
       let blob_client = BlobServiceClient::new(cfg.blob_service_url.to_owned());
       let database_client = DatabaseClient::new(&aws_config);
-      let inner_client_service = ClientService::new(database_client.clone());
+      let inner_client_service = ClientService::new(
+        database_client.clone(),
+        blob_client.clone(),
+        comm_auth_service.clone(),
+      );
       let client_service = IdentityClientServiceServer::with_interceptor(
         inner_client_service,
         grpc_services::shared::version_interceptor,
