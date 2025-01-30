@@ -1671,15 +1671,9 @@ impl DatabaseClient {
     let put_device_list_operation =
       TransactWriteItem::builder().put(put_device_list).build();
 
-    let operations = if let Some(operation) = update_info.ddb_operation {
-      vec![
-        operation,
-        put_device_list_operation,
-        timestamp_update_operation,
-      ]
-    } else {
-      vec![put_device_list_operation, timestamp_update_operation]
-    };
+    let mut operations =
+      vec![put_device_list_operation, timestamp_update_operation];
+    operations.extend(update_info.ddb_operations);
 
     self
       .client
@@ -1968,7 +1962,7 @@ fn take_platform_details(
 struct UpdateOperationInfo {
   /// (optional) transactional DDB operation to be performed
   /// when updating the device list.
-  ddb_operation: Option<TransactWriteItem>,
+  ddb_operations: Vec<TransactWriteItem>,
   /// new device list timestamp. Defaults to `Utc::now()`
   /// for Identity-generated device lists.
   timestamp: Option<DateTime<Utc>>,
@@ -1979,7 +1973,7 @@ struct UpdateOperationInfo {
 impl UpdateOperationInfo {
   fn identity_generated() -> Self {
     Self {
-      ddb_operation: None,
+      ddb_operations: Vec::new(),
       timestamp: None,
       current_signature: None,
       last_signature: None,
@@ -1988,7 +1982,7 @@ impl UpdateOperationInfo {
 
   fn primary_device_issued(source: DeviceListUpdate) -> Self {
     Self {
-      ddb_operation: None,
+      ddb_operations: Vec::new(),
       timestamp: Some(source.timestamp),
       current_signature: source.current_primary_signature,
       last_signature: source.last_primary_signature,
@@ -1996,7 +1990,7 @@ impl UpdateOperationInfo {
   }
 
   fn with_ddb_operation(mut self, operation: TransactWriteItem) -> Self {
-    self.ddb_operation = Some(operation);
+    self.ddb_operations.push(operation);
     self
   }
 }
