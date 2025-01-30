@@ -1,6 +1,8 @@
 // Standard library imports
 use std::str::FromStr;
 
+use comm_lib::auth::AuthService;
+use comm_lib::blob::client::BlobServiceClient;
 // External crate imports
 use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
@@ -101,6 +103,8 @@ pub struct FlattenedDeviceKeyUpload {
 #[derive(derive_more::Constructor)]
 pub struct ClientService {
   client: DatabaseClient,
+  blob_client: BlobServiceClient,
+  comm_auth_service: AuthService,
 }
 
 #[tonic::async_trait]
