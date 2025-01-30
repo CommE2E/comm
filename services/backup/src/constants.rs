@@ -17,20 +17,8 @@ pub const LOG_LEVEL_ENV_VAR: &str =
 pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
 
 // DynamoDB constants
-pub mod backup_table {
-  pub const TABLE_NAME: &str = "backup-service-backup";
-  pub const CREATED_INDEX: &str = "userID-created-index";
 
-  pub mod attr {
-    pub const USER_ID: &str = "userID";
-    pub const BACKUP_ID: &str = "backupID";
-    pub const CREATED: &str = "created";
-    pub const USER_DATA: &str = "userData";
-    pub const USER_KEYS: &str = "userKeys";
-    pub const ATTACHMENTS: &str = "attachments";
-    pub const SIWE_BACKUP_MSG: &str = "siweBackupMsg";
-  }
-}
+pub use comm_lib::backup::database::backup_table;
 
 pub mod log_table {
   pub const TABLE_NAME: &str = "backup-service-log";
