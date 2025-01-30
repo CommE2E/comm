@@ -95,6 +95,14 @@ pub async fn run_http_server(
               .route(web::delete().to(handlers::user_data::delete_user_data)),
           ),
       )
+      // Called by Identity Service during restore protocol to upload and store
+      // UserKeys, without saving them in database, in contrast
+      // to the `POST /backups/user_keys` endpoint.
+      .service(
+        web::resource("/utils/prepare_user_keys")
+          .wrap(get_comm_authentication_middleware())
+          .route(web::post().to(handlers::backup::prepare_user_keys)),
+      )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
   .run()
