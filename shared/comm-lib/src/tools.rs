@@ -46,11 +46,15 @@ pub type BoxedError = Box<dyn std::error::Error>;
 ///     }
 /// }
 /// ```
-pub struct Defer<'s>(Option<Box<dyn FnOnce() + 's>>);
+pub struct Defer<'s>(Option<Box<dyn FnOnce() + 's + Send>>);
 
 impl<'s> Defer<'s> {
-  pub fn new(f: impl FnOnce() + 's) -> Self {
+  pub fn new(f: impl FnOnce() + 's + Send) -> Self {
     Self(Some(Box::new(f)))
+  }
+
+  pub fn empty() -> Self {
+    Self(None)
   }
 
   /// Consumes the value, without calling the provided function
