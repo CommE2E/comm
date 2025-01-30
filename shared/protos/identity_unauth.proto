@@ -250,6 +250,11 @@ message RestoreUserRequest {
   //   "lastPrimarySignature": "base64-encoded old primary device signature"
   // }
   string device_list = 5;
+
+  // UserKeys backup fields
+  string new_backup_id = 6;
+  bytes encrypted_user_keys = 7;
+  optional string siwe_backup_msg = 8;
 }
 
 // UploadKeysForRegisteredDeviceAndLogIn

@@ -384,6 +384,19 @@ declare export class RestoreUserRequest extends Message {
   getDeviceList(): string;
   setDeviceList(value: string): RestoreUserRequest;
 
+  getNewBackupId(): string;
+  setNewBackupId(value: string): RestoreUserRequest;
+
+  getEncryptedUserKeys(): Uint8Array | string;
+  getEncryptedUserKeys_asU8(): Uint8Array;
+  getEncryptedUserKeys_asB64(): string;
+  setEncryptedUserKeys(value: Uint8Array | string): RestoreUserRequest;
+
+  getSiweBackupMsg(): string;
+  setSiweBackupMsg(value: string): RestoreUserRequest;
+  hasSiweBackupMsg(): boolean;
+  clearSiweBackupMsg(): RestoreUserRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RestoreUserRequestObject;
   static toObject(includeInstance: boolean, msg: RestoreUserRequest): RestoreUserRequestObject;
@@ -398,6 +411,9 @@ export type RestoreUserRequestObject = {
   siweSignature?: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
   deviceList: string,
+  newBackupId: string,
+  encryptedUserKeys: Uint8Array | string,
+  siweBackupMsg?: string,
 }
 
 declare export class SecondaryDeviceKeysUploadRequest extends Message {
