@@ -1288,6 +1288,7 @@ impl ClientService {
         platform_metadata,
         login_time,
         device_list_payload,
+        None,
       )
       .await?;
 
