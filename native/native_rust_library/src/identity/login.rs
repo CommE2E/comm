@@ -272,6 +272,10 @@ async fn restore_user_helper(
     siwe_signature: wallet_user_info.siwe_signature,
     device_list: wallet_user_info.device_list,
     device_key_upload: Some(wallet_user_info.device_keys.into()),
+    // TODO: Replace empty defaults with actual values
+    backup_id: "".to_string(),
+    user_keys: Vec::<u8>::new(),
+    siwe_backup_msg: None,
   };
 
   let mut identity_client =

@@ -3577,7 +3577,10 @@ proto.identity.unauth.RestoreUserRequest.toObject = function(includeInstance, ms
     siweMessage: jspb.Message.getFieldWithDefault(msg, 2, ""),
     siweSignature: jspb.Message.getFieldWithDefault(msg, 3, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
-    deviceList: jspb.Message.getFieldWithDefault(msg, 5, "")
+    deviceList: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    backupId: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    userKeys: msg.getUserKeys_asB64(),
+    siweBackupMsg: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -3634,6 +3637,18 @@ proto.identity.unauth.RestoreUserRequest.deserializeBinaryFromReader = function(
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setDeviceList(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setBackupId(value);
+      break;
+    case 7:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setUserKeys(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSiweBackupMsg(value);
       break;
     default:
       reader.skipField();
@@ -3697,6 +3712,27 @@ proto.identity.unauth.RestoreUserRequest.serializeBinaryToWriter = function(mess
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getBackupId();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getUserKeys_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      7,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 8));
+  if (f != null) {
+    writer.writeString(
+      8,
       f
     );
   }
@@ -3845,6 +3881,102 @@ proto.identity.unauth.RestoreUserRequest.prototype.getDeviceList = function() {
  */
 proto.identity.unauth.RestoreUserRequest.prototype.setDeviceList = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string backup_id = 6;
+ * @return {string}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.getBackupId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.RestoreUserRequest} returns this
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.setBackupId = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional bytes user_keys = 7;
+ * @return {string}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.getUserKeys = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * optional bytes user_keys = 7;
+ * This is a type-conversion wrapper around `getUserKeys()`
+ * @return {string}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.getUserKeys_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getUserKeys()));
+};
+
+
+/**
+ * optional bytes user_keys = 7;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getUserKeys()`
+ * @return {!Uint8Array}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.getUserKeys_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getUserKeys()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.identity.unauth.RestoreUserRequest} returns this
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.setUserKeys = function(value) {
+  return jspb.Message.setProto3BytesField(this, 7, value);
+};
+
+
+/**
+ * optional string siwe_backup_msg = 8;
+ * @return {string}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.getSiweBackupMsg = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.RestoreUserRequest} returns this
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.setSiweBackupMsg = function(value) {
+  return jspb.Message.setField(this, 8, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.RestoreUserRequest} returns this
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.clearSiweBackupMsg = function() {
+  return jspb.Message.setField(this, 8, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.RestoreUserRequest.prototype.hasSiweBackupMsg = function() {
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
