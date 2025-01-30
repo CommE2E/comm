@@ -1,6 +1,9 @@
 use crate::auth::UserIdentity;
 use serde::{Deserialize, Serialize};
 
+/// shared database types and constants
+pub mod database;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LatestBackupInfoResponse {
