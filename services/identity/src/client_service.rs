@@ -2,9 +2,11 @@
 use std::str::FromStr;
 
 use comm_lib::auth::AuthService;
+use comm_lib::backup::database::BackupItem;
 use comm_lib::blob::client::BlobServiceClient;
 // External crate imports
 use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
+use comm_lib::tools::Defer;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use grpc_clients::identity::PlatformMetadata;
 use rand::rngs::OsRng;
@@ -769,17 +771,52 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
-    let access_token = self
-      .restore_primary_device_and_get_csat(
-        message.user_id.clone(),
-        message.device_list,
-        platform_metadata,
-        flattened_device_key_upload,
+    let RestoreUserRequest {
+      user_id,
+      device_list,
+      backup_id,
+      user_keys,
+      siwe_backup_msg,
+      ..
+    } = message;
+
+    let request_has_user_keys = !backup_id.is_empty() && !user_keys.is_empty();
+
+    let (backup_item, revoke) = if request_has_user_keys {
+      let backup_item = crate::comm_service::backup::prepare_user_keys(
+        &self.comm_auth_service,
+        &user_id,
+        &backup_id,
+        user_keys,
+        siwe_backup_msg,
       )
       .await?;
 
+      let blob_client = self.blob_client.clone();
+      let revoke_info = backup_item.clone();
+      let revoke = Defer::new(move || {
+        // in case device list update fails, we should forget user keys
+        revoke_info.revoke_user_keys_holders(&blob_client);
+      });
+
+      (Some(backup_item), revoke)
+    } else {
+      (None, Defer::empty())
+    };
+
+    let access_token = self
+      .restore_primary_device_and_get_csat(
+        user_id.clone(),
+        device_list,
+        platform_metadata,
+        flattened_device_key_upload,
+        backup_item,
+      )
+      .await?;
+
+    revoke.cancel();
     let response = AuthResponse {
-      user_id: message.user_id,
+      user_id,
       access_token,
       username: user_identifier.username().to_string(),
     };
@@ -1237,6 +1274,7 @@ impl ClientService {
     device_list_payload: String,
     platform_metadata: PlatformMetadata,
     device_key_upload: FlattenedDeviceKeyUpload,
+    backup_item: Option<BackupItem>,
   ) -> Result<String, tonic::Status> {
     debug!("Verifying device list...");
     let new_primary_device_id = device_key_upload.device_id_key.clone();
@@ -1292,7 +1330,7 @@ impl ClientService {
         platform_metadata,
         login_time,
         device_list_payload,
-        None,
+        backup_item,
       )
       .await?;
 
