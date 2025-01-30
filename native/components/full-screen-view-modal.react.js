@@ -28,6 +28,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   Easing,
+  withDecay,
 } from 'react-native-reanimated';
 import type { EventResult } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,23 +68,17 @@ const {
   Extrapolate,
   block,
   set,
-  call,
   cond,
   not,
   and,
   or,
   eq,
   neq,
-  greaterThan,
   add,
   sub,
   multiply,
   divide,
-  pow,
   max,
-  min,
-  round,
-  abs,
   interpolateNode,
   startClock,
   stopClock,
@@ -123,6 +118,8 @@ const defaultTimingConfig = {
   easing: Easing.out(Easing.ease),
 };
 
+const decayConfig = { deceleration: 0.99 };
+
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
@@ -161,6 +158,7 @@ type Props = {
   +mediaIconsRef: { current: ?React.ElementRef<typeof View> },
   +onCloseButtonLayout: () => void,
   +onMediaIconsLayout: () => void,
+  +close: () => void,
 };
 
 class FullScreenViewModal extends React.PureComponent<Props> {
@@ -344,7 +342,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
 
     const dismissingFromPan = new Value(0);
 
-    const roundedCurScale = divide(round(multiply(curScale, 1000)), 1000);
     const gestureActive = or(pinchActive, panActive);
     const activeInteraction = or(
       gestureActive,
@@ -353,17 +350,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
 
     const updates = [
-      this.backdropOpacityUpdate(
-        panJustEnded,
-        pinchActive,
-        panVelocityX,
-        panVelocityY,
-        roundedCurScale,
-        curX,
-        curY,
-        curBackdropOpacity,
-        dismissingFromPan,
-      ),
       this.recenter(
         resetXClock,
         resetYClock,
@@ -452,57 +438,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  backdropOpacityUpdate(
-    // Inputs
-    panJustEnded: Node,
-    pinchActive: Node,
-    panVelocityX: Node,
-    panVelocityY: Node,
-    roundedCurScale: Node,
-    // Outputs
-    curX: Value,
-    curY: Value,
-    curBackdropOpacity: Value,
-    dismissingFromPan: Value,
-  ): Node {
-    const progressiveOpacity = max(
-      min(
-        sub(1, abs(divide(curX, this.frameWidth))),
-        sub(1, abs(divide(curY, this.frameHeight))),
-      ),
-      0,
-    );
-
-    const resetClock = new Clock();
-
-    const velocity = pow(add(pow(panVelocityX, 2), pow(panVelocityY, 2)), 0.5);
-    const shouldGoBack = and(
-      panJustEnded,
-      or(greaterThan(velocity, 50), greaterThan(0.7, progressiveOpacity)),
-    );
-
-    const decayClock = new Clock();
-    const decayItems = [
-      set(curX, runDecay(decayClock, panVelocityX, curX, false)),
-      set(curY, runDecay(decayClock, panVelocityY, curY)),
-    ];
-
-    return cond(
-      [panJustEnded, dismissingFromPan],
-      decayItems,
-      cond(
-        or(pinchActive, greaterThan(roundedCurScale, 1)),
-        set(curBackdropOpacity, runTiming(resetClock, curBackdropOpacity, 1)),
-        [
-          stopClock(resetClock),
-          set(curBackdropOpacity, progressiveOpacity),
-          set(dismissingFromPan, shouldGoBack),
-          cond(shouldGoBack, [decayItems, call([], this.close)]),
-        ],
-      ),
-    );
   }
 
   recenter(
@@ -768,7 +703,7 @@ class FullScreenViewModal extends React.PureComponent<Props> {
               style={[styles.closeButtonContainer, closeButtonStyle]}
             >
               <TouchableOpacity
-                onPress={this.close}
+                onPress={this.props.close}
                 disabled={!this.props.closeButtonEnabled}
                 onLayout={this.props.onCloseButtonLayout}
                 ref={this.props.closeButtonRef}
@@ -785,10 +720,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       <GestureDetector gesture={this.props.gesture}>{view}</GestureDetector>
     );
   }
-
-  close = () => {
-    this.props.navigation.goBackOnce();
-  };
 }
 
 const styles = StyleSheet.create({
@@ -886,6 +817,10 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         Orientation.lockToPortrait();
       };
     }, []);
+
+    const close = React.useCallback(() => {
+      props.navigation.goBackOnce();
+    }, [props.navigation]);
 
     const [closeButtonEnabled, setCloseButtonEnabled] = React.useState(true);
     const [actionLinksEnabled, setActionLinksEnabled] = React.useState(true);
@@ -1020,11 +955,13 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     );
 
     const lastPinchScale = useSharedValue(1);
+    const pinchActive = useSharedValue(false);
 
     const pinchStart = React.useCallback(() => {
       'worklet';
       lastPinchScale.value = 1;
-    }, [lastPinchScale]);
+      pinchActive.value = true;
+    }, [lastPinchScale, pinchActive]);
 
     const pinchUpdate = React.useCallback(
       ({ scale, focalX, focalY }: PinchGestureEvent) => {
@@ -1043,6 +980,11 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       },
       [centerX, centerY, curScale, curX, curY, lastPinchScale],
     );
+
+    const pinchEnd = React.useCallback(() => {
+      'worklet';
+      pinchActive.value = false;
+    }, [pinchActive]);
 
     const panActive = useSharedValue(false);
 
@@ -1081,10 +1023,44 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       [curX, curY, lastPanTranslationX, lastPanTranslationY, panActive],
     );
 
-    const panEnd = React.useCallback(() => {
-      'worklet';
-      panActive.value = false;
-    }, [panActive]);
+    const progressiveOpacity = useDerivedValue(() => {
+      return Math.max(
+        Math.min(
+          1 - Math.abs(curX.value / frameWidth.value),
+          1 - Math.abs(curY.value / frameHeight.value),
+        ),
+        0,
+      );
+    });
+
+    const panEnd = React.useCallback(
+      ({ velocityX, velocityY }: PanGestureEvent) => {
+        'worklet';
+        if (!panActive.value) {
+          return;
+        }
+        panActive.value = false;
+        const velocity = Math.pow(
+          Math.pow(velocityX, 2) + Math.pow(velocityY, 2),
+          0.5,
+        );
+        const shouldGoBack = velocity > 50 || 0.7 > progressiveOpacity.value;
+        if (shouldGoBack && !pinchActive.value && roundedCurScale.value <= 1) {
+          curX.value = withDecay({ velocity: velocityX, ...decayConfig });
+          curY.value = withDecay({ velocity: velocityY, ...decayConfig });
+          runOnJS(close)();
+        }
+      },
+      [
+        close,
+        curX,
+        curY,
+        panActive,
+        progressiveOpacity,
+        pinchActive,
+        roundedCurScale,
+      ],
+    );
 
     const curCloseButtonOpacity = useSharedValue(1);
     const curActionLinksOpacity = useSharedValue(1);
@@ -1211,10 +1187,32 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       ],
     );
 
+    const backdropReset = useSharedValue(1);
+
+    useAnimatedReaction(
+      () => pinchActive.value || roundedCurScale.value > 1,
+      (isReset, wasReset) => {
+        if (isReset && !wasReset) {
+          backdropReset.value = progressiveOpacity.value;
+          backdropReset.value = withTiming(1, defaultTimingConfig);
+        }
+      },
+    );
+
+    // TODO: use it later
+    // eslint-disable-next-line no-unused-vars
+    const curBackdropOpacity = useDerivedValue(() => {
+      if (pinchActive.value || roundedCurScale.value > 1) {
+        return backdropReset.value;
+      }
+      return progressiveOpacity.value;
+    });
+
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch()
         .onStart(pinchStart)
-        .onUpdate(pinchUpdate);
+        .onUpdate(pinchUpdate)
+        .onEnd(pinchEnd);
       const panGesture = Gesture.Pan()
         .averageTouches(true)
         .onStart(panStart)
@@ -1238,6 +1236,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       panStart,
       panUpdate,
       pinchStart,
+      pinchEnd,
       pinchUpdate,
       singleTapUpdate,
     ]);
@@ -1255,6 +1254,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         mediaIconsRef={mediaIconsRef}
         onCloseButtonLayout={onCloseButtonLayout}
         onMediaIconsLayout={onMediaIconsLayout}
+        close={close}
       />
     );
   });
