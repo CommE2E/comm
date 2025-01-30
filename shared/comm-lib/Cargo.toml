@@ -32,7 +32,7 @@ web = ["uuid/js"]
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 base64 = { workspace = true }
-chrono = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
 constant_time_eq = "0.3"
 derive_more = { workspace = true }
 grpc_clients = { path = "../grpc_clients", optional = true }
