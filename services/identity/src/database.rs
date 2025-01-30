@@ -184,6 +184,7 @@ impl DatabaseClient {
           platform_details,
           access_token_creation_time,
           initial_device_list,
+          None,
         )
         .await?;
     } else {
@@ -245,6 +246,7 @@ impl DatabaseClient {
           platform_metadata,
           access_token_creation_time,
           initial_device_list,
+          None,
         )
         .await?;
     } else {
