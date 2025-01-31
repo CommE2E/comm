@@ -59,7 +59,6 @@ import {
   clamp,
   gestureJustStarted,
   gestureJustEnded,
-  runTiming,
   clampV2,
 } from '../utils/animation-utils.js';
 
@@ -353,17 +352,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     );
 
     const updates = [
-      this.recenter(
-        resetXClock,
-        resetYClock,
-        activeInteraction,
-        recenteredScale,
-        horizontalPanSpace,
-        verticalPanSpace,
-        curScale,
-        curX,
-        curY,
-      ),
       this.flingUpdate(
         resetXClock,
         resetYClock,
@@ -441,56 +429,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  recenter(
-    // Inputs
-    resetXClock: Clock,
-    resetYClock: Clock,
-    activeInteraction: Node,
-    recenteredScale: Node,
-    horizontalPanSpace: Node,
-    verticalPanSpace: Node,
-    // Outputs
-    curScale: Value,
-    curX: Value,
-    curY: Value,
-  ): Node {
-    const resetScaleClock = new Clock();
-
-    const recenteredX = clamp(
-      curX,
-      multiply(-1, horizontalPanSpace),
-      horizontalPanSpace,
-    );
-    const recenteredY = clamp(
-      curY,
-      multiply(-1, verticalPanSpace),
-      verticalPanSpace,
-    );
-
-    return cond(
-      activeInteraction,
-      [
-        stopClock(resetScaleClock),
-        stopClock(resetXClock),
-        stopClock(resetYClock),
-      ],
-      [
-        cond(
-          or(clockRunning(resetScaleClock), neq(recenteredScale, curScale)),
-          set(curScale, runTiming(resetScaleClock, curScale, recenteredScale)),
-        ),
-        cond(
-          or(clockRunning(resetXClock), neq(recenteredX, curX)),
-          set(curX, runTiming(resetXClock, curX, recenteredX)),
-        ),
-        cond(
-          or(clockRunning(resetYClock), neq(recenteredY, curY)),
-          set(curY, runTiming(resetYClock, curY, recenteredY)),
-        ),
-      ],
-    );
   }
 
   flingUpdate(
@@ -1037,6 +975,8 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       );
     });
 
+    const isRunningDismissAnimation = useSharedValue(false);
+
     const panEnd = React.useCallback(
       ({ velocityX, velocityY }: PanGestureEvent) => {
         'worklet';
@@ -1048,6 +988,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         const shouldGoBack = velocity > 50 || 0.7 > progressiveOpacity.value;
         if (shouldGoBack) {
           if (!pinchActive.value && roundedCurScale.value <= 1) {
+            isRunningDismissAnimation.value = true;
             curX.value = withDecay({ velocity: velocityX, ...decayConfig });
             curY.value = withDecay({ velocity: velocityY, ...decayConfig });
             runOnJS(close)();
@@ -1062,6 +1003,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         progressiveOpacity,
         pinchActive,
         roundedCurScale,
+        isRunningDismissAnimation,
       ],
     );
 
@@ -1133,6 +1075,8 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       [outsideButtons, toggleActionLinks, toggleCloseButton],
     );
 
+    const isRunningResetAnimation = useSharedValue(false);
+
     const doubleTapUpdate = React.useCallback(
       ({ x, y }: TapGestureEvent) => {
         'worklet';
@@ -1165,7 +1109,12 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         const targetX = tapXPercentClamped * imageWidth.value * targetScale;
         const targetY = tapYPercentClamped * imageHeight.value * targetScale;
 
-        curScale.value = withTiming(targetScale, defaultTimingConfig);
+        isRunningResetAnimation.value = true;
+        curScale.value = withTiming(
+          targetScale,
+          defaultTimingConfig,
+          () => (isRunningResetAnimation.value = false),
+        );
         curX.value = withTiming(targetX, defaultTimingConfig);
         curY.value = withTiming(targetY, defaultTimingConfig);
       },
@@ -1181,6 +1130,7 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         outsideButtons,
         roundedCurScale,
         getVerticalPanSpace,
+        isRunningResetAnimation,
       ],
     );
 
@@ -1204,6 +1154,35 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       }
       return progressiveOpacity.value;
     });
+
+    useAnimatedReaction(
+      () =>
+        pinchActive.value ||
+        panActive.value ||
+        isRunningDismissAnimation.value ||
+        isRunningResetAnimation.value,
+      activeInteraction => {
+        if (activeInteraction) {
+          return;
+        }
+        const recenteredScale = Math.max(curScale.value, 1);
+        const horizontalPanSpace = getHorizontalPanSpace(recenteredScale);
+        const verticalPanSpace = getVerticalPanSpace(recenteredScale);
+        const recenteredX = clampV2(
+          curX.value,
+          -horizontalPanSpace,
+          horizontalPanSpace,
+        );
+        const recenteredY = clampV2(
+          curY.value,
+          -verticalPanSpace,
+          verticalPanSpace,
+        );
+        curScale.value = withTiming(recenteredScale, defaultTimingConfig);
+        curX.value = withTiming(recenteredX, defaultTimingConfig);
+        curY.value = withTiming(recenteredY, defaultTimingConfig);
+      },
+    );
 
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch()
