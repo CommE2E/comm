@@ -10,10 +10,6 @@ import {
   Platform,
 } from 'react-native';
 import {
-  PinchGestureHandler,
-  PanGestureHandler,
-  TapGestureHandler,
-  State as GestureState,
   type PinchGestureEvent,
   type PanGestureEvent,
   type TapGestureEvent,
@@ -31,11 +27,9 @@ import Animated, {
   withDecay,
   cancelAnimation,
 } from 'react-native-reanimated';
-import type { EventResult } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type Dimensions } from 'lib/types/media-types.js';
-import type { ReactRef } from 'lib/types/react-types.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
@@ -53,65 +47,18 @@ import {
 import type { NativeMethods } from '../types/react-native.js';
 import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
-import {
-  clamp,
-  gestureJustStarted,
-  gestureJustEnded,
-  clampV2,
-} from '../utils/animation-utils.js';
+import { clampV2 } from '../utils/animation-utils.js';
 
 const {
   Value,
   Node,
-  Clock,
-  event,
   Extrapolate,
-  block,
-  set,
-  cond,
-  not,
-  and,
-  or,
-  eq,
-  neq,
   add,
   sub,
   multiply,
   divide,
-  max,
   interpolateNode,
-  startClock,
-  stopClock,
-  clockRunning,
-  decay,
 } = Animated;
-
-function runDecay(
-  clock: Clock,
-  velocity: Node,
-  initialPosition: Node,
-  startStopClock: boolean = true,
-): Node {
-  const state = {
-    finished: new Value(0),
-    velocity: new Value(0),
-    position: new Value(0),
-    time: new Value(0),
-  };
-  const config = { deceleration: 0.99 };
-  return block([
-    cond(not(clockRunning(clock)), [
-      set(state.finished, 0),
-      set(state.velocity, velocity),
-      set(state.position, initialPosition),
-      set(state.time, 0),
-      startStopClock ? startClock(clock) : undefined,
-    ]),
-    decay(clock, state, config),
-    cond(state.finished, startStopClock ? stopClock(clock) : undefined),
-    state.position,
-  ]);
-}
 
 const defaultTimingConfig = {
   duration: 250,
@@ -169,36 +116,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
   imageWidth: Value;
   imageHeight: Value;
 
-  pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
-  panHandler: ReactRef<PanGestureHandler> = React.createRef();
-  singleTapHandler: ReactRef<TapGestureHandler> = React.createRef();
-  doubleTapHandler: ReactRef<TapGestureHandler> = React.createRef();
-  handlerRefs: $ReadOnlyArray<
-    | ReactRef<PinchGestureHandler>
-    | ReactRef<PanGestureHandler>
-    | ReactRef<TapGestureHandler>,
-  > = [
-    this.pinchHandler,
-    this.panHandler,
-    this.singleTapHandler,
-    this.doubleTapHandler,
-  ];
-  beforeDoubleTapRefs: $ReadOnlyArray<
-    | ReactRef<PinchGestureHandler>
-    | ReactRef<PanGestureHandler>
-    | ReactRef<TapGestureHandler>,
-  >;
-  beforeSingleTapRefs: $ReadOnlyArray<
-    | ReactRef<PinchGestureHandler>
-    | ReactRef<PanGestureHandler>
-    | ReactRef<TapGestureHandler>,
-  >;
-
-  pinchEvent: EventResult<PinchGestureEvent>;
-  panEvent: EventResult<PanGestureEvent>;
-  singleTapEvent: EventResult<TapGestureEvent>;
-  doubleTapEvent: EventResult<TapGestureEvent>;
-
   scale: Node;
   x: Node;
   y: Node;
@@ -234,95 +151,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       'position should be defined in FullScreenViewModal',
     );
 
-    // The inputs we receive from PanGestureHandler
-    const panState = new Value(-1);
-    const panTranslationX = new Value(0);
-    const panTranslationY = new Value(0);
-    const panVelocityX = new Value(0);
-    const panVelocityY = new Value(0);
-    const panAbsoluteX = new Value(0);
-    const panAbsoluteY = new Value(0);
-    this.panEvent = event<PanGestureEvent>([
-      {
-        nativeEvent: {
-          state: panState,
-          translationX: panTranslationX,
-          translationY: panTranslationY,
-          velocityX: panVelocityX,
-          velocityY: panVelocityY,
-          absoluteX: panAbsoluteX,
-          absoluteY: panAbsoluteY,
-        },
-      },
-    ]);
-    const curPanActive = new Value(0);
-    const panActive = block([
-      cond(
-        and(
-          gestureJustStarted(panState),
-          // TODO: migrate this in the next diffs
-          // this.outsideButtons(
-          //   sub(panAbsoluteX, panTranslationX),
-          //   sub(panAbsoluteY, panTranslationY),
-          // ),
-          1,
-        ),
-        set(curPanActive, 1),
-      ),
-      cond(gestureJustEnded(panState), set(curPanActive, 0)),
-      curPanActive,
-    ]);
-    const lastPanActive = new Value(0);
-    const panJustEnded = cond(eq(lastPanActive, panActive), 0, [
-      set(lastPanActive, panActive),
-      eq(panActive, 0),
-    ]);
-
-    // The inputs we receive from PinchGestureHandler
-    const pinchState = new Value(-1);
-    const pinchScale = new Value(1);
-    const pinchFocalX = new Value(0);
-    const pinchFocalY = new Value(0);
-    this.pinchEvent = event<PinchGestureEvent>([
-      {
-        nativeEvent: {
-          state: pinchState,
-          scale: pinchScale,
-          focalX: pinchFocalX,
-          focalY: pinchFocalY,
-        },
-      },
-    ]);
-    const pinchActive = eq(pinchState, GestureState.ACTIVE);
-
-    // The inputs we receive from single TapGestureHandler
-    const singleTapState = new Value(-1);
-    const singleTapX = new Value(0);
-    const singleTapY = new Value(0);
-    this.singleTapEvent = event<TapGestureEvent>([
-      {
-        nativeEvent: {
-          state: singleTapState,
-          x: singleTapX,
-          y: singleTapY,
-        },
-      },
-    ]);
-
-    // The inputs we receive from double TapGestureHandler
-    const doubleTapState = new Value(-1);
-    const doubleTapX = new Value(0);
-    const doubleTapY = new Value(0);
-    this.doubleTapEvent = event<TapGestureEvent>([
-      {
-        nativeEvent: {
-          state: doubleTapState,
-          x: doubleTapX,
-          y: doubleTapY,
-        },
-      },
-    ]);
-
     // The all-important outputs
     const curScale = new Value(1);
     const curX = new Value(0);
@@ -331,25 +159,7 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const curCloseButtonOpacity = new Value(1);
     const curActionLinksOpacity = new Value(1);
 
-    // The centered variables help us know if we need to be recentered
-    const recenteredScale = max(curScale, 1);
-    const horizontalPanSpace = this.horizontalPanSpace(recenteredScale);
-    const verticalPanSpace = this.verticalPanSpace(recenteredScale);
-
-    const resetXClock = new Clock();
-    const resetYClock = new Clock();
-    const zoomClock = new Clock();
-
-    const dismissingFromPan = new Value(0);
-
-    const gestureActive = or(pinchActive, panActive);
-    const activeInteraction = or(
-      gestureActive,
-      clockRunning(zoomClock),
-      dismissingFromPan,
-    );
-
-    const updates = [];
+    const updates: Array<Node> = [];
     const updatedScale = [updates, curScale];
     const updatedCurX = [updates, curX];
     const updatedCurY = [updates, curY];
@@ -391,29 +201,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       buttonOpacity,
       updatedActionLinksOpacity,
     );
-
-    this.beforeDoubleTapRefs = Platform.select({
-      android: [],
-      default: [this.pinchHandler, this.panHandler],
-    });
-    this.beforeSingleTapRefs = [
-      ...this.beforeDoubleTapRefs,
-      this.doubleTapHandler,
-    ];
-  }
-
-  // How much space do we have to pan the image horizontally?
-  horizontalPanSpace(scale: Node): Node {
-    const apparentWidth = multiply(this.imageWidth, scale);
-    const horizPop = divide(sub(apparentWidth, this.frameWidth), 2);
-    return max(horizPop, 0);
-  }
-
-  // How much space do we have to pan the image vertically?
-  verticalPanSpace(scale: Node): Node {
-    const apparentHeight = multiply(this.imageHeight, scale);
-    const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
-    return max(vertPop, 0);
   }
 
   updateDimensions() {
