@@ -126,7 +126,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
-    this.updateDimensions();
 
     const { imageWidth, imageHeight } = this;
     const left = sub(this.centerX, divide(imageWidth, 2));
@@ -201,52 +200,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       buttonOpacity,
       updatedActionLinksOpacity,
     );
-  }
-
-  updateDimensions() {
-    const { width: frameWidth, height: frameHeight } = this.frame;
-    const { topInset } = this.props.dimensions;
-    if (this.frameWidth) {
-      this.frameWidth.setValue(frameWidth);
-    } else {
-      this.frameWidth = new Value(frameWidth);
-    }
-    if (this.frameHeight) {
-      this.frameHeight.setValue(frameHeight);
-    } else {
-      this.frameHeight = new Value(frameHeight);
-    }
-
-    const centerX = frameWidth / 2;
-    const centerY = frameHeight / 2 + topInset;
-    if (this.centerX) {
-      this.centerX.setValue(centerX);
-    } else {
-      this.centerX = new Value(centerX);
-    }
-    if (this.centerY) {
-      this.centerY.setValue(centerY);
-    } else {
-      this.centerY = new Value(centerY);
-    }
-
-    const { width, height } = this.props.contentDimensions;
-    if (this.imageWidth) {
-      this.imageWidth.setValue(width);
-    } else {
-      this.imageWidth = new Value(width);
-    }
-    if (this.imageHeight) {
-      this.imageHeight.setValue(height);
-    } else {
-      this.imageHeight = new Value(height);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.dimensions !== prevProps.dimensions) {
-      this.updateDimensions();
-    }
   }
 
   get frame(): Dimensions {
@@ -590,6 +543,30 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
     const frameHeight = useSharedValue(dimensions.safeAreaHeight);
     const imageWidth = useSharedValue(props.contentDimensions.width);
     const imageHeight = useSharedValue(props.contentDimensions.height);
+
+    React.useEffect(() => {
+      const {
+        topInset,
+        width: newFrameWidth,
+        safeAreaHeight: newFrameHeight,
+      } = dimensions;
+      frameWidth.value = newFrameWidth;
+      frameHeight.value = newFrameHeight;
+      centerX.value = newFrameWidth / 2;
+      centerY.value = newFrameHeight / 2 + topInset;
+      const { width, height } = props.contentDimensions;
+      imageWidth.value = width;
+      imageHeight.value = height;
+    }, [
+      centerX,
+      centerY,
+      dimensions,
+      frameHeight,
+      frameWidth,
+      imageHeight,
+      imageWidth,
+      props.contentDimensions,
+    ]);
 
     // How much space do we have to pan the image horizontally?
     const getHorizontalPanSpace = React.useCallback(
