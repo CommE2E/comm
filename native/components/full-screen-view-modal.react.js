@@ -349,20 +349,7 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       dismissingFromPan,
     );
 
-    const updates = [
-      this.flingUpdate(
-        resetXClock,
-        resetYClock,
-        activeInteraction,
-        panJustEnded,
-        panVelocityX,
-        panVelocityY,
-        horizontalPanSpace,
-        verticalPanSpace,
-        curX,
-        curY,
-      ),
-    ];
+    const updates = [];
     const updatedScale = [updates, curScale];
     const updatedCurX = [updates, curX];
     const updatedCurY = [updates, curY];
@@ -427,60 +414,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
-  }
-
-  flingUpdate(
-    // Inputs
-    resetXClock: Clock,
-    resetYClock: Clock,
-    activeInteraction: Node,
-    panJustEnded: Node,
-    panVelocityX: Node,
-    panVelocityY: Node,
-    horizontalPanSpace: Node,
-    verticalPanSpace: Node,
-    // Outputs
-    curX: Value,
-    curY: Value,
-  ): Node {
-    const flingXClock = new Clock();
-    const flingYClock = new Clock();
-
-    const decayX = runDecay(flingXClock, panVelocityX, curX);
-    const recenteredX = clamp(
-      decayX,
-      multiply(-1, horizontalPanSpace),
-      horizontalPanSpace,
-    );
-    const decayY = runDecay(flingYClock, panVelocityY, curY);
-    const recenteredY = clamp(
-      decayY,
-      multiply(-1, verticalPanSpace),
-      verticalPanSpace,
-    );
-
-    return cond(
-      activeInteraction,
-      [stopClock(flingXClock), stopClock(flingYClock)],
-      [
-        cond(
-          clockRunning(resetXClock),
-          stopClock(flingXClock),
-          cond(or(panJustEnded, clockRunning(flingXClock)), [
-            set(curX, recenteredX),
-            cond(neq(decayX, recenteredX), stopClock(flingXClock)),
-          ]),
-        ),
-        cond(
-          clockRunning(resetYClock),
-          stopClock(flingYClock),
-          cond(or(panJustEnded, clockRunning(flingYClock)), [
-            set(curY, recenteredY),
-            cond(neq(decayY, recenteredY), stopClock(flingYClock)),
-          ]),
-        ),
-      ],
-    );
   }
 
   updateDimensions() {
@@ -992,18 +925,35 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
           curY.value = withDecay({ velocity: velocityY, ...decayConfig });
           cancelAnimation(curScale);
           runOnJS(close)();
+        } else {
+          const recenteredScale = Math.max(curScale.value, 1);
+          const horizontalPanSpace = getHorizontalPanSpace(recenteredScale);
+          const verticalPanSpace = getVerticalPanSpace(recenteredScale);
+          curX.value = withDecay({
+            velocity: velocityX,
+            clamp: [-horizontalPanSpace, horizontalPanSpace],
+            ...decayConfig,
+          });
+          curY.value = withDecay({
+            velocity: velocityY,
+            clamp: [-verticalPanSpace, verticalPanSpace],
+            ...decayConfig,
+          });
         }
       },
       [
-        close,
-        curX,
-        curY,
         panActive,
         progressiveOpacity,
         pinchActive,
         roundedCurScale,
         curScale,
         isRunningDismissAnimation,
+        curX,
+        curY,
+        close,
+        curScale,
+        getHorizontalPanSpace,
+        getVerticalPanSpace,
       ],
     );
 
