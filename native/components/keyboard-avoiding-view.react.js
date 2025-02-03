@@ -60,12 +60,11 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
       this.subscriptions.push(
         Keyboard.addListener('keyboardWillChangeFrame', this.onKeyboardChange),
       );
-    } else {
-      this.subscriptions.push(
-        Keyboard.addListener('keyboardDidHide', this.onKeyboardChange),
-        Keyboard.addListener('keyboardDidShow', this.onKeyboardChange),
-      );
     }
+    this.subscriptions.push(
+      Keyboard.addListener('keyboardDidHide', this.onKeyboardChange),
+      Keyboard.addListener('keyboardDidShow', this.onKeyboardChange),
+    );
   }
 
   componentWillUnmount() {
