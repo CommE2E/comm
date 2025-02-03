@@ -26,6 +26,9 @@ import Animated, {
   Easing,
   withDecay,
   cancelAnimation,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -48,17 +51,6 @@ import type { NativeMethods } from '../types/react-native.js';
 import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import { clampV2 } from '../utils/animation-utils.js';
-
-const {
-  Value,
-  Node,
-  Extrapolate,
-  add,
-  sub,
-  multiply,
-  divide,
-  interpolateNode,
-} = Animated;
 
 const defaultTimingConfig = {
   duration: 250,
@@ -106,127 +98,13 @@ type Props = {
   +onCloseButtonLayout: () => void,
   +onMediaIconsLayout: () => void,
   +close: () => void,
+  +contentViewContainerStyle: ViewStyle,
+  +animatedBackdropStyle: AnimatedViewStyle,
+  +animatedCloseButtonStyle: AnimatedViewStyle,
+  +animatedMediaIconsButtonStyle: AnimatedViewStyle,
 };
 
 class FullScreenViewModal extends React.PureComponent<Props> {
-  centerX: Value;
-  centerY: Value;
-  frameWidth: Value;
-  frameHeight: Value;
-  imageWidth: Value;
-  imageHeight: Value;
-
-  scale: Node;
-  x: Node;
-  y: Node;
-  backdropOpacity: Node;
-  imageContainerOpacity: Node;
-  actionLinksOpacity: Node;
-  closeButtonOpacity: Node;
-
-  constructor(props: Props) {
-    super(props);
-
-    const { imageWidth, imageHeight } = this;
-    const left = sub(this.centerX, divide(imageWidth, 2));
-    const top = sub(this.centerY, divide(imageHeight, 2));
-
-    const { initialCoordinates } = props.route.params;
-    const initialScale = divide(initialCoordinates.width, imageWidth);
-    const initialTranslateX = sub(
-      initialCoordinates.x + initialCoordinates.width / 2,
-      add(left, divide(imageWidth, 2)),
-    );
-    const initialTranslateY = sub(
-      initialCoordinates.y + initialCoordinates.height / 2,
-      add(top, divide(imageHeight, 2)),
-    );
-
-    const { overlayContext } = props;
-    invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
-    const navigationProgress = overlayContext.position;
-    invariant(
-      navigationProgress,
-      'position should be defined in FullScreenViewModal',
-    );
-
-    // The all-important outputs
-    const curScale = new Value(1);
-    const curX = new Value(0);
-    const curY = new Value(0);
-    const curBackdropOpacity = new Value(1);
-    const curCloseButtonOpacity = new Value(1);
-    const curActionLinksOpacity = new Value(1);
-
-    const updates: Array<Node> = [];
-    const updatedScale = [updates, curScale];
-    const updatedCurX = [updates, curX];
-    const updatedCurY = [updates, curY];
-    const updatedBackdropOpacity = [updates, curBackdropOpacity];
-    const updatedCloseButtonOpacity = [updates, curCloseButtonOpacity];
-    const updatedActionLinksOpacity = [updates, curActionLinksOpacity];
-
-    const reverseNavigationProgress = sub(1, navigationProgress);
-    this.scale = add(
-      multiply(reverseNavigationProgress, initialScale),
-      multiply(navigationProgress, updatedScale),
-    );
-    this.x = add(
-      multiply(reverseNavigationProgress, initialTranslateX),
-      multiply(navigationProgress, updatedCurX),
-    );
-    this.y = add(
-      multiply(reverseNavigationProgress, initialTranslateY),
-      multiply(navigationProgress, updatedCurY),
-    );
-    this.backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
-    this.imageContainerOpacity = interpolateNode(navigationProgress, {
-      inputRange: [0, 0.1],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    const buttonOpacity = interpolateNode(updatedBackdropOpacity, {
-      inputRange: [0.95, 1],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    this.closeButtonOpacity = multiply(
-      navigationProgress,
-      buttonOpacity,
-      updatedCloseButtonOpacity,
-    );
-    this.actionLinksOpacity = multiply(
-      navigationProgress,
-      buttonOpacity,
-      updatedActionLinksOpacity,
-    );
-  }
-
-  get frame(): Dimensions {
-    const { width, safeAreaHeight } = this.props.dimensions;
-    return { width, height: safeAreaHeight };
-  }
-
-  get contentViewContainerStyle(): AnimatedViewStyle {
-    const { height, width } = this.props.contentDimensions;
-    const { height: frameHeight, width: frameWidth } = this.frame;
-    const top = (frameHeight - height) / 2 + this.props.dimensions.topInset;
-    const left = (frameWidth - width) / 2;
-    const { verticalBounds } = this.props.route.params;
-    return {
-      height,
-      width,
-      marginTop: top - verticalBounds.y,
-      marginLeft: left,
-      opacity: this.imageContainerOpacity,
-      transform: [
-        { translateX: this.x },
-        { translateY: this.y },
-        { scale: this.scale },
-      ],
-    };
-  }
-
   get contentContainerStyle(): ViewStyle {
     const { verticalBounds } = this.props.route.params;
     const fullScreenHeight = this.props.dimensions.height;
@@ -246,13 +124,6 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const statusBar = this.props.isActive ? (
       <ConnectedStatusBar hidden />
     ) : null;
-    const backdropStyle = { opacity: this.backdropOpacity };
-    const closeButtonStyle = {
-      opacity: this.closeButtonOpacity,
-    };
-    const mediaIconsButtonStyle = {
-      opacity: this.actionLinksOpacity,
-    };
 
     let saveButton;
     if (saveContentCallback) {
@@ -286,7 +157,10 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     if (saveContentCallback || copyContentCallback) {
       mediaActionButtons = (
         <Animated.View
-          style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
+          style={[
+            styles.mediaIconsContainer,
+            this.props.animatedMediaIconsButtonStyle,
+          ]}
         >
           <View
             style={styles.mediaIconsRow}
@@ -303,16 +177,21 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
-        <Animated.View style={[styles.backdrop, backdropStyle]} />
+        <Animated.View
+          style={[styles.backdrop, this.props.animatedBackdropStyle]}
+        />
         <View style={this.contentContainerStyle}>
-          <Animated.View style={this.contentViewContainerStyle}>
+          <Animated.View style={this.props.contentViewContainerStyle}>
             {children}
           </Animated.View>
         </View>
         <SafeAreaView style={styles.buttonsOverlay}>
           <View style={styles.fill}>
             <Animated.View
-              style={[styles.closeButtonContainer, closeButtonStyle]}
+              style={[
+                styles.closeButtonContainer,
+                this.props.animatedCloseButtonStyle,
+              ]}
             >
               <TouchableOpacity
                 onPress={this.props.close}
@@ -881,8 +760,6 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       },
     );
 
-    // TODO: use it later
-    // eslint-disable-next-line no-unused-vars
     const curBackdropOpacity = useDerivedValue(() => {
       if (pinchActive.value || roundedCurScale.value > 1) {
         return backdropReset.value;
@@ -958,6 +835,97 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       singleTapUpdate,
     ]);
 
+    const navigationProgress = overlayContext.positionV2;
+    invariant(
+      navigationProgress,
+      'position should be defined in FullScreenViewModal',
+    );
+
+    const { contentDimensions } = props;
+    const { verticalBounds, initialCoordinates } = props.route.params;
+
+    const contentViewContainerStyle = useAnimatedStyle(() => {
+      const { height, width } = contentDimensions;
+      const {
+        safeAreaHeight: dimFrameHeight,
+        width: dimFrameWidth,
+        topInset,
+      } = dimensions;
+
+      const left = centerX.value - imageWidth.value / 2;
+      const top = centerY.value - imageHeight.value / 2;
+
+      const initialScale = initialCoordinates.width / imageWidth.value;
+      const initialTranslateX =
+        initialCoordinates.x +
+        initialCoordinates.width / 2 -
+        (left + imageWidth.value / 2);
+      const initialTranslateY =
+        initialCoordinates.y +
+        initialCoordinates.height / 2 -
+        (top + imageHeight.value / 2);
+
+      const reverseNavigationProgress = 1 - navigationProgress.value;
+      const scale =
+        reverseNavigationProgress * initialScale +
+        navigationProgress.value * curScale.value;
+      const x =
+        reverseNavigationProgress * initialTranslateX +
+        navigationProgress.value * curX.value;
+      const y =
+        reverseNavigationProgress * initialTranslateY +
+        navigationProgress.value * curY.value;
+
+      const imageContainerOpacity = interpolate(
+        navigationProgress.value,
+        [0, 0.1],
+        [0, 1],
+        Extrapolate.CLAMP,
+      );
+
+      return {
+        height,
+        width,
+        marginTop: (dimFrameHeight - height) / 2 + topInset - verticalBounds.y,
+        marginLeft: (dimFrameWidth - width) / 2,
+        opacity: imageContainerOpacity,
+        transform: [{ translateX: x }, { translateY: y }, { scale }],
+      };
+    }, [contentDimensions, verticalBounds, initialCoordinates, dimensions]);
+
+    const animatedBackdropStyle = useAnimatedStyle(() => ({
+      opacity: navigationProgress.value * curBackdropOpacity.value,
+    }));
+
+    const buttonOpacity = useDerivedValue(() =>
+      interpolate(
+        curBackdropOpacity.value,
+        [0.95, 1],
+        [0, 1],
+        Extrapolate.CLAMP,
+      ),
+    );
+
+    const animatedCloseButtonStyle = useAnimatedStyle(() => {
+      const closeButtonOpacity =
+        navigationProgress.value *
+        buttonOpacity.value *
+        curCloseButtonOpacity.value;
+      return {
+        opacity: closeButtonOpacity,
+      };
+    });
+
+    const animatedMediaIconsButtonStyle = useAnimatedStyle(() => {
+      const actionLinksOpacity =
+        navigationProgress.value *
+        buttonOpacity.value *
+        curActionLinksOpacity.value;
+      return {
+        opacity: actionLinksOpacity,
+      };
+    });
+
     return (
       <FullScreenViewModal
         {...props}
@@ -972,6 +940,10 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
         onCloseButtonLayout={onCloseButtonLayout}
         onMediaIconsLayout={onMediaIconsLayout}
         close={close}
+        contentViewContainerStyle={contentViewContainerStyle}
+        animatedBackdropStyle={animatedBackdropStyle}
+        animatedCloseButtonStyle={animatedCloseButtonStyle}
+        animatedMediaIconsButtonStyle={animatedMediaIconsButtonStyle}
       />
     );
   });
