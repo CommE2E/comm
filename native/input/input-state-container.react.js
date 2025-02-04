@@ -393,6 +393,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
     } catch (e) {
+      if (e instanceof SendMessageError) {
+        throw e;
+      }
       const exceptionMessage = getMessageForException(e) ?? '';
       if (exceptionMessage === 'invalid_csat') {
         void this.props.invalidTokenLogOut();
@@ -613,6 +616,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
     } catch (e) {
+      if (e instanceof SendMessageError) {
+        throw e;
+      }
       const exceptionMessage = getMessageForException(e) ?? '';
       throw new SendMessageError(
         `Exception when sending text message: ${exceptionMessage}`,
