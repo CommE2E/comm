@@ -14,6 +14,7 @@ import AddKeyserver from './add-keyserver.react.js';
 import AppearancePreferences from './appearance-preferences.react.js';
 import BackupMenu from './backup-menu.react.js';
 import BuildInfo from './build-info.react.js';
+import DebugLogsScreen from './debug-logs-screen.react.js';
 import DefaultNotificationsPreferences from './default-notifications-preferences.react.js';
 import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
@@ -52,6 +53,7 @@ import {
   type ScreenParamList,
   type ProfileParamList,
   TunnelbrokerMenuRouteName,
+  DebugLogsScreenRouteName,
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
@@ -83,6 +85,7 @@ const friendListOptions = { headerTitle: 'Friend list' };
 const blockListOptions = { headerTitle: 'Block list' };
 const defaultNotificationsOptions = { headerTitle: 'Default Notifications' };
 const farcasterSettingsOptions = { headerTitle: 'Farcaster account' };
+const debugLogsScreenOptions = { headerTitle: 'Logs' };
 
 export type ProfileNavigationProp<
   RouteName: $Keys<ProfileParamList> = $Keys<ProfileParamList>,
@@ -221,6 +224,11 @@ function ProfileComponent(props: Props): React.Node {
             name={FarcasterAccountSettingsRouteName}
             component={FarcasterAccountSettings}
             options={farcasterSettingsOptions}
+          />
+          <Profile.Screen
+            name={DebugLogsScreenRouteName}
+            component={DebugLogsScreen}
+            options={debugLogsScreenOptions}
           />
         </Profile.Navigator>
       </KeyboardAvoidingView>
