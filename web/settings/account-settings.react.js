@@ -32,6 +32,7 @@ import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
 import BackupTestRestoreModal from './backup-test-restore-modal.react.js';
+import DebugLogsModal from './debug-logs-modal.react.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
 import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
@@ -178,6 +179,11 @@ function AccountSettings(): React.Node {
     [pushModal],
   );
 
+  const openDebugLogs = React.useCallback(
+    () => pushModal(<DebugLogsModal />),
+    [pushModal],
+  );
+
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -294,6 +300,25 @@ function AccountSettings(): React.Node {
     );
   }
 
+  let debugLogs;
+  if (staffCanSee) {
+    debugLogs = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Debug menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>See debug logs</span>
+              <Button variant="text" onClick={openDebugLogs}>
+                <p className={css.buttonText}>See List</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={css.container}>
       <div className={css.contentContainer}>
@@ -329,6 +354,7 @@ function AccountSettings(): React.Node {
         {backup}
         {deviceData}
         {dms}
+        {debugLogs}
       </div>
     </div>
   );

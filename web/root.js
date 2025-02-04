@@ -11,6 +11,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import thunk from 'redux-thunk';
 import { WagmiProvider } from 'wagmi';
 
+import { DebugLogsContextProvider } from 'lib/components/debug-logs-context-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
@@ -62,25 +63,27 @@ const wagmiConfig = getWagmiConfig([
 const RootProvider = (): React.Node => (
   <Provider store={store}>
     <ErrorBoundary>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <CallKeyserverEndpointProvider>
-            <InitialReduxStateGate persistor={persistor}>
-              <IdentityServiceContextProvider>
-                <UserIdentityCacheProvider>
-                  <Router history={history.getHistoryObject()}>
-                    <Route path="*" component={App} />
-                  </Router>
-                  <PrekeysHandler />
-                  <SQLiteDataHandler />
-                  <IntegrityHandler />
-                  <ReportHandler canSendReports={true} />
-                </UserIdentityCacheProvider>
-              </IdentityServiceContextProvider>
-            </InitialReduxStateGate>
-          </CallKeyserverEndpointProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <DebugLogsContextProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <CallKeyserverEndpointProvider>
+              <InitialReduxStateGate persistor={persistor}>
+                <IdentityServiceContextProvider>
+                  <UserIdentityCacheProvider>
+                    <Router history={history.getHistoryObject()}>
+                      <Route path="*" component={App} />
+                    </Router>
+                    <PrekeysHandler />
+                    <SQLiteDataHandler />
+                    <IntegrityHandler />
+                    <ReportHandler canSendReports={true} />
+                  </UserIdentityCacheProvider>
+                </IdentityServiceContextProvider>
+              </InitialReduxStateGate>
+            </CallKeyserverEndpointProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </DebugLogsContextProvider>
     </ErrorBoundary>
   </Provider>
 );
