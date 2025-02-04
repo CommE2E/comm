@@ -186,6 +186,7 @@ export const ConnectSecondaryDeviceRouteName = 'ConnectSecondaryDevice';
 export const SecondaryDeviceConnectedRouteName = 'SecondaryDeviceConnected';
 export const SecondaryDeviceNotRespondingRouteName =
   'SecondaryDeviceNotResponding';
+export const DebugLogsScreenRouteName = 'DebugLogsScreen';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -301,6 +302,7 @@ export type ProfileParamList = {
   +KeyserverSelectionList: void,
   +AddKeyserver: void,
   +FarcasterAccountSettings: void,
+  +DebugLogsScreenRouteName: void,
 };
 
 export type CalendarParamList = {
