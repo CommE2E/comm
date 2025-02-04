@@ -1386,11 +1386,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return result;
     } catch (e) {
       const exceptionMessage = getMessageForException(e) ?? '';
-      throw new SendMessageError(
+      const error = new SendMessageError(
         `Exception while sending text message: ${exceptionMessage}`,
         messageInfo.localID ?? '',
         messageInfo.threadID,
       );
+      error.failedOutboundP2PMessageIDs = e.failedOutboundP2PMessageIDs;
+      throw error;
     }
   }
 
