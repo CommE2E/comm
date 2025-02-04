@@ -1,0 +1,47 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 60vh;
+  gap: 8px;
+}
+
+.logsList {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: scroll;
+}
+
+.item {
+  margin: 4px 0;
+  padding: 4px 0;
+  color: var(--text-background-secondary-default);
+  transition: 0.1s;
+}
+
+.item:hover {
+  background-color: var(--modal-listItem-primary-hover);
+}
+
+.timestamp {
+  font-size: var(--m-font-16);
+}
+
+.title {
+  font-size: var(--l-font-18);
+  color: var(--text-background-primary-default);
+}
+
+.message {
+  font-size: var(--m-font-16);
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.button {
+  flex: 1;
+}

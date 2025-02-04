@@ -57,6 +57,7 @@ import {
   KeyserverSelectionListRouteName,
   TunnelbrokerMenuRouteName,
   FarcasterAccountSettingsRouteName,
+  DebugLogsScreenRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -199,7 +200,8 @@ class ProfileScreen extends React.PureComponent<Props> {
     let developerTools,
       defaultNotifications,
       keyserverSelection,
-      tunnelbrokerMenu;
+      tunnelbrokerMenu,
+      debugLogs;
     const { staffCanSee } = this.props;
     if (staffCanSee) {
       developerTools = (
@@ -225,6 +227,10 @@ class ProfileScreen extends React.PureComponent<Props> {
           content="Tunnelbroker menu"
           onPress={this.onPressTunnelbrokerMenu}
         />
+      );
+
+      debugLogs = (
+        <ProfileRow content="Debug logs" onPress={this.onPressDebugLogs} />
       );
     }
 
@@ -342,6 +348,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
             {dmActions}
+            {debugLogs}
           </View>
           <View style={this.props.styles.unpaddedSection}>
             <ProfileRow
@@ -545,6 +552,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressCreateThread = () => {
     void this.props.onCreateDMThread();
+  };
+
+  onPressDebugLogs = () => {
+    this.props.navigation.navigate({ name: DebugLogsScreenRouteName });
   };
 }
 
