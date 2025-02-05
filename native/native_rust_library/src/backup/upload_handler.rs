@@ -247,8 +247,8 @@ pub mod compaction {
       .await
       .map_err(|e| e.to_string());
 
+    cleanup_files(backup_id.clone()).await;
     compaction_upload_promises::resolve(&backup_id, result);
-    tokio::spawn(cleanup_files(backup_id));
 
     Ok(())
   }
