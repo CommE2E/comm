@@ -22,6 +22,7 @@ import {
 import * as React from 'react';
 import { Keyboard } from 'react-native';
 
+import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import CommunityDrawerButton from './community-drawer-button.react.js';
@@ -44,6 +45,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import Profile from '../profile/profile.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors } from '../themes/colors.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 const calendarTabOptions = {
   tabBarLabel: 'Calendar',
@@ -58,12 +60,13 @@ const getChatTabOptions = (badge: number) => ({
   ),
   tabBarBadge: badge ? badge : undefined,
 });
-const profileTabOptions = {
+const getProfileTabOptions = (badge: number) => ({
   tabBarLabel: 'Profile',
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="user-2" style={[styles.icon, { color }]} />
   ),
-};
+  tabBarBadge: badge ? badge : undefined,
+});
 const appsTabOptions = {
   tabBarLabel: 'Apps',
   tabBarIcon: ({ color }: { +color: string, ... }) => (
@@ -150,6 +153,11 @@ type Props = {
 function TabComponent(props: Props): React.Node {
   const colors = useColors();
   const chatBadge = useSelector(unreadCount);
+
+  const staffCanSee = useStaffCanSee();
+  const debugLogs = useDebugLogs();
+  const profileBadge = staffCanSee ? debugLogs.logs.length : 0;
+
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
 
   let calendarTab;
@@ -218,7 +226,7 @@ function TabComponent(props: Props): React.Node {
       <Tab.Screen
         name={ProfileRouteName}
         component={Profile}
-        options={profileTabOptions}
+        options={getProfileTabOptions(profileBadge)}
       />
       <Tab.Screen
         name={AppsRouteName}
