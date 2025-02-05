@@ -95,6 +95,7 @@ name = "backup-client-wasm"
 version = "0.1.0"
 dependencies = [
  "backup_client",
+ "getrandom",
 ]
 
 [[package]]
