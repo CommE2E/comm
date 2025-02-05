@@ -7,6 +7,7 @@ import {
   clearCalendarCommunityFilter,
   clearChatCommunityFilter,
 } from 'lib/actions/community-actions.js';
+import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
@@ -17,6 +18,7 @@ import CommunityDrawer from './community-drawer.react.js';
 import css from './community-picker.css';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function CommunityPicker(): React.Node {
   const dispatch = useDispatch();
@@ -95,6 +97,15 @@ function CommunityPicker(): React.Node {
     }
   }
 
+  const staffCanSee = useStaffCanSee();
+  const debugLogs = useDebugLogs();
+  let logsBadge = null;
+  if (staffCanSee && debugLogs.logs.length > 0) {
+    logsBadge = (
+      <div className={css.settingsBadge}>{debugLogs.logs.length}</div>
+    );
+  }
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -116,6 +127,7 @@ function CommunityPicker(): React.Node {
           <div className={sideLineSettings} />
           <div className={css.settingsIcon} onClick={openAccountSettings}>
             <SWMansionIcon icon="settings" size={22} />
+            {logsBadge}
           </div>
           <div className={css.buttonTitle}>Settings</div>
         </a>
