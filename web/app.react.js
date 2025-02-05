@@ -14,6 +14,7 @@ import {
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions.js';
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
+import { DebugLogsContextProvider } from 'lib/components/debug-logs-context-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { FarcasterChannelPrefetchHandler } from 'lib/components/farcaster-channel-prefetch-handler.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
@@ -564,43 +565,47 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       useHandleSecondaryDeviceLogInError();
 
     return (
-      <AppThemeWrapper>
-        <AlchemyENSCacheProvider>
-          <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
-            <TunnelbrokerProvider
-              shouldBeClosed={lockStatus !== 'acquired'}
-              onClose={releaseLockOrAbortRequest}
-              secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
-            >
-              <BadgeHandler />
-              <IdentitySearchProvider>
-                <SecondaryDeviceQRAuthContextProvider
-                  parseTunnelbrokerQRAuthMessage={
-                    parseTunnelbrokerQRAuthMessage
-                  }
-                  composeTunnelbrokerQRAuthMessage={
-                    composeTunnelbrokerQRAuthMessage
-                  }
-                  generateAESKey={generateQRAuthAESKey}
-                  onLogInError={handleSecondaryDeviceLogInError}
-                >
-                  <App
-                    {...props}
-                    navInfo={navInfo}
-                    entriesLoadingStatus={entriesLoadingStatus}
-                    loggedIn={loggedIn}
-                    activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-                    dispatch={dispatch}
-                    modals={modals}
-                  />
-                </SecondaryDeviceQRAuthContextProvider>
-                <DBOpsHandler />
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-              </IdentitySearchProvider>
-            </TunnelbrokerProvider>
-          </NeynarClientProvider>
-        </AlchemyENSCacheProvider>
-      </AppThemeWrapper>
+      <DebugLogsContextProvider>
+        <AppThemeWrapper>
+          <AlchemyENSCacheProvider>
+            <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
+              <TunnelbrokerProvider
+                shouldBeClosed={lockStatus !== 'acquired'}
+                onClose={releaseLockOrAbortRequest}
+                secondaryTunnelbrokerConnection={
+                  secondaryTunnelbrokerConnection
+                }
+              >
+                <BadgeHandler />
+                <IdentitySearchProvider>
+                  <SecondaryDeviceQRAuthContextProvider
+                    parseTunnelbrokerQRAuthMessage={
+                      parseTunnelbrokerQRAuthMessage
+                    }
+                    composeTunnelbrokerQRAuthMessage={
+                      composeTunnelbrokerQRAuthMessage
+                    }
+                    generateAESKey={generateQRAuthAESKey}
+                    onLogInError={handleSecondaryDeviceLogInError}
+                  >
+                    <App
+                      {...props}
+                      navInfo={navInfo}
+                      entriesLoadingStatus={entriesLoadingStatus}
+                      loggedIn={loggedIn}
+                      activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                      dispatch={dispatch}
+                      modals={modals}
+                    />
+                  </SecondaryDeviceQRAuthContextProvider>
+                  <DBOpsHandler />
+                  <KeyserverConnectionsHandler socketComponent={Socket} />
+                </IdentitySearchProvider>
+              </TunnelbrokerProvider>
+            </NeynarClientProvider>
+          </AlchemyENSCacheProvider>
+        </AppThemeWrapper>
+      </DebugLogsContextProvider>
     );
   },
 );
