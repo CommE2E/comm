@@ -42,6 +42,8 @@ import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-lin
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
+// wrap_in_transaction_and_block_requests doesn't work right now
+// Tracked in ENG-9228
 export type MigrationType =
   | 'wrap_in_transaction_and_block_requests'
   | 'run_simultaneously_with_requests';
@@ -1082,6 +1084,20 @@ const migrations: $ReadOnlyArray<Migration> = [
         console.log('Error while cleaning invite links blobs', e);
       }
     },
+    migrationType: 'run_simultaneously_with_requests',
+  },
+  {
+    version: 72,
+    migrationPromise: () =>
+      dbQuery(
+        SQL`
+          ALTER TABLE memberships
+          ADD COLUMN IF NOT EXISTS last_message_for_unread_check
+            bigint(20) NOT NULL DEFAULT 0;
+          UPDATE memberships SET last_message_for_unread_check = last_message;
+        `,
+        { multipleStatements: true },
+      ),
     migrationType: 'run_simultaneously_with_requests',
   },
 ];
