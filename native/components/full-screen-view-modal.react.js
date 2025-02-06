@@ -29,6 +29,7 @@ import Animated, {
   withTiming,
   Easing,
   withDecay,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import type { EventResult } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -832,7 +833,10 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       'worklet';
       lastPinchScale.value = 1;
       pinchActive.value = true;
-    }, [lastPinchScale, pinchActive]);
+      cancelAnimation(curX);
+      cancelAnimation(curY);
+      cancelAnimation(curScale);
+    }, [curScale, curX, curY, lastPinchScale, pinchActive]);
 
     const pinchUpdate = React.useCallback(
       ({ scale, focalX, focalY }: PinchGestureEvent) => {
@@ -876,8 +880,21 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
           absoluteX - translationX,
           absoluteY - translationY,
         );
+        if (panActive.value) {
+          cancelAnimation(curX);
+          cancelAnimation(curY);
+          cancelAnimation(curScale);
+        }
       },
-      [lastPanTranslationX, lastPanTranslationY, outsideButtons, panActive],
+      [
+        lastPanTranslationX,
+        lastPanTranslationY,
+        outsideButtons,
+        panActive,
+        curX,
+        curY,
+        curScale,
+      ],
     );
 
     const panUpdate = React.useCallback(
