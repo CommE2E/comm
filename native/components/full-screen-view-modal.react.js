@@ -40,18 +40,11 @@ import { type Dimensions } from 'lib/types/media-types.js';
 import SWMansionIcon from './swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import {
-  type DerivedDimensionsInfo,
-  derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors.js';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import type { NativeMethods } from '../types/react-native.js';
-import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import { clampV2 } from '../utils/animation-utils.js';
 
@@ -74,7 +67,7 @@ type ButtonDimensions = {
   +height: number,
 };
 
-type BaseProps = {
+type Props = {
   +navigation:
     | AppNavigationProp<'ImageModal'>
     | UserProfileBottomSheetNavigationProp<'UserProfileAvatarModal'>,
@@ -86,135 +79,6 @@ type BaseProps = {
   +saveContentCallback?: () => Promise<mixed>,
   +copyContentCallback?: () => mixed,
 };
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +dimensions: DerivedDimensionsInfo,
-  // withOverlayContext
-  +overlayContext: ?OverlayContextType,
-  +isActive: boolean,
-  +closeButtonEnabled: boolean,
-  +actionLinksEnabled: boolean,
-  +gesture: ExclusiveGesture,
-  +closeButtonRef: { current: ?React.ElementRef<TouchableOpacityInstance> },
-  +mediaIconsRef: { current: ?React.ElementRef<typeof View> },
-  +onCloseButtonLayout: () => void,
-  +onMediaIconsLayout: () => void,
-  +close: () => void,
-  +contentViewContainerStyle: ViewStyle,
-  +animatedBackdropStyle: AnimatedViewStyle,
-  +animatedCloseButtonStyle: AnimatedViewStyle,
-  +animatedMediaIconsButtonStyle: AnimatedViewStyle,
-};
-
-class FullScreenViewModal extends React.PureComponent<Props> {
-  get contentContainerStyle(): ViewStyle {
-    const { verticalBounds } = this.props.route.params;
-    const fullScreenHeight = this.props.dimensions.height;
-    const top = verticalBounds.y;
-    const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
-
-    // margin will clip, but padding won't
-    const verticalStyle = this.props.isActive
-      ? { paddingTop: top, paddingBottom: bottom }
-      : { marginTop: top, marginBottom: bottom };
-    return [styles.contentContainer, verticalStyle];
-  }
-
-  render(): React.Node {
-    const { children, saveContentCallback, copyContentCallback } = this.props;
-
-    const statusBar = this.props.isActive ? (
-      <ConnectedStatusBar hidden />
-    ) : null;
-
-    let saveButton;
-    if (saveContentCallback) {
-      saveButton = (
-        <TouchableOpacity
-          onPress={saveContentCallback}
-          disabled={!this.props.actionLinksEnabled}
-          style={styles.mediaIconButtons}
-        >
-          <SWMansionIcon name="save" style={styles.mediaIcon} />
-          <Text style={styles.mediaIconText}>Save</Text>
-        </TouchableOpacity>
-      );
-    }
-
-    let copyButton;
-    if (Platform.OS === 'ios' && copyContentCallback) {
-      copyButton = (
-        <TouchableOpacity
-          onPress={copyContentCallback}
-          disabled={!this.props.actionLinksEnabled}
-          style={styles.mediaIconButtons}
-        >
-          <SWMansionIcon name="copy" style={styles.mediaIcon} />
-          <Text style={styles.mediaIconText}>Copy</Text>
-        </TouchableOpacity>
-      );
-    }
-
-    let mediaActionButtons;
-    if (saveContentCallback || copyContentCallback) {
-      mediaActionButtons = (
-        <Animated.View
-          style={[
-            styles.mediaIconsContainer,
-            this.props.animatedMediaIconsButtonStyle,
-          ]}
-        >
-          <View
-            style={styles.mediaIconsRow}
-            onLayout={this.props.onMediaIconsLayout}
-            ref={this.props.mediaIconsRef}
-          >
-            {saveButton}
-            {copyButton}
-          </View>
-        </Animated.View>
-      );
-    }
-
-    const view = (
-      <Animated.View style={styles.container}>
-        {statusBar}
-        <Animated.View
-          style={[styles.backdrop, this.props.animatedBackdropStyle]}
-        />
-        <View style={this.contentContainerStyle}>
-          <Animated.View style={this.props.contentViewContainerStyle}>
-            {children}
-          </Animated.View>
-        </View>
-        <SafeAreaView style={styles.buttonsOverlay}>
-          <View style={styles.fill}>
-            <Animated.View
-              style={[
-                styles.closeButtonContainer,
-                this.props.animatedCloseButtonStyle,
-              ]}
-            >
-              <TouchableOpacity
-                onPress={this.props.close}
-                disabled={!this.props.closeButtonEnabled}
-                onLayout={this.props.onCloseButtonLayout}
-                ref={this.props.closeButtonRef}
-              >
-                <Text style={styles.closeButton}>×</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            {mediaActionButtons}
-          </View>
-        </SafeAreaView>
-      </Animated.View>
-    );
-    return (
-      <GestureDetector gesture={this.props.gesture}>{view}</GestureDetector>
-    );
-  }
-}
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -287,10 +151,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedFullScreenViewModal(
-    props: BaseProps,
-  ) {
+const FullScreenViewModal: React.ComponentType<Props> = React.memo<Props>(
+  function ConnectedFullScreenViewModal(props: Props) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
 
@@ -921,26 +783,100 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
       };
     });
 
-    return (
-      <FullScreenViewModal
-        {...props}
-        dimensions={dimensions}
-        overlayContext={overlayContext}
-        isActive={isActive}
-        closeButtonEnabled={closeButtonEnabled}
-        actionLinksEnabled={actionLinksEnabled}
-        gesture={gesture}
-        closeButtonRef={closeButtonRef}
-        mediaIconsRef={mediaIconsRef}
-        onCloseButtonLayout={onCloseButtonLayout}
-        onMediaIconsLayout={onMediaIconsLayout}
-        close={close}
-        contentViewContainerStyle={contentViewContainerStyle}
-        animatedBackdropStyle={animatedBackdropStyle}
-        animatedCloseButtonStyle={animatedCloseButtonStyle}
-        animatedMediaIconsButtonStyle={animatedMediaIconsButtonStyle}
-      />
-    );
-  });
+    const contentContainerStyle = React.useMemo(() => {
+      const fullScreenHeight = dimensions.height;
+      const top = verticalBounds.y;
+      const bottom =
+        fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
-export default ConnectedFullScreenViewModal;
+      // margin will clip, but padding won't
+      const verticalStyle = isActive
+        ? { paddingTop: top, paddingBottom: bottom }
+        : { marginTop: top, marginBottom: bottom };
+      return [styles.contentContainer, verticalStyle];
+    }, [dimensions.height, isActive, verticalBounds.height, verticalBounds.y]);
+
+    const { children, saveContentCallback, copyContentCallback } = props;
+
+    const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+
+    let saveButton;
+    if (saveContentCallback) {
+      saveButton = (
+        <TouchableOpacity
+          onPress={saveContentCallback}
+          disabled={!actionLinksEnabled}
+          style={styles.mediaIconButtons}
+        >
+          <SWMansionIcon name="save" style={styles.mediaIcon} />
+          <Text style={styles.mediaIconText}>Save</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    let copyButton;
+    if (Platform.OS === 'ios' && copyContentCallback) {
+      copyButton = (
+        <TouchableOpacity
+          onPress={copyContentCallback}
+          disabled={!actionLinksEnabled}
+          style={styles.mediaIconButtons}
+        >
+          <SWMansionIcon name="copy" style={styles.mediaIcon} />
+          <Text style={styles.mediaIconText}>Copy</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    let mediaActionButtons;
+    if (saveContentCallback || copyContentCallback) {
+      mediaActionButtons = (
+        <Animated.View
+          style={[styles.mediaIconsContainer, animatedMediaIconsButtonStyle]}
+        >
+          <View
+            style={styles.mediaIconsRow}
+            onLayout={onMediaIconsLayout}
+            ref={mediaIconsRef}
+          >
+            {saveButton}
+            {copyButton}
+          </View>
+        </Animated.View>
+      );
+    }
+
+    return (
+      <GestureDetector gesture={gesture}>
+        <Animated.View style={styles.container}>
+          {statusBar}
+          <Animated.View style={[styles.backdrop, animatedBackdropStyle]} />
+          <View style={contentContainerStyle}>
+            <Animated.View style={contentViewContainerStyle}>
+              {children}
+            </Animated.View>
+          </View>
+          <SafeAreaView style={styles.buttonsOverlay}>
+            <View style={styles.fill}>
+              <Animated.View
+                style={[styles.closeButtonContainer, animatedCloseButtonStyle]}
+              >
+                <TouchableOpacity
+                  onPress={close}
+                  disabled={!closeButtonEnabled}
+                  onLayout={onCloseButtonLayout}
+                  ref={closeButtonRef}
+                >
+                  <Text style={styles.closeButton}>×</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              {mediaActionButtons}
+            </View>
+          </SafeAreaView>
+        </Animated.View>
+      </GestureDetector>
+    );
+  },
+);
+
+export default FullScreenViewModal;
