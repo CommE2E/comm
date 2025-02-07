@@ -958,7 +958,6 @@ async function saveMemberships({
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
       rowToSave.unread ? 1 : 0,
-      0,
     ]);
   }
 
@@ -974,7 +973,7 @@ async function saveMemberships({
     const batch = insertRows.splice(0, membershipInsertBatchSize);
     const query = SQL`
       INSERT INTO memberships (user, thread, role, creation_time, subscription,
-        permissions, permissions_for_children, last_message, last_read_message)
+        permissions, permissions_for_children, last_message_for_unread_check)
       VALUES ${batch}
       ON DUPLICATE KEY UPDATE
         subscription = IF(
@@ -1007,34 +1006,12 @@ async function saveMemberships({
     thread,
   ]);
 
-  const unreadUserThreadPairs = joinRows
-    .filter(([, , unread]) => !!unread)
-    .map(([user, thread]) => [user, thread]);
-
-  let lastReadMessageExpression;
-  if (unreadUserThreadPairs.length === 0) {
-    lastReadMessageExpression = SQL`
-      GREATEST(COALESCE(all_users_query.message, 0), 
-        COALESCE(last_subthread_message_for_user_query.message, 0))
-    `;
-  } else {
-    lastReadMessageExpression = SQL`
-      (CASE 
-        WHEN ((mm.user, mm.thread) in (${unreadUserThreadPairs})) THEN 0
-        ELSE GREATEST(COALESCE(all_users_query.message, 0), 
-          COALESCE(last_subthread_message_for_user_query.message, 0))
-      END)
-    `;
-  }
-
   // We join two subqueries with the memberships table:
   // - the first subquery calculates the oldest non-CREATE_SUB_THREAD
   //   message, which is the same for all users
   // - the second subquery calculates the oldest CREATE_SUB_THREAD messages,
   //   which can be different for each user because of visibility permissions
   // Then we set the `last_message` column to the greater value of the two.
-  // For `last_read_message` we do the same but only if the user should have
-  // the "unread" status set for this thread.
   const query = SQL`
     UPDATE memberships mm
     LEFT JOIN (
@@ -1053,13 +1030,12 @@ async function saveMemberships({
     ) last_subthread_message_for_user_query 
     ON mm.thread = last_subthread_message_for_user_query.thread 
       AND mm.user = last_subthread_message_for_user_query.user
-    SET
-      mm.last_message = GREATEST(COALESCE(all_users_query.message, 0), 
-        COALESCE(last_subthread_message_for_user_query.message, 0)),
-      mm.last_read_message =
+    SET mm.last_message = GREATEST(
+      COALESCE(all_users_query.message, 0),
+      COALESCE(last_subthread_message_for_user_query.message, 0)
+    )
+    WHERE (mm.user, mm.thread) IN (${joinedUserThreadPairs})
   `;
-  query.append(lastReadMessageExpression);
-  query.append(SQL`WHERE (mm.user, mm.thread) IN (${joinedUserThreadPairs});`);
 
   await dbQuery(query);
 }
@@ -1082,13 +1058,15 @@ async function deleteMemberships(
     null,
     0,
     0,
+    0,
   ]);
 
   while (insertRows.length > 0) {
     const batch = insertRows.splice(0, membershipInsertBatchSize);
     const query = SQL`
       INSERT INTO memberships (user, thread, role, creation_time, subscription,
-        permissions, permissions_for_children, last_message, last_read_message)
+        permissions, permissions_for_children, last_message, last_read_message,
+        last_message_for_unread_check)
       VALUES ${batch}
       ON DUPLICATE KEY UPDATE
         role = -1,
@@ -1096,7 +1074,8 @@ async function deleteMemberships(
         permissions_for_children = NULL,
         subscription = ${defaultSubscriptionString},
         last_message = 0,
-        last_read_message = 0
+        last_read_message = 0,
+        last_message_for_unread_check = 0
     `;
     await dbQuery(query);
   }
