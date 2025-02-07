@@ -620,6 +620,10 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
   const lastMessageExpression = SQL`
     last_message = GREATEST(last_message, CASE 
   `;
+  const lastMessageForUnreadCheckExpression = SQL`
+    , last_message_for_unread_check =
+      GREATEST(last_message_for_unread_check, CASE 
+  `;
   const lastReadMessageExpression = SQL`
     , last_read_message = GREATEST(last_read_message, CASE 
   `;
@@ -633,6 +637,9 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
     lastMessageExpression.append(SQL`
       WHEN user = ${userID} AND thread = ${threadID} THEN ${latestMessage}
     `);
+    lastMessageForUnreadCheckExpression.append(SQL`
+      WHEN user = ${userID} AND thread = ${threadID} THEN ${latestMessage}
+    `);
     if (latestReadMessage) {
       shouldUpdateLastReadMessage = true;
       lastReadMessageExpression.append(SQL`
@@ -642,6 +649,10 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
   }
   lastMessageExpression.append(SQL`
     ELSE last_message
+    END)
+  `);
+  lastMessageForUnreadCheckExpression.append(SQL`
+    ELSE last_message_for_unread_check
     END)
   `);
   lastReadMessageExpression.append(SQL`
@@ -654,6 +665,7 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
   );
 
   query.append(lastMessageExpression);
+  query.append(lastMessageForUnreadCheckExpression);
   if (shouldUpdateLastReadMessage) {
     query.append(lastReadMessageExpression);
   }

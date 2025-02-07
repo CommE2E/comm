@@ -495,7 +495,7 @@ async function fetchLastMessageInfo(
   threadIDs: $ReadOnlyArray<string>,
 ) {
   const query = SQL`
-    SELECT thread, last_message, last_read_message
+    SELECT thread, last_message_for_unread_check, last_read_message
     FROM memberships
     WHERE user = ${viewer.userID} AND thread IN (${threadIDs})
   `;
@@ -504,7 +504,7 @@ async function fetchLastMessageInfo(
   const lastMessages = new Map<string, LastMessageInfo>();
   for (const row of result) {
     const threadID = row.thread.toString();
-    const lastMessage = row.last_message;
+    const lastMessage = row.last_message_for_unread_check;
     const lastReadMessage = row.last_read_message;
     lastMessages.set(threadID, { lastMessage, lastReadMessage });
   }
