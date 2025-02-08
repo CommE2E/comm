@@ -54,23 +54,23 @@ type UserThreadInfo = {
   +subthreadsCanSetToUnread: Set<string>,
 };
 
-type LatestMessagesPerUser = Map<
-  string,
-  $ReadOnlyMap<
-    string,
-    {
-      +latestMessage: string,
-      +latestReadMessage?: string,
-    },
-  >,
->;
-
-type LatestMessages = $ReadOnlyArray<{
-  +userID: string,
-  +threadID: string,
+type LatestMessageInfo = {
   +latestMessage: string,
   +latestReadMessage: ?string,
-}>;
+};
+
+type LatestMessagesPerUser = Map<
+  string,
+  $ReadOnlyMap<string, LatestMessageInfo>,
+>;
+
+type LatestMessages = $ReadOnlyArray<
+  $ReadOnly<{
+    ...LatestMessageInfo,
+    +userID: string,
+    +threadID: string,
+  }>,
+>;
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
@@ -522,19 +522,15 @@ async function redisPublish(
   }
 }
 
-type LatestMessagePerThread = {
-  +latestMessage: string,
-  +latestReadMessage?: string,
-};
 function determineLatestMessagesPerThread(
   preUserPushInfo: UserThreadInfo,
   userID: string,
   threadsToMessageIndices: $ReadOnlyMap<string, $ReadOnlyArray<number>>,
   messageInfos: $ReadOnlyArray<RawMessageInfo>,
-): $ReadOnlyMap<string, LatestMessagePerThread> {
+): $ReadOnlyMap<string, LatestMessageInfo> {
   const { threadIDs, notFocusedThreadIDs, subthreadsCanSetToUnread } =
     preUserPushInfo;
-  const latestMessagesPerThread = new Map<string, LatestMessagePerThread>();
+  const latestMessagesPerThread = new Map<string, LatestMessageInfo>();
   for (const threadID of threadIDs) {
     const messageIndices = threadsToMessageIndices.get(threadID);
     invariant(messageIndices, `indices should exist for thread ${threadID}`);
@@ -553,19 +549,18 @@ function determineLatestMessagesPerThread(
         'message ID should exist in determineLatestMessagesPerThread',
       );
 
+      let latestReadMessage;
       if (
-        notFocusedThreadIDs.has(threadID) &&
-        messageInfo.creatorID !== userID
+        !notFocusedThreadIDs.has(threadID) ||
+        messageInfo.creatorID === userID
       ) {
-        latestMessagesPerThread.set(threadID, {
-          latestMessage: messageID,
-        });
-      } else {
-        latestMessagesPerThread.set(threadID, {
-          latestMessage: messageID,
-          latestReadMessage: messageID,
-        });
+        latestReadMessage = messageID;
       }
+
+      latestMessagesPerThread.set(threadID, {
+        latestMessage: messageID,
+        latestReadMessage,
+      });
     }
   }
   return latestMessagesPerThread;
