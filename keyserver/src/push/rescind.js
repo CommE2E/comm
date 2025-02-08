@@ -64,7 +64,7 @@ async function rescindPushNotifs(
       ) AS unread_count
     FROM notifications n
     LEFT JOIN memberships m ON m.user = n.user
-      AND m.last_message > m.last_read_message 
+      AND m.last_message_for_unread_check > m.last_read_message
       AND m.role > 0 
       AND JSON_EXTRACT(subscription, ${notificationExtractString})
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
