@@ -549,16 +549,28 @@ function determineLatestMessagesPerThread(
         'message ID should exist in determineLatestMessagesPerThread',
       );
 
-      let latestReadMessage;
+      const curLatestMessageForThread = latestMessagesPerThread.get(threadID);
+
+      let latestReadMessage = curLatestMessageForThread?.latestReadMessage;
       if (
         !notFocusedThreadIDs.has(threadID) ||
         messageInfo.creatorID === userID
       ) {
-        latestReadMessage = messageID;
+        latestReadMessage = Math.max(
+          Number(messageID),
+          latestReadMessage ? Number(latestReadMessage) : -1,
+        ).toString();
       }
 
+      const latestMessage = Math.max(
+        curLatestMessageForThread
+          ? Number(curLatestMessageForThread.latestMessage)
+          : -1,
+        Number(messageID),
+      ).toString();
+
       latestMessagesPerThread.set(threadID, {
-        latestMessage: messageID,
+        latestMessage,
         latestReadMessage,
       });
     }
