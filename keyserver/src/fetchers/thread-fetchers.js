@@ -117,7 +117,7 @@ async function fetchServerThreadInfos(
       t.community, t.depth, t.color, t.description, t.type, t.creation_time,
       t.source_message, t.replies_count, t.avatar, t.pinned_count, m.user,
       m.role, m.permissions, m.subscription,
-      m.last_read_message < m.last_message AS unread, m.sender,
+      m.last_read_message < m.last_message_for_unread_check AS unread, m.sender,
       up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
   `
     .append(primaryFetchClause)
