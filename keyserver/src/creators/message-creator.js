@@ -11,7 +11,7 @@ import {
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils.js';
-import { pushTypes } from 'lib/shared/messages/message-spec.js';
+import { messageNotifyTypes } from 'lib/shared/messages/message-spec.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -442,7 +442,7 @@ async function postMessageSend(
     }
 
     const userPushInfoPromise = generateNotifUserInfoPromise({
-      pushType: pushTypes.NOTIF,
+      messageNotifyType: messageNotifyTypes.NOTIF_AND_SET_UNREAD,
       devices: userDevices,
       newMessageInfos: messageInfos,
       messageDatas,
@@ -454,7 +454,7 @@ async function postMessageSend(
       userID,
     });
     const userRescindInfoPromise = generateNotifUserInfoPromise({
-      pushType: pushTypes.RESCIND,
+      messageNotifyType: messageNotifyTypes.RESCIND,
       devices: userDevices,
       newMessageInfos: messageInfos,
       messageDatas,
