@@ -56,6 +56,7 @@ type UserThreadInfo = {
 
 type LatestMessageInfo = {
   +latestMessage: string,
+  +latestMessageForUnreadCheck: ?string,
   +latestReadMessage: ?string,
 };
 
@@ -571,6 +572,7 @@ function determineLatestMessagesPerThread(
 
       latestMessagesPerThread.set(threadID, {
         latestMessage,
+        latestMessageForUnreadCheck: latestMessage,
         latestReadMessage,
       });
     }
@@ -588,6 +590,7 @@ function flattenLatestMessagesPerUser(
         userID,
         threadID,
         latestMessage: latestMessages.latestMessage,
+        latestMessageForUnreadCheck: latestMessages.latestMessageForUnreadCheck,
         latestReadMessage: latestMessages.latestReadMessage,
       });
     }
@@ -598,7 +601,10 @@ function flattenLatestMessagesPerUser(
 async function createReadStatusUpdates(latestMessages: LatestMessages) {
   const now = Date.now();
   const readStatusUpdates = latestMessages
-    .filter(message => !message.latestReadMessage)
+    .filter(
+      message =>
+        !message.latestReadMessage && message.latestMessageForUnreadCheck,
+    )
     .map(({ userID, threadID }) => ({
       type: updateTypes.UPDATE_THREAD_READ_STATUS,
       userID,
@@ -635,18 +641,24 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
     , last_read_message = GREATEST(last_read_message, CASE 
   `;
   let shouldUpdateLastReadMessage = false;
+  let shouldUpdateLastMessageForUnreadCheck = false;
   for (const {
     userID,
     threadID,
     latestMessage,
+    latestMessageForUnreadCheck,
     latestReadMessage,
   } of latestMessages) {
     lastMessageExpression.append(SQL`
       WHEN user = ${userID} AND thread = ${threadID} THEN ${latestMessage}
     `);
-    lastMessageForUnreadCheckExpression.append(SQL`
-      WHEN user = ${userID} AND thread = ${threadID} THEN ${latestMessage}
-    `);
+    if (latestMessageForUnreadCheck) {
+      shouldUpdateLastMessageForUnreadCheck = true;
+      lastMessageForUnreadCheckExpression.append(SQL`
+        WHEN user = ${userID} AND thread = ${threadID}
+        THEN ${latestMessageForUnreadCheck}
+      `);
+    }
     if (latestReadMessage) {
       shouldUpdateLastReadMessage = true;
       lastReadMessageExpression.append(SQL`
@@ -672,7 +684,9 @@ async function updateLatestMessages(latestMessages: LatestMessages) {
   );
 
   query.append(lastMessageExpression);
-  query.append(lastMessageForUnreadCheckExpression);
+  if (shouldUpdateLastMessageForUnreadCheck) {
+    query.append(lastMessageForUnreadCheckExpression);
+  }
   if (shouldUpdateLastReadMessage) {
     query.append(lastReadMessageExpression);
   }
