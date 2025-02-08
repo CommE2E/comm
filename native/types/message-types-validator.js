@@ -12,7 +12,7 @@ if (__DEV__) {
   for (const messageName in messageTypes) {
     const messageType = messageTypes[messageName];
     if (
-      messageSpecs[messageType]?.generatesNotifs &&
+      messageSpecs[messageType]?.getMessageNotifyType &&
       !messageTypesCpp.has(messageType)
     ) {
       missingMessageTypesCpp.push(messageName);
