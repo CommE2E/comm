@@ -5,7 +5,10 @@ import _pickBy from 'lodash/fp/pickBy.js';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
 import { type Device, type PushUserInfo } from 'lib/push/send-utils.js';
-import { generateNotifUserInfoPromise } from 'lib/push/utils.js';
+import {
+  fetchMessageNotifyType,
+  generateNotifUserInfo,
+} from 'lib/push/utils.js';
 import {
   rawMessageInfoFromMessageData,
   shimUnsupportedRawMessageInfos,
@@ -425,6 +428,17 @@ async function postMessageSend(
       messageInfosPerUser[userID] = userMessageInfos;
     }
 
+    const { userNotMemberOfSubthreads } = preUserPushInfo;
+    const messagesPromise = fetchMessageNotifyType({
+      newMessageInfos: messageInfos,
+      messageDatas,
+      threadsToMessageIndices,
+      userNotMemberOfSubthreads,
+      fetchMessageInfoByID: (messageID: string) =>
+        fetchMessageInfoByID(viewer, messageID),
+      userID,
+    });
+
     latestMessagesPerUser.set(
       userID,
       determineLatestMessagesPerThread(
@@ -435,36 +449,29 @@ async function postMessageSend(
       ),
     );
 
-    const { userNotMemberOfSubthreads } = preUserPushInfo;
     const userDevices = [...preUserPushInfo.devices.values()];
     if (userDevices.length === 0) {
       continue;
     }
 
-    const userPushInfoPromise = generateNotifUserInfoPromise({
-      messageNotifyType: messageNotifyTypes.NOTIF_AND_SET_UNREAD,
-      devices: userDevices,
-      newMessageInfos: messageInfos,
-      messageDatas,
-      threadsToMessageIndices,
-      threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
-      userNotMemberOfSubthreads,
-      fetchMessageInfoByID: (messageID: string) =>
-        fetchMessageInfoByID(viewer, messageID),
-      userID,
-    });
-    const userRescindInfoPromise = generateNotifUserInfoPromise({
-      messageNotifyType: messageNotifyTypes.RESCIND,
-      devices: userDevices,
-      newMessageInfos: messageInfos,
-      messageDatas,
-      threadsToMessageIndices,
-      threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
-      userNotMemberOfSubthreads,
-      fetchMessageInfoByID: (messageID: string) =>
-        fetchMessageInfoByID(viewer, messageID),
-      userID,
-    });
+    const userPushInfoPromise = (async () => {
+      const messages = await messagesPromise;
+      return generateNotifUserInfo({
+        messageNotifyType: messageNotifyTypes.NOTIF_AND_SET_UNREAD,
+        messages,
+        devices: userDevices,
+        threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
+      });
+    })();
+    const userRescindInfoPromise = (async () => {
+      const messages = await messagesPromise;
+      return generateNotifUserInfo({
+        messageNotifyType: messageNotifyTypes.RESCIND,
+        messages,
+        devices: userDevices,
+        threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
+      });
+    })();
 
     userPushInfoPromises[userID] = userPushInfoPromise;
     userRescindInfoPromises[userID] = userRescindInfoPromise;
