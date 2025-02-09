@@ -12,12 +12,12 @@ import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadIDIsThick } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { thickIDRegex } from 'lib/utils/validation-utils.js';
 
 import {
   setInitialReduxState,
@@ -58,7 +58,7 @@ function InitialReduxStateGate(props: Props): React.Node {
       try {
         let urlInfo = infoFromURL(decodeURI(window.location.href));
         const isThickThreadOpen =
-          urlInfo.thread && thickIDRegex.test(urlInfo.thread);
+          urlInfo.thread && threadIDIsThick(urlInfo.thread);
         // Handle older links
         if (urlInfo.thread && !isThickThreadOpen) {
           urlInfo = {
