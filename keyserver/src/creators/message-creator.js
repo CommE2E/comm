@@ -544,7 +544,7 @@ function determineLatestMessagesPerThread(
       continue;
     }
     for (const message of threadMessages) {
-      const { messageInfo } = message;
+      const { messageInfo, messageNotifyType } = message;
       if (
         messageInfo.type === messageTypes.CREATE_SUB_THREAD &&
         !subthreadsCanSetToUnread.has(messageInfo.childThreadID)
@@ -578,11 +578,25 @@ function determineLatestMessagesPerThread(
         Number(messageID),
       ).toString();
 
+      let latestMessageForUnreadCheck =
+        curLatestMessageForThread?.latestMessageForUnreadCheck;
+      if (
+        messageNotifyType === messageNotifyTypes.SET_UNREAD ||
+        messageNotifyType === messageNotifyTypes.NOTIF_AND_SET_UNREAD
+      ) {
+        latestMessageForUnreadCheck = Math.max(
+          Number(messageID),
+          latestMessageForUnreadCheck
+            ? Number(latestMessageForUnreadCheck)
+            : -1,
+        ).toString();
+      }
+
       latestMessagesPerThread.set(threadID, {
         userID,
         threadID,
         latestMessage,
-        latestMessageForUnreadCheck: latestMessage,
+        latestMessageForUnreadCheck,
         latestReadMessage,
       });
     }
