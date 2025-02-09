@@ -8,6 +8,7 @@ import { type Device, type PushUserInfo } from 'lib/push/send-utils.js';
 import {
   fetchMessageNotifyType,
   generateNotifUserInfo,
+  type FetchMessageNotifyTypeReturnInstance,
 } from 'lib/push/utils.js';
 import {
   rawMessageInfoFromMessageData,
@@ -58,23 +59,12 @@ type UserThreadInfo = {
 };
 
 type LatestMessageInfo = {
+  +userID: string,
+  +threadID: string,
   +latestMessage: string,
   +latestMessageForUnreadCheck: ?string,
   +latestReadMessage: ?string,
 };
-
-type LatestMessagesPerUser = Map<
-  string,
-  $ReadOnlyMap<string, LatestMessageInfo>,
->;
-
-type LatestMessages = $ReadOnlyArray<
-  $ReadOnly<{
-    ...LatestMessageInfo,
-    +userID: string,
-    +threadID: string,
-  }>,
->;
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
@@ -297,7 +287,7 @@ async function postMessageSend(
   messageDatas: MessageData[],
   updatesForCurrentSession: UpdatesForCurrentSession,
 ) {
-  const processForSearch = processMessagesForSearch(messageInfos);
+  const processForSearchPromise = processMessagesForSearch(messageInfos);
 
   let joinIndex = 0;
   let subthreadSelects = '';
@@ -408,7 +398,7 @@ async function postMessageSend(
   const messageInfosPerUser: {
     [userID: string]: $ReadOnlyArray<RawMessageInfo>,
   } = {};
-  const latestMessagesPerUser: LatestMessagesPerUser = new Map();
+  const latestMessagePromises: Array<Promise<Array<LatestMessageInfo>>> = [];
   const userPushInfoPromises: { [string]: Promise<?PushUserInfo> } = {};
   const userRescindInfoPromises: { [string]: Promise<?PushUserInfo> } = {};
 
@@ -439,14 +429,15 @@ async function postMessageSend(
       userID,
     });
 
-    latestMessagesPerUser.set(
-      userID,
-      determineLatestMessagesPerThread(
-        preUserPushInfo,
-        userID,
-        threadsToMessageIndices,
-        messageInfos,
-      ),
+    latestMessagePromises.push(
+      (async () => {
+        const messages = await messagesPromise;
+        return determineLatestMessagesPerThread(
+          messages,
+          preUserPushInfo,
+          userID,
+        );
+      })(),
     );
 
     const userDevices = [...preUserPushInfo.devices.values()];
@@ -477,20 +468,26 @@ async function postMessageSend(
     userRescindInfoPromises[userID] = userRescindInfoPromise;
   }
 
-  const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
+  const latestMessageUpdatesPromise = (async () => {
+    const unflattenedLatestMessages = await Promise.all(latestMessagePromises);
+    const latestMessages = unflattenedLatestMessages.flat();
+    await Promise.all([
+      createReadStatusUpdates(latestMessages),
+      updateLatestMessages(latestMessages),
+    ]);
+  })();
 
   const [pushInfo, rescindInfo] = await Promise.all([
     promiseAll(userPushInfoPromises),
     promiseAll(userRescindInfoPromises),
-    createReadStatusUpdates(latestMessages),
     redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
-    updateLatestMessages(latestMessages),
-    processForSearch,
+    latestMessageUpdatesPromise,
   ]);
 
   await Promise.all([
     sendPushNotifs(_pickBy(Boolean)(pushInfo)),
     sendRescindNotifs(_pickBy(Boolean)(rescindInfo)),
+    processForSearchPromise,
   ]);
 }
 
@@ -531,19 +528,23 @@ async function redisPublish(
 }
 
 function determineLatestMessagesPerThread(
+  messages: $ReadOnlyMap<
+    string,
+    $ReadOnlyArray<FetchMessageNotifyTypeReturnInstance>,
+  >,
   preUserPushInfo: UserThreadInfo,
   userID: string,
-  threadsToMessageIndices: $ReadOnlyMap<string, $ReadOnlyArray<number>>,
-  messageInfos: $ReadOnlyArray<RawMessageInfo>,
-): $ReadOnlyMap<string, LatestMessageInfo> {
+): Array<LatestMessageInfo> {
   const { threadIDs, notFocusedThreadIDs, subthreadsCanSetToUnread } =
     preUserPushInfo;
   const latestMessagesPerThread = new Map<string, LatestMessageInfo>();
   for (const threadID of threadIDs) {
-    const messageIndices = threadsToMessageIndices.get(threadID);
-    invariant(messageIndices, `indices should exist for thread ${threadID}`);
-    for (const messageIndex of messageIndices) {
-      const messageInfo = messageInfos[messageIndex];
+    const threadMessages = messages.get(threadID);
+    if (!threadMessages) {
+      continue;
+    }
+    for (const message of threadMessages) {
+      const { messageInfo } = message;
       if (
         messageInfo.type === messageTypes.CREATE_SUB_THREAD &&
         !subthreadsCanSetToUnread.has(messageInfo.childThreadID)
@@ -578,34 +579,20 @@ function determineLatestMessagesPerThread(
       ).toString();
 
       latestMessagesPerThread.set(threadID, {
+        userID,
+        threadID,
         latestMessage,
         latestMessageForUnreadCheck: latestMessage,
         latestReadMessage,
       });
     }
   }
-  return latestMessagesPerThread;
+  return [...latestMessagesPerThread.values()];
 }
 
-function flattenLatestMessagesPerUser(
-  latestMessagesPerUser: LatestMessagesPerUser,
-): LatestMessages {
-  const result = [];
-  for (const [userID, latestMessagesPerThread] of latestMessagesPerUser) {
-    for (const [threadID, latestMessages] of latestMessagesPerThread) {
-      result.push({
-        userID,
-        threadID,
-        latestMessage: latestMessages.latestMessage,
-        latestMessageForUnreadCheck: latestMessages.latestMessageForUnreadCheck,
-        latestReadMessage: latestMessages.latestReadMessage,
-      });
-    }
-  }
-  return result;
-}
-
-async function createReadStatusUpdates(latestMessages: LatestMessages) {
+async function createReadStatusUpdates(
+  latestMessages: $ReadOnlyArray<LatestMessageInfo>,
+) {
   const now = Date.now();
   const readStatusUpdates = latestMessages
     .filter(
@@ -627,7 +614,9 @@ async function createReadStatusUpdates(latestMessages: LatestMessages) {
   await createUpdates(readStatusUpdates);
 }
 
-async function updateLatestMessages(latestMessages: LatestMessages) {
+async function updateLatestMessages(
+  latestMessages: $ReadOnlyArray<LatestMessageInfo>,
+) {
   if (latestMessages.length === 0) {
     return;
   }
