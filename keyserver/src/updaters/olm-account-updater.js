@@ -2,10 +2,11 @@
 
 import type { Account as OlmAccount } from '@commapp/olm';
 
-import { ServerError, getMessageForException } from 'lib/utils/errors.js';
+import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { SQL, dbQuery } from '../database/database.js';
+import { unpickleAccountAndUseCallback } from '../utils/olm-objects.js';
 import { unpickleOlmAccount } from '../utils/olm-utils.js';
 
 const maxOlmAccountUpdateRetriesCount = 5;
@@ -39,17 +40,16 @@ async function fetchCallUpdateOlmAccount<T>(
       },
     ] = olmAccountResult;
 
-    const account = await unpickleOlmAccount({
-      picklingKey,
-      pickledAccount,
-    });
-    let result;
-    try {
-      result = await callback(account, picklingKey);
-    } catch (e) {
-      throw new ServerError(getMessageForException(e) ?? 'unknown_error');
-    }
-    const updatedAccount = account.pickle(picklingKey);
+    const {
+      result,
+      pickledOlmAccount: { pickledAccount: updatedAccount },
+    } = await unpickleAccountAndUseCallback(
+      {
+        picklingKey,
+        pickledAccount,
+      },
+      callback,
+    );
 
     const [transactionResult] = await dbQuery(
       SQL`
