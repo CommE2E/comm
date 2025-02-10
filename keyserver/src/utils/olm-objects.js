@@ -1,6 +1,9 @@
 // @flow
 
-import olm, { type Account as OlmAccount } from '@commapp/olm';
+import olm, {
+  type Account as OlmAccount,
+  type Session as OlmSession,
+} from '@commapp/olm';
 import uuid from 'uuid';
 
 import { ServerError } from 'lib/utils/errors.js';
@@ -56,4 +59,42 @@ async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   };
 }
 
-export { unpickleAccountAndUseCallback, createPickledOlmAccount };
+export type PickledOlmSession = {
+  +picklingKey: string,
+  +pickledSession: string,
+};
+async function unpickleSessionAndUseCallback<T>(
+  pickledOlmSession: PickledOlmSession,
+  callback: (session: OlmSession, picklingKey: string) => Promise<T> | T,
+): Promise<{ +result: T, +pickledOlmSession: PickledOlmSession }> {
+  const { picklingKey, pickledSession } = pickledOlmSession;
+
+  await olm.init();
+
+  const session = new olm.Session();
+  session.unpickle(picklingKey, pickledSession);
+
+  let result;
+  try {
+    result = await callback(session, picklingKey);
+  } catch (e) {
+    throw new ServerError(getMessageForException(e) ?? 'unknown_error');
+  }
+  const updatedSession = session.pickle(picklingKey);
+
+  session.free();
+
+  return {
+    result,
+    pickledOlmSession: {
+      ...pickledOlmSession,
+      pickledSession: updatedSession,
+    },
+  };
+}
+
+export {
+  unpickleAccountAndUseCallback,
+  createPickledOlmAccount,
+  unpickleSessionAndUseCallback,
+};
