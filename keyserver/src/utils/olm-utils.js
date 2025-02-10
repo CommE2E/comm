@@ -8,7 +8,6 @@ import olm from '@commapp/olm';
 import invariant from 'invariant';
 
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
-import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
@@ -23,30 +22,6 @@ import { unpickleAccountAndUseCallback } from './olm-objects.js';
 import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { verifyUserLoggedIn } from '../user/login.js';
-
-async function createPickledOlmSession(
-  account: OlmAccount,
-  accountPicklingKey: string,
-  initialEncryptedMessage: string,
-  theirCurve25519Key?: string,
-): Promise<string> {
-  await olm.init();
-  const session = new olm.Session();
-
-  if (theirCurve25519Key) {
-    session.create_inbound_from(
-      account,
-      theirCurve25519Key,
-      initialEncryptedMessage,
-    );
-  } else {
-    session.create_inbound(account, initialEncryptedMessage);
-  }
-
-  account.remove_one_time_keys(session);
-  session.decrypt(olmEncryptedMessageTypes.PREKEY, initialEncryptedMessage);
-  return session.pickle(accountPicklingKey);
-}
 
 let cachedOLMUtility: OlmUtility;
 
@@ -277,7 +252,6 @@ async function publishPrekeysToIdentity(
 }
 
 export {
-  createPickledOlmSession,
   getOlmUtility,
   uploadNewOneTimeKeys,
   getContentSigningKey,
