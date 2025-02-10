@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MessageSpecs/AddMembersMessageSpec.h"
 #include "MessageSpecs/ChangeRoleMessageSpec.h"
 #include "MessageSpecs/ChangeSettingsMessageSpec.h"
 #include "MessageSpecs/CreateEntryMessageSpec.h"
@@ -9,9 +10,12 @@
 #include "MessageSpecs/DeleteEntryMessageSpec.h"
 #include "MessageSpecs/EditEntryMessageSpec.h"
 #include "MessageSpecs/EditMessageSpec.h"
+#include "MessageSpecs/JoinThreadMessageSpec.h"
+#include "MessageSpecs/LeaveThreadMessageSpec.h"
 #include "MessageSpecs/MessageSpec.h"
 #include "MessageSpecs/MultimediaMessageSpec.h"
 #include "MessageSpecs/ReactionMessageSpec.h"
+#include "MessageSpecs/RemoveMembersMessageSpec.h"
 #include "MessageSpecs/RestoreEntryMessageSpec.h"
 #include "MessageSpecs/SidebarSourceMessageSpec.h"
 #include "MessageSpecs/TextMessageSpec.h"
@@ -75,6 +79,21 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
       message_specs_initializer.insert(
           {MessageType::UPDATE_RELATIONSHIP,
            std::make_unique<UpdateRelationshipMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::UPDATE_RELATIONSHIP,
+           std::make_unique<UpdateRelationshipMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::JOIN_THREAD,
+           std::make_unique<JoinThreadMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::LEAVE_THREAD,
+           std::make_unique<LeaveThreadMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::ADD_MEMBERS,
+           std::make_unique<AddMembersMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::REMOVE_MEMBERS,
+           std::make_unique<RemoveMembersMessageSpec>()});
       return message_specs_initializer;
     }();
 
