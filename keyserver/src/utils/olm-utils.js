@@ -7,7 +7,6 @@ import type {
 } from '@commapp/olm';
 import olm from '@commapp/olm';
 import invariant from 'invariant';
-import uuid from 'uuid';
 
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
@@ -21,25 +20,10 @@ import {
 } from 'lib/utils/olm-utils.js';
 
 import { publishPrekeys, uploadOneTimeKeys } from './identity-utils.js';
-import type { PickledOlmAccount } from './olm-objects.js';
 import { unpickleAccountAndUseCallback } from './olm-objects.js';
 import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { verifyUserLoggedIn } from '../user/login.js';
-
-async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
-  await olm.init();
-  const account = new olm.Account();
-  account.create();
-
-  const picklingKey = uuid.v4();
-  const pickledAccount = account.pickle(picklingKey);
-
-  return {
-    picklingKey: picklingKey,
-    pickledAccount: pickledAccount,
-  };
-}
 
 async function createPickledOlmSession(
   account: OlmAccount,
@@ -304,7 +288,6 @@ async function publishPrekeysToIdentity(
 }
 
 export {
-  createPickledOlmAccount,
   createPickledOlmSession,
   getOlmUtility,
   unpickleOlmSession,

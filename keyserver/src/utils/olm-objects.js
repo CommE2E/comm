@@ -1,6 +1,7 @@
 // @flow
 
 import olm, { type Account as OlmAccount } from '@commapp/olm';
+import uuid from 'uuid';
 
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -38,4 +39,21 @@ async function unpickleAccountAndUseCallback<T>(
   };
 }
 
-export { unpickleAccountAndUseCallback };
+async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
+  await olm.init();
+
+  const account = new olm.Account();
+  account.create();
+
+  const picklingKey = uuid.v4();
+  const pickledAccount = account.pickle(picklingKey);
+
+  account.free();
+
+  return {
+    picklingKey: picklingKey,
+    pickledAccount: pickledAccount,
+  };
+}
+
+export { unpickleAccountAndUseCallback, createPickledOlmAccount };
