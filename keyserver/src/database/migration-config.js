@@ -34,11 +34,11 @@ import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permi
 import { updateThread } from '../updaters/thread-updaters.js';
 import { ensureUserCredentials } from '../user/checks.js';
 import type { PickledOlmAccount } from '../utils/olm-objects.js';
-import { unpickleAccountAndUseCallback } from '../utils/olm-objects.js';
 import {
   createPickledOlmAccount,
-  publishPrekeysToIdentity,
-} from '../utils/olm-utils.js';
+  unpickleAccountAndUseCallback,
+} from '../utils/olm-objects.js';
+import { publishPrekeysToIdentity } from '../utils/olm-utils.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
