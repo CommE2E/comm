@@ -1,6 +1,6 @@
 // @flow
 
-import olm, { type Utility } from '@commapp/olm';
+import olm, { type Utility as OlmUtility } from '@commapp/olm';
 import localforage from 'localforage';
 import uuid from 'uuid';
 
@@ -35,6 +35,7 @@ import {
 } from 'lib/utils/olm-utils.js';
 
 import { getIdentityClient } from './identity-client.js';
+import { getOlmUtility } from './olm-utils.js';
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
   getDBModule,
@@ -72,7 +73,6 @@ type WorkerCryptoStore = {
 };
 
 let cryptoStore: ?WorkerCryptoStore = null;
-let olmUtility: ?Utility = null;
 
 function clearCryptoStore() {
   cryptoStore = null;
@@ -335,7 +335,6 @@ async function initializeCryptoAccount(
   }
 
   await olm.init({ locateFile: () => olmWasmPath });
-  olmUtility = new olm.Utility();
 
   if (initialCryptoStore) {
     cryptoStore = {
@@ -977,9 +976,7 @@ const olmAPI: OlmAPI = {
     signature: string,
     signingPublicKey: string,
   ): Promise<boolean> {
-    if (!olmUtility) {
-      throw new Error('Crypto account not initialized');
-    }
+    const olmUtility: OlmUtility = getOlmUtility();
     try {
       olmUtility.ed25519_verify(signingPublicKey, message, signature);
       return true;
