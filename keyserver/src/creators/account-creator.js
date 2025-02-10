@@ -42,13 +42,13 @@ import { searchForUser } from '../search/users.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import {
   isAuthoritativeKeyserver,
   thisKeyserverAdmin,
 } from '../user/identity.js';
+import { signUsingOlmAccount } from '../utils/olm-utils.js';
 
 const adminMessages = [
   'welcome to Comm!',
@@ -224,11 +224,10 @@ async function createAndSendReservedUsernameMessage(
   };
   const stringifiedMessage = JSON.stringify(reservedUsernameMessage);
 
-  const [rustAPI, accountInfo] = await Promise.all([
+  const [rustAPI, signature] = await Promise.all([
     getRustAPI(),
-    fetchOlmAccount('content'),
+    signUsingOlmAccount(stringifiedMessage),
   ]);
-  const signature = accountInfo.account.sign(stringifiedMessage);
 
   await rustAPI.addReservedUsernames(stringifiedMessage, signature);
 }

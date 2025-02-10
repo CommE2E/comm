@@ -241,6 +241,20 @@ async function getContentSigningKey(): Promise<string> {
   return result;
 }
 
+async function signUsingOlmAccount(message: string): Promise<string> {
+  const pickledAccount = await fetchPickledOlmAccount('content');
+
+  const signUsingAccount: (account: OlmAccount) => string = (
+    account: OlmAccount,
+  ) => account.sign(message);
+
+  const { result } = await unpickleAccountAndUseCallback(
+    pickledAccount,
+    signUsingAccount,
+  );
+  return result;
+}
+
 function validateAndUploadAccountPrekeys(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
@@ -300,4 +314,5 @@ export {
   publishPrekeysToIdentity,
   getNewDeviceKeyUpload,
   markPrekeysAsPublished,
+  signUsingOlmAccount,
 };
