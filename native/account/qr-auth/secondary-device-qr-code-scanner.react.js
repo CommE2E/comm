@@ -19,6 +19,8 @@ import {
 import { useStyles, useColors } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 import { deviceIsEmulator } from '../../utils/url-utils.js';
+import AuthContainer from '../auth-components/auth-container.react.js';
+import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
 
@@ -118,21 +120,23 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
   if (deviceIsEmulator) {
     return (
-      <View style={styles.textInputContainer}>
-        <Text style={styles.header}>QR Code URL</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={urlInput}
-            onChangeText={onChangeText}
-            placeholder="QR Code URL"
-            placeholderTextColor={panelForegroundTertiaryLabel}
-            autoFocus={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-      </View>
+      <AuthContainer>
+        <AuthContentContainer style={styles.scrollViewContentContainer}>
+          <Text style={styles.header}>QR Code URL</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={urlInput}
+              onChangeText={onChangeText}
+              placeholder="QR Code URL"
+              placeholderTextColor={panelForegroundTertiaryLabel}
+              autoFocus={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+        </AuthContentContainer>
+      </AuthContainer>
     );
   }
   // Note: According to the BarCodeScanner Expo docs, we should adhere to two
@@ -167,8 +171,8 @@ const unboundStyles = {
     right: 0,
     bottom: 0,
   },
-  textInputContainer: {
-    paddingTop: 8,
+  scrollViewContentContainer: {
+    flexGrow: 1,
   },
   header: {
     color: 'panelBackgroundLabel',
