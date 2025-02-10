@@ -20,8 +20,8 @@ import { rescindPushNotifs } from '../push/rescind.js';
 import { removeBlobHolders } from '../services/blob.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer, AnonymousViewerData } from '../session/viewer.js';
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { blobHoldersFromUploadRows } from '../uploads/media-utils.js';
+import { signUsingOlmAccount } from '../utils/olm-utils.js';
 
 async function deleteUploadsForUser(deletedUserID: string): Promise<void> {
   try {
@@ -129,9 +129,10 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     const message = JSON.stringify(reservedUsernameMessage);
 
     const removeReservedUsernamePromise = (async () => {
-      const rustAPI = await getRustAPI();
-      const accountInfo = await fetchOlmAccount('content');
-      const signature = accountInfo.account.sign(message);
+      const [rustAPI, signature] = await Promise.all([
+        getRustAPI(),
+        signUsingOlmAccount(message),
+      ]);
       await rustAPI.removeReservedUsername(message, signature);
     })();
     if (viewer.isScriptViewer) {
