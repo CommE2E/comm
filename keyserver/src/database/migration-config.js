@@ -1,5 +1,6 @@
 // @flow
 
+import type { Account as OlmAccount } from '@commapp/olm';
 import fs from 'fs';
 
 import bots from 'lib/facts/bots.js';
@@ -25,14 +26,15 @@ import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { fetchAllPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
+import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
 import { deleteBlob } from '../services/blob.js';
 import { createScriptViewer } from '../session/scripts.js';
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateChangedUndirectedRelationships } from '../updaters/relationship-updaters.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { ensureUserCredentials } from '../user/checks.js';
 import type { PickledOlmAccount } from '../utils/olm-objects.js';
+import { unpickleAccountAndUseCallback } from '../utils/olm-objects.js';
 import {
   createPickledOlmAccount,
   publishPrekeysToIdentity,
@@ -669,10 +671,16 @@ const migrations: $ReadOnlyArray<Migration> = [
     migrationPromise: async () => {
       try {
         const [content, notif] = await Promise.all([
-          fetchOlmAccount('content'),
-          fetchOlmAccount('notifications'),
+          fetchPickledOlmAccount('content'),
+          fetchPickledOlmAccount('notifications'),
         ]);
-        await publishPrekeysToIdentity(content.account, notif.account);
+        await unpickleAccountAndUseCallback(
+          content,
+          (contentAccount: OlmAccount) =>
+            unpickleAccountAndUseCallback(notif, (notifAccount: OlmAccount) =>
+              publishPrekeysToIdentity(contentAccount, notifAccount),
+            ),
+        );
       } catch (e) {
         console.warn('Encountered error while trying to publish prekeys', e);
         if (process.env.NODE_ENV !== 'development') {
