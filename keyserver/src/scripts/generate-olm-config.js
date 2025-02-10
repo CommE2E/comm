@@ -1,20 +1,15 @@
 // @flow
 
-import olm from '@commapp/olm';
 import fs from 'fs';
 import path from 'path';
-import uuid from 'uuid';
 
 import { main } from './utils.js';
+import { createPickledOlmAccount } from '../utils/olm-objects.js';
 
 const olmConfigRelativePath = './secrets/olm_config.json';
 
 async function generateOlmConfig() {
-  await olm.init();
-  const account = new olm.Account();
-  account.create();
-  const picklingKey = uuid.v4();
-  const pickledAccount = account.pickle(picklingKey);
+  const { picklingKey, pickledAccount } = await createPickledOlmAccount();
 
   const olmConfig = {
     picklingKey: picklingKey,
