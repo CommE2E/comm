@@ -317,12 +317,9 @@ pub const VALID_USERNAME_REGEX_STRING: &str =
 
 // Retry
 
-// TODO: Replace this with `ExponentialBackoffConfig` from `comm-lib`
 pub mod retry {
+  // exponential backoff config
   pub const MAX_ATTEMPTS: usize = 8;
-
-  pub const CONDITIONAL_CHECK_FAILED: &str = "ConditionalCheckFailed";
-  pub const TRANSACTION_CONFLICT: &str = "TransactionConflict";
 }
 
 // One-time keys
