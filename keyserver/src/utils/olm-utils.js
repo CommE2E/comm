@@ -1,10 +1,11 @@
 // @flow
 
-import olm from '@commapp/olm';
 import type {
   Account as OlmAccount,
   Session as OlmSession,
+  Utility as OlmUtility,
 } from '@commapp/olm';
+import olm from '@commapp/olm';
 import invariant from 'invariant';
 import uuid from 'uuid';
 
@@ -14,22 +15,18 @@ import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-type
 import { ServerError } from 'lib/utils/errors.js';
 import {
   getAccountPrekeysSet,
+  retrieveAccountKeysSet,
   shouldForgetPrekey,
   shouldRotatePrekey,
-  retrieveAccountKeysSet,
 } from 'lib/utils/olm-utils.js';
 
 import { publishPrekeys, uploadOneTimeKeys } from './identity-utils.js';
+import type { PickledOlmAccount } from './olm-objects.js';
 import {
   fetchCallUpdateOlmAccount,
   fetchOlmAccount,
 } from '../updaters/olm-account-updater.js';
 import { verifyUserLoggedIn } from '../user/login.js';
-
-export type PickledOlmAccount = {
-  +picklingKey: string,
-  +pickledAccount: string,
-};
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   await olm.init();
