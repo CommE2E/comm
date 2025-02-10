@@ -1,13 +1,13 @@
 // @flow
 
-import type { EncryptResult } from '@commapp/olm';
+import type { EncryptResult, Session as OlmSession } from '@commapp/olm';
 
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { SQL, dbQuery } from '../database/database.js';
 import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
-import { unpickleOlmSession } from '../utils/olm-utils.js';
+import { unpickleSessionAndUseCallback } from '../utils/olm-objects.js';
 
 const maxOlmSessionUpdateAttemptTime = 30000;
 const olmSessionUpdateRetryDelay = 50;
@@ -45,20 +45,27 @@ async function encryptAndUpdateOlmSession(
     }
 
     const [{ version, pickled_olm_session: pickledSession }] = olmSessionResult;
-    const session = await unpickleOlmSession(pickledSession, picklingKey);
 
     const encryptedMessages: { [string]: EncryptResult } = {};
-    for (const messageName in messagesToEncrypt) {
-      encryptedMessages[messageName] = session.encrypt(
-        messagesToEncrypt[messageName],
-      );
-    }
+    const {
+      pickledOlmSession: { pickledSession: updatedSession },
+    } = await unpickleSessionAndUseCallback(
+      {
+        picklingKey,
+        pickledSession,
+      },
+      (olmSession: OlmSession) => {
+        for (const messageName in messagesToEncrypt) {
+          encryptedMessages[messageName] = olmSession.encrypt(
+            messagesToEncrypt[messageName],
+          );
+        }
+      },
+    );
 
     if (dbPersistCondition && !dbPersistCondition(encryptedMessages)) {
       return { encryptedMessages, dbPersistConditionViolated: true };
     }
-
-    const updatedSession = session.pickle(picklingKey);
 
     const [transactionResult] = await dbQuery(
       SQL`
