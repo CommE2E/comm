@@ -7,7 +7,6 @@ import sleep from 'lib/utils/sleep.js';
 
 import { SQL, dbQuery } from '../database/database.js';
 import { unpickleAccountAndUseCallback } from '../utils/olm-objects.js';
-import { unpickleOlmAccount } from '../utils/olm-utils.js';
 
 const maxOlmAccountUpdateRetriesCount = 5;
 const olmAccountUpdateRetryDelay = 200;
@@ -86,32 +85,4 @@ async function fetchCallUpdateOlmAccount<T>(
   throw new ServerError('max_olm_account_update_retry_exceeded');
 }
 
-async function fetchOlmAccount(
-  olmAccountType: 'content' | 'notifications',
-): Promise<{
-  account: OlmAccount,
-  picklingKey: string,
-}> {
-  const isContent = olmAccountType === 'content';
-  const [olmAccountResult] = await dbQuery(
-    SQL`
-      SELECT pickling_key, pickled_olm_account 
-      FROM olm_accounts 
-      WHERE is_content = ${isContent}
-    `,
-  );
-  if (olmAccountResult.length === 0) {
-    throw new ServerError('missing_olm_account');
-  }
-  const picklingKey = olmAccountResult[0].pickling_key;
-  const pickledAccount = olmAccountResult[0].pickled_olm_account;
-
-  const account = await unpickleOlmAccount({
-    picklingKey,
-    pickledAccount,
-  });
-
-  return { account, picklingKey };
-}
-
-export { fetchCallUpdateOlmAccount, fetchOlmAccount };
+export { fetchCallUpdateOlmAccount };
