@@ -2,7 +2,6 @@
 
 import type {
   Account as OlmAccount,
-  Session as OlmSession,
   Utility as OlmUtility,
 } from '@commapp/olm';
 import olm from '@commapp/olm';
@@ -47,16 +46,6 @@ async function createPickledOlmSession(
   account.remove_one_time_keys(session);
   session.decrypt(olmEncryptedMessageTypes.PREKEY, initialEncryptedMessage);
   return session.pickle(accountPicklingKey);
-}
-
-async function unpickleOlmSession(
-  pickledSession: string,
-  picklingKey: string,
-): Promise<OlmSession> {
-  await olm.init();
-  const session = new olm.Session();
-  session.unpickle(picklingKey, pickledSession);
-  return session;
 }
 
 let cachedOLMUtility: OlmUtility;
@@ -290,7 +279,6 @@ async function publishPrekeysToIdentity(
 export {
   createPickledOlmSession,
   getOlmUtility,
-  unpickleOlmSession,
   uploadNewOneTimeKeys,
   getContentSigningKey,
   validateAndUploadAccountPrekeys,
