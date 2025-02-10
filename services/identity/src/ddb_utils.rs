@@ -1,26 +1,23 @@
 use chrono::{DateTime, Utc};
 use comm_lib::{
-  aws::{
-    ddb::types::{
-      error::TransactionCanceledException, AttributeValue, Put,
-      TransactWriteItem, Update,
-    },
-    DynamoDBError,
-  },
+  aws::ddb::types::{AttributeValue, Put, TransactWriteItem, Update},
   database::{AttributeExtractor, AttributeMap},
 };
-use once_cell::sync::Lazy;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::iter::IntoIterator;
 
 use crate::{
   constants::{
-    retry, USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
+    USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
     USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
     USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
   },
   database::{DeviceIDAttribute, OTKRow},
   siwe::SocialProof,
+};
+
+pub use comm_lib::database::{
+  is_transaction_conflict, is_transaction_retryable,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -225,44 +222,6 @@ impl TryFrom<AttributeMap> for DBIdentity {
     } else {
       Err(Self::Error::MalformedItem)
     }
-  }
-}
-
-pub fn is_transaction_retryable(
-  err: &DynamoDBError,
-  retryable_codes: &HashSet<&str>,
-) -> bool {
-  match err {
-    DynamoDBError::TransactionCanceledException(
-      TransactionCanceledException {
-        cancellation_reasons: Some(reasons),
-        ..
-      },
-    ) => reasons.iter().any(|reason| {
-      retryable_codes.contains(&reason.code().unwrap_or_default())
-    }),
-    _ => false,
-  }
-}
-
-/// There are two error codes for operation failure due to already ongoing
-/// transaction:
-/// - `DynamoDBError::TransactionConflict`
-/// - `DynamoDBError::TransactionCanceled` if `reason == "TransactionConflict"`
-///
-/// The former is thrown in case of normal write operation
-/// (WriteItem, UpdateItem, etc) when a transaction is modifying them
-/// at the moment.
-///
-/// The latter is thrown in transaction operation (TransactWriteItem) when
-/// another transaction is modifying them at the moment.
-pub fn is_transaction_conflict(err: &DynamoDBError) -> bool {
-  static RETRYABLE_CODES: Lazy<HashSet<&str>> =
-    Lazy::new(|| HashSet::from([retry::TRANSACTION_CONFLICT]));
-
-  match err {
-    DynamoDBError::TransactionConflictException(_) => true,
-    _ => is_transaction_retryable(err, &RETRYABLE_CODES),
   }
 }
 

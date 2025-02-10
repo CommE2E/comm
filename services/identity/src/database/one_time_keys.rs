@@ -137,14 +137,15 @@ impl DatabaseClient {
         .send()
         .await;
 
+      use comm_lib::database::error_codes;
       match transaction {
         Ok(_) => return Ok((Some(otk_row.otk), requested_more_keys)),
         Err(e) => {
           info!("Error retrieving one-time key: {:?}", e);
           let dynamo_db_error = DynamoDBError::from(e);
           let retryable_codes = HashSet::from([
-            retry::CONDITIONAL_CHECK_FAILED,
-            retry::TRANSACTION_CONFLICT,
+            error_codes::CONDITIONAL_CHECK_FAILED,
+            error_codes::TRANSACTION_CONFLICT,
           ]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
             info!("Encountered transaction conflict while retrieving one-time key - retrying");
@@ -324,11 +325,12 @@ impl DatabaseClient {
         .send()
         .await;
 
+      use comm_lib::database::error_codes::TRANSACTION_CONFLICT;
       match transaction {
         Ok(_) => break,
         Err(e) => {
           let dynamo_db_error = DynamoDBError::from(e);
-          let retryable_codes = HashSet::from([retry::TRANSACTION_CONFLICT]);
+          let retryable_codes = HashSet::from([TRANSACTION_CONFLICT]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
             info!("Encountered transaction conflict while uploading one-time keys - retrying");
             exponential_backoff.sleep_and_retry().await?;
