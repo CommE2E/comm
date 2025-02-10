@@ -11,9 +11,9 @@ import type {
   EncryptedNotifUtilsAPI,
 } from 'lib/types/notif-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
+import { getOlmUtility } from 'lib/utils/olm-utility.js';
 
 import { encrypt, generateKey } from '../utils/aes-crypto-utils.js';
-import { getOlmUtility } from '../utils/olm-utils.js';
 
 async function encryptAPNsNotification(
   encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,

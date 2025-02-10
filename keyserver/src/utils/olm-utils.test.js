@@ -2,7 +2,7 @@
 
 import olm from '@commapp/olm';
 
-import { getOlmUtility } from '../utils/olm-utils.js';
+import { getOlmUtility } from 'lib/utils/olm-utility.js';
 
 describe('olm.Account', () => {
   const alphabet =

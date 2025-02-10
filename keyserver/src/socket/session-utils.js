@@ -29,6 +29,7 @@ import {
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
 import { hash, values } from 'lib/utils/objects.js';
+import { getOlmUtility } from 'lib/utils/olm-utility.js';
 import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
@@ -45,7 +46,6 @@ import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 import { activityUpdater } from '../updaters/activity-updaters.js';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
 import type { SessionUpdate } from '../updaters/session-updaters.js';
-import { getOlmUtility } from '../utils/olm-utils.js';
 
 type StateCheckStatus =
   | { status: 'state_validated' }
