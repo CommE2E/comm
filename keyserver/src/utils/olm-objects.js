@@ -6,6 +6,7 @@ import olm, {
 } from '@commapp/olm';
 import uuid from 'uuid';
 
+import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { getMessageForException } from '../responders/utils.js';
@@ -93,8 +94,37 @@ async function unpickleSessionAndUseCallback<T>(
   };
 }
 
+async function createPickledOlmSession(
+  account: OlmAccount,
+  accountPicklingKey: string,
+  initialEncryptedMessage: string,
+  theirCurve25519Key?: string,
+): Promise<string> {
+  await olm.init();
+  const session = new olm.Session();
+
+  if (theirCurve25519Key) {
+    session.create_inbound_from(
+      account,
+      theirCurve25519Key,
+      initialEncryptedMessage,
+    );
+  } else {
+    session.create_inbound(account, initialEncryptedMessage);
+  }
+
+  account.remove_one_time_keys(session);
+  session.decrypt(olmEncryptedMessageTypes.PREKEY, initialEncryptedMessage);
+  const pickledSession = session.pickle(accountPicklingKey);
+
+  session.free();
+
+  return pickledSession;
+}
+
 export {
   unpickleAccountAndUseCallback,
   createPickledOlmAccount,
   unpickleSessionAndUseCallback,
+  createPickledOlmSession,
 };
