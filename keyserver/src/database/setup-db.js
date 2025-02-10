@@ -22,7 +22,7 @@ import {
   isAuthoritativeKeyserver,
 } from '../user/identity.js';
 import { verifyUserLoggedInWithoutDB } from '../user/login.js';
-import { createPickledOlmAccount } from '../utils/olm-utils.js';
+import { createPickledOlmAccount } from '../utils/olm-objects.js';
 
 async function setupDB() {
   const [pickledContentAccount, pickledNotificationsAccount] =
