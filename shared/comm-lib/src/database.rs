@@ -1,6 +1,7 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 pub use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::{DateTime, Utc};
+use once_cell::sync::Lazy;
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
@@ -25,6 +26,11 @@ mod aliases {
 pub use self::aliases::AttributeMap;
 
 // # Error handling
+
+pub mod error_codes {
+  pub const CONDITIONAL_CHECK_FAILED: &str = "ConditionalCheckFailed";
+  pub const TRANSACTION_CONFLICT: &str = "TransactionConflict";
+}
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -797,6 +803,46 @@ pub fn calculate_size_in_db(
   value.iter().try_fold(0, |a, (attr, value)| {
     Ok(a + attr.as_bytes().len() + calculate_attr_value_size_in_db(value)?)
   })
+}
+
+pub fn is_transaction_retryable(
+  err: &DynamoDBError,
+  retryable_codes: &HashSet<&str>,
+) -> bool {
+  use aws_sdk_dynamodb::types::error::TransactionCanceledException;
+
+  match err {
+    DynamoDBError::TransactionCanceledException(
+      TransactionCanceledException {
+        cancellation_reasons: Some(reasons),
+        ..
+      },
+    ) => reasons.iter().any(|reason| {
+      retryable_codes.contains(&reason.code().unwrap_or_default())
+    }),
+    _ => false,
+  }
+}
+
+/// There are two error codes for operation failure due to already ongoing
+/// transaction:
+/// - `DynamoDBError::TransactionConflict`
+/// - `DynamoDBError::TransactionCanceled` if `reason == "TransactionConflict"`
+///
+/// The former is thrown in case of normal write operation
+/// (WriteItem, UpdateItem, etc) when a transaction is modifying them
+/// at the moment.
+///
+/// The latter is thrown in transaction operation (TransactWriteItem) when
+/// another transaction is modifying them at the moment.
+pub fn is_transaction_conflict(err: &DynamoDBError) -> bool {
+  static RETRYABLE_CODES: Lazy<HashSet<&str>> =
+    Lazy::new(|| HashSet::from([error_codes::TRANSACTION_CONFLICT]));
+
+  match err {
+    DynamoDBError::TransactionConflictException(_) => true,
+    _ => is_transaction_retryable(err, &RETRYABLE_CODES),
+  }
 }
 
 #[cfg(test)]
