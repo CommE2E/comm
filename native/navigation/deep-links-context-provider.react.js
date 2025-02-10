@@ -16,6 +16,7 @@ import {
   parseDataFromDeepLink,
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
+import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
@@ -29,8 +30,10 @@ import {
 } from 'lib/utils/services-utils.js';
 
 import {
+  ConnectSecondaryDeviceRouteName,
   InviteLinkModalRouteName,
   QRAuthNavigatorRouteName,
+  QRAuthNotPrimaryDeviceRouteName,
 } from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
@@ -107,6 +110,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
   const validateLink = useVerifyInviteLink(keyserverOverride);
   const navigation = useNavigation();
   const usingRestoreFlow = useIsRestoreFlowEnabled();
+  const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
   React.useEffect(() => {
     void (async () => {
       if (!loggedIn || !currentLink) {
@@ -156,7 +160,19 @@ function DeepLinksContextProvider(props: Props): React.Node {
           showVersionUnsupportedAlert();
           return;
         }
-        navigation.navigate(QRAuthNavigatorRouteName);
+
+        const isPrimaryDevice = await checkIfPrimaryDevice();
+
+        if (isPrimaryDevice) {
+          navigation.navigate(QRAuthNavigatorRouteName, {
+            screen: ConnectSecondaryDeviceRouteName,
+            params: { data: currentLink },
+          });
+        } else {
+          navigation.navigate(QRAuthNavigatorRouteName, {
+            screen: QRAuthNotPrimaryDeviceRouteName,
+          });
+        }
       }
     })();
   }, [
@@ -167,6 +183,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     invalidTokenLogOut,
     showVersionUnsupportedAlert,
     usingRestoreFlow,
+    checkIfPrimaryDevice,
   ]);
 
   React.useEffect(() => {
