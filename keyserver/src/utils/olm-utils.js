@@ -22,10 +22,9 @@ import {
 
 import { publishPrekeys, uploadOneTimeKeys } from './identity-utils.js';
 import type { PickledOlmAccount } from './olm-objects.js';
-import {
-  fetchCallUpdateOlmAccount,
-  fetchOlmAccount,
-} from '../updaters/olm-account-updater.js';
+import { unpickleAccountAndUseCallback } from './olm-objects.js';
+import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
+import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { verifyUserLoggedIn } from '../user/login.js';
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
@@ -231,8 +230,16 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
 }
 
 async function getContentSigningKey(): Promise<string> {
-  const accountInfo = await fetchOlmAccount('content');
-  return JSON.parse(accountInfo.account.identity_keys()).ed25519;
+  const pickledOlmAccount = await fetchPickledOlmAccount('content');
+  const getAccountEd25519Key: (account: OlmAccount) => string = (
+    account: OlmAccount,
+  ) => JSON.parse(account.identity_keys()).ed25519;
+
+  const { result } = await unpickleAccountAndUseCallback(
+    pickledOlmAccount,
+    getAccountEd25519Key,
+  );
+  return result;
 }
 
 function validateAndUploadAccountPrekeys(
