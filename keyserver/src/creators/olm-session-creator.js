@@ -6,7 +6,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { createPickledOlmSession } from '../utils/olm-utils.js';
+import { createPickledOlmSession } from '../utils/olm-objects.js';
 
 async function createOlmSession(
   initialEncryptedMessage: string,
