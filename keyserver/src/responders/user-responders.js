@@ -132,11 +132,10 @@ import {
   updateUserSettings,
   updateUserAvatar,
 } from '../updaters/account-updaters.js';
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { getInboundKeysForUserDevice } from '../utils/identity-utils.js';
-import { getOlmUtility } from '../utils/olm-utils.js';
+import { getOlmUtility, signUsingOlmAccount } from '../utils/olm-utils.js';
 
 export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
   tShape<SubscriptionUpdateRequest>({
@@ -962,10 +961,7 @@ async function claimUsernameResponder(
     FROM users
     WHERE LCASE(username) = LCASE(${request.username})
   `;
-  const [[userResult], accountInfo] = await Promise.all([
-    dbQuery(userQuery),
-    fetchOlmAccount('content'),
-  ]);
+  const [userResult] = await dbQuery(userQuery);
 
   if (userResult.length === 0) {
     throw new ServerError('invalid_credentials');
@@ -993,7 +989,7 @@ async function claimUsernameResponder(
     issuedAt,
   };
   const message = JSON.stringify(reservedUsernameMessage);
-  const signature = accountInfo.account.sign(message);
+  const signature = await signUsingOlmAccount(message);
 
   return { message, signature };
 }
