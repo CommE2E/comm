@@ -104,6 +104,12 @@ function LoginForm() {
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, identityDeviceType);
   }, [platform, qrData]);
 
+  React.useEffect(() => {
+    if (qrCodeURL) {
+      console.log(`QR Code URL: ${qrCodeURL}`);
+    }
+  }, [qrCodeURL]);
+
   const { pushModal, clearModals, popModal } = useModalContext();
 
   React.useEffect(() => {
