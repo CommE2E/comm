@@ -46,7 +46,6 @@ import {
 import { getMessageForException } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import {
   clearIdentityInfo,
   fetchIdentityInfo,
@@ -60,6 +59,7 @@ import {
   uploadNewOneTimeKeys,
   getNewDeviceKeyUpload,
   markPrekeysAsPublished,
+  signUsingOlmAccount,
 } from '../utils/olm-utils.js';
 
 type TBConnectionInfo = {
@@ -297,10 +297,9 @@ class TunnelbrokerSocket {
         const messageToKeyserver = JSON.parse(payload);
         if (qrCodeAuthMessageValidator.is(messageToKeyserver)) {
           const request: QRCodeAuthMessage = messageToKeyserver;
-          const [qrCodeAuthMessage, rustAPI, accountInfo] = await Promise.all([
+          const [qrCodeAuthMessage, rustAPI] = await Promise.all([
             this.parseQRCodeAuthMessage(request),
             getRustAPI(),
-            fetchOlmAccount('content'),
           ]);
           if (
             !qrCodeAuthMessage ||
@@ -320,7 +319,7 @@ class TunnelbrokerSocket {
             payload: deviceKeyUpload.keyPayload,
             signature: deviceKeyUpload.keyPayloadSignature,
           };
-          const nonceSignature = accountInfo.account.sign(nonce);
+          const nonceSignature = await signUsingOlmAccount(nonce);
 
           const identityInfo = await rustAPI.uploadSecondaryDeviceKeysAndLogIn(
             userID,

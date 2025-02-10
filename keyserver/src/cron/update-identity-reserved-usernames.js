@@ -5,13 +5,12 @@ import { getRustAPI } from 'rust-node-addon';
 import type { ReservedUsernameMessage } from 'lib/types/crypto-types.js';
 
 import { fetchAllUserDetails } from '../fetchers/user-fetchers.js';
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+import { signUsingOlmAccount } from '../utils/olm-utils.js';
 
 async function updateIdentityReservedUsernames(): Promise<void> {
-  const [userDetails, rustAPI, accountInfo] = await Promise.all([
+  const [userDetails, rustAPI] = await Promise.all([
     fetchAllUserDetails(),
     getRustAPI(),
-    fetchOlmAccount('content'),
   ]);
   const issuedAt = new Date().toISOString();
   const reservedUsernameMessage: ReservedUsernameMessage = {
@@ -20,7 +19,7 @@ async function updateIdentityReservedUsernames(): Promise<void> {
     issuedAt,
   };
   const stringifiedMessage = JSON.stringify(reservedUsernameMessage);
-  const signature = accountInfo.account.sign(stringifiedMessage);
+  const signature = await signUsingOlmAccount(stringifiedMessage);
 
   await rustAPI.addReservedUsernames(stringifiedMessage, signature);
 }
