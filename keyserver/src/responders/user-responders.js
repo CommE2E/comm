@@ -71,6 +71,7 @@ import {
 } from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
+import { getOlmUtility } from 'lib/utils/olm-utility.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
 import {
   getPublicKeyFromSIWEStatement,
@@ -136,7 +137,6 @@ import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { getInboundKeysForUserDevice } from '../utils/identity-utils.js';
-import { getOlmUtility } from '../utils/olm-utils.js';
 
 export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
   tShape<SubscriptionUpdateRequest>({

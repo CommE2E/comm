@@ -1,6 +1,5 @@
 // @flow
 
-import type { Utility } from '@commapp/olm';
 import olm from '@commapp/olm';
 
 declare var olmFilename: string;
@@ -14,16 +13,4 @@ async function initOlm(): Promise<void> {
   return await olm.init({ locateFile });
 }
 
-let olmUtilityInstance: ?olm.Utility | Promise<olm.Utility>;
-function olmUtility(): Promise<Utility> {
-  if (!olmUtilityInstance) {
-    olmUtilityInstance = (async () => {
-      await initOlm();
-      olmUtilityInstance = new olm.Utility();
-      return olmUtilityInstance;
-    })();
-  }
-  return Promise.resolve(olmUtilityInstance);
-}
-
-export { initOlm, olmUtility };
+export { initOlm };

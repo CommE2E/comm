@@ -3,7 +3,6 @@
 import olm from '@commapp/olm';
 import type {
   Account as OlmAccount,
-  Utility as OlmUtility,
   Session as OlmSession,
 } from '@commapp/olm';
 import invariant from 'invariant';
@@ -91,16 +90,6 @@ async function unpickleOlmSession(
   const session = new olm.Session();
   session.unpickle(picklingKey, pickledSession);
   return session;
-}
-
-let cachedOLMUtility: OlmUtility;
-
-function getOlmUtility(): OlmUtility {
-  if (cachedOLMUtility) {
-    return cachedOLMUtility;
-  }
-  cachedOLMUtility = new olm.Utility();
-  return cachedOLMUtility;
 }
 
 async function markPrekeysAsPublished(): Promise<void> {
@@ -300,7 +289,6 @@ async function publishPrekeysToIdentity(
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
-  getOlmUtility,
   unpickleOlmAccount,
   unpickleOlmSession,
   uploadNewOneTimeKeys,
