@@ -5,8 +5,8 @@ import type { EncryptResult } from '@commapp/olm';
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
-import { fetchOlmAccount } from './olm-account-updater.js';
 import { SQL, dbQuery } from '../database/database.js';
+import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
 import { unpickleOlmSession } from '../utils/olm-utils.js';
 
 const maxOlmSessionUpdateAttemptTime = 30000;
@@ -25,7 +25,7 @@ async function encryptAndUpdateOlmSession(
   dbPersistCondition?: ({ +[string]: EncryptResult }) => boolean,
 ): Promise<OlmEncryptionResult> {
   const isContent = olmSessionType === 'content';
-  const { picklingKey } = await fetchOlmAccount(olmSessionType);
+  const { picklingKey } = await fetchPickledOlmAccount(olmSessionType);
   const olmUpdateAttemptStartTime = Date.now();
 
   while (

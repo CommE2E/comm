@@ -40,19 +40,6 @@ async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   };
 }
 
-async function unpickleOlmAccount(
-  pickledOlmAccount: PickledOlmAccount,
-): Promise<OlmAccount> {
-  await olm.init();
-  const account = new olm.Account();
-
-  account.unpickle(
-    pickledOlmAccount.picklingKey,
-    pickledOlmAccount.pickledAccount,
-  );
-  return account;
-}
-
 async function createPickledOlmSession(
   account: OlmAccount,
   accountPicklingKey: string,
@@ -306,7 +293,6 @@ async function publishPrekeysToIdentity(
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
-  unpickleOlmAccount,
   unpickleOlmSession,
   uploadNewOneTimeKeys,
   getContentSigningKey,
