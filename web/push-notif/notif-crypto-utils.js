@@ -719,6 +719,7 @@ async function commonPeerDecrypt<T>(
   const sessionExists = !!notificationsOlmData;
 
   if (notificationsOlmData) {
+    // Memory is freed below in this condition.
     const session = new olm.Session();
     session.unpickle(
       notificationsOlmData.picklingKey,
@@ -727,6 +728,7 @@ async function commonPeerDecrypt<T>(
 
     isSenderChainEmpty = session.is_sender_chain_empty();
     hasReceivedMessage = session.has_received_message();
+    session.free();
   }
 
   // regular message
@@ -756,72 +758,80 @@ async function commonPeerDecrypt<T>(
     authMetadata,
   );
 
+  // Memory is freed below after pickling.
   const account = new olm.Account();
   const session = new olm.Session();
 
-  account.unpickle(
-    notificationAccount.picklingKey,
-    notificationAccount.pickledAccount,
-  );
+  try {
+    account.unpickle(
+      notificationAccount.picklingKey,
+      notificationAccount.pickledAccount,
+    );
 
-  if (notifInboundKeys.error) {
-    throw new Error(notifInboundKeys.error);
-  }
+    if (notifInboundKeys.error) {
+      throw new Error(notifInboundKeys.error);
+    }
 
-  invariant(
-    notifInboundKeys.curve25519,
-    'curve25519 must be present in notifs inbound keys',
-  );
+    invariant(
+      notifInboundKeys.curve25519,
+      'curve25519 must be present in notifs inbound keys',
+    );
 
-  session.create_inbound_from(
-    account,
-    notifInboundKeys.curve25519,
-    encryptedPayload,
-  );
+    session.create_inbound_from(
+      account,
+      notifInboundKeys.curve25519,
+      encryptedPayload,
+    );
 
-  const decryptedNotification: T = JSON.parse(
-    session.decrypt(messageType, encryptedPayload),
-  );
+    const decryptedNotification: T = JSON.parse(
+      session.decrypt(messageType, encryptedPayload),
+    );
 
-  // session reset attempt or session initialization - handled the same
-  const sessionResetAttempt =
-    sessionExists && !isSenderChainEmpty && hasReceivedMessage;
-
-  // race condition
-  const raceCondition =
-    sessionExists && !isSenderChainEmpty && !hasReceivedMessage;
-  const { deviceID: ourDeviceID } = authMetadata;
-  invariant(ourDeviceID, 'Session creation attempt but no device id');
-
-  const thisDeviceWinsRaceCondition = ourDeviceID > senderDeviceID;
-
-  if (
-    !sessionExists ||
-    sessionResetAttempt ||
-    (raceCondition && !thisDeviceWinsRaceCondition)
-  ) {
     const pickledOlmSession = session.pickle(notificationAccount.picklingKey);
-    const updatedOlmData = {
-      mainSession: pickledOlmSession,
-      pendingSessionUpdate: pickledOlmSession,
-      updateCreationTimestamp: Date.now(),
-      picklingKey: notificationAccount.picklingKey,
-    };
-    const updatedNotifsAccount = {
-      pickledAccount: account.pickle(notificationAccount.picklingKey),
-      picklingKey: notificationAccount.picklingKey,
-    };
-    return {
-      decryptedNotification,
-      updatedOlmData,
-      updatedNotifsAccount,
-    };
-  }
+    const pickledAccount = account.pickle(notificationAccount.picklingKey);
 
-  // If there is a race condition but we win device id comparison
-  // we return object that carries decrypted data but won't persist
-  // any session state
-  return { decryptedNotification };
+    // session reset attempt or session initialization - handled the same
+    const sessionResetAttempt =
+      sessionExists && !isSenderChainEmpty && hasReceivedMessage;
+
+    // race condition
+    const raceCondition =
+      sessionExists && !isSenderChainEmpty && !hasReceivedMessage;
+    const { deviceID: ourDeviceID } = authMetadata;
+    invariant(ourDeviceID, 'Session creation attempt but no device id');
+
+    const thisDeviceWinsRaceCondition = ourDeviceID > senderDeviceID;
+
+    if (
+      !sessionExists ||
+      sessionResetAttempt ||
+      (raceCondition && !thisDeviceWinsRaceCondition)
+    ) {
+      const updatedOlmData = {
+        mainSession: pickledOlmSession,
+        pendingSessionUpdate: pickledOlmSession,
+        updateCreationTimestamp: Date.now(),
+        picklingKey: notificationAccount.picklingKey,
+      };
+      const updatedNotifsAccount = {
+        pickledAccount,
+        picklingKey: notificationAccount.picklingKey,
+      };
+      return {
+        decryptedNotification,
+        updatedOlmData,
+        updatedNotifsAccount,
+      };
+    }
+
+    // If there is a race condition but we win device id comparison
+    // we return object that carries decrypted data but won't persist
+    // any session state
+    return { decryptedNotification };
+  } finally {
+    session.free();
+    account.free();
+  }
 }
 
 function decryptWithSession<T>(
