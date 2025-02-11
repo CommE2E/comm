@@ -999,7 +999,9 @@ async function encryptNotificationWithOlmSession(
 
 // notifications account manipulation
 
-async function getNotifsCryptoAccount(): Promise<NotificationAccountWithPicklingKey> {
+// IMPORTANT: This function creates `olm.Account` instance.
+// It is important, to free the memory in places where this function is called.
+async function getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT(): Promise<NotificationAccountWithPicklingKey> {
   const {
     values: {
       [INDEXED_DB_NOTIFS_ACCOUNT_KEY]: encryptedNotifsAccount,
@@ -1425,7 +1427,7 @@ export {
   migrateLegacyOlmNotificationsSessions,
   updateNotifsUnreadCountStorage,
   queryNotifsUnreadCountStorage,
-  getNotifsCryptoAccount,
+  getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT,
   persistEncryptionKey,
   retrieveEncryptionKey,
   persistNotifsAccountWithOlmData,
