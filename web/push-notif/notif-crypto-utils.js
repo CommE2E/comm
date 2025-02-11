@@ -838,14 +838,15 @@ function decryptWithSession<T>(
   encryptedPayload: string,
   type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> {
+  // Memory is freed below after pickling.
   const session = new olm.Session();
-
   session.unpickle(picklingKey, pickledSession);
   const decryptedNotification: T = JSON.parse(
     session.decrypt(type, encryptedPayload),
   );
-
   const newPendingSessionUpdate = session.pickle(picklingKey);
+  session.free();
+
   const newUpdateCreationTimestamp = Date.now();
 
   return {
@@ -961,11 +962,13 @@ async function encryptNotificationWithOlmSession(
     new TextDecoder().decode(serializedOlmData),
   );
 
+  // Memory is freed below after pickling.
   const session = new olm.Session();
   session.unpickle(picklingKey, pendingSessionUpdate);
   const encryptedNotification = session.encrypt(payload);
-
   const newPendingSessionUpdate = session.pickle(picklingKey);
+  session.free();
+
   const updatedOlmData: NotificationsOlmDataType = {
     mainSession,
     pendingSessionUpdate: newPendingSessionUpdate,
