@@ -75,6 +75,16 @@ type WorkerCryptoStore = {
 let cryptoStore: ?WorkerCryptoStore = null;
 
 function clearCryptoStore() {
+  if (!cryptoStore) {
+    return;
+  }
+
+  const { contentSessions, contentAccount } = cryptoStore;
+  contentAccount.free();
+  for (const deviceID in contentSessions) {
+    contentSessions[deviceID].session.free();
+  }
+
   cryptoStore = null;
 }
 
@@ -237,6 +247,8 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
     throw new Error('Database not initialized');
   }
 
+  // This `olm.Account` is created once and is cached for the entire
+  // program lifetime. Freeing is done as part of `clearCryptoStore`.
   const account = new olm.Account();
   let picklingKey;
 
@@ -308,6 +320,8 @@ function getOlmSessions(picklingKey: string): OlmSessions {
   const sessionsData: OlmSessions = {};
   for (const persistedSession: OlmPersistSession of dbSessionsData) {
     const { sessionData, version } = persistedSession;
+    // This `olm.Session` is created once and is cached for the entire
+    // program lifetime. Freeing is done as part of `clearCryptoStore`.
     const session = new olm.Session();
     session.unpickle(picklingKey, sessionData);
     sessionsData[persistedSession.targetDeviceID] = {
@@ -323,6 +337,8 @@ function unpickleInitialCryptoStoreAccount(
   account: PickledOLMAccount,
 ): olm.Account {
   const { picklingKey, pickledAccount } = account;
+  // This `olm.Account` is created once and is cached for the entire
+  // program lifetime. Freeing is done as part of `clearCryptoStore`.
   const olmAccount = new olm.Account();
   olmAccount.unpickle(picklingKey, pickledAccount);
   return olmAccount;
@@ -719,6 +735,8 @@ const olmAPI: OlmAPI = {
       }
     }
 
+    // This `olm.Session` is created once and is cached for the entire
+    // program lifetime. Freeing is done as part of `clearCryptoStore`.
     const session = new olm.Session();
     session.create_inbound_from(
       contentAccount,
@@ -755,6 +773,8 @@ const olmAPI: OlmAPI = {
     const { contentAccount, contentSessions } = cryptoStore;
     const existingSession = contentSessions[contentIdentityKeys.ed25519];
 
+    // This `olm.Session` is created once and is cached for the entire
+    // program lifetime. Freeing is done as part of `clearCryptoStore`.
     const session = new olm.Session();
     if (contentInitializationInfo.oneTimeKey) {
       session.create_outbound(
