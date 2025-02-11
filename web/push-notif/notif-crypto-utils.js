@@ -719,6 +719,7 @@ async function commonPeerDecrypt<T>(
   const sessionExists = !!notificationsOlmData;
 
   if (notificationsOlmData) {
+    // Memory is freed below in this condition.
     const session = new olm.Session();
     session.unpickle(
       notificationsOlmData.picklingKey,
@@ -727,6 +728,7 @@ async function commonPeerDecrypt<T>(
 
     isSenderChainEmpty = session.is_sender_chain_empty();
     hasReceivedMessage = session.has_received_message();
+    session.free();
   }
 
   // regular message
@@ -756,6 +758,7 @@ async function commonPeerDecrypt<T>(
     authMetadata,
   );
 
+  // Memory is freed below after pickling.
   const account = new olm.Account();
   const session = new olm.Session();
 
@@ -783,6 +786,12 @@ async function commonPeerDecrypt<T>(
     session.decrypt(messageType, encryptedPayload),
   );
 
+  const pickledOlmSession = session.pickle(notificationAccount.picklingKey);
+  const pickledAccount = account.pickle(notificationAccount.picklingKey);
+
+  session.free();
+  account.free();
+
   // session reset attempt or session initialization - handled the same
   const sessionResetAttempt =
     sessionExists && !isSenderChainEmpty && hasReceivedMessage;
@@ -800,7 +809,6 @@ async function commonPeerDecrypt<T>(
     sessionResetAttempt ||
     (raceCondition && !thisDeviceWinsRaceCondition)
   ) {
-    const pickledOlmSession = session.pickle(notificationAccount.picklingKey);
     const updatedOlmData = {
       mainSession: pickledOlmSession,
       pendingSessionUpdate: pickledOlmSession,
@@ -808,7 +816,7 @@ async function commonPeerDecrypt<T>(
       picklingKey: notificationAccount.picklingKey,
     };
     const updatedNotifsAccount = {
-      pickledAccount: account.pickle(notificationAccount.picklingKey),
+      pickledAccount,
       picklingKey: notificationAccount.picklingKey,
     };
     return {
@@ -830,6 +838,7 @@ function decryptWithSession<T>(
   encryptedPayload: string,
   type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> {
+  // Memory is freed below.
   const session = new olm.Session();
 
   session.unpickle(picklingKey, pickledSession);
@@ -838,6 +847,8 @@ function decryptWithSession<T>(
   );
 
   const newPendingSessionUpdate = session.pickle(picklingKey);
+  session.free();
+
   const newUpdateCreationTimestamp = Date.now();
 
   return {
@@ -953,11 +964,14 @@ async function encryptNotificationWithOlmSession(
     new TextDecoder().decode(serializedOlmData),
   );
 
+  // Memory is freed below.
   const session = new olm.Session();
   session.unpickle(picklingKey, pendingSessionUpdate);
   const encryptedNotification = session.encrypt(payload);
 
   const newPendingSessionUpdate = session.pickle(picklingKey);
+
+  session.free();
   const updatedOlmData: NotificationsOlmDataType = {
     mainSession,
     pendingSessionUpdate: newPendingSessionUpdate,
