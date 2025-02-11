@@ -249,11 +249,6 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
     throw new Error('Database not initialized');
   }
 
-  // This `olm.Account` is created once and is cached for the entire
-  // program lifetime. Freeing is done as part of `clearCryptoStore`.
-  const account = new olm.Account();
-  let picklingKey;
-
   let accountDBString;
   try {
     accountDBString =
@@ -286,6 +281,11 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
       synchronizationValue,
     };
   }
+
+  // This `olm.Account` is created once and is cached for the entire
+  // program lifetime. Freeing is done as part of `clearCryptoStore`.
+  const account = new olm.Account();
+  let picklingKey;
 
   if (accountDBString.isNull) {
     picklingKey = uuid.v4();
@@ -524,6 +524,8 @@ const olmAPI: OlmAPI = {
     };
 
     await persistCryptoStore(notifsCryptoAccount);
+
+    notifsCryptoAccount.notificationAccount.free();
   },
   async getUserPublicKey(): Promise<ClientPublicKeys> {
     if (!cryptoStore) {
