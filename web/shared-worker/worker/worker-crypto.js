@@ -220,6 +220,8 @@ async function createAndPersistNotificationsOutboundSession(
     forceWrite: true,
   });
 
+  notificationAccount.free();
+
   return { message, messageType };
 }
 
@@ -402,6 +404,8 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
     signature: contentAccount.sign(payloadToBeSigned),
   };
 
+  notificationAccount.free();
+
   return signedIdentityKeysBlob;
 }
 
@@ -424,6 +428,8 @@ async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
   notifsCryptoAccount.notificationAccount.mark_keys_as_published();
 
   await persistCryptoStore(notifsCryptoAccount);
+
+  notifsCryptoAccount.notificationAccount.free();
 
   return {
     keyPayload: signedIdentityKeysBlob.payload,
@@ -509,7 +515,7 @@ const olmAPI: OlmAPI = {
       [getNotifsCryptoAccount(), getSignedIdentityKeysBlob()],
     );
 
-    return {
+    const result = {
       primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
       notificationIdentityPublicKeys: JSON.parse(
         notificationAccount.identity_keys(),
@@ -517,6 +523,9 @@ const olmAPI: OlmAPI = {
       blobPayload: payload,
       signature,
     };
+
+    notificationAccount.free();
+    return result;
   },
   async encrypt(content: string, deviceID: string): Promise<EncryptedData> {
     if (!cryptoStore) {
@@ -909,6 +918,8 @@ const olmAPI: OlmAPI = {
 
     await persistCryptoStore(notifsCryptoAccount);
 
+    notifsCryptoAccount.notificationAccount.free();
+
     return { contentOneTimeKeys, notificationsOneTimeKeys };
   },
   async validateAndUploadPrekeys(authMetadata): Promise<void> {
@@ -941,6 +952,7 @@ const olmAPI: OlmAPI = {
     await persistCryptoStore(notifsCryptoAccount);
 
     if (!contentAccount.unpublished_prekey()) {
+      notifsCryptoAccount.notificationAccount.free();
       return;
     }
 
@@ -963,6 +975,7 @@ const olmAPI: OlmAPI = {
     notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
     await persistCryptoStore(notifsCryptoAccount);
+    notifsCryptoAccount.notificationAccount.free();
   },
   async signMessage(message: string): Promise<string> {
     if (!cryptoStore) {
@@ -1000,6 +1013,7 @@ const olmAPI: OlmAPI = {
     notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
     await persistCryptoStore(notifsCryptoAccount);
+    notifsCryptoAccount.notificationAccount.free();
   },
 };
 

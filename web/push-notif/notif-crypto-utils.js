@@ -997,6 +997,8 @@ async function encryptNotificationWithOlmSession(
 
 // notifications account manipulation
 
+// IMPORTANT: This function creates `olm.Account` instance.
+// It is important, to free the memory in places where this function is called.
 async function getNotifsCryptoAccount(): Promise<NotificationAccountWithPicklingKey> {
   const {
     values: {
