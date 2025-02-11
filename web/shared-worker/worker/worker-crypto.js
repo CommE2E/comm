@@ -181,6 +181,8 @@ async function createAndPersistNotificationsOutboundSession(
   } = notificationAccountWithPicklingKey;
 
   const notificationsPrekey = notificationsInitializationInfo.prekey;
+
+  // Memory is freed below after persisting.
   const session = new olm.Session();
   if (notificationsInitializationInfo.oneTimeKey) {
     session.create_outbound(
@@ -231,6 +233,7 @@ async function createAndPersistNotificationsOutboundSession(
   });
 
   notificationAccount.free();
+  session.free();
 
   return { message, messageType };
 }
