@@ -49,7 +49,7 @@ import {
   getOlmEncryptionKeyDBLabelForDeviceID,
   encryptNotification,
   type NotificationAccountWithPicklingKey,
-  getNotifsCryptoAccount,
+  getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT,
   persistNotifsAccountWithOlmData,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
@@ -162,7 +162,8 @@ async function createAndPersistNotificationsOutboundSession(
     throw new Error('Crypto account not initialized');
   }
 
-  const notificationAccountWithPicklingKey = await getNotifsCryptoAccount();
+  const notificationAccountWithPicklingKey =
+    await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
   const {
     notificationAccount,
     picklingKey,
@@ -220,6 +221,8 @@ async function createAndPersistNotificationsOutboundSession(
     forceWrite: true,
   });
 
+  notificationAccount.free();
+
   return { message, messageType };
 }
 
@@ -251,7 +254,7 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
         return undefined;
       }
       try {
-        return await getNotifsCryptoAccount();
+        return await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
       } catch (e) {
         return undefined;
       }
@@ -387,7 +390,8 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   }
 
   const { contentAccount } = cryptoStore;
-  const { notificationAccount } = await getNotifsCryptoAccount();
+  const { notificationAccount } =
+    await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
   const identityKeysBlob: IdentityKeysBlob = {
     notificationIdentityPublicKeys: JSON.parse(
@@ -402,6 +406,8 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
     signature: contentAccount.sign(payloadToBeSigned),
   };
 
+  notificationAccount.free();
+
   return signedIdentityKeysBlob;
 }
 
@@ -411,7 +417,7 @@ async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
   }
   const { contentAccount } = cryptoStore;
   const [notifsCryptoAccount, signedIdentityKeysBlob] = await Promise.all([
-    getNotifsCryptoAccount(),
+    getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT(),
     getSignedIdentityKeysBlob(),
   ]);
 
@@ -424,6 +430,8 @@ async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
   notifsCryptoAccount.notificationAccount.mark_keys_as_published();
 
   await persistCryptoStore(notifsCryptoAccount);
+
+  notifsCryptoAccount.notificationAccount.free();
 
   return {
     keyPayload: signedIdentityKeysBlob.payload,
@@ -506,10 +514,13 @@ const olmAPI: OlmAPI = {
     }
     const { contentAccount } = cryptoStore;
     const [{ notificationAccount }, { payload, signature }] = await Promise.all(
-      [getNotifsCryptoAccount(), getSignedIdentityKeysBlob()],
+      [
+        getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT(),
+        getSignedIdentityKeysBlob(),
+      ],
     );
 
-    return {
+    const result = {
       primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
       notificationIdentityPublicKeys: JSON.parse(
         notificationAccount.identity_keys(),
@@ -517,6 +528,9 @@ const olmAPI: OlmAPI = {
       blobPayload: payload,
       signature,
     };
+
+    notificationAccount.free();
+    return result;
   },
   async encrypt(content: string, deviceID: string): Promise<EncryptedData> {
     if (!cryptoStore) {
@@ -893,7 +907,8 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
     const { contentAccount } = cryptoStore;
-    const notifsCryptoAccount = await getNotifsCryptoAccount();
+    const notifsCryptoAccount =
+      await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
     const contentOneTimeKeys = getAccountOneTimeKeys(
       contentAccount,
@@ -908,6 +923,8 @@ const olmAPI: OlmAPI = {
     notifsCryptoAccount.notificationAccount.mark_keys_as_published();
 
     await persistCryptoStore(notifsCryptoAccount);
+
+    notifsCryptoAccount.notificationAccount.free();
 
     return { contentOneTimeKeys, notificationsOneTimeKeys };
   },
@@ -926,7 +943,8 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
     const { contentAccount } = cryptoStore;
-    const notifsCryptoAccount = await getNotifsCryptoAccount();
+    const notifsCryptoAccount =
+      await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
     // Content and notification accounts' keys are always rotated at the same
     // time so we only need to check one of them.
@@ -941,6 +959,7 @@ const olmAPI: OlmAPI = {
     await persistCryptoStore(notifsCryptoAccount);
 
     if (!contentAccount.unpublished_prekey()) {
+      notifsCryptoAccount.notificationAccount.free();
       return;
     }
 
@@ -963,6 +982,7 @@ const olmAPI: OlmAPI = {
     notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
     await persistCryptoStore(notifsCryptoAccount);
+    notifsCryptoAccount.notificationAccount.free();
   },
   async signMessage(message: string): Promise<string> {
     if (!cryptoStore) {
@@ -994,12 +1014,14 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
     const { contentAccount } = cryptoStore;
-    const notifsCryptoAccount = await getNotifsCryptoAccount();
+    const notifsCryptoAccount =
+      await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
     contentAccount.mark_prekey_as_published();
     notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
     await persistCryptoStore(notifsCryptoAccount);
+    notifsCryptoAccount.notificationAccount.free();
   },
 };
 
