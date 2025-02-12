@@ -8,11 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import KeyboardAvoidingView from './keyboard-avoiding-view.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
-import {
-  modalBorderWidth,
-  modalMarginHorizontal,
-  modalPadding,
-} from '../utils/modal-consts.js';
 
 type Props = $ReadOnly<{
   +children: React.Node,
@@ -58,14 +53,14 @@ const unboundStyles = {
   modal: {
     backgroundColor: 'modalBackground',
     borderColor: 'modalForegroundBorder',
-    borderWidth: modalBorderWidth,
+    borderWidth: 2,
     borderRadius: 5,
     flex: 1,
     justifyContent: 'center',
     marginBottom: 30,
-    marginHorizontal: modalMarginHorizontal,
+    marginHorizontal: 15,
     marginTop: 100,
-    padding: modalPadding,
+    padding: 12,
   },
 };
 

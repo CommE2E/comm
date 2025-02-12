@@ -57,7 +57,6 @@ import {
   CreateMissingSIWEBackupMessageRouteName,
   LinkedDevicesBottomSheetRouteName,
   QRAuthNavigatorRouteName,
-  CommunityJoinerModalRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import QRAuthNavigator from '../account/qr-auth/qr-auth-navigator.react.js';
@@ -74,7 +73,6 @@ import SidebarListModal from '../chat/sidebar-list-modal.react.js';
 import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
 import CommunityCreationNavigator from '../community-creation/community-creation-navigator.react.js';
 import TagFarcasterChannelNavigator from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-navigator.react.js';
-import CommunityJoinerModal from '../components/community-joiner-modal.react.js';
 import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-sheet.react.js';
 import DirectoryPromptBottomSheet from '../components/directory-prompt-bottom-sheet.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
@@ -306,11 +304,6 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={DirectoryPromptBottomSheetRouteName}
         component={DirectoryPromptBottomSheet}
-        options={modalOverlayScreenOptions}
-      />
-      <Root.Screen
-        name={CommunityJoinerModalRouteName}
-        component={CommunityJoinerModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen

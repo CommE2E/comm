@@ -43,7 +43,7 @@ function createChatTabBarButton<Route: NUXTipRouteNames>(
   function ChatTabBarButton(): React.Node {
     const { title, tabBarIcon: Icon } = props;
 
-    const position = React.useRef(new Animated.Value(0));
+    const position = React.useRef(() => new Animated.Value(0));
     const route = useRoute();
 
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
