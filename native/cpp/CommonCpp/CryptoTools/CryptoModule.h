@@ -29,6 +29,7 @@ class CryptoModule {
   // returns number of published keys
   size_t publishOneTimeKeys();
   bool prekeyExistsAndOlderThan(uint64_t threshold);
+  bool prekeyNotExists();
   OlmBuffer pickleAccount(const std::string &secretKey);
 
 public:

@@ -121,6 +121,21 @@ bool CryptoModule::prekeyExistsAndOlderThan(uint64_t threshold) {
   return currentTime - lastPrekeyPublishTime >= threshold;
 }
 
+bool CryptoModule::prekeyNotExists() {
+  // Prekey generation when creating an Olm Account was added to clients
+  // after the initial launch of Olm. Because of that, there is a high
+  // chance there are users who have the account without a generated prekey.
+
+  const std::string emptyPrekey(KEYSIZE, 'A');
+  const std::string emptySignature(SIGNATURESIZE, 'A');
+
+  std::string prekey = this->getPrekey();
+  std::string signature = this->getPrekeySignature();
+
+  return prekey.find(emptyPrekey) != std::string::npos ||
+      signature == emptySignature;
+}
+
 Keys CryptoModule::keysFromStrings(
     const std::string &identityKeys,
     const std::string &oneTimeKeys) {
@@ -454,6 +469,11 @@ std::optional<std::string> CryptoModule::validatePrekey() {
   static const uint64_t maxPrekeyPublishTime = 10 * 60;
   static const uint64_t maxOldPrekeyAge = 2 * 60;
   std::optional<std::string> maybeNewPrekey;
+
+  bool prekeyNotExists = this->prekeyNotExists();
+  if (prekeyNotExists) {
+    return this->generateAndGetPrekey();
+  }
 
   bool shouldRotatePrekey =
       this->prekeyExistsAndOlderThan(maxPrekeyPublishTime);
