@@ -89,6 +89,34 @@ pub struct Prekey {
   pub prekey_signature: String,
 }
 
+impl Prekey {
+  fn new(prekey: String, prekey_signature: String) -> Self {
+    Self {
+      prekey,
+      prekey_signature,
+    }
+  }
+  /// ED25519-verifies if prekey is signed correctly
+  fn verify(&self, signing_public_key: &str) -> Result<(), Error> {
+    use crate::constants::tonic_status_messages;
+    use base64::engine::{
+      general_purpose::STANDARD_NO_PAD as BASE64, Engine as _,
+    };
+    use tonic::Status;
+
+    let prekey_bytes = BASE64.decode(self.prekey.as_str()).map_err(|_| {
+      Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
+    })?;
+
+    crate::grpc_utils::ed25519_verify(
+      signing_public_key,
+      &prekey_bytes,
+      &self.prekey_signature,
+    )?;
+    Ok(())
+  }
+}
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlatformDetails {
@@ -163,6 +191,24 @@ impl DeviceRow {
     let platform_details =
       PlatformDetails::new(platform_metadata, Some(key_upload_device_type))?;
 
+    let content_prekey =
+      Prekey::new(upload.content_prekey, upload.content_prekey_signature);
+    let notif_prekey =
+      Prekey::new(upload.notif_prekey, upload.notif_prekey_signature);
+
+    if let Err(err) = content_prekey.verify(&upload.device_id_key) {
+      error!(
+        errorType = error_types::GENERIC_DB_LOG,
+        "Content prekey verification failed: {err}"
+      );
+    }
+    if let Err(err) = notif_prekey.verify(&upload.device_id_key) {
+      error!(
+        errorType = error_types::GENERIC_DB_LOG,
+        "Notif prekey verification failed: {err}"
+      );
+    }
+
     let device_row = Self {
       user_id: user_id.into(),
       device_id: upload.device_id_key,
@@ -170,14 +216,8 @@ impl DeviceRow {
         key_payload: upload.key_payload,
         key_payload_signature: upload.key_payload_signature,
       },
-      content_prekey: Prekey {
-        prekey: upload.content_prekey,
-        prekey_signature: upload.content_prekey_signature,
-      },
-      notif_prekey: Prekey {
-        prekey: upload.notif_prekey,
-        prekey_signature: upload.notif_prekey_signature,
-      },
+      content_prekey,
+      notif_prekey,
       platform_details,
       login_time,
     };
@@ -2409,5 +2449,23 @@ mod migration {
         login_time,
       }
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_prekey_ed25519_verification() {
+    // these are valid prekey values
+    let prekey = "40CFNYdVbwNC/S9shkbk3ouNsFJvyICaftm3+o/Dg1k".to_string();
+    let prekey_signature = "PGAxGk3BMSimWCOnOmSMG2E5WJ3cjDXQToRVik3LRv+/hvuZC1aWvzZy5iJwrD8W2Lxp49uy2+CbWhmLuhEpCg".to_string();
+    let signing_public_key = "lFg3ZOCXoD4pYidFPNOHZ5K+4S9uOLA5CHGioOGbPD0";
+
+    let prekey = Prekey::new(prekey, prekey_signature);
+    prekey
+      .verify(signing_public_key)
+      .expect("Prekey verification failed");
   }
 }
