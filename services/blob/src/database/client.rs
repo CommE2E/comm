@@ -1,3 +1,4 @@
+use aws_config::default_provider::retry_config;
 use aws_sdk_dynamodb::{
   operation::put_item::PutItemOutput,
   types::{
@@ -10,8 +11,8 @@ use chrono::Utc;
 use comm_lib::{
   blob::types::BlobInfo,
   database::{
-    self, batch_operations::ExponentialBackoffConfig, AttributeExtractor,
-    TryFromAttribute,
+    self, batch_operations::ExponentialBackoffConfig, is_transaction_conflict,
+    AttributeExtractor, TryFromAttribute,
   },
 };
 use std::collections::HashMap;
@@ -177,17 +178,28 @@ impl DatabaseClient {
         .push(TransactWriteItem::builder().update(update_request).build());
     }
 
-    self
+    let db_transaction_operation = self
       .ddb
       .transact_write_items()
-      .set_transact_items(Some(transaction))
-      .send()
-      .await
-      .map_err(|err| {
-        debug!("DynamoDB client failed to run transaction: {:?}", err);
-        DBError::AwsSdk(Box::new(err.into()))
-      })?;
-    Ok(())
+      .set_transact_items(Some(transaction));
+
+    let retry_config = ExponentialBackoffConfig::default();
+    let mut exponential_backoff = retry_config.new_counter();
+
+    loop {
+      match db_transaction_operation.clone().send().await {
+        Ok(_) => return Ok(()),
+        Err(err) => match DynamoDBError::from(err) {
+          ref conflict_err if is_transaction_conflict(conflict_err) => {
+            exponential_backoff.sleep_and_retry().await?;
+          }
+          error => {
+            debug!("DynamoDB client failed to run transaction: {:?}", error);
+            return Err(DBError::AwsSdk(Box::new(error)));
+          }
+        },
+      }
+    }
   }
 
   /// Queries the table for a list of holders for given blob hash.
