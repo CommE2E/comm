@@ -195,7 +195,7 @@ pub fn verify_device_list_signatures(
   if let Some(signature) = &new_device_list.current_primary_signature {
     crate::grpc_utils::ed25519_verify(
       primary_device_id,
-      &new_device_list.raw_payload,
+      new_device_list.raw_payload.as_bytes(),
       signature,
     )
     .map_err(|err| {
@@ -211,7 +211,7 @@ pub fn verify_device_list_signatures(
   ) {
     crate::grpc_utils::ed25519_verify(
       previous_primary_id,
-      &new_device_list.raw_payload,
+      new_device_list.raw_payload.as_bytes(),
       last_signature,
     )
     .map_err(|err| {
@@ -249,7 +249,7 @@ pub fn verify_singleton_device_list(
     (Some(last_signature), Some(last_signing_public_key)) => {
       crate::grpc_utils::ed25519_verify(
         last_signing_public_key,
-        &device_list.raw_payload,
+        device_list.raw_payload.as_bytes(),
         last_signature,
       )?;
     }
@@ -262,7 +262,7 @@ pub fn verify_singleton_device_list(
 
   crate::grpc_utils::ed25519_verify(
     expected_primary_device_id,
-    &device_list.raw_payload,
+    device_list.raw_payload.as_bytes(),
     signature,
   )?;
 
