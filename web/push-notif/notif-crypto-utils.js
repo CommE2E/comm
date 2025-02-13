@@ -783,6 +783,8 @@ async function commonPeerDecrypt<T>(
       encryptedPayload,
     );
 
+    account.remove_one_time_keys(session);
+
     const decryptedNotification: T = JSON.parse(
       session.decrypt(messageType, encryptedPayload),
     );
