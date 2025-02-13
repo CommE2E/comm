@@ -66,7 +66,7 @@ export type PickledOlmSession = {
 };
 async function unpickleSessionAndUseCallback<T>(
   pickledOlmSession: PickledOlmSession,
-  callback: (session: OlmSession, picklingKey: string) => Promise<T> | T,
+  callback: (session: OlmSession) => Promise<T> | T,
 ): Promise<{ +result: T, +pickledOlmSession: PickledOlmSession }> {
   const { picklingKey, pickledSession } = pickledOlmSession;
 
@@ -77,7 +77,7 @@ async function unpickleSessionAndUseCallback<T>(
 
   let result;
   try {
-    result = await callback(session, picklingKey);
+    result = await callback(session);
   } catch (e) {
     throw new ServerError(getMessageForException(e) ?? 'unknown_error');
   }
