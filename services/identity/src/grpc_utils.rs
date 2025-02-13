@@ -52,7 +52,7 @@ impl SignedNonce {
     self,
     signing_public_key: &str,
   ) -> Result<String, Status> {
-    ed25519_verify(signing_public_key, &self.nonce, &self.signature)?;
+    ed25519_verify(signing_public_key, self.nonce.as_bytes(), &self.signature)?;
     Ok(self.nonce)
   }
 }
@@ -60,12 +60,12 @@ impl SignedNonce {
 /// Verifies ed25519-signed message. Returns Ok if the signature is valid.
 /// Public key and signature should be base64-encoded strings.
 pub fn ed25519_verify(
-  signing_public_key: &str,
-  message: &str,
-  signature: &str,
+  signing_public_key_base64: &str,
+  message_bytes: &[u8],
+  signature_base64: &str,
 ) -> Result<(), Status> {
   let signature_bytes = general_purpose::STANDARD_NO_PAD
-    .decode(signature)
+    .decode(signature_base64)
     .map_err(|_| {
       Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
     })?;
@@ -75,7 +75,7 @@ pub fn ed25519_verify(
   })?;
 
   let public_key_bytes = general_purpose::STANDARD_NO_PAD
-    .decode(signing_public_key)
+    .decode(signing_public_key_base64)
     .map_err(|_| {
       Status::failed_precondition(tonic_status_messages::MALFORMED_KEY)
     })?;
@@ -85,11 +85,9 @@ pub fn ed25519_verify(
       Status::failed_precondition(tonic_status_messages::MALFORMED_KEY)
     })?;
 
-  public_key
-    .verify(message.as_bytes(), &signature)
-    .map_err(|_| {
-      Status::permission_denied(tonic_status_messages::VERIFICATION_FAILED)
-    })?;
+  public_key.verify(message_bytes, &signature).map_err(|_| {
+    Status::permission_denied(tonic_status_messages::VERIFICATION_FAILED)
+  })?;
   Ok(())
 }
 

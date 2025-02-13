@@ -63,7 +63,7 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
 
   crate::grpc_utils::ed25519_verify(
     public_key_string,
-    keyserver_message,
+    keyserver_message.as_bytes(),
     keyserver_signature,
   )?;
 
