@@ -2142,7 +2142,6 @@ mod migration {
         "Primary device will be selected basing only on devices with data.",
         redact_sensitive_data(user_id)
       );
-      return;
     }
 
     let Some(first_device) = list.first() else {
@@ -2303,6 +2302,25 @@ mod migration {
 
       reorder_device_list("", &mut list, &devices_data);
       assert_eq!(list, vec!["mobile", "web"]);
+    }
+
+    #[test]
+    fn reorder_works_with_missing_data() {
+      let mut list =
+        vec!["device_without_data".into(), "new_mobile_device".into()];
+      let devices_data = vec![
+        // don't register keys for 'device_without_data'
+        // but only for the new device
+        create_test_device(
+          "new_mobile_device",
+          DeviceType::Android,
+          1,
+          Utc::now(),
+        ),
+      ];
+
+      reorder_device_list("", &mut list, &devices_data);
+      assert_eq!(list, vec!["new_mobile_device", "device_without_data"]);
     }
 
     #[test]
