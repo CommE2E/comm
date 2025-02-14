@@ -9,6 +9,7 @@ import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.j
 import { getConfig } from 'lib/utils/config.js';
 
 import css from './qr-code-login.css';
+import LoadingIndicator from '../loading-indicator.react.js';
 
 function QRCodeLogin(): React.Node {
   const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
@@ -30,15 +31,20 @@ function QRCodeLogin(): React.Node {
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, identityDeviceType);
   }, [platform, qrData]);
 
+  const qrCodeComponent = React.useMemo(() => {
+    if (qrCodeURL) {
+      return <QRCodeSVG value={qrCodeURL} size={300} level="L" />;
+    }
+    return <LoadingIndicator status="loading" size="large" color="black" />;
+  }, [qrCodeURL]);
+
   return (
     <div className={css.qrContainer}>
       <div className={css.title}>Log in to Comm</div>
       <div className={css.scanInstructions}>
         Open the Comm app on your phone and scan the QR code below
       </div>
-      <div className={css.qrCodeContainer}>
-        <QRCodeSVG value={qrCodeURL} size={300} level="L" />
-      </div>
+      <div className={css.qrCodeContainer}>{qrCodeComponent}</div>
       <div className={css.instructionsContainer}>
         <div className={css.instructionsTitle}>How to find the scanner:</div>
         <div className={css.instructionsStep}>

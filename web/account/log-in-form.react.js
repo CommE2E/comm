@@ -23,6 +23,7 @@ import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
+import LoadingIndicator from '../loading-indicator.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 
 function LegacyLoginForm() {
@@ -172,6 +173,13 @@ function LoginForm() {
     );
   }, [popModal, pushModal]);
 
+  const qrCodeComponent = React.useMemo(() => {
+    if (qrCodeURL) {
+      return <QRCodeSVG value={qrCodeURL} size={195} level="L" />;
+    }
+    return <LoadingIndicator status="loading" size="large" color="black" />;
+  }, [qrCodeURL]);
+
   return (
     <div className={css.new_modal_body}>
       <h1>Log in to Comm</h1>
@@ -181,9 +189,7 @@ function LoginForm() {
           Open the Comm app on your phone and scan the QR code below:
         </div>
         <div className={css.qrCodeContainer}>
-          <div className={css.qrCodeWrapper}>
-            <QRCodeSVG value={qrCodeURL} size={195} level="L" />
-          </div>
+          <div className={css.qrCodeWrapper}>{qrCodeComponent}</div>
         </div>
         <div className={css.modal_text}>
           How to find the scanner:
