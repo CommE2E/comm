@@ -128,7 +128,10 @@ div.new_modal_body .qrCodeWrapper {
   padding: 5px;
   display: flex;
   align-items: center;
+  justify-content: center;
   background: var(--fg);
+  width: 205px;
+  height: 205px;
 }
 
 div.new_modal_body .buttons {
