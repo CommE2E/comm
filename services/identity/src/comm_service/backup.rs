@@ -2,16 +2,24 @@ use comm_lib::{auth::AuthService, backup::database::BackupItem};
 use hex::ToHex;
 use reqwest::multipart::Part;
 use sha2::{Digest, Sha256};
+use tracing::debug;
 
 use crate::{
   config::CONFIG,
   constants::{error_types, tonic_status_messages},
+  log::redact_sensitive_data,
 };
 
+#[tracing::instrument(skip_all)]
 pub async fn delete_backup_user_data(
   user_id: &str,
   auth_service: &AuthService,
 ) -> Result<(), crate::error::Error> {
+  debug!(
+    user_id = redact_sensitive_data(user_id),
+    "Attempting to remove user backups."
+  );
+
   let path = format!("/user_data/{}", user_id);
   let url = CONFIG
     .backup_service_url
@@ -48,9 +56,15 @@ pub async fn delete_backup_user_data(
   Ok(())
 }
 
+#[tracing::instrument(skip_all)]
 pub async fn user_has_backup(
   user_identifier: &str,
 ) -> Result<bool, crate::error::Error> {
+  debug!(
+    user_identifier = redact_sensitive_data(user_identifier),
+    "Attempting to check if user has backup."
+  );
+
   let path = format!("/backups/latest/{user_identifier}/backup_info");
   let url = CONFIG
     .backup_service_url
@@ -86,6 +100,7 @@ pub async fn user_has_backup(
   }
 }
 
+#[tracing::instrument(skip_all)]
 pub async fn prepare_user_keys(
   auth_service: &AuthService,
   user_id: &str,
@@ -93,6 +108,11 @@ pub async fn prepare_user_keys(
   user_keys: Vec<u8>,
   siwe_backup_msg: Option<String>,
 ) -> Result<BackupItem, crate::error::Error> {
+  debug!(
+    user_id = redact_sensitive_data(user_id),
+    "Attempting to prepare UserKeys backup."
+  );
+
   let path = "/utils/prepare_user_keys";
   let url = CONFIG
     .backup_service_url
