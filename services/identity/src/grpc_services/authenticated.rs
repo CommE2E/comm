@@ -20,7 +20,7 @@ use comm_lib::auth::AuthService;
 use comm_lib::blob::client::BlobServiceClient;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
-use tracing::{debug, error, trace};
+use tracing::{debug, error, info, trace, warn};
 
 use super::protos::auth::{
   identity_client_service_server::IdentityClientService,
@@ -382,6 +382,11 @@ impl IdentityClientService for AuthenticatedService {
       .await?
       .is_signed_device_list_flow();
 
+    info!(
+      user_id = redact_sensitive_data(&user_id),
+      is_new_flow_user, "V1 logout user request."
+    );
+
     // don't update device list for new flow users
     if is_new_flow_user {
       self
@@ -463,14 +468,20 @@ impl IdentityClientService for AuthenticatedService {
       .await?
       .is_v1_flow()
     {
+      warn!(
+        user_id = redact_sensitive_data(&user_id),
+        device_id = redact_sensitive_data(&device_id),
+        "Legacy flow device called LogOutPrimaryDevice RPC"
+      );
       return Err(tonic::Status::failed_precondition(
         tonic_status_messages::USE_V1_FLOW,
       ));
     }
 
-    debug!(
+    info!(
       "Primary device logout request for user_id={}, device_id={}",
-      user_id, device_id
+      redact_sensitive_data(&user_id),
+      redact_sensitive_data(&device_id)
     );
     self
       .verify_device_on_device_list(
@@ -547,14 +558,20 @@ impl IdentityClientService for AuthenticatedService {
       .await?
       .is_v1_flow()
     {
+      warn!(
+        user_id = redact_sensitive_data(&user_id),
+        device_id = redact_sensitive_data(&device_id),
+        "Legacy flow device called LogOutSecondaryDevice RPC"
+      );
       return Err(tonic::Status::failed_precondition(
         tonic_status_messages::USE_V1_FLOW,
       ));
     }
 
-    debug!(
+    info!(
       "Secondary device logout request for user_id={}, device_id={}",
-      user_id, device_id
+      redact_sensitive_data(&user_id),
+      redact_sensitive_data(&device_id)
     );
     self
       .verify_device_on_device_list(
@@ -935,6 +952,10 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
+    info!(
+      "Device list update request for user {}.",
+      redact_sensitive_data(&user_id),
+    );
 
     let is_new_flow_user = self
       .db_client
@@ -956,6 +977,11 @@ impl IdentityClientService for AuthenticatedService {
         .await?;
       Some(crate::device_list::validation::update_device_list_rpc_validator)
     } else {
+      info!(
+        user_id = redact_sensitive_data(&user_id),
+        "Attempting to migrate user to signed device list.",
+      );
+
       // new flow migration
       let Some(current_device_list) =
         self.db_client.get_current_device_list(&user_id).await?
@@ -1230,6 +1256,11 @@ impl AuthenticatedService {
     &self,
   ) -> Result<(), tonic::Status> {
     let user_id = AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
+    info!(
+      user_id = redact_sensitive_data(user_id),
+      "Performing authoritative keyserver owner logout."
+    );
+
     let devices = self.db_client.get_current_devices(user_id).await?;
     let keyserver_device_id = devices
       .iter()
