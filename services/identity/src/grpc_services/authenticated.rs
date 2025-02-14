@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use crate::comm_service::{backup, blob, tunnelbroker};
 use crate::config::CONFIG;
 use crate::constants::staff::AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
-use crate::database::{DeviceListUpdate, PlatformDetails};
+use crate::database::{DeviceListRow, DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
@@ -382,19 +382,42 @@ impl IdentityClientService for AuthenticatedService {
       .await?
       .is_signed_device_list_flow();
 
+    let is_primary_device_logout = self
+      .get_current_device_list(&user_id)
+      .await?
+      .is_primary_device(&device_id);
+
     info!(
       user_id = redact_sensitive_data(&user_id),
-      is_new_flow_user, "V1 logout user request."
+      is_new_flow_user, is_primary_device_logout, "V1 logout user request."
     );
 
     // don't update device list for new flow users
     if is_new_flow_user {
+      if is_primary_device_logout {
+        error!(
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "New-flow primary device used legacy logout!"
+        );
+      }
+
       self
         .db_client
         .remove_device_data(&user_id, &device_id)
         .await?;
     } else {
       self.db_client.remove_device(&user_id, &device_id).await?;
+
+      if is_primary_device_logout {
+        // Since device list is unsigned, and current primary device is being logged out
+        // we should make sure there's no UserKeys backup, so the user won't try
+        // to restore it during next login
+        crate::comm_service::backup::delete_backup_user_data(
+          &user_id,
+          &self.comm_auth_service,
+        )
+        .await?;
+      }
     }
 
     self
@@ -407,27 +430,7 @@ impl IdentityClientService for AuthenticatedService {
       .delete_access_token_data(&user_id, &device_id)
       .await?;
 
-    let device_list = self
-      .db_client
-      .get_current_device_list(&user_id)
-      .await
-      .map_err(|err| {
-        error!(
-          user_id = redact_sensitive_data(&user_id),
-          errorType = error_types::GRPC_SERVICES_LOG,
-          "Failed fetching device list: {err}"
-        );
-        handle_db_error(err)
-      })?;
-
-    let Some(device_list) = device_list else {
-      error!(
-        user_id = redact_sensitive_data(&user_id),
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "User has no device list!"
-      );
-      return Err(Status::failed_precondition("no device list"));
-    };
+    let device_list = self.get_current_device_list(&user_id).await?;
 
     tokio::spawn(async move {
       debug!(
@@ -983,14 +986,7 @@ impl IdentityClientService for AuthenticatedService {
       );
 
       // new flow migration
-      let Some(current_device_list) =
-        self.db_client.get_current_device_list(&user_id).await?
-      else {
-        tracing::warn!("User {} does not have valid device list. New flow migration impossible.", redact_sensitive_data(&user_id));
-        return Err(tonic::Status::aborted(
-          tonic_status_messages::DEVICE_LIST_ERROR,
-        ));
-      };
+      let current_device_list = self.get_current_device_list(&user_id).await?;
 
       let calling_device_id = &device_id;
       let previous_device_ids: Vec<&str> = current_device_list
@@ -1151,29 +1147,7 @@ impl AuthenticatedService {
     device_id: &String,
     device_kind: DeviceListItemKind,
   ) -> Result<(), tonic::Status> {
-    let device_list = self
-      .db_client
-      .get_current_device_list(user_id)
-      .await
-      .map_err(|err| {
-        error!(
-          user_id = redact_sensitive_data(user_id),
-          errorType = error_types::GRPC_SERVICES_LOG,
-          "Failed fetching device list: {err}"
-        );
-        handle_db_error(err)
-      })?;
-
-    let Some(device_list) = device_list else {
-      error!(
-        user_id = redact_sensitive_data(user_id),
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "User has no device list!"
-      );
-      return Err(Status::failed_precondition(
-        tonic_status_messages::NO_DEVICE_LIST,
-      ));
-    };
+    let device_list = self.get_current_device_list(user_id).await?;
 
     use DeviceListItemKind as DeviceKind;
     let device_on_list = match device_kind {
@@ -1283,6 +1257,38 @@ impl AuthenticatedService {
     backup::delete_backup_user_data(user_id, &self.comm_auth_service).await?;
 
     Ok(())
+  }
+
+  async fn get_current_device_list(
+    &self,
+    user_id: &str,
+  ) -> Result<DeviceListRow, tonic::Status> {
+    let device_list = self
+      .db_client
+      .get_current_device_list(user_id)
+      .await
+      .map_err(|err| {
+        error!(
+          user_id = redact_sensitive_data(user_id),
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "Failed fetching device list: {err}"
+        );
+        handle_db_error(err)
+      })?;
+
+    match device_list {
+      Some(device_list) => Ok(device_list),
+      None => {
+        error!(
+          user_id = redact_sensitive_data(user_id),
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "User has no device list!"
+        );
+        Err(Status::failed_precondition(
+          tonic_status_messages::NO_DEVICE_LIST,
+        ))
+      }
+    }
   }
 }
 
