@@ -306,7 +306,11 @@ impl IdentityClientService for ClientService {
     let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
-    debug!("Attempting to log in user: {:?}", &message.username);
+    info!(
+      "Attempting to v1 log in password user: {:?}",
+      redact_sensitive_data(&message.username)
+    );
+
     let user_id_and_password_file = self
       .client
       .get_user_info_and_password_file_from_username(&message.username)
@@ -352,6 +356,10 @@ impl IdentityClientService for ClientService {
         .await?
         .is_signed_device_list_flow()
     {
+      warn!(
+        user_id = redact_sensitive_data(&user_id),
+        "New flow user called LogInPasswordUser RPC"
+      );
       return Err(tonic::Status::failed_precondition(
         tonic_status_messages::USE_NEW_FLOW,
       ));
@@ -497,6 +505,10 @@ impl IdentityClientService for ClientService {
     self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 
     let wallet_address = eip55(&parsed_message.address);
+    info!(
+      "Attempting to v1 log in wallet user: {:?}",
+      redact_sensitive_data(&wallet_address)
+    );
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
@@ -514,6 +526,10 @@ impl IdentityClientService for ClientService {
         .await?
         .is_signed_device_list_flow()
       {
+        warn!(
+          user_id = redact_sensitive_data(&user_id),
+          "New flow user called LogInWalletUser RPC"
+        );
         return Err(tonic::Status::failed_precondition(
           tonic_status_messages::USE_NEW_FLOW,
         ));
@@ -712,7 +728,7 @@ impl IdentityClientService for ClientService {
         tonic_status_messages::USE_V1_FLOW,
       ));
     }
-    debug!(
+    info!(
       "Attempting to restore user: {}",
       redact_sensitive_data(&message.user_id)
     );
@@ -723,6 +739,10 @@ impl IdentityClientService for ClientService {
       .await?
       .is_v1_flow()
     {
+      warn!(
+        user_id = redact_sensitive_data(&message.user_id),
+        "Legacy flow user called RestoreUser RPC."
+      );
       return Err(tonic::Status::failed_precondition(
         tonic_status_messages::USE_V1_FLOW,
       ));
