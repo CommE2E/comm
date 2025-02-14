@@ -370,7 +370,7 @@ impl DatabaseClient {
         Error::AwsSdk(e.into())
       })?;
 
-    if response.last_evaluated_key().is_some() {
+    if response.last_evaluated_key().is_some() && limit.is_none() {
       // In the intial version of the backup service this function will be run
       // for every new backup (each user only has one backup), so this shouldn't
       // happen
