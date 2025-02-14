@@ -23,6 +23,7 @@ import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
+import LoadingIndicator from '../loading-indicator.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 
 function LegacyLoginForm() {
@@ -182,7 +183,11 @@ function LoginForm() {
         </div>
         <div className={css.qrCodeContainer}>
           <div className={css.qrCodeWrapper}>
-            <QRCodeSVG value={qrCodeURL} size={195} level="L" />
+            {qrCodeURL ? (
+              <QRCodeSVG value={qrCodeURL} size={195} level="L" />
+            ) : (
+              <LoadingIndicator status="loading" size="large" color="black" />
+            )}
           </div>
         </div>
         <div className={css.modal_text}>
