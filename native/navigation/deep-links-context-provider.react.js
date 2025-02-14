@@ -17,6 +17,7 @@ import {
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
+import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
@@ -111,9 +112,10 @@ function DeepLinksContextProvider(props: Props): React.Node {
   const navigation = useNavigation();
   const usingRestoreFlow = useIsRestoreFlowEnabled();
   const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
+  const persistedStateLoaded = usePersistedStateLoaded();
   React.useEffect(() => {
     void (async () => {
-      if (!loggedIn || !currentLink) {
+      if (!loggedIn || !currentLink || !persistedStateLoaded) {
         return;
       }
       // We're setting this to null so that we ensure that each link click
@@ -184,6 +186,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     showVersionUnsupportedAlert,
     usingRestoreFlow,
     checkIfPrimaryDevice,
+    persistedStateLoaded,
   ]);
 
   React.useEffect(() => {
