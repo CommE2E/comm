@@ -26,25 +26,28 @@ type QRCodeScreenProps = {
 };
 
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
+  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth, canGenerateQRs } =
     useSecondaryDeviceQRAuthContext();
 
   useFocusEffect(
     React.useCallback(() => {
-      void openSecondaryQRAuth();
-      return closeSecondaryQRAuth;
-    }, [closeSecondaryQRAuth, openSecondaryQRAuth]),
+      if (canGenerateQRs) {
+        void openSecondaryQRAuth();
+        return closeSecondaryQRAuth;
+      }
+      return undefined;
+    }, [canGenerateQRs, closeSecondaryQRAuth, openSecondaryQRAuth]),
   );
 
   const { platform } = getConfig().platformDetails;
   const qrCodeURL = React.useMemo(() => {
-    if (!qrData) {
+    if (!qrData || !canGenerateQRs) {
       return undefined;
     }
 
     const deviceType = platformToIdentityDeviceType[platform];
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, deviceType);
-  }, [platform, qrData]);
+  }, [canGenerateQRs, platform, qrData]);
 
   const styles = useStyles(unboundStyles);
 
