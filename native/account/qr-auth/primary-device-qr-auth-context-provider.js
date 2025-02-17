@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 import {
   getOwnPeerDevices,
@@ -26,6 +27,7 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
 import { commCoreModule } from '../../native-modules.js';
@@ -58,6 +60,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
   const runDeviceListUpdate = useDeviceListUpdate();
   const { addListener, removeListener, sendMessageToDevice } =
     useTunnelbroker();
+  const { addLog } = useDebugLogs();
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
@@ -178,7 +181,14 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
           });
           await sendDeviceListUpdateSuccessMessage();
         } catch (err) {
-          console.log('Device replacement error:', err);
+          const errorTitle =
+            `Error while replacing device ${keyserverDeviceID ?? ''}` +
+            ` with ${targetDeviceID}: `;
+          const errorMessage = getMessageForException(err) ?? 'unknown error';
+
+          console.log(errorTitle, errorMessage);
+          addLog(errorTitle, errorMessage);
+
           Alert.alert(
             'Adding device failed',
             'Failed to update the device list',
@@ -219,13 +229,21 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       );
     } catch (err) {
       setConnectingInProgress(false);
-      console.log('Primary device error:', err);
+
+      const targetDeviceID = secondaryDeviceID.current;
+      const errorTitle = `Error adding device ${targetDeviceID ?? ''}: `;
+      const errorMessage = getMessageForException(err) ?? 'unknown error';
+
+      console.log(errorTitle, errorMessage);
+      addLog(errorTitle, errorMessage);
+
       Alert.alert('Adding device failed', 'Failed to update the device list', [
         { text: 'OK' },
       ]);
       goBack();
     }
   }, [
+    addLog,
     goBack,
     identityContext,
     keyserverDeviceID,
