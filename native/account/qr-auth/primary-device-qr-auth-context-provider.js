@@ -181,13 +181,11 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
           });
           await sendDeviceListUpdateSuccessMessage();
         } catch (err) {
-          const errorTitle =
+          addLog(
             `Error while replacing device ${keyserverDeviceID ?? ''}` +
-            ` with ${targetDeviceID}: `;
-          const errorMessage = getMessageForException(err) ?? 'unknown error';
-
-          console.log(errorTitle, errorMessage);
-          addLog(errorTitle, errorMessage);
+              ` with ${targetDeviceID}: `,
+            getMessageForException(err) ?? 'unknown error',
+          );
 
           Alert.alert(
             'Adding device failed',
@@ -231,11 +229,10 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       setConnectingInProgress(false);
 
       const targetDeviceID = secondaryDeviceID.current;
-      const errorTitle = `Error adding device ${targetDeviceID ?? ''}: `;
-      const errorMessage = getMessageForException(err) ?? 'unknown error';
-
-      console.log(errorTitle, errorMessage);
-      addLog(errorTitle, errorMessage);
+      addLog(
+        `Error adding device ${targetDeviceID ?? ''}`,
+        getMessageForException(err) ?? 'unknown error',
+      );
 
       Alert.alert('Adding device failed', 'Failed to update the device list', [
         { text: 'OK' },
