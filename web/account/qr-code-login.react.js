@@ -3,33 +3,13 @@
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
-import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
-import { qrCodeLinkURL } from 'lib/facts/links.js';
-import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
-import { getConfig } from 'lib/utils/config.js';
+import { useSecondaryDeviceQRAuthURL } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 
 import css from './qr-code-login.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 
 function QRCodeLogin(): React.Node {
-  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
-    useSecondaryDeviceQRAuthContext();
-
-  React.useEffect(() => {
-    void openSecondaryQRAuth();
-    return closeSecondaryQRAuth;
-  }, [closeSecondaryQRAuth, openSecondaryQRAuth]);
-
-  const { platform } = getConfig().platformDetails;
-  const qrCodeURL = React.useMemo(() => {
-    if (!qrData) {
-      return undefined;
-    }
-
-    const identityDeviceType = platformToIdentityDeviceType[platform];
-
-    return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, identityDeviceType);
-  }, [platform, qrData]);
+  const qrCodeURL = useSecondaryDeviceQRAuthURL();
 
   const qrCodeComponent = React.useMemo(() => {
     if (qrCodeURL) {
