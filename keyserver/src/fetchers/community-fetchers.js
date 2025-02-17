@@ -82,6 +82,25 @@ async function fetchCommunityFarcasterChannelTag(
   return communityInfo?.farcasterChannelID;
 }
 
+const boostedCommunityIDs = new Set([
+  '7818315', // music
+  '7856597', // nba
+  '7796817', // new-york
+  '7817640', // screens
+  '7793856', // founders
+  '7817366', // ai
+  '7830533', // geopolitics
+  '7802020', // sofi
+  '7856523', // nfl
+  '7856570', // football
+  '7796490', // food
+  '7799897', // dev
+  '79486314', // mlb
+  '7801839', // art
+  '7799649', // travel
+  '79264622', // privacy
+]);
+
 async function fetchNativeDrawerAndDirectoryInfos(
   viewer: Viewer,
 ): Promise<$ReadOnlyArray<ServerCommunityInfoWithCommunityName>> {
@@ -121,6 +140,13 @@ async function fetchNativeDrawerAndDirectoryInfos(
       threadInfo: threadInfosResult.threadInfos[row.id.toString()] ?? null,
     }),
   );
+
+  communityInfos.sort((a, b) => {
+    return (
+      (boostedCommunityIDs.has(b.id) ? 1 : 0) -
+      (boostedCommunityIDs.has(a.id) ? 1 : 0)
+    );
+  });
 
   return communityInfos;
 }
