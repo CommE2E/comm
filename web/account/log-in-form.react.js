@@ -8,11 +8,8 @@ import { useWalletClient } from 'wagmi';
 
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
-import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { useSecondaryDeviceQRAuthURL } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import stores from 'lib/facts/stores.js';
-import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
-import { getConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
@@ -85,30 +82,7 @@ function LegacyLoginForm() {
 }
 
 function LoginForm() {
-  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth } =
-    useSecondaryDeviceQRAuthContext();
-
-  React.useEffect(() => {
-    void openSecondaryQRAuth();
-    return closeSecondaryQRAuth;
-  }, [closeSecondaryQRAuth, openSecondaryQRAuth]);
-
-  const { platform } = getConfig().platformDetails;
-  const qrCodeURL = React.useMemo(() => {
-    if (!qrData) {
-      return undefined;
-    }
-
-    const identityDeviceType = platformToIdentityDeviceType[platform];
-
-    return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, identityDeviceType);
-  }, [platform, qrData]);
-
-  React.useEffect(() => {
-    if (qrCodeURL) {
-      console.log(`QR Code URL: ${qrCodeURL}`);
-    }
-  }, [qrCodeURL]);
+  const qrCodeURL = useSecondaryDeviceQRAuthURL();
 
   const { pushModal, clearModals, popModal } = useModalContext();
 
