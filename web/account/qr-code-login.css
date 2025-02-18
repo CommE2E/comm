@@ -50,6 +50,6 @@ div.qrCodeContainer {
   align-items: center;
   justify-content: center;
   background: var(--fg);
-  width: 310px;
-  height: 310px;
+  width: 300px;
+  height: 300px;
 }
