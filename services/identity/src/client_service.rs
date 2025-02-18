@@ -100,6 +100,8 @@ pub struct FlattenedDeviceKeyUpload {
   pub notif_prekey_signature: String,
   pub notif_one_time_keys: Vec<String>,
   pub device_type: DeviceType,
+  /// not stored directly, used only for prekey verification
+  pub notif_signing_public_key: String,
 }
 
 #[derive(derive_more::Constructor)]
@@ -1480,6 +1482,9 @@ fn construct_flattened_device_key_upload(
     notif_prekey_signature: message.notif_prekey_signature()?,
     notif_one_time_keys: message.one_time_notif_prekeys()?,
     device_type: DeviceType::try_from(DBDeviceTypeInt(message.device_type()?))?,
+    notif_signing_public_key: key_info
+      .notification_identity_public_keys
+      .ed25519,
   };
 
   Ok(flattened_device_key_upload)
