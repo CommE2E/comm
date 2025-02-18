@@ -202,7 +202,7 @@ impl DeviceRow {
         "Content prekey verification failed: {err}"
       );
     }
-    if let Err(err) = notif_prekey.verify(&upload.device_id_key) {
+    if let Err(err) = notif_prekey.verify(&upload.notif_signing_public_key) {
       error!(
         errorType = error_types::GENERIC_DB_LOG,
         "Notif prekey verification failed: {err}"
