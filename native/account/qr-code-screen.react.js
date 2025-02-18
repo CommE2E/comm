@@ -2,7 +2,12 @@
 
 import { useFocusEffect } from '@react-navigation/core';
 import * as React from 'react';
-import { View, Text, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  ActivityIndicator,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
@@ -18,7 +23,7 @@ import type { AuthNavigationProp } from './registration/auth-navigator.react.js'
 import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { RestorePromptScreenRouteName } from '../navigation/route-names.js';
-import { useStyles } from '../themes/colors.js';
+import { useColors, useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
   +navigation: AuthNavigationProp<'QRCodeScreen'>,
@@ -29,14 +34,29 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth, canGenerateQRs } =
     useSecondaryDeviceQRAuthContext();
 
+  const [attemptNumber, setAttemptNumber] = React.useState(0);
+
   useFocusEffect(
     React.useCallback(() => {
-      if (canGenerateQRs) {
-        void openSecondaryQRAuth();
-        return closeSecondaryQRAuth;
+      if (!canGenerateQRs || qrData) {
+        return;
       }
-      return undefined;
-    }, [canGenerateQRs, closeSecondaryQRAuth, openSecondaryQRAuth]),
+      void (async () => {
+        try {
+          console.log('Generating new QR code');
+          await openSecondaryQRAuth();
+        } catch (e) {
+          console.log('Failed to generate QR Code:', e);
+          setTimeout(() => setAttemptNumber(attemptNumber + 1), 500);
+        }
+      })();
+    }, [attemptNumber, canGenerateQRs, openSecondaryQRAuth, qrData]),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return closeSecondaryQRAuth;
+    }, [closeSecondaryQRAuth]),
   );
 
   const { platform } = getConfig().platformDetails;
@@ -48,6 +68,12 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     const deviceType = platformToIdentityDeviceType[platform];
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, deviceType);
   }, [canGenerateQRs, platform, qrData]);
+
+  React.useEffect(() => {
+    if (qrCodeURL) {
+      console.log(`QR Code URL: ${qrCodeURL}`);
+    }
+  }, [qrCodeURL]);
 
   const styles = useStyles(unboundStyles);
 
@@ -72,6 +98,20 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
   const { width } = useWindowDimensions();
   const qrCodeSize = width * 0.7;
+  const colors = useColors();
+
+  const qrCode = React.useMemo(() => {
+    if (qrCodeURL) {
+      return <QRCode value={qrCodeURL} size={qrCodeSize} />;
+    }
+    return (
+      <ActivityIndicator
+        size="large"
+        style={{ width: qrCodeSize, height: qrCodeSize }}
+        color={colors.modalForegroundTertiaryLabel}
+      />
+    );
+  }, [colors.modalForegroundTertiaryLabel, qrCodeSize, qrCodeURL]);
 
   return (
     <AuthContainer>
@@ -82,9 +122,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
             Open the Comm app on your logged-in phone and scan the QR code
             below:
           </Text>
-          <View style={styles.qrCodeContainer}>
-            <QRCode value={qrCodeURL} size={qrCodeSize} />
-          </View>
+          <View style={styles.qrCodeContainer}>{qrCode}</View>
           <View style={styles.instructionsBox}>
             <Text style={styles.instructionsTitle}>
               How to find the scanner:
