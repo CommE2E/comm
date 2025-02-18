@@ -34,7 +34,7 @@ function QRCodeLogin(): React.Node {
     <div className={css.qrContainer}>
       <div className={css.title}>Log in to Comm</div>
       <div className={css.scanInstructions}>
-        Open the Comm app on your phone and scan the QR code below
+        Open the Comm app on your phone and scan the QR code below:
       </div>
       <div className={css.qrCodeContainer}>
         <QRCodeSVG value={qrCodeURL} size={300} level="L" />
