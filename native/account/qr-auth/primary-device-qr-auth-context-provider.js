@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { useWaitForConnection } from 'lib/hooks/wait-for-connection.js';
 import {
   getOwnPeerDevices,
   getKeyserverDeviceID,
@@ -61,6 +62,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
   const { addListener, removeListener, sendMessageToDevice } =
     useTunnelbroker();
   const { addLog } = useDebugLogs();
+  const waitForConnection = useWaitForConnection('tunnelbroker');
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
@@ -159,6 +161,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
           primaryDeviceID,
           backupData,
         });
+        await waitForConnection();
         await sendMessageToDevice({
           deviceID: targetDeviceID,
           payload: JSON.stringify(message),
@@ -247,6 +250,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
     navigate,
     runDeviceListUpdate,
     sendMessageToDevice,
+    waitForConnection,
   ]);
 
   const onConnect = React.useCallback(
