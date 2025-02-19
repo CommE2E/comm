@@ -55,16 +55,21 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
       ?.goBack();
   }, [navigation]);
 
+  const [isRemovingDevice, setIsRemovingDevice] = React.useState(false);
+  const removeButtonVariant = isRemovingDevice ? 'loading' : 'danger';
   const onPressRemove = React.useCallback(async () => {
     try {
+      setIsRemovingDevice(true);
       await onRemoveSecondaryDevice();
     } catch (e) {
       console.log(
         'Error while removing unresponsive secondary device ',
         getMessageForException(e),
       );
+    } finally {
+      setIsRemovingDevice(false);
+      navigateToLinkedDevices();
     }
-    navigateToLinkedDevices();
   }, [navigateToLinkedDevices, onRemoveSecondaryDevice]);
 
   const styles = useStyles(unboundStyles);
@@ -85,7 +90,7 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
         <PrimaryButton
           onPress={onPressRemove}
           label="Remove"
-          variant="danger"
+          variant={removeButtonVariant}
         />
         <PrimaryButton
           onPress={navigateToLinkedDevices}
