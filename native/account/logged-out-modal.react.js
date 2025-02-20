@@ -26,6 +26,7 @@ import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.j
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
@@ -236,8 +237,10 @@ function LoggedOutModal(props: Props) {
     [logInState, setLogInState],
   );
 
+  const { socketState } = useTunnelbroker();
   const persistedStateLoaded = usePersistedStateLoaded();
-  const initialMode = persistedStateLoaded ? 'prompt' : 'loading';
+  const canStartAuth = !socketState.isAuthorized && persistedStateLoaded;
+  const initialMode = canStartAuth ? 'prompt' : 'loading';
   const [mode, baseSetMode] = React.useState(() => ({
     curMode: initialMode,
     nextMode: initialMode,
@@ -257,7 +260,7 @@ function LoggedOutModal(props: Props) {
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const contentHeight = useSharedValue(dimensions.safeAreaHeight);
   const modeValue = useSharedValue(initialMode);
-  const buttonOpacity = useSharedValue(persistedStateLoaded ? 1 : 0);
+  const buttonOpacity = useSharedValue(canStartAuth ? 1 : 0);
 
   const onPrompt = mode.curMode === 'prompt';
   const prevOnPromptRef = React.useRef(onPrompt);
@@ -296,13 +299,13 @@ function LoggedOutModal(props: Props) {
     Keyboard.dismiss();
   }, [setMode, modeValue]);
 
-  const loadingCompleteRef = React.useRef(persistedStateLoaded);
+  const loadingCompleteRef = React.useRef(canStartAuth);
   React.useEffect(() => {
-    if (!loadingCompleteRef.current && persistedStateLoaded) {
+    if (!loadingCompleteRef.current && canStartAuth) {
       combinedSetMode('prompt');
       loadingCompleteRef.current = true;
     }
-  }, [persistedStateLoaded, combinedSetMode]);
+  }, [canStartAuth, combinedSetMode]);
 
   const [activeAlert, setActiveAlert] = React.useState(false);
 
