@@ -45,6 +45,7 @@ const defaultState = ({
   customServer: natNodeServer,
   alertStore: {
     alertInfos: defaultAlertInfos,
+    coldStartCount: 0,
   },
   watchedThreadIDs: [],
   lifecycleState: 'active',
