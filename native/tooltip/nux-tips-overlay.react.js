@@ -24,11 +24,8 @@ import type {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import type { LayoutEvent } from '../types/react-native.js';
 import { AnimatedView } from '../types/styles.js';
 import type { WritableAnimatedStyleObj } from '../types/styles.js';
-
-const { Value } = Animated;
 
 const animationDuration = 150;
 
@@ -198,31 +195,6 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
         marginLeft: x,
       };
     }, [coordinates]);
-
-    const tipHorizontalOffsetRef = React.useRef(new Value(0));
-    const tipHorizontalOffset = tipHorizontalOffsetRef.current;
-
-    const onTipContainerLayout = React.useCallback(
-      (event: LayoutEvent) => {
-        if (!coordinates) {
-          return;
-        }
-        const { x, width } = coordinates.initialCoordinates;
-
-        const extraLeftSpace = x;
-        const extraRightSpace = dimensions.width - width - x;
-
-        const actualWidth = event.nativeEvent.layout.width;
-        if (extraLeftSpace < extraRightSpace) {
-          const minWidth = width + 2 * extraLeftSpace;
-          tipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
-        } else {
-          const minWidth = width + 2 * extraRightSpace;
-          tipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
-        }
-      },
-      [coordinates, dimensions.width, tipHorizontalOffset],
-    );
 
     const currentTipKey =
       route.params.orderedTips[route.params.orderedTipsIndex];
@@ -465,7 +437,6 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
           {button}
           <AnimatedView
             style={baseTipContainerStyle}
-            onLayout={onTipContainerLayout}
             entering={tipContainerEnteringAnimation}
             exiting={tipContainerExitingAnimation}
           >
