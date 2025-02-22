@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
-function clampV2(value: number, min: number, max: number): number {
+function clamp(value: number, min: number, max: number): number {
   'worklet';
   return Math.max(Math.min(value, max), min);
 }
@@ -16,4 +16,4 @@ function useSharedValueForBoolean(booleanValue: boolean): SharedValue<boolean> {
   return sharedValue;
 }
 
-export { clampV2, useSharedValueForBoolean };
+export { clamp, useSharedValueForBoolean };
