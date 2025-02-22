@@ -23,7 +23,7 @@ type Props = {
 function ActionResultModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'ActionResultModal should have OverlayContext');
-  const { positionV2 } = overlayContext;
+  const { position } = overlayContext;
 
   // Timer resets whenever message updates
   const { goBackOnce } = props.navigation;
@@ -37,7 +37,7 @@ function ActionResultModal(props: Props): React.Node {
   const bottomInset = useSelector(state => state.dimensions.bottomInset);
   const animatedContainerStyle = useAnimatedStyle(
     () => ({
-      opacity: positionV2?.value,
+      opacity: position?.value,
       paddingBottom: bottomInset + 100,
     }),
     [bottomInset],

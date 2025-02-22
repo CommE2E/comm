@@ -6,7 +6,7 @@ import type { SharedValue } from 'react-native-reanimated';
 export type VisibleOverlay = {
   +routeKey: string,
   +routeName: string,
-  +positionV2: ?SharedValue<number>,
+  +position: ?SharedValue<number>,
   +shouldRenderScreenContent: boolean,
   +onExitFinish?: () => void,
   +presentedFrom: ?string,
@@ -16,7 +16,7 @@ export type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 
 export type OverlayContextType = {
   // position and isDismissing are local to the current route
-  +positionV2: ?SharedValue<number>,
+  +position: ?SharedValue<number>,
   +shouldRenderScreenContent: boolean,
   +onExitFinish?: () => void,
   +isDismissing: boolean,
