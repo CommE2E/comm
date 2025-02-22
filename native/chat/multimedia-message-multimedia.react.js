@@ -111,7 +111,7 @@ const MultimediaMessageMultimedia: React.ComponentType<Props> =
           overlay.presentedFrom === route.key &&
           overlay.routeKey === getMediaKey(props.item, props.mediaInfo)
         ) {
-          return overlay.positionV2;
+          return overlay.position;
         }
       }
       return undefined;

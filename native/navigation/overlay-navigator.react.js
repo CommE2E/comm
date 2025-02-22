@@ -81,7 +81,7 @@ type Scene = {
   +route: Route<>,
   +descriptor: Descriptor<OverlayNavigationHelpers<>, {}>,
   +context: {
-    +positionV2: ?SharedValue<number>,
+    +position: ?SharedValue<number>,
     +shouldRenderScreenContent: boolean,
     +onExitFinish?: () => void,
     +isDismissing: boolean,
@@ -132,7 +132,7 @@ const OverlayNavigator = React.memo<Props>(
     const curIndex = state.index;
 
     const positionRefsV2 = React.useRef<{ [string]: SharedValue<number> }>({});
-    const positionsV2 = positionRefsV2.current;
+    const positions = positionRefsV2.current;
 
     // cleanup shared values not created with useSharedValue just in case
     // like described in the reanimated docs:
@@ -164,14 +164,14 @@ const OverlayNavigator = React.memo<Props>(
           );
           const shouldUseLegacyAnimation = !newReanimatedRoutes.has(route.name);
 
-          if (!positionsV2[route.key] && shouldUseLegacyAnimation) {
-            positionsV2[route.key] = makeMutable(firstRender ? 1 : 0);
+          if (!positions[route.key] && shouldUseLegacyAnimation) {
+            positions[route.key] = makeMutable(firstRender ? 1 : 0);
           }
           return {
             route,
             descriptor,
             context: {
-              positionV2: positionsV2[route.key],
+              position: positions[route.key],
               isDismissing: curIndex < routeIndex,
               shouldRenderScreenContent: true,
             },
@@ -184,7 +184,7 @@ const OverlayNavigator = React.memo<Props>(
       // render. We know that they should only substantially change if something
       // about the underlying route has changed
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [positionsV2, routes, curIndex],
+      [positions, routes, curIndex],
     );
 
     const prevScenesRef = React.useRef<?$ReadOnlyArray<Scene>>();
@@ -203,7 +203,7 @@ const OverlayNavigator = React.memo<Props>(
       return {
         routeKey: route.key,
         routeName: route.name,
-        positionV2: positionsV2[route.key],
+        position: positions[route.key],
         shouldRenderScreenContent: true,
         presentedFrom,
       };
@@ -442,8 +442,8 @@ const OverlayNavigator = React.memo<Props>(
         return;
       }
       for (const key in pendingAnimations) {
-        const positionV2 = positionsV2[key];
-        if (!positionV2) {
+        const position = positions[key];
+        if (!position) {
           continue;
         }
         const toValue = pendingAnimations[key];
@@ -460,14 +460,14 @@ const OverlayNavigator = React.memo<Props>(
             400;
         }
         requestAnimationFrame(() => {
-          positionV2.value = withTiming(
+          position.value = withTiming(
             toValue,
             {
               duration,
               easing: Easing.inOut(Easing.ease),
             },
             () => {
-              if (positionV2.value <= 0) {
+              if (position.value <= 0) {
                 runOnJS(removeScreen)(key);
               }
             },
@@ -475,7 +475,7 @@ const OverlayNavigator = React.memo<Props>(
         });
       }
       pendingAnimationsRef.current = {};
-    }, [positionsV2, pendingAnimations]);
+    }, [positions, pendingAnimations]);
 
     // If sceneData changes, we update scrollBlockingModalStatus based on it,
     // both in state and within the individual sceneData contexts.
