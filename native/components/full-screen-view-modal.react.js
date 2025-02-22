@@ -618,7 +618,7 @@ function FullScreenViewModal(props: Props) {
     singleTapUpdate,
   ]);
 
-  const navigationProgress = overlayContext.positionV2;
+  const navigationProgress = overlayContext.position;
   invariant(
     navigationProgress,
     'position should be defined in FullScreenViewModal',

@@ -318,7 +318,7 @@ function useOverlayPosition(item: ChatMessageInfoItemWithHeight) {
         overlay.routeName === RobotextMessageTooltipModalRouteName) &&
       overlay.routeKey === getMessageTooltipKey(item)
     ) {
-      return overlay.positionV2;
+      return overlay.position;
     }
   }
   return undefined;

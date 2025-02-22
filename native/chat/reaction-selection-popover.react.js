@@ -53,11 +53,8 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     overlayContext,
     'ReactionSelectionPopover should have OverlayContext',
   );
-  const { positionV2 } = overlayContext;
-  invariant(
-    positionV2,
-    'position should be defined in ReactionSelectionPopover',
-  );
+  const { position } = overlayContext;
+  invariant(position, 'position should be defined in ReactionSelectionPopover');
 
   const dimensions = useSelector(state => state.dimensions);
 
@@ -81,7 +78,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   const animationStyle = useAnimatedStyle(() => {
     const style: WritableAnimatedStyleObj = {};
     style.opacity = interpolate(
-      positionV2.value,
+      position.value,
       [0, 0.1],
       [0, 1],
       Extrapolate.CLAMP,
@@ -89,20 +86,20 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     const transform: Array<ReanimatedTransform> = [
       {
         scale: interpolate(
-          positionV2.value,
+          position.value,
           [0.2, 0.8],
           [0, 1],
           Extrapolate.CLAMP,
         ),
       },
       {
-        translateX: (1 - positionV2.value) * popoverHorizontalOffset,
+        translateX: (1 - position.value) * popoverHorizontalOffset,
       },
     ];
     if (popoverLocation === 'above') {
       transform.push({
         translateY: interpolate(
-          positionV2.value,
+          position.value,
           [0, 1],
           [calculatedMargin + reactionSelectionPopoverDimensions.height / 2, 0],
           Extrapolate.CLAMP,
@@ -111,7 +108,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     } else {
       transform.push({
         translateY: interpolate(
-          positionV2.value,
+          position.value,
           [0, 1],
           [
             -calculatedMargin - reactionSelectionPopoverDimensions.height / 2,
