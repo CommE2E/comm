@@ -51,7 +51,7 @@ import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
 import type { NativeMethods } from '../types/react-native.js';
-import { clampV2 } from '../utils/animation-utils.js';
+import { clamp } from '../utils/animation-utils.js';
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
@@ -708,7 +708,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     const onPinchUpdate = React.useCallback(
       (pinchScale: number) => {
         'worklet';
-        currentZoom.value = clampV2(zoomBase.value * pinchScale, 1, 8);
+        currentZoom.value = clamp(zoomBase.value * pinchScale, 1, 8);
         if (
           Math.abs(currentZoom.value / zoomReported.value - 1) >
           zoomUpdateFactor

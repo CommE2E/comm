@@ -43,7 +43,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import type { NativeMethods } from '../types/react-native.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
-import { clampV2 } from '../utils/animation-utils.js';
+import { clamp } from '../utils/animation-utils.js';
 
 const defaultTimingConfig = {
   duration: 250,
@@ -492,12 +492,12 @@ function FullScreenViewModal(props: Props) {
       const horizPanPercent = horizPanSpace / imageWidth.value / targetScale;
       const vertPanPercent = vertPanSpace / imageHeight.value / targetScale;
 
-      const tapXPercentClamped = clampV2(
+      const tapXPercentClamped = clamp(
         tapXPercent,
         -horizPanPercent,
         horizPanPercent,
       );
-      const tapYPercentClamped = clampV2(
+      const tapYPercentClamped = clamp(
         tapYPercent,
         -vertPanPercent,
         vertPanPercent,
@@ -563,12 +563,12 @@ function FullScreenViewModal(props: Props) {
       const recenteredScale = Math.max(curScale.value, 1);
       const horizontalPanSpace = getHorizontalPanSpace(recenteredScale);
       const verticalPanSpace = getVerticalPanSpace(recenteredScale);
-      const recenteredX = clampV2(
+      const recenteredX = clamp(
         curX.value,
         -horizontalPanSpace,
         horizontalPanSpace,
       );
-      const recenteredY = clampV2(
+      const recenteredY = clamp(
         curY.value,
         -verticalPanSpace,
         verticalPanSpace,
