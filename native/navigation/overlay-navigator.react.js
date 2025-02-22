@@ -22,9 +22,8 @@ import { TransitionPresets } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, {
+import {
   Easing,
-  EasingNode,
   cancelAnimation,
   makeMutable,
   runOnJS,
@@ -78,13 +77,10 @@ export type OverlayNavigationProp<
   ...OverlayRouterExtraNavigationHelpers,
 };
 
-const { Value, timing } = Animated;
-
 type Scene = {
   +route: Route<>,
   +descriptor: Descriptor<OverlayNavigationHelpers<>, {}>,
   +context: {
-    +position: ?Value,
     +positionV2: ?SharedValue<number>,
     +shouldRenderScreenContent: boolean,
     +onExitFinish?: () => void,
@@ -135,9 +131,6 @@ const OverlayNavigator = React.memo<Props>(
     });
     const curIndex = state.index;
 
-    const positionRefs = React.useRef<{ [string]: Animated.Value }>({});
-    const positions = positionRefs.current;
-
     const positionRefsV2 = React.useRef<{ [string]: SharedValue<number> }>({});
     const positionsV2 = positionRefsV2.current;
 
@@ -171,9 +164,6 @@ const OverlayNavigator = React.memo<Props>(
           );
           const shouldUseLegacyAnimation = !newReanimatedRoutes.has(route.name);
 
-          if (!positions[route.key] && shouldUseLegacyAnimation) {
-            positions[route.key] = new Value(firstRender ? 1 : 0);
-          }
           if (!positionsV2[route.key] && shouldUseLegacyAnimation) {
             positionsV2[route.key] = makeMutable(firstRender ? 1 : 0);
           }
@@ -181,7 +171,6 @@ const OverlayNavigator = React.memo<Props>(
             route,
             descriptor,
             context: {
-              position: positions[route.key],
               positionV2: positionsV2[route.key],
               isDismissing: curIndex < routeIndex,
               shouldRenderScreenContent: true,
@@ -195,7 +184,7 @@ const OverlayNavigator = React.memo<Props>(
       // render. We know that they should only substantially change if something
       // about the underlying route has changed
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [positions, positionsV2, routes, curIndex],
+      [positionsV2, routes, curIndex],
     );
 
     const prevScenesRef = React.useRef<?$ReadOnlyArray<Scene>>();
@@ -214,7 +203,6 @@ const OverlayNavigator = React.memo<Props>(
       return {
         routeKey: route.key,
         routeName: route.name,
-        position: positions[route.key],
         positionV2: positionsV2[route.key],
         shouldRenderScreenContent: true,
         presentedFrom,
@@ -454,10 +442,6 @@ const OverlayNavigator = React.memo<Props>(
         return;
       }
       for (const key in pendingAnimations) {
-        const position = positions[key];
-        if (!position) {
-          continue;
-        }
         const positionV2 = positionsV2[key];
         if (!positionV2) {
           continue;
@@ -475,11 +459,6 @@ const OverlayNavigator = React.memo<Props>(
               navigationTransitionSpec.config.duration) ||
             400;
         }
-        timing(position, {
-          duration,
-          easing: EasingNode.inOut(EasingNode.ease),
-          toValue,
-        }).start();
         requestAnimationFrame(() => {
           positionV2.value = withTiming(
             toValue,
@@ -496,7 +475,7 @@ const OverlayNavigator = React.memo<Props>(
         });
       }
       pendingAnimationsRef.current = {};
-    }, [positions, positionsV2, pendingAnimations]);
+    }, [positionsV2, pendingAnimations]);
 
     // If sceneData changes, we update scrollBlockingModalStatus based on it,
     // both in state and within the individual sceneData contexts.
