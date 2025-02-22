@@ -832,7 +832,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
 
     const containerAnimatedStyle = useAnimatedStyle(
       () => ({
-        opacity: overlayContext?.positionV2?.value,
+        opacity: overlayContext?.position?.value,
       }),
       [overlayContext],
     );

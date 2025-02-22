@@ -238,14 +238,14 @@ function createTooltip<
     }, [margin, tooltipHeight, params, tooltipLocation]);
 
     invariant(overlayContext, 'Tooltip should have OverlayContext');
-    const { positionV2 } = overlayContext;
-    invariant(positionV2, 'position should be defined in tooltip');
+    const { position } = overlayContext;
+    invariant(position, 'position should be defined in tooltip');
 
     const tooltipHorizontalOffset = useSharedValue(0);
 
     const opacityStyle: AnimatedStyleObj = useAnimatedStyle(() => {
       const backdropOpacity = interpolate(
-        positionV2.value,
+        position.value,
         [0, 1],
         [0, 0.7],
         Extrapolate.CLAMP,
@@ -287,14 +287,14 @@ function createTooltip<
       style.position = 'absolute';
       style.alignItems = 'center';
       const tooltipContainerOpacity = interpolate(
-        positionV2.value,
+        position.value,
         [0, 0.1],
         [0, 1],
         Extrapolate.CLAMP,
       );
       style.opacity = tooltipContainerOpacity;
 
-      const invertedPosition = 1 - positionV2.value;
+      const invertedPosition = 1 - position.value;
 
       const transform: Array<ReanimatedTransform> = [];
 
@@ -334,7 +334,7 @@ function createTooltip<
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
         const tooltipVerticalAbove = interpolate(
-          positionV2.value,
+          position.value,
           [0, 1],
           [margin + tooltipHeight / 2, 0],
           Extrapolate.CLAMP,
@@ -345,7 +345,7 @@ function createTooltip<
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
           margin;
         const tooltipVerticalBelow = interpolate(
-          positionV2.value,
+          position.value,
           [0, 1],
           [-margin - tooltipHeight / 2, 0],
           Extrapolate.CLAMP,
@@ -355,7 +355,7 @@ function createTooltip<
 
       if (computedTooltipLocation !== 'fixed') {
         const tooltipScale = interpolate(
-          positionV2.value,
+          position.value,
           [0, 0.2, 0.8, 1],
           [0, 0, 1, 1],
           Extrapolate.CLAMP,
@@ -466,7 +466,7 @@ function createTooltip<
 
     const buttonProps: ButtonProps<TooltipPropsType> = {
       ...navAndRouteForFlow,
-      progressV2: positionV2,
+      progressV2: position,
       isOpeningSidebar,
     };
 
