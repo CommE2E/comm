@@ -15,8 +15,8 @@ import type {
 } from './registration-types.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
-import { logInActionType } from '../../navigation/action-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
+import { usePreventUserFromLeavingScreen } from '../../navigation/use-prevent-user-from-leaving-screen.js';
 import { useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
@@ -109,27 +109,7 @@ function RegistrationTerms(props: Props): React.Node {
     }
   }, [register, userSelections, clearCachedSelections, onNonceExpired]);
 
-  React.useEffect(() => {
-    if (!registrationInProgress) {
-      return undefined;
-    }
-    navigation.setOptions({
-      gestureEnabled: false,
-      headerLeft: null,
-    });
-    const removeListener = navigation.addListener('beforeRemove', e => {
-      if (e.data.action.type !== logInActionType) {
-        e.preventDefault();
-      }
-    });
-    return () => {
-      navigation.setOptions({
-        gestureEnabled: true,
-        headerLeft: undefined,
-      });
-      removeListener();
-    };
-  }, [navigation, registrationInProgress]);
+  usePreventUserFromLeavingScreen(registrationInProgress);
 
   const styles = useStyles(unboundStyles);
 
