@@ -20,6 +20,7 @@ import RegistrationTextInput from './registration/registration-text-input.react.
 import { useClientBackup } from '../backup/use-client-backup.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { RestoreBackupScreenRouteName } from '../navigation/route-names.js';
+import { usePreventUserFromLeavingScreen } from '../navigation/use-prevent-user-from-leaving-screen.js';
 import { useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
@@ -145,6 +146,8 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
     props.navigation,
     retrieveLatestBackupInfo,
   ]);
+
+  usePreventUserFromLeavingScreen(isProcessing);
 
   let restoreButtonVariant = 'loading';
   if (!isProcessing) {

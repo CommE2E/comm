@@ -20,6 +20,7 @@ import {
   RestoreSIWEBackupRouteName,
   RestorePasswordAccountScreenRouteName,
 } from '../navigation/route-names.js';
+import { usePreventUserFromLeavingScreen } from '../navigation/use-prevent-user-from-leaving-screen.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
@@ -98,7 +99,7 @@ function RestorePromptScreen(props: Props): React.Node {
         Alert.alert(
           alertDetails.title,
           alertDetails.message,
-          [{ text: 'OK', onPress: props.navigation.goBack }],
+          [{ text: 'OK' }],
           { cancelable: false },
         );
       } finally {
@@ -107,6 +108,8 @@ function RestorePromptScreen(props: Props): React.Node {
     },
     [props.navigation, retrieveLatestBackupInfo, walletLogIn],
   );
+
+  usePreventUserFromLeavingScreen(authInProgress);
 
   const {
     panelState,
