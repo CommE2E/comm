@@ -20,6 +20,7 @@
 , fmt
 , glog
 , grpc
+, jq
 , libiconv
 , libuv
 , localstack
@@ -54,6 +55,7 @@ mkShell {
     # generic development or tools
     arcanist
     awscli2
+    jq
     shellcheck
     sops
     terraform
