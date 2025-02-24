@@ -136,6 +136,11 @@ const screenOptions = {
   },
 };
 
+const disableGesturesScreenOptions = {
+  headerLeft: null,
+  gestureEnabled: false,
+};
+
 const cameraScreenOptions = {
   headerShown: false,
 };
@@ -216,6 +221,7 @@ function AuthComponent(props: Props): React.Node {
       <Auth.Screen
         name={RestoreBackupScreenRouteName}
         component={RestoreBackupScreen}
+        options={disableGesturesScreenOptions}
       />
       <Auth.Screen
         name={RestoreSIWEBackupRouteName}

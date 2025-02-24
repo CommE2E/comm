@@ -13,6 +13,7 @@ import { setNativeCredentials } from './native-credentials.js';
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import { useRestore } from './restore.js';
 import { commCoreModule } from '../native-modules.js';
+import { logInActionType } from '../navigation/action-types.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
@@ -49,6 +50,11 @@ function RestoreBackupScreen(props: Props): React.Node {
 
   const restore = useRestore();
   React.useEffect(() => {
+    const removeListener = props.navigation.addListener('beforeRemove', e => {
+      if (e.data.action.type !== logInActionType) {
+        e.preventDefault();
+      }
+    });
     void (async () => {
       try {
         if (credentials.type === 'password') {
@@ -66,6 +72,7 @@ function RestoreBackupScreen(props: Props): React.Node {
           );
         }
       } catch (e) {
+        removeListener();
         const messageForException = getMessageForException(e);
         console.log(
           `Backup restore error: ${messageForException ?? 'unknown error'}`,
@@ -91,6 +98,7 @@ function RestoreBackupScreen(props: Props): React.Node {
         );
       }
     })();
+    return removeListener;
     // We want this effect to run exactly once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
