@@ -20,8 +20,11 @@ function initializeCryptoAccount(): Promise<void> {
     return currentInitializeCryptoAccountPromise;
   }
   currentInitializeCryptoAccountPromise = (async () => {
-    await commCoreModule.initializeCryptoAccount();
-    currentInitializeCryptoAccountPromise = null;
+    try {
+      await commCoreModule.initializeCryptoAccount();
+    } finally {
+      currentInitializeCryptoAccountPromise = null;
+    }
   })();
   return currentInitializeCryptoAccountPromise;
 }
