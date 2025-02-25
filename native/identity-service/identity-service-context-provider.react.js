@@ -33,6 +33,7 @@ import {
   peersDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -374,7 +375,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         password: string,
         fid: ?string,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -413,7 +415,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         keyserverMessage: string,
         keyserverSignature: string,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -449,7 +452,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         );
       },
       logInPasswordUser: async (username: string, password: string) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -483,7 +487,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         siweSignature: string,
         fid: ?string,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -521,7 +526,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         siweMessage: string,
         siweSignature: string,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -555,7 +561,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         siweSocialProof?: SignedMessage,
         backupSecret: string,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
@@ -590,7 +597,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         userID: string,
         nonceChallengeResponse: SignedNonce,
       ) => {
-        await commCoreModule.initializeCryptoAccount();
+        const { olmAPI } = getConfig();
+        await olmAPI.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
