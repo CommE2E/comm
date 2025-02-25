@@ -8,7 +8,11 @@ import {
   restoreUserActionTypes,
   type RestoreUserResult,
 } from 'lib/actions/user-actions.js';
-import { useLogIn } from 'lib/hooks/login-hooks.js';
+import {
+  useLogIn,
+  usePasswordLogIn,
+  useWalletLogIn,
+} from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { SignedDeviceList } from 'lib/types/identity-service-types.js';
 import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
@@ -20,6 +24,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 
+import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import { commCoreModule } from '../native-modules.js';
 import { codeVersion, persistConfig } from '../redux/persist.js';
@@ -165,4 +170,36 @@ function useRestore(): (
   );
 }
 
-export { useRestore };
+function useV1Login(): (
+  userIdentifier: string,
+  credentials:
+    | {
+        +type: 'password',
+        +password: string,
+      }
+    | { +type: 'siwe', +socialProof: SignedMessage, ... },
+) => Promise<void> {
+  const identityPasswordLogIn = usePasswordLogIn();
+  const walletLogIn = useWalletLogIn();
+  return React.useCallback(
+    async (userIdentifier, credentials) => {
+      console.log('Performing a V1 login fallback');
+      if (credentials.type === 'password') {
+        await identityPasswordLogIn(userIdentifier, credentials.password);
+        await setNativeCredentials({
+          username: userIdentifier,
+          password: credentials.password,
+        });
+      } else {
+        await walletLogIn(
+          userIdentifier,
+          credentials.socialProof.message,
+          credentials.socialProof.signature,
+        );
+      }
+    },
+    [identityPasswordLogIn, walletLogIn],
+  );
+}
+
+export { useRestore, useV1Login };

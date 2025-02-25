@@ -11,7 +11,7 @@ import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import { setNativeCredentials } from './native-credentials.js';
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
-import { useRestore } from './restore.js';
+import { useRestore, useV1Login } from './restore.js';
 import { commCoreModule } from '../native-modules.js';
 import { logInActionType } from '../navigation/action-types.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -49,6 +49,7 @@ function RestoreBackupScreen(props: Props): React.Node {
   const { userIdentifier, credentials } = props.route.params;
 
   const restore = useRestore();
+  const performV1Login = useV1Login();
   React.useEffect(() => {
     const removeListener = props.navigation.addListener('beforeRemove', e => {
       if (e.data.action.type !== logInActionType) {
@@ -89,6 +90,17 @@ function RestoreBackupScreen(props: Props): React.Node {
           messageForException === 'use_new_flow'
         ) {
           alertDetails = appOutOfDateAlertDetails;
+        } else if (messageForException === 'use_v1_flow') {
+          try {
+            await performV1Login(userIdentifier, credentials);
+            return;
+          } catch (err) {
+            console.log(
+              `Error while trying to perform v1 login: ${
+                getMessageForException(err) ?? ''
+              }`,
+            );
+          }
         }
         Alert.alert(
           alertDetails.title,
