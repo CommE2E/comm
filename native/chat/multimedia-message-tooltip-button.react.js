@@ -34,11 +34,11 @@ function noop() {}
 type Props = {
   +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
-  +progressV2: SharedValue<number>,
+  +progress: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
 function MultimediaMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progressV2, isOpeningSidebar } = props;
+  const { navigation, route, progress, isOpeningSidebar } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -54,14 +54,14 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     sourceMessage: item,
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
-    progressV2,
+    progress,
     targetInputBarHeight: sidebarInputBarHeight,
   });
 
   const headerStyle = useAnimatedStyle(() => {
     const bottom = initialCoordinates.height;
     const opacity = interpolate(
-      progressV2.value,
+      progress.value,
       [0, 0.05],
       [0, 1],
       Extrapolate.CLAMP,
@@ -84,12 +84,12 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
         item={item}
         positioning={item.messageInfo.creator.isViewer ? 'right' : 'left'}
         isOpeningSidebar={isOpeningSidebar}
-        progressV2={progressV2}
+        progress={progress}
         windowWidth={windowWidth}
         initialCoordinates={initialCoordinates}
       />
     );
-  }, [initialCoordinates, isOpeningSidebar, item, progressV2, windowWidth]);
+  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
 
   const innerMultimediaMessage = React.useMemo(
     () => (

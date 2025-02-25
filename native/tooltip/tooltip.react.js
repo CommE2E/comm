@@ -135,7 +135,7 @@ export type TooltipProps<RouteName> = {
 };
 type ButtonProps<Base> = {
   ...Base,
-  +progressV2: SharedValue<number>,
+  +progress: SharedValue<number>,
   +isOpeningSidebar: boolean,
 };
 
@@ -466,7 +466,7 @@ function createTooltip<
 
     const buttonProps: ButtonProps<TooltipPropsType> = {
       ...navAndRouteForFlow,
-      progressV2: position,
+      progress: position,
       isOpeningSidebar,
     };
 
