@@ -30,11 +30,11 @@ import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
-  +progressV2: SharedValue<number>,
+  +progress: SharedValue<number>,
   ...
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, route, progressV2 } = props;
+  const { navigation, route, progress } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -50,14 +50,14 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     sourceMessage: item,
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
-    progressV2,
+    progress,
     targetInputBarHeight: sidebarInputBarHeight,
   });
 
   const headerStyle = useAnimatedStyle(() => {
     const bottom = initialCoordinates.height;
     const opacity = interpolate(
-      progressV2.value,
+      progress.value,
       [0, 0.05],
       [0, 1],
       Extrapolate.CLAMP,
