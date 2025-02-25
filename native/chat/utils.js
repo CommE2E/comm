@@ -174,7 +174,7 @@ type AnimatedMessageArgs = {
   +sourceMessage: ChatMessageInfoItemWithHeight,
   +initialCoordinates: LayoutCoordinates,
   +messageListVerticalBounds: VerticalBounds,
-  +progressV2: SharedValue<number>,
+  +progress: SharedValue<number>,
   +targetInputBarHeight: ?number,
 };
 
@@ -182,7 +182,7 @@ function useAnimatedMessageTooltipButton({
   sourceMessage,
   initialCoordinates,
   messageListVerticalBounds,
-  progressV2,
+  progress,
   targetInputBarHeight,
 }: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
@@ -259,11 +259,11 @@ function useAnimatedMessageTooltipButton({
     ) {
       return null;
     }
-    if (progressV2.value === 1) {
+    if (progress.value === 1) {
       runOnJS(setThreadColorBrightness)();
     }
     return interpolateColor(
-      progressV2.value,
+      progress.value,
       [0, 1],
       [`#${targetColor}`, `#${sourceMessage.threadInfo.color}`],
     );
@@ -277,7 +277,7 @@ function useAnimatedMessageTooltipButton({
 
   const messageContainerStyle = useAnimatedStyle(() => {
     const bottom = interpolate(
-      progressV2.value,
+      progress.value,
       [0.3, 1],
       [targetPosition, 0],
       Extrapolate.CLAMP,

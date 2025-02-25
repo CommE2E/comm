@@ -465,7 +465,7 @@ const unboundStyles = {
 type TooltipInlineEngagementProps = {
   +item: ChatComposedMessageInfoItemWithHeight,
   +isOpeningSidebar: boolean,
-  +progressV2: SharedValue<number>,
+  +progress: SharedValue<number>,
   +windowWidth: number,
   +positioning: 'left' | 'right' | 'center',
   +initialCoordinates: {
@@ -482,7 +482,7 @@ function TooltipInlineEngagement(
   const {
     item,
     isOpeningSidebar,
-    progressV2,
+    progress,
     windowWidth,
     initialCoordinates,
     positioning,
@@ -509,7 +509,7 @@ function TooltipInlineEngagement(
   const inlineEngagementContainer = useAnimatedStyle(() => {
     const opacity = isOpeningSidebar
       ? 0
-      : interpolate(progressV2.value, [0, 1], [1, 0], Extrapolate.CLAMP);
+      : interpolate(progress.value, [0, 1], [1, 0], Extrapolate.CLAMP);
     return {
       position: 'absolute',
       width: windowWidth,
