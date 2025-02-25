@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -12,6 +11,7 @@ import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import PromptButton from './prompt-button.react.js';
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
+import { useV1Login } from './restore.js';
 import { useSIWEPanelState } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -47,7 +47,7 @@ function RestorePromptScreen(props: Props): React.Node {
 
   const [authInProgress, setAuthInProgress] = React.useState(false);
   const { retrieveLatestBackupInfo } = useClientBackup();
-  const walletLogIn = useWalletLogIn();
+  const performV1Login = useV1Login();
   const onSIWESuccess = React.useCallback(
     async (result: SIWEResult) => {
       try {
@@ -55,7 +55,10 @@ function RestorePromptScreen(props: Props): React.Node {
         const { address, signature, message } = result;
         const backupInfo = await retrieveLatestBackupInfo(address);
         if (!backupInfo) {
-          await walletLogIn(result.address, result.message, result.signature);
+          await performV1Login(address, {
+            type: 'siwe',
+            socialProof: { message, signature },
+          });
           return;
         }
         const { siweBackupData } = backupInfo;
@@ -106,7 +109,7 @@ function RestorePromptScreen(props: Props): React.Node {
         setAuthInProgress(false);
       }
     },
-    [props.navigation, retrieveLatestBackupInfo, walletLogIn],
+    [performV1Login, props.navigation, retrieveLatestBackupInfo],
   );
 
   usePreventUserFromLeavingScreen(authInProgress);
