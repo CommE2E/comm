@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
+import { usePasswordLogIn, useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -48,6 +49,32 @@ function RestoreBackupScreen(props: Props): React.Node {
 
   const { userIdentifier, credentials } = props.route.params;
 
+  const identityPasswordLogIn = usePasswordLogIn();
+  const walletLogIn = useWalletLogIn();
+  const performV1Login = React.useCallback(async () => {
+    console.log('Performing a V1 login fallback');
+    if (credentials.type === 'password') {
+      await identityPasswordLogIn(userIdentifier, credentials.password);
+      await setNativeCredentials({
+        username: userIdentifier,
+        password: credentials.password,
+      });
+    } else {
+      await walletLogIn(
+        userIdentifier,
+        credentials.socialProof.message,
+        credentials.socialProof.signature,
+      );
+    }
+  }, [
+    credentials.password,
+    credentials.socialProof,
+    credentials.type,
+    identityPasswordLogIn,
+    userIdentifier,
+    walletLogIn,
+  ]);
+
   const restore = useRestore();
   React.useEffect(() => {
     const removeListener = props.navigation.addListener('beforeRemove', e => {
@@ -89,6 +116,17 @@ function RestoreBackupScreen(props: Props): React.Node {
           messageForException === 'use_new_flow'
         ) {
           alertDetails = appOutOfDateAlertDetails;
+        } else if (messageForException === 'use_v1_flow') {
+          try {
+            await performV1Login();
+            return;
+          } catch (err) {
+            console.log(
+              `Error while trying to perform v1 login: ${
+                getMessageForException(err) ?? ''
+              }`,
+            );
+          }
         }
         Alert.alert(
           alertDetails.title,
