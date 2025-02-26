@@ -1,106 +1,107 @@
 diff --git a/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec b/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
-index 3a708ca..a809a9b 100644
+index 2e47ccf..506a669 100644
 --- a/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
 +++ b/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
-@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
-   s.osx.source_files = "macos/**/*.{h,m,mm}"
+@@ -33,5 +33,6 @@ Pod::Spec.new do |s|
+     s.platforms = { :ios => "9.0", :tvos => "9.0", :osx => "10.14", :visionos => "1.0" }
  
-   s.dependency 'React-Core'
-+  s.dependency 'SDWebImage', '~> 5.8'
+     s.dependency "React-Core"
++    s.dependency "SDWebImage", '~> 5.8'
+   end
  end
 diff --git a/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js b/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
-index 67b7237..a485338 100644
+index ccdf309..6315195 100644
 --- a/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
 +++ b/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
-@@ -111,6 +111,83 @@ exports.Clipboard = {
-     setString: function (content) {
-         NativeClipboard_1.default.setString(content);
+@@ -115,6 +115,83 @@ exports.Clipboard = {
+     setString(content) {
+         NativeClipboardModule_1.default.setString(content);
      },
-+    /**
-+     * (IOS Only)
-+     * Set clipboard image from Base64 image representation.
-+     * You can use following code to set clipboard content
-+     * ```javascript
-+     * _setContent() {
-+     *   Clipboard.setImageFromBase64('data:image/png;base64,....');
-+     * }
-+     * ```
-+     * @param image the image to be stored in the clipboard.
-+     */
-+    setImageFromBase64: function (image) {
-+        NativeClipboard_1.default.setImageFromBase64(image);
-+    },
-+    /**
-+     * (IOS Only)
-+     * Set clipboard image from URL.
-+     * @param image the image to be stored in the clipboard.
-+     * @param callback fn to handle success boolean
-+     */
-+    setImageFromURL: function (url, callback) {
-+        NativeClipboard_1.default.setImageFromURL(url, callback);
-+    },
-+    /**
-+     * (IOS Only)
-+     * Get PNG image from clipboard in Base64.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getPNGImageData();
-+     * }
-+     * ```
-+     */
-+    getPNGImageData: function () {
-+        return NativeClipboard_1.default.getPNGImageData();
-+    },
-+    /**
-+     * (IOS Only)
-+     * Get JPG image from clipboard in Base64.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getJPGImageData();
-+     * }
-+     * ```
-+     */
-+    getJPGImageData: function () {
-+        return NativeClipboard_1.default.getJPGImageData();
-+    },
-+    /**
-+     * (IOS Only)
-+     * Get clipboard image data of unknown type.
-+     * The image format can't be determined by MIME-type, but can be found via magic numbers.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getImageData();
-+     * }
-+     * ```
-+     */
-+    getImageData: function () {
-+        return NativeClipboard_1.default.getImageData();
-+    },
-+    /**
-+     * (IOS Only)
-+     * Get filepath (in tmp directory) of clipboard image.
-+     * The image format can't be determined by MIME-type or extension, but can via magic numbers.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getImageFilePath();
-+     * }
-+     * ```
-+     */
-+    getImageFilePath: function () {
-+        return NativeClipboard_1.default.getImageFilePath();
-+    },
++    +    /**
++    * (IOS Only)
++    * Set clipboard image from Base64 image representation.
++    * You can use following code to set clipboard content
++    * ```javascript
++    * _setContent() {
++    *   Clipboard.setImageFromBase64('data:image/png;base64,....');
++    * }
++    * ```
++    * @param image the image to be stored in the clipboard.
++    */
++   setImageFromBase64: function (image) {
++       NativeClipboard_1.default.setImageFromBase64(image);
++   },
++   /**
++    * (IOS Only)
++    * Set clipboard image from URL.
++    * @param image the image to be stored in the clipboard.
++    * @param callback fn to handle success boolean
++    */
++   setImageFromURL: function (url, callback) {
++       NativeClipboard_1.default.setImageFromURL(url, callback);
++   },
++   /**
++    * (IOS Only)
++    * Get PNG image from clipboard in Base64.
++    * This method returns a `Promise`, so you can use following code to get clipboard content:
++    * ```javascript
++    * async _getContent() {
++    *   var content = await Clipboard.getPNGImageData();
++    * }
++    * ```
++    */
++   getPNGImageData: function () {
++       return NativeClipboard_1.default.getPNGImageData();
++   },
++   /**
++    * (IOS Only)
++    * Get JPG image from clipboard in Base64.
++    * This method returns a `Promise`, so you can use following code to get clipboard content:
++    * ```javascript
++    * async _getContent() {
++    *   var content = await Clipboard.getJPGImageData();
++    * }
++    * ```
++    */
++   getJPGImageData: function () {
++       return NativeClipboard_1.default.getJPGImageData();
++   },
++   /**
++    * (IOS Only)
++    * Get clipboard image data of unknown type.
++    * The image format can't be determined by MIME-type, but can be found via magic numbers.
++    * This method returns a `Promise`, so you can use following code to get clipboard content:
++    * ```javascript
++    * async _getContent() {
++    *   var content = await Clipboard.getImageData();
++    * }
++    * ```
++    */
++   getImageData: function () {
++       return NativeClipboard_1.default.getImageData();
++   },
++   /**
++    * (IOS Only)
++    * Get filepath (in tmp directory) of clipboard image.
++    * The image format can't be determined by MIME-type or extension, but can via magic numbers.
++    * This method returns a `Promise`, so you can use following code to get clipboard content:
++    * ```javascript
++    * async _getContent() {
++    *   var content = await Clipboard.getImageFilePath();
++    * }
++    * ```
++    */
++   getImageFilePath: function () {
++       return NativeClipboard_1.default.getImageFilePath();
++   },
      /**
       * Set content of string array type. You can use following code to set clipboard content
       * ```javascript
-diff --git a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
-index 04143f4..97a4359 100644
---- a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
-+++ b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
-@@ -4,6 +4,8 @@
+diff --git a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.mm b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.mm
+index 3ee5caa..ab879a6 100644
+--- a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.mm
++++ b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.mm
+@@ -5,6 +5,8 @@
  #import <UIKit/UIKit.h>
  #import <React/RCTBridge.h>
  #import <React/RCTEventDispatcher.h>
@@ -109,8 +110,8 @@ index 04143f4..97a4359 100644
  
  
  @implementation RNCClipboard {
-@@ -146,6 +148,100 @@ - (void) listener:(NSNotification *) notification
-   resolve([NSNumber numberWithBool: imagePresent]);
+@@ -51,6 +53,101 @@ - (void) listener:(NSNotification *) notification
+     }
  }
  
 +RCT_EXPORT_METHOD(setImageFromBase64:(NSString *)image)
@@ -207,6 +208,7 @@ index 04143f4..97a4359 100644
 +  resolve((dest ?: NULL));
 +}
 +
- RCT_EXPORT_METHOD(hasString:(RCTPromiseResolveBlock)resolve
-                   reject:(__unused RCTPromiseRejectBlock)reject)
++
+ RCT_EXPORT_METHOD(setListener)
  {
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(listener:) name:UIPasteboardChangedNotification object:nil];

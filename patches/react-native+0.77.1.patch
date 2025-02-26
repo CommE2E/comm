@@ -1,0 +1,146 @@
+diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+index dcf1123..07e8f2b 100644
+--- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
++++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+@@ -260,6 +260,12 @@ export type enterKeyHintType =
+ type PasswordRules = string;
+ 
+ type IOSProps = $ReadOnly<{|
++  /**
++   * If set, allows pasting of images for given threadID.
++   * The default value is NULL.
++   * @platform ios
++   */
++  allowImagePasteForThreadID?: ?string,
+   /**
+    * When the clear button should appear on the right side of the text view.
+    * This property is supported only for single-line TextInput component.
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
+index e176ff3..224b619 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
++++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
+@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
+ 
+ @property (nonatomic, assign) BOOL caretHidden;
+ 
++@property (nonatomic, copy, nullable) NSString *allowImagePasteForThreadID;
++
+ @property (nonatomic, strong, nullable) NSString *inputAccessoryViewID;
+ @property (nonatomic, strong, nullable) NSString *inputAccessoryViewButtonLabel;
+ 
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.mm b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.mm
+index d5e2e22..1cd7ede 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.mm
++++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.mm
+@@ -171,8 +171,12 @@ - (void)scrollRangeToVisible:(NSRange)range
+ 
+ - (void)paste:(id)sender
+ {
+-  _textWasPasted = YES;
+-  [super paste:sender];
++  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePasteForThreadID) {
++    [_textInputDelegate textInputImagePasted:_allowImagePasteForThreadID];
++  } else {
++    _textWasPasted = YES;
++    [super paste:sender];
++  }
+ }
+ 
+ // Turn off scroll animation to fix flaky scrolling.
+@@ -264,6 +268,10 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+     return NO;
+   }
+ 
++  if (action == @selector(paste:) && [UIPasteboard generalPasteboard].hasImages) {
++    return (_allowImagePasteForThreadID != NULL);
++  }
++
+   return [super canPerformAction:action withSender:sender];
+ }
+ 
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
+index 7187177..77c6573 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
+@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
+ 
+ - (void)textInputDidChangeSelection;
+ 
++- (void)textInputImagePasted:(NSString *)threadID;
++
+ @optional
+ 
+ - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.mm b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.mm
+index 6deea73..07c4d7a 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.mm
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.mm
+@@ -20,6 +20,8 @@
+ #import <React/RCTTextAttributes.h>
+ #import <React/RCTTextSelection.h>
+ 
++#import <MobileCoreServices/MobileCoreServices.h>
++
+ /** Native iOS text field bottom keyboard offset amount */
+ static const CGFloat kSingleLineKeyboardBottomOffset = 15.0;
+ static NSSet<NSNumber *> *returnKeyTypesSet;
+@@ -574,6 +576,47 @@ - (void)textInputDidChangeSelection
+   });
+ }
+ 
++- (void)textInputImagePasted:(NSString *)threadID
++{
++  NSFileManager *fileManager = [NSFileManager defaultManager];
++  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
++  NSData *imageData = [clipboard dataForPasteboardType:(NSString*)kUTTypeImage];
++
++  UIImage *uiImage = [UIImage imageWithData:imageData];
++
++  if (!imageData) {
++    RCTLog(@"Failed to get image from UIPasteboard.");
++    return;
++  }
++
++  NSString *fileName = [@([imageData hash]) stringValue];
++  NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
++
++  // We add the PNG file extension because EXImageLoader fails without it.
++  // Our code ignores file extensions and looks at magic numbers directly.
++  NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:fileName] URLByAppendingPathExtension:@"png"];
++  NSString *fileDest = [fileURL path];
++
++  if (![fileManager fileExistsAtPath:fileDest]) {
++    BOOL fileWritten = [imageData writeToFile:fileDest atomically:true];
++    if (!fileWritten) {
++      RCTLog(@"Failed to save image to temporary directory.");
++      return;
++    }
++  }
++
++  NSDictionary *eventBody = @{
++    @"fileName": fileName,
++    @"filePath": fileDest,
++    @"height": @(uiImage.size.height),
++    @"width": @(uiImage.size.width),
++    @"threadID": threadID,
++  };
++
++  [_eventDispatcher sendAppEventWithName:@"imagePasted" body:eventBody];
++}
++
++
+ - (void)updateLocalData
+ {
+   [self enforceTextAttributesIfNeeded];
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
+index 9a010a3..7352988 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
+@@ -32,6 +32,7 @@ @implementation RCTBaseTextInputViewManager {
+ 
+ #pragma mark - Unified <TextInput> properties
+ 
++RCT_REMAP_VIEW_PROPERTY(allowImagePasteForThreadID, backedTextInputView.allowImagePasteForThreadID, NSString)
+ RCT_REMAP_VIEW_PROPERTY(autoCapitalize, backedTextInputView.autocapitalizationType, UITextAutocapitalizationType)
+ RCT_REMAP_VIEW_PROPERTY(autoCorrect, backedTextInputView.autocorrectionType, UITextAutocorrectionType)
+ RCT_REMAP_VIEW_PROPERTY(contextMenuHidden, backedTextInputView.contextMenuHidden, BOOL)

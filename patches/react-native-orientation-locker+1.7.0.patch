@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m b/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
-index 6117764..e8bef37 100644
+index d93debf..e22e234 100644
 --- a/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
 +++ b/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
-@@ -20,7 +20,7 @@ @implementation Orientation
+@@ -21,7 +21,7 @@ @implementation Orientation
  }
  
  #if (!TARGET_OS_TV)
