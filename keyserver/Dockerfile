@@ -58,12 +58,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
   mariadb-client \
   cmake \
-  binaryen \
   && rm -rf /var/lib/apt/lists/*
 
 # Install protobuf manually to ensure that we have the correct version
 COPY scripts/install_protobuf.sh scripts/
 RUN cd scripts && ./install_protobuf.sh
+
+# Install binaryen manually because we need a later version for reference types
+COPY scripts/install_binaryen.sh scripts/
+RUN cd scripts && ./install_binaryen.sh
 
 #-------------------------------------------------------------------------------
 # STEP 2: DEVOLVE PRIVILEGES
@@ -88,7 +91,7 @@ RUN mkdir /home/comm/backups
 
 # Install Rust and add Cargo's bin directory to the $PATH environment variable
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-  --default-toolchain 1.81
+  --default-toolchain 1.85
 ENV PATH /home/comm/.cargo/bin:$PATH
 
 #-------------------------------------------------------------------------------
