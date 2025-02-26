@@ -32,7 +32,7 @@
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.6",
-    "webpack": "^5.76.0"
+    "webpack": "^5.98.0"
   },
   "dependencies": {
     "@commapp/olm": "0.2.1",
