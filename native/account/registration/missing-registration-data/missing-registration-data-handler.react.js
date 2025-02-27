@@ -36,12 +36,17 @@ function MissingRegistrationDataHandler(): React.Node {
   );
   const dispatch = useDispatch();
 
+  const lastAlertInfo = React.useRef(createSIWEBAckupMessageAlertInfo);
+  React.useEffect(() => {
+    lastAlertInfo.current = createSIWEBAckupMessageAlertInfo;
+  }, [createSIWEBAckupMessageAlertInfo]);
+
   React.useEffect(() => {
     if (
       !loggedIn ||
       accountHasPassword(currentUserInfo) ||
       cachedSelections.siweBackupSecrets ||
-      shouldSkipCreateSIWEBackupMessageAlert(createSIWEBAckupMessageAlertInfo)
+      shouldSkipCreateSIWEBackupMessageAlert(lastAlertInfo.current)
     ) {
       return;
     }
@@ -55,7 +60,10 @@ function MissingRegistrationDataHandler(): React.Node {
       const nativeSIWEBackupSecrets =
         await commCoreModule.getSIWEBackupSecrets();
 
-      if (nativeSIWEBackupSecrets) {
+      if (
+        nativeSIWEBackupSecrets ||
+        shouldSkipCreateSIWEBackupMessageAlert(lastAlertInfo.current)
+      ) {
         return;
       }
 
