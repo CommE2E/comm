@@ -237,6 +237,7 @@ message WalletAuthRequest {
 
 message RestoreUserRequest {
   string user_id = 1;
+  // SIWE social proof message and signature
   optional string siwe_message = 2;
   optional string siwe_signature = 3;
   DeviceKeyUpload device_key_upload = 4;
