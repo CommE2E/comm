@@ -36,12 +36,17 @@ function MissingRegistrationDataHandler(): React.Node {
   );
   const dispatch = useDispatch();
 
+  const lastAlertInfo = React.useRef(createSIWEBAckupMessageAlertInfo);
+  React.useEffect(() => {
+    lastAlertInfo.current = createSIWEBAckupMessageAlertInfo;
+  }, [createSIWEBAckupMessageAlertInfo]);
+
   React.useEffect(() => {
     if (
       !loggedIn ||
       accountHasPassword(currentUserInfo) ||
       cachedSelections.siweBackupSecrets ||
-      shouldSkipCreateSIWEBackupMessageAlert(createSIWEBAckupMessageAlertInfo)
+      shouldSkipCreateSIWEBackupMessageAlert(lastAlertInfo.current)
     ) {
       return;
     }
@@ -55,7 +60,10 @@ function MissingRegistrationDataHandler(): React.Node {
       const nativeSIWEBackupSecrets =
         await commCoreModule.getSIWEBackupSecrets();
 
-      if (nativeSIWEBackupSecrets) {
+      if (
+        nativeSIWEBackupSecrets ||
+        shouldSkipCreateSIWEBackupMessageAlert(lastAlertInfo.current)
+      ) {
         return;
       }
 
@@ -67,6 +75,10 @@ function MissingRegistrationDataHandler(): React.Node {
         alertType: alertTypes.SIWE_BACKUP_MESSAGE,
         time: Date.now(),
       };
+      lastAlertInfo.current = {
+        totalAlerts: lastAlertInfo.current.totalAlerts + 1,
+        lastAlertTime: payload.time,
+      };
 
       dispatch({
         type: recordAlertActionType,
@@ -76,7 +88,6 @@ function MissingRegistrationDataHandler(): React.Node {
   }, [
     cachedSelections.siweBackupSecrets,
     checkIfPrimaryDevice,
-    createSIWEBAckupMessageAlertInfo,
     currentUserInfo,
     dispatch,
     loggedIn,
