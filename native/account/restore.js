@@ -162,7 +162,7 @@ function useRestore(): (
     [dispatchActionPromise, restoreProtocol],
   );
 
-  const logIn = useLogIn();
+  const logIn = useLogIn('restore');
   return React.useCallback(
     (userIdentifier: string, secret: string, siweSocialProof?: SignedMessage) =>
       logIn(restoreAuth(userIdentifier, secret, siweSocialProof)),
