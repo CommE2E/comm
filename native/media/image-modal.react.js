@@ -1,12 +1,12 @@
 // @flow
 
-import Clipboard from '@react-native-clipboard/clipboard';
 import * as React from 'react';
+import { Platform } from 'react-native';
 
 import type { MediaInfo, Dimensions } from 'lib/types/media-types.js';
 
 import Multimedia from './multimedia.react.js';
-import { useIntentionalSaveMedia } from './save-media.js';
+import { useIntentionalSaveMedia, copyMediaIOS } from './save-media.js';
 import FullScreenViewModal from '../components/full-screen-view-modal.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -47,12 +47,11 @@ function ImageModal(props: Props): React.Node {
     return intentionalSaveMedia(mediaInfo, ids);
   }, [intentionalSaveMedia, item.messageInfo, mediaInfo]);
 
-  const onPressCopy = React.useCallback(() => {
-    const { uri } = mediaInfo;
-    Clipboard.setImageFromURL(uri, success => {
-      displayActionResultModal(success ? 'copied!' : 'failed to copy :(');
-    });
+  const onPressCopyIOS = React.useCallback(async () => {
+    const { success } = await copyMediaIOS(mediaInfo);
+    displayActionResultModal(success ? 'copied!' : 'failed to copy :(');
   }, [mediaInfo]);
+  const onPressCopy = Platform.OS === 'ios' ? onPressCopyIOS : undefined;
 
   const imageDimensions: Dimensions = React.useMemo(() => {
     const frame = {

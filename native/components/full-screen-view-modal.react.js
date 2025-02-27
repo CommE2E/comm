@@ -2,13 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -735,7 +729,7 @@ function FullScreenViewModal(props: Props) {
   }
 
   let copyButton;
-  if (Platform.OS === 'ios' && copyContentCallback) {
+  if (copyContentCallback) {
     copyButton = (
       <TouchableOpacity
         onPress={copyContentCallback}
