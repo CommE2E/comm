@@ -97,7 +97,7 @@ index 67b7237..a485338 100644
       * Set content of string array type. You can use following code to set clipboard content
       * ```javascript
 diff --git a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
-index 04143f4..97a4359 100644
+index 04143f4..0edd268 100644
 --- a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
 +++ b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
 @@ -4,6 +4,8 @@
@@ -109,7 +109,7 @@ index 04143f4..97a4359 100644
  
  
  @implementation RNCClipboard {
-@@ -146,6 +148,100 @@ - (void) listener:(NSNotification *) notification
+@@ -146,6 +148,123 @@ - (void) listener:(NSNotification *) notification
    resolve([NSNumber numberWithBool: imagePresent]);
  }
  
@@ -134,20 +134,43 @@ index 04143f4..97a4359 100644
 +}
 +
 +
-+RCT_EXPORT_METHOD(setImageFromURL: (NSString *)url
++RCT_EXPORT_METHOD(setImageFromURL: (NSString *)urlString
 +                  success:(RCTResponseSenderBlock)success)
 +{
-+  [SDWebImageManager.sharedManager loadImageWithURL:[NSURL URLWithString: url] options:0 progress:NULL completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-+    
-+    if (error || !finished) {
-+      success(@[@NO]);
++  NSURL *url = [NSURL URLWithString:urlString];
++
++  if ([url.scheme isEqualToString:@"https"] || [url.scheme isEqualToString:@"http"]) {
++    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 progress:NULL completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
++
++      if (error || !finished) {
++        success(@[@NO]);
++        return;
++      }
++
++      UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
++      clipboard.image = image;
++      success(@[@YES]);
++    }];
++  } else if ([url.scheme isEqualToString:@"file"]) {
++    NSString *filePath = [url path];
++    if (![[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
++      NSLog(@"File does not exist at path: %@", filePath);
 +      return;
 +    }
-+    
++
++    NSData *imageData = [NSData dataWithContentsOfFile:filePath];
++    UIImage *image = [UIImage imageWithData:imageData];
++    if (!image) {
++      NSLog(@"Failed to create UIImage from local file at path: %@", filePath);
++      return;
++    }
++
 +    UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
 +    clipboard.image = image;
 +    success(@[@YES]);
-+  }];
++  } else {
++    NSLog(@"Unsupported URL scheme: %@", url.scheme);
++  }
 +}
 +
 +RCT_EXPORT_METHOD(getPNGImageData : (RCTPromiseResolveBlock)resolve reject : (__unused RCTPromiseRejectBlock)reject)

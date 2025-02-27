@@ -1,5 +1,6 @@
 // @flow
 
+import Clipboard from '@react-native-clipboard/clipboard';
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -311,35 +312,24 @@ async function saveMediaIOS(
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   const steps: Array<MediaMissionStep> = [];
 
-  let uri = inputURI;
-  let tempFile;
-  if (uri.startsWith('http') || isBlobServiceURI(uri)) {
-    const { result: tempSaveResult, steps: tempSaveSteps } =
-      await saveRemoteMediaToDisk(uri, encryptionKey, temporaryDirectoryPath);
-    steps.push(...tempSaveSteps);
-    if (!tempSaveResult.success) {
-      sendResult(tempSaveResult);
-      return steps;
-    }
-    tempFile = tempSaveResult.path;
-    uri = `file://${tempFile}`;
-  } else if (!uri.startsWith('file://')) {
-    const mediaNativeID = getMediaLibraryIdentifier(uri);
-    if (mediaNativeID) {
-      const { result: fetchAssetInfoResult, steps: fetchAssetInfoSteps } =
-        await fetchAssetInfo(mediaNativeID);
-      steps.push(...fetchAssetInfoSteps);
-      const { localURI } = fetchAssetInfoResult;
-      if (localURI) {
-        uri = localURI;
-      }
-    }
-  }
+  const saveMediaToDiskIOSResult = await saveMediaToDiskIOS(
+    inputURI,
+    encryptionKey,
+  );
 
-  if (!uri.startsWith('file://')) {
-    sendResult({ success: false, reason: 'resolve_failed', uri });
+  steps.push(...saveMediaToDiskIOSResult.steps);
+  const { tempFilePath } = saveMediaToDiskIOSResult;
+
+  if (!saveMediaToDiskIOSResult.success) {
+    if (tempFilePath) {
+      const disposeStep = await disposeTempFile(tempFilePath);
+      steps.push(disposeStep);
+    }
+    sendResult(saveMediaToDiskIOSResult.result);
     return steps;
   }
+
+  const { uri } = saveMediaToDiskIOSResult;
 
   let success = false,
     exceptionMessage;
@@ -364,16 +354,82 @@ async function saveMediaIOS(
     sendResult({ success: false, reason: 'save_to_library_failed', uri });
   }
 
-  if (tempFile) {
-    const disposeStep = await disposeTempFile(tempFile);
+  if (tempFilePath) {
+    const disposeStep = await disposeTempFile(tempFilePath);
     steps.push(disposeStep);
   }
   return steps;
 }
 
+type SaveMediaToDiskIOSResult =
+  | {
+      +success: true,
+      +uri: string,
+      +tempFilePath: ?string,
+      +steps: $ReadOnlyArray<MediaMissionStep>,
+    }
+  | {
+      +success: false,
+      +result: MediaMissionResult,
+      +tempFilePath?: ?string,
+      +steps: $ReadOnlyArray<MediaMissionStep>,
+    };
+async function saveMediaToDiskIOS(
+  inputURI: string,
+  encryptionKey?: ?string,
+): Promise<SaveMediaToDiskIOSResult> {
+  const steps: Array<MediaMissionStep> = [];
+
+  let uri = inputURI;
+  let tempFilePath;
+  if (uri.startsWith('http') || isBlobServiceURI(uri)) {
+    const { result: tempSaveResult, steps: tempSaveSteps } =
+      await saveRemoteMediaToDisk(uri, encryptionKey, temporaryDirectoryPath);
+    steps.push(...tempSaveSteps);
+    if (!tempSaveResult.success) {
+      return {
+        success: false,
+        result: tempSaveResult,
+        steps,
+      };
+    }
+    tempFilePath = tempSaveResult.path;
+    uri = `file://${tempFilePath}`;
+  } else if (!uri.startsWith('file://')) {
+    const mediaNativeID = getMediaLibraryIdentifier(uri);
+    if (mediaNativeID) {
+      const { result: fetchAssetInfoResult, steps: fetchAssetInfoSteps } =
+        await fetchAssetInfo(mediaNativeID);
+      steps.push(...fetchAssetInfoSteps);
+      const { localURI } = fetchAssetInfoResult;
+      if (localURI) {
+        uri = localURI;
+      }
+    }
+  }
+
+  if (!uri.startsWith('file://')) {
+    return {
+      success: false,
+      result: { success: false, reason: 'resolve_failed', uri },
+      tempFilePath,
+      steps,
+    };
+  }
+
+  return {
+    success: true,
+    uri,
+    tempFilePath,
+    steps,
+  };
+}
+
 type IntermediateSaveResult = {
-  result: { success: true, path: string, mime: string } | MediaMissionFailure,
-  steps: $ReadOnlyArray<MediaMissionStep>,
+  +result:
+    | { +success: true, +path: string, +mime: string }
+    | MediaMissionFailure,
+  +steps: $ReadOnlyArray<MediaMissionStep>,
 };
 
 async function saveRemoteMediaToDisk(
@@ -550,4 +606,32 @@ async function copyToSortedDirectory(
   };
 }
 
-export { useIntentionalSaveMedia, saveMedia };
+async function copyMediaIOS(
+  mediaInfo: MediaInfo,
+): Promise<{ +success: boolean }> {
+  const { uri: mediaURI, blobURI, holder, encryptionKey } = mediaInfo;
+  const inputURI = mediaURI ?? blobURI ?? holder;
+  invariant(inputURI, 'mediaInfo should have a uri or a blobURI');
+
+  const saveMediaToDiskIOSResult = await saveMediaToDiskIOS(
+    inputURI,
+    encryptionKey,
+  );
+
+  if (!saveMediaToDiskIOSResult.success) {
+    const { tempFilePath } = saveMediaToDiskIOSResult;
+    if (tempFilePath) {
+      await disposeTempFile(tempFilePath);
+    }
+    return { success: false };
+  }
+
+  const { uri } = saveMediaToDiskIOSResult;
+  return new Promise<{ +success: boolean }>(resolve => {
+    Clipboard.setImageFromURL(uri, success => {
+      resolve({ success });
+    });
+  });
+}
+
+export { useIntentionalSaveMedia, saveMedia, copyMediaIOS };
