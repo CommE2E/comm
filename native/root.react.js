@@ -58,7 +58,6 @@ import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import AccessTokenHandler from './components/access-token-handler.react.js';
 import { AutoJoinCommunityHandler } from './components/auto-join-community-handler.react.js';
-import BackgroundIdentityLoginHandler from './components/background-identity-login-handler.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import DMActivityHandler from './components/dm-activity-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -393,7 +392,6 @@ function Root() {
                                                       <DMActivityHandler />
                                                       <VersionSupportedChecker />
                                                       <PlatformDetailsSynchronizer />
-                                                      <BackgroundIdentityLoginHandler />
                                                       <PrekeysHandler />
                                                       <ReportHandler />
                                                       <FarcasterChannelPrefetchHandler />
