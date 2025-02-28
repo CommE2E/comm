@@ -17,6 +17,7 @@ pub fn cors_config(is_sandbox: bool) -> Cors {
 
   Cors::default()
     .allowed_origin("https://web.comm.app")
+    .allowed_origin("https://comm.software")
     // for local development using prod service
     .allowed_origin("http://localhost:3000")
     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
