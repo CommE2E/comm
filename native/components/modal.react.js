@@ -20,6 +20,7 @@ type Props = $ReadOnly<{
   +modalStyle?: ViewStyle,
   +safeAreaEdges?: $ReadOnlyArray<'top' | 'right' | 'bottom' | 'left'>,
   +disableClosing?: boolean,
+  +onRequestClose?: () => void,
 }>;
 function Modal(props: Props): React.Node {
   const navigation = useNavigation();
@@ -27,10 +28,12 @@ function Modal(props: Props): React.Node {
     if (props.disableClosing) {
       return;
     }
-    if (navigation.isFocused()) {
+    if (props.onRequestClose) {
+      props.onRequestClose();
+    } else if (navigation.isFocused()) {
       navigation.goBack();
     }
-  }, [navigation, props.disableClosing]);
+  }, [navigation, props]);
 
   const styles = useStyles(unboundStyles);
   const { containerStyle, modalStyle, children, safeAreaEdges } = props;
