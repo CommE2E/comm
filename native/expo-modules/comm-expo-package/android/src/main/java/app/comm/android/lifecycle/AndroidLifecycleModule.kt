@@ -28,7 +28,7 @@ class AndroidLifecycleModule : Module() {
 
     Constants {
       val currentState =
-        if (lifecycle.getCurrentState() == Lifecycle.State.RESUMED)
+        if (lifecycle.currentState == Lifecycle.State.RESUMED)
           LifecycleState.ACTIVE
         else
           LifecycleState.BACKGROUND
@@ -52,7 +52,7 @@ class AndroidLifecycleModule : Module() {
   }
 
   private val lifecycle: Lifecycle
-    get() = ProcessLifecycleOwner.get().getLifecycle()
+    get() = ProcessLifecycleOwner.get().lifecycle
 
   private val observer = object : LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)

@@ -15,26 +15,6 @@ import java.util.function.Supplier;
 public class ExpoUtils {
   public static Supplier<SecureStoreModule>
   createExpoSecureStoreSupplier(@NonNull Context context) {
-    return () -> {
-      List<InternalModule> expoInternalModules = new ArrayList<>(1);
-      if (context instanceof ReactContext) {
-        // We can only provide the UIManager module if provided context is a
-        // React context. If this is called from non-react activity, like
-        // CommNotificationsHandler, we skip adding this module. This is fine,
-        // unless we use the `requiresAuthentication` option when dealing with
-        // expo-secure-store (at this moment we don't use it anywhere)
-        expoInternalModules.add(
-            new UIManagerModuleWrapper((ReactContext)context));
-      }
-
-      ModuleRegistry expoModuleRegistry = new ModuleRegistry(
-          expoInternalModules,
-          Collections.emptyList(),
-          Collections.emptyList(),
-          Collections.emptyList());
-      SecureStoreModule secureStoreModule = new SecureStoreModule(context);
-      secureStoreModule.onCreate(expoModuleRegistry);
-      return secureStoreModule;
-    };
+    return SecureStoreModule::new;
   }
 }

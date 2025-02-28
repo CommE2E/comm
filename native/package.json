@@ -61,7 +61,6 @@
     "@gorhom/bottom-sheet": "^4.4.5",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-clipboard/clipboard": "^1.11.1",
-    "@react-native-community/art": "^1.2.0",
     "@react-native-community/netinfo": "11.4.1",
     "@react-native-masked-view/masked-view": "0.3.2",
     "@react-navigation/bottom-tabs": "^6.4.0",
@@ -76,7 +75,7 @@
     "ethers": "^6.11.1",
     "expo": "^52.0.37",
     "expo-application": "~6.0.2",
-    "expo-barcode-scanner": "~12.1.0",
+    "expo-barcode-scanner": "~13.0.1",
     "expo-dev-client": "~5.0.12",
     "expo-file-system": "~18.0.11",
     "expo-font": "~13.0.4",
@@ -93,7 +92,7 @@
     "invariant": "^2.2.4",
     "lib": "0.0.1",
     "lodash": "^4.17.21",
-    "lottie-react-native": "7.1.0",
+    "lottie-react-native": "7.2.2",
     "md5": "^2.2.1",
     "olm": "git+https://github.com/CommE2E/olm.git#v0.2.1",
     "react": "18.3.1",
@@ -105,18 +104,18 @@
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.22.0",
     "react-native-in-app-message": "^1.0.2",
-    "react-native-keyboard-input": "6.0.1",
+    "react-native-keyboard-input": "6.0.2",
     "react-native-keychain": "^8.0.0",
     "react-native-orientation-locker": "^1.5.0",
     "react-native-pager-view": "6.5.1",
-    "react-native-progress": "^4.1.2",
+    "react-native-progress": "^5.0.1",
     "react-native-qrcode-svg": "^6.2.0",
     "react-native-reanimated": "~3.16.7",
     "react-native-safe-area-context": "~5.1.0",
     "react-native-screens": "~4.8.0",
-    "react-native-svg": "15.8.0",
+    "react-native-svg": "15.11.2",
     "react-native-tab-view": "^3.3.0",
-    "react-native-video": "^5.2.1",
+    "react-native-video": "^6.10.2",
     "react-native-webview": "~13.13.1",
     "react-redux": "^7.1.1",
     "reactotron-react-native": "^5.0.3",
@@ -147,5 +146,8 @@
         "react-native-webview@~13.12.5"
       ]
     }
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
