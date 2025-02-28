@@ -5,16 +5,23 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { ClientCommunityInfoWithCommunityName } from 'lib/types/community-types.js';
+
 import DirectoryPrompt from './directory-prompt.react.js';
 import { type NUXTip, nuxTip } from './nux-tips-context.react.js';
 import PrimaryButton from './primary-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import { CommunityJoinerModalRouteName } from '../navigation/route-names.js';
 import {
   type NavigationRoute,
   NUXTipOverlayBackdropRouteName,
 } from '../navigation/route-names.js';
+
+export type DirectoryPromptBottomSheetParams = {
+  +communities: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>,
+};
 
 const directoryPromptHeight = 293;
 const marginBottom = 10;
@@ -28,9 +35,9 @@ type Props = {
 };
 
 function DirectoryPromptBottomSheet(props: Props): React.Node {
-  const { navigation } = props;
-
-  const { goBack } = navigation;
+  const { navigation, route } = props;
+  const { goBack, navigate } = navigation;
+  const { communities } = route.params;
 
   const bottomSheetRef = React.useRef(null);
 
@@ -51,18 +58,22 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
   }, [insets.bottom, setContentHeight]);
 
   const onPressAccept = React.useCallback(() => {
-    console.log('User accepted the prompt');
-  }, []);
+    goBack();
+    navigate<'CommunityJoinerModal'>({
+      name: CommunityJoinerModalRouteName,
+      params: { communities },
+    });
+  }, [communities, goBack, navigate]);
 
   const onCloseOrPressDecline = React.useCallback(() => {
     goBack();
-    navigation.navigate<'NUXTipOverlayBackdrop'>({
+    navigate<'NUXTipOverlayBackdrop'>({
       name: NUXTipOverlayBackdropRouteName,
       params: {
         orderedTips,
       },
     });
-  }, [goBack, navigation]);
+  }, [goBack, navigate]);
 
   const directoryPromptBottomSheet = React.useMemo(
     () => (
