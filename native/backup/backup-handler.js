@@ -25,10 +25,8 @@ import { useClientBackup } from './use-client-backup.js';
 import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function BackupHandler(): null {
-  const staffCanSee = useStaffCanSee();
   const { showAlertToStaff } = useStaffAlert();
 
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
@@ -208,7 +206,7 @@ function BackupHandler(): null {
   ]);
 
   React.useEffect(() => {
-    if (!staffCanSee || !persistedStateLoaded) {
+    if (!usingRestoreFlow || !persistedStateLoaded) {
       return;
     }
 
@@ -219,7 +217,7 @@ function BackupHandler(): null {
       completionRef.current.required = false;
       void process();
     }
-  }, [persistedStateLoaded, process, renderCount, staffCanSee]);
+  }, [persistedStateLoaded, process, renderCount, usingRestoreFlow]);
 
   return null;
 }
