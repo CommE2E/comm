@@ -47,7 +47,7 @@ resource "aws_mq_broker" "tunnelbroker_rabbitmq" {
 
   # Keep RabbitMQ version in sync with docker-compose.yml
   engine_type        = "RabbitMQ"
-  engine_version     = "3.12.13"
+  engine_version     = "3.13"
   host_instance_type = local.is_staging ? "mq.t3.micro" : "mq.m5.large"
   apply_immediately  = local.is_staging
   deployment_mode    = "SINGLE_INSTANCE"
