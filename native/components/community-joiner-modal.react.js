@@ -15,9 +15,12 @@ import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils.js';
 import type { ClientCommunityInfoWithCommunityName } from 'lib/types/community-types.js';
 
 import Modal from './modal.react.js';
+import type { NUXTip } from './nux-tips-context.react.js';
+import { nuxTip } from './nux-tips-context.react.js';
 import CommunityList from '../components/community-list.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { NUXTipOverlayBackdropRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
@@ -28,7 +31,10 @@ import {
 
 export type CommunityJoinerModalParams = {
   +communities: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>,
+  +showCommunityDirectoryTip?: boolean,
 };
+
+const orderedTips: $ReadOnlyArray<NUXTip> = [nuxTip.COMMUNITY_DIRECTORY];
 
 type Props = {
   +navigation: RootNavigationProp<'CommunityJoinerModal'>,
@@ -41,8 +47,9 @@ const routes = [
 ];
 
 function CommunityJoinerModal(props: Props): React.Node {
-  const { params } = props.route;
-  const { communities } = params;
+  const { navigation, route } = props;
+  const { navigate, goBack } = navigation;
+  const { communities, showCommunityDirectoryTip } = route.params;
 
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
@@ -191,8 +198,19 @@ function CommunityJoinerModal(props: Props): React.Node {
     [tabProps, styles.tabBarContainer],
   );
 
+  const onClose = React.useCallback(() => {
+    if (showCommunityDirectoryTip) {
+      navigate<'NUXTipOverlayBackdrop'>({
+        name: NUXTipOverlayBackdropRouteName,
+        params: { orderedTips },
+      });
+    } else {
+      goBack();
+    }
+  }, [showCommunityDirectoryTip, navigate, goBack]);
+
   return (
-    <Modal>
+    <Modal onRequestClose={onClose}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Discover communities</Text>
       </View>

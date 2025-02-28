@@ -61,7 +61,7 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
     goBack();
     navigate<'CommunityJoinerModal'>({
       name: CommunityJoinerModalRouteName,
-      params: { communities },
+      params: { communities, showCommunityDirectoryTip: true },
     });
   }, [communities, goBack, navigate]);
 
