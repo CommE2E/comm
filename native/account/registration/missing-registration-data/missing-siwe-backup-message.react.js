@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { type SIWEResult } from 'lib/types/siwe-types.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
+import { useScheduleBackup } from '../../../backup/backup-handler-context.js';
 import { commCoreModule } from '../../../native-modules.js';
 import { type RootNavigationProp } from '../../../navigation/root-navigator.react.js';
 import { type NavigationRoute } from '../../../navigation/route-names.js';
@@ -33,6 +34,7 @@ function CreateMissingSIWEBackupMessage(props: Props): React.Node {
       'backup message generation',
   );
 
+  const scheduleBackup = useScheduleBackup();
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
@@ -46,10 +48,11 @@ function CreateMissingSIWEBackupMessage(props: Props): React.Node {
         }
 
         await commCoreModule.setSIWEBackupSecrets({ message, signature });
+        scheduleBackup();
         goBack();
       })();
     },
-    [goBack, loggedInEthereumAccountAddress],
+    [goBack, loggedInEthereumAccountAddress, scheduleBackup],
   );
 
   return (
