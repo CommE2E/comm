@@ -516,7 +516,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.24.0):
     - React-Core
   - RNKeychain (8.0.0):
     - React-Core
@@ -948,7 +948,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNDeviceInfo: 4701f0bf2a06b34654745053db0ce4cb0c53ada7
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
+  RNGestureHandler: 782737796a9befac70653b9e18ec95cf4504cb2c
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNReanimated: f586bc5fd8ce1b6efadffb875319705939843c3b
   RNScreens: fa9b582d85ae5d62c91c66003b5278458fed7aaa
