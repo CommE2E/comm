@@ -100,7 +100,7 @@ services:
   # RabbitMQ
   rabbitmq:
     # This version matches AWS MQ version (set in Terraform)
-    image: rabbitmq:3.11.16-management
+    image: rabbitmq:3.13-management
     hostname: rabbitmq
     ports:
       - '5672:5672'
