@@ -52,7 +52,7 @@ import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
-import BackupHandler from './backup/backup-handler.js';
+import BackupHandlerContextProvider from './backup/backup-handler-context-provider.js';
 import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
@@ -293,7 +293,6 @@ function Root() {
       <ConnectivityUpdater />
       <ThemeHandler />
       <OrientationHandler />
-      <BackupHandler />
       <IntegrityHandler />
       <AccessTokenHandler />
       <DBOpsHandler />
@@ -317,7 +316,9 @@ function Root() {
               <ChatMentionContextProvider>
                 <GlobalSearchIndexProvider>
                   <NUXTipsContextProvider>
-                    <RootNavigator />
+                    <BackupHandlerContextProvider>
+                      <RootNavigator />
+                    </BackupHandlerContextProvider>
                   </NUXTipsContextProvider>
                 </GlobalSearchIndexProvider>
               </ChatMentionContextProvider>

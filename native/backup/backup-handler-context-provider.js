@@ -21,13 +21,18 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
+import { BackupHandlerContext } from './backup-handler-context.js';
 import { useClientBackup } from './use-client-backup.js';
 import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
-function BackupHandler(): null {
+type Props = {
+  +children: React.Node,
+};
+
+function BackupHandlerContextProvider(props: Props): React.Node {
   const staffCanSee = useStaffCanSee();
   const { showAlertToStaff } = useStaffAlert();
 
@@ -221,7 +226,18 @@ function BackupHandler(): null {
     }
   }, [persistedStateLoaded, process, renderCount, staffCanSee]);
 
-  return null;
+  const contextValue = React.useMemo(
+    () => ({
+      scheduleBackup: () => setRenderCount(prev => prev + 1),
+    }),
+    [],
+  );
+
+  return (
+    <BackupHandlerContext.Provider value={contextValue}>
+      {props.children}
+    </BackupHandlerContext.Provider>
+  );
 }
 
-export default BackupHandler;
+export default BackupHandlerContextProvider;
