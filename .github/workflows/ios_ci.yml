@@ -68,6 +68,9 @@ jobs:
       - name: Fix node-gyp
         run: python -m pip install packaging setuptools
 
+      - name: Set up tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
