@@ -1,5 +1,5 @@
 diff --git a/node_modules/siwe/dist/utils.js b/node_modules/siwe/dist/utils.js
-index 6f6e67b..e721d44 100644
+index 6f6e67b..c57fb16 100644
 --- a/node_modules/siwe/dist/utils.js
 +++ b/node_modules/siwe/dist/utils.js
 @@ -15,7 +15,7 @@ const ethers_1 = require("ethers");
@@ -11,7 +11,12 @@ index 6f6e67b..e721d44 100644
  /**
   * This method calls the EIP-1271 method for Smart Contract wallets
   * @param message The EIP-4361 parsed message
-@@ -66,11 +66,11 @@ const isValidISO8601Date = (inputDate) => {
+@@ -62,15 +62,15 @@ const isValidISO8601Date = (inputDate) => {
+     /* Split groups and make sure inputDate is in ISO8601 format */
+     const inputMatch = ISO8601.exec(inputDate);
+     /* if inputMatch is null the date is not ISO-8601 */
+-    if (!inputDate) {
++    if (!inputMatch) {
          return false;
      }
      /* Creates a date object with input date to parse for invalid days e.g. Feb, 30 -> Mar, 01 */
