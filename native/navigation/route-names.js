@@ -43,6 +43,7 @@ import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { TagFarcasterChannelByNameParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-by-name.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
 import type { CommunityJoinerModalParams } from '../components/community-joiner-modal.react.js';
+import type { DirectoryPromptBottomSheetParams } from '../components/directory-prompt-bottom-sheet.react.js';
 import type { InviteLinksNavigatorParams } from '../invite-links/invite-links-navigator.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
@@ -215,7 +216,7 @@ export type RootParamList = {
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
   +LinkedDevicesBottomSheet: LinkedDevicesBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
-  +DirectoryPromptBottomSheet: void,
+  +DirectoryPromptBottomSheet: DirectoryPromptBottomSheetParams,
   +CommunityJoinerModal: CommunityJoinerModalParams,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
