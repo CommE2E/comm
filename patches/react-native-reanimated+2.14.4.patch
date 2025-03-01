@@ -32,10 +32,10 @@ index d4507b7..3e3b4f3 100644
      ast: true,
      babelrc: false,
 diff --git a/node_modules/react-native-reanimated/src/reanimated2/hook/utils.ts b/node_modules/react-native-reanimated/src/reanimated2/hook/utils.ts
-index 65c02aa..767a5aa 100644
+index 65c02aa..112ad22 100644
 --- a/node_modules/react-native-reanimated/src/reanimated2/hook/utils.ts
 +++ b/node_modules/react-native-reanimated/src/reanimated2/hook/utils.ts
-@@ -168,12 +168,7 @@ export function parseColors(updates: AnimatedStyle): void {
+@@ -168,13 +168,7 @@ export function parseColors(updates: AnimatedStyle): void {
  }
  
  export function canApplyOptimalisation(upadterFn: WorkletFunction): number {
@@ -45,7 +45,8 @@ index 65c02aa..767a5aa 100644
 -  const optimalization = upadterFn.__optimalization!;
 -  return (
 -    optimalization & FUNCTIONLESS_FLAG && optimalization & STATEMENTLESS_FLAG
+-  );
 +  return 0;
-   );
  }
  
+ export function isAnimated(prop: NestedObjectValues<AnimationObject>): boolean {
