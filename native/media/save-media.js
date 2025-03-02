@@ -48,13 +48,15 @@ import { commCoreModule } from '../native-modules.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { requestAndroidPermission } from '../utils/android-permissions.js';
 
+export type IntentionalSaveMediaIDs = {
+  +uploadID?: ?string,
+  +messageServerID?: ?string,
+  +messageLocalID?: ?string,
+};
+
 export type IntentionalSaveMedia = (
   mediaInfo: MediaInfo,
-  ids: {
-    uploadID: string,
-    messageServerID: ?string,
-    messageLocalID: ?string,
-  },
+  ids?: ?IntentionalSaveMediaIDs,
 ) => Promise<void>;
 
 function useIntentionalSaveMedia(): IntentionalSaveMedia {
@@ -62,14 +64,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
   const mediaReportsEnabled = useIsReportEnabled('mediaReports');
   const invalidTokenLogOut = useInvalidCSATLogOut();
   return React.useCallback(
-    async (
-      mediaInfo: MediaInfo,
-      ids: {
-        uploadID: string,
-        messageServerID: ?string,
-        messageLocalID: ?string,
-      },
-    ) => {
+    async (mediaInfo: MediaInfo, ids?: ?IntentionalSaveMediaIDs) => {
       const start = Date.now();
       const { uri: mediaURI, blobURI, holder, encryptionKey } = mediaInfo;
       const uri = mediaURI ?? blobURI ?? holder;
@@ -122,8 +117,11 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       const totalTime = Date.now() - start;
       const mediaMission = { steps, result, userTime, totalTime };
 
-      const { uploadID, messageServerID, messageLocalID } = ids;
-      const uploadIDIsLocal = isLocalUploadID(uploadID);
+      const uploadID = ids?.uploadID;
+      const messageServerID = ids?.messageServerID;
+      const messageLocalID = ids?.messageLocalID;
+
+      const uploadIDIsLocal = uploadID ? isLocalUploadID(uploadID) : false;
       const report: ClientMediaMissionReportCreationRequest = {
         type: reportTypes.MEDIA_MISSION,
         time: Date.now(),
