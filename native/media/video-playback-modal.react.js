@@ -57,7 +57,7 @@ export type VideoPlaybackModalParams = {
   +mediaInfo: MediaInfo,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +item: ChatMultimediaMessageInfoItem,
+  +item?: ?ChatMultimediaMessageInfoItem,
 };
 
 type ReactNativeVideoOnProgressData = {

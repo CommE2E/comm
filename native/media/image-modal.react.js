@@ -6,7 +6,11 @@ import { Platform } from 'react-native';
 import type { MediaInfo, Dimensions } from 'lib/types/media-types.js';
 
 import Multimedia from './multimedia.react.js';
-import { useIntentionalSaveMedia, copyMediaIOS } from './save-media.js';
+import {
+  useIntentionalSaveMedia,
+  type IntentionalSaveMediaIDs,
+  copyMediaIOS,
+} from './save-media.js';
 import FullScreenViewModal from '../components/full-screen-view-modal.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -24,7 +28,7 @@ export type ImageModalParams = {
   +mediaInfo: MediaInfo,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +item: ChatMultimediaMessageInfoItem,
+  +item?: ?ChatMultimediaMessageInfoItem,
 };
 
 type Props = {
@@ -40,12 +44,16 @@ function ImageModal(props: Props): React.Node {
 
   const intentionalSaveMedia = useIntentionalSaveMedia();
 
+  const messageInfo = item?.messageInfo;
   const onPressSave = React.useCallback(() => {
     const uploadID = mediaInfo.id;
-    const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
-    const ids = { uploadID, messageServerID, messageLocalID };
+    let ids: ?IntentionalSaveMediaIDs;
+    if (messageInfo) {
+      const { id: messageServerID, localID: messageLocalID } = messageInfo;
+      ids = { uploadID, messageServerID, messageLocalID };
+    }
     return intentionalSaveMedia(mediaInfo, ids);
-  }, [intentionalSaveMedia, item.messageInfo, mediaInfo]);
+  }, [intentionalSaveMedia, messageInfo, mediaInfo]);
 
   const onPressCopyIOS = React.useCallback(async () => {
     const { success } = await copyMediaIOS(mediaInfo);
