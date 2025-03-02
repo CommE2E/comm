@@ -1,6 +1,7 @@
 // @flow
 
 import { useNavigation, useRoute } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
@@ -14,7 +15,9 @@ import {
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react.js';
 import GestureTouchableOpacity from '../../components/gesture-touchable-opacity.react.js';
+import type { ImageModalParams } from '../../media/image-modal.react.js';
 import Multimedia from '../../media/multimedia.react.js';
+import type { VideoPlaybackModalParams } from '../../media/video-playback-modal.react.js';
 import {
   ImageModalRouteName,
   VideoPlaybackModalRouteName,
@@ -227,22 +230,26 @@ function MediaGalleryItem(props: MediaGalleryItemProps): React.Node {
         height,
       };
 
+      invariant(
+        verticalBounds,
+        'verticalBounds should be set in navigateToMedia',
+      );
+      const params: ImageModalParams | VideoPlaybackModalParams = {
+        presentedFrom: route.key,
+        mediaInfo,
+        initialCoordinates,
+        verticalBounds,
+      };
       navigation.navigate<'VideoPlaybackModal' | 'ImageModal'>({
         name:
           mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video'
             ? VideoPlaybackModalRouteName
             : ImageModalRouteName,
         key: `multimedia|${threadID}|${mediaInfo.id}`,
-        params: {
-          presentedFrom: route.key,
-          mediaInfo,
-          item,
-          initialCoordinates,
-          verticalBounds,
-        },
+        params,
       });
     });
-  }, [navigation, route, threadID, mediaInfo, item, verticalBounds]);
+  }, [navigation, route, threadID, mediaInfo, verticalBounds]);
 
   const containerStyle =
     index % numColumns === 0
