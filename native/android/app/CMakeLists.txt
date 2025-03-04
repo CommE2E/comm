@@ -33,6 +33,8 @@ set(_android_build_dir build/${CMAKE_ANDROID_ARCH_ABI})
 
 include(FetchContent)
 
+set(Rust_TOOLCHAIN 1.85)
+
 if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
   set(Rust_CARGO_TARGET aarch64-linux-android)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86_64)
