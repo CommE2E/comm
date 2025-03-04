@@ -123,6 +123,7 @@ const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 SplashScreen.preventAutoHideAsync().catch(console.log);
 
 function Root() {
+  console.log('test');
   const navStateRef = React.useRef<?PossiblyStaleNavigationState>();
   const navDispatchRef =
     React.useRef<?(
