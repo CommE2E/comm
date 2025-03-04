@@ -14,7 +14,7 @@ if ! command -v rustup > /dev/null; then
 fi
 
 if [[ "$(rustup toolchain list)" == "no installed toolchains" ]]; then
-  rustup toolchain install stable
+  rustup toolchain install 1.85
 fi
 
 ensure_target aarch64-apple-ios
