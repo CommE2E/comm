@@ -130,7 +130,10 @@ async function fetchMessageReportData(
 
 async function getCommbotThreadID(userID: string): Promise<string> {
   const commbotThreadID = await fetchPersonalThreadID(userID, commbot.userID);
-  return commbotThreadID ?? createCommbotThread(userID);
+  if (commbotThreadID) {
+    return commbotThreadID;
+  }
+  return await createCommbotThread(userID);
 }
 
 function getCommbotMessage(
