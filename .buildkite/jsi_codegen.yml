@@ -4,6 +4,7 @@ steps:
       - '(pkill flow || true)'
       - 'apt update && apt install -y cmake'
       - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+      - 'rustup show active-toolchain || rustup toolchain install'
       - '. /root/.cargo/env'
       - 'git config --global --add safe.directory /comm'
       - 'yarn ci-cleaninstall'
