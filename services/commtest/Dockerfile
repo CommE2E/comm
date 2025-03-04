@@ -26,6 +26,9 @@ RUN unzip -q awscliv2.zip && ./aws/install \
 
 WORKDIR /home/root/services/commtest
 
+# Add the Rust target for ARM64 architecture
+RUN rustup target add aarch64-unknown-linux-gnu
+
 # Install cargo lambda
 RUN pip3 install cargo-lambda
 
