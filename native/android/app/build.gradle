@@ -370,6 +370,10 @@ task removeCXX(type: Exec) {
     commandLine 'rm', '-rf', '.cxx'
 }
 
+task addRustToolchain(type: Exec) {
+    commandLine "rustup", "toolchain", "install", "1.85"
+}
+
 // Add cross-compilation targets to Rust toolchain
 task updateRustToolchain(type: Exec) {
     commandLine "rustup", "target", "add",
@@ -399,11 +403,11 @@ task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
 }
 
 // Bind preBuild dependencies only if not 'clean' running
-if (!isCleanRunning()) {
-    afterEvaluate {
-        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, copyNativeRustLibraryFiles)
-    }
+
+afterEvaluate {
+    preBuild.dependsOn(prepareExternalLibs, addRustToolchain, updateRustToolchain, copyNativeRustLibraryFiles)
 }
+
 
 // Run removing CXX task before the clean execution
 beforeEvaluate {
@@ -420,7 +424,7 @@ def isCleanRunning() {
 // Release keystore via macOS Keychain Access
 def getPassword(String keyLabel) {
     if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
-        return System.getenv('ANDROID_SIGNING_PASSWORD') 
+        return System.getenv('ANDROID_SIGNING_PASSWORD')
     }
     def stdout = new ByteArrayOutputStream()
     exec {
@@ -438,7 +442,7 @@ def getPassword(String keyLabel) {
 // or only from 'adb devices' if running debug release.
 def getBuildTypeABIs(nativeArchitectures) {
     if (System.getenv("BUILDKITE") == "true") {
-        return ["arm64-v8a"] 
+        return ["arm64-v8a"]
     }
     def isBundleRelease = gradle.startParameter.taskRequests.any {
         !it.args.isEmpty() && it.args.first().contains("bundleRelease")
