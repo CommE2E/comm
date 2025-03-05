@@ -2,7 +2,13 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -712,7 +718,12 @@ function FullScreenViewModal(props: Props) {
 
   const { children, saveContentCallback, copyContentCallback } = props;
 
-  const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+  // a temporary solution for https://linear.app/comm/issue/ENG-10294 is to not
+  // hide status bar on Android
+  // after RN upgrade remove platform check so we can also hide the status bar
+  // on Android
+  const statusBar =
+    isActive && Platform.OS === 'ios' ? <ConnectedStatusBar hidden /> : null;
 
   let saveButton;
   if (saveContentCallback) {
