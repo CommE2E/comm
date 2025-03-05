@@ -2,7 +2,13 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -24,7 +30,10 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { type Dimensions } from 'lib/types/media-types.js';
 
@@ -162,15 +171,18 @@ function FullScreenViewModal(props: Props) {
     });
   }, [mediaIconsDimensions]);
 
+  const insets = useSafeAreaInsets();
+
   const outsideButtons = React.useCallback(
     (x: number, y: number): boolean => {
       'worklet';
       const isOutsideButton = (dim: ButtonDimensions) => {
+        const topInset = Platform.OS === 'android' ? insets.top : 0;
         return (
           x < dim.x ||
           x > dim.x + dim.width ||
-          y < dim.y ||
-          y > dim.y + dim.height
+          y + topInset < dim.y ||
+          y + topInset > dim.y + dim.height
         );
       };
 
@@ -187,6 +199,7 @@ function FullScreenViewModal(props: Props) {
       closeButtonDimensions,
       closeButtonLastState,
       mediaIconsDimensions,
+      insets.top,
     ],
   );
 
@@ -712,7 +725,12 @@ function FullScreenViewModal(props: Props) {
 
   const { children, saveContentCallback, copyContentCallback } = props;
 
-  const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+  // a temporary solution for https://linear.app/comm/issue/ENG-10294 is to not
+  // hide status bar on Android
+  // after RN upgrade remove platform check so we can also hide the status bar
+  // on Android
+  const statusBar =
+    isActive && Platform.OS === 'ios' ? <ConnectedStatusBar hidden /> : null;
 
   let saveButton;
   if (saveContentCallback) {
