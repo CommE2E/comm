@@ -29,6 +29,7 @@ import {
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
 import { commCoreModule } from '../../native-modules.js';
@@ -136,6 +137,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
   }, [addListener, removeListener, tunnelbrokerMessageListener]);
 
   const processDeviceListUpdate = React.useCallback(async () => {
+    let deviceListHasBeenUpdated = false;
     try {
       const { deviceID: primaryDeviceID, userID } =
         await identityContext.getAuthMetadata();
@@ -173,6 +175,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       };
 
       const handleReplaceDevice = async () => {
+        let keyserverHasBeenReplaced = false;
         try {
           if (!keyserverDeviceID) {
             throw new Error('missing keyserver device ID');
@@ -182,6 +185,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
             deviceIDToRemove: keyserverDeviceID,
             newDeviceID: targetDeviceID,
           });
+          keyserverHasBeenReplaced = true;
           await sendDeviceListUpdateSuccessMessage();
         } catch (err) {
           addLog(
@@ -189,6 +193,14 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
               ` with ${targetDeviceID}: `,
             getMessageForException(err) ?? 'unknown error',
           );
+          if (keyserverHasBeenReplaced) {
+            ignorePromiseRejections(
+              runDeviceListUpdate({
+                type: 'remove',
+                deviceID: targetDeviceID,
+              }),
+            );
+          }
 
           Alert.alert(
             'Adding device failed',
@@ -208,6 +220,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
           type: 'add',
           deviceID: targetDeviceID,
         });
+        deviceListHasBeenUpdated = true;
         await sendDeviceListUpdateSuccessMessage();
         return;
       }
@@ -236,6 +249,14 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
         `Error adding device ${targetDeviceID ?? ''}`,
         getMessageForException(err) ?? 'unknown error',
       );
+      if (targetDeviceID && deviceListHasBeenUpdated) {
+        ignorePromiseRejections(
+          runDeviceListUpdate({
+            type: 'remove',
+            deviceID: targetDeviceID,
+          }),
+        );
+      }
 
       Alert.alert('Adding device failed', 'Failed to update the device list', [
         { text: 'OK' },
