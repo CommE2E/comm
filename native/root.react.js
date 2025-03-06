@@ -350,79 +350,83 @@ function Root() {
               >
                 <NeynarClientProvider apiKey={neynarKey}>
                   <TunnelbrokerProvider>
-                    <IdentitySearchProvider>
-                      <SecondaryDeviceQRAuthContextProvider
-                        parseTunnelbrokerQRAuthMessage={
-                          parseTunnelbrokerQRAuthMessage
-                        }
-                        composeTunnelbrokerQRAuthMessage={
-                          composeTunnelbrokerQRAuthMessage
-                        }
-                        generateAESKey={generateQRAuthAESKey}
-                        performBackupRestore={performBackupRestore}
-                        onLogInError={handleSecondaryDeviceLogInError}
-                      >
-                        <FeatureFlagsProvider>
-                          <NavContext.Provider value={navContext}>
-                            <RootContext.Provider value={rootContext}>
-                              <InputStateContainer>
-                                <MessageEditingContextProvider>
-                                  <SafeAreaProvider
-                                    initialMetrics={initialWindowMetrics}
-                                  >
-                                    <ActionSheetProvider>
-                                      <MediaCacheProvider
-                                        persistence={filesystemMediaCache}
-                                      >
-                                        <EditUserAvatarProvider>
-                                          <NativeEditThreadAvatarProvider>
-                                            <MarkdownContextProvider>
-                                              <MessageSearchProvider>
-                                                <BottomSheetProvider>
-                                                  <RegistrationContextProvider>
-                                                    <SQLiteDataHandler />
-                                                    <ConnectedStatusBar />
-                                                    <ReduxPersistGate
-                                                      persistor={getPersistor()}
-                                                    >
-                                                      {gated}
-                                                    </ReduxPersistGate>
-                                                    <PersistedStateGate>
-                                                      <ColdStartTracker />
-                                                      <KeyserverConnectionsHandler
-                                                        socketComponent={Socket}
-                                                        detectUnsupervisedBackgroundRef={
-                                                          detectUnsupervisedBackgroundRef
-                                                        }
-                                                      />
-                                                      <DMActivityHandler />
-                                                      <VersionSupportedChecker />
-                                                      <PlatformDetailsSynchronizer />
-                                                      <BackgroundIdentityLoginHandler />
-                                                      <PrekeysHandler />
-                                                      <ReportHandler />
-                                                      <FarcasterChannelPrefetchHandler />
-                                                      <AutoJoinCommunityHandler />
-                                                      <SyncCommunityStoreHandler />
-                                                      <InitialStateSharingHandler />
-                                                    </PersistedStateGate>
-                                                    {navigation}
-                                                  </RegistrationContextProvider>
-                                                </BottomSheetProvider>
-                                              </MessageSearchProvider>
-                                            </MarkdownContextProvider>
-                                          </NativeEditThreadAvatarProvider>
-                                        </EditUserAvatarProvider>
-                                      </MediaCacheProvider>
-                                    </ActionSheetProvider>
-                                  </SafeAreaProvider>
-                                </MessageEditingContextProvider>
-                              </InputStateContainer>
-                            </RootContext.Provider>
-                          </NavContext.Provider>
-                        </FeatureFlagsProvider>
-                      </SecondaryDeviceQRAuthContextProvider>
-                    </IdentitySearchProvider>
+                    <ErrorBoundary>
+                      <IdentitySearchProvider>
+                        <SecondaryDeviceQRAuthContextProvider
+                          parseTunnelbrokerQRAuthMessage={
+                            parseTunnelbrokerQRAuthMessage
+                          }
+                          composeTunnelbrokerQRAuthMessage={
+                            composeTunnelbrokerQRAuthMessage
+                          }
+                          generateAESKey={generateQRAuthAESKey}
+                          performBackupRestore={performBackupRestore}
+                          onLogInError={handleSecondaryDeviceLogInError}
+                        >
+                          <FeatureFlagsProvider>
+                            <NavContext.Provider value={navContext}>
+                              <RootContext.Provider value={rootContext}>
+                                <InputStateContainer>
+                                  <MessageEditingContextProvider>
+                                    <SafeAreaProvider
+                                      initialMetrics={initialWindowMetrics}
+                                    >
+                                      <ActionSheetProvider>
+                                        <MediaCacheProvider
+                                          persistence={filesystemMediaCache}
+                                        >
+                                          <EditUserAvatarProvider>
+                                            <NativeEditThreadAvatarProvider>
+                                              <MarkdownContextProvider>
+                                                <MessageSearchProvider>
+                                                  <BottomSheetProvider>
+                                                    <RegistrationContextProvider>
+                                                      <SQLiteDataHandler />
+                                                      <ConnectedStatusBar />
+                                                      <ReduxPersistGate
+                                                        persistor={getPersistor()}
+                                                      >
+                                                        {gated}
+                                                      </ReduxPersistGate>
+                                                      <PersistedStateGate>
+                                                        <ColdStartTracker />
+                                                        <KeyserverConnectionsHandler
+                                                          socketComponent={
+                                                            Socket
+                                                          }
+                                                          detectUnsupervisedBackgroundRef={
+                                                            detectUnsupervisedBackgroundRef
+                                                          }
+                                                        />
+                                                        <DMActivityHandler />
+                                                        <VersionSupportedChecker />
+                                                        <PlatformDetailsSynchronizer />
+                                                        <BackgroundIdentityLoginHandler />
+                                                        <PrekeysHandler />
+                                                        <ReportHandler />
+                                                        <FarcasterChannelPrefetchHandler />
+                                                        <AutoJoinCommunityHandler />
+                                                        <SyncCommunityStoreHandler />
+                                                        <InitialStateSharingHandler />
+                                                      </PersistedStateGate>
+                                                      {navigation}
+                                                    </RegistrationContextProvider>
+                                                  </BottomSheetProvider>
+                                                </MessageSearchProvider>
+                                              </MarkdownContextProvider>
+                                            </NativeEditThreadAvatarProvider>
+                                          </EditUserAvatarProvider>
+                                        </MediaCacheProvider>
+                                      </ActionSheetProvider>
+                                    </SafeAreaProvider>
+                                  </MessageEditingContextProvider>
+                                </InputStateContainer>
+                              </RootContext.Provider>
+                            </NavContext.Provider>
+                          </FeatureFlagsProvider>
+                        </SecondaryDeviceQRAuthContextProvider>
+                      </IdentitySearchProvider>
+                    </ErrorBoundary>
                   </TunnelbrokerProvider>
                 </NeynarClientProvider>
               </ENSCacheProvider>
@@ -444,9 +448,7 @@ function AppRoot(): React.Node {
   return (
     <Provider store={store}>
       <CallKeyserverEndpointProvider>
-        <ErrorBoundary>
-          <Root />
-        </ErrorBoundary>
+        <Root />
       </CallKeyserverEndpointProvider>
     </Provider>
   );
