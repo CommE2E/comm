@@ -341,6 +341,15 @@ task extractJNIFiles {
     }
 }
 
+// Add cross-compilation targets to Rust toolchain
+task updateRustToolchain(type: Exec) {
+    commandLine "rustup", "default", "stable"
+    commandLine "rustup", "target", "add",
+        "aarch64-linux-android",
+        "armv7-linux-androideabi",
+        "x86_64-linux-android"
+}
+
 tasks.whenTaskAdded { task ->
     if (
         !task.name.contains("Clean") &&
@@ -351,6 +360,7 @@ tasks.whenTaskAdded { task ->
         def buildType = task.name.endsWith('Debug') ? 'Debug' : 'Release'
         task.dependsOn(extractAARHeaders)
         task.dependsOn(extractJNIFiles)
+        task.dependsOn(updateRustToolchain)
         task.dependsOn("extractReactNativeAAR${buildType}")
     }
 }
@@ -370,13 +380,6 @@ task removeCXX(type: Exec) {
     commandLine 'rm', '-rf', '.cxx'
 }
 
-// Add cross-compilation targets to Rust toolchain
-task updateRustToolchain(type: Exec) {
-    commandLine "rustup", "target", "add",
-        "aarch64-linux-android",
-        "armv7-linux-androideabi",
-        "x86_64-linux-android"
-}
 
 def nativeRustLibraryDir = "../../native_rust_library"
 def nativeRustLibraryManifestPath = "${nativeRustLibraryDir}/Cargo.toml"
