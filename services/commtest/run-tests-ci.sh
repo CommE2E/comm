@@ -9,11 +9,13 @@ awscli() {
 }
 
 build_lambdas() {
-  echo "Building lambdas..."
+  echo "2Building lambdas..."
 
   pushd ../search-index-lambda >/dev/null
 
-  cargo lambda build --arm64 --output-format zip
+  set +o pipefail
+  cargo lambda build --arm64 --output-format zip || true
+  set -o pipefail
 
   popd >/dev/null
 }
@@ -53,8 +55,33 @@ run_test() {
   fi
 }
 
+# rustup default stable
+
+echo "BEFORE Version:"
+rustup --version
+echo "Toolchains:"
+rustup toolchain list
+echo "Target:"
+rustup target list --installed
+echo "Default:"
+rustup default
+echo "Show:"
+rustup show
+
 # Build lambdas for terraform
 build_lambdas
+
+echo "AFTER Version:"
+rustup --version
+echo "Toolchain:"
+rustup toolchain list
+echo "Target:"
+rustup target list --installed
+echo "Default:"
+rustup default
+echo "Show:"
+rustup show
+# exit 1
 
 # Reset localstack and then run tests
 reset_localstack
