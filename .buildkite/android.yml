@@ -3,6 +3,7 @@ steps:
     command:
       - 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
       - 'source /root/.cargo/env'
+      - 'rustup default 1.85.0'
       - 'rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android'
       - 'apt update && apt install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev pkg-config'
       - 'scripts/install_protobuf.sh'
