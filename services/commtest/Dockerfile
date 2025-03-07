@@ -1,4 +1,5 @@
 FROM rust:1.85-bullseye
+RUN rustup default stable
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
@@ -33,6 +34,7 @@ RUN pip3 install cargo-lambda
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
 RUN ../../scripts/install_protobuf.sh
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+# ENV RUSTUP_AUTO_INSTALL=1
 
 # Copy and prepare cargo workspace
 COPY Cargo.toml ../../Cargo.toml
