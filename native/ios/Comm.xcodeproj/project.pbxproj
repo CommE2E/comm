@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E02677D2D81ED6600788249 /* DMOperationStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0E02677C2D81ED6600788249 /* DMOperationStore.cpp */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -144,6 +145,9 @@
 
 /* Begin PBXFileReference section */
 		0E02676D2D81EAD800788249 /* DMOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMOperation.h; sourceTree = "<group>"; };
+		0E02677B2D81ED6600788249 /* DMOperationStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DMOperationStore.h; path = PersistentStorageUtilities/DataStores/DMOperationStore.h; sourceTree = "<group>"; };
+		0E02677C2D81ED6600788249 /* DMOperationStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DMOperationStore.cpp; path = PersistentStorageUtilities/DataStores/DMOperationStore.cpp; sourceTree = "<group>"; };
+		0E02677E2D81ED7B00788249 /* DMOperationStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMOperationStoreOperations.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
@@ -502,6 +506,7 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				0E02677E2D81ED7B00788249 /* DMOperationStoreOperations.h */,
 				CBAB63872BFCB071003B089F /* EntryStoreOperations.h */,
 				B3B02EBE2B8538860020D118 /* CommunityStoreOperations.h */,
 				34329B3E2B9EBD3400233438 /* IntegrityStoreOperations.h */,
@@ -688,6 +693,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				0E02677B2D81ED6600788249 /* DMOperationStore.h */,
+				0E02677C2D81ED6600788249 /* DMOperationStore.cpp */,
 				816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */,
 				816D2D592C480E60001C0B67 /* MessageSearchStore.h */,
 				CBAB63882BFCB087003B089F /* EntryStore.cpp */,
@@ -1258,6 +1265,7 @@
 				DFD5E7862B052B1400C32B6A /* RustAESCrypto.cpp in Sources */,
 				816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */,
 				8EF775712A751B780046A385 /* ReportStore.cpp in Sources */,
+				0E02677D2D81ED6600788249 /* DMOperationStore.cpp in Sources */,
 				34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */,
