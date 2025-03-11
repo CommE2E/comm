@@ -5,6 +5,7 @@
 #include "NativeSQLiteConnectionManager.h"
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
+#include "entities/DMOperation.h"
 #include "entities/Draft.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
@@ -204,6 +205,12 @@ public:
       std::optional<std::string> messageIDCursor) const override;
   std::vector<MessageEntity> getRelatedMessagesForSearch(
       const std::vector<std::string> &messageIDs) const override;
+  void replaceDMOperation(const DMOperation &operation) const override;
+  void removeAllDMOperations() const override;
+  void removeDMOperations(const std::vector<std::string> &ids) const override;
+  std::vector<DMOperation> getDMOperations() const override;
+  std::vector<DMOperation>
+  getDMOperationsByType(const std::string &operationType) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;

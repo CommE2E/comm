@@ -824,6 +824,19 @@ bool add_timestamps_column_to_threads_table(sqlite3 *db) {
   return false;
 }
 
+bool create_dm_operations_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS dm_operations ("
+      "  id TEXT PRIMARY KEY,"
+      "  type TEXT NOT NULL,"
+      "  operation TEXT NOT NULL"
+      ");"
+      "CREATE INDEX IF NOT EXISTS dm_operations_idx_type"
+      "  ON dm_operations (type);";
+
+  return create_table(db, query, "dm_operations");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
@@ -998,6 +1011,12 @@ bool create_schema(sqlite3 *db) {
       "  tokenize = porter"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS dm_operations ("
+      "  id TEXT PRIMARY KEY,"
+      "  type TEXT NOT NULL,"
+      "  operation TEXT NOT NULL"
+      ");"
+
       "CREATE INDEX IF NOT EXISTS media_idx_container"
       "  ON media (container);"
 
@@ -1008,7 +1027,10 @@ bool create_schema(sqlite3 *db) {
       "  ON messages (target_message, type, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
-      "  ON outbound_p2p_messages (device_id, timestamp);";
+      "  ON outbound_p2p_messages (device_id, timestamp);"
+
+      "CREATE INDEX IF NOT EXISTS dm_operations_idx_type"
+      "  ON dm_operations (type);";
 
   sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 
@@ -1261,7 +1283,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {50, {create_message_search_table, true}},
      {51, {update_messages_idx_target_message_type_time, true}},
      {52, {recreate_inbound_p2p_messages_table, true}},
-     {53, {add_timestamps_column_to_threads_table, true}}}};
+     {53, {add_timestamps_column_to_threads_table, true}},
+     {54, {create_dm_operations_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -2885,6 +2908,54 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getRelatedMessagesForSearch(
   }
 
   return this->processMessagesResults(preparedSQL);
+}
+
+void SQLiteQueryExecutor::replaceDMOperation(
+    const DMOperation &operation) const {
+  static std::string query =
+      "REPLACE INTO dm_operations (id, type, operation) "
+      "VALUES (?, ?, ?);";
+  replaceEntity<DMOperation>(
+      SQLiteQueryExecutor::getConnection(), query, operation);
+}
+
+void SQLiteQueryExecutor::removeAllDMOperations() const {
+  static std::string query = "DELETE FROM dm_operations;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), query);
+}
+
+void SQLiteQueryExecutor::removeDMOperations(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream queryStream;
+  queryStream << "DELETE FROM dm_operations "
+                 "WHERE id IN "
+              << getSQLStatementArray(ids.size()) << ";";
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), queryStream.str(), ids);
+}
+
+std::vector<DMOperation> SQLiteQueryExecutor::getDMOperations() const {
+  static std::string query =
+      "SELECT id, type, operation "
+      "FROM dm_operations;";
+  return getAllEntities<DMOperation>(
+      SQLiteQueryExecutor::getConnection(), query);
+}
+
+std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
+    const std::string &operationType) const {
+  static std::string query =
+      "SELECT id, type, operation "
+      "FROM dm_operations "
+      "WHERE type = ?;";
+
+  std::vector<std::string> types{operationType};
+  return getAllEntitiesByPrimaryKeys<DMOperation>(
+      SQLiteQueryExecutor::getConnection(), query, types);
 }
 
 #ifdef EMSCRIPTEN
