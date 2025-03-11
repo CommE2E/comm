@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
+#include "entities/DMOperation.h"
 #include "entities/Draft.h"
 #include "entities/EntryInfo.h"
 #include "entities/InboundP2PMessage.h"
@@ -190,6 +191,13 @@ public:
       std::optional<std::string> messageIDCursor) const = 0;
   virtual std::vector<MessageEntity> getRelatedMessagesForSearch(
       const std::vector<std::string> &messageIDs) const = 0;
+  virtual void replaceDMOperation(const DMOperation &operation) const = 0;
+  virtual void removeAllDMOperations() const = 0;
+  virtual void
+  removeDMOperations(const std::vector<std::string> &ids) const = 0;
+  virtual std::vector<DMOperation> getDMOperations() const = 0;
+  virtual std::vector<DMOperation>
+  getDMOperationsByType(const std::string &operationType) const = 0;
   virtual ~DatabaseQueryExecutor() = default;
 
 #ifdef EMSCRIPTEN

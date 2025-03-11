@@ -143,6 +143,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E02676D2D81EAD800788249 /* DMOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMOperation.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
@@ -551,6 +552,7 @@
 		71BE84442636A944002849D2 /* entities */ = {
 			isa = PBXGroup;
 			children = (
+				0E02676D2D81EAD800788249 /* DMOperation.h */,
 				816D2D5B2C480E9E001C0B67 /* MessageSearchResult.h */,
 				CB01F0C32B67F3970089E1F9 /* SQLiteStatementWrapper.cpp */,
 				CB01F0C12B67EF470089E1F9 /* SQLiteDataConverters.cpp */,
