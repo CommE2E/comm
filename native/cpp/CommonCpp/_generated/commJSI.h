@@ -97,6 +97,7 @@ public:
   virtual jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) = 0;
   virtual jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) = 0;
   virtual jsi::Value restoreUser(jsi::Runtime &rt, jsi::String userID, std::optional<jsi::String> siweSocialProofMessage, std::optional<jsi::String> siweSocialProofSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String deviceList, jsi::String backupSecret) = 0;
+  virtual jsi::Value getDMOperationsByType(jsi::Runtime &rt, jsi::String type) = 0;
 
 };
 
@@ -733,6 +734,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::restoreUser, jsInvoker_, instance_, std::move(userID), std::move(siweSocialProofMessage), std::move(siweSocialProofSignature), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys), std::move(deviceList), std::move(backupSecret));
+    }
+    jsi::Value getDMOperationsByType(jsi::Runtime &rt, jsi::String type) override {
+      static_assert(
+          bridging::getParameterCount(&T::getDMOperationsByType) == 2,
+          "Expected getDMOperationsByType(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getDMOperationsByType, jsInvoker_, instance_, std::move(type));
     }
 
   private:
