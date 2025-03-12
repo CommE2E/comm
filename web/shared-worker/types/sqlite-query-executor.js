@@ -2,6 +2,7 @@
 
 import type { ClientDBAuxUserInfo } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityInfo } from 'lib/ops/community-store-ops.js';
+import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { ClientDBEntryInfo } from 'lib/ops/entries-store-ops.js';
 import type { ClientDBIntegrityThreadHash } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
@@ -159,6 +160,12 @@ declare export class SQLiteQueryExecutor {
   removeMessageStoreLocalMessageInfos(ids: $ReadOnlyArray<string>): void;
   removeAllMessageStoreLocalMessageInfos(): void;
   getAllMessageStoreLocalMessageInfos(): ClientDBLocalMessageInfo[];
+
+  replaceDMOperation(operation: ClientDBDMOperation): void;
+  removeAllDMOperations(): void;
+  removeDMOperations(ids: $ReadOnlyArray<string>): void;
+  getAllDMOperations(): $ReadOnlyArray<ClientDBDMOperation>;
+  getDMOperationsByType(type: string): $ReadOnlyArray<ClientDBDMOperation>;
 
   beginTransaction(): void;
   commitTransaction(): void;
