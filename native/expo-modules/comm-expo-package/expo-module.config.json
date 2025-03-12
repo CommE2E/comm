@@ -1,14 +1,20 @@
 {
   "platforms": ["ios", "android"],
   "ios": {
-    "modules": ["AESCryptoModule", "BlobUtilsModule", "ThumbhashModule"]
+    "modules": [
+      "AESCryptoModule",
+      "BlobUtilsModule",
+      "ThumbhashModule",
+      "MediaModule"
+    ]
   },
   "android": {
     "modules": [
       "app.comm.android.aescrypto.AESCryptoModule",
       "app.comm.android.lifecycle.AndroidLifecycleModule",
       "app.comm.android.thumbhash.ThumbhashModule",
-      "app.comm.android.utils.BlobUtilsModule"
+      "app.comm.android.utils.BlobUtilsModule",
+      "app.comm.android.media.MediaModule"
     ]
   }
 }
