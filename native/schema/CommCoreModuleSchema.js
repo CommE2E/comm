@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
+import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -233,6 +234,7 @@ interface Spec extends TurboModule {
     deviceList: string,
     backupSecret: string,
   ) => Promise<string>;
+  +getDMOperationsByType: (type: string) => Promise<Array<ClientDBDMOperation>>;
 }
 
 export interface CoreModuleSpec extends Spec {

@@ -8,6 +8,7 @@
 #include "../_generated/commJSI.h"
 #include "PersistentStorageUtilities/DataStores/AuxUserStore.h"
 #include "PersistentStorageUtilities/DataStores/CommunityStore.h"
+#include "PersistentStorageUtilities/DataStores/DMOperationStore.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
 #include "PersistentStorageUtilities/DataStores/EntryStore.h"
 #include "PersistentStorageUtilities/DataStores/IntegrityStore.h"
@@ -48,6 +49,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   ThreadActivityStore threadActivityStore;
   EntryStore entryStore;
   MessageSearchStore messageSearchStore;
+  DMOperationStore dmOperationStore;
 
   void persistCryptoModules(
       bool persistContentModule,
@@ -290,6 +292,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Array notifOneTimeKeys,
       jsi::String deviceList,
       jsi::String backupSecret) override;
+  virtual jsi::Value
+  getDMOperationsByType(jsi::Runtime &rt, jsi::String type) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

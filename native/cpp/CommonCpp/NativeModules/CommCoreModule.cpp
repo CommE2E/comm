@@ -126,6 +126,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<ThreadActivityEntry> threadActivityStoreVector;
           std::vector<EntryInfo> entryStoreVector;
           std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
+          std::vector<DMOperation> dmOperationsVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -153,6 +154,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             messageStoreLocalMessageInfosVector =
                 DatabaseManager::getQueryExecutor()
                     .getAllMessageStoreLocalMessageInfos();
+            dmOperationsVector =
+                DatabaseManager::getQueryExecutor().getDMOperations();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -192,102 +195,111 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto messageStoreLocalMessageInfosVectorPtr =
               std::make_shared<std::vector<LocalMessageInfo>>(
                   std::move(messageStoreLocalMessageInfosVector));
-          this->jsInvoker_->invokeAsync([&innerRt,
-                                         draftsVectorPtr,
-                                         messagesVectorPtr,
-                                         threadsVectorPtr,
-                                         messageStoreThreadsVectorPtr,
-                                         reportStoreVectorPtr,
-                                         userStoreVectorPtr,
-                                         keyserveStoreVectorPtr,
-                                         communityStoreVectorPtr,
-                                         integrityStoreVectorPtr,
-                                         syncedMetadataStoreVectorPtr,
-                                         auxUserStoreVectorPtr,
-                                         threadActivityStoreVectorPtr,
-                                         entryStoreVectorPtr,
-                                         messageStoreLocalMessageInfosVectorPtr,
-                                         error,
-                                         promise,
-                                         draftStore = this->draftStore,
-                                         threadStore = this->threadStore,
-                                         messageStore = this->messageStore,
-                                         reportStore = this->reportStore,
-                                         userStore = this->userStore,
-                                         keyserverStore = this->keyserverStore,
-                                         communityStore = this->communityStore,
-                                         integrityStore = this->integrityStore,
-                                         syncedMetadataStore =
-                                             this->syncedMetadataStore,
-                                         auxUserStore = this->auxUserStore,
-                                         threadActivityStore =
-                                             this->threadActivityStore,
-                                         entryStore = this->entryStore]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            jsi::Array jsiDrafts =
-                draftStore.parseDBDataStore(innerRt, draftsVectorPtr);
-            jsi::Array jsiMessages =
-                messageStore.parseDBDataStore(innerRt, messagesVectorPtr);
-            jsi::Array jsiThreads =
-                threadStore.parseDBDataStore(innerRt, threadsVectorPtr);
-            jsi::Array jsiMessageStoreThreads =
-                messageStore.parseDBMessageStoreThreads(
-                    innerRt, messageStoreThreadsVectorPtr);
-            jsi::Array jsiReportStore =
-                reportStore.parseDBDataStore(innerRt, reportStoreVectorPtr);
-            jsi::Array jsiUserStore =
-                userStore.parseDBDataStore(innerRt, userStoreVectorPtr);
-            jsi::Array jsiKeyserverStore = keyserverStore.parseDBDataStore(
-                innerRt, keyserveStoreVectorPtr);
-            jsi::Array jsiCommunityStore = communityStore.parseDBDataStore(
-                innerRt, communityStoreVectorPtr);
-            jsi::Array jsiIntegrityStore = integrityStore.parseDBDataStore(
-                innerRt, integrityStoreVectorPtr);
-            jsi::Array jsiSyncedMetadataStore =
-                syncedMetadataStore.parseDBDataStore(
-                    innerRt, syncedMetadataStoreVectorPtr);
-            jsi::Array jsiAuxUserStore =
-                auxUserStore.parseDBDataStore(innerRt, auxUserStoreVectorPtr);
-            jsi::Array jsiThreadActivityStore =
-                threadActivityStore.parseDBDataStore(
-                    innerRt, threadActivityStoreVectorPtr);
-            jsi::Array jsiEntryStore =
-                entryStore.parseDBDataStore(innerRt, entryStoreVectorPtr);
-            jsi::Array jsiMessageStoreLocalMessageInfos =
-                messageStore.parseDBMessageStoreLocalMessageInfos(
-                    innerRt, messageStoreLocalMessageInfosVectorPtr);
+          auto dmOperationsVectorPtr =
+              std::make_shared<std::vector<DMOperation>>(
+                  std::move(dmOperationsVector));
+          this->jsInvoker_->invokeAsync(
+              [&innerRt,
+               draftsVectorPtr,
+               messagesVectorPtr,
+               threadsVectorPtr,
+               messageStoreThreadsVectorPtr,
+               reportStoreVectorPtr,
+               userStoreVectorPtr,
+               keyserveStoreVectorPtr,
+               communityStoreVectorPtr,
+               integrityStoreVectorPtr,
+               syncedMetadataStoreVectorPtr,
+               auxUserStoreVectorPtr,
+               threadActivityStoreVectorPtr,
+               entryStoreVectorPtr,
+               messageStoreLocalMessageInfosVectorPtr,
+               dmOperationsVectorPtr,
+               error,
+               promise,
+               draftStore = this->draftStore,
+               threadStore = this->threadStore,
+               messageStore = this->messageStore,
+               reportStore = this->reportStore,
+               userStore = this->userStore,
+               keyserverStore = this->keyserverStore,
+               communityStore = this->communityStore,
+               integrityStore = this->integrityStore,
+               syncedMetadataStore = this->syncedMetadataStore,
+               auxUserStore = this->auxUserStore,
+               threadActivityStore = this->threadActivityStore,
+               entryStore = this->entryStore,
+               dmOperationStore = this->dmOperationStore]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+                jsi::Array jsiDrafts =
+                    draftStore.parseDBDataStore(innerRt, draftsVectorPtr);
+                jsi::Array jsiMessages =
+                    messageStore.parseDBDataStore(innerRt, messagesVectorPtr);
+                jsi::Array jsiThreads =
+                    threadStore.parseDBDataStore(innerRt, threadsVectorPtr);
+                jsi::Array jsiMessageStoreThreads =
+                    messageStore.parseDBMessageStoreThreads(
+                        innerRt, messageStoreThreadsVectorPtr);
+                jsi::Array jsiReportStore =
+                    reportStore.parseDBDataStore(innerRt, reportStoreVectorPtr);
+                jsi::Array jsiUserStore =
+                    userStore.parseDBDataStore(innerRt, userStoreVectorPtr);
+                jsi::Array jsiKeyserverStore = keyserverStore.parseDBDataStore(
+                    innerRt, keyserveStoreVectorPtr);
+                jsi::Array jsiCommunityStore = communityStore.parseDBDataStore(
+                    innerRt, communityStoreVectorPtr);
+                jsi::Array jsiIntegrityStore = integrityStore.parseDBDataStore(
+                    innerRt, integrityStoreVectorPtr);
+                jsi::Array jsiSyncedMetadataStore =
+                    syncedMetadataStore.parseDBDataStore(
+                        innerRt, syncedMetadataStoreVectorPtr);
+                jsi::Array jsiAuxUserStore = auxUserStore.parseDBDataStore(
+                    innerRt, auxUserStoreVectorPtr);
+                jsi::Array jsiThreadActivityStore =
+                    threadActivityStore.parseDBDataStore(
+                        innerRt, threadActivityStoreVectorPtr);
+                jsi::Array jsiEntryStore =
+                    entryStore.parseDBDataStore(innerRt, entryStoreVectorPtr);
+                jsi::Array jsiMessageStoreLocalMessageInfos =
+                    messageStore.parseDBMessageStoreLocalMessageInfos(
+                        innerRt, messageStoreLocalMessageInfosVectorPtr);
+                jsi::Array jsiDMOperations = dmOperationStore.parseDBDataStore(
+                    innerRt, dmOperationsVectorPtr);
 
-            auto jsiClientDBStore = jsi::Object(innerRt);
-            jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
-            jsiClientDBStore.setProperty(innerRt, "threads", jsiThreads);
-            jsiClientDBStore.setProperty(innerRt, "drafts", jsiDrafts);
-            jsiClientDBStore.setProperty(
-                innerRt, "messageStoreThreads", jsiMessageStoreThreads);
-            jsiClientDBStore.setProperty(innerRt, "reports", jsiReportStore);
-            jsiClientDBStore.setProperty(innerRt, "users", jsiUserStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "keyservers", jsiKeyserverStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "communities", jsiCommunityStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "integrityThreadHashes", jsiIntegrityStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "syncedMetadata", jsiSyncedMetadataStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "auxUserInfos", jsiAuxUserStore);
-            jsiClientDBStore.setProperty(
-                innerRt, "threadActivityEntries", jsiThreadActivityStore);
-            jsiClientDBStore.setProperty(innerRt, "entries", jsiEntryStore);
-            jsiClientDBStore.setProperty(
-                innerRt,
-                "messageStoreLocalMessageInfos",
-                jsiMessageStoreLocalMessageInfos);
+                auto jsiClientDBStore = jsi::Object(innerRt);
+                jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
+                jsiClientDBStore.setProperty(innerRt, "threads", jsiThreads);
+                jsiClientDBStore.setProperty(innerRt, "drafts", jsiDrafts);
+                jsiClientDBStore.setProperty(
+                    innerRt, "messageStoreThreads", jsiMessageStoreThreads);
+                jsiClientDBStore.setProperty(
+                    innerRt, "reports", jsiReportStore);
+                jsiClientDBStore.setProperty(innerRt, "users", jsiUserStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "keyservers", jsiKeyserverStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "communities", jsiCommunityStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "integrityThreadHashes", jsiIntegrityStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "syncedMetadata", jsiSyncedMetadataStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "auxUserInfos", jsiAuxUserStore);
+                jsiClientDBStore.setProperty(
+                    innerRt, "threadActivityEntries", jsiThreadActivityStore);
+                jsiClientDBStore.setProperty(innerRt, "entries", jsiEntryStore);
+                jsiClientDBStore.setProperty(
+                    innerRt,
+                    "messageStoreLocalMessageInfos",
+                    jsiMessageStoreLocalMessageInfos);
+                jsiClientDBStore.setProperty(
+                    innerRt, "dmOperations", jsiDMOperations);
 
-            promise->resolve(std::move(jsiClientDBStore));
-          });
+                promise->resolve(std::move(jsiClientDBStore));
+              });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
@@ -454,6 +466,12 @@ jsi::Value CommCoreModule::processDBStoreOperations(
         operations,
         "messageSearchStoreOperations",
         this->messageSearchStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "dmOperationStoreOperations",
+        this->dmOperationStore,
         storeOpsPtr);
   } catch (std::runtime_error &e) {
     createOperationsError = e.what();
@@ -2157,7 +2175,8 @@ CommCoreModule::CommCoreModule(
       auxUserStore(jsInvoker),
       threadActivityStore(jsInvoker),
       entryStore(jsInvoker),
-      messageSearchStore(jsInvoker) {
+      messageSearchStore(jsInvoker),
+      dmOperationStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 
@@ -3486,6 +3505,44 @@ jsi::Value CommCoreModule::restoreUser(
                 [error, promise]() { promise->reject(error); });
           }
         });
+      });
+}
+
+jsi::Value
+CommCoreModule::getDMOperationsByType(jsi::Runtime &rt, jsi::String type) {
+  std::string typeCpp = type.utf8(rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::shared_ptr<std::vector<DMOperation>> operations;
+          try {
+            operations = std::make_shared<std::vector<DMOperation>>(
+                DatabaseManager::getQueryExecutor().getDMOperationsByType(
+                    typeCpp));
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt,
+               error,
+               promise,
+               operations,
+               dmOperationStore = this->dmOperationStore]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+
+                jsi::Array jsiOperations =
+                    dmOperationStore.parseDBDataStore(innerRt, operations);
+                promise->resolve(std::move(jsiOperations));
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
