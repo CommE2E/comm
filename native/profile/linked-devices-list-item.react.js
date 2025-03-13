@@ -62,6 +62,11 @@ function LinkedDevicesListItem(props: Props): React.Node {
       name = 'cloud';
     } else if (deviceType === identityDeviceTypes.WEB) {
       name = 'globe-1';
+    } else if (
+      deviceType === identityDeviceTypes.MAC_OS ||
+      deviceType === identityDeviceTypes.WINDOWS
+    ) {
+      name = 'laptop';
     } else {
       name = 'question';
     }
