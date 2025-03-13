@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   PickledOLMAccount,
@@ -50,6 +51,7 @@ export const workerRequestMessageTypes = Object.freeze({
   RESET_OUTBOUND_P2P_MESSAGES: 24,
   FETCH_MESSAGES: 25,
   GET_INBOUND_P2P_MESSAGES_BY_ID: 26,
+  GET_DM_OPERATIONS_BY_TYPE: 27,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -231,6 +233,11 @@ export type GetInboundP2PMessagesByIDRequestMessage = {
   +messageIDs: $ReadOnlyArray<string>,
 };
 
+export type GetDMOperationsByTypeRequestMessage = {
+  +type: 27,
+  +operationType: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -258,7 +265,8 @@ export type WorkerRequestMessage =
   | SearchMessagesRequestMessage
   | ResetOutboundP2PMessagesRequestMessage
   | FetchMessagesRequestMessage
-  | GetInboundP2PMessagesByIDRequestMessage;
+  | GetInboundP2PMessagesByIDRequestMessage
+  | GetDMOperationsByTypeRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -277,6 +285,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_OUTBOUND_P2P_MESSAGES: 7,
   GET_MESSAGES: 8,
   RESET_OUTBOUND_P2P_MESSAGES: 9,
+  DM_OPERATIONS: 10,
 });
 
 export type PongWorkerResponseMessage = {
@@ -329,6 +338,11 @@ export type ResetOutboundP2PMessagesResponseMessage = {
   +messageIDs: $ReadOnlyArray<string>,
 };
 
+export type DMOperationsResponseMessage = {
+  +type: 10,
+  +operations: $ReadOnlyArray<ClientDBDMOperation>,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -339,7 +353,8 @@ export type WorkerResponseMessage =
   | GetInboundP2PMessagesResponseMessage
   | GetOutboundP2PMessagesResponseMessage
   | GetMessagesResponse
-  | ResetOutboundP2PMessagesResponseMessage;
+  | ResetOutboundP2PMessagesResponseMessage
+  | DMOperationsResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
