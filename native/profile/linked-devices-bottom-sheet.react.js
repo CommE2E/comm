@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDeviceListUpdate } from 'lib/shared/device-list-utils.js';
@@ -18,7 +18,7 @@ import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import Button from '../components/button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { useStyles } from '../themes/colors.js';
+import { useColors, useStyles } from '../themes/colors.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import Alert from '../utils/alert.js';
 
@@ -60,38 +60,46 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const insets = useSafeAreaInsets();
 
-  const handleDeviceRemoval = React.useCallback(async () => {
-    const authMetadata = await getAuthMetadata();
-    const { userID } = authMetadata;
-    if (!userID) {
-      throw new Error('No user ID');
-    }
+  // This state is on purpose never set to false, to avoid case when
+  // this state is flipped before Bottom Sheet is closed, which is
+  // terrible for UX. When trying to remove device again,
+  // a new component is rendered with the default state
+  // value `false`.
+  const [removingInProgress, setRemovingInProgress] = React.useState(false);
 
+  const handleDeviceRemoval = React.useCallback(async () => {
+    setRemovingInProgress(true);
     try {
+      const authMetadata = await getAuthMetadata();
+      const { userID } = authMetadata;
+      if (!userID) {
+        throw new Error('No user ID');
+      }
+
       await runDeviceListUpdate({
         type: 'remove',
         deviceID,
       });
-    } catch (err) {
-      console.log('Primary device error:', err);
+
+      const messageContents: DeviceLogoutP2PMessage = {
+        type: userActionsP2PMessageTypes.LOG_OUT_DEVICE,
+      };
+
+      await broadcastEphemeralMessage(
+        JSON.stringify(messageContents),
+        [{ userID, deviceID }],
+        authMetadata,
+      );
+    } catch (e) {
+      console.log('Removing device failed:', e);
       Alert.alert(
         'Removing device failed',
         'Failed to update the device list',
         [{ text: 'OK' }],
       );
+    } finally {
       bottomSheetRef.current?.close();
     }
-
-    const messageContents: DeviceLogoutP2PMessage = {
-      type: userActionsP2PMessageTypes.LOG_OUT_DEVICE,
-    };
-
-    await broadcastEphemeralMessage(
-      JSON.stringify(messageContents),
-      [{ userID, deviceID }],
-      authMetadata,
-    );
-    bottomSheetRef.current?.close();
   }, [
     getAuthMetadata,
     broadcastEphemeralMessage,
@@ -99,7 +107,7 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
     runDeviceListUpdate,
   ]);
 
-  const confirmDeviceRemoval = () => {
+  const confirmDeviceRemoval = React.useCallback(() => {
     Alert.alert(
       'Remove device',
       'Are you sure you want to remove this device?',
@@ -109,7 +117,7 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
       ],
       { cancelable: true },
     );
-  };
+  }, [handleDeviceRemoval]);
 
   const onLayout = React.useCallback(() => {
     removeDeviceContainerRef.current?.measure(
@@ -128,17 +136,46 @@ function LinkedDevicesBottomSheet(props: Props): React.Node {
     );
   }, [insets.bottom, setContentHeight]);
 
-  let removeDeviceButton;
-  if (shouldDisplayRemoveButton) {
-    removeDeviceButton = (
+  const colors = useColors();
+
+  const removeDeviceButton = React.useMemo(() => {
+    if (!shouldDisplayRemoveButton) {
+      return null;
+    }
+
+    let style, content;
+    if (removingInProgress) {
+      style = [styles.buttonContainer, styles.disabledButton];
+      content = (
+        <View style={styles.spinner}>
+          <ActivityIndicator size="small" color={colors.panelForegroundLabel} />
+        </View>
+      );
+    } else {
+      style = [styles.buttonContainer, styles.removeButton];
+      content = <Text style={styles.removeButtonText}>Remove device</Text>;
+    }
+
+    return (
       <Button
-        style={styles.removeButtonContainer}
+        style={style}
         onPress={confirmDeviceRemoval}
+        disabled={removingInProgress}
       >
-        <Text style={styles.removeButtonText}>Remove device</Text>
+        {content}
       </Button>
     );
-  }
+  }, [
+    colors.panelForegroundLabel,
+    confirmDeviceRemoval,
+    removingInProgress,
+    shouldDisplayRemoveButton,
+    styles.buttonContainer,
+    styles.disabledButton,
+    styles.removeButton,
+    styles.removeButtonText,
+    styles.spinner,
+  ]);
 
   return (
     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
@@ -157,14 +194,23 @@ const unboundStyles = {
   container: {
     paddingHorizontal: 16,
   },
-  removeButtonContainer: {
-    backgroundColor: 'vibrantRedButton',
+  buttonContainer: {
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
+  removeButton: {
+    backgroundColor: 'vibrantRedButton',
+  },
+  disabledButton: {
+    backgroundColor: 'disabledButton',
+  },
   removeButtonText: {
     color: 'floatingButtonLabel',
+  },
+  spinner: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 };
 
