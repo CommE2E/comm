@@ -888,7 +888,7 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: bffd1ead18f0bab04fa784ca159c115607b8a23c
   FBLazyVector: 9cf707e46f9bd90816b7c91b2c1c8b8a2f549527
   FBReactNativeSpec: 771fae43bc7b966ff4464a2a93407f666958a652
-  ffmpeg-kit-ios-min: 4e9a088f4ee9629435960b9d68e54848975f1931
+  ffmpeg-kit-ios-min: 29195b571253df57ab6c4bf002a4d648efa1166a
   ffmpeg-kit-react-native: 3cea88c9c5cfad62e1465279ea7d800dfbba3b00
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
