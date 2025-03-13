@@ -3,6 +3,7 @@
 import type { ClientDBMessageSearchStoreOperation } from 'lib/message-search-types.js';
 import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
+import type { ClientDBDMOperationStoreOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { ClientDBEntryStoreOperation } from 'lib/ops/entries-store-ops.js';
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
@@ -378,6 +379,7 @@ function processDBStoreOperations(
     outboundP2PMessages,
     entryStoreOperations,
     messageSearchStoreOperations,
+    dmOperationStoreOperations,
   } = storeOperations;
 
   try {
@@ -485,6 +487,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (dmOperationStoreOperations && dmOperationStoreOperations.length > 0) {
+      processDMOperationStoreOperations(
+        sqliteQueryExecutor,
+        dmOperationStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -574,7 +583,7 @@ function processEntryStoreOperations(
         const { id, entry } = operation.payload;
         sqliteQueryExecutor.replaceEntry({ id, entry });
       } else {
-        throw new Error('Unsupported thread activity operation');
+        throw new Error('Unsupported entry store operation');
       }
     } catch (e) {
       throw new Error(
@@ -609,6 +618,41 @@ function processMessageSearchStoreOperations(
         `Error while processing ${
           operation.type
         } message search operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
+function processDMOperationStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBDMOperationStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBDMOperationStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_dm_operations') {
+        sqliteQueryExecutor.removeAllDMOperations();
+      } else if (operation.type === 'remove_dm_operations') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeDMOperations(ids);
+      } else if (operation.type === 'replace_dm_operation') {
+        const { id, type, operation: dmOperation } = operation.payload;
+        sqliteQueryExecutor.replaceDMOperation({
+          id,
+          type,
+          operation: dmOperation,
+        });
+      } else {
+        throw new Error('Unsupported DMOperation operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } DMOperation operation: ${getProcessingStoreOpsExceptionMessage(
           e,
           module,
         )}`,

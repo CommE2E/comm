@@ -300,6 +300,16 @@ async function processAppRequest(
         message.messageIDs,
       ),
     };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_DM_OPERATIONS_BY_TYPE
+  ) {
+    const operations = sqliteQueryExecutor.getDMOperationsByType(
+      message.operationType,
+    );
+    return {
+      type: workerResponseMessageTypes.DM_OPERATIONS,
+      operations,
+    };
   }
 
   // write operations
