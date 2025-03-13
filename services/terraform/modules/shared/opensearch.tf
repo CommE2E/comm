@@ -52,4 +52,10 @@ resource "aws_opensearch_domain" "identity-search" {
     Name        = var.domain
     Environment = var.is_dev ? "development" : "production"
   }
+
+   log_publishing_options {
+    cloudwatch_log_group_arn = "arn:aws:logs:us-east-2:${var.target_account_id}:log-group:/aws/OpenSearchService/domains/identity-search-domain/application-logs"
+    enabled                  = true
+    log_type                 = "ES_APPLICATION_LOGS"
+   }
 }

@@ -14,3 +14,8 @@ variable "vpc_id" {}
 variable "cidr_block" {}
 
 variable "subnet_ids" {}
+
+variable "target_account_id" {
+  type        = string
+  default     = ""
+}

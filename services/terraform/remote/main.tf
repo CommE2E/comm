@@ -60,6 +60,7 @@ module "shared" {
   subnet_ids = [
     aws_subnet.public_a.id,
   ]
+  target_account_id                = local.target_account_id
 }
 
 check "workspace_check" {
