@@ -26,7 +26,7 @@ resource "aws_security_group" "identity-search" {
 
 resource "aws_opensearch_domain" "identity-search" {
   domain_name    = var.domain
-  engine_version = "OpenSearch_1.0"
+  engine_version = "OpenSearch_1.3"
 
   cluster_config {
     instance_type = "t3.small.search"
@@ -40,6 +40,7 @@ resource "aws_opensearch_domain" "identity-search" {
 
   advanced_options = {
     "rest.action.multi.allow_explicit_index" = "true"
+    override_main_response_version           = true
   }
 
   ebs_options {
