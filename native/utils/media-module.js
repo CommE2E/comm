@@ -13,6 +13,7 @@ type VideoInfo = {
 const MediaModule: {
   +getVideoInfo: (path: string) => Promise<VideoInfo>,
   +hasMultipleFrames: (path: string) => Promise<boolean>,
+  +generateThumbnail: (inputPath: string, outputPath: string) => Promise<void>,
 } = requireNativeModule('MediaModule');
 
 export function getVideoInfo(path: string): Promise<VideoInfo> {
@@ -21,4 +22,11 @@ export function getVideoInfo(path: string): Promise<VideoInfo> {
 
 export function hasMultipleFrames(path: string): Promise<boolean> {
   return MediaModule.hasMultipleFrames(path);
+}
+
+export function generateThumbnail(
+  inputPath: string,
+  outputPath: string,
+): Promise<void> {
+  return MediaModule.generateThumbnail(inputPath, outputPath);
 }
