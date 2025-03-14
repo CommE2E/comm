@@ -1,15 +1,10 @@
 // @flow
 
-import {
-  FFmpegKit,
-  FFprobeKit,
-  FFmpegKitConfig,
-} from 'ffmpeg-kit-react-native';
+import { FFmpegKit, FFmpegKitConfig } from 'ffmpeg-kit-react-native';
 
-import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils.js';
 import type { FFmpegStatistics, VideoInfo } from 'lib/types/media-types.js';
 
-import { getVideoInfo } from '../utils/media-module.js';
+import { getVideoInfo, hasMultipleFrames } from '../utils/media-module.js';
 
 const maxSimultaneousCalls = {
   process: 1,
@@ -144,17 +139,8 @@ class FFmpeg {
   }
 
   hasMultipleFrames(path: string): Promise<boolean> {
-    const wrappedCommand = () => FFmpeg.innerHasMultipleFrames(path);
+    const wrappedCommand = () => hasMultipleFrames(path);
     return this.queueCommand('probe', wrappedCommand);
-  }
-
-  static async innerHasMultipleFrames(path: string): Promise<boolean> {
-    const session = await FFprobeKit.execute(
-      getHasMultipleFramesProbeCommand(path),
-    );
-    const probeOutput = await session.getOutput();
-    const numFrames = parseInt(probeOutput);
-    return numFrames > 1;
   }
 }
 
