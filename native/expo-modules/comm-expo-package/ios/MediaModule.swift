@@ -42,6 +42,7 @@ public class MediaModule: Module {
     
     AsyncFunction("getVideoInfo", getVideoInfo)
     AsyncFunction("hasMultipleFrames", hasMultipleFrames)
+    AsyncFunction("generateThumbnail", generateThumbnail)
   }
   
   
@@ -83,6 +84,28 @@ public class MediaModule: Module {
     
     return count > 1
   }
+
+  private func generateThumbnail(inputPath: URL, outputPath: URL) throws {
+    let asset = AVURLAsset(url: inputPath)
+    let generator = AVAssetImageGenerator(asset: asset)
+    
+    generator.appliesPreferredTrackTransform = true
+    
+    let time = CMTimeMake(value: 0, timescale: 1000)
+    
+    let imgRef = try generator.copyCGImage(at: time, actualTime: nil)
+    let thumbnail = UIImage(cgImage: imgRef)
+    
+    guard let data = thumbnail.jpegData(compressionQuality: CGFloat(0.9)) else {
+      throw CorruptedImageDataException()
+    }
+    
+    do {
+      try data.write(to: outputPath, options: .atomic)
+    } catch let error {
+      throw ImageWriteFailedException(error.localizedDescription)
+    }
+  }
 }
 
 // MARK: - Exception definitions
@@ -96,5 +119,17 @@ private class NoVideoTrackException: GenericException<URL> {
 private class FailedToLoadGifException: GenericException<URL> {
   override var reason: String {
     "Failed to load gif at URI: \(param)"
+  }
+}
+
+private class CorruptedImageDataException: Exception {
+  override var reason: String {
+    "Cannot create image data for saving of the thumbnail of the given video"
+  }
+}
+
+private class ImageWriteFailedException: GenericException<String> {
+  override var reason: String {
+    "Writing image data to the file has failed: \(param)"
   }
 }
