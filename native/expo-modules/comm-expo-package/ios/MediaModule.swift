@@ -41,6 +41,7 @@ public class MediaModule: Module {
     Name("MediaModule")
     
     AsyncFunction("getVideoInfo", getVideoInfo)
+    AsyncFunction("hasMultipleFrames", hasMultipleFrames)
   }
   
   
@@ -72,6 +73,16 @@ public class MediaModule: Module {
     
     return videoInfo
   }
+  
+  private func hasMultipleFrames(path: URL) throws -> Bool {
+    guard let imageSource = CGImageSourceCreateWithURL(path as CFURL, nil) else {
+      throw FailedToLoadGifException(path)
+    }
+    
+    let count = CGImageSourceGetCount(imageSource)
+    
+    return count > 1
+  }
 }
 
 // MARK: - Exception definitions
@@ -79,5 +90,11 @@ public class MediaModule: Module {
 private class NoVideoTrackException: GenericException<URL> {
   override var reason: String {
     "No video track found in file URI: \(param)"
+  }
+}
+
+private class FailedToLoadGifException: GenericException<URL> {
+  override var reason: String {
+    "Failed to load gif at URI: \(param)"
   }
 }
