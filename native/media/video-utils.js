@@ -192,16 +192,17 @@ async function generateThumbnail(
   thumbnailPath: string,
 ): Promise<VideoGenerateThumbnailMediaMissionStep> {
   const thumbnailStart = Date.now();
-  const thumbnailReturnCode = await ffmpeg.generateThumbnail(
-    path,
-    thumbnailPath,
-  );
-  const thumbnailGenerationSuccessful = thumbnailReturnCode === 0;
+  let exceptionMessage;
+  try {
+    await ffmpeg.generateThumbnail(path, thumbnailPath);
+  } catch (e) {
+    exceptionMessage = getMessageForException(e);
+  }
   return {
     step: 'video_generate_thumbnail',
-    success: thumbnailGenerationSuccessful,
+    success: !exceptionMessage,
     time: Date.now() - thumbnailStart,
-    returnCode: thumbnailReturnCode,
+    exceptionMessage,
     thumbnailURI: thumbnailPath,
   };
 }
