@@ -104,6 +104,7 @@ const defaultState = ({
     messageQueue: {},
     entryQueue: {},
     membershipQueue: {},
+    shimmedOperations: [],
   },
   holderStore: {
     storedHolders: {},

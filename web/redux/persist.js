@@ -722,6 +722,16 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     state,
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [86]: (async (state: AppState) => ({
+    state: {
+      ...state,
+      queuedDMOperations: {
+        ...state.queuedDMOperations,
+        shimmedOperations: [],
+      },
+    },
+    ops: {},
+  }): MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
