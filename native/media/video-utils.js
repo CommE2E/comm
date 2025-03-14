@@ -258,7 +258,9 @@ async function checkVideoInfo(
   try {
     ({ codec, format, dimensions, duration } = await ffmpeg.getVideoInfo(path));
     success = true;
-    validFormat = codec === 'h264' && format.includes('mp4');
+    const validCodecs = ['avc', 'avc1', 'h264'];
+    const validFormats = ['mp4'];
+    validFormat = validCodecs.includes(codec) && validFormats.includes(format);
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }

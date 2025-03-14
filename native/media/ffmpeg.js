@@ -7,11 +7,9 @@ import {
 } from 'ffmpeg-kit-react-native';
 
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils.js';
-import type {
-  Dimensions,
-  FFmpegStatistics,
-  VideoInfo,
-} from 'lib/types/media-types.js';
+import type { FFmpegStatistics, VideoInfo } from 'lib/types/media-types.js';
+
+import { getVideoInfo } from '../utils/media-module.js';
 
 const maxSimultaneousCalls = {
   process: 1,
@@ -135,32 +133,14 @@ class FFmpeg {
   }
 
   static async innerGetVideoInfo(path: string): Promise<VideoInfo> {
-    const session = await FFprobeKit.getMediaInformation(path);
-    const info = await session.getMediaInformation();
-    const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
-    const codec = videoStreamInfo?.codec;
-    const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
-    const format = info.getFormat().split(',');
-    const duration = info.getDuration();
-    return { codec, format, dimensions, duration };
-  }
+    const info = await getVideoInfo(path);
 
-  static getVideoStreamInfo(
-    info: Object,
-  ): ?{ +codec: string, +dimensions: Dimensions } {
-    const streams = info.getStreams();
-    if (!streams) {
-      return null;
-    }
-    for (const stream of streams) {
-      if (stream.getType() === 'video') {
-        const codec: string = stream.getCodec();
-        const width: number = stream.getWidth();
-        const height: number = stream.getHeight();
-        return { codec, dimensions: { width, height } };
-      }
-    }
-    return null;
+    return {
+      codec: info.codec,
+      format: info.format,
+      dimensions: { width: info.width, height: info.height },
+      duration: info.duration,
+    };
   }
 
   hasMultipleFrames(path: string): Promise<boolean> {
