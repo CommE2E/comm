@@ -100,6 +100,7 @@ const defaultWebState: AppState = Object.freeze({
     messageQueue: {},
     entryQueue: {},
     membershipQueue: {},
+    shimmedOperations: [],
   },
   holderStore: {
     storedHolders: {},
