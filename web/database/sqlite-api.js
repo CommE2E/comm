@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
@@ -110,6 +111,19 @@ const sqliteAPI: SQLiteAPI = {
     });
     const messages: ?$ReadOnlyArray<ClientDBMessageInfo> = data?.messages;
     return messages ? [...messages] : [];
+  },
+
+  async fetchDMOperationsByType(
+    type: string,
+  ): Promise<Array<ClientDBDMOperation>> {
+    const sharedWorker = await getCommSharedWorker();
+
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_DM_OPERATIONS_BY_TYPE,
+      operationType: type,
+    });
+    const operations = data?.operations;
+    return operations ? [...operations] : [];
   },
 
   // write operations
