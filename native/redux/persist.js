@@ -1506,6 +1506,16 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       [messageTypes.MULTIMEDIA],
       handleReduxMigrationFailure,
     ): MigrationFunction<NavInfo, AppState>),
+  [86]: (async (state: AppState) => ({
+    state: {
+      ...state,
+      queuedDMOperations: {
+        ...state.queuedDMOperations,
+        shimmedOperations: [],
+      },
+    },
+    ops: {},
+  }): MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1516,7 +1526,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 85,
+  version: 86,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
