@@ -4,7 +4,11 @@ import { FFmpegKit, FFmpegKitConfig } from 'ffmpeg-kit-react-native';
 
 import type { FFmpegStatistics, VideoInfo } from 'lib/types/media-types.js';
 
-import { getVideoInfo, hasMultipleFrames } from '../utils/media-module.js';
+import {
+  getVideoInfo,
+  hasMultipleFrames,
+  generateThumbnail,
+} from '../utils/media-module.js';
 
 const maxSimultaneousCalls = {
   process: 1,
@@ -106,20 +110,9 @@ class FFmpeg {
     return this.queueCommand('process', wrappedCommand);
   }
 
-  generateThumbnail(videoPath: string, outputPath: string): Promise<number> {
-    const wrappedCommand = () =>
-      FFmpeg.innerGenerateThumbnail(videoPath, outputPath);
+  generateThumbnail(videoPath: string, outputPath: string): Promise<void> {
+    const wrappedCommand = () => generateThumbnail(videoPath, outputPath);
     return this.queueCommand('process', wrappedCommand);
-  }
-
-  static async innerGenerateThumbnail(
-    videoPath: string,
-    outputPath: string,
-  ): Promise<number> {
-    const thumbnailCommand = `-i ${videoPath} -frames 1 -f mjpeg ${outputPath}`;
-    const session = await FFmpegKit.execute(thumbnailCommand);
-    const returnCode = await session.getReturnCode();
-    return returnCode.getValue();
   }
 
   getVideoInfo(path: string): Promise<VideoInfo> {
