@@ -18,6 +18,7 @@ const sqliteAPI: SQLiteAPI = {
   getOutboundP2PMessagesByID: commCoreModule.getOutboundP2PMessagesByID,
   searchMessages: commCoreModule.searchMessages,
   fetchMessages: commCoreModule.fetchMessages,
+  fetchDMOperationsByType: commCoreModule.getDMOperationsByType,
 
   // write operations
   removeInboundP2PMessages: commCoreModule.removeInboundP2PMessages,
