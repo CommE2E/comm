@@ -18,6 +18,7 @@ type Props = {
   +invisibleLoad: boolean,
   +errorOccurred?: boolean,
 };
+
 function LoadableImage(props: Props): React.Node {
   const { source, placeholder, onLoad: onLoadProp, errorOccurred } = props;
   const styles = useStyles(unboundStyles);
@@ -82,6 +83,7 @@ function LoadableImage(props: Props): React.Node {
         placeholder={placeholder}
         onLoad={onLoad}
         onError={onError}
+        cachePolicy="memory-disk"
         style={props.style}
       />
       {statusIndicator}
