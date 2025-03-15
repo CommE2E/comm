@@ -82,6 +82,7 @@ function LoadableImage(props: Props): React.Node {
         placeholder={placeholder}
         onLoad={onLoad}
         onError={onError}
+        cachePolicy="memory-disk"
         style={props.style}
       />
       {statusIndicator}
