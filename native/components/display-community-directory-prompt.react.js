@@ -16,6 +16,7 @@ import {
   type RecordAlertActionPayload,
 } from 'lib/types/alert-types.js';
 import type { CommunityInfos } from 'lib/types/community-types.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -42,6 +43,7 @@ function DisplayCommunityDirectoryPromptHandler(): React.Node {
   const currentRoute = useCurrentLeafRouteName();
 
   if (
+    isDev ||
     !showCommunityDirectory ||
     !loggedIn ||
     !isActive ||
