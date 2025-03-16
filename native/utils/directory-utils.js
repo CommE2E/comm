@@ -1,3 +1,3 @@
 // @flow
 
-export const showCommunityDirectory = false;
+export const showCommunityDirectory = true;
