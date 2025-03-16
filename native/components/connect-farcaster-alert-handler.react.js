@@ -9,7 +9,10 @@ import {
   alertTypes,
   type RecordAlertActionPayload,
 } from 'lib/types/alert-types.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useCurrentUserFID,
+  useSetLocalFID,
+} from 'lib/utils/farcaster-utils.js';
 import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
@@ -25,6 +28,8 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
 
   const fid = useCurrentUserFID();
+
+  const setLocalFID = useSetLocalFID();
 
   const connectFarcasterAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER],
@@ -44,6 +49,11 @@ function ConnectFarcasterAlertHandler(): React.Node {
     void (async () => {
       await sleep(1000);
 
+      // We set the local FID to null to prevent the prompt from being displayed
+      // again. We set it here, rather than in the bottom sheet itself, to avoid
+      // the scenario where the user connects their Farcaster account but we
+      // accidentally overwrite the FID on close and set it to null.
+      setLocalFID(null);
       navigate(ConnectFarcasterBottomSheetRouteName);
 
       const payload: RecordAlertActionPayload = {
@@ -56,7 +66,15 @@ function ConnectFarcasterAlertHandler(): React.Node {
         payload,
       });
     })();
-  }, [connectFarcasterAlertInfo, dispatch, fid, isActive, loggedIn, navigate]);
+  }, [
+    connectFarcasterAlertInfo,
+    dispatch,
+    fid,
+    isActive,
+    loggedIn,
+    navigate,
+    setLocalFID,
+  ]);
 
   return null;
 }
