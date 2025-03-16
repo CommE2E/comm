@@ -6,7 +6,10 @@ import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useCurrentUserFID,
+  useSetLocalFID,
+} from 'lib/utils/farcaster-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -41,6 +44,8 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const fid = useCurrentUserFID();
 
   const tryLinkFID = useTryLinkFID();
+
+  const setLocalFID = useSetLocalFID();
 
   const onSuccess = React.useCallback(
     async (newFID: string) => {
@@ -84,9 +89,16 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   const connectButtonVariant = isLoadingLinkFID ? 'loading' : 'enabled';
 
+  const onClosed = React.useCallback(() => {
+    if (!fid) {
+      setLocalFID(null);
+    }
+    goBack();
+  }, [fid, setLocalFID, goBack]);
+
   const connectFarcasterBottomSheet = React.useMemo(
     () => (
-      <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+      <BottomSheet ref={bottomSheetRef} onClosed={onClosed}>
         <View style={styles.container}>
           <View style={styles.promptContainer}>
             <FarcasterPrompt textType="connect" />
@@ -100,7 +112,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       </BottomSheet>
     ),
-    [connectButtonVariant, goBack, onPressConnect, onSuccess, webViewState],
+    [onClosed, onPressConnect, connectButtonVariant, onSuccess, webViewState],
   );
 
   return connectFarcasterBottomSheet;
