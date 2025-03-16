@@ -55,8 +55,6 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
     [tryLinkFID],
   );
 
-  const bottomSheetRef = React.useRef(null);
-
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
   const { setContentHeight } = bottomSheetContext;
@@ -73,9 +71,9 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   React.useEffect(() => {
     if (fid && isAppForegrounded) {
-      bottomSheetRef.current?.close();
+      goBack();
     }
-  }, [fid, isAppForegrounded]);
+  }, [fid, goBack, isAppForegrounded]);
 
   const onPressConnect = React.useCallback(() => {
     setIsLoadingLinkFID(true);
@@ -86,7 +84,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   const connectFarcasterBottomSheet = React.useMemo(
     () => (
-      <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+      <BottomSheet onClosed={goBack}>
         <View style={styles.container}>
           <View style={styles.promptContainer}>
             <FarcasterPrompt textType="connect" />
@@ -100,7 +98,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       </BottomSheet>
     ),
-    [connectButtonVariant, goBack, onPressConnect, onSuccess, webViewState],
+    [goBack, onPressConnect, connectButtonVariant, onSuccess, webViewState],
   );
 
   return connectFarcasterBottomSheet;
