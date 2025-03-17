@@ -60,6 +60,8 @@ const wagmiConfig = getWagmiConfig([
   'walletconnect',
 ]);
 
+console.log('test');
+
 const RootProvider = (): React.Node => (
   <Provider store={store}>
     <ErrorBoundary>
