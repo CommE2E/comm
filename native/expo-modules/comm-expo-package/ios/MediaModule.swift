@@ -36,6 +36,17 @@ public struct VideoInfo: Record {
   var format: String = "N/A"
 }
 
+public struct TranscodeOptions: Record {
+  public init(){}
+  @Field
+  var width: Int = -1
+
+  @Field
+  var height: Int = -1
+}
+
+let TRANSCODE_PROGRESS_EVENT_NAME = "onTranscodeProgress"
+
 public class MediaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("MediaModule")
@@ -43,6 +54,9 @@ public class MediaModule: Module {
     AsyncFunction("getVideoInfo", getVideoInfo)
     AsyncFunction("hasMultipleFrames", hasMultipleFrames)
     AsyncFunction("generateThumbnail", generateThumbnail)
+    AsyncFunction("transcodeVideo", transcodeVideo)
+    
+    Events(TRANSCODE_PROGRESS_EVENT_NAME)
   }
   
   
@@ -104,6 +118,120 @@ public class MediaModule: Module {
       try data.write(to: outputPath, options: .atomic)
     } catch let error {
       throw ImageWriteFailedException(error.localizedDescription)
+    }
+  }
+
+  private func transcodeVideo(inputPath: URL, outputPath: URL, options: TranscodeOptions, promise: Promise) throws {
+    let asset = AVAsset(url: inputPath)
+    
+    guard let assetReader = try? AVAssetReader(asset: asset) else {
+      print("Failed to initialize asset or asset reader.")
+      return
+    }
+    
+    let totalDuration = asset.duration
+    
+    let videoTrack = asset.tracks(withMediaType: .video).first!
+    //let audioTrack = asset.tracks(withMediaType: .audio).first!
+    
+    let videoReaderSettings: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
+    
+    let videoTrackOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: videoReaderSettings)
+    //let audioTrackOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: nil) // `nil` for default audio processing settings
+    
+    if assetReader.canAdd(videoTrackOutput) {
+      assetReader.add(videoTrackOutput)
+    }
+    //    if assetReader.canAdd(audioTrackOutput) {
+    //      assetReader.add(audioTrackOutput)
+    //    }
+    
+    guard let assetWriter = try? AVAssetWriter(outputURL: outputPath, fileType: AVFileType.mp4) else {
+      print("Error initializing AVAssetWriter")
+      return
+    }
+    
+    let videoCompressionSettings: [String: Any] = [
+      AVVideoCodecKey: AVVideoCodecType.h264,
+      AVVideoWidthKey: 400, // Custom resolution
+      AVVideoHeightKey: 680,
+      AVVideoCompressionPropertiesKey: [
+        //AVVideoAverageBitRateKey: 5_000_000,
+        AVVideoProfileLevelKey: AVVideoProfileLevelH264Baseline30,
+      ]
+    ]
+    
+    let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoCompressionSettings)
+    // let audioWriterInput = AVAssetWriterInput(mediaType: .audio, outputSettings: nil) // Default audio settings
+    assetWriter.shouldOptimizeForNetworkUse = true
+    
+    if assetWriter.canAdd(videoWriterInput) {
+      assetWriter.add(videoWriterInput)
+    }
+    //    if assetWriter.canAdd(audioWriterInput) {
+    //      assetWriter.add(audioWriterInput)
+    //    }
+    
+    assetReader.startReading()
+    assetWriter.startWriting()
+    
+    assetWriter.startSession(atSourceTime: CMTime.zero)
+    
+    let dispatchGroup = DispatchGroup()
+    
+    dispatchGroup.enter()
+    var frames = 0
+    videoWriterInput.requestMediaDataWhenReady(on: DispatchQueue(label: "videoQueue")) {
+      while videoWriterInput.isReadyForMoreMediaData {
+        if let sampleBuffer = videoTrackOutput.copyNextSampleBuffer() {
+          
+          let currentSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+          let progress = CMTimeGetSeconds(currentSampleTime) / CMTimeGetSeconds(totalDuration)
+          if(frames % 20 == 0) {
+            print("Current progress: \(progress)")
+            self.sendEvent(TRANSCODE_PROGRESS_EVENT_NAME, [
+              "progress": progress
+            ])
+          }
+          frames += 1
+          videoWriterInput.append(sampleBuffer)
+        } else {
+          videoWriterInput.markAsFinished()
+          dispatchGroup.leave()
+          self.sendEvent(TRANSCODE_PROGRESS_EVENT_NAME, [
+            "progress": 1
+          ])
+          break
+        }
+      }
+    }
+    
+    //    dispatchGroup.enter()
+    //    audioWriterInput.requestMediaDataWhenReady(on: DispatchQueue(label: "audioQueue")) {
+    //      while audioWriterInput.isReadyForMoreMediaData {
+    //        if let sampleBuffer = audioTrackOutput.copyNextSampleBuffer() {
+    //          audioWriterInput.append(sampleBuffer)
+    //        } else {
+    //          audioWriterInput.markAsFinished()
+    //          dispatchGroup.leave()
+    //          break
+    //        }
+    //      }
+    //    }
+    
+    dispatchGroup.notify(queue: .main) {
+      assetWriter.finishWriting {
+        switch assetWriter.status {
+        case .failed:
+          print("Error: \(String(describing: assetWriter.error))")
+        case .completed:
+          print("Transcoding completed successfully.")
+          promise.resolve()
+        default:
+          break
+        }
+        assetReader.cancelReading()
+      }
     }
   }
 }

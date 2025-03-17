@@ -210,36 +210,32 @@ async function generateThumbnail(
 async function transcodeVideo(
   plan: ProcessPlan,
   duration: number,
-  onProgressCallback?: number => void,
+  onProgressCallback: number => void,
 ): Promise<TranscodeVideoMediaMissionStep> {
   const transcodeStart = Date.now();
-  let returnCode,
-    newPath,
-    stats,
-    success = false,
+  console.log('transcode #0');
+
+  let newPath,
+    stats = {},
     exceptionMessage;
   try {
-    const { rc, lastStats } = await ffmpeg.transcodeVideo(
-      plan.ffmpegCommand,
-      duration,
+    await ffmpeg.transcodeVideo(
+      plan.inputPath,
+      plan.outputPath,
+      plan.transcodeOptions,
       onProgressCallback,
     );
-    success = rc === 0;
-    if (success) {
-      returnCode = rc;
-      newPath = plan.outputPath;
-      stats = lastStats;
-    }
+    newPath = plan.outputPath;
+    //stats = lastStats;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
 
   return {
     step: 'video_ffmpeg_transcode',
-    success,
+    success: true,
     exceptionMessage,
     time: Date.now() - transcodeStart,
-    returnCode,
     newPath,
     stats,
   };

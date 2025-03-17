@@ -9,12 +9,34 @@ import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.annotation.OptIn
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.effect.Presentation
+import androidx.media3.transformer.Composition
+import androidx.media3.transformer.DefaultEncoderFactory
+import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.Effects
+import androidx.media3.transformer.ExportException
+import androidx.media3.transformer.ExportResult
+import androidx.media3.transformer.ProgressHolder
+import androidx.media3.transformer.Transformer
+import androidx.media3.transformer.VideoEncoderSettings
+import expo.modules.kotlin.Promise
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
 import java.io.FileOutputStream
+import java.io.File
+import java.io.IOException
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class VideoInfo : Record {
     @Field
@@ -33,6 +55,15 @@ class VideoInfo : Record {
     var format: String = "N/A"
 }
 
+class TranscodeOptions : Record {
+  @Field
+  var width: Int = -1
+
+  @Field
+  var height: Int = -1
+}
+
+const val TRANSCODE_PROGRESS_EVENT_NAME = "onTranscodeProgress"
 
 class MediaModule : Module() {
     override fun definition() = ModuleDefinition {
@@ -41,6 +72,9 @@ class MediaModule : Module() {
         AsyncFunction("getVideoInfo", this@MediaModule::getVideoInfo)
         AsyncFunction("hasMultipleFrames", this@MediaModule::hasMultipleFrames)
         AsyncFunction("generateThumbnail", this@MediaModule::generateThumbnail)
+        AsyncFunction("transcodeVideo", this@MediaModule::transcodeVideo)
+
+        Events(TRANSCODE_PROGRESS_EVENT_NAME)
     }
 
 
@@ -126,6 +160,86 @@ class MediaModule : Module() {
         } catch (e: Exception) {
             throw SaveThumbnailException(outputPath, e)
         }
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun transcodeVideo(inputPath: String, outputPath: String, options: TranscodeOptions, promise: Promise) {
+
+        val context = appContext.reactContext!!
+        val mediaItem = MediaItem.Builder()
+            .setUri(Uri.parse(inputPath))
+            .build()
+
+        val effects = Effects(listOf(), listOf(
+            Presentation.createForWidthAndHeight(480, 200,
+            Presentation.LAYOUT_STRETCH_TO_FIT
+        )))
+
+        val editedMediaItem = EditedMediaItem.Builder(mediaItem)
+            .setEffects(effects)
+            .build()
+
+        val videoEncoderFactory = DefaultEncoderFactory.Builder(context)
+            .setRequestedVideoEncoderSettings(
+                VideoEncoderSettings.DEFAULT.buildUpon()
+
+                    .build()
+            )
+            .build()
+
+
+        val newFile = File(Uri.parse(outputPath).path)
+
+        if (!newFile.exists()) {
+            val created = newFile.createNewFile()
+            if (!created) {
+                throw IOException("File could not be created")
+            }
+        }
+        var transformer: Transformer? = null
+        val handler = Handler(Looper.getMainLooper())
+        val progressHolder = ProgressHolder()
+        val runnable = object : Runnable {
+            override fun run() {
+                transformer?.getProgress(progressHolder)
+                sendEvent(
+                    TRANSCODE_PROGRESS_EVENT_NAME,
+                    mapOf("progress" to progressHolder.progress/100.0)
+                )
+                handler.postDelayed(this, 100)
+            }
+        }
+
+        handler.post {
+            transformer = Transformer.Builder(context)
+                .setVideoMimeType(MimeTypes.VIDEO_H264)
+                .setAudioMimeType(MimeTypes.AUDIO_AAC)
+                .setEncoderFactory(videoEncoderFactory)
+                .addListener(object : Transformer.Listener {
+                    override fun onCompleted(composition: Composition, exportResult: ExportResult) {
+                        handler.removeCallbacks(runnable)
+                        sendEvent(
+                            TRANSCODE_PROGRESS_EVENT_NAME,
+                            mapOf("progress" to 1)
+                        )
+                        promise.resolve(Unit)
+                    }
+
+                    override fun onError(
+                        composition: Composition,
+                        exportResult: ExportResult,
+                        exportException: ExportException
+                    ) {
+                        handler.removeCallbacks(runnable)
+                        Log.e("FFMPEG", "eerrror: ")
+                        //promise.reject(exportException)
+                    }
+                })
+                .build()
+            transformer?.start(editedMediaItem, Uri.parse(outputPath).path!!)
+        }
+
+        handler.post(runnable)
     }
 }
 

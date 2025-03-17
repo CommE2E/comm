@@ -8,7 +8,9 @@ import {
   getVideoInfo,
   hasMultipleFrames,
   generateThumbnail,
+  transcodeVideo,
 } from '../utils/media-module.js';
+import type { TranscodeOptions } from '../utils/media-module';
 
 const maxSimultaneousCalls = {
   process: 1,
@@ -80,32 +82,22 @@ class FFmpeg {
   }
 
   transcodeVideo(
-    ffmpegCommand: string,
-    inputVideoDuration: number,
-    onTranscodingProgress?: (percent: number) => void,
+    inputPath: string,
+    outputPath: string,
+    transcodeOptions: TranscodeOptions,
+    onTranscodingProgress: (percent: number) => void,
   ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
-    const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
+    console.log('transcode #1');
+
     const wrappedCommand = async () => {
-      let lastStats;
-      if (onTranscodingProgress) {
-        FFmpegKitConfig.enableStatisticsCallback(statisticsObject => {
-          const time = statisticsObject.getTime();
-          onTranscodingProgress(time / 1000 / duration);
-          lastStats = {
-            speed: statisticsObject.getSpeed(),
-            time,
-            size: statisticsObject.getSize(),
-            videoQuality: statisticsObject.getVideoQuality(),
-            videoFrameNumber: statisticsObject.getVideoFrameNumber(),
-            videoFps: statisticsObject.getVideoFps(),
-            bitrate: statisticsObject.getBitrate(),
-          };
-        });
-      }
-      const session = await FFmpegKit.execute(ffmpegCommand);
-      const returnCode = await session.getReturnCode();
-      const rc = returnCode.getValue();
-      return { rc, lastStats };
+      console.log('transcode #2');
+
+      await transcodeVideo(
+        inputPath,
+        outputPath,
+        transcodeOptions,
+        onTranscodingProgress,
+      );
     };
     return this.queueCommand('process', wrappedCommand);
   }
