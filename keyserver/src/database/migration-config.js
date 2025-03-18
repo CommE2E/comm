@@ -14,6 +14,7 @@ import {
   threadPermissions,
   userSurfacedPermissions,
   type ThreadRolePermissionsBlob,
+  type UserSurfacedPermission,
 } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
@@ -22,8 +23,8 @@ import {
   toggleUserSurfacedPermission,
 } from 'lib/utils/role-utils.js';
 
+import { processMessagesInDBForSearch } from './search-utils.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { fetchAllPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchPickledOlmAccount } from '../fetchers/olm-account-fetchers.js';
@@ -981,58 +982,8 @@ const migrations: $ReadOnlyArray<Migration> = [
   },
   {
     version: 69,
-    migrationPromise: async () => {
-      const [result] = await dbQuery(SQL`
-        SELECT r.id, r.permissions
-        FROM threads t
-        LEFT JOIN roles r ON r.thread = t.id
-        WHERE t.community IS NULL
-          AND t.type != ${threadTypes.GENESIS}
-          AND r.special_role != ${specialRoles.ADMIN_ROLE}
-      `);
-
-      // We accidentally removed ADD_MEMBERS in an earlier migration,
-      // so we make sure to bring it back here
-      const rolePermissionsToUpdate = new Map<
-        string,
-        ThreadRolePermissionsBlob,
-      >();
-      for (const row of result) {
-        const { id, permissions: permissionsString } = row;
-        const permissions = JSON.parse(permissionsString);
-        const userSurfaced =
-          userSurfacedPermissionsFromRolePermissions(permissions);
-        if (userSurfaced.has(userSurfacedPermissions.ADD_MEMBERS)) {
-          continue;
-        }
-        const newPermissions = toggleUserSurfacedPermission(
-          permissions,
-          userSurfacedPermissions.ADD_MEMBERS,
-        );
-        rolePermissionsToUpdate.set(id, newPermissions);
-      }
-
-      if (rolePermissionsToUpdate.size > 0) {
-        const updateQuery = SQL`
-          UPDATE roles
-          SET permissions = CASE id
-        `;
-        for (const [id, permissions] of rolePermissionsToUpdate) {
-          console.log(`updating ${id} to ${JSON.stringify(permissions)}`);
-          const permissionsBlob = JSON.stringify(permissions);
-          updateQuery.append(SQL`
-            WHEN ${id} THEN ${permissionsBlob}
-          `);
-        }
-        updateQuery.append(SQL`
-            ELSE permissions
-          END
-        `);
-        await dbQuery(updateQuery);
-      }
-
-      await updateRolesAndPermissionsForAllThreads();
-    },
+    migrationPromise: () =>
+      addNewUserSurfacedPermission(userSurfacedPermissions.ADD_MEMBERS),
     migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
@@ -1106,6 +1057,15 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
         { multipleStatements: true },
       ),
+    migrationType: 'run_simultaneously_with_requests',
+  },
+  {
+    version: 73,
+    migrationPromise: () =>
+      // This function calls updateRolesAndPermissionsForAllThreads which
+      // should grant DELETE_OWN_MESSAGES and DELETE_ALL_MESSAGES to all the
+      // admins
+      addNewUserSurfacedPermission(userSurfacedPermissions.DELETE_OWN_MESSAGES),
     migrationType: 'run_simultaneously_with_requests',
   },
 ];
@@ -1252,6 +1212,61 @@ async function saveNewOlmAccounts(
 
 function isDockerEnvironment(): boolean {
   return !!process.env.COMM_DATABASE_HOST;
+}
+
+async function addNewUserSurfacedPermission(
+  permission: UserSurfacedPermission,
+) {
+  // We're filtering out admin roles because a new permission should be set
+  // to true in baseAdminPermissions inside
+  // getRolePermissionBlobsForCommunityRoot
+  const [result] = await dbQuery(SQL`
+    SELECT r.id, r.permissions
+    FROM threads t
+    LEFT JOIN roles r ON r.thread = t.id
+      WHERE t.community IS NULL
+      AND t.type != ${threadTypes.GENESIS}
+      AND r.special_role != ${specialRoles.ADMIN_ROLE}
+  `);
+
+  const rolePermissionsToUpdate = new Map<string, ThreadRolePermissionsBlob>();
+  for (const row of result) {
+    const { id, permissions: permissionsString } = row;
+    const permissions = JSON.parse(permissionsString);
+    const userSurfaced =
+      userSurfacedPermissionsFromRolePermissions(permissions);
+    if (userSurfaced.has(permission)) {
+      continue;
+    }
+    const newPermissions = toggleUserSurfacedPermission(
+      permissions,
+      permission,
+    );
+    rolePermissionsToUpdate.set(id, newPermissions);
+  }
+
+  if (rolePermissionsToUpdate.size > 0) {
+    const updateQuery = SQL`
+      UPDATE roles
+      SET permissions = CASE id
+    `;
+    for (const [id, permissions] of rolePermissionsToUpdate) {
+      console.log(`updating ${id} to ${JSON.stringify(permissions)}`);
+      const permissionsBlob = JSON.stringify(permissions);
+      updateQuery.append(SQL`
+        WHEN ${id} THEN ${permissionsBlob}
+      `);
+    }
+    updateQuery.append(SQL`
+        ELSE permissions
+      END
+    `);
+    await dbQuery(updateQuery);
+  }
+
+  // Calling this also results in recalculating roles for admins, if
+  // baseAdminPermissions was also changed
+  await updateRolesAndPermissionsForAllThreads();
 }
 
 export {
