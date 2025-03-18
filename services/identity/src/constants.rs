@@ -200,6 +200,7 @@ pub mod tonic_status_messages {
   pub const WALLET_ADDRESS_MISMATCH: &str = "wallet_address_mismatch";
   pub const DEVICE_ID_ALREADY_EXISTS: &str = "device_id_already_exists";
   pub const USER_NOT_FOUND: &str = "user_not_found";
+  pub const DEVICE_NOT_FOUND: &str = "device_not_found";
   pub const INVALID_NONCE: &str = "invalid_nonce";
   pub const NONCE_EXPIRED: &str = "nonce_expired";
   pub const FID_TAKEN: &str = "fid_taken";
