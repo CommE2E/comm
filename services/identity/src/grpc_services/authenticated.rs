@@ -3,7 +3,9 @@ use std::collections::{HashMap, HashSet};
 use crate::comm_service::{backup, blob, tunnelbroker};
 use crate::config::CONFIG;
 use crate::constants::staff::AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
-use crate::database::{DeviceListRow, DeviceListUpdate, PlatformDetails};
+use crate::database::{
+  DeviceListRow, DeviceListUpdate, PlatformDetails, Prekey,
+};
 use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
@@ -142,14 +144,45 @@ impl IdentityClientService for AuthenticatedService {
       Status::invalid_argument(tonic_status_messages::MISSING_NOTIF_KEYS)
     })?;
 
+    let device_info = self
+      .db_client
+      .get_device_data(&user_id, &device_id)
+      .await?
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::DEVICE_NOT_FOUND)
+      })?;
+    let notif_signing_pub_key = device_info
+      .device_key_info
+      .key_payload()?
+      .notification_identity_public_keys
+      .ed25519;
+
+    use crate::database::Prekey as DBPrekey;
+    let content_prekey = DBPrekey::from(content_key);
+    let notif_prekey = DBPrekey::from(notif_key);
+
+    if let Err(err) = content_prekey.verify(&device_id) {
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Content prekey verification failed: {err}"
+      );
+      return Err(Status::invalid_argument(
+        tonic_status_messages::MALFORMED_KEY,
+      ));
+    }
+    if let Err(err) = notif_prekey.verify(&notif_signing_pub_key) {
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Notif prekey verification failed: {err}"
+      );
+      return Err(Status::invalid_argument(
+        tonic_status_messages::MALFORMED_KEY,
+      ));
+    }
+
     self
       .db_client
-      .update_device_prekeys(
-        user_id,
-        device_id,
-        content_key.into(),
-        notif_key.into(),
-      )
+      .update_device_prekeys(user_id, device_id, content_prekey, notif_prekey)
       .await?;
 
     let response = Response::new(Empty {});

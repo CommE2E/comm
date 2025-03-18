@@ -82,6 +82,13 @@ pub struct IdentityKeyInfo {
   pub key_payload_signature: String,
 }
 
+impl IdentityKeyInfo {
+  pub fn key_payload(&self) -> Result<super::KeyPayload, crate::error::Error> {
+    let payload = self.key_payload.parse::<super::KeyPayload>()?;
+    Ok(payload)
+  }
+}
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Prekey {
@@ -90,14 +97,14 @@ pub struct Prekey {
 }
 
 impl Prekey {
-  fn new(prekey: String, prekey_signature: String) -> Self {
+  pub fn new(prekey: String, prekey_signature: String) -> Self {
     Self {
       prekey,
       prekey_signature,
     }
   }
   /// ED25519-verifies if prekey is signed correctly
-  fn verify(&self, signing_public_key: &str) -> Result<(), Error> {
+  pub fn verify(&self, signing_public_key: &str) -> Result<(), Error> {
     use crate::constants::tonic_status_messages;
     use base64::engine::{
       general_purpose::STANDARD_NO_PAD as BASE64, Engine as _,
