@@ -27,20 +27,21 @@ async function unpickleAccountAndUseCallback<T>(
   const account = new olm.Account();
   account.unpickle(picklingKey, pickledAccount);
 
-  let result;
   try {
-    result = await callback(account, picklingKey);
+    const result = await callback(account, picklingKey);
+    const updatedAccount = account.pickle(picklingKey);
+    return {
+      result,
+      pickledOlmAccount: {
+        ...pickledOlmAccount,
+        pickledAccount: updatedAccount,
+      },
+    };
   } catch (e) {
     throw new ServerError(getMessageForException(e) ?? 'unknown_error');
+  } finally {
+    account.free();
   }
-  const updatedAccount = account.pickle(picklingKey);
-
-  account.free();
-
-  return {
-    result,
-    pickledOlmAccount: { ...pickledOlmAccount, pickledAccount: updatedAccount },
-  };
 }
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
@@ -75,23 +76,21 @@ async function unpickleSessionAndUseCallback<T>(
   const session = new olm.Session();
   session.unpickle(picklingKey, pickledSession);
 
-  let result;
   try {
-    result = await callback(session);
+    const result = await callback(session);
+    const updatedSession = session.pickle(picklingKey);
+    return {
+      result,
+      pickledOlmSession: {
+        ...pickledOlmSession,
+        pickledSession: updatedSession,
+      },
+    };
   } catch (e) {
     throw new ServerError(getMessageForException(e) ?? 'unknown_error');
+  } finally {
+    session.free();
   }
-  const updatedSession = session.pickle(picklingKey);
-
-  session.free();
-
-  return {
-    result,
-    pickledOlmSession: {
-      ...pickledOlmSession,
-      pickledSession: updatedSession,
-    },
-  };
 }
 
 async function createPickledOlmSession(
