@@ -1,13 +1,12 @@
 // @flow
-
-import { FFmpegKit, FFmpegKitConfig } from 'ffmpeg-kit-react-native';
-
 import type { FFmpegStatistics, VideoInfo } from 'lib/types/media-types.js';
 
+import type { TranscodeOptions } from '../utils/media-module.js';
 import {
   getVideoInfo,
   hasMultipleFrames,
   generateThumbnail,
+  transcodeVideo,
 } from '../utils/media-module.js';
 
 const maxSimultaneousCalls = {
@@ -80,32 +79,23 @@ class FFmpeg {
   }
 
   transcodeVideo(
-    ffmpegCommand: string,
-    inputVideoDuration: number,
+    inputPath: string,
+    outputPath: string,
+    transcodeOptions: TranscodeOptions,
     onTranscodingProgress?: (percent: number) => void,
-  ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
-    const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
+  ): Promise<FFmpegStatistics> {
     const wrappedCommand = async () => {
-      let lastStats;
-      if (onTranscodingProgress) {
-        FFmpegKitConfig.enableStatisticsCallback(statisticsObject => {
-          const time = statisticsObject.getTime();
-          onTranscodingProgress(time / 1000 / duration);
-          lastStats = {
-            speed: statisticsObject.getSpeed(),
-            time,
-            size: statisticsObject.getSize(),
-            videoQuality: statisticsObject.getVideoQuality(),
-            videoFrameNumber: statisticsObject.getVideoFrameNumber(),
-            videoFps: statisticsObject.getVideoFps(),
-            bitrate: statisticsObject.getBitrate(),
-          };
-        });
-      }
-      const session = await FFmpegKit.execute(ffmpegCommand);
-      const returnCode = await session.getReturnCode();
-      const rc = returnCode.getValue();
-      return { rc, lastStats };
+      const stats = await transcodeVideo(
+        inputPath,
+        outputPath,
+        transcodeOptions,
+        onTranscodingProgress,
+      );
+      return {
+        speed: stats.speed,
+        time: stats.duration,
+        size: stats.size,
+      };
     };
     return this.queueCommand('process', wrappedCommand);
   }
