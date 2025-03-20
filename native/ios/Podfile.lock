@@ -132,10 +132,6 @@ PODS:
     - React-Core (= 0.70.15)
     - React-jsi (= 0.70.15)
     - ReactCommon/turbomodule/core (= 0.70.15)
-  - ffmpeg-kit-ios-min (6.0)
-  - ffmpeg-kit-react-native/min (6.0.2):
-    - ffmpeg-kit-ios-min (= 6.0)
-    - React-Core
   - fmt (6.2.1)
   - glog (0.3.5)
   - hermes-engine (0.70.15)
@@ -608,7 +604,6 @@ DEPENDENCIES:
   - EXUpdatesInterface (from `../../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../../node_modules/react-native/React/FBReactNativeSpec`)
-  - ffmpeg-kit-react-native/min (from `../node_modules/ffmpeg-kit-react-native`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../../node_modules/react-native/sdks/hermes/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
@@ -671,7 +666,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - DVAssetLoaderDelegate
-    - ffmpeg-kit-ios-min
     - fmt
     - libaom
     - libavif
@@ -747,8 +741,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/Libraries/FBLazyVector"
   FBReactNativeSpec:
     :path: "../../node_modules/react-native/React/FBReactNativeSpec"
-  ffmpeg-kit-react-native:
-    :podspec: "../node_modules/ffmpeg-kit-react-native"
   glog:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
@@ -888,8 +880,6 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: bffd1ead18f0bab04fa784ca159c115607b8a23c
   FBLazyVector: 9cf707e46f9bd90816b7c91b2c1c8b8a2f549527
   FBReactNativeSpec: 771fae43bc7b966ff4464a2a93407f666958a652
-  ffmpeg-kit-ios-min: 4e9a088f4ee9629435960b9d68e54848975f1931
-  ffmpeg-kit-react-native: 3cea88c9c5cfad62e1465279ea7d800dfbba3b00
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 2592781da1571e4375dfd897f9462638c2d0ceb9
@@ -962,6 +952,6 @@ SPEC CHECKSUMS:
   Yoga: d6134eb3d6e3675afc1d6d65ccb3169b60e21980
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: e798997ef1aaf79a5061dcbe1ee62bb7df19b483
+PODFILE CHECKSUM: f76805dc4a3fa10f92a1a57ac8cd3105aec6708f
 
 COCOAPODS: 1.14.3

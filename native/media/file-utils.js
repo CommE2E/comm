@@ -27,7 +27,7 @@ import type {
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { stringToIntArray } from './blob-utils.js';
-import { ffmpeg } from './ffmpeg.js';
+import { mediaProcessingQueue } from './media-processing-queue.js';
 
 const defaultInputs = Object.freeze({});
 const defaultFields = Object.freeze({});
@@ -309,7 +309,7 @@ async function getMediaTypeInfo(
     exceptionMessage;
   const start = Date.now();
   try {
-    hasMultipleFrames = await ffmpeg.hasMultipleFrames(path);
+    hasMultipleFrames = await mediaProcessingQueue.hasMultipleFrames(path);
     success = true;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
