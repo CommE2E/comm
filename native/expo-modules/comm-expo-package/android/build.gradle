@@ -93,4 +93,8 @@ dependencies {
   // dependencies of AndroidLifecycleModule
   implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
   implementation "androidx.lifecycle:lifecycle-process:2.5.1"
+
+  // dependencies of MediaModule
+  // keep in sync with Expo's media3 dependencies
+  implementation 'androidx.media3:media3-transformer:1.4.0'
 }
