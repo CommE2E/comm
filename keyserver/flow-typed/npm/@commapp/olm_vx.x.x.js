@@ -177,11 +177,17 @@ limitations under the License.
 
   declare export function get_library_version(): [number, number, number];
 
+  declare export function get_total_memory(): number;
+
+  declare export function get_used_memory(): number;
+
   declare export var PRIVATE_KEY_LENGTH: number;
 
   declare export default {
     init: typeof init,
     get_library_version: typeof get_library_version,
+    get_total_memory: typeof get_total_memory,
+    get_used_memory: typeof get_used_memory,
     PRIVATE_KEY_LENGTH: typeof PRIVATE_KEY_LENGTH,
     Account: typeof Account,
     Utility: typeof Utility,
