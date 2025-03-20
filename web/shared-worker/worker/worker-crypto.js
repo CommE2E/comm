@@ -24,6 +24,7 @@ import type { OlmSessionInitializationInfo } from 'lib/types/olm-session-types.j
 import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
+import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
 import { getOlmUtility } from 'lib/utils/olm-utility.js';
 import {
   retrieveAccountKeysSet,
@@ -388,6 +389,7 @@ async function processAppOlmApiRequest(
       message.olmWasmPath,
       message.initialCryptoStore,
     );
+    verifyMemoryUsage('INITIALIZE_CRYPTO_ACCOUNT');
   } else if (message.type === workerRequestMessageTypes.CALL_OLM_API_METHOD) {
     const method: (...$ReadOnlyArray<mixed>) => mixed = (olmAPI[
       message.method
@@ -395,6 +397,7 @@ async function processAppOlmApiRequest(
     // Flow doesn't allow us to bind the (stringified) method name with
     // the argument types so we need to pass the args as mixed.
     const result = await method(...message.args);
+    verifyMemoryUsage(message.method);
     return {
       type: workerResponseMessageTypes.CALL_OLM_API_METHOD,
       result,
