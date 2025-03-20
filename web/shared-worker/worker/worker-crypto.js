@@ -359,6 +359,7 @@ async function initializeCryptoAccount(
   await olm.init({ locateFile: () => olmWasmPath });
 
   if (initialCryptoStore) {
+    clearCryptoStore();
     cryptoStore = {
       contentAccountPickleKey: initialCryptoStore.primaryAccount.picklingKey,
       contentAccount: unpickleInitialCryptoStoreAccount(
@@ -514,6 +515,7 @@ const olmAPI: OlmAPI = {
 
     const contentSessions = getOlmSessions(contentAccountResult.picklingKey);
 
+    clearCryptoStore();
     cryptoStore = {
       contentAccountPickleKey: contentAccountResult.picklingKey,
       contentAccount: contentAccountResult.account,
