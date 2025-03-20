@@ -1,5 +1,8 @@
 // @flow
-import type { FFmpegStatistics, VideoInfo } from 'lib/types/media-types.js';
+import type {
+  TranscodingStatistics,
+  VideoInfo,
+} from 'lib/types/media-types.js';
 
 import type { TranscodeOptions } from '../utils/media-module.js';
 import {
@@ -21,7 +24,7 @@ type QueuedCommand = {
   runCommand: () => Promise<void>,
 };
 
-class FFmpeg {
+class MediaProcessingQueue {
   queue: QueuedCommand[] = [];
   currentCalls: CallCounter = { process: 0, probe: 0 };
 
@@ -83,7 +86,7 @@ class FFmpeg {
     outputPath: string,
     transcodeOptions: TranscodeOptions,
     onTranscodingProgress?: (percent: number) => void,
-  ): Promise<FFmpegStatistics> {
+  ): Promise<TranscodingStatistics> {
     const wrappedCommand = async () => {
       const stats = await transcodeVideo(
         inputPath,
@@ -106,7 +109,7 @@ class FFmpeg {
   }
 
   getVideoInfo(path: string): Promise<VideoInfo> {
-    const wrappedCommand = () => FFmpeg.innerGetVideoInfo(path);
+    const wrappedCommand = () => MediaProcessingQueue.innerGetVideoInfo(path);
     return this.queueCommand('probe', wrappedCommand);
   }
 
@@ -127,6 +130,6 @@ class FFmpeg {
   }
 }
 
-const ffmpeg: FFmpeg = new FFmpeg();
+const mediaProcessingQueue: MediaProcessingQueue = new MediaProcessingQueue();
 
-export { ffmpeg };
+export { mediaProcessingQueue };

@@ -26,10 +26,6 @@ buildscript {
     }
 }
 
-ext {
-  ffmpegKitPackage = "min-lts"
-}
-
 allprojects {
     repositories {
         maven {
