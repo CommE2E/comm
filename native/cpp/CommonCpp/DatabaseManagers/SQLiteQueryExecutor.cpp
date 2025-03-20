@@ -24,7 +24,7 @@
 #include "StaffUtils.h"
 #endif
 
-const int CONTENT_ACCOUNT_ID = 1;
+const int CONTENT_ACCOUNT_ID = 100;
 const int NOTIFS_ACCOUNT_ID = 2;
 
 namespace comm {
