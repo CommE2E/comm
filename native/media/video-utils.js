@@ -16,8 +16,8 @@ import type {
 } from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
-import { ffmpeg } from './ffmpeg.js';
 import { temporaryDirectoryPath } from './file-utils.js';
+import { mediaProcessingQueue } from './media-processing-queue.js';
 import { generateThumbhashStep } from './media-utils.js';
 
 // These are some numbers I sorta kinda made up
@@ -188,7 +188,7 @@ async function generateThumbnail(
   const thumbnailStart = Date.now();
   let exceptionMessage;
   try {
-    await ffmpeg.generateThumbnail(path, thumbnailPath);
+    await mediaProcessingQueue.generateThumbnail(path, thumbnailPath);
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
@@ -209,7 +209,7 @@ async function transcodeVideo(
   const transcodeStart = Date.now();
   let newPath, stats, exceptionMessage;
   try {
-    stats = await ffmpeg.transcodeVideo(
+    stats = await mediaProcessingQueue.transcodeVideo(
       plan.inputPath,
       plan.outputPath,
       {
@@ -224,7 +224,7 @@ async function transcodeVideo(
   }
 
   return {
-    step: 'video_ffmpeg_transcode',
+    step: 'video_transcode',
     success: !exceptionMessage,
     exceptionMessage,
     time: Date.now() - transcodeStart,
@@ -245,7 +245,8 @@ async function checkVideoInfo(
     exceptionMessage;
   const start = Date.now();
   try {
-    ({ codec, format, dimensions, duration } = await ffmpeg.getVideoInfo(path));
+    ({ codec, format, dimensions, duration } =
+      await mediaProcessingQueue.getVideoInfo(path));
     success = true;
     const validCodecs = ['avc', 'avc1', 'h264'];
     const validFormats = ['mp4'];

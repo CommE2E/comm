@@ -10,7 +10,6 @@ require 'json'
 def common_comm_target_pods
   pod 'SQLCipher-Amalgamation', :path => '../../node_modules/@commapp/sqlcipher-amalgamation'
   pod 'react-native-video/VideoCaching', :podspec => '../node_modules/react-native-video'
-  pod 'ffmpeg-kit-react-native', :subspecs => ['min'], :podspec => '../node_modules/ffmpeg-kit-react-native'
 end
 
 post_integrate do |installer|
