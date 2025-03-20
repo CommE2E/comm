@@ -279,6 +279,7 @@ pub mod request_metadata {
   pub const USER_ID: &str = "user_id";
   pub const DEVICE_ID: &str = "device_id";
   pub const ACCESS_TOKEN: &str = "access_token";
+  pub const SERVICES_TOKEN: &str = "services_token";
 }
 
 // CORS
