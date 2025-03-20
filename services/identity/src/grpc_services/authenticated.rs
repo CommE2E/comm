@@ -3,9 +3,7 @@ use std::collections::{HashMap, HashSet};
 use crate::comm_service::{backup, blob, tunnelbroker};
 use crate::config::CONFIG;
 use crate::constants::staff::AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
-use crate::database::{
-  DeviceListRow, DeviceListUpdate, PlatformDetails, Prekey,
-};
+use crate::database::{DeviceListRow, DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
@@ -18,7 +16,7 @@ use crate::{
   grpc_services::shared::{get_platform_metadata, get_value},
 };
 use chrono::DateTime;
-use comm_lib::auth::AuthService;
+use comm_lib::auth::{AuthService, ServicesAuthToken};
 use comm_lib::blob::client::BlobServiceClient;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
@@ -63,19 +61,43 @@ fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
 pub fn auth_interceptor(
   req: Request<()>,
   db_client: &DatabaseClient,
+  auth_service: &comm_lib::auth::AuthService,
 ) -> Result<Request<()>, Status> {
+  use tonic_status_messages as msg;
+
   trace!("Intercepting request to check auth info: {:?}", req);
-
-  let (user_id, device_id, access_token) =
-    get_auth_info(&req).ok_or_else(|| {
-      Status::unauthenticated(tonic_status_messages::MISSING_CREDENTIALS)
-    })?;
-
   let handle = tokio::runtime::Handle::current();
-  let new_db_client = db_client.clone();
+
+  if let Some(s2s_token) = get_value(&req, request_metadata::SERVICES_TOKEN) {
+    let auth_credential = ServicesAuthToken::new(s2s_token);
+    let auth_service = auth_service.clone();
+
+    // This function cannot be `async`, yet must call the async db call
+    // Force tokio to resolve future in current thread without an explicit .await
+    let verification_result = tokio::task::block_in_place(move || {
+      handle
+        .block_on(auth_service.verify_auth_credential(&auth_credential.into()))
+    });
+
+    return match verification_result {
+      Ok(true) => Ok(req),
+      Ok(false) => Err(Status::aborted(msg::BAD_CREDENTIALS)),
+      Err(err) => {
+        tracing::error!(
+          errorType = error_types::HTTP_LOG,
+          "Failed to verify service-to-service token: {err:?}",
+        );
+        Err(tonic::Status::aborted(msg::UNEXPECTED_ERROR))
+      }
+    };
+  }
+
+  let (user_id, device_id, access_token) = get_auth_info(&req)
+    .ok_or_else(|| Status::unauthenticated(msg::MISSING_CREDENTIALS))?;
 
   // This function cannot be `async`, yet must call the async db call
   // Force tokio to resolve future in current thread without an explicit .await
+  let new_db_client = db_client.clone();
   let valid_token = tokio::task::block_in_place(move || {
     handle.block_on(new_db_client.verify_access_token(
       user_id,
@@ -85,7 +107,7 @@ pub fn auth_interceptor(
   })?;
 
   if !valid_token {
-    return Err(Status::aborted(tonic_status_messages::BAD_CREDENTIALS));
+    return Err(Status::aborted(msg::BAD_CREDENTIALS));
   }
 
   Ok(req)

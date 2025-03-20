@@ -116,13 +116,17 @@ async fn main() -> Result<(), BoxedError> {
       let inner_auth_service = AuthenticatedService::new(
         database_client.clone(),
         blob_client,
-        comm_auth_service,
+        comm_auth_service.clone(),
       );
       let db_client = database_client.clone();
       let auth_service =
         AuthServer::with_interceptor(inner_auth_service, move |req| {
-          grpc_services::authenticated::auth_interceptor(req, &db_client)
-            .and_then(grpc_services::shared::version_interceptor)
+          grpc_services::authenticated::auth_interceptor(
+            req,
+            &db_client,
+            &comm_auth_service,
+          )
+          .and_then(grpc_services::shared::version_interceptor)
         });
 
       info!("Listening to gRPC traffic on {}", addr);
