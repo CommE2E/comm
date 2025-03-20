@@ -2,12 +2,18 @@ use comm_lib::crypto::siwe;
 use grpc_clients::{
   error::Error,
   identity::{
-    get_unauthenticated_client, protos::unauth::FindUserIdRequest,
-    protos::unauthenticated::find_user_id_request::Identifier,
-    PlatformMetadata,
+    authenticated::get_services_auth_client,
+    get_unauthenticated_client,
+    protos::{
+      auth::{PeersDeviceListsRequest, UserDevicesPlatformDetails},
+      unauth::FindUserIdRequest,
+      unauthenticated::find_user_id_request::Identifier,
+    },
+    DeviceType, PlatformMetadata,
   },
   tonic::Request,
 };
+use tracing::debug;
 
 use crate::config::CONFIG;
 use crate::error::BackupError;
@@ -48,4 +54,44 @@ pub async fn find_user_id(
     Some(user_id) => Ok(user_id),
     None => Err(BackupError::NoUserID),
   }
+}
+
+pub async fn find_keyserver_device_for_user(
+  user_id: &str,
+  auth_service: &comm_lib::auth::AuthService,
+) -> Result<Option<String>, BackupError> {
+  let services_token = auth_service.get_services_token().await?;
+  let mut grpc_client = get_services_auth_client(
+    &CONFIG.identity_endpoint,
+    services_token.as_str().to_owned(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
+  )
+  .await?;
+
+  let request = PeersDeviceListsRequest {
+    user_ids: vec![user_id.to_string()],
+  };
+  let response = grpc_client
+    .get_device_lists_for_users(Request::new(request))
+    .await
+    .map_err(Error::GrpcStatus)?
+    .into_inner();
+
+  let Some(UserDevicesPlatformDetails {
+    devices_platform_details,
+  }) = response.users_devices_platform_details.get(user_id)
+  else {
+    debug!("No device list found for user {user_id}");
+    return Ok(None);
+  };
+
+  for (device_id, device_details) in devices_platform_details {
+    if device_details.device_type() == DeviceType::Keyserver {
+      debug!("Found keyserver for user {user_id}. Device ID: {device_id}");
+      return Ok(Some(device_id.to_string()));
+    }
+  }
+
+  debug!("No keyserver found for user {user_id}");
+  Ok(None)
 }
