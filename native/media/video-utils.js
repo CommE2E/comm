@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { Platform } from 'react-native';
 import filesystem from 'react-native-fs';
 
 import { mediaConfig, pathFromURI } from 'lib/media/file-utils.js';
@@ -82,11 +81,6 @@ async function processVideo(
     inputDuration: duration,
     inputDimensions: input.dimensions,
     outputDirectory: temporaryDirectoryPath,
-    outputCodec: Platform.select({
-      ios: 'h264_videotoolbox',
-      android: 'h264_mediacodec',
-      default: 'h264',
-    }),
     clientConnectionInfo: {
       hasWiFi: input.hasWiFi,
       speed: input.hasWiFi ? uploadSpeeds.wifi : uploadSpeeds.cellular,
@@ -216,33 +210,27 @@ async function transcodeVideo(
   onProgressCallback?: number => void,
 ): Promise<TranscodeVideoMediaMissionStep> {
   const transcodeStart = Date.now();
-  let returnCode,
-    newPath,
-    stats,
-    success = false,
-    exceptionMessage;
+  let newPath, stats, exceptionMessage;
   try {
-    const { rc, lastStats } = await ffmpeg.transcodeVideo(
-      plan.ffmpegCommand,
-      duration,
+    stats = await ffmpeg.transcodeVideo(
+      plan.inputPath,
+      plan.outputPath,
+      {
+        width: plan.width,
+        height: plan.height,
+      },
       onProgressCallback,
     );
-    success = rc === 0;
-    if (success) {
-      returnCode = rc;
-      newPath = plan.outputPath;
-      stats = lastStats;
-    }
+    newPath = plan.outputPath;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
 
   return {
     step: 'video_ffmpeg_transcode',
-    success,
+    success: !exceptionMessage,
     exceptionMessage,
     time: Date.now() - transcodeStart,
-    returnCode,
     newPath,
     stats,
   };
