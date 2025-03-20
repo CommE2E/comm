@@ -12447,11 +12447,6 @@ fflate@^0.7.3:
   resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.7.4.tgz#61587e5d958fdabb5a9368a302c25363f4f69f50"
   integrity sha512-5u2V/CDW15QM1XbbgS+0DfPxVB+jUKhWEKuuFuHncbk3tEEqzmoXL+2KyOFuKGqOnmdIy0/davWF1CkuwtibCw==
 
-ffmpeg-kit-react-native@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/ffmpeg-kit-react-native/-/ffmpeg-kit-react-native-6.0.2.tgz#9eeac96ad89367c99480bd90431391405d4eb73e"
-  integrity sha512-r9uSmahq8TeyIb7fXf3ft+uUXyoeWRFa99+khjo0TAzWO9y0z9wU7eGnab9JLw1MmCB9v64o4yojNluJhVm9nQ==
-
 figma-squircle@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/figma-squircle/-/figma-squircle-0.1.2.tgz#fa97de644131d99f2c42a2d8b70d56a36783c234"
