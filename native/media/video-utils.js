@@ -29,6 +29,9 @@ const uploadSpeeds = Object.freeze({
 });
 const clientTranscodeSpeed = 1.15; // in seconds of video transcoded per second
 
+const validCodecs = ['avc', 'avc1', 'h264'];
+const validFormats = ['mp4'];
+
 type ProcessVideoInfo = {
   +uri: string,
   +mime: string,
@@ -258,7 +261,7 @@ async function checkVideoInfo(
   try {
     ({ codec, format, dimensions, duration } = await ffmpeg.getVideoInfo(path));
     success = true;
-    validFormat = codec === 'h264' && format.includes('mp4');
+    validFormat = validCodecs.includes(codec) && validFormats.includes(format);
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
