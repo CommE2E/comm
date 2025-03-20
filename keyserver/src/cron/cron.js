@@ -1,8 +1,11 @@
 // @flow
 
 import type { Account as OlmAccount } from '@commapp/olm';
+import olm from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
+
+import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
@@ -123,6 +126,13 @@ if (cluster.isMaster) {
             e,
           );
         }
+      },
+    );
+    schedule.scheduleJob(
+      '0,15,30,45 * * * *', // every 15 minutes
+      async () => {
+        await olm.init();
+        verifyMemoryUsage('cronjob');
       },
     );
   }
