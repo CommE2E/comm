@@ -65,7 +65,7 @@ function useRestoreProtocol(): (
       if (!latestBackupInfo) {
         throw new Error('Backup not found');
       }
-      const { userID, backupID } = latestBackupInfo;
+      const { userID, backupID, keyserverDeviceID } = latestBackupInfo;
 
       const { pickledAccount, pickleKey, backupDataKey, backupLogDataKey } =
         await getBackupUserKeys(userIdentifier, secret, backupID);
@@ -78,7 +78,10 @@ function useRestoreProtocol(): (
 
       //4. Create signed singleton device list
       const primaryDeviceID = await getContentSigningKey();
-      const initialDeviceList = composeRawDeviceList([primaryDeviceID]);
+      const devices = keyserverDeviceID
+        ? [primaryDeviceID, keyserverDeviceID]
+        : [primaryDeviceID];
+      const initialDeviceList = composeRawDeviceList(devices);
       const rawDeviceList = JSON.stringify(initialDeviceList);
       const [curPrimarySignature, lastPrimarySignature] = await Promise.all([
         olmAPI.signMessage(rawDeviceList),
