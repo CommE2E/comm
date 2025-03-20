@@ -257,7 +257,7 @@ pub mod ffi {
         backup_id,
         user_id,
         siwe_backup_msg,
-        ..
+        keyserver_device_id,
       } = result;
 
       let siwe_backup_data = match siwe_backup_msg {
@@ -277,6 +277,7 @@ pub mod ffi {
         backup_id,
         user_id,
         siwe_backup_data,
+        keyserver_device_id,
       };
 
       let serialize_result = serde_json::to_string(&result);
@@ -493,6 +494,8 @@ struct LatestBackupInfo {
   #[serde(rename = "userID")]
   pub user_id: String,
   pub siwe_backup_data: Option<SIWEBackupData>,
+  #[serde(rename = "keyserverDeviceID")]
+  pub keyserver_device_id: Option<String>,
 }
 
 struct CompactionDownloadResult {
