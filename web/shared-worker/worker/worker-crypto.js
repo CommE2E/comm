@@ -762,9 +762,13 @@ const olmAPI: OlmAPI = {
         initialEncryptedData.message,
       );
     } catch (e) {
+      session.free();
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
     }
 
+    if (existingSession) {
+      existingSession.session.free();
+    }
     contentSessions[contentIdentityKeys.ed25519] = {
       session,
       version: sessionVersion,
@@ -809,6 +813,9 @@ const olmAPI: OlmAPI = {
     );
 
     const newSessionVersion = existingSession ? existingSession.version + 1 : 1;
+    if (existingSession) {
+      existingSession.session.free();
+    }
     contentSessions[contentIdentityKeys.ed25519] = {
       session,
       version: newSessionVersion,
@@ -999,6 +1006,7 @@ const olmAPI: OlmAPI = {
       getAccountPrekeysSet(contentAccount);
 
     if (!notifPrekeySignature || !contentPrekeySignature) {
+      notifsCryptoAccount.notificationAccount.free();
       throw new Error('Prekey signature is missing');
     }
 
