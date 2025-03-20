@@ -1587,10 +1587,10 @@
     preact "^10.16.0"
     sha.js "^2.4.11"
 
-"@commapp/olm@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.1.tgz#1e9f3b1e0400ac124beb338255c44c65cc1e5c67"
-  integrity sha512-gkCRuYUIpr/D2md7znnDQlE4QAY35RN4YoO1BJdeJuYw69E5qcMLqAGFnyv1DlCqaN7DWMDw/yNX3LcSjCPoZA==
+"@commapp/olm@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.3.tgz#d01d322a0c229fee98a874d7cb22141c939585b3"
+  integrity sha512-O/3KvGUi5PhHN2An/2a93S8RcXPKOZbmqlLDuaRHYKG27yQ69HnRhn0lhYynYaHLPR6MIdjyRW7F1lLKjsVhsw==
 
 "@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.4":
   version "0.0.4"
@@ -19304,9 +19304,9 @@ ohash@^1.1.3:
   resolved "https://registry.yarnpkg.com/ohash/-/ohash-1.1.3.tgz#f12c3c50bfe7271ce3fd1097d42568122ccdcf07"
   integrity sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==
 
-"olm@git+https://github.com/CommE2E/olm.git#v0.2.1":
+"olm@git+https://github.com/CommE2E/olm.git#v0.2.3":
   version "0.0.0"
-  resolved "git+https://github.com/CommE2E/olm.git#f51f05a23b41ef313771a494b3d5e5721ce03a74"
+  resolved "git+https://github.com/CommE2E/olm.git#f21494c823519a7b09f41287476cec9dac74b149"
 
 on-exit-leak-free@^0.2.0:
   version "0.2.0"
