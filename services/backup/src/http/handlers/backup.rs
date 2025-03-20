@@ -17,7 +17,7 @@ use std::convert::Infallible;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tracing::{info, instrument, trace, warn};
 
-use crate::identity::find_user_id;
+use crate::identity::{find_keyserver_device_for_user, find_user_id};
 use crate::{
   database::{backup_item::BackupItem, DatabaseClient},
   error::BackupError,
@@ -429,6 +429,7 @@ pub async fn download_user_blob(
 pub async fn get_latest_backup_info(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
+  auth_service: comm_lib::auth::AuthService,
 ) -> actix_web::Result<impl Responder> {
   let user_identifier = path.into_inner();
   let user_id = find_user_id(&user_identifier).await?;
@@ -441,10 +442,14 @@ pub async fn get_latest_backup_info(
     return Err(BackupError::NoBackup.into());
   };
 
+  let keyserver_device_id =
+    find_keyserver_device_for_user(&user_id, &auth_service).await?;
+
   let response = LatestBackupInfoResponse {
     backup_id: backup_item.backup_id,
     user_id,
     siwe_backup_msg: backup_item.siwe_backup_msg,
+    keyserver_device_id,
   };
 
   Ok(web::Json(response))

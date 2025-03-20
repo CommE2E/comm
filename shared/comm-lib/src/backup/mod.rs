@@ -12,6 +12,7 @@ pub struct LatestBackupInfoResponse {
   #[serde(rename = "userID")]
   pub user_id: String,
   pub siwe_backup_msg: Option<String>,
+  pub keyserver_device_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
