@@ -1,20 +1,20 @@
 package app.comm.android.media
 
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Movie
 import android.graphics.drawable.AnimatedImageDrawable
 import android.media.MediaExtractor
 import android.media.MediaFormat
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
-import java.io.IOException
-import java.io.InputStream
+import java.io.FileOutputStream
 
 class VideoInfo : Record {
   @Field
@@ -40,6 +40,7 @@ class MediaModule : Module() {
 
     AsyncFunction("getVideoInfo", this@MediaModule::getVideoInfo)
     AsyncFunction("hasMultipleFrames", this@MediaModule::hasMultipleFrames)
+    AsyncFunction("generateThumbnail", this@MediaModule::generateThumbnail)
   }
 
 
@@ -104,6 +105,29 @@ class MediaModule : Module() {
       throw FailedToOpenGif(path, e)
     }
   }
+
+  private fun generateThumbnail(inputPath: String, outputPath: String) {
+    val thumbnail: Bitmap? = try {
+      MediaMetadataRetriever()
+        .use { retriever ->
+          retriever.setDataSource(Uri.decode(inputPath).replace("file://", ""))
+          retriever.getFrameAtTime(
+            0,
+            MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+          )
+        }
+    } catch (e: Exception) {
+      throw GenerateThumbnailException(inputPath, e)
+    }
+
+    try {
+      FileOutputStream(outputPath).use { outputStream ->
+        thumbnail?.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+      }
+    } catch (e: Exception) {
+      throw SaveThumbnailException(outputPath, e)
+    }
+  }
 }
 
 // endregion
@@ -118,5 +142,11 @@ private class NoVideoTrackException(uri: String) :
 
 private class FailedToOpenGif(uri: String, cause: Throwable) :
   CodedException("Failed to open file: $uri", cause)
+
+private class GenerateThumbnailException(uri: String, cause: Throwable) :
+  CodedException("Could not generate thumbnail from file: $uri", cause)
+
+private class SaveThumbnailException(uri: String, cause: Throwable) :
+  CodedException("Could not save thumbnail to $uri", cause)
 
 // endregion
