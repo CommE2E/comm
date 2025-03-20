@@ -1,14 +1,21 @@
 package app.comm.android.media
 
+import android.content.Context
+import android.graphics.ImageDecoder
+import android.graphics.Movie
+import android.graphics.drawable.AnimatedImageDrawable
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
+import java.io.IOException
+import java.io.InputStream
 
 class VideoInfo : Record {
   @Field
@@ -33,6 +40,7 @@ class MediaModule : Module() {
     Name("MediaModule")
 
     AsyncFunction("getVideoInfo", this@MediaModule::getVideoInfo)
+    AsyncFunction("hasMultipleFrames", this@MediaModule::hasMultipleFrames)
   }
 
 
@@ -74,8 +82,36 @@ class MediaModule : Module() {
     return videoInfo
   }
 
-  // endregion
+
+  private fun hasMultipleFrames(path: String): Boolean {
+    val uri = Uri.parse(path)
+    try {
+      context.contentResolver.openInputStream(uri).use { inputStream ->
+        if (inputStream != null) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val src = ImageDecoder.createSource(context.contentResolver, uri)
+            val drawable = ImageDecoder.decodeDrawable(src)
+            return (drawable is AnimatedImageDrawable)
+          } else {
+            val movie = Movie.decodeStream(inputStream)
+            return movie?.duration()?.let { duration -> duration > 0 } ?: false
+          }
+        } else {
+          throw FailedToOpenGif(path, Exception("inputStream is null"))
+        }
+      }
+    } catch (e: Exception) {
+      throw FailedToOpenGif(path, e)
+    }
+  }
+
+  private val context: Context
+    get() = requireNotNull(this.appContext.reactContext) {
+      "React Application Context is null"
+    }
 }
+
+// endregion
 
 // region Exception definitions
 
@@ -84,5 +120,8 @@ private class FailedToReadVideoInfoException(uri: String, cause: Throwable) :
 
 private class NoVideoTrackException(uri: String) :
   CodedException("No video track found in file: $uri")
+
+private class FailedToOpenGif(uri: String, cause: Throwable) :
+  CodedException("Failed to open file: $uri", cause)
 
 // endregion
