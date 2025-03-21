@@ -30,6 +30,7 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
+  // Version is now defined in native/version.js and injected during build
   const int codeVersion{470};
   std::unique_ptr<WorkerThread> cryptoThread;
 
