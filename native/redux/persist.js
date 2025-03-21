@@ -157,6 +157,7 @@ import type { NavInfo } from '../navigation/default-state.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
+import { codeVersion } from '../version.mjs';
 
 const legacyMigrations = {
   [1]: (state: AppState) => ({
@@ -1546,8 +1547,6 @@ const persistConfig = {
   ): any),
   timeout: ((__DEV__ ? 0 : 30000): number | void),
 };
-
-const codeVersion: number = commCoreModule.getCodeVersion();
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
