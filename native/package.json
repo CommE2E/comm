@@ -1,6 +1,7 @@
 {
   "name": "native",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
@@ -20,7 +21,8 @@
     "codegen-jsi": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist",
     "react-native": "PATH=/usr/bin:/bin:\"$PATH\" react-native",
     "expo": "PATH=/usr/bin:/bin:\"$PATH\" expo",
-    "xcodebuild": "cd ios && PATH=/usr/bin:/bin:\"$PATH\" xcodebuild"
+    "xcodebuild": "cd ios && PATH=/usr/bin:/bin:\"$PATH\" xcodebuild",
+    "update-version": "node scripts/update-mobile-version.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
