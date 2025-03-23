@@ -16,6 +16,7 @@ import {
   type RecordAlertActionPayload,
 } from 'lib/types/alert-types.js';
 import type { CommunityInfos } from 'lib/types/community-types.js';
+import { millisecondsInDay } from 'lib/utils/date-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -40,7 +41,14 @@ function DisplayCommunityDirectoryPromptHandler(): React.Node {
   const displayDirectoryPromptAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.DISPLAY_DIRECTORY_PROMPT],
   );
+  const connectFarcasterAlertInfo = useSelector(
+    state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER],
+  );
   const currentRoute = useCurrentLeafRouteName();
+
+  const lastConnectFarcasterAlert = connectFarcasterAlertInfo.lastAlertTime;
+  const recentConnectFarcasterAlert =
+    Date.now() - lastConnectFarcasterAlert < millisecondsInDay;
 
   if (
     isDev ||
@@ -51,7 +59,9 @@ function DisplayCommunityDirectoryPromptHandler(): React.Node {
     Object.keys(communityInfos).length > 4 ||
     coldStartCount < 2 ||
     displayDirectoryPromptAlertInfo.totalAlerts > 0 ||
-    currentRoute !== HomeChatThreadListRouteName
+    currentRoute !== HomeChatThreadListRouteName ||
+    recentConnectFarcasterAlert ||
+    connectFarcasterAlertInfo.totalAlerts === 0
   ) {
     return null;
   }
