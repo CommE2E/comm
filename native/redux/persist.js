@@ -1517,6 +1517,29 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [87]: (async (state: AppState) => {
+    const { alertStore } = state;
+
+    const newAlertInfos = Object.fromEntries(
+      Object.entries(alertStore.alertInfos).map(([alertType, info]) => [
+        alertType,
+        {
+          ...info,
+          coldStartCount: 0,
+        },
+      ]),
+    );
+
+    return {
+      state: {
+        ...state,
+        alertStore: {
+          alertInfos: newAlertInfos,
+        },
+      },
+      ops: {},
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property

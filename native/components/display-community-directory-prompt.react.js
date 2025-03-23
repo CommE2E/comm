@@ -36,7 +36,6 @@ function DisplayCommunityDirectoryPromptHandler(): React.Node {
   const communityInfos: CommunityInfos = useSelector(
     state => state.communityStore.communityInfos,
   );
-  const coldStartCount = useSelector(state => state.alertStore.coldStartCount);
   const displayDirectoryPromptAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.DISPLAY_DIRECTORY_PROMPT],
   );
@@ -49,7 +48,7 @@ function DisplayCommunityDirectoryPromptHandler(): React.Node {
     !isActive ||
     fid !== null ||
     Object.keys(communityInfos).length > 4 ||
-    coldStartCount < 2 ||
+    displayDirectoryPromptAlertInfo.coldStartCount < 3 ||
     displayDirectoryPromptAlertInfo.totalAlerts > 0 ||
     currentRoute !== HomeChatThreadListRouteName
   ) {
