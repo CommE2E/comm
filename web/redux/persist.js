@@ -732,6 +732,29 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     },
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [87]: (async (state: AppState) => {
+    const oldAlertStore = state.alertStore;
+
+    const newAlertInfos = Object.fromEntries(
+      Object.entries(oldAlertStore.alertInfos).map(([alertType, info]) => [
+        alertType,
+        {
+          ...info,
+          coldStartCount: 0,
+        },
+      ]),
+    );
+
+    return {
+      state: {
+        ...state,
+        alertStore: {
+          alertInfos: newAlertInfos,
+        },
+      },
+      ops: {},
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {

@@ -76,6 +76,7 @@ function MissingRegistrationDataHandler(): React.Node {
         time: Date.now(),
       };
       lastAlertInfo.current = {
+        ...lastAlertInfo.current,
         totalAlerts: lastAlertInfo.current.totalAlerts + 1,
         lastAlertTime: payload.time,
       };
