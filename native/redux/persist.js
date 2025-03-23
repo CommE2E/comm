@@ -1517,6 +1517,17 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [87]: (async (state: AppState) => {
+    const { coldStartCount, ...restOfAlertStore } = (state.alertStore: any);
+
+    return {
+      state: {
+        ...state,
+        alertStore: restOfAlertStore,
+      },
+      ops: {},
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1527,7 +1538,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 86,
+  version: 87,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

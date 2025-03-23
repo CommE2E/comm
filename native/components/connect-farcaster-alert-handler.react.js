@@ -41,7 +41,8 @@ function ConnectFarcasterAlertHandler(): React.Node {
     if (
       !loggedIn ||
       !isActive ||
-      shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid)
+      shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) ||
+      connectFarcasterAlertInfo.coldStartCount < 2
     ) {
       return;
     }
