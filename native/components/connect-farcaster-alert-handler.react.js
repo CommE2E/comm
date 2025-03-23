@@ -17,7 +17,11 @@ import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
-import { ConnectFarcasterBottomSheetRouteName } from '../navigation/route-names.js';
+import { useCurrentLeafRouteName } from '../navigation/nav-selectors.js';
+import {
+  ConnectFarcasterBottomSheetRouteName,
+  HomeChatThreadListRouteName,
+} from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function ConnectFarcasterAlertHandler(): React.Node {
@@ -35,12 +39,15 @@ function ConnectFarcasterAlertHandler(): React.Node {
     state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER],
   );
 
+  const currentRoute = useCurrentLeafRouteName();
+
   const dispatch = useDispatch();
 
   React.useEffect(() => {
     if (
       !loggedIn ||
       !isActive ||
+      currentRoute !== HomeChatThreadListRouteName ||
       shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid)
     ) {
       return;
@@ -68,6 +75,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     })();
   }, [
     connectFarcasterAlertInfo,
+    currentRoute,
     dispatch,
     fid,
     isActive,
