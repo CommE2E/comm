@@ -732,6 +732,17 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     },
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [87]: (async (state: AppState) => {
+    const { coldStartCount, ...restOfAlertStore } = (state.alertStore: any);
+
+    return {
+      state: {
+        ...state,
+        alertStore: restOfAlertStore,
+      },
+      ops: {},
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {

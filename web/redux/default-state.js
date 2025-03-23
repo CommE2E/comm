@@ -46,7 +46,6 @@ const defaultWebState: AppState = Object.freeze({
   dataLoaded: false,
   alertStore: {
     alertInfos: defaultAlertInfos,
-    coldStartCount: 0,
   },
   watchedThreadIDs: [],
   lifecycleState: 'active',
