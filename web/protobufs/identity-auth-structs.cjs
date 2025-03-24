@@ -1936,8 +1936,7 @@ proto.identity.auth.KeyserverKeysResponse.prototype.toObject = function(opt_incl
 proto.identity.auth.KeyserverKeysResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     keyserverInfo: (f = msg.getKeyserverInfo()) && proto.identity.auth.OutboundKeyInfo.toObject(includeInstance, f),
-    identity: (f = msg.getIdentity()) && proto.identity.auth.Identity.toObject(includeInstance, f),
-    primaryDeviceIdentityInfo: (f = msg.getPrimaryDeviceIdentityInfo()) && identity_unauth_pb.IdentityKeyInfo.toObject(includeInstance, f)
+    identity: (f = msg.getIdentity()) && proto.identity.auth.Identity.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1984,11 +1983,6 @@ proto.identity.auth.KeyserverKeysResponse.deserializeBinaryFromReader = function
       reader.readMessage(value,proto.identity.auth.Identity.deserializeBinaryFromReader);
       msg.setIdentity(value);
       break;
-    case 3:
-      var value = new identity_unauth_pb.IdentityKeyInfo;
-      reader.readMessage(value,identity_unauth_pb.IdentityKeyInfo.deserializeBinaryFromReader);
-      msg.setPrimaryDeviceIdentityInfo(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -2032,14 +2026,6 @@ proto.identity.auth.KeyserverKeysResponse.serializeBinaryToWriter = function(mes
       2,
       f,
       proto.identity.auth.Identity.serializeBinaryToWriter
-    );
-  }
-  f = message.getPrimaryDeviceIdentityInfo();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      identity_unauth_pb.IdentityKeyInfo.serializeBinaryToWriter
     );
   }
 };
@@ -2116,43 +2102,6 @@ proto.identity.auth.KeyserverKeysResponse.prototype.clearIdentity = function() {
  */
 proto.identity.auth.KeyserverKeysResponse.prototype.hasIdentity = function() {
   return jspb.Message.getField(this, 2) != null;
-};
-
-
-/**
- * optional identity.unauth.IdentityKeyInfo primary_device_identity_info = 3;
- * @return {?proto.identity.unauth.IdentityKeyInfo}
- */
-proto.identity.auth.KeyserverKeysResponse.prototype.getPrimaryDeviceIdentityInfo = function() {
-  return /** @type{?proto.identity.unauth.IdentityKeyInfo} */ (
-    jspb.Message.getWrapperField(this, identity_unauth_pb.IdentityKeyInfo, 3));
-};
-
-
-/**
- * @param {?proto.identity.unauth.IdentityKeyInfo|undefined} value
- * @return {!proto.identity.auth.KeyserverKeysResponse} returns this
-*/
-proto.identity.auth.KeyserverKeysResponse.prototype.setPrimaryDeviceIdentityInfo = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.identity.auth.KeyserverKeysResponse} returns this
- */
-proto.identity.auth.KeyserverKeysResponse.prototype.clearPrimaryDeviceIdentityInfo = function() {
-  return this.setPrimaryDeviceIdentityInfo(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.identity.auth.KeyserverKeysResponse.prototype.hasPrimaryDeviceIdentityInfo = function() {
-  return jspb.Message.getField(this, 3) != null;
 };
 
 
