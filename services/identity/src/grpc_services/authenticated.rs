@@ -298,16 +298,9 @@ impl IdentityClientService for AuthenticatedService {
       ));
     };
 
-    let primary_device_data = self
-      .db_client
-      .get_primary_device_data(&message.user_id)
-      .await?;
-    let primary_device_keys = primary_device_data.device_key_info;
-
     let response = Response::new(KeyserverKeysResponse {
       keyserver_info: Some(keyserver_info.into()),
       identity: Some(identifier.into()),
-      primary_device_identity_info: Some(primary_device_keys.into()),
     });
 
     return Ok(response);
