@@ -328,6 +328,8 @@ impl<T: RegistrationData + DeviceKeyUploadActions> RegistrationActions for T {
       &update_payload,
       &primary_device_id,
       None,
+      // when registering user, one has no keyserver yet
+      None,
     )?;
 
     Ok(Some(signed_list))

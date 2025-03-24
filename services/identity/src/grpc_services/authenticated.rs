@@ -558,11 +558,17 @@ impl IdentityClientService for AuthenticatedService {
     let parsed_device_list: SignedDeviceList =
       message.signed_device_list.parse()?;
 
+    let maybe_keyserver_device_id = self
+      .db_client
+      .get_keyserver_device_id_for_user(&user_id)
+      .await?;
+
     let update_payload = DeviceListUpdate::try_from(parsed_device_list)?;
     crate::device_list::verify_singleton_device_list(
       &update_payload,
       &device_id,
       None,
+      maybe_keyserver_device_id.as_ref(),
     )?;
 
     self
