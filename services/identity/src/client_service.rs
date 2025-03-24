@@ -1336,6 +1336,11 @@ impl ClientService {
         )
       })?;
 
+    let maybe_keyserver_device_id = self
+      .client
+      .get_keyserver_device_id_for_user(&user_id)
+      .await?;
+
     // Verify device list payload
     let signed_list: SignedDeviceList = device_list_payload.parse()?;
     let device_list_payload =
@@ -1344,6 +1349,7 @@ impl ClientService {
       &device_list_payload,
       &new_primary_device_id,
       Some(&previous_primary_device_id),
+      maybe_keyserver_device_id.as_ref(),
     )?;
 
     debug!(user_id, "Attempting to revoke user's old access tokens");
