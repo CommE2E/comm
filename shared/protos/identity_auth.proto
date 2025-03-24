@@ -150,9 +150,13 @@ message OutboundKeyInfo {
 }
 
 message KeyserverKeysResponse {
+  // this was never used, we can reuse this field again
+  // when min supported version is FUTURE_CODE_VERSION
+  reserved 3;
+  reserved "primary_device_identity_info";
+
   OutboundKeyInfo keyserver_info = 1;
   Identity identity = 2;
-  identity.unauth.IdentityKeyInfo primary_device_identity_info = 3;
 }
 
 // GetOutboundKeysForUser
