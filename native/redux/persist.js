@@ -2,6 +2,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import invariant from 'invariant';
+import _keyBy from 'lodash/fp/keyBy.js';
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { createTransform } from 'redux-persist';
@@ -56,6 +57,7 @@ import {
   convertUserInfosToReplaceUserOps,
   userStoreOpsHandlers,
 } from 'lib/ops/user-store-ops.js';
+import { updateRolesAndPermissions } from 'lib/permissions/minimally-encoded-thread-permissions.js';
 import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
@@ -103,6 +105,10 @@ import type {
 } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import {
+  userSurfacedPermissions,
+  type ThreadRolePermissionsBlob,
+} from 'lib/types/thread-permission-types.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
@@ -126,9 +132,11 @@ import type {
   MigrationsManifest,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
+import { toggleUserSurfacedPermission } from 'lib/utils/role-utils.js';
 import {
   deprecatedConvertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
+  convertClientDBThreadInfoToRawThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
 
@@ -1517,6 +1525,29 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [87]: (async (state: AppState) => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+    const keyedRawThreadInfos = _keyBy('id')(rawThreadInfos);
+
+    const { operations } = updateRolesAndPermissions(
+      keyedRawThreadInfos,
+      (permissions: ThreadRolePermissionsBlob) =>
+        toggleUserSurfacedPermission(
+          permissions,
+          userSurfacedPermissions.DELETE_OWN_MESSAGES,
+        ),
+    );
+
+    return {
+      state,
+      ops: {
+        threadStoreOperations: operations,
+      },
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1527,7 +1558,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 86,
+  version: 87,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
