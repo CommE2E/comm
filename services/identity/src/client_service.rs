@@ -1352,20 +1352,26 @@ impl ClientService {
       maybe_keyserver_device_id.as_ref(),
     )?;
 
+    let excluded_device_ids =
+      maybe_keyserver_device_id.iter().collect::<Vec<_>>();
+
     debug!(user_id, "Attempting to revoke user's old access tokens");
-    self.client.delete_all_tokens_for_user(&user_id).await?;
-    // We must delete the one-time keys first because doing so requires device
-    // IDs from the devices table
+    self
+      .client
+      .delete_tokens_for_user_excluding(&user_id, &excluded_device_ids)
+      .await?;
+    debug!(user_id, "Attempting to delete user's old devices");
+    let removed_device_ids = self
+      .client
+      .delete_user_devices_data_excluding(&user_id, &excluded_device_ids)
+      .await?;
     debug!(user_id, "Attempting to delete user's old one-time keys");
     self
       .client
-      .delete_otks_table_rows_for_user(&user_id)
+      .delete_otks_table_rows_for_user_devices(&user_id, &removed_device_ids)
       .await?;
-    debug!(user_id, "Attempting to delete user's old devices");
-    let old_device_ids =
-      self.client.delete_devices_data_for_user(&user_id).await?;
 
-    spawn_force_close_tb_session_task(old_device_ids);
+    spawn_force_close_tb_session_task(removed_device_ids);
 
     // Reset device list (perform update)
     let login_time = chrono::Utc::now();
