@@ -588,25 +588,27 @@ impl IdentityClientService for AuthenticatedService {
       )
       .await?;
 
-    debug!(user_id, "Attempting to delete user's access tokens");
-    self.db_client.delete_all_tokens_for_user(&user_id).await?;
+    let excluded_device_ids =
+      maybe_keyserver_device_id.iter().collect::<Vec<_>>();
 
-    // We must delete the one-time keys first because doing so requires device
-    // IDs from the devices table
+    debug!(user_id, "Attempting to delete user's access tokens");
+    self
+      .db_client
+      .delete_tokens_for_user_excluding(&user_id, &excluded_device_ids)
+      .await?;
+    debug!(user_id, "Attempting to delete user's devices");
+    let removed_device_ids = self
+      .db_client
+      .delete_user_devices_data_excluding(&user_id, &excluded_device_ids)
+      .await?;
     debug!(user_id, "Attempting to delete user's one-time keys");
     self
       .db_client
-      .delete_otks_table_rows_for_user(&user_id)
-      .await?;
-
-    debug!(user_id, "Attempting to delete user's devices");
-    let device_ids = self
-      .db_client
-      .delete_devices_data_for_user(&user_id)
+      .delete_otks_table_rows_for_user_devices(&user_id, &removed_device_ids)
       .await?;
 
     let blob_client = self.authenticated_blob_client().await?;
-    spawn_delete_devices_services_data_task(&blob_client, device_ids);
+    spawn_delete_devices_services_data_task(&blob_client, removed_device_ids);
 
     let response = Empty {};
     Ok(Response::new(response))
