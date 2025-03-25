@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, Utc};
 use comm_lib::{
@@ -1768,7 +1768,20 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
   ) -> Result<Vec<String>, Error> {
+    self.delete_user_devices_data_excluding(user_id, &[]).await
+  }
+
+  /// Same as [`DatabaseClient::delete_devices_data_for_user`]
+  /// but allows to exclude certain device IDs.
+  #[tracing::instrument(skip_all)]
+  pub async fn delete_user_devices_data_excluding(
+    &self,
+    user_id: impl Into<String>,
+    excluded_device_ids: &[&String],
+  ) -> Result<Vec<String>, Error> {
     let user_id: String = user_id.into();
+    let excluded_device_ids: HashSet<&String> =
+      excluded_device_ids.iter().cloned().collect();
 
     // we project only the primary keys so we can pass these directly to delete requests
     let primary_keys =
@@ -1786,24 +1799,28 @@ impl DatabaseClient {
         .items
         .unwrap_or_default();
 
-    let device_ids = primary_keys
-      .iter()
-      .map(|attrs| {
-        let attr = attrs.get(devices_table::ATTR_ITEM_ID).cloned();
-        DeviceIDAttribute::try_from(attr).map(DeviceIDAttribute::into_inner)
-      })
-      .collect::<Result<_, _>>()?;
+    let filtered_keys_iter = primary_keys.into_iter().filter_map(|pk_attrs| {
+      let item_id = pk_attrs.get(devices_table::ATTR_ITEM_ID).cloned();
+      let device_id_result =
+        DeviceIDAttribute::try_from(item_id).map(DeviceIDAttribute::into_inner);
 
-    let delete_requests = primary_keys
-      .into_iter()
-      .map(|item| {
-        let request = DeleteRequest::builder()
-          .set_key(Some(item))
-          .build()
-          .expect("key not set in DeleteRequest builder");
-        WriteRequest::builder().delete_request(request).build()
-      })
-      .collect::<Vec<_>>();
+      match device_id_result {
+        Err(err) => Some(Err(err)),
+        Ok(device_id) if excluded_device_ids.contains(&device_id) => None,
+        Ok(device_id) => {
+          let request = DeleteRequest::builder()
+            .set_key(Some(pk_attrs))
+            .build()
+            .expect("key not set in DeleteRequest builder");
+          let request = WriteRequest::builder().delete_request(request).build();
+
+          Some(Ok((device_id, request)))
+        }
+      }
+    });
+
+    let (device_ids, delete_requests) =
+      filtered_keys_iter.collect::<Result<(Vec<_>, Vec<_>), _>>()?;
 
     comm_lib::database::batch_operations::batch_write(
       &self.client,
