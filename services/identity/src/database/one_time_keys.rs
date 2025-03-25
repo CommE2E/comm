@@ -396,13 +396,14 @@ impl DatabaseClient {
     }
   }
 
-  /// Deletes all data for a user's device from one-time keys table
+  /// Deletes all data for a single user's device from one-time keys table.
+  /// For multiple devices, see [`DatabaseClient::delete_otks_table_rows_for_user_device`].
   pub async fn delete_otks_table_rows_for_user_device(
     &self,
     user_id: &str,
     device_id: &str,
   ) -> Result<(), Error> {
-    use crate::constants::one_time_keys_table::*;
+    use crate::constants::one_time_keys_table::{self, *};
 
     let content_otk_primary_keys = self
       .get_one_time_keys(user_id, device_id, OlmAccountType::Content, None)
@@ -427,7 +428,7 @@ impl DatabaseClient {
 
     batch_write(
       &self.client,
-      NAME,
+      one_time_keys_table::NAME,
       delete_requests,
       ExponentialBackoffConfig::default(),
     )
@@ -437,7 +438,26 @@ impl DatabaseClient {
     Ok(())
   }
 
-  /// Deletes all data for a user from one-time keys table
+  /// Deletes all data for multiple devices from one-time keys table.
+  /// For single device, see [`DatabaseClient::delete_otks_table_rows_for_user_device`].
+  pub async fn delete_otks_table_rows_for_user_devices(
+    &self,
+    user_id: &str,
+    device_ids: &[String],
+  ) -> Result<(), Error> {
+    for device_id in device_ids {
+      self
+        .delete_otks_table_rows_for_user_device(user_id, device_id)
+        .await?;
+    }
+
+    Ok(())
+  }
+
+  /// Deletes all data for a user from one-time keys table. This function
+  /// is basing on current device list. It must contain all devices for which
+  /// OTKs are supposed to be deleted. To explicitly provide device IDs,
+  /// use [`DatabaseClient::delete_otks_table_rows_for_user_devices`].
   pub async fn delete_otks_table_rows_for_user(
     &self,
     user_id: &str,
@@ -448,13 +468,12 @@ impl DatabaseClient {
       return Ok(());
     };
 
-    for device_id in device_list_row.device_ids {
-      self
-        .delete_otks_table_rows_for_user_device(user_id, &device_id)
-        .await?;
-    }
-
-    Ok(())
+    self
+      .delete_otks_table_rows_for_user_devices(
+        user_id,
+        &device_list_row.device_ids,
+      )
+      .await
   }
 }
 
