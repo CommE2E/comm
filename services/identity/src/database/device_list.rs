@@ -1650,11 +1650,12 @@ impl DatabaseClient {
       self.delete_access_token_data(user_id, device_id).await?;
       trace!("Clearing keys for device {}", device_id);
       self.remove_device_data(user_id, device_id).await?;
-      trace!("Pruning OTKs for device {}", device_id);
-      self
-        .delete_otks_table_rows_for_user_device(user_id, device_id)
-        .await?;
     }
+
+    debug!("Pruning OTKs for {} devices", devices_being_removed.len());
+    self
+      .delete_otks_table_rows_for_user_devices(user_id, &devices_being_removed)
+      .await?;
 
     tokio::spawn(async move {
       debug!(
