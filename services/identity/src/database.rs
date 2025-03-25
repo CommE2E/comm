@@ -154,7 +154,7 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn add_password_user_to_users_table(
+  pub async fn add_password_user_to_database(
     &self,
     registration_state: UserRegistrationInfo,
     password_file: Vec<u8>,
@@ -187,7 +187,7 @@ impl DatabaseClient {
         .await?;
     } else {
       self
-        .add_device(
+        .v1_add_device(
           &user_id,
           device_key_upload.clone(),
           platform_details,
@@ -209,7 +209,7 @@ impl DatabaseClient {
   }
 
   #[allow(clippy::too_many_arguments)]
-  pub async fn add_wallet_user_to_users_table(
+  pub async fn add_wallet_user_to_database(
     &self,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     wallet_address: String,
@@ -249,7 +249,7 @@ impl DatabaseClient {
         .await?;
     } else {
       self
-        .add_device(
+        .v1_add_device(
           &user_id,
           flattened_device_key_upload.clone(),
           platform_metadata,
@@ -371,7 +371,7 @@ impl DatabaseClient {
     Ok(user_id)
   }
 
-  pub async fn add_user_device(
+  pub async fn v1_add_user_device(
     &self,
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
@@ -402,7 +402,7 @@ impl DatabaseClient {
 
     // add device to the new device list
     self
-      .add_device(
+      .v1_add_device(
         &user_id,
         flattened_device_key_upload,
         platform_metadata,
