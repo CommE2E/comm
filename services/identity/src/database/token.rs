@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, Utc};
 use comm_lib::{
@@ -180,7 +180,19 @@ impl DatabaseClient {
     &self,
     user_id: &str,
   ) -> Result<(), Error> {
+    self.delete_tokens_for_user_excluding(user_id, &[]).await
+  }
+
+  #[tracing::instrument(skip_all)]
+  pub async fn delete_tokens_for_user_excluding(
+    &self,
+    user_id: &str,
+    excluded_device_ids: &[&String],
+  ) -> Result<(), Error> {
     use crate::constants::token_table::*;
+
+    let excluded_device_ids: HashSet<&String> =
+      excluded_device_ids.iter().cloned().collect();
 
     let primary_keys = self
       .client
@@ -206,8 +218,14 @@ impl DatabaseClient {
       .items
       .unwrap_or_default();
 
-    let delete_requests = primary_keys
-      .into_iter()
+    let filtered_keys_iter = primary_keys.into_iter().filter(|attrs| {
+      attrs
+        .get(SORT_KEY)
+        .and_then(|device_id_attr| device_id_attr.as_s().ok())
+        .is_some_and(|device_id| !excluded_device_ids.contains(device_id))
+    });
+
+    let delete_requests = filtered_keys_iter
       .map(|item| {
         let request = DeleteRequest::builder()
           .set_key(Some(item))
