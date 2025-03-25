@@ -12,15 +12,16 @@ import {
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
 import {
-  messageStoreOpsHandlers,
-  type ReplaceMessageStoreLocalMessageInfoOperation,
   type ClientDBMessageStoreOperation,
   type MessageStoreOperation,
+  messageStoreOpsHandlers,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
 } from 'lib/ops/message-store-ops.js';
 import type {
   ClientDBThreadStoreOperation,
   ThreadStoreOperation,
 } from 'lib/ops/thread-store-ops.js';
+import { updateRolesAndPermissions } from 'lib/permissions/minimally-encoded-thread-permissions.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
 import { deprecatedUpdateRolesAndPermissions } from 'lib/shared/redux/deprecated-update-roles-and-permissions.js';
@@ -36,6 +37,8 @@ import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
+import { userSurfacedPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ClientDBThreadInfo,
   RawThreadInfos,
@@ -45,14 +48,15 @@ import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
-  generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
   createAsyncMigrate,
-  type StorageMigrationFunction,
+  generateIDSchemaMigrationOpsForDrafts,
   type MigrationFunction,
   type MigrationsManifest,
+  type StorageMigrationFunction,
 } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
+import { toggleUserSurfacedPermission } from 'lib/utils/role-utils.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -753,6 +757,58 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
         },
       },
       ops: {},
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [88]: (async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return {
+        state,
+        ops: {},
+      };
+    }
+
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const clientDBThreadInfos: ?$ReadOnlyArray<ClientDBThreadInfo> =
+      stores?.store?.threads;
+
+    if (
+      clientDBThreadInfos === null ||
+      clientDBThreadInfos === undefined ||
+      clientDBThreadInfos.length === 0
+    ) {
+      return {
+        state,
+        ops: {},
+      };
+    }
+
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    const keyedRawThreadInfos = _keyBy('id')(rawThreadInfos);
+    // This function also results in setting DELETE_OWN_MESSAGES and
+    // DELETE_ALL_MESSAGES for admins. It is added automatically based on the
+    // result of getRolePermissionBlobs call.
+    const { operations } = updateRolesAndPermissions(
+      keyedRawThreadInfos,
+      (permissions: ThreadRolePermissionsBlob) =>
+        toggleUserSurfacedPermission(
+          permissions,
+          userSurfacedPermissions.DELETE_OWN_MESSAGES,
+        ),
+    );
+    return {
+      state,
+      ops: {
+        threadStoreOperations: operations,
+      },
     };
   }: MigrationFunction<WebNavInfo, AppState>),
 };
