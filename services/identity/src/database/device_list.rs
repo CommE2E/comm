@@ -1435,7 +1435,7 @@ impl DatabaseClient {
 
   /// Adds new device to user's device list. If the device already exists, the
   /// operation fails. Transactionally generates new device list version.
-  pub async fn add_device(
+  pub async fn v1_add_device(
     &self,
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
@@ -1492,7 +1492,7 @@ impl DatabaseClient {
 
   /// Removes device from user's device list. If the device doesn't exist, the
   /// operation fails. Transactionally generates new device list version.
-  pub async fn remove_device(
+  pub async fn v1_remove_device(
     &self,
     user_id: impl Into<String>,
     device_id: impl AsRef<str>,

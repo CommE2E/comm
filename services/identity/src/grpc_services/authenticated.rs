@@ -454,7 +454,10 @@ impl IdentityClientService for AuthenticatedService {
         .remove_device_data(&user_id, &device_id)
         .await?;
     } else {
-      self.db_client.remove_device(&user_id, &device_id).await?;
+      self
+        .db_client
+        .v1_remove_device(&user_id, &device_id)
+        .await?;
 
       if is_primary_device_logout {
         // Since device list is unsigned, and current primary device is being logged out
