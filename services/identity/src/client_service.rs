@@ -266,7 +266,7 @@ impl IdentityClientService for ClientService {
       let username = state.username.clone();
       let user_id = self
         .client
-        .add_password_user_to_users_table(
+        .add_password_user_to_database(
           *state,
           password_file,
           platform_metadata,
@@ -447,14 +447,14 @@ impl IdentityClientService for ClientService {
     if let Some(device_to_remove) = state.device_to_remove {
       self
         .client
-        .remove_device(state.user_id.clone(), device_to_remove)
+        .v1_remove_device(state.user_id.clone(), device_to_remove)
         .await?;
     }
 
     let login_time = chrono::Utc::now();
     self
       .client
-      .add_user_device(
+      .v1_add_user_device(
         state.user_id.clone(),
         state.flattened_device_key_upload.clone(),
         platform_metadata,
@@ -543,7 +543,7 @@ impl IdentityClientService for ClientService {
 
       self
         .client
-        .add_user_device(
+        .v1_add_user_device(
           user_id.clone(),
           flattened_device_key_upload.clone(),
           platform_metadata,
@@ -595,7 +595,7 @@ impl IdentityClientService for ClientService {
 
       self
         .client
-        .add_wallet_user_to_users_table(
+        .add_wallet_user_to_database(
           flattened_device_key_upload.clone(),
           wallet_address.clone(),
           social_proof,
@@ -680,7 +680,7 @@ impl IdentityClientService for ClientService {
 
     let user_id = self
       .client
-      .add_wallet_user_to_users_table(
+      .add_wallet_user_to_database(
         flattened_device_key_upload.clone(),
         wallet_address.clone(),
         social_proof,
