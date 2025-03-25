@@ -397,7 +397,7 @@ impl DatabaseClient {
   }
 
   /// Deletes all data for a single user's device from one-time keys table.
-  /// For multiple devices, see [`DatabaseClient::delete_otks_table_rows_for_user_device`].
+  /// For multiple devices, see [`DatabaseClient::delete_otks_table_rows_for_user_devices`].
   pub async fn delete_otks_table_rows_for_user_device(
     &self,
     user_id: &str,
