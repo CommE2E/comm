@@ -1554,10 +1554,23 @@ impl DatabaseClient {
   ) -> Result<DeviceListRow, Error> {
     let mut devices_being_removed: Vec<String> = Vec::new();
     let update_result = self
-      .transact_update_devicelist(user_id, |current_list, _| {
+      .transact_update_devicelist(user_id, |current_list, devices_data| {
+        debug!("Resetting device list");
         devices_being_removed.extend(current_list.clone());
 
-        debug!("Resetting device list");
+        if let Some(keyserver) = devices_data
+          .into_iter()
+          .find(|device| device.device_type() == &DeviceType::Keyserver)
+        {
+          let keyserver_device_id = &keyserver.device_id;
+          debug!(
+            "Found keyserver device: {}. It will not be removed.",
+            keyserver_device_id
+          );
+          devices_being_removed
+            .retain(|device_id| device_id != keyserver_device_id);
+        }
+
         *current_list = Vec::new();
 
         Ok(UpdateOperationInfo::identity_generated())
