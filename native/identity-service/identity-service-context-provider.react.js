@@ -157,14 +157,16 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commRustModule.logOut(userID, deviceID, token),
         );
       },
-      logOutPrimaryDevice: async () => {
+      logOutPrimaryDevice: async (keyserverDeviceID: ?string) => {
         const {
           deviceID,
           userID,
           accessToken: token,
         } = await getAuthMetadata();
-        const signedDeviceList =
-          await createAndSignSingletonDeviceList(deviceID);
+        const signedDeviceList = await createAndSignSingletonDeviceList(
+          deviceID,
+          keyserverDeviceID,
+        );
         return authVerifiedEndpoint(
           commRustModule.logOutPrimaryDevice(
             userID,
