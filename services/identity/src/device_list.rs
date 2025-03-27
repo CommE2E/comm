@@ -286,48 +286,25 @@ pub fn verify_singleton_device_list(
     return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   }
 
-  // NOTE: for better dev experience, we can be less strict for now,
-  // allowing both singleton/tuple device list when keyserver is present
-  let strict_device_list_checks_enabled =
-    std::env::var("COMM_SERVICES_STRICT_DEVICE_LIST_CHECKS")
-      .ok()
-      .is_some();
+  // verify keyserver device ID and device list length
+  if let Some(keyserver_device_id) = expected_keyserver_device_id {
+    if device_list.devices.len() != 2 {
+      debug!("Invalid device list length");
+      return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
+    }
 
-  if !strict_device_list_checks_enabled {
-    let max_expected_device_list_length =
-      if expected_keyserver_device_id.is_some() {
-        2
-      } else {
-        1
-      };
-
-    if device_list.devices.is_empty()
-      || device_list.devices.len() > max_expected_device_list_length
+    if device_list
+      .devices
+      .last()
+      .filter(|it| *it == keyserver_device_id)
+      .is_none()
     {
-      debug!("Invalid device list length");
+      debug!("Invalid keyserver device ID for tuple device list");
       return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
     }
-  } else {
-    // verify keyserver device ID and device list length
-    if let Some(keyserver_device_id) = expected_keyserver_device_id {
-      if device_list.devices.len() != 2 {
-        debug!("Invalid device list length");
-        return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
-      }
-
-      if device_list
-        .devices
-        .last()
-        .filter(|it| *it == keyserver_device_id)
-        .is_none()
-      {
-        debug!("Invalid keyserver device ID for tuple device list");
-        return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
-      }
-    } else if device_list.devices.len() != 1 {
-      debug!("Invalid device list length");
-      return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
-    }
+  } else if device_list.devices.len() != 1 {
+    debug!("Invalid device list length");
+    return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   }
   Ok(())
 }
