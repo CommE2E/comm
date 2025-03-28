@@ -25,7 +25,11 @@ import {
   type FetchPinnedMessagesResult,
   type SearchMessagesResponse,
   type SearchMessagesKeyserverRequest,
+  type DeleteMessageRequest,
+  type DeleteMessageResponse,
+  isComposableMessageType,
 } from 'lib/types/message-types.js';
+import type { DeleteMessageData } from 'lib/types/messages/delete.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
@@ -49,7 +53,10 @@ import {
   searchMessagesInSingleChat,
 } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
+import {
+  checkThreadHasAnyPermission,
+  checkThreadPermission,
+} from '../fetchers/thread-permission-fetchers.js';
 import {
   fetchUnassignedImages,
   fetchUnassignedMediaFromMediaMessageContent,
@@ -339,8 +346,11 @@ async function editMessageCreationResponder(
 
   const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
   if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
-    // We are editing first message of the sidebar
-    // If client wants to do that it sends id of the sourceMessage instead
+    // When we try to edit a message from which a sidebar was created, the
+    // client should send the ID of the message from the parent thread.
+    // We're checking here if the ID from a sidebar was sent instead - this
+    // is a mistake because editing it would result in a difference between
+    // how the message is displayed in the parent thread and in the sidebar.
     throw new ServerError('invalid_parameters');
   }
 
@@ -415,6 +425,88 @@ async function searchMessagesResponder(
   );
 }
 
+export const deleteMessageRequestValidator: TInterface<DeleteMessageRequest> =
+  tShape<DeleteMessageRequest>({
+    targetMessageID: tID,
+  });
+
+async function deleteMessageResponder(
+  viewer: Viewer,
+  request: DeleteMessageRequest,
+): Promise<DeleteMessageResponse> {
+  const { targetMessageID } = request;
+
+  const targetMessageInfo = await fetchMessageInfoByID(viewer, targetMessageID);
+  if (!targetMessageInfo || !targetMessageInfo.id) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (!isComposableMessageType(targetMessageInfo.type)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { threadID } = targetMessageInfo;
+
+  const permissionsToCheck =
+    targetMessageInfo.creatorID === viewer.id
+      ? [
+          threadPermissions.DELETE_ALL_MESSAGES,
+          threadPermissions.DELETE_OWN_MESSAGES,
+        ]
+      : [threadPermissions.DELETE_ALL_MESSAGES];
+
+  const [serverThreadInfos, hasPermission, rawSidebarThreadInfos] =
+    await Promise.all([
+      fetchServerThreadInfos({ threadID }),
+      checkThreadHasAnyPermission(viewer, threadID, permissionsToCheck),
+      fetchServerThreadInfos({
+        parentThreadID: threadID,
+        sourceMessageID: targetMessageID,
+      }),
+    ]);
+
+  const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
+  if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
+    // When we try to delete a message from which a sidebar was created, the
+    // client should send the ID of the message from the parent thread.
+    // We're checking here if the ID from a sidebar was sent instead - this
+    // is a mistake because deleting it would result in a difference between
+    // how the message is displayed in the parent thread and in the sidebar.
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (!hasPermission) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const time = Date.now();
+  const messagesData: Array<DeleteMessageData> = [];
+  messagesData.push({
+    type: messageTypes.DELETE_MESSAGE,
+    threadID,
+    creatorID: viewer.id,
+    time,
+    targetMessageID,
+  });
+
+  const sidebarThreadValues = values(rawSidebarThreadInfos.threadInfos);
+  for (const sidebarThreadValue of sidebarThreadValues) {
+    if (sidebarThreadValue && sidebarThreadValue.id) {
+      messagesData.push({
+        type: messageTypes.DELETE_MESSAGE,
+        threadID: sidebarThreadValue.id,
+        creatorID: viewer.id,
+        time,
+        targetMessageID,
+      });
+    }
+  }
+
+  const newMessageInfos = await createMessages(viewer, messagesData);
+
+  return { newMessageInfos };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -423,4 +515,5 @@ export {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  deleteMessageResponder,
 };
