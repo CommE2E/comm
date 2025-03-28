@@ -1,5 +1,5 @@
 locals {
-  keyserver_service_image_tag = "1.0.158"
+  keyserver_service_image_tag = "1.0.159"
   keyserver_service_server_image = (var.custom_keyserver_image != null ?
     var.custom_keyserver_image :
   "commapp/keyserver:${local.keyserver_service_image_tag}")
