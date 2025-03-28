@@ -27,6 +27,7 @@ enum class MessageType {
   EDIT_MESSAGE = 20,
   TOGGLE_PIN = 21,
   UPDATE_RELATIONSHIP = 22,
+  DELETE_MESSAGE = 23,
 };
 
 } // namespace comm
