@@ -8,6 +8,7 @@
 #include "MessageSpecs/CreateSubThreadMessageSpec.h"
 #include "MessageSpecs/CreateThreadMessageSpec.h"
 #include "MessageSpecs/DeleteEntryMessageSpec.h"
+#include "MessageSpecs/DeleteMessageSpec.h"
 #include "MessageSpecs/EditEntryMessageSpec.h"
 #include "MessageSpecs/EditMessageSpec.h"
 #include "MessageSpecs/JoinThreadMessageSpec.h"
@@ -94,6 +95,8 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
       message_specs_initializer.insert(
           {MessageType::REMOVE_MEMBERS,
            std::make_unique<RemoveMembersMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::DELETE_MESSAGE, std::make_unique<DeleteMessageSpec>()});
       return message_specs_initializer;
     }();
 
