@@ -289,7 +289,11 @@ pub fn verify_singleton_device_list(
   // verify keyserver device ID and device list length
   if let Some(keyserver_device_id) = expected_keyserver_device_id {
     if device_list.devices.len() != 2 {
-      debug!("Invalid device list length");
+      debug!(
+        expected = 2,
+        actual = device_list.devices.len(),
+        "Invalid device list length"
+      );
       return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
     }
 
@@ -303,7 +307,11 @@ pub fn verify_singleton_device_list(
       return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
     }
   } else if device_list.devices.len() != 1 {
-    debug!("Invalid device list length");
+    debug!(
+      expected = 1,
+      actual = device_list.devices.len(),
+      "Invalid device list length"
+    );
     return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   }
   Ok(())
