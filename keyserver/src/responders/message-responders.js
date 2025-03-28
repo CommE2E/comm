@@ -25,7 +25,11 @@ import {
   type FetchPinnedMessagesResult,
   type SearchMessagesResponse,
   type SearchMessagesKeyserverRequest,
+  type DeleteMessageRequest,
+  type DeleteMessageResponse,
+  isComposableMessageType,
 } from 'lib/types/message-types.js';
+import type { DeleteMessageData } from 'lib/types/messages/delete.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
@@ -415,6 +419,96 @@ async function searchMessagesResponder(
   );
 }
 
+export const deleteMessageRequestValidator: TInterface<DeleteMessageRequest> =
+  tShape<DeleteMessageRequest>({
+    targetMessageID: tID,
+  });
+
+async function deleteMessageResponder(
+  viewer: Viewer,
+  request: DeleteMessageRequest,
+): Promise<DeleteMessageResponse> {
+  const { targetMessageID } = request;
+
+  const targetMessageInfo = await fetchMessageInfoByID(viewer, targetMessageID);
+  if (!targetMessageInfo || !targetMessageInfo.id) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (!isComposableMessageType(targetMessageInfo.type)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { threadID } = targetMessageInfo;
+
+  const [
+    serverThreadInfos,
+    hasDeleteOwnMessagesPermission,
+    hasDeleteAllMessagesPermission,
+    rawSidebarThreadInfos,
+  ] = await Promise.all([
+    fetchServerThreadInfos({ threadID }),
+    checkThreadPermission(
+      viewer,
+      threadID,
+      threadPermissions.DELETE_OWN_MESSAGES,
+    ),
+    checkThreadPermission(
+      viewer,
+      threadID,
+      threadPermissions.DELETE_ALL_MESSAGES,
+    ),
+    fetchServerThreadInfos({
+      parentThreadID: threadID,
+      sourceMessageID: targetMessageID,
+    }),
+  ]);
+
+  const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
+  if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
+    // We are deleting first message of the sidebar
+    // If client wants to do that it sends id of the sourceMessage instead
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (
+    !hasDeleteAllMessagesPermission &&
+    !(
+      hasDeleteOwnMessagesPermission &&
+      targetMessageInfo.creatorID !== viewer.id
+    )
+  ) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const time = Date.now();
+  const messagesData: Array<DeleteMessageData> = [];
+  messagesData.push({
+    type: messageTypes.DELETE_MESSAGE,
+    threadID,
+    creatorID: viewer.id,
+    time,
+    targetMessageID,
+  });
+
+  const sidebarThreadValues = values(rawSidebarThreadInfos.threadInfos);
+  for (const sidebarThreadValue of sidebarThreadValues) {
+    if (sidebarThreadValue && sidebarThreadValue.id) {
+      messagesData.push({
+        type: messageTypes.DELETE_MESSAGE,
+        threadID: sidebarThreadValue.id,
+        creatorID: viewer.id,
+        time,
+        targetMessageID,
+      });
+    }
+  }
+
+  const newMessageInfos = await createMessages(viewer, messagesData);
+
+  return { newMessageInfos };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -423,4 +517,5 @@ export {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  deleteMessageResponder,
 };
