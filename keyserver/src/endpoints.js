@@ -70,6 +70,7 @@ import {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  deleteMessageResponder,
   sendMultimediaMessageRequestInputValidator,
   sendReactionMessageRequestInputValidator,
   editMessageRequestInputValidator,
@@ -77,6 +78,7 @@ import {
   fetchMessageInfosRequestInputValidator,
   fetchPinnedMessagesResponderInputValidator,
   searchMessagesResponderInputValidator,
+  deleteMessageRequestValidator,
 } from './responders/message-responders.js';
 import {
   getInitialReduxStateResponder,
@@ -519,6 +521,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   delete_farcaster_channel_tag: {
     responder: deleteFarcasterChannelTagResponder,
     inputValidator: deleteFarcasterChannelTagInputValidator,
+    policies: baseLegalPolicies,
+  },
+  delete_message: {
+    responder: deleteMessageResponder,
+    inputValidator: deleteMessageRequestValidator,
     policies: baseLegalPolicies,
   },
 };
