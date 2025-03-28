@@ -1382,8 +1382,8 @@ impl DatabaseClient {
         let allow_device_list_overwrite =
           singleton_device_list.last_primary_signature.is_some();
 
-        if (!device_ids.is_empty() && !allow_device_list_overwrite)
-          || !devices_data.is_empty()
+        if (!device_ids.is_empty() || !devices_data.is_empty())
+          && !allow_device_list_overwrite
         {
           warn!(
             "Tried creating singleton device list for already existing user
