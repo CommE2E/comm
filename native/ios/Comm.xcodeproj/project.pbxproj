@@ -149,6 +149,7 @@
 		0E02677B2D81ED6600788249 /* DMOperationStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DMOperationStore.h; path = PersistentStorageUtilities/DataStores/DMOperationStore.h; sourceTree = "<group>"; };
 		0E02677C2D81ED6600788249 /* DMOperationStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DMOperationStore.cpp; path = PersistentStorageUtilities/DataStores/DMOperationStore.cpp; sourceTree = "<group>"; };
 		0E02677E2D81ED7B00788249 /* DMOperationStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMOperationStoreOperations.h; sourceTree = "<group>"; };
+		0E0267862D970E9500788249 /* DeleteMessageSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DeleteMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteMessageSpec.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
@@ -801,6 +802,7 @@
 				CB38F2B3286C6C970010535C /* TextMessageSpec.h */,
 				CB38F2B9286C6C970010535C /* UnsupportedMessageSpec.h */,
 				CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */,
+				0E0267862D970E9500788249 /* DeleteMessageSpec.h */,
 			);
 			name = MessageSpecs;
 			sourceTree = "<group>";
