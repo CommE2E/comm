@@ -721,15 +721,6 @@ impl IdentityClientService for ClientService {
     let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
-    if message.user_id == AUTHORITATIVE_KEYSERVER_OWNER_USER_ID {
-      error!(
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "Authoritative keyserver owner called RestoreUser RPC!"
-      );
-      return Err(tonic::Status::failed_precondition(
-        tonic_status_messages::USE_V1_FLOW,
-      ));
-    }
     info!(
       "Attempting to restore user: {}",
       redact_sensitive_data(&message.user_id)

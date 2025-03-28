@@ -2,7 +2,6 @@ use std::collections::{HashMap, HashSet};
 
 use crate::comm_service::{backup, blob, tunnelbroker};
 use crate::config::CONFIG;
-use crate::constants::staff::AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
 use crate::database::{DeviceListRow, DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
@@ -39,7 +38,7 @@ use super::protos::auth::{
   UploadOneTimeKeysRequest, UserDevicesPlatformDetails, UserIdentitiesRequest,
   UserIdentitiesResponse,
 };
-use super::protos::unauth::{DeviceType, Empty};
+use super::protos::unauth::Empty;
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
@@ -544,11 +543,6 @@ impl IdentityClientService for AuthenticatedService {
         DeviceListItemKind::Primary,
       )
       .await?;
-
-    if user_id == AUTHORITATIVE_KEYSERVER_OWNER_USER_ID {
-      self.log_out_authoritative_keyserver_owner().await?;
-      return Ok(Response::new(Empty {}));
-    }
 
     // Get and verify singleton device list
     let parsed_device_list: SignedDeviceList =
@@ -1279,43 +1273,6 @@ impl AuthenticatedService {
         })?;
     let blob_client = self.blob_client.with_authentication(s2s_token.into());
     Ok(blob_client)
-  }
-
-  /// for authoritatative keyserver owner, instead of primary device logout,
-  /// we should remove all devices but keyserver, remove backup
-  /// and create an unsigned device list update, effectively downgrading
-  /// the user back to v1 flows
-  async fn log_out_authoritative_keyserver_owner(
-    &self,
-  ) -> Result<(), tonic::Status> {
-    let user_id = AUTHORITATIVE_KEYSERVER_OWNER_USER_ID;
-    info!(
-      user_id = redact_sensitive_data(user_id),
-      "Performing authoritative keyserver owner logout."
-    );
-
-    let devices = self.db_client.get_current_devices(user_id).await?;
-    let keyserver_device_id = devices
-      .iter()
-      .find(|it| matches!(it.device_type(), DeviceType::Keyserver))
-      .map(|keyserver| &keyserver.device_id);
-
-    let new_device_list = if let Some(keyserver_id) = keyserver_device_id {
-      vec![keyserver_id.to_string()]
-    } else {
-      Vec::new()
-    };
-
-    let device_list_update = DeviceListUpdate::new_unsigned(new_device_list)?;
-    let validator = None::<DeviceListValidator>;
-    self
-      .db_client
-      .apply_devicelist_update(user_id, device_list_update, validator, true)
-      .await?;
-
-    backup::delete_backup_user_data(user_id, &self.comm_auth_service).await?;
-
-    Ok(())
   }
 
   async fn get_current_device_list(
