@@ -68,6 +68,20 @@ function checkThreadPermission(
   return checkThread(viewer, threadID, [{ check: 'permission', permission }]);
 }
 
+async function checkThreadHasAnyPermission(
+  viewer: Viewer,
+  threadID: string,
+  permissions: $ReadOnlyArray<ThreadPermission>,
+): Promise<boolean> {
+  const checks = permissions.map(permission => ({
+    check: 'permission',
+    permission,
+  }));
+
+  const threadsWithPermissions = await checkThreadsOr(viewer, threadID, checks);
+  return threadsWithPermissions.has(threadID);
+}
+
 function viewerIsMember(viewer: Viewer, threadID: string): Promise<boolean> {
   return checkThread(viewer, threadID, [{ check: 'is_member' }]);
 }
@@ -523,4 +537,5 @@ export {
   checkIfThreadIsBlocked,
   validateCandidateMembers,
   viewerHasPositiveRole,
+  checkThreadHasAnyPermission,
 };
