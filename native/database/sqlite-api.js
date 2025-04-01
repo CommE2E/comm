@@ -7,6 +7,7 @@ import type { StoreOperations } from 'lib/types/store-ops-types';
 import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { values } from 'lib/utils/objects.js';
 
+import { getClientDBStore } from './store.js';
 import { commCoreModule } from '../native-modules.js';
 import { storeVersion } from '../redux/persist-constants.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
@@ -21,6 +22,7 @@ const sqliteAPI: SQLiteAPI = {
   searchMessages: commCoreModule.searchMessages,
   fetchMessages: commCoreModule.fetchMessages,
   fetchDMOperationsByType: commCoreModule.getDMOperationsByType,
+  getClientDBStore,
 
   // write operations
   removeInboundP2PMessages: commCoreModule.removeInboundP2PMessages,
