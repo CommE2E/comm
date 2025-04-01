@@ -19,7 +19,10 @@ import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
+import {
+  fullBackupSupport,
+  useIsRestoreFlowEnabled,
+} from 'lib/utils/services-utils.js';
 
 import { BackupHandlerContext } from './backup-handler-context.js';
 import { useClientBackup } from './use-client-backup.js';
@@ -97,10 +100,12 @@ function BackupHandlerContextProvider(props: Props): React.Node {
   }, []);
 
   React.useEffect(() => {
-    if (!canPerformBackupOperation) {
+    if (fullBackupSupport && canPerformBackupOperation) {
+      startBackupHandler();
+    } else if (!canPerformBackupOperation) {
       stopBackupHandler();
     }
-  }, [canPerformBackupOperation, stopBackupHandler]);
+  }, [canPerformBackupOperation, startBackupHandler, stopBackupHandler]);
 
   const usingRestoreFlow = useIsRestoreFlowEnabled();
 
