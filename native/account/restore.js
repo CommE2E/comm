@@ -14,8 +14,11 @@ import {
   useWalletLogIn,
 } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import type { SignedDeviceList } from 'lib/types/identity-service-types.js';
-import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
+import {
+  type IdentityAuthResult,
+  type SignedDeviceList,
+  platformToIdentityDeviceType,
+} from 'lib/types/identity-service-types.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
@@ -55,7 +58,7 @@ function useRestoreProtocol(): (
       userIdentifier: string,
       secret: string,
       siweSocialProof?: SignedMessage,
-    ) => {
+    ): Promise<RestoreUserResult> => {
       //1. Runs Key Generation
       const { olmAPI } = getConfig();
       await olmAPI.initializeCryptoAccount();
@@ -149,18 +152,25 @@ function useRestore(): (
   userIdentifier: string,
   secret: string,
   siweSocialProof?: SignedMessage,
-) => Promise<void> {
+) => Promise<IdentityAuthResult> {
   const restoreProtocol = useRestoreProtocol();
   const dispatchActionPromise = useDispatchActionPromise();
   const restoreAuth = React.useCallback(
-    (
+    async (
       userIdentifier: string,
       secret: string,
       siweSocialProof?: SignedMessage,
-    ) => {
+    ): Promise<IdentityAuthResult> => {
       const promise = restoreProtocol(userIdentifier, secret, siweSocialProof);
       void dispatchActionPromise(restoreUserActionTypes, promise);
-      return promise;
+      const { userID, accessToken, username, preRequestUserState } =
+        await promise;
+      return {
+        userID,
+        accessToken,
+        username,
+        preRequestUserState,
+      };
     },
     [dispatchActionPromise, restoreProtocol],
   );
