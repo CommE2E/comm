@@ -196,7 +196,7 @@ async function innerProcessMedia(
   if (mediaType === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo(
       {
-        uri: initialURI,
+        uri: selection.uri,
         mime,
         filename: selection.filename,
         fileSize,
