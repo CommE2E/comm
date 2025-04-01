@@ -8,6 +8,7 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { useCanDeleteMessage } from 'lib/utils/delete-message-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import ComposedMessage from './composed-message.react.js';
@@ -65,6 +66,7 @@ type Props = {
   +isUserProfileBottomSheetActive: boolean,
   +canEditMessage: boolean,
   +currentUserIsVoiced: boolean,
+  +canDeleteMessage: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -94,6 +96,7 @@ class TextMessage extends React.PureComponent<Props> {
       canEditMessage,
       canTogglePins,
       currentUserIsVoiced,
+      canDeleteMessage,
       ...viewProps
     } = this.props;
 
@@ -171,6 +174,10 @@ class TextMessage extends React.PureComponent<Props> {
 
     if (!this.props.item.messageInfo.creator.isViewer) {
       result.push('report');
+    }
+
+    if (this.props.canDeleteMessage) {
+      result.push('delete');
     }
 
     return result;
@@ -292,6 +299,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       threadPermissions.VOICED,
     );
 
+    const canDeleteMessage = useCanDeleteMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
+    );
+
     return (
       <TextMessage
         {...props}
@@ -302,6 +314,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
         canEditMessage={canEditMessage}
         currentUserIsVoiced={currentUserCanReply}
+        canDeleteMessage={canDeleteMessage}
       />
     );
   });
