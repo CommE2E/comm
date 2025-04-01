@@ -8,16 +8,6 @@ import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js'
 import type { CallSingleKeyserverEndpoint } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js';
-import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
-import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
-import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
-import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
-import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
-import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
-import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
-import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
-import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
-import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { shouldClearData } from 'lib/shared/data-utils.js';
@@ -25,8 +15,8 @@ import {
   recoveryFromDataHandlerActionSources,
   type RecoveryFromDataHandlerActionSource,
 } from 'lib/types/account-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { supportingMultipleKeyservers } from 'lib/utils/services-utils.js';
@@ -231,67 +221,13 @@ function SQLiteDataHandler(): React.Node {
         mediaCacheContext?.evictCache(),
       ]);
       try {
-        const {
-          threads,
-          messages,
-          drafts,
-          messageStoreThreads,
-          reports,
-          users,
-          keyservers,
-          communities,
-          integrityThreadHashes,
-          syncedMetadata,
-          auxUserInfos,
-          threadActivityEntries,
-          entries,
-          messageStoreLocalMessageInfos,
-        } = await commCoreModule.getClientDBStore();
-        const threadInfosFromDB =
-          threadStoreOpsHandlers.translateClientDBData(threads);
-        const reportsFromDB =
-          reportStoreOpsHandlers.translateClientDBData(reports);
-        const usersFromDB = userStoreOpsHandlers.translateClientDBData(users);
-        const keyserverInfosFromDB =
-          keyserverStoreOpsHandlers.translateClientDBData(keyservers);
-        const communityInfosFromDB =
-          communityStoreOpsHandlers.translateClientDBData(communities);
-        const threadHashesFromDB =
-          integrityStoreOpsHandlers.translateClientDBData(
-            integrityThreadHashes,
-          );
-        const syncedMetadataFromDB =
-          syncedMetadataStoreOpsHandlers.translateClientDBData(syncedMetadata);
-        const auxUserInfosFromDB =
-          auxUserStoreOpsHandlers.translateClientDBData(auxUserInfos);
-        const threadActivityStoreFromDB =
-          threadActivityStoreOpsHandlers.translateClientDBData(
-            threadActivityEntries,
-          );
-        const entriesFromDB =
-          entryStoreOpsHandlers.translateClientDBData(entries);
-        const localMessageInfosFromDB = translateClientDBLocalMessageInfos(
-          messageStoreLocalMessageInfos,
+        const { sqliteAPI } = getConfig();
+        const clientDBStore = await sqliteAPI.getClientDBStore(
+          currentLoggedInUserID,
         );
         dispatch({
           type: setClientDBStoreActionType,
-          payload: {
-            drafts,
-            messages,
-            threadStore: { threadInfos: threadInfosFromDB },
-            currentUserID: currentLoggedInUserID,
-            messageStoreThreads,
-            reports: reportsFromDB,
-            users: usersFromDB,
-            keyserverInfos: keyserverInfosFromDB,
-            communities: communityInfosFromDB,
-            threadHashes: threadHashesFromDB,
-            syncedMetadata: syncedMetadataFromDB,
-            auxUserInfos: auxUserInfosFromDB,
-            threadActivityStore: threadActivityStoreFromDB,
-            entries: entriesFromDB,
-            messageStoreLocalMessageInfos: localMessageInfosFromDB,
-          },
+          payload: clientDBStore,
         });
       } catch (setStoreException) {
         if (isTaskCancelledError(setStoreException)) {
