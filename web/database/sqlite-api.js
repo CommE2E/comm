@@ -2,6 +2,7 @@
 
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
+import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
   SQLiteAPI,
@@ -9,6 +10,8 @@ import type {
   OutboundP2PMessage,
 } from 'lib/types/sqlite-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
+import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
@@ -209,6 +212,30 @@ const sqliteAPI: SQLiteAPI = {
         location.reload();
       }
     }
+  },
+
+  //backup
+  async restoreUserData(
+    qrAuthBackupData: QRAuthBackupData,
+    identityAuthResult: IdentityAuthResult,
+  ): Promise<void> {
+    const { backupID, backupDataKey, backupLogDataKey } = qrAuthBackupData;
+    const { userID, accessToken } = identityAuthResult;
+    const [deviceID, sharedWorker] = await Promise.all([
+      getContentSigningKey(),
+      getCommSharedWorker(),
+    ]);
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.BACKUP_RESTORE,
+      authMetadata: {
+        deviceID,
+        userID,
+        accessToken,
+      },
+      backupID,
+      backupDataKey,
+      backupLogDataKey,
+    });
   },
 };
 
