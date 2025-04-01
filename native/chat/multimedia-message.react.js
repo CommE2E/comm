@@ -13,7 +13,9 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
+import { useCanDeleteMessage } from 'lib/utils/delete-message-utils.js';
 
+import { ChatContext, type ChatContextType } from './chat-context.js';
 import ComposedMessage from './composed-message.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
 import {
@@ -21,7 +23,6 @@ import {
   multimediaMessageSendFailed,
 } from './multimedia-message-utils.js';
 import { getMessageTooltipKey } from './utils.js';
-import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import type { OverlayContextType } from '../navigation/overlay-context.js';
 import {
@@ -53,6 +54,7 @@ type Props = {
   +chatContext: ?ChatContextType,
   +canCreateSidebarFromMessage: boolean,
   +canCreateReactionFromMessage: boolean,
+  +canDeleteMessage: boolean,
 };
 type State = {
   +clickable: boolean,
@@ -104,6 +106,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
 
     if (!this.props.item.messageInfo.creator.isViewer) {
       result.push('report');
+    }
+
+    if (this.props.canDeleteMessage) {
+      result.push('delete');
     }
 
     return result;
@@ -208,6 +214,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       canCreateSidebarFromMessage,
       canTogglePins,
       canCreateReactionFromMessage,
+      canDeleteMessage,
       ...viewProps
     } = this.props;
     return (
@@ -248,6 +255,10 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
       props.item.threadInfo,
       props.item.messageInfo,
     );
+    const canDeleteMessage = useCanDeleteMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
+    );
     return (
       <MultimediaMessage
         {...props}
@@ -257,6 +268,7 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
         chatContext={chatContext}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
         canCreateReactionFromMessage={canCreateReactionFromMessage}
+        canDeleteMessage={canDeleteMessage}
       />
     );
   });
