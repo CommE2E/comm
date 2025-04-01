@@ -128,38 +128,22 @@ fn get_code_version() -> u64 {
 }
 
 fn get_state_version() -> u64 {
-  const SOURCE_PATH: &str = "../redux/persist.js";
+  const SOURCE_PATH: &str = "../redux/persist-constants.js";
   let source_path = Path::new(SOURCE_PATH);
   println!("cargo:rerun-if-changed={}", SOURCE_PATH);
 
-  let content =
-    fs::read_to_string(source_path).expect("Failed to read persist.js");
-  let content_lines = content.lines();
+  let content = fs::read_to_string(source_path)
+    .expect("Failed to read persist-constants.js");
 
-  // We search file contents for `version:` line that
-  // is located between `const persistConfig = {`
-  // and `};`.
-  let search_start = content_lines
-    .clone()
-    .position(|line| line.contains("const persistConfig = "))
-    .expect("Failed to find persistConfig start");
+  let version_line = content
+    .lines()
+    .find(|it| it.contains("storeVersion = "))
+    .expect("Failed to find storeVersion line");
 
-  let search_length = content_lines
-    .clone()
-    .skip(search_start)
-    .position(|line| line.contains("};"))
-    .expect("Failed to find persistConfig end");
-
-  let version_line = content_lines
-    .skip(search_start)
-    .take(search_length)
-    .find(|it| it.contains("version:"))
-    .expect("Failed to find state version line");
-
-  // The regex searches for the string "version:", followed by any
+  // The regex searches for the string "storeVersion =", followed by any
   // number of whitespace characters, a series of one or more digits (which it captures),
-  // some more optional whitespace, and finally a comma.
-  let re = Regex::new(r"version:\s*(\d+)\s*,")
+  // some more optional whitespace, and finally a semicolon.
+  let re = Regex::new(r"storeVersion =\s*(\d+)\s*;")
     .expect("Failed to compile regular expression");
   let version: u64 = re
     .captures(version_line)

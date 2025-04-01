@@ -148,6 +148,7 @@ import {
   persistBlacklist,
 } from './handle-redux-migration-failure.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
+import { rootKey, storeVersion } from './persist-constants.js';
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB, legacyUnshimClientDB } from './unshim-utils.js';
@@ -1546,11 +1547,11 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
 // requires updating `native/native_rust_library/build.rs` to correctly
 // scrap Redux state version from this file.
 const persistConfig = {
-  key: 'root',
+  key: rootKey,
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 87,
+  version: storeVersion,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
