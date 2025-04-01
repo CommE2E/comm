@@ -13,14 +13,14 @@ import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
 import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 
-import { defaultWebState } from '../../redux/default-state.js';
-import { workerRequestMessageTypes } from '../../types/worker-types.js';
-import { getCommSharedWorker } from '../shared-worker-provider.js';
+import { defaultWebState } from '../redux/default-state.js';
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { workerRequestMessageTypes } from '../types/worker-types.js';
 
-async function getClientDBStore(): Promise<ClientStore> {
+async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
   const sharedWorker = await getCommSharedWorker();
   let result: ClientStore = {
-    currentUserID: null,
+    currentUserID,
     drafts: [],
     messages: null,
     threadStore: null,

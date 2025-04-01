@@ -14,6 +14,7 @@ import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-messa
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 
+import { getClientDBStore } from './store.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
@@ -128,6 +129,8 @@ const sqliteAPI: SQLiteAPI = {
     const operations = data?.operations;
     return operations ? [...operations] : [];
   },
+
+  getClientDBStore,
 
   // write operations
   async removeInboundP2PMessages(ids: $ReadOnlyArray<string>): Promise<void> {

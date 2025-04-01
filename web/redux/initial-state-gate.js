@@ -26,7 +26,6 @@ import {
 import { useSelector } from './redux-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import Loading from '../loading.react.js';
-import { getClientDBStore } from '../shared-worker/utils/store.js';
 import type { InitialReduxStateActionPayload } from '../types/redux-types.js';
 
 type Props = {
@@ -69,7 +68,9 @@ function InitialReduxStateGate(props: Props): React.Node {
             ),
           };
         }
-        const clientDBStore = await getClientDBStore();
+
+        const { sqliteAPI } = getConfig();
+        const clientDBStore = await sqliteAPI.getClientDBStore(null);
         dispatch({
           type: setClientDBStoreActionType,
           payload: clientDBStore,
@@ -171,7 +172,6 @@ function InitialReduxStateGate(props: Props): React.Node {
           const messageSearchStoreOperations = getMessageSearchStoreOps(
             messageStoreOperations,
           );
-          const { sqliteAPI } = getConfig();
           await sqliteAPI.processDBStoreOperations({
             threadStoreOperations,
             draftStoreOperations: [],
