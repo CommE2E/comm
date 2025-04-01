@@ -109,7 +109,6 @@ import {
   composeTunnelbrokerQRAuthMessage,
   handleSecondaryDeviceLogInError,
   parseTunnelbrokerQRAuthMessage,
-  performBackupRestore,
   generateQRAuthAESKey,
 } from './utils/qr-code-utils.js';
 
@@ -360,7 +359,6 @@ function Root() {
                             composeTunnelbrokerQRAuthMessage
                           }
                           generateAESKey={generateQRAuthAESKey}
-                          performBackupRestore={performBackupRestore}
                           onLogInError={handleSecondaryDeviceLogInError}
                         >
                           <FeatureFlagsProvider>
