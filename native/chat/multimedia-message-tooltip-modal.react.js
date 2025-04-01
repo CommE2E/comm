@@ -2,6 +2,9 @@
 
 import * as React from 'react';
 
+import { useDeleteMessage } from 'lib/utils/delete-message-utils.js';
+
+import { useNavigateToThread } from './message-list-types.js';
 import { useOnPressReport } from './message-report-utils.js';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
@@ -29,6 +32,7 @@ function TooltipMenu(
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
+  const navigateToThread = useNavigateToThread();
   const overlayContext = React.useContext(OverlayContext);
 
   const onPressTogglePin = useNavigateToPinModal(overlayContext, route);
@@ -62,6 +66,23 @@ function TooltipMenu(
     [],
   );
 
+  const deleteMessage = useDeleteMessage();
+  const onPressDelete = React.useCallback(async () => {
+    await deleteMessage(route.params.item.messageInfo);
+    navigateToThread({ threadInfo: route.params.item.threadInfo });
+  }, [
+    deleteMessage,
+    navigateToThread,
+    route.params.item.messageInfo,
+    route.params.item.threadInfo,
+  ]);
+  const renderDeleteIcon = React.useCallback(
+    (style: TextStyle) => (
+      <SWMansionIcon name="trash-2" style={style} size={16} />
+    ),
+    [],
+  );
+
   return (
     <>
       <TooltipItem
@@ -91,6 +112,13 @@ function TooltipMenu(
         onPress={onPressReport}
         renderIcon={renderReportIcon}
         key="report"
+      />
+      <TooltipItem
+        id="delete"
+        text="Delete"
+        onPress={onPressDelete}
+        renderIcon={renderDeleteIcon}
+        key="delete"
       />
     </>
   );
