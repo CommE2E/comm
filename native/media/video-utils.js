@@ -1,9 +1,8 @@
 // @flow
 
-import invariant from 'invariant';
 import filesystem from 'react-native-fs';
 
-import { mediaConfig, pathFromURI } from 'lib/media/file-utils.js';
+import { mediaConfig } from 'lib/media/file-utils.js';
 import { getVideoProcessingPlan } from 'lib/media/video-utils.js';
 import type { ProcessPlan } from 'lib/media/video-utils.js';
 import type {
@@ -63,9 +62,7 @@ async function processVideo(
   result: MediaMissionFailure | ProcessVideoResponse,
 }> {
   const steps: Array<MediaMissionStep> = [];
-
-  const path = pathFromURI(input.uri);
-  invariant(path, `could not extract path from ${input.uri}`);
+  const path = input.uri;
 
   const initialCheckStep = await checkVideoInfo(path);
   steps.push(initialCheckStep);

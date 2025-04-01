@@ -1,7 +1,6 @@
 // @flow
 
 import base64 from 'base-64';
-import * as ExpoFileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
@@ -57,14 +56,13 @@ async function fetchFileInfo(
   const { mediaNativeID } = optionalInputs;
   const steps: Array<MediaMissionStep> = [];
 
-  let assetInfoPromise, assetURI;
+  let assetInfoPromise;
   const inputPath = pathFromURI(inputURI);
   if (mediaNativeID && (!inputPath || optionalFields.orientation)) {
     assetInfoPromise = (async () => {
       const { steps: assetInfoSteps, result: assetInfoResult } =
         await fetchAssetInfo(mediaNativeID);
       steps.push(...assetInfoSteps);
-      assetURI = assetInfoResult.localURI;
       return assetInfoResult;
     })();
   }
@@ -154,27 +152,10 @@ async function fetchFileInfo(
     };
   }
 
-  let finalURI = uri;
-  // prefer asset URI, with one exception:
-  // if the target URI is a file in our app local cache dir, we shouldn't
-  // replace it because it was already preprocessed by either our media
-  // processing logic or cropped by expo-image-picker
-  const isFileInCacheDir =
-    uri.includes(temporaryDirectoryPath) ||
-    uri.includes(ExpoFileSystem.cacheDirectory);
-  if (assetURI && assetURI !== uri && !isFileInCacheDir) {
-    finalURI = assetURI;
-    console.log(
-      'fetchAssetInfo returned localURI ' +
-        `${assetURI} when we already had ${uri}`,
-    );
-  }
-
   return {
     steps,
     result: {
       success: true,
-      uri: finalURI,
       orientation,
       fileSize,
       mime: types.mime,
