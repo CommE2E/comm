@@ -26,6 +26,7 @@ import {
   type LegacyLogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
+import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import {
@@ -70,7 +71,10 @@ type Props = {
   +legacyLogInExtraInfo: () => Promise<LegacyLogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +legacyLogIn: (logInInfo: LegacyLogInInfo) => Promise<LegacyLogInResult>,
-  +identityPasswordLogIn: (username: string, password: string) => Promise<void>,
+  +identityPasswordLogIn: (
+    username: string,
+    password: string,
+  ) => Promise<IdentityAuthResult>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
