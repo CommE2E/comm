@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type {
@@ -22,6 +23,10 @@ import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import {
+  useCanDeleteMessage,
+  useDeleteMessage,
+} from 'lib/utils/delete-message-utils.js';
 import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import LabelTooltip from './label-toolitp.react.js';
@@ -381,6 +386,35 @@ function useMessageEditAction(
   ]);
 }
 
+function useMessageDeleteAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { messageInfo } = item;
+
+  const canDeleteMessage = useCanDeleteMessage(threadInfo, messageInfo);
+  const deleteMessage = useDeleteMessage();
+  const { clearTooltip } = useTooltipContext();
+
+  return React.useMemo(() => {
+    if (!canDeleteMessage) {
+      return null;
+    }
+    const buttonContent = <SWMansionIcon icon="trash-2" size={18} />;
+    const onClickDelete = async () => {
+      if (messageInfo) {
+        await deleteMessage(messageInfo);
+      }
+      clearTooltip();
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick: onClickDelete,
+      label: 'Delete',
+    };
+  }, [canDeleteMessage, clearTooltip, deleteMessage, messageInfo]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -391,6 +425,7 @@ function useMessageTooltipActions(
   const reactAction = useMessageReactAction(item, threadInfo);
   const togglePinAction = useMessageTogglePinAction(item, threadInfo);
   const editAction = useMessageEditAction(item, threadInfo);
+  const deleteAction = useMessageDeleteAction(item, threadInfo);
   return React.useMemo(
     () =>
       [
@@ -400,6 +435,7 @@ function useMessageTooltipActions(
         reactAction,
         togglePinAction,
         editAction,
+        deleteAction,
       ].filter(Boolean),
     [
       replyAction,
@@ -408,6 +444,7 @@ function useMessageTooltipActions(
       reactAction,
       togglePinAction,
       editAction,
+      deleteAction,
     ],
   );
 }
