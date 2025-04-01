@@ -8,7 +8,6 @@ import {
 import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
-  type QRAuthBackupData,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -22,8 +21,7 @@ import {
   convertBytesToObj,
   convertObjToBytes,
 } from '../backup/conversion-utils.js';
-import { commCoreModule, commUtilsModule } from '../native-modules.js';
-import { persistConfig } from '../redux/persist.js';
+import { commUtilsModule } from '../native-modules.js';
 
 function composeTunnelbrokerQRAuthMessage(
   encryptionKey: string,
@@ -79,18 +77,6 @@ function handleSecondaryDeviceLogInError(error: mixed): void {
   }
 }
 
-function performBackupRestore(
-  qrAuthBackupData: QRAuthBackupData,
-): Promise<void> {
-  const { backupID, backupDataKey, backupLogDataKey } = qrAuthBackupData;
-  return commCoreModule.restoreBackupData(
-    backupID,
-    backupDataKey,
-    backupLogDataKey,
-    persistConfig.version.toString(),
-  );
-}
-
 function generateQRAuthAESKey(): Promise<Uint8Array> {
   return Promise.resolve(AES.generateKey());
 }
@@ -99,6 +85,5 @@ export {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
   handleSecondaryDeviceLogInError,
-  performBackupRestore,
   generateQRAuthAESKey,
 };
