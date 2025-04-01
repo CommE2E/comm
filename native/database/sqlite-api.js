@@ -4,9 +4,11 @@ import { getKeyserversToRemoveFromNotifsStore } from 'lib/ops/keyserver-store-op
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
 import type { SQLiteAPI } from 'lib/types/sqlite-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types';
+import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import { commCoreModule } from '../native-modules.js';
+import { storeVersion } from '../redux/persist-constants.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 
 const sqliteAPI: SQLiteAPI = {
@@ -60,6 +62,17 @@ const sqliteAPI: SQLiteAPI = {
       commCoreModule.reportDBOperationsFailure();
       commCoreModule.terminate();
     }
+  },
+
+  //backup
+  async restoreUserData(qrAuthBackupData: QRAuthBackupData): Promise<void> {
+    const { backupID, backupDataKey, backupLogDataKey } = qrAuthBackupData;
+    return commCoreModule.restoreBackupData(
+      backupID,
+      backupDataKey,
+      backupLogDataKey,
+      storeVersion.toString(),
+    );
   },
 };
 
