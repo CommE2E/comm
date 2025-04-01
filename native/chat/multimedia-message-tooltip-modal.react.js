@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { useDeleteMessage } from 'lib/utils/delete-message-utils.js';
+
 import { useOnPressReport } from './message-report-utils.js';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
@@ -62,6 +64,17 @@ function TooltipMenu(
     [],
   );
 
+  const deleteMessage = useDeleteMessage();
+  const onPressDelete = React.useCallback(() => {
+    void deleteMessage(route.params.item.messageInfo);
+  }, [deleteMessage, route.params.item.messageInfo]);
+  const renderDeleteIcon = React.useCallback(
+    (style: TextStyle) => (
+      <SWMansionIcon name="trash-2" style={style} size={16} />
+    ),
+    [],
+  );
+
   return (
     <>
       <TooltipItem
@@ -91,6 +104,13 @@ function TooltipMenu(
         onPress={onPressReport}
         renderIcon={renderReportIcon}
         key="report"
+      />
+      <TooltipItem
+        id="delete"
+        text="Delete"
+        onPress={onPressDelete}
+        renderIcon={renderDeleteIcon}
+        key="delete"
       />
     </>
   );

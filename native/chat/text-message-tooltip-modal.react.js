@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils.js';
+import { useDeleteMessage } from 'lib/utils/delete-message-utils.js';
 
 import { MessageEditingContext } from './message-editing-context.react.js';
 import { useNavigateToThread } from './message-list-types.js';
@@ -135,6 +136,17 @@ function TooltipMenu(
     [],
   );
 
+  const deleteMessage = useDeleteMessage();
+  const onPressDelete = React.useCallback(() => {
+    void deleteMessage(messageInfo);
+  }, [deleteMessage, messageInfo]);
+  const renderDeleteIcon = React.useCallback(
+    (style: TextStyle) => (
+      <SWMansionIcon name="trash-2" style={style} size={16} />
+    ),
+    [],
+  );
+
   return (
     <>
       <TooltipItem
@@ -185,6 +197,13 @@ function TooltipMenu(
         onPress={onPressReport}
         renderIcon={renderReportIcon}
         key="report"
+      />
+      <TooltipItem
+        id="delete"
+        text="Delete"
+        onPress={onPressDelete}
+        renderIcon={renderDeleteIcon}
+        key="delete"
       />
     </>
   );
