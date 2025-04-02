@@ -353,6 +353,9 @@
 
   /* List Item */
   --listItem-background-primary-hover: var(--shades-black-90);
+
+  /* Chat */
+  --deleted-message-background: var(--shades-black-50);
 }
 
 /* Light theme */
@@ -464,4 +467,7 @@
   /* List Item */
   /* @GINSU: TODO double check these values after redesign is finished */
   --listItem-background-primary-hover: var(--shades-white-70);
+
+  /* Chat */
+  --deleted-message-background: var(--shades-black-50);
 }

@@ -9,6 +9,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import css from './chat-message-list.css';
+import DeletedMessage from './deleted-message.react.js';
 import { useEditModalContext } from './edit-message-provider.js';
 import { ComposedEditTextMessage } from './edit-text-message.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
@@ -35,7 +36,9 @@ function Message(props: Props): React.Node {
   const { editState } = useEditModalContext();
 
   let message;
-  if (
+  if (item.deleted) {
+    message = <DeletedMessage item={item} threadInfo={props.threadInfo} />;
+  } else if (
     item.messageInfoType === 'composable' &&
     item.messageInfo.id &&
     editState?.messageInfo.messageInfo?.id === item.messageInfo.id

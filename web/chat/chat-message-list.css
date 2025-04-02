@@ -224,3 +224,10 @@ div.avatarOffset {
 .pinIconRight {
   right: -20px;
 }
+
+.deletedMessageContent {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background-color: var(--deleted-message-background);
+}
