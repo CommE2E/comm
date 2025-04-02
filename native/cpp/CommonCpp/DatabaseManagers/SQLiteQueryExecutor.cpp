@@ -3336,10 +3336,6 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     throw std::runtime_error("Backup file or encryption key corrupted.");
   }
 
-// We don't want to run `PRAGMA key = ...;`
-// on main web database. The context is here:
-// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-#ifdef EMSCRIPTEN
   std::string plaintextBackupPath = mainCompactionPath + "_plaintext";
   if (file_exists(plaintextBackupPath)) {
     attempt_delete_file(
@@ -3348,6 +3344,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
         "attempt.");
   }
 
+  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
   std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +
       mainCompactionEncryptionKey +
       "'\";"
@@ -3356,34 +3353,10 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
       "' AS plaintext KEY '';"
       "SELECT sqlcipher_export('plaintext');"
       "DETACH DATABASE plaintext;";
-
-  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
-
-  char *plaintextMigrationErr;
-  sqlite3_exec(
-      backupDB,
-      plaintextMigrationDBQuery.c_str(),
-      nullptr,
-      nullptr,
-      &plaintextMigrationErr);
+  executeQuery(backupDB, plaintextMigrationDBQuery);
   sqlite3_close(backupDB);
 
-  if (plaintextMigrationErr) {
-    std::stringstream error_message;
-    error_message << "Failed to migrate backup SQLCipher file to plaintext "
-                     "SQLite file. Details"
-                  << plaintextMigrationErr << std::endl;
-    std::string error_message_str = error_message.str();
-    sqlite3_free(plaintextMigrationErr);
-
-    throw std::runtime_error(error_message_str);
-  }
-
   sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
-#else
-  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
-  set_encryption_key(backupDB, mainCompactionEncryptionKey);
-#endif
 
   int version = this->getSyncedDatabaseVersion(backupDB).value_or(-1);
   if (version > std::stoi(maxVersion)) {
@@ -3420,11 +3393,9 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     throw std::runtime_error(error_message.str());
   }
 
-#ifdef EMSCRIPTEN
   attempt_delete_file(
       plaintextBackupPath,
       "Failed to delete plaintext compaction file after successful restore.");
-#endif
 
   attempt_delete_file(
       mainCompactionPath,
