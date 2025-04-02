@@ -32,10 +32,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static int backupDataKeySize;
   static std::string backupLogDataKey;
   static int backupLogDataKeySize;
+  static std::unordered_set<std::string> backedUpTablesAllowlist;
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
-  static std::unordered_set<std::string> backedUpTablesAllowlist;
   static void generateBackupDataKey();
   static void generateBackupLogDataKey();
   static void initializeTablesForLogMonitoring();
