@@ -172,6 +172,7 @@ function ChatItemHeightMeasurer(props: Props) {
           hasBeenEdited: item.hasBeenEdited,
           isPinned: item.isPinned,
           inlineEngagementHeight: height,
+          deleted: item.deleted,
           ...sizes,
         };
       }
@@ -199,6 +200,7 @@ function ChatItemHeightMeasurer(props: Props) {
           reactions: item.reactions,
           hasBeenEdited: item.hasBeenEdited,
           isPinned: item.isPinned,
+          deleted: item.deleted,
         };
       }
 
