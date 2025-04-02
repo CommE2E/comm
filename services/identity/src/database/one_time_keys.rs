@@ -325,12 +325,15 @@ impl DatabaseClient {
         .send()
         .await;
 
-      use comm_lib::database::error_codes::TRANSACTION_CONFLICT;
+      use comm_lib::database::error_codes::{
+        CONDITIONAL_CHECK_FAILED, TRANSACTION_CONFLICT,
+      };
       match transaction {
         Ok(_) => break,
         Err(e) => {
           let dynamo_db_error = DynamoDBError::from(e);
-          let retryable_codes = HashSet::from([TRANSACTION_CONFLICT]);
+          let retryable_codes =
+            HashSet::from([CONDITIONAL_CHECK_FAILED, TRANSACTION_CONFLICT]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
             info!("Encountered transaction conflict while uploading one-time keys - retrying");
             exponential_backoff.sleep_and_retry().await?;
