@@ -51,6 +51,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
   std::string getThickThreadTypesList() const;
   std::vector<std::string> getAllTableNames(sqlite3 *db) const;
+  void copyTablesDataUsingAttach(
+      sqlite3 *db,
+      const std::string &sourceDbPath,
+      const std::vector<std::string> &tableNames) const;
 
 public:
   static std::string sqliteFilePath;
