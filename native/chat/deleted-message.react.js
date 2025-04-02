@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import { deletedMessageText } from 'lib/utils/delete-message-utils.js';
+
 import ComposedMessage from './composed-message.react.js';
 import {
   allCorners,
@@ -30,7 +32,6 @@ function DeletedMessage(props: Props): React.Node {
     () => [styles.message, cornerStyle],
     [cornerStyle, styles.message],
   );
-  const text = 'Deleted message';
   return (
     <ComposedMessage
       item={item}
@@ -41,7 +42,7 @@ function DeletedMessage(props: Props): React.Node {
     >
       <View style={containerStyle}>
         <SWMansionIcon name="block-2" size={16} style={styles.icon} />
-        <Text style={styles.text}>{text}</Text>
+        <Text style={styles.text}>{deletedMessageText}</Text>
       </View>
     </ComposedMessage>
   );
