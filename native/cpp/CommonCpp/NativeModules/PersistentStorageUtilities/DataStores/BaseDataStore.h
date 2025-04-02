@@ -51,6 +51,7 @@ public:
         for (const auto &operation : storeOps) {
           operation->execute();
         }
+        DatabaseManager::getQueryExecutor().captureBackupLogs();
         DatabaseManager::getQueryExecutor().commitTransaction();
       } catch (const std::exception &e) {
         error = e.what();
@@ -60,6 +61,8 @@ public:
       if (error.size()) {
         throw std::runtime_error(error);
       }
+
+      DatabaseManager::getQueryExecutor().triggerBackupFileUpload();
     });
   }
 };
