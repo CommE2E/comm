@@ -5,9 +5,6 @@ import * as React from 'react';
 import { Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import { getConfig } from 'lib/utils/config.js';
-import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -40,10 +37,6 @@ function BackupMenu(props: Props): React.Node {
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
   );
-
-  const identityContext = React.useContext(IdentityClientContext);
-  invariant(identityContext, 'Identity context should be set');
-  const { identityClient, getAuthMetadata } = identityContext;
 
   const userIdentifier = useSelector(state => state.currentUserInfo?.username);
   invariant(userIdentifier, 'userIdentifier should be set');
@@ -100,104 +93,6 @@ function BackupMenu(props: Props): React.Node {
     }
     Alert.alert('Latest backup info result', message);
   }, [currentUserInfo?.id, userIdentifier, retrieveLatestBackupInfo]);
-
-  const testSigning = React.useCallback(async () => {
-    // This test only works in the following case:
-    // 1. Logged in on Primary Device using v1
-    // 2. Creating User Keys Backup on Primary
-    // 3. Log Out on Primary Device using v1
-    // 4. Log In on any native device using v1
-    // 5. Perform this test
-    let message;
-    try {
-      const retrievedInfo = await retrieveLatestBackupInfo(userIdentifier);
-      if (!retrievedInfo) {
-        throw new Error('No backup found for user');
-      }
-      const { userID, backupID } = retrievedInfo;
-
-      if (currentUserInfo?.id !== userID) {
-        throw new Error('Backup returned different userID');
-      }
-
-      // We fetch Device List history to get previous primary `deviceID`
-      const deviceLists =
-        await identityClient.getDeviceListHistoryForUser(userID);
-      if (deviceLists.length < 3) {
-        throw new Error(
-          'Previous Primary Device issue: device list history too short',
-        );
-      }
-
-      // According to steps listed above, device list history looks like this:
-      // 1. [...], [lastPrimaryDeviceID]
-      // 2. [...], [lastPrimaryDeviceID]
-      // 3. [...], [lastPrimaryDeviceID], []
-      // 4. [...], [lastPrimaryDeviceID], [], [currentPrimaryDeviceID]
-      // 5. [...], [lastPrimaryDeviceID], [], [currentPrimaryDeviceID]
-      // In order to get lastPrimaryDeviceID, we need to get the last
-      // but two item
-      const lastDeviceListWithPrimary = deviceLists[deviceLists.length - 3];
-      const lastRawDeviceListWithPrimary = rawDeviceListFromSignedList(
-        lastDeviceListWithPrimary,
-      );
-      const lastPrimaryDeviceID = lastRawDeviceListWithPrimary.devices[0];
-      if (!lastPrimaryDeviceID) {
-        throw new Error('Previous Primary Device issue: empty device list');
-      }
-
-      const { deviceID } = await getAuthMetadata();
-      if (deviceID === lastPrimaryDeviceID) {
-        throw new Error('Previous Primary Device issue: the same deviceIDs');
-      }
-
-      const backupSecret = await getBackupSecret();
-      const { pickledAccount, pickleKey } = await getBackupUserKeys(
-        userIdentifier,
-        backupSecret,
-        backupID,
-      );
-
-      const emptyDeviceListMessage = '[]';
-
-      // Sign using Olm Account from backup
-      const signature = await commCoreModule.signMessageUsingAccount(
-        emptyDeviceListMessage,
-        pickledAccount,
-        pickleKey,
-      );
-
-      // Verify using previous primary `deviceID`
-      const { olmAPI } = getConfig();
-      const verificationResult = await olmAPI.verifyMessage(
-        emptyDeviceListMessage,
-        signature,
-        lastPrimaryDeviceID,
-      );
-
-      message =
-        `Backup ID: ${backupID},\n` +
-        `userID: ${userID},\n` +
-        `deviceID: ${deviceID ?? ''},\n` +
-        `lastPrimaryDeviceID: ${lastPrimaryDeviceID},\n` +
-        `signature: ${signature},\n` +
-        `verificationResult: ${verificationResult.toString()}\n`;
-    } catch (e) {
-      message = `Latest backup info error: ${String(
-        getMessageForException(e),
-      )}`;
-      console.error(message);
-    }
-    Alert.alert('Signing with previous primary Olm Account result', message);
-  }, [
-    retrieveLatestBackupInfo,
-    userIdentifier,
-    currentUserInfo?.id,
-    identityClient,
-    getAuthMetadata,
-    getBackupSecret,
-    getBackupUserKeys,
-  ]);
 
   const testUserKeysRestore = React.useCallback(async () => {
     let message;
@@ -293,7 +188,7 @@ function BackupMenu(props: Props): React.Node {
           iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
           iosActiveOpacity={0.85}
         >
-          <Text style={styles.submenuText}>Test Full Backup upload</Text>
+          <Text style={styles.submenuText}>Test User Data upload</Text>
         </Button>
       </View>
       <View style={styles.section}>
@@ -317,19 +212,6 @@ function BackupMenu(props: Props): React.Node {
         >
           <Text style={styles.submenuText}>
             Test retrieving latest backup info
-          </Text>
-        </Button>
-      </View>
-      <View style={styles.section}>
-        <Button
-          onPress={testSigning}
-          style={styles.row}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
-          iosActiveOpacity={0.85}
-        >
-          <Text style={styles.submenuText}>
-            Test signing with previous primary Olm Account
           </Text>
         </Button>
       </View>
