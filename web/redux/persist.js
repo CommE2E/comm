@@ -71,7 +71,7 @@ import {
 } from './handle-redux-migration-failure.js';
 import { rootKey, rootKeyPrefix, storeVersion } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
-import { legacyUnshimClientDB } from './unshim-utils.js';
+import { legacyUnshimClientDB, unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
@@ -819,6 +819,11 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
       dmOperationTypes.SEND_DELETE_MESSAGE,
       handleReduxMigrationFailure,
     ): MigrationFunction<WebNavInfo, AppState>),
+  [90]: (async (state: AppState) =>
+    unshimClientDB(state, [messageTypes.DELETE_MESSAGE]): MigrationFunction<
+    WebNavInfo,
+    AppState,
+  >),
 };
 
 const persistConfig: PersistConfig = {

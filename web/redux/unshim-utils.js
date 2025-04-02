@@ -14,6 +14,7 @@ import type {
 import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
 import type { MigrationResult } from 'lib/utils/migration-utils.js';
 
+import { handleReduxMigrationFailure } from './handle-redux-migration-failure.js';
 import type { AppState } from './redux-setup.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -92,7 +93,8 @@ async function unshimClientDB(
     };
   } catch (e) {
     console.log(e);
-    throw e;
+    const newState = handleReduxMigrationFailure(state);
+    return { state: newState, ops: {} };
   }
 }
 
