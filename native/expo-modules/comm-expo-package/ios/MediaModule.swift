@@ -96,9 +96,9 @@ public class MediaModule: Module {
     videoInfo.duration = Int(duration)
     
     if let track = asset.tracks(withMediaType: .video).first {
-      let size = track.naturalSize
-      videoInfo.width = Int(size.width)
-      videoInfo.height = Int(size.height)
+      let size = track.naturalSize.applying(track.preferredTransform)
+      videoInfo.width = abs(Int(size.width))
+      videoInfo.height = abs(Int(size.height))
       
       let description = track.formatDescriptions.first as! CMFormatDescription
       let codec = CMFormatDescriptionGetMediaSubType(description).toString()
