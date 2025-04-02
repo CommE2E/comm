@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, View, Text } from 'react-native';
 import { type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
@@ -31,10 +31,11 @@ function dummyNodeForTextMessageHeightMeasurement(
   editedLabel?: ?string,
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
+  withoutMarkdown?: ?boolean,
 ): React.Element<typeof View> {
   return (
     <View>
-      <DummyTextNode>{text}</DummyTextNode>
+      <DummyTextNode withoutMarkdown={!!withoutMarkdown}>{text}</DummyTextNode>
       <DummyInlineEngagementNode
         editedLabel={editedLabel}
         sidebarInfo={sidebarInfo}
@@ -46,18 +47,29 @@ function dummyNodeForTextMessageHeightMeasurement(
 
 type DummyTextNodeProps = {
   ...React.ElementConfig<typeof View>,
+  +withoutMarkdown: boolean,
   +children: string,
 };
 function DummyTextNode(props: DummyTextNodeProps): React.Node {
-  const { children, style, ...rest } = props;
+  const { children, style, withoutMarkdown, ...rest } = props;
   const maxWidth = useComposedMessageMaxWidth();
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   const rules = useTextMessageMarkdownRules(false);
-  return (
-    <View {...rest} style={viewStyle}>
+
+  let content;
+  if (withoutMarkdown) {
+    content = <Text style={styles.text}>{children}</Text>;
+  } else {
+    content = (
       <Markdown style={styles.text} rules={rules}>
         {children}
       </Markdown>
+    );
+  }
+
+  return (
+    <View {...rest} style={viewStyle}>
+      {content}
     </View>
   );
 }
