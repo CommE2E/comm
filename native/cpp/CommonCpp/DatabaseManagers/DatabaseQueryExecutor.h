@@ -218,6 +218,7 @@ public:
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;
+  virtual void triggerBackupFileUpload() const = 0;
   virtual void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const = 0;
