@@ -14,6 +14,7 @@ import {
   messageTypes,
   type MessageType,
 } from 'lib/types/message-types-enum.js';
+import { deletedMessageText } from 'lib/utils/delete-message-utils.js';
 import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
 import type { MeasurementTask } from './chat-context-provider.react.js';
@@ -35,8 +36,20 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
   if (item.itemType !== 'message') {
     return null;
   }
-  const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
-    item;
+  const {
+    messageInfo,
+    hasBeenEdited,
+    threadCreatedFromMessage,
+    reactions,
+    deleted,
+  } = item;
+
+  if (deleted) {
+    return JSON.stringify({
+      deleted,
+      sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
+    });
+  }
 
   if (messageInfo && messageInfo.type === messageTypes.TEXT) {
     return JSON.stringify({
@@ -70,8 +83,23 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
     item.itemType === 'message',
     'NodeHeightMeasurer asked for dummy for non-message item',
   );
-  const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
-    item;
+  const {
+    messageInfo,
+    hasBeenEdited,
+    threadCreatedFromMessage,
+    reactions,
+    deleted,
+  } = item;
+
+  if (deleted) {
+    return dummyNodeForTextMessageHeightMeasurement(
+      deletedMessageText,
+      null,
+      threadCreatedFromMessage,
+      {},
+      true,
+    );
+  }
 
   if (messageInfo && messageInfo.type === messageTypes.TEXT) {
     const label = getMessageLabel(hasBeenEdited, messageInfo.threadID);
