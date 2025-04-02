@@ -40,6 +40,7 @@ export type ChatTextMessageInfoItemWithHeight = {
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
+  +deleted: boolean,
 };
 
 // We "measure" the contentHeight of a multimedia message using the media
@@ -66,6 +67,7 @@ export type ChatMultimediaMessageInfoItem = {
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
   +inlineEngagementHeight: ?number,
+  +deleted: boolean,
 };
 
 export type ChatComposedMessageInfoItemWithHeight =
