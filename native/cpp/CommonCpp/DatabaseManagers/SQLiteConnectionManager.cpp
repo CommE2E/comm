@@ -20,8 +20,10 @@ void SQLiteConnectionManager::handleSQLiteError(
     const std::string &errorMessagePrefix,
     int expectedResultCode) {
   if (errorCode != expectedResultCode) {
-    throw std::runtime_error(
-        errorMessagePrefix + " Details: " + sqlite3_errstr(errorCode));
+    auto message =
+        errorMessagePrefix + " Details: " + sqlite3_errstr(errorCode);
+    Logger::log("SQLiteError: " + message);
+    throw std::runtime_error(message);
   }
 }
 
