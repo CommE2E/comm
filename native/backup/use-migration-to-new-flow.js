@@ -22,6 +22,7 @@ import {
   rawDeviceListFromSignedList,
 } from 'lib/utils/device-list-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { useClientBackup } from './use-client-backup.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -63,7 +64,11 @@ function useMigrationToNewFlow(): (
   const userIdentifier = useSelector(state => state.currentUserInfo?.username);
   const allPeerDevices = useSelector(getAllPeerDevices);
 
-  const { retrieveLatestBackupInfo, createUserKeysBackup } = useClientBackup();
+  const {
+    retrieveLatestBackupInfo,
+    createUserKeysBackup,
+    createUserDataBackup,
+  } = useClientBackup();
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
   const dispatch = useDispatch();
@@ -79,6 +84,10 @@ function useMigrationToNewFlow(): (
           'Are you calling it on a non-primary device?',
       );
 
+      const backupMethod = fullBackupSupport
+        ? createUserDataBackup
+        : createUserKeysBackup;
+
       const {
         deviceID,
         userID,
@@ -87,7 +96,7 @@ function useMigrationToNewFlow(): (
       } = currentIdentityUserState;
 
       // 1. upload UserKeys (without updating the store)
-      let backupID = await createUserKeysBackup();
+      let backupID = await backupMethod();
 
       // 2. create in-memory device list (reorder and sign)
       const newDeviceList = await reorderAndSignDeviceList(
@@ -126,7 +135,7 @@ function useMigrationToNewFlow(): (
           throw new Error(`Backup ID mismatched ${retryCount} times`);
         }
 
-        backupID = await createUserKeysBackup();
+        backupID = await backupMethod();
         fetchedBackupInfo = await retrieveLatestBackupInfo(userIdentifier);
       }
 
@@ -139,6 +148,7 @@ function useMigrationToNewFlow(): (
     [
       allPeerDevices,
       broadcastDeviceListUpdates,
+      createUserDataBackup,
       createUserKeysBackup,
       dispatch,
       getAndUpdateDeviceListsForUsers,
