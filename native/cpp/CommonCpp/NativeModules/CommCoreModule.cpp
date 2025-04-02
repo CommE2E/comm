@@ -537,11 +537,16 @@ jsi::Value CommCoreModule::processDBStoreOperations(
                 DatabaseManager::getQueryExecutor().addOutboundP2PMessages(
                     messages);
               }
+              DatabaseManager::getQueryExecutor().captureBackupLogs();
               DatabaseManager::getQueryExecutor().commitTransaction();
             } catch (std::system_error &e) {
               error = e.what();
               DatabaseManager::getQueryExecutor().rollbackTransaction();
             }
+          }
+
+          if (!error.size()) {
+            DatabaseManager::getQueryExecutor().triggerBackupFileUpload();
           }
 
           this->jsInvoker_->invokeAsync([=]() {

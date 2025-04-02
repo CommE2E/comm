@@ -238,6 +238,7 @@ public:
   static void initialize(std::string &databasePath);
   void createMainCompaction(std::string backupID) const override;
   void captureBackupLogs() const override;
+  void triggerBackupFileUpload() const override;
   void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const override;

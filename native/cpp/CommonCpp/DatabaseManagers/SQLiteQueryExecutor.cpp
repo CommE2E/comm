@@ -19,9 +19,11 @@
 
 #ifndef EMSCRIPTEN
 #include "../CryptoTools/CryptoModule.h"
+#include "../Tools/ServicesUtils.h"
 #include "CommSecureStore.h"
 #include "PlatformSpecificTools.h"
 #include "StaffUtils.h"
+#include "lib.rs.h"
 #endif
 
 const int CONTENT_ACCOUNT_ID = 1;
@@ -1428,7 +1430,7 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::initializeTablesForLogMonitoring();
 
   std::string currentBackupID = this->getMetadata("backupID");
-  if (!StaffUtils::isStaffRelease() || !currentBackupID.size()) {
+  if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
   }
   SQLiteQueryExecutor::connectionManager.setLogsMonitoring(true);
@@ -3225,7 +3227,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 
   this->setMetadata("backupID", backupID);
   this->clearMetadata("logID");
-  if (StaffUtils::isStaffRelease()) {
+  if (ServicesUtils::fullBackupSupport) {
     SQLiteQueryExecutor::connectionManager.setLogsMonitoring(true);
   }
 }
@@ -3246,6 +3248,9 @@ void SQLiteQueryExecutor::generateBackupLogDataKey() {
 }
 
 void SQLiteQueryExecutor::captureBackupLogs() const {
+  if (!ServicesUtils::fullBackupSupport) {
+    return;
+  }
   std::string backupID = this->getMetadata("backupID");
   if (!backupID.size()) {
     return;
@@ -3262,6 +3267,13 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
     return;
   }
   this->setMetadata("logID", std::to_string(std::stoi(logID) + 1));
+}
+
+void SQLiteQueryExecutor::triggerBackupFileUpload() const {
+  if (!ServicesUtils::fullBackupSupport) {
+    return;
+  }
+  ::triggerBackupFileUpload();
 }
 
 void SQLiteQueryExecutor::setUserDataKeys(
