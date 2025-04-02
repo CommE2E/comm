@@ -270,10 +270,12 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "getAllMessageStoreLocalMessageInfos",
           &SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos)
       .function("replaceDMOperation", &SQLiteQueryExecutor::replaceDMOperation)
-      .function("removeAllDMOperations", &SQLiteQueryExecutor::removeAllDMOperations)
+      .function(
+          "removeAllDMOperations", &SQLiteQueryExecutor::removeAllDMOperations)
       .function("removeDMOperations", &SQLiteQueryExecutor::removeDMOperations)
       .function("getAllDMOperations", &SQLiteQueryExecutor::getDMOperations)
-      .function("getDMOperationsByType", &SQLiteQueryExecutor::getDMOperationsByType)
+      .function(
+          "getDMOperationsByType", &SQLiteQueryExecutor::getDMOperationsByType)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
