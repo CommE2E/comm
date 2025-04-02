@@ -7,6 +7,7 @@ import * as React from 'react';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type { ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { deletedMessageText } from 'lib/utils/delete-message-utils.js';
 
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react.js';
@@ -37,7 +38,7 @@ function DeletedMessage(props: Props): React.Node {
     >
       <div className={messageClassName}>
         <SWMansionIcon icon="block-2" size={16} />
-        <Markdown rules={rules}>*Deleted message*</Markdown>
+        <Markdown rules={rules}>{deletedMessageText}</Markdown>
       </div>
     </ComposedMessage>
   );
