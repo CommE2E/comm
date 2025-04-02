@@ -31,7 +31,6 @@ import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
-import BackupTestRestoreModal from './backup-test-restore-modal.react.js';
 import DebugLogsModal from './debug-logs-modal.react.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
@@ -146,11 +145,6 @@ function AccountSettings(): React.Node {
     }
   }, [identityContext, sendMessageToDevice]);
 
-  const openBackupTestRestoreModal = React.useCallback(
-    () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
-    [popModal, pushModal],
-  );
-
   const processAndSendDMOperation = useProcessAndSendDMOperation();
   const onCreateDMThread = React.useCallback(async () => {
     invariant(userID, 'userID should be set');
@@ -233,24 +227,6 @@ function AccountSettings(): React.Node {
               <span>Create session with own devices</span>
               <Button variant="text" onClick={onCreateOlmSessions}>
                 <p className={css.buttonText}>Create</p>
-              </Button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
-  let backup;
-  if (staffCanSee) {
-    backup = (
-      <div className={css.preferencesContainer}>
-        <h4 className={css.preferencesHeader}>Backup menu</h4>
-        <div className={css.content}>
-          <ul>
-            <li>
-              <span>Test backup restore</span>
-              <Button variant="text" onClick={openBackupTestRestoreModal}>
-                <p className={css.buttonText}>Insert data</p>
               </Button>
             </li>
           </ul>
@@ -351,7 +327,6 @@ function AccountSettings(): React.Node {
         </div>
         {preferences}
         {tunnelbroker}
-        {backup}
         {deviceData}
         {dms}
         {debugLogs}
