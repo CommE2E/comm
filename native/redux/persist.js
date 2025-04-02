@@ -1559,6 +1559,12 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       dmOperationTypes.SEND_DELETE_MESSAGE,
       handleReduxMigrationFailure,
     ): MigrationFunction<NavInfo, AppState>),
+  [89]: (async (state: AppState) =>
+    unshimClientDB(
+      state,
+      [messageTypes.DELETE_MESSAGE],
+      handleReduxMigrationFailure,
+    ): MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1569,7 +1575,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 88,
+  version: 89,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
