@@ -154,6 +154,8 @@ const light = Object.freeze({
   greenIndicatorOuter: designSystemColors.successDark50,
   redIndicatorInner: designSystemColors.errorPrimary,
   redIndicatorOuter: designSystemColors.errorDark50,
+  deletedMessageText: designSystemColors.shadesBlack60,
+  deletedMessageBackground: designSystemColors.shadesWhite90,
 });
 export type Colors = $Exact<typeof light>;
 
@@ -262,6 +264,8 @@ const dark: Colors = Object.freeze({
   greenIndicatorOuter: designSystemColors.successDark90,
   redIndicatorInner: designSystemColors.errorPrimary,
   redIndicatorOuter: designSystemColors.errorDark90,
+  deletedMessageText: designSystemColors.shadesWhite60,
+  deletedMessageBackground: designSystemColors.shadesBlack90,
 });
 const colors = { light, dark };
 
