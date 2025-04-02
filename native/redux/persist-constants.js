@@ -1,6 +1,6 @@
 // @flow
 
 const rootKey = 'root';
-const storeVersion = 88;
+const storeVersion = 89;
 
 export { rootKey, storeVersion };

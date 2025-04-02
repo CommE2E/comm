@@ -74,6 +74,7 @@ import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-t
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import {
   DEPRECATED_unshimMessageStore,
+  unshimDMOperations,
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
 import {
@@ -81,6 +82,7 @@ import {
   defaultAlertInfos,
   alertTypes,
 } from 'lib/types/alert-types.js';
+import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -1575,6 +1577,12 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       },
     };
   }: MigrationFunction<NavInfo, AppState>),
+  [89]: (async (state: AppState) =>
+    unshimDMOperations(
+      state,
+      dmOperationTypes.SEND_DELETE_MESSAGE,
+      handleReduxMigrationFailure,
+    ): MigrationFunction<NavInfo, AppState>),
 });
 
 // NOTE: renaming this object, and especially the `version` property
