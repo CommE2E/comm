@@ -15,6 +15,7 @@ import {
 } from 'lib/selectors/user-selectors.js';
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import { type LocalLatestBackupInfo } from 'lib/types/backup-types.js';
 import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -30,6 +31,22 @@ import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+// Two weeks in milliseconds
+const backupInterval = 14 * 24 * 60 * 60 * 1000;
+
+function checkIfCompactionNeeded(
+  latestBackupInfo: ?LocalLatestBackupInfo,
+): boolean {
+  if (!fullBackupSupport) {
+    return false;
+  }
+  if (!latestBackupInfo) {
+    return false;
+  }
+
+  return Date.now() - latestBackupInfo.timestamp >= backupInterval;
+}
+
 type Props = {
   +children: React.Node,
 };
@@ -40,7 +57,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
   const getCurrentIdentityUserState = useCurrentIdentityUserState();
   const { socketState } = useTunnelbroker();
   const migrateToNewFlow = useMigrationToNewFlow();
-  const { createUserKeysBackup } = useClientBackup();
+  const { createUserKeysBackup, createUserDataBackup } = useClientBackup();
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
 
@@ -71,7 +88,11 @@ function BackupHandlerContextProvider(props: Props): React.Node {
 
   const performBackupUpload = React.useCallback(async () => {
     const promise = (async () => {
-      const backupID = await createUserKeysBackup();
+      const backupMethod = fullBackupSupport
+        ? createUserDataBackup
+        : createUserKeysBackup;
+
+      const backupID = await backupMethod();
       return {
         backupID,
         timestamp: Date.now(),
@@ -79,7 +100,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     })();
     void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
     await promise;
-  }, [createUserKeysBackup, dispatchActionPromise]);
+  }, [createUserDataBackup, createUserKeysBackup, dispatchActionPromise]);
 
   const startBackupHandler = React.useCallback(() => {
     if (handlerStartedRef.current) {
@@ -164,6 +185,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       const shouldDoMigration =
         usingRestoreFlow && !currentDeviceList.curPrimarySignature;
       const shouldUploadBackup = isPrimary && !latestBackupInfo;
+      const shouldUploadCompaction = checkIfCompactionNeeded(latestBackupInfo);
 
       // Tunnelbroker connection is required to broadcast
       // device list updates after migration.
@@ -172,7 +194,11 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       }
 
       // Migration or backup upload are not needed.
-      if (!shouldDoMigration && !shouldUploadBackup) {
+      if (
+        !shouldDoMigration &&
+        !shouldUploadBackup &&
+        !shouldUploadCompaction
+      ) {
         return;
       }
 
@@ -185,6 +211,9 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         await performMigrationToNewFlow(currentIdentityUserState);
       } else if (shouldUploadBackup) {
         step = 'creating User Keys backup';
+        await performBackupUpload();
+      } else if (shouldUploadCompaction) {
+        step = 'creating User Data backup';
         await performBackupUpload();
       }
     } catch (err) {
