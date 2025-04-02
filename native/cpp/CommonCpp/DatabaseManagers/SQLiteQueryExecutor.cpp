@@ -3296,6 +3296,28 @@ void SQLiteQueryExecutor::setUserDataKeys(
 }
 #endif
 
+void SQLiteQueryExecutor::copyTablesDataUsingAttach(
+    sqlite3 *db,
+    const std::string &sourceDbPath,
+    const std::vector<std::string> &tableNames) const {
+  if (!file_exists(sourceDbPath)) {
+    std::stringstream errorMessage;
+    errorMessage << "Error: File does not exist at path: " << sourceDbPath
+                 << std::endl;
+    Logger::log(errorMessage.str());
+    throw std::runtime_error(errorMessage.str());
+  }
+
+  std::ostringstream sql;
+  sql << "ATTACH DATABASE '" << sourceDbPath << "' AS sourceDB KEY '';";
+  for (const auto &tableName : tableNames) {
+    sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
+        << " FROM sourceDB." << tableName << ";" << std::endl;
+  }
+  sql << "DETACH DATABASE sourceDB;";
+  executeQuery(db, sql.str());
+}
+
 void SQLiteQueryExecutor::restoreFromMainCompaction(
     std::string mainCompactionPath,
     std::string mainCompactionEncryptionKey,
