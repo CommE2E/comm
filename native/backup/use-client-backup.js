@@ -18,7 +18,7 @@ import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type ClientBackup = {
-  +createFullBackup: () => Promise<string>,
+  +createUserDataBackup: () => Promise<string>,
   +createUserKeysBackup: () => Promise<string>,
   +retrieveLatestBackupInfo: (
     userIdentifier: string,
@@ -87,9 +87,9 @@ function useClientBackup(): ClientBackup {
       [invalidTokenLogOut],
     );
 
-  const createFullBackup = React.useCallback(async () => {
+  const createUserDataBackup = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
-      throw new Error('Attempt to upload backup for not logged in user.');
+      throw new Error('Attempt to upload User Data for not logged in user.');
     }
 
     const backupSecret = await getBackupSecret();
@@ -109,12 +109,12 @@ function useClientBackup(): ClientBackup {
 
   return React.useMemo(
     () => ({
-      createFullBackup,
+      createUserDataBackup,
       createUserKeysBackup,
       retrieveLatestBackupInfo,
       getBackupUserKeys,
     }),
-    [createFullBackup, createUserKeysBackup],
+    [createUserDataBackup, createUserKeysBackup],
   );
 }
 

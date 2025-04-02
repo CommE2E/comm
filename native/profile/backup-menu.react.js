@@ -42,7 +42,7 @@ function BackupMenu(props: Props): React.Node {
   invariant(userIdentifier, 'userIdentifier should be set');
 
   const {
-    createFullBackup,
+    createUserDataBackup,
     retrieveLatestBackupInfo,
     createUserKeysBackup,
     getBackupUserKeys,
@@ -51,14 +51,14 @@ function BackupMenu(props: Props): React.Node {
   const uploadBackup = React.useCallback(async () => {
     let message;
     try {
-      const backupID = await createFullBackup();
+      const backupID = await createUserDataBackup();
       message = `Success!\n` + `Backup ID: ${backupID}`;
     } catch (e) {
       message = `Backup upload error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
     Alert.alert('Upload protocol result', message);
-  }, [createFullBackup]);
+  }, [createUserDataBackup]);
 
   const uploadUserKeys = React.useCallback(async () => {
     let message;
