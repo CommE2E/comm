@@ -38,8 +38,6 @@ int SQLiteQueryExecutor::backupDataKeySize = 64;
 std::string SQLiteQueryExecutor::backupLogDataKey;
 int SQLiteQueryExecutor::backupLogDataKeySize = 32;
 
-#ifndef EMSCRIPTEN
-NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesAllowlist = {
     "drafts",
     "threads",
@@ -49,6 +47,9 @@ std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesAllowlist = {
     "aux_users",
     "entries",
 };
+
+#ifndef EMSCRIPTEN
+NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #else
 SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
@@ -3366,29 +3367,11 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     throw std::runtime_error(error_message.str());
   }
 
-  sqlite3_backup *backupObj = sqlite3_backup_init(
-      SQLiteQueryExecutor::getConnection(), "main", backupDB, "main");
-  if (!backupObj) {
-    std::stringstream error_message;
-    error_message << "Failed to init backup for main compaction. Details: "
-                  << sqlite3_errmsg(SQLiteQueryExecutor::getConnection())
-                  << std::endl;
-    sqlite3_close(backupDB);
-    throw std::runtime_error(error_message.str());
-  }
-
-  int backupResult = sqlite3_backup_step(backupObj, -1);
-  sqlite3_backup_finish(backupObj);
-  sqlite3_close(backupDB);
-  if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
-    throw std::runtime_error(
-        "Programmer error. Database in transaction during restore attempt.");
-  } else if (backupResult != SQLITE_DONE) {
-    std::stringstream error_message;
-    error_message << "Failed to restore database from backup. Details: "
-                  << sqlite3_errstr(backupResult);
-    throw std::runtime_error(error_message.str());
-  }
+  std::vector<std::string> tablesVector(
+      SQLiteQueryExecutor::backedUpTablesAllowlist.begin(),
+      SQLiteQueryExecutor::backedUpTablesAllowlist.end());
+  copyTablesDataUsingAttach(
+      SQLiteQueryExecutor::getConnection(), plaintextBackupPath, tablesVector);
 
   attempt_delete_file(
       plaintextBackupPath,
