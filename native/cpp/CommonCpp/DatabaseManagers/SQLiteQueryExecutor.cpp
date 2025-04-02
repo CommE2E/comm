@@ -40,15 +40,14 @@ int SQLiteQueryExecutor::backupLogDataKeySize = 32;
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
-std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesBlocklist = {
-    "olm_persist_account",
-    "olm_persist_sessions",
-    "metadata",
-    "outbound_p2p_messages",
-    "inbound_p2p_messages",
-    "integrity_store",
-    "persist_storage",
-    "keyservers",
+std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesAllowlist = {
+    "drafts",
+    "threads",
+    "message_store_threads",
+    "users",
+    "synced_metadata",
+    "aux_users",
+    "entries",
 };
 #else
 SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -2958,6 +2957,28 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
       SQLiteQueryExecutor::getConnection(), query, types);
 }
 
+std::vector<std::string>
+SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
+  std::vector<std::string> tableNames;
+
+  std::string getAllTablesQuery =
+      "SELECT name "
+      "FROM sqlite_master"
+      "WHERE type='table';";
+
+  sqlite3_stmt *stmt;
+  sqlite3_prepare_v2(db, getAllTablesQuery.c_str(), -1, &stmt, nullptr);
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    const unsigned char *text = sqlite3_column_text(stmt, 0);
+    if (text) {
+      tableNames.push_back(reinterpret_cast<const char *>(text));
+    }
+  }
+  sqlite3_finalize(stmt);
+
+  return tableNames;
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
@@ -3079,8 +3100,8 @@ void SQLiteQueryExecutor::initializeTablesForLogMonitoring() {
          stepResult = sqlite3_step(preparedSQL)) {
       std::string table_name =
           reinterpret_cast<const char *>(sqlite3_column_text(preparedSQL, 0));
-      if (SQLiteQueryExecutor::backedUpTablesBlocklist.find(table_name) ==
-          SQLiteQueryExecutor::backedUpTablesBlocklist.end()) {
+      if (SQLiteQueryExecutor::backedUpTablesAllowlist.find(table_name) !=
+          SQLiteQueryExecutor::backedUpTablesAllowlist.end()) {
         tablesToMonitor.emplace_back(table_name);
       }
     }
@@ -3089,6 +3110,24 @@ void SQLiteQueryExecutor::initializeTablesForLogMonitoring() {
   sqlite3_close(db);
 
   SQLiteQueryExecutor::connectionManager.tablesToMonitor = tablesToMonitor;
+}
+
+void SQLiteQueryExecutor::cleanupDatabaseExceptAllowlist(sqlite3 *db) const {
+  std::vector<std::string> tables = getAllTableNames(db);
+
+  std::ostringstream removeDeviceSpecificDataSQL;
+  for (const auto &tableName : tables) {
+    if (backedUpTablesAllowlist.find(tableName) ==
+        backedUpTablesAllowlist.end()) {
+      removeDeviceSpecificDataSQL << "DELETE FROM " << tableName << ";"
+                                  << std::endl;
+    }
+  }
+
+  std::string sqlQuery = removeDeviceSpecificDataSQL.str();
+  if (!sqlQuery.empty()) {
+    executeQuery(db, sqlQuery);
+  }
 }
 
 void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
@@ -3149,15 +3188,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
     throw std::runtime_error(error_message.str());
   }
 
-  if (!SQLiteQueryExecutor::backedUpTablesBlocklist.empty()) {
-    std::string removeDeviceSpecificDataSQL = "";
-    for (const auto &table_name :
-         SQLiteQueryExecutor::backedUpTablesBlocklist) {
-      removeDeviceSpecificDataSQL.append("DELETE FROM " + table_name + ";\n");
-    }
-    executeQuery(backupDB, removeDeviceSpecificDataSQL);
-  }
-
+  cleanupDatabaseExceptAllowlist(backupDB);
   executeQuery(backupDB, "VACUUM;");
   sqlite3_close(backupDB);
 

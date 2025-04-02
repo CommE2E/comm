@@ -35,10 +35,11 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
-  static std::unordered_set<std::string> backedUpTablesBlocklist;
+  static std::unordered_set<std::string> backedUpTablesAllowlist;
   static void generateBackupDataKey();
   static void generateBackupLogDataKey();
   static void initializeTablesForLogMonitoring();
+  void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
 #else
   static SQLiteConnectionManager connectionManager;
   std::vector<MessageWithMedias>
@@ -49,6 +50,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
   std::string getThickThreadTypesList() const;
+  std::vector<std::string> getAllTableNames(sqlite3 *db) const;
 
 public:
   static std::string sqliteFilePath;
