@@ -27,7 +27,9 @@ import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/cli
 import { deprecatedUpdateRolesAndPermissions } from 'lib/shared/redux/deprecated-update-roles-and-permissions.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
+import { unshimDMOperations } from 'lib/shared/unshim-utils.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
+import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -788,6 +790,12 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
       },
     };
   }: MigrationFunction<WebNavInfo, AppState>),
+  [88]: (async (state: AppState) =>
+    unshimDMOperations(
+      state,
+      dmOperationTypes.SEND_DELETE_MESSAGE,
+      handleReduxMigrationFailure,
+    ): MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
