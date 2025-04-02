@@ -11,6 +11,7 @@ import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
+import { DeletedMessage } from './deleted-message.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
 import { RobotextMessage } from './robotext-message.react.js';
 import { TextMessage } from './text-message.react.js';
@@ -98,7 +99,9 @@ function Message(props: Props): React.Node {
   );
 
   const innerMessageNode = React.useMemo(() => {
-    if (item.messageShapeType === 'text') {
+    if (item.deleted) {
+      return <DeletedMessage item={item} />;
+    } else if (item.messageShapeType === 'text') {
       return (
         <TextMessage
           item={item}
