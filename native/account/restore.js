@@ -4,10 +4,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
 
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import {
   restoreUserActionTypes,
   type RestoreUserResult,
 } from 'lib/actions/user-actions.js';
+import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import {
   useLogIn,
   usePasswordLogIn,
@@ -25,7 +27,8 @@ import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useSelector } from 'lib/utils/redux-utils.js';
+import { useDispatch, useSelector } from 'lib/utils/redux-utils.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -175,11 +178,52 @@ function useRestore(): (
     [dispatchActionPromise, restoreProtocol],
   );
 
+  const dispatch = useDispatch();
+  const { addLog } = useDebugLogs();
+  const restoreUserData = React.useCallback(
+    async (identityAuthResult: ?IdentityAuthResult) => {
+      if (!fullBackupSupport) {
+        return;
+      }
+      try {
+        const { sqliteAPI } = getConfig();
+        if (!identityAuthResult) {
+          throw new Error('Missing identityAuthResult');
+        }
+        const backupData = await commCoreModule.getQRAuthBackupData();
+        await sqliteAPI.restoreUserData(backupData, identityAuthResult);
+
+        const clientDBStore = await sqliteAPI.getClientDBStore(
+          identityAuthResult.userID,
+        );
+        dispatch({
+          type: setClientDBStoreActionType,
+          payload: clientDBStore,
+        });
+      } catch (e) {
+        addLog(
+          'Error when restoring User Data',
+          getMessageForException(e) ?? 'unknown error',
+        );
+      }
+    },
+    [addLog, dispatch],
+  );
+
   const logIn = useLogIn('restore');
   return React.useCallback(
-    (userIdentifier: string, secret: string, siweSocialProof?: SignedMessage) =>
-      logIn(restoreAuth(userIdentifier, secret, siweSocialProof)),
-    [logIn, restoreAuth],
+    async (
+      userIdentifier: string,
+      secret: string,
+      siweSocialProof?: SignedMessage,
+    ) => {
+      const identityAuthResult = await logIn(
+        restoreAuth(userIdentifier, secret, siweSocialProof),
+      );
+      await restoreUserData(identityAuthResult);
+      return identityAuthResult;
+    },
+    [logIn, restoreAuth, restoreUserData],
   );
 }
 
