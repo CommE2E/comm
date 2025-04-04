@@ -63,6 +63,7 @@ import {
 } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { updateMessagePinForThread } from '../updaters/thread-updaters.js';
 import {
   assignImages,
   assignMessageContainerToMedia,
@@ -502,7 +503,17 @@ async function deleteMessageResponder(
     }
   }
 
-  const newMessageInfos = await createMessages(viewer, messagesData);
+  const [newMessageInfos] = await Promise.all([
+    createMessages(viewer, messagesData),
+    updateMessagePinForThread(
+      viewer,
+      {
+        messageID: targetMessageID,
+        action: 'unpin',
+      },
+      'force_silently',
+    ),
+  ]);
 
   return { newMessageInfos };
 }
