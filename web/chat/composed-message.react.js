@@ -143,6 +143,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
             reactions={item.reactions}
             positioning={positioning}
             label={label}
+            deleted={item.deleted}
           />
         </div>
       );

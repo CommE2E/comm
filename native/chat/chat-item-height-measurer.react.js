@@ -97,6 +97,7 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
       null,
       threadCreatedFromMessage,
       {},
+      true,
     );
   }
 
@@ -107,6 +108,7 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
       label,
       threadCreatedFromMessage,
       reactions,
+      false,
     );
   } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(
@@ -122,6 +124,7 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
     return dummyNodeForInlineEngagementHeightMeasurement(
       threadCreatedFromMessage,
       reactions,
+      item.deleted,
     );
   }
   invariant(
