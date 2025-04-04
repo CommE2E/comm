@@ -302,6 +302,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const canDeleteMessage = useCanDeleteMessage(
       props.item.threadInfo,
       props.item.messageInfo,
+      !!props.item.threadCreatedFromMessage,
     );
 
     return (
