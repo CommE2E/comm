@@ -23,10 +23,7 @@ import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  useCanDeleteMessage,
-  useDeleteMessage,
-} from 'lib/utils/delete-message-utils.js';
+import { useCanDeleteMessage } from 'lib/utils/delete-message-utils.js';
 import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import LabelTooltip from './label-toolitp.react.js';
@@ -48,6 +45,7 @@ import { useEditModalContext } from '../chat/edit-message-provider.js';
 import type { PositionInfo } from '../chat/position-types.js';
 import CommIcon from '../comm-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
+import { DeleteMessageModal } from '../modals/chat/delete-message-modal.react.js';
 import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
 import {
   useOnClickPendingSidebar,
@@ -393,7 +391,8 @@ function useMessageDeleteAction(
   const { messageInfo } = item;
 
   const canDeleteMessage = useCanDeleteMessage(threadInfo, messageInfo);
-  const deleteMessage = useDeleteMessage();
+  const { pushModal } = useModalContext();
+  const inputState = React.useContext(InputStateContext);
   const { clearTooltip } = useTooltipContext();
 
   return React.useMemo(() => {
@@ -401,10 +400,12 @@ function useMessageDeleteAction(
       return null;
     }
     const buttonContent = <SWMansionIcon icon="trash-2" size={18} />;
-    const onClickDelete = async () => {
-      if (messageInfo) {
-        await deleteMessage(messageInfo);
-      }
+    const onClickDelete = () => {
+      pushModal(
+        <InputStateContext.Provider value={inputState}>
+          <DeleteMessageModal item={item} threadInfo={threadInfo} />
+        </InputStateContext.Provider>,
+      );
       clearTooltip();
     };
     return {
@@ -412,7 +413,7 @@ function useMessageDeleteAction(
       onClick: onClickDelete,
       label: 'Delete',
     };
-  }, [canDeleteMessage, clearTooltip, deleteMessage, messageInfo]);
+  }, [canDeleteMessage, clearTooltip, inputState, item, pushModal, threadInfo]);
 }
 
 function useMessageTooltipActions(
