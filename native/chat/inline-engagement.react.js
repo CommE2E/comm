@@ -34,12 +34,14 @@ import type { ChatComposedMessageInfoItemWithHeight } from '../types/chat-types.
 function dummyNodeForInlineEngagementHeightMeasurement(
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
+  deleted: boolean,
 ): React.Element<typeof View> {
   return (
     <View>
       <DummyInlineEngagementNode
         sidebarInfo={sidebarInfo}
         reactions={reactions}
+        deleted={deleted}
       />
     </View>
   );
@@ -50,14 +52,15 @@ type DummyInlineEngagementNodeProps = {
   +editedLabel?: ?string,
   +sidebarInfo: ?ThreadInfo,
   +reactions: ReactionInfo,
+  +deleted: boolean,
 };
 function DummyInlineEngagementNode(
   props: DummyInlineEngagementNodeProps,
 ): React.Node {
-  const { editedLabel, sidebarInfo, reactions, ...rest } = props;
+  const { editedLabel, sidebarInfo, reactions, deleted, ...rest } = props;
 
   const dummyEditedLabel = React.useMemo(() => {
-    if (!editedLabel) {
+    if (!editedLabel || deleted) {
       return null;
     }
 
@@ -70,7 +73,7 @@ function DummyInlineEngagementNode(
         </Text>
       </View>
     );
-  }, [editedLabel]);
+  }, [deleted, editedLabel]);
 
   const dummySidebarItem = React.useMemo(() => {
     if (!sidebarInfo) {
@@ -86,7 +89,7 @@ function DummyInlineEngagementNode(
   }, [sidebarInfo]);
 
   const dummyReactionsList = React.useMemo(() => {
-    if (Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0 || deleted) {
       return null;
     }
 
@@ -106,7 +109,7 @@ function DummyInlineEngagementNode(
         </View>
       );
     });
-  }, [reactions]);
+  }, [deleted, reactions]);
 
   const dummyContainerStyle = React.useMemo(
     () => [unboundStyles.inlineEngagement, unboundStyles.dummyInlineEngagement],
@@ -134,6 +137,7 @@ type Props = {
   +disabled?: boolean,
   +positioning?: 'left' | 'right' | 'center',
   +label?: ?string,
+  +deleted: boolean,
 };
 function InlineEngagement(props: Props): React.Node {
   const {
@@ -144,6 +148,7 @@ function InlineEngagement(props: Props): React.Node {
     disabled = false,
     positioning,
     label,
+    deleted,
   } = props;
 
   const isLeft = positioning === 'left';
@@ -173,7 +178,7 @@ function InlineEngagement(props: Props): React.Node {
   ]);
 
   const editedLabel = React.useMemo(() => {
-    if (!label) {
+    if (!label || deleted) {
       return null;
     }
 
@@ -182,7 +187,7 @@ function InlineEngagement(props: Props): React.Node {
         <Text style={editedLabelStyle}>{label}</Text>
       </View>
     );
-  }, [editedLabelStyle, label]);
+  }, [deleted, editedLabelStyle, label]);
 
   const unreadStyle = sidebarThreadInfo?.currentUser.unread
     ? styles.unread
@@ -282,7 +287,7 @@ function InlineEngagement(props: Props): React.Node {
   ]);
 
   const reactionList = React.useMemo(() => {
-    if (Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0 || deleted) {
       return null;
     }
 
@@ -309,6 +314,7 @@ function InlineEngagement(props: Props): React.Node {
       );
     });
   }, [
+    deleted,
     onLongPressReaction,
     onPressReaction,
     reactionStyle,
@@ -533,6 +539,7 @@ function TooltipInlineEngagement(
           reactions={item.reactions}
           positioning={positioning}
           disabled
+          deleted={item.deleted}
         />
       </Animated.View>
     </Animated.View>
