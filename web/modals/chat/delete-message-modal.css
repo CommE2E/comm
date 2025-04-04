@@ -1,0 +1,5 @@
+.confirmationText {
+  color: var(--pin-message-information-text-color);
+  font-size: small;
+  margin-bottom: 24px;
+}
