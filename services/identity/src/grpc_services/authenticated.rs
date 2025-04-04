@@ -1083,6 +1083,12 @@ impl IdentityClientService for AuthenticatedService {
     let (user_id, _) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
+    info!(
+      user_id = redact_sensitive_data(&user_id),
+      fid = redact_sensitive_data(&message.farcaster_id),
+      "Attempting to link Farcaster account."
+    );
+
     let mut get_farcaster_users_response = self
       .db_client
       .get_farcaster_users(vec![message.farcaster_id.clone()])
@@ -1102,6 +1108,7 @@ impl IdentityClientService for AuthenticatedService {
       if u.0.user_id == user_id {
         return Ok(Response::new(Empty {}));
       } else {
+        warn!("FID already assigned to another user!");
         return Err(Status::already_exists(tonic_status_messages::FID_TAKEN));
       }
     }
@@ -1121,6 +1128,11 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<Empty>,
   ) -> Result<Response<Empty>, tonic::Status> {
     let (user_id, _) = get_user_and_device_id(&request)?;
+
+    info!(
+      user_id = redact_sensitive_data(&user_id),
+      "Attempting to unlink Farcaster account."
+    );
 
     self.db_client.remove_farcaster_id(user_id).await?;
 
