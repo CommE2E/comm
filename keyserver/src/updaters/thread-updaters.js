@@ -1011,9 +1011,10 @@ async function userLeadsChannel(
   return false;
 }
 
-async function toggleMessagePinForThread(
+async function updateMessagePinForThread(
   viewer: Viewer,
   request: ToggleMessagePinRequest,
+  behavior: 'normal' | 'force_silently',
 ): Promise<ToggleMessagePinResult> {
   const { messageID, action } = request;
 
@@ -1026,15 +1027,18 @@ async function toggleMessagePinForThread(
   const fetchServerThreadInfosResult = await fetchServerThreadInfos({
     threadID,
   });
-  const { threadInfos: rawThreadInfos } = rawThreadInfosFromServerThreadInfos(
-    viewer,
-    fetchServerThreadInfosResult,
-  );
-  const rawThreadInfo = rawThreadInfos[threadID];
 
-  const canTogglePin = canToggleMessagePin(targetMessage, rawThreadInfo);
-  if (!canTogglePin) {
-    throw new ServerError('invalid_parameters');
+  if (behavior === 'normal') {
+    const { threadInfos: rawThreadInfos } = rawThreadInfosFromServerThreadInfos(
+      viewer,
+      fetchServerThreadInfosResult,
+    );
+    const rawThreadInfo = rawThreadInfos[threadID];
+
+    const canTogglePin = canToggleMessagePin(targetMessage, rawThreadInfo);
+    if (!canTogglePin) {
+      throw new ServerError('invalid_parameters');
+    }
   }
 
   const pinnedValue = action === 'pin' ? 1 : 0;
@@ -1062,6 +1066,10 @@ async function toggleMessagePinForThread(
   }
 
   const createMessagesAsync = async () => {
+    if (behavior === 'force_silently') {
+      return ([]: Array<RawMessageInfo>);
+    }
+
     const messageData = {
       type: messageTypes.TOGGLE_PIN,
       threadID,
@@ -1071,8 +1079,7 @@ async function toggleMessagePinForThread(
       creatorID: viewer.userID,
       time: Date.now(),
     };
-    const newMessageInfos = await createMessages(viewer, [messageData]);
-    return newMessageInfos;
+    return await createMessages(viewer, [messageData]);
   };
 
   const createUpdatesAsync = async () => {
@@ -1107,5 +1114,5 @@ export {
   leaveThread,
   updateThread,
   joinThread,
-  toggleMessagePinForThread,
+  updateMessagePinForThread,
 };

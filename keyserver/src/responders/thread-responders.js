@@ -54,7 +54,7 @@ import {
   leaveThread,
   updateThread,
   joinThread,
-  toggleMessagePinForThread,
+  updateMessagePinForThread,
 } from '../updaters/thread-updaters.js';
 
 export const threadDeletionRequestInputValidator: TInterface<ThreadDeletionRequest> =
@@ -218,7 +218,7 @@ async function toggleMessagePinResponder(
   viewer: Viewer,
   request: ToggleMessagePinRequest,
 ): Promise<ToggleMessagePinResult> {
-  return await toggleMessagePinForThread(viewer, request);
+  return await updateMessagePinForThread(viewer, request, 'normal');
 }
 
 export const roleModificationRequestInputValidator: TUnion<RoleModificationRequest> =
