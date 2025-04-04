@@ -393,7 +393,11 @@ function useMessageDeleteAction(
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
 
-  const canDeleteMessage = useCanDeleteMessage(threadInfo, messageInfo);
+  const canDeleteMessage = useCanDeleteMessage(
+    threadInfo,
+    messageInfo,
+    !!item.threadCreatedFromMessage,
+  );
   const deleteMessage = useDeleteMessage();
   const { clearTooltip } = useTooltipContext();
 
@@ -427,18 +431,12 @@ function useMessageTooltipActions(
   const togglePinAction = useMessageTogglePinAction(item, threadInfo);
   const editAction = useMessageEditAction(item, threadInfo);
   const deleteAction = useMessageDeleteAction(item, threadInfo);
-  return React.useMemo(
-    () =>
-      [
-        replyAction,
-        sidebarAction,
-        copyAction,
-        reactAction,
-        togglePinAction,
-        editAction,
-        deleteAction,
-      ].filter(Boolean),
-    [
+
+  return React.useMemo(() => {
+    if (item.deleted) {
+      return [];
+    }
+    return [
       replyAction,
       sidebarAction,
       copyAction,
@@ -446,8 +444,17 @@ function useMessageTooltipActions(
       togglePinAction,
       editAction,
       deleteAction,
-    ],
-  );
+    ].filter(Boolean);
+  }, [
+    item.deleted,
+    replyAction,
+    sidebarAction,
+    copyAction,
+    reactAction,
+    togglePinAction,
+    editAction,
+    deleteAction,
+  ]);
 }
 
 const undefinedTooltipSize = {
