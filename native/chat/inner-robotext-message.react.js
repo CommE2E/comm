@@ -39,6 +39,7 @@ function dummyNodeForRobotextMessageHeightMeasurement(
       <DummyInlineEngagementNode
         sidebarInfo={sidebarInfo}
         reactions={reactions}
+        deleted={false}
       />
     </View>
   );
