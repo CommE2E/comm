@@ -80,6 +80,7 @@ function RobotextMessage(props: Props): React.Node {
           sidebarThreadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
           positioning="center"
+          deleted={false}
         />
       </View>
     );
