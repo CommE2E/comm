@@ -21,6 +21,7 @@ type Props = {
   +reactions: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,
+  +deleted: boolean,
 };
 function InlineEngagement(props: Props): React.Node {
   const {
@@ -30,6 +31,7 @@ function InlineEngagement(props: Props): React.Node {
     reactions,
     positioning,
     label,
+    deleted,
   } = props;
 
   const { popModal } = useModalContext();
@@ -42,7 +44,7 @@ function InlineEngagement(props: Props): React.Node {
     [css.messageLabelRight]: !isLeft,
   });
   const editedLabel = React.useMemo(() => {
-    if (!label) {
+    if (!label || deleted) {
       return null;
     }
     return (
@@ -50,7 +52,7 @@ function InlineEngagement(props: Props): React.Node {
         <span>{label}</span>
       </div>
     );
-  }, [label, labelClasses]);
+  }, [deleted, label, labelClasses]);
 
   const onClickSidebarInner = useOnClickThread(sidebarThreadInfo);
 
@@ -78,7 +80,7 @@ function InlineEngagement(props: Props): React.Node {
   }, [sidebarThreadInfo, repliesText, onClickSidebar]);
 
   const reactionsList = React.useMemo(() => {
-    if (Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0 || deleted) {
       return null;
     }
 
@@ -91,7 +93,7 @@ function InlineEngagement(props: Props): React.Node {
         reactions={reactions}
       />
     ));
-  }, [reactions, messageInfo.id, threadInfo]);
+  }, [reactions, deleted, messageInfo.id, threadInfo]);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,

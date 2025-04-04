@@ -31,15 +31,16 @@ function dummyNodeForTextMessageHeightMeasurement(
   editedLabel?: ?string,
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
-  withoutMarkdown?: ?boolean,
+  deleted: boolean,
 ): React.Element<typeof View> {
   return (
     <View>
-      <DummyTextNode withoutMarkdown={!!withoutMarkdown}>{text}</DummyTextNode>
+      <DummyTextNode withoutMarkdown={deleted}>{text}</DummyTextNode>
       <DummyInlineEngagementNode
         editedLabel={editedLabel}
         sidebarInfo={sidebarInfo}
         reactions={reactions}
+        deleted={deleted}
       />
     </View>
   );
