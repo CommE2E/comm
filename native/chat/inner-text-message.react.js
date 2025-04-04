@@ -31,6 +31,7 @@ function dummyNodeForTextMessageHeightMeasurement(
   editedLabel?: ?string,
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
+  deleted: boolean,
 ): React.Element<typeof View> {
   return (
     <View>
@@ -39,6 +40,7 @@ function dummyNodeForTextMessageHeightMeasurement(
         editedLabel={editedLabel}
         sidebarInfo={sidebarInfo}
         reactions={reactions}
+        deleted={deleted}
       />
     </View>
   );
