@@ -1,20 +1,25 @@
 package app.comm.android
 
 import android.app.Application
+import android.content.Context
 import android.content.res.Configuration
-
+import app.comm.android.commservices.CommServicesPackage
+import app.comm.android.notifications.CommAndroidNotificationsPackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
+import com.facebook.react.ReactHost
+import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.ReactHost
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-
+import com.wix.reactnativekeyboardinput.KeyboardInputPackage
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -23,8 +28,9 @@ class MainApplication : Application(), ReactApplication {
     object : DefaultReactNativeHost(this) {
       override fun getPackages(): List<ReactPackage> {
         val packages = PackageList(this).packages
-        // Packages that cannot be autolinked yet can be added manually here, for example:
-        // packages.add(new MyReactNativePackage());
+        packages.add(KeyboardInputPackage(this.application))
+        packages.add(CommAndroidNotificationsPackage())
+        packages.add(CommServicesPackage())
         return packages
       }
 
@@ -37,6 +43,14 @@ class MainApplication : Application(), ReactApplication {
     }
   )
 
+  companion object {
+    var context: Context? = null
+
+    fun getMainApplicationContext(): Context? {
+      return context
+    }
+  }
+
   override val reactHost: ReactHost
     get() = ReactNativeHostWrapper.createReactHost(applicationContext, reactNativeHost)
 
@@ -48,6 +62,12 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
+    context = applicationContext
+    reactHost.addReactInstanceEventListener(object  : ReactInstanceEventListener {
+      override fun onReactContextInitialized(context: ReactContext) {
+        CommCoreJSIInitializer.initialize(context)
+      }
+    })
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

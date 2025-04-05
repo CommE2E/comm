@@ -20,17 +20,6 @@ public class CommSecureStore {
     return CommSecureStore.instance;
   }
 
-  public void
-  initialize(Supplier<SecureStoreModule> secureStoreModuleSupplier) {
-    if (this.secureStoreModule == null) {
-      synchronized (this) {
-        if (this.secureStoreModule == null) {
-          this.secureStoreModule = secureStoreModuleSupplier.get();
-        }
-      }
-    }
-  }
-
   private void checkModule() {
     if (this.secureStoreModule == null) {
       throw new RuntimeException(
@@ -50,8 +39,8 @@ public class CommSecureStore {
         throw new RuntimeException("secure store set error: " + message);
       }
     };
-    this.secureStoreModule.setValueWithKeyAsync(
-        value, key, this.readableArguments, promise);
+//    this.secureStoreModule.setValueWithKeyAsync(
+//        value, key, this.readableArguments, promise);
   }
 
   private String internalGet(String key) {
@@ -70,8 +59,8 @@ public class CommSecureStore {
       }
     };
     // The following call will resolve the promise before it returns
-    this.secureStoreModule.getValueWithKeyAsync(
-        key, this.readableArguments, promise);
+//    this.secureStoreModule.getValueWithKeyAsync(
+//        key, this.readableArguments, promise);
 
     return result[0];
   }
