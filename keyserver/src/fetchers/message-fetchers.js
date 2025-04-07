@@ -856,6 +856,7 @@ async function fetchRelatedMessages(
         m.type = ${messageTypes.SIDEBAR_SOURCE}
         OR m.type = ${messageTypes.REACTION}
         OR m.type = ${messageTypes.TOGGLE_PIN}
+        OR m.type = ${messageTypes.DELETE_MESSAGE}
       )
     UNION SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, 
       m.creation, m.user AS creatorID, m.target_message as targetMessageID,
