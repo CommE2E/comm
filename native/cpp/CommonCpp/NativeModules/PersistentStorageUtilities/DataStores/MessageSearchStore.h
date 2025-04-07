@@ -13,6 +13,7 @@ class MessageSearchStore
     : public BaseDataStore<DBOperationBase, MessageSearchResult> {
 private:
   static OperationType UPDATE_OPERATION;
+  static OperationType DELETE_OPERATION;
 
 public:
   MessageSearchStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
