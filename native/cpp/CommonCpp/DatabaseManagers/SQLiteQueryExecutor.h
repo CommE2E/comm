@@ -198,6 +198,7 @@ public:
       std::string originalMessageID,
       std::string messageID,
       std::string processedContent) const override;
+  void deleteMessageFromSearchIndex(std::string messageID) const override;
   std::vector<MessageEntity> searchMessages(
       std::string query,
       std::string threadID,

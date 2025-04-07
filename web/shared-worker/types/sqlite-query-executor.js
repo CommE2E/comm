@@ -215,6 +215,7 @@ declare export class SQLiteQueryExecutor {
     messageID: string,
     content: string,
   ): void;
+  deleteMessageFromSearchIndex(messageID: string): void;
   searchMessages(
     query: string,
     threadID: string,
