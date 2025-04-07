@@ -340,6 +340,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "updateMessageSearchIndex",
           &SQLiteQueryExecutor::updateMessageSearchIndex)
+      .function(
+          "deleteMessageFromSearchIndex",
+          &SQLiteQueryExecutor::deleteMessageFromSearchIndex)
       .function("searchMessages", &SQLiteQueryExecutor::searchMessagesWeb)
       .function("fetchMessagesWeb", &SQLiteQueryExecutor::fetchMessagesWeb);
 }

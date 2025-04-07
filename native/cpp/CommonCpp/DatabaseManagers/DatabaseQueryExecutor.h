@@ -184,6 +184,7 @@ public:
       std::string originalMessageID,
       std::string messageID,
       std::string processedContent) const = 0;
+  virtual void deleteMessageFromSearchIndex(std::string messageID) const = 0;
   virtual std::vector<MessageEntity> searchMessages(
       std::string query,
       std::string threadID,

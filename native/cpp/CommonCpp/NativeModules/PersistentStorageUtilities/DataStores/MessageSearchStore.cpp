@@ -7,6 +7,7 @@
 namespace comm {
 
 OperationType MessageSearchStore::UPDATE_OPERATION = "update_search_messages";
+OperationType MessageSearchStore::DELETE_OPERATION = "delete_search_message";
 
 MessageSearchStore::MessageSearchStore(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
@@ -34,6 +35,10 @@ MessageSearchStore::createOperations(
     if (op_type == UPDATE_OPERATION) {
       messageSearchStoreOps.push_back(
           std::make_unique<UpdateMessageSearchIndexOperation>(rt, payload_obj));
+    } else if (op_type == DELETE_OPERATION) {
+      messageSearchStoreOps.push_back(
+          std::make_unique<DeleteMessageFromSearchIndexOperation>(
+              rt, payload_obj));
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
     }

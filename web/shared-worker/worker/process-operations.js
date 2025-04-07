@@ -612,6 +612,9 @@ function processMessageSearchStoreOperations(
           messageID,
           content,
         );
+      } else if (operation.type === 'delete_search_message') {
+        const { messageID } = operation.payload;
+        sqliteQueryExecutor.deleteMessageFromSearchIndex(messageID);
       }
     } catch (e) {
       throw new Error(
