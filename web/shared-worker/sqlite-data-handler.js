@@ -5,7 +5,11 @@ import * as React from 'react';
 import { shouldClearData } from 'lib/shared/data-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { reportDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
+import {
+  reportDatabaseDeleted,
+  databaseResetStatus,
+  setDatabaseResetStatus,
+} from 'lib/utils/wait-until-db-deleted.js';
 
 import { getCommSharedWorker } from './shared-worker-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,7 +47,9 @@ function SQLiteDataHandler(): React.Node {
       shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
     ) {
       try {
+        setDatabaseResetStatus(databaseResetStatus.RESET_IN_PROGRESS);
         await sharedWorker.init({ clearDatabase: true });
+        setDatabaseResetStatus(databaseResetStatus.READY);
         reportDatabaseDeleted();
       } catch (error) {
         console.error(
