@@ -30,7 +30,11 @@ import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { supportingMultipleKeyservers } from 'lib/utils/services-utils.js';
-import { reportDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
+import {
+  reportDatabaseDeleted,
+  databaseResetStatus,
+  setDatabaseResetStatus,
+} from 'lib/utils/wait-until-db-deleted.js';
 
 import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from '../account/legacy-recover-keyserver-session.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -44,7 +48,9 @@ import { useStaffCanSee } from '../utils/staff-utils.js';
 
 async function clearSensitiveData() {
   try {
+    setDatabaseResetStatus(databaseResetStatus.resetInProgress);
     await commCoreModule.clearSensitiveData();
+    setDatabaseResetStatus(databaseResetStatus.ready);
     reportDatabaseDeleted();
   } catch (error) {
     console.log(
