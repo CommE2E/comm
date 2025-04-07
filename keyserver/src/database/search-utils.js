@@ -39,8 +39,14 @@ async function processMessagesForSearch(
   messages: $ReadOnlyArray<RawMessageInfo | ProcessedForSearchRow>,
 ): Promise<void> {
   const processedMessages = [];
+  const deletedMessages = new Set<string>();
 
   for (const msg of messages) {
+    if (msg.type === messageTypes.DELETE_MESSAGE) {
+      deletedMessages.add(msg.targetMessageID);
+      continue;
+    }
+
     if (
       msg.type !== messageTypes.TEXT &&
       msg.type !== messageTypes.EDIT_MESSAGE
@@ -57,17 +63,37 @@ async function processMessagesForSearch(
     }
   }
 
-  if (processedMessages.length === 0) {
-    return;
+  const messagesToInsert = processedMessages.filter(
+    ([messageID]) => messageID && !deletedMessages.has(messageID),
+  );
+  const messagesToDelete = [...deletedMessages];
+
+  const queries = [];
+
+  if (messagesToInsert.length > 0) {
+    queries.push(
+      dbQuery(SQL`
+        INSERT INTO message_search (original_message_id, message_id, 
+          processed_content)
+        VALUES ${messagesToInsert}
+        ON DUPLICATE KEY UPDATE
+          message_id = VALUE(message_id),
+          processed_content = VALUE(processed_content);
+      `),
+    );
   }
 
-  await dbQuery(SQL`
-    INSERT INTO message_search (original_message_id, message_id, processed_content)
-    VALUES ${processedMessages}
-    ON DUPLICATE KEY UPDATE
-      message_id = VALUE(message_id),
-      processed_content = VALUE(processed_content);
-  `);
+  if (messagesToDelete.length > 0) {
+    queries.push(
+      dbQuery(SQL`
+        DELETE
+        FROM message_search
+        WHERE original_message_id IN (${messagesToDelete})
+      `),
+    );
+  }
+
+  await Promise.all(queries);
 }
 
 type ProcessedForSearchRowText = {
