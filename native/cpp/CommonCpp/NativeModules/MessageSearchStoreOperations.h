@@ -31,4 +31,21 @@ private:
   std::string content;
 };
 
+class DeleteMessageFromSearchIndexOperation : public DBOperationBase {
+public:
+  DeleteMessageFromSearchIndexOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload)
+      : messageID{payload.getProperty(rt, "messageID").asString(rt).utf8(rt)} {
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().deleteMessageFromSearchIndex(
+        this->messageID);
+  }
+
+private:
+  std::string messageID;
+};
+
 } // namespace comm
