@@ -1541,6 +1541,17 @@ void SQLiteQueryExecutor::updateMessageSearchIndex(
   sqlite3_step(*preparedSQL);
 }
 
+void SQLiteQueryExecutor::deleteMessageFromSearchIndex(
+    std::string messageID) const {
+  std::vector<std::string> ids{messageID};
+  std::stringstream queryStream;
+  queryStream << "DELETE FROM message_search "
+                 "WHERE original_message_id IN "
+              << getSQLStatementArray(ids.size()) << ";";
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), queryStream.str(), ids);
+}
+
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
   static std::string rekeyMessageSQL =
       "UPDATE OR REPLACE messages "
