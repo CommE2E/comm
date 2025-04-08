@@ -1,5 +1,6 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
+#include "SQLiteUtils.h"
 
 #include "../NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageTypeEnum.h"
 #include "../NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities/ThreadTypeEnum.h"
@@ -1048,25 +1049,6 @@ bool create_schema(sqlite3 *db) {
   return false;
 }
 
-void set_encryption_key(
-    sqlite3 *db,
-    const std::string &encryptionKey = SQLiteQueryExecutor::backupDataKey) {
-  std::string set_encryption_key_query =
-      "PRAGMA key = \"x'" + encryptionKey + "'\";";
-
-  char *error_set_key;
-  sqlite3_exec(
-      db, set_encryption_key_query.c_str(), nullptr, nullptr, &error_set_key);
-
-  if (error_set_key) {
-    std::ostringstream error_message;
-    error_message << "Failed to set encryption key: " << error_set_key;
-    Logger::log(error_message.str());
-    throw std::system_error(
-        ECANCELED, std::generic_category(), error_message.str());
-  }
-}
-
 int get_database_version(sqlite3 *db) {
   sqlite3_stmt *user_version_stmt;
   sqlite3_prepare_v2(
@@ -1104,146 +1086,8 @@ bool set_database_version(sqlite3 *db, int db_version) {
 // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
 void default_on_db_open_callback(sqlite3 *db) {
 #ifndef EMSCRIPTEN
-  set_encryption_key(db);
+  SQLiteUtils::setEncryptionKey(db, SQLiteQueryExecutor::backupDataKey);
 #endif
-}
-
-// This is a temporary solution. In future we want to keep
-// a separate table for blob hashes. Tracked on Linear:
-// https://linear.app/comm/issue/ENG-6261/introduce-blob-hash-table
-std::string blob_hash_from_blob_service_uri(const std::string &media_uri) {
-  static const std::string blob_service_prefix = "comm-blob-service://";
-  return media_uri.substr(blob_service_prefix.size());
-}
-
-bool file_exists(const std::string &file_path) {
-  std::ifstream file(file_path.c_str());
-  return file.good();
-}
-
-void attempt_delete_file(
-    const std::string &file_path,
-    const char *error_message) {
-  if (std::remove(file_path.c_str())) {
-    std::string message =
-        std::string("Error when deleting file ") + error_message;
-    Logger::log(message);
-    throw std::system_error(errno, std::generic_category(), message);
-  }
-}
-
-void attempt_rename_file(
-    const std::string &old_path,
-    const std::string &new_path,
-    const char *error_message) {
-  if (std::rename(old_path.c_str(), new_path.c_str())) {
-    std::string message =
-        std::string("Error when renaming file ") + error_message;
-    Logger::log(message);
-    throw std::system_error(errno, std::generic_category(), message);
-  }
-}
-
-bool is_database_queryable(
-    sqlite3 *db,
-    bool use_encryption_key,
-    const std::string &path = SQLiteQueryExecutor::sqliteFilePath,
-    const std::string &encryptionKey = SQLiteQueryExecutor::backupDataKey) {
-  char *err_msg;
-  sqlite3_open(path.c_str(), &db);
-  // According to SQLCipher documentation running some SELECT is the only way to
-  // check for key validity
-  if (use_encryption_key) {
-    set_encryption_key(db, encryptionKey);
-  }
-  sqlite3_exec(
-      db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);
-  sqlite3_close(db);
-  return !err_msg;
-}
-
-void validate_encryption() {
-  std::string temp_encrypted_db_path =
-      SQLiteQueryExecutor::sqliteFilePath + "_temp_encrypted";
-
-  bool temp_encrypted_exists = file_exists(temp_encrypted_db_path);
-  bool default_location_exists =
-      file_exists(SQLiteQueryExecutor::sqliteFilePath);
-
-  if (temp_encrypted_exists && default_location_exists) {
-    Logger::log(
-        "Previous encryption attempt failed. Repeating encryption process from "
-        "the beginning.");
-    attempt_delete_file(
-        temp_encrypted_db_path,
-        "Failed to delete corrupted encrypted database.");
-  } else if (temp_encrypted_exists && !default_location_exists) {
-    Logger::log(
-        "Moving temporary encrypted database to default location failed in "
-        "previous encryption attempt. Repeating rename step.");
-    attempt_rename_file(
-        temp_encrypted_db_path,
-        SQLiteQueryExecutor::sqliteFilePath,
-        "Failed to move encrypted database to default location.");
-    return;
-  } else if (!default_location_exists) {
-    Logger::log(
-        "Database not present yet. It will be created encrypted under default "
-        "path.");
-    return;
-  }
-
-  sqlite3 *db;
-  if (is_database_queryable(db, true)) {
-    Logger::log(
-        "Database exists under default path and it is correctly encrypted.");
-    return;
-  }
-
-  if (!is_database_queryable(db, false)) {
-    Logger::log(
-        "Database exists but it is encrypted with key that was lost. "
-        "Attempting database deletion. New encrypted one will be created.");
-    attempt_delete_file(
-        SQLiteQueryExecutor::sqliteFilePath.c_str(),
-        "Failed to delete database encrypted with lost key.");
-    return;
-  } else {
-    Logger::log(
-        "Database exists but it is not encrypted. Attempting encryption "
-        "process.");
-  }
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-
-  std::string createEncryptedCopySQL = "ATTACH DATABASE '" +
-      temp_encrypted_db_path +
-      "' AS encrypted_comm "
-      "KEY \"x'" +
-      SQLiteQueryExecutor::backupDataKey +
-      "'\";"
-      "SELECT sqlcipher_export('encrypted_comm');"
-      "DETACH DATABASE encrypted_comm;";
-
-  char *encryption_error;
-  sqlite3_exec(
-      db, createEncryptedCopySQL.c_str(), nullptr, nullptr, &encryption_error);
-
-  if (encryption_error) {
-    std::string error{
-        "Failed to create encrypted copy of the original database"};
-    Logger::log(error);
-    throw std::system_error(ECANCELED, std::generic_category(), error);
-  }
-  sqlite3_close(db);
-
-  attempt_delete_file(
-      SQLiteQueryExecutor::sqliteFilePath,
-      "Failed to delete unencrypted database.");
-  attempt_rename_file(
-      temp_encrypted_db_path,
-      SQLiteQueryExecutor::sqliteFilePath,
-      "Failed to move encrypted database to default location.");
-  Logger::log("Encryption completed successfully.");
 }
 
 typedef bool ShouldBeInTransaction;
@@ -1370,7 +1214,8 @@ void SQLiteQueryExecutor::migrate() {
 // on main web database. The context is here:
 // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
 #ifndef EMSCRIPTEN
-  validate_encryption();
+  SQLiteUtils::validateEncryption(
+      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 #endif
 
   sqlite3 *db;
@@ -3066,7 +2911,7 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::searchMessagesWeb(
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::closeConnection();
-  if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
+  if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
     errorStream << "Failed to delete database file. Details: "
@@ -3086,12 +2931,12 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     folly::Optional<std::string> maybeBackupLogDataKey =
         CommSecureStore::get(CommSecureStore::backupLogDataKey);
 
-    if (file_exists(databasePath) && maybeBackupDataKey &&
+    if (SQLiteUtils::fileExists(databasePath) && maybeBackupDataKey &&
         maybeBackupLogDataKey) {
       SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
       SQLiteQueryExecutor::backupLogDataKey = maybeBackupLogDataKey.value();
       return;
-    } else if (file_exists(databasePath) && maybeBackupDataKey) {
+    } else if (SQLiteUtils::fileExists(databasePath) && maybeBackupDataKey) {
       SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
       SQLiteQueryExecutor::generateBackupLogDataKey();
       return;
@@ -3155,22 +3000,22 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   std::string tempBackupPath = finalBackupPath + "_tmp";
   std::string tempAttachmentsPath = finalAttachmentsPath + "_tmp";
 
-  if (file_exists(tempBackupPath)) {
+  if (SQLiteUtils::fileExists(tempBackupPath)) {
     Logger::log(
         "Attempting to delete temporary backup file from previous backup "
         "attempt.");
-    attempt_delete_file(
+    SQLiteUtils::attemptDeleteFile(
         tempBackupPath,
         "Failed to delete temporary backup file from previous backup "
         "attempt.");
   }
 
-  if (file_exists(tempAttachmentsPath)) {
+  if (SQLiteUtils::fileExists(tempAttachmentsPath)) {
     Logger::log(
         "Attempting to delete temporary attachments file from previous "
         "backup "
         "attempt.");
-    attempt_delete_file(
+    SQLiteUtils::attemptDeleteFile(
         tempAttachmentsPath,
         "Failed to delete temporary attachments file from previous backup "
         "attempt.");
@@ -3178,7 +3023,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
-  set_encryption_key(backupDB);
+  SQLiteUtils::setEncryptionKey(backupDB, SQLiteQueryExecutor::backupDataKey);
 
   sqlite3_backup *backupObj = sqlite3_backup_init(
       backupDB, "main", SQLiteQueryExecutor::getConnection(), "main");
@@ -3210,7 +3055,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   executeQuery(backupDB, "VACUUM;");
   sqlite3_close(backupDB);
 
-  attempt_rename_file(
+  SQLiteUtils::attemptRenameFile(
       tempBackupPath,
       finalBackupPath,
       "Failed to rename complete temporary backup file to final backup "
@@ -3231,12 +3076,13 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 
   for (const auto &media : blobServiceMedia) {
     std::string blobServiceURI = media.uri;
-    std::string blobHash = blob_hash_from_blob_service_uri(blobServiceURI);
+    std::string blobHash =
+        SQLiteUtils::blobHashFromBlobServiceURI(blobServiceURI);
     tempAttachmentsFile << blobHash << "\n";
   }
   tempAttachmentsFile.close();
 
-  attempt_rename_file(
+  SQLiteUtils::attemptRenameFile(
       tempAttachmentsPath,
       finalAttachmentsPath,
       "Failed to rename complete temporary attachments file to final "
@@ -3330,7 +3176,7 @@ void SQLiteQueryExecutor::copyTablesDataUsingAttach(
     sqlite3 *db,
     const std::string &sourceDbPath,
     const std::vector<std::string> &tableNames) const {
-  if (!file_exists(sourceDbPath)) {
+  if (!SQLiteUtils::fileExists(sourceDbPath)) {
     std::stringstream errorMessage;
     errorMessage << "Error: File does not exist at path: " << sourceDbPath
                  << std::endl;
@@ -3353,14 +3199,14 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     std::string mainCompactionEncryptionKey,
     std::string maxVersion) const {
 
-  if (!file_exists(mainCompactionPath)) {
+  if (!SQLiteUtils::fileExists(mainCompactionPath)) {
     std::string errorMessage{"Restore attempt but backup file does not exist"};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
 
   sqlite3 *backupDB;
-  if (!is_database_queryable(
+  if (!SQLiteUtils::isDatabaseQueryable(
           backupDB, true, mainCompactionPath, mainCompactionEncryptionKey)) {
     std::string errorMessage{"Backup file or encryption key corrupted"};
     Logger::log(errorMessage);
@@ -3368,8 +3214,8 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   }
 
   std::string plaintextBackupPath = mainCompactionPath + "_plaintext";
-  if (file_exists(plaintextBackupPath)) {
-    attempt_delete_file(
+  if (SQLiteUtils::fileExists(plaintextBackupPath)) {
+    SQLiteUtils::attemptDeleteFile(
         plaintextBackupPath,
         "Failed to delete plaintext backup file from previous backup "
         "attempt.");
@@ -3407,11 +3253,11 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   copyTablesDataUsingAttach(
       SQLiteQueryExecutor::getConnection(), plaintextBackupPath, tablesVector);
 
-  attempt_delete_file(
+  SQLiteUtils::attemptDeleteFile(
       plaintextBackupPath,
       "Failed to delete plaintext compaction file after successful restore.");
 
-  attempt_delete_file(
+  SQLiteUtils::attemptDeleteFile(
       mainCompactionPath,
       "Failed to delete main compaction file after successful restore.");
 }
