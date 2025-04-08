@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform } from 'react-native';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import {
@@ -19,7 +18,6 @@ import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityAuthResult,
   type SignedDeviceList,
-  platformToIdentityDeviceType,
 } from 'lib/types/identity-service-types.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -32,8 +30,8 @@ import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
+import { rawGetDeviceListsForUsers } from '../identity-service/identity-service-context-provider.react.js';
 import { commCoreModule } from '../native-modules.js';
-import { codeVersion, persistConfig } from '../redux/persist.js';
 
 function useRestoreProtocol(): (
   // username or wallet address
@@ -125,20 +123,24 @@ function useRestoreProtocol(): (
         );
       }
 
-      //7. Return the result
-      const platformDetails = {
-        deviceType: platformToIdentityDeviceType[Platform.OS],
-        codeVersion,
-        stateVersion: persistConfig.version,
+      //7. Get up-to-date platform details from Identity
+      const authMetadata = {
+        userID,
+        deviceID: primaryDeviceID,
+        accessToken: result.accessToken,
       };
+      const { usersDevicesPlatformDetails } = await rawGetDeviceListsForUsers(
+        authMetadata,
+        [userID],
+      );
+
+      //8. Return the result
       return {
         ...result,
         preRequestUserState,
         deviceLists: { [userID]: initialDeviceList },
         usersPlatformDetails: {
-          [userID]: {
-            [primaryDeviceID]: platformDetails,
-          },
+          [userID]: usersDevicesPlatformDetails[userID],
         },
       };
     },

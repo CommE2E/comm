@@ -6,6 +6,7 @@ import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import { createAndSignSingletonDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
   identityKeysBlobValidator,
@@ -31,6 +32,7 @@ import {
   userIdentitiesResponseValidator,
   type UsersDevicesPlatformDetails,
   peersDeviceListsValidator,
+  type PeersDeviceLists,
 } from 'lib/types/identity-service-types.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -660,39 +662,10 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         );
       },
       getDeviceListsForUsers: async (userIDs: $ReadOnlyArray<string>) => {
-        const {
-          deviceID: authDeviceID,
-          userID: authUserID,
-          accessToken: token,
-        } = await getAuthMetadata();
-        const result = await authVerifiedEndpoint(
-          commRustModule.getDeviceListsForUsers(
-            authUserID,
-            authDeviceID,
-            token,
-            userIDs,
-          ),
+        const authMetadata = await getAuthMetadata();
+        return await authVerifiedEndpoint(
+          rawGetDeviceListsForUsers(authMetadata, userIDs),
         );
-
-        const rawPayloads: {
-          +usersDeviceLists: { +[userID: string]: string },
-          +usersDevicesPlatformDetails: UsersDevicesPlatformDetails,
-        } = JSON.parse(result);
-
-        let usersDeviceLists: UsersSignedDeviceLists = {};
-        for (const userID in rawPayloads.usersDeviceLists) {
-          usersDeviceLists = {
-            ...usersDeviceLists,
-            [userID]: JSON.parse(rawPayloads.usersDeviceLists[userID]),
-          };
-        }
-
-        const peersDeviceLists = {
-          usersSignedDeviceLists: usersDeviceLists,
-          usersDevicesPlatformDetails: rawPayloads.usersDevicesPlatformDetails,
-        };
-
-        return assertWithValidator(peersDeviceLists, peersDeviceListsValidator);
       },
       updateDeviceList: async (newDeviceList: SignedDeviceList) => {
         const {
@@ -806,5 +779,50 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     </IdentityClientContext.Provider>
   );
 }
+
+// Unfortunately, Required<AuthMetadata>
+// doesn't work for `prop: ?string`
+type RequiredAuthMetadata = $ObjMap<
+  AuthMetadata,
+  <T>(prop: T) => $NonMaybeType<T>,
+>;
+async function rawGetDeviceListsForUsers(
+  authMetadata: RequiredAuthMetadata,
+  userIDs: $ReadOnlyArray<string>,
+): Promise<PeersDeviceLists> {
+  const {
+    deviceID: authDeviceID,
+    userID: authUserID,
+    accessToken: token,
+  } = authMetadata;
+  const result = await commRustModule.getDeviceListsForUsers(
+    authUserID,
+    authDeviceID,
+    token,
+    userIDs,
+  );
+
+  const rawPayloads: {
+    +usersDeviceLists: { +[userID: string]: string },
+    +usersDevicesPlatformDetails: UsersDevicesPlatformDetails,
+  } = JSON.parse(result);
+
+  let usersDeviceLists: UsersSignedDeviceLists = {};
+  for (const userID in rawPayloads.usersDeviceLists) {
+    usersDeviceLists = {
+      ...usersDeviceLists,
+      [userID]: JSON.parse(rawPayloads.usersDeviceLists[userID]),
+    };
+  }
+
+  const peersDeviceLists = {
+    usersSignedDeviceLists: usersDeviceLists,
+    usersDevicesPlatformDetails: rawPayloads.usersDevicesPlatformDetails,
+  };
+
+  return assertWithValidator(peersDeviceLists, peersDeviceListsValidator);
+}
+
+export { rawGetDeviceListsForUsers };
 
 export default IdentityServiceContextProvider;
