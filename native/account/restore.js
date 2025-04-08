@@ -33,6 +33,7 @@ import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
+import { rawGetDeviceListsForUsers } from '../identity-service/identity-service-context-provider.react.js';
 import { commCoreModule } from '../native-modules.js';
 import { codeVersion, persistConfig } from '../redux/persist.js';
 
@@ -126,7 +127,18 @@ function useRestoreProtocol(): (
         );
       }
 
-      //7. Return the result
+      //7. Get up-to-date platform details from Identity
+      const authMetadata = {
+        userID,
+        deviceID: primaryDeviceID,
+        accessToken: result.accessToken,
+      };
+      const { usersDevicesPlatformDetails } = await rawGetDeviceListsForUsers(
+        authMetadata,
+        [userID],
+      );
+
+      //8. Return the result
       const platformDetails = {
         deviceType: platformToIdentityDeviceType[Platform.OS],
         codeVersion,
@@ -138,6 +150,7 @@ function useRestoreProtocol(): (
         deviceLists: { [userID]: initialDeviceList },
         usersPlatformDetails: {
           [userID]: {
+            ...usersDevicesPlatformDetails[userID],
             [primaryDeviceID]: platformDetails,
           },
         },
