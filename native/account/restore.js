@@ -15,6 +15,7 @@ import {
   usePasswordLogIn,
   useWalletLogIn,
 } from 'lib/hooks/login-hooks.js';
+import { useGetAndUpdateDeviceListsForUsers } from 'lib/hooks/peer-list-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityAuthResult,
@@ -158,6 +159,7 @@ function useRestore(): (
 ) => Promise<IdentityAuthResult> {
   const restoreProtocol = useRestoreProtocol();
   const dispatchActionPromise = useDispatchActionPromise();
+  const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
   const restoreAuth = React.useCallback(
     async (
       userIdentifier: string,
@@ -221,9 +223,17 @@ function useRestore(): (
         restoreAuth(userIdentifier, secret, siweSocialProof),
       );
       await restoreUserData(identityAuthResult);
+      void (async () => {
+        try {
+          const { userID } = identityAuthResult;
+          await getAndUpdateDeviceListsForUsers([userID]);
+        } catch (err) {
+          console.log(`Failed to sync own device list after restore: ${err}`);
+        }
+      })();
       return identityAuthResult;
     },
-    [logIn, restoreAuth, restoreUserData],
+    [logIn, getAndUpdateDeviceListsForUsers, restoreAuth, restoreUserData],
   );
 }
 
