@@ -28,10 +28,8 @@ pub struct WebPushClient {
 impl WebPushClient {
   pub fn new(config: &WebPushConfig) -> Result<Self, error::Error> {
     let inner_client = HyperWebPushClient::new();
-    let signature_builder = VapidSignatureBuilder::from_base64_no_sub(
-      &config.private_key,
-      web_push::URL_SAFE_NO_PAD,
-    )?;
+    let signature_builder =
+      VapidSignatureBuilder::from_base64_no_sub(&config.private_key)?;
     Ok(WebPushClient {
       _config: config.clone(),
       inner_client,
@@ -58,8 +56,8 @@ impl WebPushClient {
 
     tokio::time::timeout(PUSH_SERVICE_REQUEST_TIMEOUT, response_future)
       .await
-      .map_err(|err| {
-        error::Error::WebPush(web_push::WebPushError::Other(err.to_string()))
+      .map_err(|_err| {
+        error::Error::WebPush(web_push::WebPushError::Unspecified)
       })??;
 
     Ok(())

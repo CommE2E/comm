@@ -31,7 +31,7 @@ lapin = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 jsonwebtoken = "9.3.0"
-web-push = { version = "0.10", features = [
+web-push = { version = "0.11.0", features = [
   "hyper-client",
 ], default-features = false }
 reqwest = { workspace = true, features = ["json", "native-tls", "rustls-tls"] }
