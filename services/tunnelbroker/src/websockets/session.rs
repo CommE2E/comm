@@ -653,7 +653,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         if let Err(NotifsWebPushError(web_push_error)) = &result {
           if matches!(
             web_push_error,
-            WebPushError::EndpointNotValid | WebPushError::EndpointNotFound
+            WebPushError::EndpointNotValid(_)
+              | WebPushError::EndpointNotFound(_)
           ) {
             if let Err(e) = self
               .invalidate_device_token(notif.device_id, device_token.clone())
