@@ -73,7 +73,7 @@ public class CommMMKV {
         mmkvIdentifier = identifier;
       }
 
-      MMKV.initialize(MainApplication.getMainApplicationContext());
+      MMKV.initialize(MainApplication.Companion.getMainApplicationContext());
       getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
     }
   }
@@ -96,7 +96,7 @@ public class CommMMKV {
         throw new RuntimeException("Failed to remove MMKV storage.");
       }
       assignInitializationData();
-      MMKV.initialize(MainApplication.getMainApplicationContext());
+      MMKV.initialize(MainApplication.Companion.getMainApplicationContext());
       getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
     }
   }

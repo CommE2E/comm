@@ -23,8 +23,16 @@ add_library(comm-tools
   ${TOOLS_SRCS}
 )
 
+include("${_react_native_dir}/ReactAndroid/cmake-utils/folly-flags.cmake")
+
+target_compile_options(
+        comm-tools
+        PRIVATE
+        ${folly_FLAGS}
+)
+
 target_link_libraries(comm-tools
-  Folly::folly
+  ReactAndroid::reactnative
 )
 
 target_include_directories(comm-tools
