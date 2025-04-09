@@ -5,11 +5,11 @@
 namespace comm {
 
 WorkerThread::WorkerThread(const std::string name)
-    : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(500)), name(name) {
+    : tasks(rigtorp::MPMCQueue<std::unique_ptr<taskType>>(500)), name(name) {
   auto job = [this]() {
     while (true) {
       std::unique_ptr<taskType> lastTask;
-      this->tasks.blockingRead(lastTask);
+      this->tasks.pop(lastTask);
       if (lastTask == nullptr) {
         break;
       }
@@ -20,7 +20,7 @@ WorkerThread::WorkerThread(const std::string name)
 }
 
 void WorkerThread::scheduleTask(const taskType task) {
-  if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
+  if (!this->tasks.try_push(std::make_unique<taskType>(std::move(task)))) {
     std::string errorMessage{
         "Error scheduling task on the " + this->name + " worker thread"};
     Logger::log(errorMessage);
@@ -29,7 +29,7 @@ void WorkerThread::scheduleTask(const taskType task) {
 }
 
 WorkerThread::~WorkerThread() {
-  this->tasks.blockingWrite(nullptr);
+  this->tasks.push(nullptr);
   try {
     this->thread->join();
   } catch (const std::system_error &error) {

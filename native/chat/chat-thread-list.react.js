@@ -61,7 +61,7 @@ import type { ScrollEvent } from '../types/react-native.js';
 const floatingActions = [
   {
     text: 'Compose',
-    icon: <IonIcon name="md-create" size={24} color="#FFFFFF" />,
+    icon: <IonIcon name="create" size={24} color="#FFFFFF" />,
     name: 'compose',
     position: 1,
   },
@@ -484,9 +484,12 @@ function ChatThreadList(props: BaseProps): React.Node {
   }, [navigation, onTabPress]);
 
   React.useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', hardwareBack);
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      hardwareBack,
+    );
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
+      backHandler.remove();
     };
   }, [hardwareBack]);
 
