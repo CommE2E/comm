@@ -92,18 +92,18 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["armeabi-v7a", "x86_64", "arm64-v8a"]
 }
 
-//def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
-//def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
-//def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
-//def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
-//
-//task createNativeDepsDirectories {
-//    downloadsDir.mkdirs()
-//    thirdPartyNdkDir.mkdirs()
-//}
-//
-//def REACT_NATIVE_DIR = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).parent
-//def reactNativeThirdParty = new File("$REACT_NATIVE_DIR/ReactAndroid/src/main/jni/third-party")
+def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
+def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
+def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
+def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
+
+task createNativeDepsDirectories {
+    downloadsDir.mkdirs()
+    thirdPartyNdkDir.mkdirs()
+}
+
+def REACT_NATIVE_DIR = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).parent
+def reactNativeThirdParty = new File("$REACT_NATIVE_DIR/ReactAndroid/src/main/jni/third-party")
 //
 //def reactProperties = new Properties()
 //file("$REACT_NATIVE_DIR/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
@@ -186,55 +186,55 @@ def reactNativeArchitectures() {
 //    into("$thirdPartyNdkDir/double-conversion")
 //}
 
-//// OPENSSL
-//def hostSystem = System.getProperty('os.name').toLowerCase(Locale.ROOT)
-//def hostTag = hostSystem.contains('mac') ? 'darwin-x86_64' : 'linux-x86_64'
-//
-//task downloadOpenSSL(dependsOn: createNativeDepsDirectories, type: Download) {
-//    src("https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz")
-//    onlyIfNewer(true)
-//    overwrite(false)
-//    dest(new File(downloadsDir, "openssl-${OPENSSL_VERSION}.tar.gz"))
-//}
-//
-//task prepareOpenSSL(
-//    dependsOn: dependenciesPath ? [] : [downloadOpenSSL],
-//    type: Copy
-//) {
-//    from(dependenciesPath ?: tarTree(downloadOpenSSL.dest))
-//    include("openssl-${OPENSSL_VERSION}/**/*")
-//    includeEmptyDirs = false
-//    into("${thirdPartyNdkDir}/openssl")
-//}
-//
-//task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
-//    inputs.properties([
-//        'openssl.version': OPENSSL_VERSION,
-//        'openssl.abis': getBuildTypeABIs(reactNativeArchitectures())
-//    ])
-//    outputs.dir("${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/build/")
-//        .withPropertyName('openssl.output')
-//    doFirst {
-//        getBuildTypeABIs(reactNativeArchitectures()).each { buildABI ->
-//            logger.info("Building OpenSSL library for the ${buildABI}")
-//            exec {
-//                commandLine './bash/build_openssl.sh',
-//                // OPENSSL_SUBMODULE_PATH
-//                "${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/",
-//                // HOST_TAG
-//                hostTag,
-//                // ANDROID_ARCH_ABI
-//                "${buildABI}",
-//                // MIN_SDK_VERSION
-//                rootProject.ext.minSdkVersion,
-//                // ANDROID_NDK_HOME
-//                android.ndkDirectory.absolutePath,
-//                // PARALLEL_THREADS
-//                Runtime.getRuntime().availableProcessors()
-//            }
-//        }
-//    }
-//}
+// OPENSSL
+def hostSystem = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+def hostTag = hostSystem.contains('mac') ? 'darwin-x86_64' : 'linux-x86_64'
+
+task downloadOpenSSL(dependsOn: createNativeDepsDirectories, type: Download) {
+    src("https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz")
+    onlyIfNewer(true)
+    overwrite(false)
+    dest(new File(downloadsDir, "openssl-${OPENSSL_VERSION}.tar.gz"))
+}
+
+task prepareOpenSSL(
+    dependsOn: dependenciesPath ? [] : [downloadOpenSSL],
+    type: Copy
+) {
+    from(dependenciesPath ?: tarTree(downloadOpenSSL.dest))
+    include("openssl-${OPENSSL_VERSION}/**/*")
+    includeEmptyDirs = false
+    into("${thirdPartyNdkDir}/openssl")
+}
+
+task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
+    inputs.properties([
+        'openssl.version': OPENSSL_VERSION,
+        'openssl.abis': getBuildTypeABIs(reactNativeArchitectures())
+    ])
+    outputs.dir("${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/build/")
+        .withPropertyName('openssl.output')
+    doFirst {
+        getBuildTypeABIs(reactNativeArchitectures()).each { buildABI ->
+            logger.info("Building OpenSSL library for the ${buildABI}")
+            exec {
+                commandLine './bash/build_openssl.sh',
+                // OPENSSL_SUBMODULE_PATH
+                "${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/",
+                // HOST_TAG
+                hostTag,
+                // ANDROID_ARCH_ABI
+                "${buildABI}",
+                // MIN_SDK_VERSION
+                rootProject.ext.minSdkVersion,
+                // ANDROID_NDK_HOME
+                android.ndkDirectory.absolutePath,
+                // PARALLEL_THREADS
+                Runtime.getRuntime().availableProcessors()
+            }
+        }
+    }
+}
 
 // JNI
 //def REACT_NATIVE_AAR = "${buildDir}/react-native.aar"
@@ -316,85 +316,85 @@ def reactNativeArchitectures() {
 //    }
 //}
 //
-//// EXTERNAL LIBS
-//task prepareExternalLibs {
+// EXTERNAL LIBS
+task prepareExternalLibs {
 //    dependsOn prepareFolly
 //    dependsOn prepareGlog
 //    dependsOn prepareBoost
 //    dependsOn prepareDoubleConversion
-//    dependsOn prebuildOpenSSL
-//}
-//
-//// Removes the '.cxx' directory to prevent running
-//// ninja clean when the 'clean' command is executed
-//task removeCXX(type: Exec) {
-//    commandLine 'rm', '-rf', '.cxx'
-//}
-//
-//// Add cross-compilation targets to Rust toolchain
-//task updateRustToolchain(type: Exec) {
-//    commandLine "rustup", "target", "add",
-//        "aarch64-linux-android",
-//        "armv7-linux-androideabi",
-//        "x86_64-linux-android"
-//}
-//
-//def nativeRustLibraryDir = "../../native_rust_library"
-//def nativeRustLibraryManifestPath = "${nativeRustLibraryDir}/Cargo.toml"
-//def cxxBridgeBindingDir = "${nativeRustLibraryDir}/target/cxxbridge/native_rust_library/src"
-//def cxxBridgeCommonDir = "${nativeRustLibraryDir}/target/cxxbridge/rust"
-//
-//task buildNativeRustLibrary(type: Exec) {
-//  commandLine "cargo", "build", "--manifest-path", nativeRustLibraryManifestPath
-//}
-//
-//task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
-//  from(cxxBridgeBindingDir) {
-//    include 'lib.rs.h'
-//    include 'lib.rs.cc'
-//  }
-//  from(cxxBridgeCommonDir) {
-//    include 'cxx.h'
-//  }
-//  into nativeRustLibraryDir
-//}
-//
-//// Bind preBuild dependencies only if not 'clean' running
-//if (!isCleanRunning()) {
-//    afterEvaluate {
-//        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, copyNativeRustLibraryFiles)
-//    }
-//}
-//
-//// Run removing CXX task before the clean execution
-//beforeEvaluate {
-//    clean.dependsOn(removeCXX)
-//}
+    dependsOn prebuildOpenSSL
+}
 
-//// Detects are we running the 'clean' commands
-//def isCleanRunning() {
-//    gradle.startParameter.taskRequests.any {
-//        !it.args.isEmpty() && it.args.first().startsWith('clean')
-//    }
-//}
-//
-//// Release keystore via macOS Keychain Access
-//def getPassword(String keyLabel) {
-//    if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
-//        return System.getenv('ANDROID_SIGNING_PASSWORD')
-//    }
-//    def stdout = new ByteArrayOutputStream()
-//    exec {
-//        commandLine 'security',
-//            'find-generic-password',
-//            '-wl', keyLabel,
-//            '-a', System.properties['user.name']
-//        standardOutput = stdout
-//        ignoreExitValue true
-//    }
-//    return stdout.toString().strip()
-//}
-//
+// Removes the '.cxx' directory to prevent running
+// ninja clean when the 'clean' command is executed
+task removeCXX(type: Exec) {
+    commandLine 'rm', '-rf', '.cxx'
+}
+
+// Add cross-compilation targets to Rust toolchain
+task updateRustToolchain(type: Exec) {
+    commandLine "rustup", "target", "add",
+        "aarch64-linux-android",
+        "armv7-linux-androideabi",
+        "x86_64-linux-android"
+}
+
+def nativeRustLibraryDir = "../../native_rust_library"
+def nativeRustLibraryManifestPath = "${nativeRustLibraryDir}/Cargo.toml"
+def cxxBridgeBindingDir = "${nativeRustLibraryDir}/target/cxxbridge/native_rust_library/src"
+def cxxBridgeCommonDir = "${nativeRustLibraryDir}/target/cxxbridge/rust"
+
+task buildNativeRustLibrary(type: Exec) {
+  commandLine "cargo", "build", "--manifest-path", nativeRustLibraryManifestPath
+}
+
+task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
+  from(cxxBridgeBindingDir) {
+    include 'lib.rs.h'
+    include 'lib.rs.cc'
+  }
+  from(cxxBridgeCommonDir) {
+    include 'cxx.h'
+  }
+  into nativeRustLibraryDir
+}
+
+// Bind preBuild dependencies only if not 'clean' running
+if (!isCleanRunning()) {
+    afterEvaluate {
+        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, copyNativeRustLibraryFiles)
+    }
+}
+
+// Run removing CXX task before the clean execution
+beforeEvaluate {
+    clean.dependsOn(removeCXX)
+}
+
+// Detects are we running the 'clean' commands
+def isCleanRunning() {
+    gradle.startParameter.taskRequests.any {
+        !it.args.isEmpty() && it.args.first().startsWith('clean')
+    }
+}
+
+// Release keystore via macOS Keychain Access
+def getPassword(String keyLabel) {
+    if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
+        return System.getenv('ANDROID_SIGNING_PASSWORD')
+    }
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'security',
+            'find-generic-password',
+            '-wl', keyLabel,
+            '-a', System.properties['user.name']
+        standardOutput = stdout
+        ignoreExitValue true
+    }
+    return stdout.toString().strip()
+}
+
 // Returns all ABIs architectures for the 'bundleRelease'
 // or only from 'adb devices' if running debug release.
 def getBuildTypeABIs(nativeArchitectures) {
@@ -424,8 +424,6 @@ def getBuildTypeABIs(nativeArchitectures) {
     logger.info("Detected architectures to build: ${detectedAbis}")
     return detectedAbis
 }
-
-//def REACT_NATIVE_SO_DIR = "${REACT_NATIVE_AAR}/jni"
 
 android {
     buildFeatures {
@@ -506,27 +504,24 @@ android {
         pickFirst "**/libfbjni.so"
     }
 
-//    defaultConfig {
-//        externalNativeBuild {
-//            cmake {
-//                arguments "-DANDROID_STL=c++_shared",
-//                    "-DGLOG_VERSION=" + GLOG_VERSION,
-//                    "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
-//                    "-DNDK_VERSION=" + rootProject.ext.ndkVersion,
-//                    "-DREACT_NATIVE_SO_DIR=${REACT_NATIVE_SO_DIR}",
-//                    "-DBOOST_VERSION=${BOOST_VERSION}",
-//                    "-DCI=${System.getenv('CI')}"
-//                targets "comm_jni_module", "turbomodulejsijni"
-//            }
-//        }
-//    }
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared",
+                    "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
+                    "-DNDK_VERSION=" + rootProject.ext.ndkVersion,
+                    "-DCI=${System.getenv('CI')}"
+                targets "comm_jni_module", "turbomodulejsijni"
+            }
+        }
+    }
 
-//    externalNativeBuild {
-//        cmake {
-//            path "CMakeLists.txt"
-//            version "3.18.1"
-//        }
-//    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            version "3.18.1"
+        }
+    }
 
     packagingOptions {
         jniLibs {
@@ -597,6 +592,8 @@ dependencies {
     // https://stackoverflow.com/questions/64290141/android-studio-class-file-for-com-google-common-util-concurrent-listenablefuture
     // https://github.com/google/ExoPlayer/issues/7993
     implementation "com.google.guava:guava:31.0.1-android"
+
+    api "androidx.biometric:biometric:1.1.0"
 }
 
 apply plugin: 'com.google.gms.google-services'

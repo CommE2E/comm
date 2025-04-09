@@ -894,7 +894,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
                 onPress={clearPendingImage}
                 style={styles.retakeButton}
               >
-                <Icon name="ios-arrow-back" style={styles.retakeIcon} />
+                <Icon name="arrow-back" style={styles.retakeIcon} />
               </TouchableOpacity>
               <SendMediaButton
                 onPress={sendPhoto}
@@ -930,20 +930,20 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
             style={styles.switchCameraButton}
             ref={switchCameraButtonRef}
           >
-            <Icon name="ios-camera-reverse" style={styles.switchCameraIcon} />
+            <Icon name="camera-reverse" style={styles.switchCameraIcon} />
           </TouchableOpacity>
         );
       }
 
       let flashIcon;
       if (flashMode === RNCamera.Constants.FlashMode.on) {
-        flashIcon = <Icon name="ios-flash" style={styles.flashIcon} />;
+        flashIcon = <Icon name="flash" style={styles.flashIcon} />;
       } else if (flashMode === RNCamera.Constants.FlashMode.off) {
-        flashIcon = <Icon name="ios-flash-off" style={styles.flashIcon} />;
+        flashIcon = <Icon name="flash-off" style={styles.flashIcon} />;
       } else {
         flashIcon = (
           <>
-            <Icon name="ios-flash" style={styles.flashIcon} />
+            <Icon name="flash" style={styles.flashIcon} />
             <Text style={styles.flashIconAutoText}>A</Text>
           </>
         );

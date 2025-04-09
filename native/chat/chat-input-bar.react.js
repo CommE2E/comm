@@ -1067,7 +1067,7 @@ function ConnectedChatInputBarBase({
               disabled={trimMessage(text) === ''}
             >
               <Icon
-                name="md-send"
+                name="send"
                 size={25}
                 style={styles.sendIcon}
                 color={threadColor}
