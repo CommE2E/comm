@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@stylistic/eslint-plugin-js": "^1.5.3",
     "clang-format": "^1.8.0",
     "core-js": "^3.6.5",

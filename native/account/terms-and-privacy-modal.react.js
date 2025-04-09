@@ -83,9 +83,12 @@ function TermsAndPrivacyModal(props: Props): React.Node {
 
   const onBackPress = props.navigation.isFocused;
   React.useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      onBackPress,
+    );
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      backHandler.remove();
     };
   }, [onBackPress]);
 

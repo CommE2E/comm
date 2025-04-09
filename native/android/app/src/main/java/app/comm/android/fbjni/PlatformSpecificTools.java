@@ -20,7 +20,7 @@ public class PlatformSpecificTools {
 
   public static String getNotificationsCryptoAccountPath() {
     Context mainApplicationContext =
-        MainApplication.getMainApplicationContext();
+        MainApplication.Companion.getMainApplicationContext();
     if (mainApplicationContext == null) {
       throw new RuntimeException(
           "Failed to resolve notifications crypto account path - main application context not initialized.");
@@ -32,7 +32,7 @@ public class PlatformSpecificTools {
 
   public static String getBackupDirectoryPath() {
     Context mainApplicationContext =
-        MainApplication.getMainApplicationContext();
+        MainApplication.Companion.getMainApplicationContext();
     if (mainApplicationContext == null) {
       throw new RuntimeException(
           "Failed to resolve backup path - main application context not initialized.");

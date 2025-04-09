@@ -1,20 +1,14 @@
 package app.comm.android.fbjni;
 
+import android.util.Log;
+
+import app.comm.android.securestore.SecureStoreModule;
 import expo.modules.core.Promise;
-import expo.modules.core.arguments.MapArguments;
-import expo.modules.core.arguments.ReadableArguments;
-import expo.modules.securestore.SecureStoreModule;
 import java.util.function.Supplier;
 
 public class CommSecureStore {
-
   private static final CommSecureStore instance = new CommSecureStore();
   private SecureStoreModule secureStoreModule = null;
-  private final ReadableArguments readableArguments;
-
-  private CommSecureStore() {
-    this.readableArguments = new MapArguments();
-  }
 
   public static CommSecureStore getInstance() {
     return CommSecureStore.instance;
@@ -50,8 +44,8 @@ public class CommSecureStore {
         throw new RuntimeException("secure store set error: " + message);
       }
     };
-    this.secureStoreModule.setValueWithKeyAsync(
-        value, key, this.readableArguments, promise);
+    Log.w("SECURE_STORE", "setting key="+key+ " value= "+value);
+    this.secureStoreModule.setValueWithKeyAsync(key, value, promise);
   }
 
   private String internalGet(String key) {
@@ -61,6 +55,7 @@ public class CommSecureStore {
     Promise promise = new Promise() {
       @Override
       public void resolve(Object value) {
+        Log.w("SECURE_STORE", "resolve value="+value);
         result[0] = (String)value;
       }
 
@@ -69,10 +64,10 @@ public class CommSecureStore {
         throw new RuntimeException("secure store get error: " + message);
       }
     };
+    Log.w("SECURE_STORE", "getting key="+key);
     // The following call will resolve the promise before it returns
-    this.secureStoreModule.getValueWithKeyAsync(
-        key, this.readableArguments, promise);
-
+    this.secureStoreModule.getValueWithKeyAsync(key, promise);
+    Log.w("SECURE_STORE", "got key="+key+" result="+result[0]);
     return result[0];
   }
 

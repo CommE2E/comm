@@ -87,7 +87,7 @@ function InlineMultimedia(props: Props): React.Node {
   if (mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video') {
     playButton = (
       <View style={styles.centerContainer}>
-        <IonIcon name="ios-play-circle" style={styles.playButton} size={80} />
+        <IonIcon name="play-circle" style={styles.playButton} size={80} />
       </View>
     );
   }

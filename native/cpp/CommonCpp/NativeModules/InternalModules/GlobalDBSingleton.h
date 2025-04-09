@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Tools/WorkerThread.h"
+#include <ReactCommon/CallInvoker.h>
 #include <ReactCommon/TurboModuleUtils.h>
 
 #include <atomic>
