@@ -21,8 +21,10 @@ WorkerThread::WorkerThread(const std::string name)
 
 void WorkerThread::scheduleTask(const taskType task) {
   if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
-    throw std::runtime_error(
-        "Error scheduling task on the " + this->name + " worker thread");
+    std::string errorMessage{
+        "Error scheduling task on the " + this->name + " worker thread"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 }
 
