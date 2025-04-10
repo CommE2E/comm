@@ -28,6 +28,7 @@ import type {
   ThreadRolePermissionsBlob,
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 
 import { fetchThreadInfos } from './thread-fetchers.js';
@@ -107,7 +108,22 @@ function isThreadValid(
   permissions: ?ThreadPermissionsBlob,
   role: number,
   checks: $ReadOnlyArray<Check>,
+  predicate: 'and' | 'or' = 'and',
 ): boolean {
+  if (predicate === 'or') {
+    for (const check of checks) {
+      if (check.check === 'is_member') {
+        if (role > 0) {
+          return true;
+        }
+      } else if (check.check === 'permission') {
+        if (permissionLookup(permissions, check.permission)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
   for (const check of checks) {
     if (check.check === 'is_member') {
       if (role <= 0) {
@@ -136,6 +152,21 @@ async function checkThreads(
   return new Set(threadRows.map(row => row.threadID));
 }
 
+// Like checkThread, but "or" over the checks instead of "and"
+async function checkThreadsOr(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+  checks: $ReadOnlyArray<Check>,
+): Promise<Set<string>> {
+  if (viewer.isScriptViewer) {
+    // script viewers are all-powerful
+    return new Set(threadIDs);
+  }
+
+  const threadRows = await getValidThreads(viewer, threadIDs, checks, 'or');
+  return new Set(threadRows.map(row => row.threadID));
+}
+
 type PartialMembershipRow = {
   +threadID: string,
   +role: number,
@@ -145,7 +176,22 @@ async function getValidThreads(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,
   checks: $ReadOnlyArray<Check>,
+  predicate: 'and' | 'or' = 'and',
 ): Promise<PartialMembershipRow[]> {
+  if (
+    predicate === 'or' &&
+    checks.some(({ check }) => check !== 'permission')
+  ) {
+    // Handling non-permission checks for the "or" case is more complicated.
+    // We'd need to break the separation between isThreadValid and
+    // checkThreadsFrozen, since a a valid non-permission check in isThreadValid
+    // should cause checkThreadsFrozen to be ignored.
+    throw new ServerError(
+      'getValidThreads only supports the "or" predicate when provided only ' +
+        'permission checks',
+    );
+  }
+
   const query = SQL`
     SELECT thread AS threadID, permissions, role
     FROM memberships
@@ -161,7 +207,7 @@ async function getValidThreads(
 
   const [[result], disabledThreadIDs] = await Promise.all([
     dbQuery(query),
-    checkThreadsFrozen(viewer, permissionsToCheck, threadIDs),
+    checkThreadsFrozen(viewer, permissionsToCheck, threadIDs, predicate),
   ]);
 
   return result
@@ -172,7 +218,7 @@ async function getValidThreads(
     }))
     .filter(
       row =>
-        isThreadValid(row.permissions, row.role, checks) &&
+        isThreadValid(row.permissions, row.role, checks, predicate) &&
         !disabledThreadIDs.has(row.threadID),
     );
 }
@@ -181,12 +227,20 @@ async function checkThreadsFrozen(
   viewer: Viewer,
   permissionsToCheck: $ReadOnlyArray<ThreadPermission>,
   threadIDs: $ReadOnlyArray<string>,
+  predicate: 'and' | 'or' = 'and',
 ): Promise<$ReadOnlySet<string>> {
   const threadIDsWithDisabledPermissions = new Set<string>();
 
-  const permissionMightBeDisabled = permissionsToCheck.some(permission =>
-    permissionsDisabledByBlock.has(permission),
-  );
+  let permissionMightBeDisabled;
+  if (predicate === 'and') {
+    permissionMightBeDisabled = permissionsToCheck.some(permission =>
+      permissionsDisabledByBlock.has(permission),
+    );
+  } else {
+    permissionMightBeDisabled = permissionsToCheck.every(permission =>
+      permissionsDisabledByBlock.has(permission),
+    );
+  }
   if (!permissionMightBeDisabled) {
     return threadIDsWithDisabledPermissions;
   }
@@ -463,6 +517,7 @@ export {
   viewerIsMember,
   viewerIsMemberOfThreads,
   checkThreads,
+  checkThreadsOr,
   getValidThreads,
   checkThread,
   checkIfThreadIsBlocked,
