@@ -5,6 +5,7 @@
 #include "DatabaseManager.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/RustPromiseManager.h"
+#include "Logger.h"
 #include "NativeModuleUtils.h"
 #include "TerminateApp.h"
 
@@ -846,17 +847,23 @@ std::string parseOLMPrekey(std::string prekeyBlob) {
   try {
     parsedPrekey = folly::parseJson(prekeyBlob);
   } catch (const folly::json::parse_error &e) {
-    throw std::runtime_error(
-        "parsing prekey failed with: " + std::string(e.what()));
+    std::string errorMessage{
+        "parsing prekey failed with: " + std::string(e.what())};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   folly::dynamic innerObject = parsedPrekey["curve25519"];
   if (!innerObject.isObject()) {
-    throw std::runtime_error("parsing prekey failed: inner object malformed");
+    std::string errorMessage{"parsing prekey failed: inner object malformed"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   if (innerObject.values().begin() == innerObject.values().end()) {
-    throw std::runtime_error("parsing prekey failed: prekey missing");
+    std::string errorMessage{"parsing prekey failed: prekey missing"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   return parsedPrekey["curve25519"].values().begin()->asString();

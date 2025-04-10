@@ -1,5 +1,6 @@
 #include "NativeSQLiteConnectionManager.h"
 #include "AESCrypto.h"
+#include "Logger.h"
 #include "PlatformSpecificTools.h"
 
 #include <fstream>
@@ -51,7 +52,10 @@ void NativeSQLiteConnectionManager::persistLog(
       tempFilePath, std::ofstream::out | std::ofstream::trunc);
 
   if (!tempFile.is_open()) {
-    throw std::runtime_error("Failed to open temporary log file.");
+    std::string errorMessage{
+        "Failed to open temporary file when persisting log"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   std::vector<std::uint8_t> logBytes(patchsetPtr, patchsetPtr + patchsetSize);
@@ -70,9 +74,11 @@ void NativeSQLiteConnectionManager::persistLog(
   tempFile.close();
 
   if (std::rename(tempFilePath.c_str(), finalFilePath.c_str())) {
-    throw std::runtime_error(
-        "Failed to rename complete log file from temporary path to target "
-        "path.");
+    std::string errorMessage{
+        "Failed to rename complete log file from temporary path to target when "
+        "persisting log"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   std::vector<std::string> attachments =
@@ -89,7 +95,10 @@ void NativeSQLiteConnectionManager::persistLog(
       tempAttachmentsPath, std::ofstream::out | std::ofstream::trunc);
 
   if (!tempAttachmentsFile.is_open()) {
-    throw std::runtime_error("Failed to open temporary log attachments file.");
+    std::string errorMessage{
+        "Failed to open temporary log attachments file when persisting log"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   for (const auto &attachment : attachments) {
@@ -98,10 +107,11 @@ void NativeSQLiteConnectionManager::persistLog(
   tempAttachmentsFile.close();
 
   if (std::rename(tempAttachmentsPath.c_str(), finalAttachmentsPath.c_str())) {
-    throw std::runtime_error(
+    std::string errorMessage{
         "Failed to rename complete log attachments file from temporary path to "
-        "target "
-        "path.");
+        "target path when persisting log"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 }
 

@@ -60,9 +60,11 @@ SQLiteConnectionManager::~SQLiteConnectionManager() {
 void SQLiteConnectionManager::restoreFromBackupLog(
     const std::vector<std::uint8_t> &backupLog) {
   if (!dbConnection) {
-    throw std::runtime_error(
-        "Programmer error: attempt to restore from backup log but database "
-        "connection is not initialized.");
+    std::string errorMessage{
+        "Programmer error: attempt to restore from backup log, but database "
+        "connection is not initialized"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   static auto backupLogRestoreConflictHandler =

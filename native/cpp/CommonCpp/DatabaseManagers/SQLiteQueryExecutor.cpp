@@ -1061,6 +1061,7 @@ void set_encryption_key(
   if (error_set_key) {
     std::ostringstream error_message;
     error_message << "Failed to set encryption key: " << error_set_key;
+    Logger::log(error_message.str());
     throw std::system_error(
         ECANCELED, std::generic_category(), error_message.str());
   }
@@ -1124,7 +1125,10 @@ void attempt_delete_file(
     const std::string &file_path,
     const char *error_message) {
   if (std::remove(file_path.c_str())) {
-    throw std::system_error(errno, std::generic_category(), error_message);
+    std::string message =
+        std::string("Error when deleting file ") + error_message;
+    Logger::log(message);
+    throw std::system_error(errno, std::generic_category(), message);
   }
 }
 
@@ -1133,7 +1137,10 @@ void attempt_rename_file(
     const std::string &new_path,
     const char *error_message) {
   if (std::rename(old_path.c_str(), new_path.c_str())) {
-    throw std::system_error(errno, std::generic_category(), error_message);
+    std::string message =
+        std::string("Error when renaming file ") + error_message;
+    Logger::log(message);
+    throw std::system_error(errno, std::generic_category(), message);
   }
 }
 
@@ -1222,10 +1229,10 @@ void validate_encryption() {
       db, createEncryptedCopySQL.c_str(), nullptr, nullptr, &encryption_error);
 
   if (encryption_error) {
-    throw std::system_error(
-        ECANCELED,
-        std::generic_category(),
-        "Failed to create encrypted copy of the original database.");
+    std::string error{
+        "Failed to create encrypted copy of the original database"};
+    Logger::log(error);
+    throw std::system_error(ECANCELED, std::generic_category(), error);
   }
   sqlite3_close(db);
 
@@ -1714,6 +1721,7 @@ void SQLiteQueryExecutor::updateMessageSearchIndex(
     std::stringstream error_message;
     error_message << "Failed to bind key to SQL statement. Details: "
                   << sqlite3_errstr(bindResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -2459,9 +2467,11 @@ void SQLiteQueryExecutor::storeOlmPersistData(
     crypto::Persist persist) const {
 
   if (accountID != CONTENT_ACCOUNT_ID && persist.sessions.size() > 0) {
-    throw std::runtime_error(
+    std::string errorMessage{
         "Attempt to store notifications sessions in SQLite. Notifications "
-        "sessions must be stored in storage shared with NSE.");
+        "sessions must be stored in storage shared with NSE"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   std::string accountData =
@@ -2708,6 +2718,7 @@ std::vector<std::string> SQLiteQueryExecutor::resetOutboundP2PMessagesForDevice(
       error_message << "Failed to bind key to SQL statement. Details: "
                     << sqlite3_errstr(bindResult) << std::endl;
       sqlite3_finalize(preparedUpdateSQL);
+      Logger::log(error_message.str());
       throw std::runtime_error(error_message.str());
     }
   }
@@ -2905,6 +2916,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getRelatedMessagesForSearch(
       error_message << "Failed to bind key to SQL statement. Details: "
                     << sqlite3_errstr(bindResult) << std::endl;
       sqlite3_finalize(preparedSQL);
+      Logger::log(error_message.str());
       throw std::runtime_error(error_message.str());
     }
   }
@@ -3059,6 +3071,7 @@ void SQLiteQueryExecutor::clearSensitiveData() {
     std::ostringstream errorStream;
     errorStream << "Failed to delete database file. Details: "
                 << strerror(errno);
+    Logger::log(errorStream.str());
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
   SQLiteQueryExecutor::generateBackupDataKey();
@@ -3174,6 +3187,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
     error_message << "Failed to init backup for main compaction. Details: "
                   << sqlite3_errmsg(backupDB) << std::endl;
     sqlite3_close(backupDB);
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -3188,6 +3202,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
     std::stringstream error_message;
     error_message << "Failed to create database backup. Details: "
                   << sqlite3_errstr(backupResult);
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -3203,8 +3218,10 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 
   std::ofstream tempAttachmentsFile(tempAttachmentsPath);
   if (!tempAttachmentsFile.is_open()) {
-    throw std::runtime_error(
-        "Unable to create attachments file for backup id: " + backupID);
+    std::string errorMessage{
+        "Unable to create attachments file for backup id: " + backupID};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   std::string getAllBlobServiceMediaSQL =
@@ -3337,13 +3354,17 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     std::string maxVersion) const {
 
   if (!file_exists(mainCompactionPath)) {
-    throw std::runtime_error("Restore attempt but backup file does not exist.");
+    std::string errorMessage{"Restore attempt but backup file does not exist"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   sqlite3 *backupDB;
   if (!is_database_queryable(
           backupDB, true, mainCompactionPath, mainCompactionEncryptionKey)) {
-    throw std::runtime_error("Backup file or encryption key corrupted.");
+    std::string errorMessage{"Backup file or encryption key corrupted"};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   std::string plaintextBackupPath = mainCompactionPath + "_plaintext";
@@ -3376,6 +3397,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
                   << " that is newer than the max supported version "
                   << maxVersion << std::endl;
     sqlite3_close(backupDB);
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 

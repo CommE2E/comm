@@ -1,5 +1,7 @@
 #include "SQLiteStatementWrapper.h"
 
+#include "Logger.h"
+
 #include <sstream>
 #include <stdexcept>
 #include <system_error>
@@ -16,6 +18,7 @@ SQLiteStatementWrapper::SQLiteStatementWrapper(
     std::stringstream error_message;
     error_message << "Failed to prepare SQL statement. Details: "
                   << sqlite3_errstr(prepareSQLResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
   onLastStepFailureMessage = onLastStepFailureMessage;
@@ -28,6 +31,7 @@ SQLiteStatementWrapper::~SQLiteStatementWrapper() {
     error_message << onLastStepFailureMessage
                   << " Details: " << sqlite3_errstr(lastStepResult)
                   << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 }

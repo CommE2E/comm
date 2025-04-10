@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Logger.h"
 #include "SQLiteDataConverters.h"
 #include "SQLiteStatementWrapper.h"
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -33,6 +35,7 @@ getEntityByPrimaryKeyCommon(SQLiteStatementWrapper &preparedSQL) {
     std::stringstream error_message;
     error_message << "Failed to fetch row by primary key. Details: "
                   << sqlite3_errstr(stepResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -52,6 +55,7 @@ std::unique_ptr<T> getEntityByPrimaryKey(
     std::stringstream error_message;
     error_message << "Failed to bind primary key to SQL statement. Details: "
                   << sqlite3_errstr(bindResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -70,6 +74,7 @@ std::unique_ptr<T> getEntityByIntegerPrimaryKey(
     std::stringstream error_message;
     error_message << "Failed to bind primary key to SQL statement. Details: "
                   << sqlite3_errstr(bindResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
   return getEntityByPrimaryKeyCommon<T>(preparedSQL);
@@ -90,6 +95,7 @@ std::vector<T> getAllEntitiesByPrimaryKeys(
       error_message << "Failed to bind key to SQL statement. Details: "
                     << sqlite3_errstr(bindResult) << std::endl;
       sqlite3_finalize(preparedSQL);
+      Logger::log(error_message.str());
       throw std::runtime_error(error_message.str());
     }
   }
@@ -114,6 +120,7 @@ void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
     std::stringstream error_message;
     error_message << "Failed to bind entity to SQL statement. Details: "
                   << sqlite3_errstr(bindResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -139,6 +146,7 @@ void removeEntitiesByKeys(
       error_message << "Failed to bind key to SQL statement. Details: "
                     << sqlite3_errstr(bindResult) << std::endl;
       sqlite3_finalize(preparedSQL);
+      Logger::log(error_message.str());
       throw std::runtime_error(error_message.str());
     }
   }
@@ -161,6 +169,7 @@ void rekeyAllEntities(
     std::stringstream error_message;
     error_message << "Failed to bind key to SQL statement. Details: "
                   << sqlite3_errstr(bindResult) << std::endl;
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 
@@ -184,6 +193,7 @@ void executeQuery(sqlite3 *db, std::string querySQL) {
     std::stringstream error_message;
     error_message << "Failed to execute query. Details: " << err << std::endl;
     sqlite3_free(err);
+    Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
 }
