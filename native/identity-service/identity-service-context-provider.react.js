@@ -81,7 +81,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const deviceID = await getContentSigningKey();
     const userID = await userIDPromiseRef.current;
     if (!deviceID || !userID || !accessToken) {
-      throw new Error('Identity service client is not initialized');
+      throw new Error('Identity AuthMetadata is missing');
     }
     return { deviceID, userID, accessToken };
   }, [accessToken]);
