@@ -94,8 +94,7 @@ async function innerProcessMedia(
     mime = null,
     loop = false,
     resultReturned = false,
-    thumbHash = null,
-    uriAfterProcessing = null;
+    thumbHash = null;
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
@@ -184,6 +183,7 @@ async function innerProcessMedia(
     return await finish(fileInfoResult);
   }
   const { orientation, fileSize } = fileInfoResult;
+  // the upload logic (uploadURI) requires a filesystem uri
   ({ mime, mediaType, uri: uploadURI } = fileInfoResult);
   if (!mime || !mediaType) {
     return await finish({
@@ -193,9 +193,12 @@ async function innerProcessMedia(
     });
   }
 
+  let uriAfterProcessing = null;
   if (mediaType === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo(
       {
+        // we pass selection.uri, because for processing videos filesystem
+        // uris don't work due to permissions
         uri: selection.uri,
         mime,
         filename: selection.filename,
@@ -221,6 +224,7 @@ async function innerProcessMedia(
     } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
+      // we pass selection.uri for consistency with videos
       uri: selection.uri,
       dimensions,
       mime,
@@ -246,10 +250,14 @@ async function innerProcessMedia(
 
   const { steps: finalFileInfoSteps, result: finalFileInfoResult } =
     await fetchFileInfo(uriAfterProcessing, undefined, { mime: true });
+
   steps.push(...finalFileInfoSteps);
   if (!finalFileInfoResult.success) {
     return await finish(finalFileInfoResult);
   }
+
+  // the upload logic (uploadURI) requires a filesystem uri
+  uploadURI = finalFileInfoResult.uri;
 
   if (finalFileInfoResult.mime && finalFileInfoResult.mime !== mime) {
     return await finish({
