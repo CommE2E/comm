@@ -23,32 +23,6 @@ namespace comm {
 
 using namespace facebook::react;
 
-jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, jsi::String key) {
-  std::string keyStr = key.utf8(rt);
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::string draftStr;
-          try {
-            draftStr = DatabaseManager::getQueryExecutor().getDraft(keyStr);
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            jsi::String draft = jsi::String::createFromUtf8(innerRt, draftStr);
-            promise->resolve(std::move(draft));
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
 jsi::Value CommCoreModule::updateDraft(
     jsi::Runtime &rt,
     jsi::String key,
@@ -69,37 +43,6 @@ jsi::Value CommCoreModule::updateDraft(
               promise->reject(error);
             } else {
               promise->resolve(true);
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
-jsi::Value CommCoreModule::moveDraft(
-    jsi::Runtime &rt,
-    jsi::String oldKey,
-    jsi::String newKey) {
-  std::string oldKeyStr = oldKey.utf8(rt);
-  std::string newKeyStr = newKey.utf8(rt);
-
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error;
-          bool result = false;
-          try {
-            result = DatabaseManager::getQueryExecutor().moveDraft(
-                oldKeyStr, newKeyStr);
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(result);
             }
           });
         };
@@ -301,29 +244,6 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
 
                 promise->resolve(std::move(jsiClientDBStore));
               });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
-jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor().removeAllDrafts();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            promise->resolve(jsi::Value::undefined());
-          });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
@@ -2196,56 +2116,6 @@ double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {
   return this->codeVersion;
 }
 
-jsi::Value CommCoreModule::setNotifyToken(jsi::Runtime &rt, jsi::String token) {
-  auto notifyToken{token.utf8(rt)};
-  return createPromiseAsJSIValue(
-      rt,
-      [this,
-       notifyToken](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, notifyToken, promise]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor().setNotifyToken(notifyToken);
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
-jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, promise]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor().clearNotifyToken();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-};
-
 jsi::Value
 CommCoreModule::stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) {
   auto currentUserID{userID.utf8(rt)};
@@ -2457,60 +2327,8 @@ jsi::Value CommCoreModule::getCommServicesAuthMetadata(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::clearCommServicesAuthMetadata(jsi::Runtime &rt) {
-  return this->setCommServicesAuthMetadata(
-      rt,
-      jsi::String::createFromUtf8(rt, ""),
-      jsi::String::createFromUtf8(rt, ""),
-      jsi::String::createFromUtf8(rt, ""));
-}
-
 void CommCoreModule::innerClearCommServicesAuthMetadata() {
   return this->innerSetCommServicesAuthMetadata("", "", "");
-}
-
-jsi::Value CommCoreModule::setCommServicesAccessToken(
-    jsi::Runtime &rt,
-    jsi::String accessToken) {
-  auto accessTokenStr{accessToken.utf8(rt)};
-  return createPromiseAsJSIValue(
-      rt,
-      [this, accessTokenStr](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        std::string error;
-        try {
-          CommSecureStore::set(
-              CommSecureStore::commServicesAccessToken, accessTokenStr);
-        } catch (const std::exception &e) {
-          error = e.what();
-        }
-        this->jsInvoker_->invokeAsync([error, promise]() {
-          if (error.size()) {
-            promise->reject(error);
-          } else {
-            promise->resolve(jsi::Value::undefined());
-          }
-        });
-      });
-}
-
-jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        std::string error;
-        try {
-          CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
-        } catch (const std::exception &e) {
-          error = e.what();
-        }
-        this->jsInvoker_->invokeAsync([error, promise]() {
-          if (error.size()) {
-            promise->reject(error);
-          } else {
-            promise->resolve(jsi::Value::undefined());
-          }
-        });
-      });
 }
 
 void CommCoreModule::startBackupHandler(jsi::Runtime &rt) {

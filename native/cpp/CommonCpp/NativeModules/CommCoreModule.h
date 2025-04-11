@@ -62,13 +62,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       std::string backupSecret,
       std::string backupMessage);
 
-  virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
-  virtual jsi::Value
-  moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) override;
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) override;
-  virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
   virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override;
   virtual void processReportStoreOperationsSync(
       jsi::Runtime &rt,
@@ -188,9 +184,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void terminate(jsi::Runtime &rt) override;
   virtual double getCodeVersion(jsi::Runtime &rt) override;
   virtual jsi::Value
-  setNotifyToken(jsi::Runtime &rt, jsi::String token) override;
-  virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
-  virtual jsi::Value
   stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) override;
   virtual jsi::Value getSQLiteStampedUserID(jsi::Runtime &rt) override;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
@@ -208,12 +201,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       std::string deviceID,
       std::string accessToken);
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) override;
-  virtual jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) override;
   virtual void innerClearCommServicesAuthMetadata();
-  virtual jsi::Value setCommServicesAccessToken(
-      jsi::Runtime &rt,
-      jsi::String accessToken) override;
-  virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) override;
   virtual void startBackupHandler(jsi::Runtime &rt) override;
   virtual void stopBackupHandler(jsi::Runtime &rt) override;
   virtual jsi::Value

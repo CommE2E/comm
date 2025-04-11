@@ -36,11 +36,8 @@ type CommServicesAuthMetadata = {
 };
 
 interface Spec extends TurboModule {
-  +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
-  +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getClientDBStore: () => Promise<ClientDBStore>;
-  +removeAllDrafts: () => Promise<void>;
   +getInitialMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
@@ -143,8 +140,6 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +getCodeVersion: () => number;
   +terminate: () => void;
-  +setNotifyToken: (token: string) => Promise<void>;
-  +clearNotifyToken: () => Promise<void>;
   +stampSQLiteDBUserID: (userID: string) => Promise<void>;
   +getSQLiteStampedUserID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
@@ -157,9 +152,6 @@ interface Spec extends TurboModule {
     accessToken: string,
   ) => Promise<void>;
   +getCommServicesAuthMetadata: () => Promise<CommServicesAuthMetadata>;
-  +clearCommServicesAuthMetadata: () => Promise<void>;
-  +setCommServicesAccessToken: (accessToken: string) => Promise<void>;
-  +clearCommServicesAccessToken: () => Promise<void>;
   +startBackupHandler: () => void;
   +stopBackupHandler: () => void;
   +createUserKeysBackup: (backupSecret: string) => Promise<string>;

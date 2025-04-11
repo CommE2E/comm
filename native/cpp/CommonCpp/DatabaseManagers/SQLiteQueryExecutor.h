@@ -162,8 +162,6 @@ public:
       const override;
   void
   storeOlmPersistData(int accountID, crypto::Persist persist) const override;
-  void setNotifyToken(std::string token) const override;
-  void clearNotifyToken() const override;
   void stampSQLiteDBUserID(std::string userID) const override;
   std::string getSQLiteStampedUserID() const override;
   void setMetadata(std::string entryName, std::string data) const override;
