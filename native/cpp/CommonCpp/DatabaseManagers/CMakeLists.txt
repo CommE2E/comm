@@ -8,6 +8,7 @@ set(DBM_HDRS
   "DatabaseQueryExecutor.h"
   "SQLiteQueryExecutor.h"
   "SQLiteUtils.h"
+  "SQLiteSchema.h"
   "SQLiteConnectionManager.h"
   "NativeSQLiteConnectionManager.h"
   "entities/SQLiteStatementWrapper.h"
@@ -25,6 +26,9 @@ set(DBM_HDRS
 set(DBM_SRCS
   "SQLiteQueryExecutor.cpp"
   "SQLiteUtils.cpp"
+  "SQLiteSchema.cpp"
+  "SQLiteSchemaMigrations.cpp"
+  "SQLiteSchemaLegacyMigrations.cpp"
   "SQLiteConnectionManager.cpp"
   "NativeSQLiteConnectionManager.cpp"
   "entities/SQLiteDataConverters.cpp"
