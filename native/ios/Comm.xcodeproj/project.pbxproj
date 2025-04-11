@@ -51,6 +51,9 @@
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
+		8E1805562DA954B600B772A4 /* SQLiteSchema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */; };
+		8E1805592DA95E7C00B772A4 /* SQLiteSchemaLegacyMigrations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805572DA95E7C00B772A4 /* SQLiteSchemaLegacyMigrations.cpp */; };
+		8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */; };
 		8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */; };
 		8E3994552B039A7C00D5E950 /* UserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3994532B039A7C00D5E950 /* UserStore.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
@@ -245,6 +248,10 @@
 		8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lib.rs.cc; sourceTree = "<group>"; };
 		8BC9568329FC49920060AE4A /* JSIRust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIRust.h; sourceTree = "<group>"; };
 		8BC9568429FC49B00060AE4A /* JSIRust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSIRust.cpp; sourceTree = "<group>"; };
+		8E1805542DA954B600B772A4 /* SQLiteSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SQLiteSchema.h; sourceTree = "<group>"; };
+		8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteSchema.cpp; sourceTree = "<group>"; };
+		8E1805572DA95E7C00B772A4 /* SQLiteSchemaLegacyMigrations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteSchemaLegacyMigrations.cpp; sourceTree = "<group>"; };
+		8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteSchemaMigrations.cpp; sourceTree = "<group>"; };
 		8E2CC2562B5C999A000C94D6 /* KeyserverStoreOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyserverStoreOperations.h; sourceTree = "<group>"; };
 		8E2CC2572B5C99B0000C94D6 /* KeyserverStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyserverStore.h; path = PersistentStorageUtilities/DataStores/KeyserverStore.h; sourceTree = "<group>"; };
 		8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KeyserverStore.cpp; path = PersistentStorageUtilities/DataStores/KeyserverStore.cpp; sourceTree = "<group>"; };
@@ -543,6 +550,10 @@
 		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
+				8E1805572DA95E7C00B772A4 /* SQLiteSchemaLegacyMigrations.cpp */,
+				8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */,
+				8E1805542DA954B600B772A4 /* SQLiteSchema.h */,
+				8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */,
 				8EF29DA82DA52AE7003D677E /* SQLiteUtils.h */,
 				8EF29DA92DA52AE7003D677E /* SQLiteUtils.cpp */,
 				CB3CCB002B7246F400793640 /* NativeSQLiteConnectionManager.cpp */,
@@ -1204,6 +1215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E1805562DA954B600B772A4 /* SQLiteSchema.cpp in Sources */,
 				CBAB638A2BFCCA9B003B089F /* EntryStore.cpp in Sources */,
 				CB3CCB012B72470700793640 /* NativeSQLiteConnectionManager.cpp in Sources */,
 				CBA5F8852B6979F7005BE700 /* SQLiteConnectionManager.cpp in Sources */,
@@ -1267,6 +1279,8 @@
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */,
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,
+				8E1805592DA95E7C00B772A4 /* SQLiteSchemaLegacyMigrations.cpp in Sources */,
+				8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */,
 				DFD5E77E2B05264000C32B6A /* AESCrypto.mm in Sources */,
 				8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

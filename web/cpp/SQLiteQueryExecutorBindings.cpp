@@ -1,4 +1,7 @@
 #include "SQLiteQueryExecutor.cpp"
+#include "SQLiteSchema.cpp"
+#include "SQLiteSchemaLegacyMigrations.cpp"
+#include "SQLiteSchemaMigrations.cpp"
 #include "SQLiteUtils.cpp"
 #include "entities/InboundP2PMessage.h"
 #include "entities/Nullable.h"
