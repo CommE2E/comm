@@ -94,7 +94,8 @@ async function innerProcessMedia(
     mime = null,
     loop = false,
     resultReturned = false,
-    thumbHash = null;
+    thumbHash = null,
+    uriAfterProcessing = null;
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
@@ -183,7 +184,7 @@ async function innerProcessMedia(
     return await finish(fileInfoResult);
   }
   const { orientation, fileSize } = fileInfoResult;
-  ({ mime, mediaType } = fileInfoResult);
+  ({ mime, mediaType, uri: uploadURI } = fileInfoResult);
   if (!mime || !mediaType) {
     return await finish({
       success: false,
@@ -211,7 +212,7 @@ async function innerProcessMedia(
       return await finish(videoResult);
     }
     ({
-      uri: uploadURI,
+      uri: uriAfterProcessing,
       thumbnailURI: uploadThumbnailURI,
       mime,
       dimensions,
@@ -230,12 +231,12 @@ async function innerProcessMedia(
     if (!imageResult.success) {
       return await finish(imageResult);
     }
-    ({ uri: uploadURI, mime, dimensions, thumbHash } = imageResult);
+    ({ uri: uriAfterProcessing, mime, dimensions, thumbHash } = imageResult);
   } else {
     invariant(false, `unknown mediaType ${mediaType}`);
   }
 
-  if (uploadURI === selection.uri) {
+  if (uriAfterProcessing === selection.uri) {
     return await finish();
   }
 
@@ -244,7 +245,7 @@ async function innerProcessMedia(
   }
 
   const { steps: finalFileInfoSteps, result: finalFileInfoResult } =
-    await fetchFileInfo(uploadURI, undefined, { mime: true });
+    await fetchFileInfo(uriAfterProcessing, undefined, { mime: true });
   steps.push(...finalFileInfoSteps);
   if (!finalFileInfoResult.success) {
     return await finish(finalFileInfoResult);
