@@ -9,6 +9,38 @@
 
 namespace comm {
 
+int SQLiteUtils::getDatabaseVersion(sqlite3 *db) {
+  sqlite3_stmt *user_version_stmt;
+  sqlite3_prepare_v2(
+      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
+  sqlite3_step(user_version_stmt);
+
+  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
+  sqlite3_finalize(user_version_stmt);
+  return current_user_version;
+}
+
+bool SQLiteUtils::setDatabaseVersion(sqlite3 *db, int db_version) {
+  std::stringstream update_version;
+  update_version << "PRAGMA user_version=" << db_version << ";";
+  auto update_version_str = update_version.str();
+
+  char *error;
+  sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream errorStream;
+  errorStream << "Error setting database version to " << db_version << ": "
+              << error;
+  Logger::log(errorStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 void SQLiteUtils::setEncryptionKey(
     sqlite3 *db,
     const std::string &encryptionKey) {

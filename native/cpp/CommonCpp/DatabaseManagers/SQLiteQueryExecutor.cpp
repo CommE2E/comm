@@ -1049,38 +1049,6 @@ bool create_schema(sqlite3 *db) {
   return false;
 }
 
-int get_database_version(sqlite3 *db) {
-  sqlite3_stmt *user_version_stmt;
-  sqlite3_prepare_v2(
-      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
-  sqlite3_step(user_version_stmt);
-
-  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
-  sqlite3_finalize(user_version_stmt);
-  return current_user_version;
-}
-
-bool set_database_version(sqlite3 *db, int db_version) {
-  std::stringstream update_version;
-  update_version << "PRAGMA user_version=" << db_version << ";";
-  auto update_version_str = update_version.str();
-
-  char *error;
-  sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, &error);
-
-  if (!error) {
-    return true;
-  }
-
-  std::ostringstream errorStream;
-  errorStream << "Error setting database version to " << db_version << ": "
-              << error;
-  Logger::log(errorStream.str());
-
-  sqlite3_free(error);
-  return false;
-}
-
 // We don't want to run `PRAGMA key = ...;`
 // on main web database. The context is here:
 // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
@@ -1146,7 +1114,7 @@ MigrationResult applyMigrationWithTransaction(
     const MigrateFunction &migrate,
     int index) {
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto db_version = get_database_version(db);
+  auto db_version = SQLiteUtils::getDatabaseVersion(db);
   if (index <= db_version) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return MigrationResult::NOT_APPLIED;
@@ -1156,7 +1124,7 @@ MigrationResult applyMigrationWithTransaction(
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return MigrationResult::FAILURE;
   }
-  auto database_version_set = set_database_version(db, index);
+  auto database_version_set = SQLiteUtils::setDatabaseVersion(db, index);
   if (!database_version_set) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return MigrationResult::FAILURE;
@@ -1169,7 +1137,7 @@ MigrationResult applyMigrationWithoutTransaction(
     sqlite3 *db,
     const MigrateFunction &migrate,
     int index) {
-  auto db_version = get_database_version(db);
+  auto db_version = SQLiteUtils::getDatabaseVersion(db);
   if (index <= db_version) {
     return MigrationResult::NOT_APPLIED;
   }
@@ -1178,12 +1146,12 @@ MigrationResult applyMigrationWithoutTransaction(
     return MigrationResult::FAILURE;
   }
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto inner_db_version = get_database_version(db);
+  auto inner_db_version = SQLiteUtils::getDatabaseVersion(db);
   if (index <= inner_db_version) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return MigrationResult::NOT_APPLIED;
   }
-  auto database_version_set = set_database_version(db, index);
+  auto database_version_set = SQLiteUtils::setDatabaseVersion(db, index);
   if (!database_version_set) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return MigrationResult::FAILURE;
@@ -1194,14 +1162,14 @@ MigrationResult applyMigrationWithoutTransaction(
 
 bool set_up_database(sqlite3 *db) {
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto db_version = get_database_version(db);
+  auto db_version = SQLiteUtils::getDatabaseVersion(db);
   auto latest_version = migrations.back().first;
   if (db_version == latest_version) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return true;
   }
   if (db_version != 0 || !create_schema(db) ||
-      !set_database_version(db, latest_version)) {
+      !SQLiteUtils::setDatabaseVersion(db, latest_version)) {
     sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     return false;
   }
@@ -1227,7 +1195,7 @@ void SQLiteQueryExecutor::migrate() {
           << std::endl;
   Logger::log(db_path.str());
 
-  auto db_version = get_database_version(db);
+  auto db_version = SQLiteUtils::getDatabaseVersion(db);
   std::stringstream version_msg;
   version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
