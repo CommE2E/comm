@@ -20,11 +20,8 @@ protected:
   CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
 
 public:
-  virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) = 0;
   virtual jsi::Value updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) = 0;
-  virtual jsi::Value moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) = 0;
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
-  virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
   virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) = 0;
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
@@ -59,8 +56,6 @@ public:
   virtual jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
-  virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
-  virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
   virtual jsi::Value stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) = 0;
   virtual jsi::Value getSQLiteStampedUserID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
@@ -69,9 +64,6 @@ public:
   virtual jsi::Value generateRandomString(jsi::Runtime &rt, double size) = 0;
   virtual jsi::Value setCommServicesAuthMetadata(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
-  virtual jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
-  virtual jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) = 0;
-  virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) = 0;
   virtual void startBackupHandler(jsi::Runtime &rt) = 0;
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createUserKeysBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
@@ -119,14 +111,6 @@ private:
     Delegate(T *instance, std::shared_ptr<CallInvoker> jsInvoker) :
       CommCoreModuleSchemaCxxSpecJSI(std::move(jsInvoker)), instance_(instance) {}
 
-    jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override {
-      static_assert(
-          bridging::getParameterCount(&T::getDraft) == 2,
-          "Expected getDraft(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::getDraft, jsInvoker_, instance_, std::move(key));
-    }
     jsi::Value updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override {
       static_assert(
           bridging::getParameterCount(&T::updateDraft) == 3,
@@ -135,14 +119,6 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDraft, jsInvoker_, instance_, std::move(key), std::move(text));
     }
-    jsi::Value moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) override {
-      static_assert(
-          bridging::getParameterCount(&T::moveDraft) == 3,
-          "Expected moveDraft(...) to have 3 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::moveDraft, jsInvoker_, instance_, std::move(oldKey), std::move(newKey));
-    }
     jsi::Value getClientDBStore(jsi::Runtime &rt) override {
       static_assert(
           bridging::getParameterCount(&T::getClientDBStore) == 1,
@@ -150,14 +126,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getClientDBStore, jsInvoker_, instance_);
-    }
-    jsi::Value removeAllDrafts(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::removeAllDrafts) == 1,
-          "Expected removeAllDrafts(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::removeAllDrafts, jsInvoker_, instance_);
     }
     jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override {
       static_assert(
@@ -431,22 +399,6 @@ private:
       return bridging::callFromJs<void>(
           rt, &T::terminate, jsInvoker_, instance_);
     }
-    jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) override {
-      static_assert(
-          bridging::getParameterCount(&T::setNotifyToken) == 2,
-          "Expected setNotifyToken(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::setNotifyToken, jsInvoker_, instance_, std::move(token));
-    }
-    jsi::Value clearNotifyToken(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::clearNotifyToken) == 1,
-          "Expected clearNotifyToken(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::clearNotifyToken, jsInvoker_, instance_);
-    }
     jsi::Value stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) override {
       static_assert(
           bridging::getParameterCount(&T::stampSQLiteDBUserID) == 2,
@@ -510,30 +462,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getCommServicesAuthMetadata, jsInvoker_, instance_);
-    }
-    jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::clearCommServicesAuthMetadata) == 1,
-          "Expected clearCommServicesAuthMetadata(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::clearCommServicesAuthMetadata, jsInvoker_, instance_);
-    }
-    jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) override {
-      static_assert(
-          bridging::getParameterCount(&T::setCommServicesAccessToken) == 2,
-          "Expected setCommServicesAccessToken(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::setCommServicesAccessToken, jsInvoker_, instance_, std::move(accessToken));
-    }
-    jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::clearCommServicesAccessToken) == 1,
-          "Expected clearCommServicesAccessToken(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::clearCommServicesAccessToken, jsInvoker_, instance_);
     }
     void startBackupHandler(jsi::Runtime &rt) override {
       static_assert(

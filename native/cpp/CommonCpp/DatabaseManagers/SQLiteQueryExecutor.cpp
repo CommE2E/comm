@@ -2333,14 +2333,6 @@ void SQLiteQueryExecutor::storeOlmPersistData(
   }
 }
 
-void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
-  this->setMetadata("notify_token", token);
-}
-
-void SQLiteQueryExecutor::clearNotifyToken() const {
-  this->clearMetadata("notify_token");
-}
-
 void SQLiteQueryExecutor::stampSQLiteDBUserID(std::string userID) const {
   this->setMetadata("current_user_id", userID);
 }
