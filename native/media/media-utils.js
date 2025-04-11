@@ -246,10 +246,13 @@ async function innerProcessMedia(
 
   const { steps: finalFileInfoSteps, result: finalFileInfoResult } =
     await fetchFileInfo(uriAfterProcessing, undefined, { mime: true });
+
   steps.push(...finalFileInfoSteps);
   if (!finalFileInfoResult.success) {
     return await finish(finalFileInfoResult);
   }
+
+  uploadURI = finalFileInfoResult.uri;
 
   if (finalFileInfoResult.mime && finalFileInfoResult.mime !== mime) {
     return await finish({
