@@ -151,7 +151,7 @@ message OutboundKeyInfo {
 
 message KeyserverKeysResponse {
   // this was never used, we can reuse this field again
-  // when min supported version is NEXT_CODE_VERSION
+  // when min supported version is 161 on web / 483 on mobile
   reserved 3;
   reserved "primary_device_identity_info";
 
