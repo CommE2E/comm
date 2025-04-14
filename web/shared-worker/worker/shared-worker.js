@@ -413,6 +413,15 @@ async function processAppRequest(
       type: workerResponseMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
       messageIDs,
     };
+  } else if (message.type === workerRequestMessageTypes.RUN_MIGRATION) {
+    const migrationResult = sqliteQueryExecutor.runMigration(
+      message.migrationIdentifier,
+    );
+
+    return {
+      type: workerResponseMessageTypes.RUN_MIGRATION,
+      result: migrationResult,
+    };
   }
 
   persistNeeded = true;

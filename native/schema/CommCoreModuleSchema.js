@@ -227,6 +227,7 @@ interface Spec extends TurboModule {
     backupSecret: string,
   ) => Promise<string>;
   +getDMOperationsByType: (type: string) => Promise<Array<ClientDBDMOperation>>;
+  +runMigration: (migrationIdentifier: number) => Promise<boolean>;
 }
 
 export interface CoreModuleSpec extends Spec {

@@ -3376,4 +3376,31 @@ CommCoreModule::getDMOperationsByType(jsi::Runtime &rt, jsi::String type) {
       });
 }
 
+jsi::Value
+CommCoreModule::runMigration(jsi::Runtime &rt, double migrationIdentifier) {
+  int migrationIdentifierInt = std::lround(migrationIdentifier);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          bool result;
+          try {
+            result = DatabaseManager::getQueryExecutor().runMigration(
+                migrationIdentifierInt);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(result);
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm

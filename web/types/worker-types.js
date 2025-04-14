@@ -52,6 +52,7 @@ export const workerRequestMessageTypes = Object.freeze({
   FETCH_MESSAGES: 25,
   GET_INBOUND_P2P_MESSAGES_BY_ID: 26,
   GET_DM_OPERATIONS_BY_TYPE: 27,
+  RUN_MIGRATION: 28,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -65,6 +66,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.MARK_OUTBOUND_P2P_MESSAGE_AS_SENT,
   workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGE,
   workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
+  workerRequestMessageTypes.RUN_MIGRATION,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -238,6 +240,11 @@ export type GetDMOperationsByTypeRequestMessage = {
   +operationType: string,
 };
 
+export type RunMigrationRequestMessage = {
+  +type: 28,
+  +migrationIdentifier: number,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -266,7 +273,8 @@ export type WorkerRequestMessage =
   | ResetOutboundP2PMessagesRequestMessage
   | FetchMessagesRequestMessage
   | GetInboundP2PMessagesByIDRequestMessage
-  | GetDMOperationsByTypeRequestMessage;
+  | GetDMOperationsByTypeRequestMessage
+  | RunMigrationRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -286,6 +294,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_MESSAGES: 8,
   RESET_OUTBOUND_P2P_MESSAGES: 9,
   DM_OPERATIONS: 10,
+  RUN_MIGRATION: 11,
 });
 
 export type PongWorkerResponseMessage = {
@@ -343,6 +352,11 @@ export type DMOperationsResponseMessage = {
   +operations: $ReadOnlyArray<ClientDBDMOperation>,
 };
 
+export type RunMigrationResponseMessage = {
+  +type: 11,
+  +result: boolean,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -354,7 +368,8 @@ export type WorkerResponseMessage =
   | GetOutboundP2PMessagesResponseMessage
   | GetMessagesResponse
   | ResetOutboundP2PMessagesResponseMessage
-  | DMOperationsResponseMessage;
+  | DMOperationsResponseMessage
+  | RunMigrationResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
