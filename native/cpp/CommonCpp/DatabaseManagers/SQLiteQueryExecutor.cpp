@@ -1640,6 +1640,11 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
       SQLiteQueryExecutor::getConnection(), query, types);
 }
 
+bool SQLiteQueryExecutor::runMigration(int migrationIdentifier) const {
+  return SQLiteSchema::migrate(
+      SQLiteQueryExecutor::getConnection(), migrationIdentifier);
+}
+
 std::vector<std::string>
 SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
   std::vector<std::string> tableNames;

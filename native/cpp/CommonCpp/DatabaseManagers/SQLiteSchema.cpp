@@ -342,4 +342,42 @@ void SQLiteSchema::legacyMigrate(sqlite3 *db) {
   }
 }
 
+bool SQLiteSchema::migrate(
+    sqlite3 *db,
+    SQLiteMigrationIdentifier migrationIdentifier) {
+  for (const auto &[idx, migration] : migrations) {
+    if (idx != migrationIdentifier) {
+      continue;
+    };
+
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
+
+    MigrationResult migrationResult;
+    if (shouldBeInTransaction) {
+      migrationResult = applyMigrationWithTransaction(db, applyMigration, idx);
+    } else {
+      migrationResult =
+          applyMigrationWithoutTransaction(db, applyMigration, idx);
+    }
+
+    if (migrationResult == MigrationResult::NOT_APPLIED) {
+      return true;
+    }
+
+    std::stringstream migration_msg;
+    if (migrationResult == MigrationResult::FAILURE) {
+      migration_msg << "migration " << idx << " failed." << std::endl;
+      Logger::log(migration_msg.str());
+      return false;
+    }
+    if (migrationResult == MigrationResult::SUCCESS) {
+      migration_msg << "migration " << idx << " succeeded." << std::endl;
+      Logger::log(migration_msg.str());
+      return true;
+    }
+  }
+
+  return false;
+}
+
 } // namespace comm

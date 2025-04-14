@@ -197,6 +197,7 @@ public:
   virtual std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const = 0;
   virtual ~DatabaseQueryExecutor() = default;
+  virtual bool runMigration(int migrationIdentifier) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;

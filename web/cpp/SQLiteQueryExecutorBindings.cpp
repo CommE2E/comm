@@ -345,7 +345,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "updateMessageSearchIndex",
           &SQLiteQueryExecutor::updateMessageSearchIndex)
       .function("searchMessages", &SQLiteQueryExecutor::searchMessagesWeb)
-      .function("fetchMessagesWeb", &SQLiteQueryExecutor::fetchMessagesWeb);
+      .function("fetchMessagesWeb", &SQLiteQueryExecutor::fetchMessagesWeb)
+      .function("runMigration", &SQLiteQueryExecutor::runMigration);
 }
 
 } // namespace comm

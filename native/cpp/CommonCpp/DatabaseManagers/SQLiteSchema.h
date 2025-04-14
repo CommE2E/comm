@@ -11,11 +11,14 @@ enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
 typedef bool ShouldBeInTransaction;
 
+typedef unsigned int SQLiteMigrationIdentifier;
+
 typedef std::function<bool(sqlite3 *)> MigrateFunction;
 
 typedef std::pair<MigrateFunction, ShouldBeInTransaction> SQLiteMigration;
 
-typedef std::vector<std::pair<unsigned int, SQLiteMigration>> SQLiteMigrations;
+typedef std::vector<std::pair<SQLiteMigrationIdentifier, SQLiteMigration>>
+    SQLiteMigrations;
 
 class SQLiteSchema {
 private:
@@ -55,6 +58,9 @@ public:
   static bool setupDatabase(sqlite3 *db);
   // Method to run legacy migrations.
   static void legacyMigrate(sqlite3 *db);
+  // Method to run specific migration.
+  static bool
+  migrate(sqlite3 *db, SQLiteMigrationIdentifier migrationIdentifier);
 };
 
 } // namespace comm

@@ -215,6 +215,7 @@ public:
   std::vector<DMOperation> getDMOperations() const override;
   std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const override;
+  bool runMigration(int migrationIdentifier) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;

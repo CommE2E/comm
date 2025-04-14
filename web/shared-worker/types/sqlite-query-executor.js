@@ -222,6 +222,8 @@ declare export class SQLiteQueryExecutor {
     messageIDCursor: ?string,
   ): $ReadOnlyArray<MessageEntity>;
 
+  runMigration(migrationIdentifier: number): boolean;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
