@@ -217,6 +217,21 @@ const sqliteAPI: SQLiteAPI = {
     }
   },
 
+  async runSQLiteMigration(migrationIdentifier: number): Promise<void> {
+    const sharedWorker = await getCommSharedWorker();
+
+    const result = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.RUN_MIGRATION,
+      migrationIdentifier,
+    });
+
+    if (!result) {
+      const message = `Running migration ${migrationIdentifier} failed`;
+      console.error(message);
+      throw new Error(message);
+    }
+  },
+
   //backup
   async restoreUserData(
     qrAuthBackupData: QRAuthBackupData,

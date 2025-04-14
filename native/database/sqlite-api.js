@@ -65,6 +65,14 @@ const sqliteAPI: SQLiteAPI = {
       commCoreModule.terminate();
     }
   },
+  async runSQLiteMigration(migrationIdentifier: number): Promise<void> {
+    const result = await commCoreModule.runMigration(migrationIdentifier);
+    if (!result) {
+      const message = `Running migration ${migrationIdentifier} failed`;
+      console.error(message);
+      throw new Error(message);
+    }
+  },
 
   //backup
   async restoreUserData(qrAuthBackupData: QRAuthBackupData): Promise<void> {
