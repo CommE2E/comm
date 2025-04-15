@@ -25,7 +25,6 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
 import {
   createDefaultHTTPRequestHeaders,
-  usingCommServicesAccessToken,
   httpResponseIsInvalidCSAT,
 } from 'lib/utils/services-utils.js';
 
@@ -424,12 +423,10 @@ function useFetchAndDecryptMedia(): (
   return React.useCallback(
     async (blobURI, encryptionKey, options) => {
       let authMetadata;
-      if (usingCommServicesAccessToken) {
-        try {
-          authMetadata = await getAuthMetadata();
-        } catch (err) {
-          console.warn('Failed to get auth metadata:', err);
-        }
+      try {
+        authMetadata = await getAuthMetadata();
+      } catch (err) {
+        console.warn('Failed to get auth metadata:', err);
       }
       const output = await fetchAndDecryptMedia(
         blobURI,

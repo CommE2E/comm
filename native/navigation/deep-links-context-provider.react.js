@@ -26,7 +26,6 @@ import type { SetState } from 'lib/types/hook-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   errorMessageIsInvalidCSAT,
-  usingCommServicesAccessToken,
   useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
@@ -130,10 +129,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
       }
 
       if (parsedData.type === 'invite-link') {
-        let authMetadata;
-        if (usingCommServicesAccessToken) {
-          authMetadata = await getAuthMetadata();
-        }
+        const authMetadata = await getAuthMetadata();
 
         const { secret } = parsedData.data;
         inviteLinkSecret.current = secret;
