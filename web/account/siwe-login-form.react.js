@@ -6,11 +6,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 
-import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  legacySiweAuth,
   legacySiweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import {
@@ -22,17 +20,10 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import stores from 'lib/facts/stores.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
-import { legacyLogInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type {
-  LegacyLogInStartingPayload,
-  LegacyLogInExtraInfo,
-} from 'lib/types/account-types.js';
 import { SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import {
   createSIWEMessage,
   getSIWEStatementForPublicKey,
@@ -81,8 +72,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const siweAuthLoadingStatus = useSelector(
     legacySiweAuthLoadingStatusSelector,
   );
-  const legacySiweAuthCall = useLegacyAshoatKeyserverCall(legacySiweAuth);
-  const legacyLogInExtraInfo = useSelector(legacyLogInExtraInfoSelector);
 
   const walletLogIn = useWalletLogIn();
 
@@ -97,75 +86,19 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     if (!siweNonceShouldBeFetched) {
       return;
     }
-    if (usingCommServicesAccessToken) {
-      void dispatchActionPromise(
-        identityGenerateNonceActionTypes,
-        (async () => {
-          const response = await identityGenerateNonce();
-          setSIWENonce(response);
-        })(),
-      );
-    } else {
-      void dispatchActionPromise(
-        getSIWENonceActionTypes,
-        (async () => {
-          const response = await legacyGetSIWENonceCall();
-          setSIWENonce(response);
-        })(),
-      );
-    }
+    void dispatchActionPromise(
+      identityGenerateNonceActionTypes,
+      (async () => {
+        const response = await identityGenerateNonce();
+        setSIWENonce(response);
+      })(),
+    );
   }, [
     dispatchActionPromise,
     identityGenerateNonce,
     legacyGetSIWENonceCall,
     siweNonceShouldBeFetched,
   ]);
-
-  const callLegacySIWEAuthEndpoint = React.useCallback(
-    async (
-      message: string,
-      signature: string,
-      extraInfo: LegacyLogInExtraInfo,
-    ) => {
-      await olmAPI.initializeCryptoAccount();
-      const userPublicKey = await olmAPI.getUserPublicKey();
-      try {
-        return await legacySiweAuthCall({
-          message,
-          signature,
-          signedIdentityKeysBlob: {
-            payload: userPublicKey.blobPayload,
-            signature: userPublicKey.signature,
-          },
-          doNotRegister: true,
-          ...extraInfo,
-        });
-      } catch (e) {
-        const messageForException = getMessageForException(e);
-        if (messageForException === 'account_does_not_exist') {
-          setError('account_does_not_exist');
-        } else if (messageForException === 'client_version_unsupported') {
-          setError('client_version_unsupported');
-        }
-        throw e;
-      }
-    },
-    [legacySiweAuthCall],
-  );
-
-  const attemptLegacySIWEAuth = React.useCallback(
-    (message: string, signature: string) => {
-      return dispatchActionPromise(
-        legacySiweAuthActionTypes,
-        callLegacySIWEAuthEndpoint(message, signature, legacyLogInExtraInfo),
-        undefined,
-        ({
-          calendarQuery: legacyLogInExtraInfo.calendarQuery,
-        }: LegacyLogInStartingPayload),
-      );
-    },
-    [callLegacySIWEAuthEndpoint, dispatchActionPromise, legacyLogInExtraInfo],
-  );
 
   const attemptWalletLogIn = React.useCallback(
     async (
@@ -193,7 +126,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [walletLogIn],
   );
 
-  const dispatch = useDispatch();
   const onSignInButtonClick = React.useCallback(async () => {
     invariant(signer, 'signer must be present during SIWE attempt');
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
@@ -214,25 +146,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       // should return immediately
       return;
     }
-    if (usingCommServicesAccessToken) {
-      await attemptWalletLogIn(address, message, signature);
-    } else {
-      await attemptLegacySIWEAuth(message, signature);
-      dispatch({
-        type: setDataLoadedActionType,
-        payload: {
-          dataLoaded: true,
-        },
-      });
-    }
-  }, [
-    address,
-    attemptLegacySIWEAuth,
-    attemptWalletLogIn,
-    signer,
-    siweNonce,
-    dispatch,
-  ]);
+    await attemptWalletLogIn(address, message, signature);
+  }, [address, attemptWalletLogIn, signer, siweNonce]);
 
   const { cancelSIWEAuthFlow } = props;
 

@@ -8,7 +8,6 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { securityUpdateLogoutText } from 'lib/types/alert-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import css from './missing-csat-modal.css';
 import Modal from '../modals/modal.react.js';
@@ -65,7 +64,7 @@ function LogOutIfMissingCSATHandler() {
   const { pushModal } = useModalContext();
 
   React.useEffect(() => {
-    if (!hasAccessToken && dataLoaded && usingCommServicesAccessToken) {
+    if (!hasAccessToken && dataLoaded) {
       void dispatchActionPromise(logOutActionTypes, callLogOut());
       pushModal(
         <MissingCSATModal isAccountWithPassword={isAccountWithPassword} />,

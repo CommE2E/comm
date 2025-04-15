@@ -3,32 +3,20 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  useLegacyLogIn,
-  legacyLogInActionTypes,
-} from 'lib/actions/user-actions.js';
+import { legacyLogInActionTypes } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
-import { legacyLogInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils.js';
-import type {
-  LegacyLogInExtraInfo,
-  LegacyLogInStartingPayload,
-} from 'lib/types/account-types.js';
-import { logInActionSources } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react.js';
 import Button from '../components/button.react.js';
-import { olmAPI } from '../crypto/olm-api.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,10 +31,6 @@ function TraditionalLoginForm(): React.Node {
     React.useState(false);
   const inputDisabled = legacyAuthInProgress || identityAuthInProgress;
 
-  const legacyLoginExtraInfo = useSelector(legacyLogInExtraInfoSelector);
-  const callLegacyLogIn = useLegacyLogIn();
-
-  const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
   const usernameInputRef = React.useRef<?HTMLInputElement>();
@@ -77,41 +61,6 @@ function TraditionalLoginForm(): React.Node {
   );
 
   const [errorMessage, setErrorMessage] = React.useState<string>('');
-
-  const legacyLogInAction = React.useCallback(
-    async (extraInfo: LegacyLogInExtraInfo) => {
-      await olmAPI.initializeCryptoAccount();
-      const userPublicKey = await olmAPI.getUserPublicKey();
-      try {
-        const result = await callLegacyLogIn({
-          ...extraInfo,
-          username,
-          password,
-          authActionSource: logInActionSources.logInFromWebForm,
-          signedIdentityKeysBlob: {
-            payload: userPublicKey.blobPayload,
-            signature: userPublicKey.signature,
-          },
-        });
-        modalContext.popModal();
-        return result;
-      } catch (e) {
-        const messageForException = getMessageForException(e);
-        if (messageForException === 'invalid_credentials') {
-          setUsername('');
-          setPassword('');
-          setErrorMessage('incorrect username or password');
-        } else if (messageForException === 'client_version_unsupported') {
-          setErrorMessage(getShortVersionUnsupportedError());
-        } else {
-          setErrorMessage('unknown error');
-        }
-        usernameInputRef.current?.focus();
-        throw e;
-      }
-    },
-    [callLegacyLogIn, modalContext, password, username],
-  );
 
   const callIdentityPasswordLogIn = usePasswordLogIn();
 
@@ -178,27 +127,9 @@ function TraditionalLoginForm(): React.Node {
         usernameInputRef.current?.focus();
         return;
       }
-      if (usingCommServicesAccessToken) {
-        void identityPasswordLogInAction();
-      } else {
-        void dispatchActionPromise(
-          legacyLogInActionTypes,
-          legacyLogInAction(legacyLoginExtraInfo),
-          undefined,
-          ({
-            calendarQuery: legacyLoginExtraInfo.calendarQuery,
-          }: LegacyLogInStartingPayload),
-        );
-      }
+      void identityPasswordLogInAction();
     },
-    [
-      dispatchActionPromise,
-      identityPasswordLogInAction,
-      legacyLogInAction,
-      legacyLoginExtraInfo,
-      username,
-      password,
-    ],
+    [identityPasswordLogInAction, username, password],
   );
 
   const loadingIndicatorClassName = inputDisabled
