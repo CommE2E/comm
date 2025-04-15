@@ -5,11 +5,9 @@ import * as React from 'react';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import {
-  type SIWEResult,
   identitySIWENonceLifetime,
-  legacyKeyserverSIWENonceLifetime,
+  type SIWEResult,
 } from 'lib/types/siwe-types.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { RegistrationContext } from './registration-context.js';
 import {
@@ -63,10 +61,7 @@ function useGetEthereumAccountFromSIWEResult(): (
 }
 
 function siweNonceExpired(nonceTimestamp: number): boolean {
-  const nonceLifetime = usingCommServicesAccessToken
-    ? identitySIWENonceLifetime
-    : legacyKeyserverSIWENonceLifetime;
-  return Date.now() > nonceTimestamp + nonceLifetime;
+  return Date.now() > nonceTimestamp + identitySIWENonceLifetime;
 }
 
 export { useGetEthereumAccountFromSIWEResult, siweNonceExpired };

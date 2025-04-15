@@ -4,15 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import {
-  exactSearchUser,
-  exactSearchUserActionTypes,
-} from 'lib/actions/user-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { exactSearchUserActionTypes } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
 import {
@@ -131,31 +125,17 @@ function ConnectEthereum(props: Props): React.Node {
     [keyserverURL],
   );
 
-  const exactSearchUserCall = useLegacyAshoatKeyserverCall(
-    exactSearchUser,
-    serverCallParamOverride,
-  );
-  const dispatchActionPromise = useDispatchActionPromise();
-
   const getEthereumAccountFromSIWEResult =
     useGetEthereumAccountFromSIWEResult();
 
   const { retrieveLatestBackupInfo } = useClientBackup();
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
-      let userAlreadyExists;
-      if (usingCommServicesAccessToken) {
-        const findUserIDResponseString =
-          await commRustModule.findUserIDForWalletAddress(result.address);
-        const findUserIDResponse = JSON.parse(findUserIDResponseString);
-        userAlreadyExists =
-          !!findUserIDResponse.userID || findUserIDResponse.isReserved;
-      } else {
-        const searchPromise = exactSearchUserCall(result.address);
-        void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
-        const { userInfo } = await searchPromise;
-        userAlreadyExists = !!userInfo;
-      }
+      const findUserIDResponseString =
+        await commRustModule.findUserIDForWalletAddress(result.address);
+      const findUserIDResponse = JSON.parse(findUserIDResponseString);
+      const userAlreadyExists =
+        !!findUserIDResponse.userID || findUserIDResponse.isReserved;
 
       if (userAlreadyExists) {
         const backupInfo = await retrieveLatestBackupInfo(result.address);
@@ -182,8 +162,6 @@ function ConnectEthereum(props: Props): React.Node {
     },
     [
       userSelections,
-      exactSearchUserCall,
-      dispatchActionPromise,
       navigate,
       getEthereumAccountFromSIWEResult,
       retrieveLatestBackupInfo,
