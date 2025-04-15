@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import NavigationPanel from './navigation-panel.react.js';
 import css from './settings-switcher.css';
@@ -57,31 +56,6 @@ function SettingsSwitcher(): React.Node {
     );
   }, [onClickKeyservers, staffCanSee]);
 
-  const onClickDangerZone = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: { tab: 'settings', settingsSection: 'danger-zone' },
-      });
-    },
-    [dispatch],
-  );
-  const dangerZoneNavigationItem = React.useMemo(() => {
-    // Once we're using the identity service for auth, a user may only delete
-    // their Comm account using their primary device. Their primary device
-    // cannot be a web device at this time, so we hide the Danger Zone from web
-    // users.
-    if (usingCommServicesAccessToken) {
-      return null;
-    }
-    return (
-      <a className={css.navigationPanelTab} onClick={onClickDangerZone}>
-        <p>Danger Zone</p>
-      </a>
-    );
-  }, [onClickDangerZone]);
-
   return (
     <NavigationPanel.Container tabSelector={navSettingsSectionSelector}>
       <NavigationPanel.Item tab="account">
@@ -89,9 +63,6 @@ function SettingsSwitcher(): React.Node {
       </NavigationPanel.Item>
       <NavigationPanel.Item tab="keyservers">
         {keyserversNavigationItem}
-      </NavigationPanel.Item>
-      <NavigationPanel.Item tab="danger-zone">
-        {dangerZoneNavigationItem}
       </NavigationPanel.Item>
     </NavigationPanel.Container>
   );
