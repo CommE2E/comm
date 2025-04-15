@@ -89,7 +89,6 @@ import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
 import AccountSettings from './settings/account-settings.react.js';
-import DangerZone from './settings/danger-zone.react.js';
 import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
 import { getCommSharedWorker } from './shared-worker/shared-worker-provider.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
@@ -366,8 +365,6 @@ class App extends React.PureComponent<Props> {
         mainContent = <KeyserverSelectionList />;
       } else if (settingsSection === 'build-info') {
         mainContent = null;
-      } else if (settingsSection === 'danger-zone') {
-        mainContent = <DangerZone />;
       }
       return (
         <div className={css['main-content-container']}>

@@ -51,13 +51,6 @@ function UserSettingsList(): React.Node {
     });
   }, [dispatch]);
 
-  const onClickDangerZone = React.useCallback(() => {
-    dispatch({
-      type: updateNavInfoActionType,
-      payload: { tab: 'settings', settingsSection: 'danger-zone' },
-    });
-  }, [dispatch]);
-
   const keyserverSettingsListItem = React.useMemo(() => {
     if (!staffCanSee) {
       return null;
@@ -96,11 +89,6 @@ function UserSettingsList(): React.Node {
           name="Build info"
           onClick={onClickBuildInfo}
         />
-        <UserSettingsListItem
-          id="danger-zone"
-          name="Danger zone"
-          onClick={onClickDangerZone}
-        />
       </div>
     ),
     [
@@ -108,7 +96,6 @@ function UserSettingsList(): React.Node {
       onClickAccountSettings,
       onClickBlockList,
       onClickBuildInfo,
-      onClickDangerZone,
       onClickFriendList,
     ],
   );
