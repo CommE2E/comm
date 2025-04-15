@@ -18,10 +18,7 @@ import {
 } from 'lib/shared/invite-links.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import {
-  usingCommServicesAccessToken,
-  errorMessageIsInvalidCSAT,
-} from 'lib/utils/services-utils.js';
+import { errorMessageIsInvalidCSAT } from 'lib/utils/services-utils.js';
 
 import AcceptInviteModal from './accept-invite-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -54,10 +51,7 @@ function InviteLinkHandler(): null {
       setKeyserverOverride(undefined);
       inviteLinkSecret.current = inviteSecret;
 
-      let authMetadata;
-      if (usingCommServicesAccessToken) {
-        authMetadata = await getAuthMetadata();
-      }
+      const authMetadata = await getAuthMetadata();
 
       try {
         const newKeyserverOverride = await getKeyserverOverrideForAnInviteLink(
