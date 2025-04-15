@@ -4,14 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import {
-  exactSearchUser,
-  exactSearchUserActionTypes,
-} from 'lib/actions/user-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
@@ -67,22 +60,10 @@ function UsernameSelection(props: Props): React.Node {
   }, [validUsername]);
 
   const { userSelections } = props.route.params;
-  const { keyserverURL } = userSelections;
-  const serverCallParamOverride = React.useMemo(() => {
-    if (keyserverURL) {
-      return { urlPrefix: keyserverURL };
-    }
-    return undefined;
-  }, [keyserverURL]);
 
   const [usernameSearchLoading, setUsernameSearchLoading] =
     React.useState(false);
 
-  const exactSearchUserCall = useLegacyAshoatKeyserverCall(
-    exactSearchUser,
-    serverCallParamOverride,
-  );
-  const dispatchActionPromise = useDispatchActionPromise();
   const { navigate } = props.navigation;
   const onProceed = React.useCallback(async () => {
     if (!checkUsernameValidity()) {
@@ -93,18 +74,11 @@ function UsernameSelection(props: Props): React.Node {
 
     let userAlreadyExists;
     try {
-      if (usingCommServicesAccessToken) {
-        const findUserIDResponseString =
-          await commRustModule.findUserIDForUsername(username);
-        const findUserIDResponse = JSON.parse(findUserIDResponseString);
-        userAlreadyExists =
-          !!findUserIDResponse.userID || findUserIDResponse.isReserved;
-      } else {
-        const searchPromise = exactSearchUserCall(username);
-        void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
-        const { userInfo } = await searchPromise;
-        userAlreadyExists = !!userInfo;
-      }
+      const findUserIDResponseString =
+        await commRustModule.findUserIDForUsername(username);
+      const findUserIDResponse = JSON.parse(findUserIDResponseString);
+      userAlreadyExists =
+        !!findUserIDResponse.userID || findUserIDResponse.isReserved;
     } finally {
       setUsernameSearchLoading(false);
     }
@@ -130,12 +104,10 @@ function UsernameSelection(props: Props): React.Node {
     });
   }, [
     checkUsernameValidity,
-    username,
-    exactSearchUserCall,
-    dispatchActionPromise,
-    setCachedSelections,
     navigate,
+    setCachedSelections,
     userSelections,
+    username,
   ]);
 
   let buttonVariant = 'disabled';

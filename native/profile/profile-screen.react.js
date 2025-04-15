@@ -29,10 +29,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
-import {
-  usingCommServicesAccessToken,
-  useIsRestoreFlowEnabled,
-} from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -271,15 +268,12 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    let farcasterAccountSettings;
-    if (usingCommServicesAccessToken || __DEV__) {
-      farcasterAccountSettings = (
-        <ProfileRow
-          content="Farcaster account"
-          onPress={this.onPressFaracsterAccount}
-        />
-      );
-    }
+    const farcasterAccountSettings = (
+      <ProfileRow
+        content="Farcaster account"
+        onPress={this.onPressFaracsterAccount}
+      />
+    );
 
     let dmActions;
     if (staffCanSee) {

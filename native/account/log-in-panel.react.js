@@ -2,50 +2,28 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, StyleSheet, Keyboard, Platform } from 'react-native';
+import { Keyboard, Platform, StyleSheet, View } from 'react-native';
 
-import {
-  legacyLogInActionTypes,
-  useLegacyLogIn,
-  getOlmSessionInitializationDataActionTypes,
-} from 'lib/actions/user-actions.js';
+import { getOlmSessionInitializationDataActionTypes } from 'lib/actions/user-actions.js';
 import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
-  createLoadingStatusSelector,
-  combineLoadingStatuses,
-} from 'lib/selectors/loading-selectors.js';
-import {
-  validEmailRegex,
   oldValidUsernameRegex,
+  validEmailRegex,
 } from 'lib/shared/account-utils.js';
-import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
-import {
-  type LegacyLogInInfo,
-  type LegacyLogInExtraInfo,
-  type LegacyLogInResult,
-  type LegacyLogInStartingPayload,
-  logInActionSources,
-} from 'lib/types/account-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import {
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import {
   fetchNativeCredentials,
   setNativeCredentials,
 } from './native-credentials.js';
-import { PanelButton, Panel } from './panel-components.react.js';
+import { Panel, PanelButton } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
 import type { ViewStyle } from '../types/styles.js';
 import {
@@ -68,14 +46,10 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
-  +legacyLogInExtraInfo: () => Promise<LegacyLogInExtraInfo>,
-  +dispatchActionPromise: DispatchActionPromise,
-  +legacyLogIn: (logInInfo: LegacyLogInInfo) => Promise<LegacyLogInResult>,
   +identityPasswordLogIn: (
     username: string,
     password: string,
   ) => Promise<IdentityAuthResult>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
   +logInPending: boolean,
@@ -262,68 +236,8 @@ class LogInPanel extends React.PureComponent<Props, State> {
     }
 
     Keyboard.dismiss();
-    if (usingCommServicesAccessToken) {
-      await this.identityPasswordLogIn();
-      return;
-    }
-
-    const extraInfo = await this.props.legacyLogInExtraInfo();
-    const initialNotificationsEncryptedMessage =
-      await this.props.getInitialNotificationsEncryptedMessage();
-
-    void this.props.dispatchActionPromise(
-      legacyLogInActionTypes,
-      this.legacyLogInAction({
-        ...extraInfo,
-        initialNotificationsEncryptedMessage,
-      }),
-      undefined,
-      ({ calendarQuery: extraInfo.calendarQuery }: LegacyLogInStartingPayload),
-    );
+    await this.identityPasswordLogIn();
   };
-
-  async legacyLogInAction(
-    extraInfo: LegacyLogInExtraInfo,
-  ): Promise<LegacyLogInResult> {
-    try {
-      const result = await this.props.legacyLogIn({
-        ...extraInfo,
-        username: this.usernameInputText,
-        password: this.passwordInputText,
-        authActionSource: logInActionSources.logInFromNativeForm,
-      });
-      this.props.setActiveAlert(false);
-      await setNativeCredentials({
-        username: result.currentUserInfo.username,
-        password: this.passwordInputText,
-      });
-      return result;
-    } catch (e) {
-      if (e.message === 'invalid_credentials') {
-        Alert.alert(
-          userNotFoundAlertDetails.title,
-          userNotFoundAlertDetails.message,
-          [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
-          { cancelable: false },
-        );
-      } else if (e.message === 'client_version_unsupported') {
-        Alert.alert(
-          appOutOfDateAlertDetails.title,
-          appOutOfDateAlertDetails.message,
-          [{ text: 'OK', onPress: this.onOtherErrorAlertAcknowledged }],
-          { cancelable: false },
-        );
-      } else {
-        Alert.alert(
-          unknownErrorAlertDetails.title,
-          unknownErrorAlertDetails.message,
-          [{ text: 'OK', onPress: this.onOtherErrorAlertAcknowledged }],
-          { cancelable: false },
-        );
-      }
-      throw e;
-    }
-  }
 
   async identityPasswordLogIn(): Promise<void> {
     if (this.state.logInPending) {
@@ -413,8 +327,6 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 }
 
-export type InnerLogInPanel = LogInPanel;
-
 const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
@@ -433,44 +345,22 @@ const styles = StyleSheet.create({
   },
 });
 
-const logInLoadingStatusSelector = createLoadingStatusSelector(
-  legacyLogInActionTypes,
-);
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
 const ConnectedLogInPanel: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
-    const logInLoadingStatus = useSelector(logInLoadingStatusSelector);
-    const olmSessionInitializationDataLoadingStatus = useSelector(
+    const loadingStatus = useSelector(
       olmSessionInitializationDataLoadingStatusSelector,
     );
-    const loadingStatus = combineLoadingStatuses(
-      logInLoadingStatus,
-      olmSessionInitializationDataLoadingStatus,
-    );
 
-    const legacyLogInExtraInfo = useSelector(
-      nativeLegacyLogInExtraInfoSelector,
-    );
-
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callLegacyLogIn = useLegacyLogIn();
     const callIdentityPasswordLogIn = usePasswordLogIn();
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
     return (
       <LogInPanel
         {...props}
         loadingStatus={loadingStatus}
-        legacyLogInExtraInfo={legacyLogInExtraInfo}
-        dispatchActionPromise={dispatchActionPromise}
-        legacyLogIn={callLegacyLogIn}
         identityPasswordLogIn={callIdentityPasswordLogIn}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
       />
     );
   });
