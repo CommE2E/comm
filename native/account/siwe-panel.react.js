@@ -24,7 +24,6 @@ import type {
 } from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { getPublicKeyFromSIWEStatement } from 'lib/utils/siwe-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
@@ -145,17 +144,10 @@ function SIWEPanel(props: Props): React.Node {
     };
 
     void (async () => {
-      if (usingCommServicesAccessToken) {
-        void dispatchActionPromise(
-          identityGenerateNonceActionTypes,
-          generateNonce(identityGenerateNonce),
-        );
-      } else {
-        void dispatchActionPromise(
-          getSIWENonceActionTypes,
-          generateNonce(getSIWENonceCall),
-        );
-      }
+      void dispatchActionPromise(
+        identityGenerateNonceActionTypes,
+        generateNonce(identityGenerateNonce),
+      );
 
       const ed25519 = await getContentSigningKey();
       setPrimaryIdentityPublicKey(ed25519);

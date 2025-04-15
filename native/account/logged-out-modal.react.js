@@ -23,16 +23,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
-import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import {
-  usingCommServicesAccessToken,
-  useIsRestoreFlowEnabled,
-} from 'lib/utils/services-utils.js';
+import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
@@ -40,7 +35,6 @@ import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import PromptButton from './prompt-button.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import { useRatchetingKeyboardHeight } from '../keyboard/animated-keyboard.js';
@@ -373,25 +367,6 @@ function LoggedOutModal(props: Props) {
       return;
     }
     initialAppLoad = false;
-
-    if (usingCommServicesAccessToken || __DEV__) {
-      return;
-    }
-
-    if (loggedIn === isLoggedInToAuthKeyserver) {
-      return;
-    }
-
-    const actionSource = loggedIn
-      ? recoveryFromReduxActionSources.appStartReduxLoggedInButInvalidCookie
-      : recoveryFromReduxActionSources.appStartCookieLoggedInButInvalidRedux;
-    dispatch({
-      type: setActiveSessionRecoveryActionType,
-      payload: {
-        activeSessionRecovery: actionSource,
-        keyserverID: authoritativeKeyserverID,
-      },
-    });
   }, [rehydrateConcluded, loggedIn, isLoggedInToAuthKeyserver, dispatch]);
 
   const onPressSIWE = React.useCallback(() => {

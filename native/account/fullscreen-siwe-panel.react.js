@@ -5,16 +5,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
-import { ServerError, getMessageForException } from 'lib/utils/errors.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
-import { useLegacySIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { commRustModule } from '../native-modules.js';
 import {
@@ -84,103 +80,50 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [goBackToPrompt],
   );
 
-  const legacySiweServerCall = useLegacySIWEServerCall();
   const walletLogIn = useWalletLogIn();
   const successRef = React.useRef(false);
-  const dispatch = useDispatch();
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
-      if (usingCommServicesAccessToken) {
-        try {
-          const findUserIDResponseString =
-            await commRustModule.findUserIDForWalletAddress(result.address);
-          const findUserIDResponse = JSON.parse(findUserIDResponseString);
-          if (findUserIDResponse.userID || findUserIDResponse.isReserved) {
-            try {
-              await walletLogIn(
-                result.address,
-                result.message,
-                result.signature,
+      try {
+        const findUserIDResponseString =
+          await commRustModule.findUserIDForWalletAddress(result.address);
+        const findUserIDResponse = JSON.parse(findUserIDResponseString);
+        if (findUserIDResponse.userID || findUserIDResponse.isReserved) {
+          try {
+            await walletLogIn(result.address, result.message, result.signature);
+          } catch (e) {
+            const messageForException = getMessageForException(e);
+            if (messageForException === 'nonce_expired') {
+              onNonceExpired('login');
+            } else if (
+              messageForException === 'unsupported_version' ||
+              messageForException === 'client_version_unsupported' ||
+              messageForException === 'use_new_flow'
+            ) {
+              Alert.alert(
+                appOutOfDateAlertDetails.title,
+                appOutOfDateAlertDetails.message,
+                [{ text: 'OK', onPress: goBackToPrompt }],
+                { cancelable: false },
               );
-            } catch (e) {
-              const messageForException = getMessageForException(e);
-              if (messageForException === 'nonce_expired') {
-                onNonceExpired('login');
-              } else if (
-                messageForException === 'unsupported_version' ||
-                messageForException === 'client_version_unsupported' ||
-                messageForException === 'use_new_flow'
-              ) {
-                Alert.alert(
-                  appOutOfDateAlertDetails.title,
-                  appOutOfDateAlertDetails.message,
-                  [{ text: 'OK', onPress: goBackToPrompt }],
-                  { cancelable: false },
-                );
-              } else {
-                throw e;
-              }
+            } else {
+              throw e;
             }
-          } else {
-            await onAccountDoesNotExist(result);
           }
-        } catch (e) {
-          Alert.alert(
-            unknownErrorAlertDetails.title,
-            unknownErrorAlertDetails.message,
-            [{ text: 'OK', onPress: goBackToPrompt }],
-            { cancelable: false },
-          );
+        } else {
+          await onAccountDoesNotExist(result);
         }
-      } else {
-        try {
-          await legacySiweServerCall({
-            ...result,
-            doNotRegister: true,
-          });
-        } catch (e) {
-          if (
-            e instanceof ServerError &&
-            e.message === 'account_does_not_exist'
-          ) {
-            await onAccountDoesNotExist(result);
-          } else if (
-            e instanceof ServerError &&
-            e.message === 'client_version_unsupported'
-          ) {
-            Alert.alert(
-              appOutOfDateAlertDetails.title,
-              appOutOfDateAlertDetails.message,
-              [{ text: 'OK', onPress: goBackToPrompt }],
-              { cancelable: false },
-            );
-          } else {
-            Alert.alert(
-              unknownErrorAlertDetails.title,
-              unknownErrorAlertDetails.message,
-              [{ text: 'OK', onPress: goBackToPrompt }],
-              { cancelable: false },
-            );
-          }
-          return;
-        }
-        dispatch({
-          type: setDataLoadedActionType,
-          payload: {
-            dataLoaded: true,
-          },
-        });
+      } catch (e) {
+        Alert.alert(
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
+          [{ text: 'OK', onPress: goBackToPrompt }],
+          { cancelable: false },
+        );
       }
     },
-    [
-      walletLogIn,
-      goBackToPrompt,
-      dispatch,
-      legacySiweServerCall,
-      onAccountDoesNotExist,
-      onNonceExpired,
-    ],
+    [walletLogIn, goBackToPrompt, onAccountDoesNotExist, onNonceExpired],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {

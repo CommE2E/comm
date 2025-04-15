@@ -17,7 +17,6 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -97,7 +96,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     }, [callDeleteAccount, onErrorAlertAcknowledged, password]);
 
     const onDelete = React.useCallback(() => {
-      if (!password && isAccountWithPassword && usingCommServicesAccessToken) {
+      if (!password && isAccountWithPassword) {
         Alert.alert('Password required', 'Please enter your password.', [
           { text: 'OK', onPress: onErrorAlertAcknowledged },
         ]);
@@ -116,7 +115,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     ]);
 
     let inputPasswordPrompt;
-    if (isAccountWithPassword && usingCommServicesAccessToken) {
+    if (isAccountWithPassword) {
       inputPasswordPrompt = (
         <>
           <Text style={styles.header}>PASSWORD</Text>

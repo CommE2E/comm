@@ -13,7 +13,6 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { securityUpdateLogoutText } from 'lib/types/alert-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { useIsAppLoggedIn } from '../navigation/nav-selectors.js';
@@ -49,7 +48,6 @@ function BackgroundIdentityLoginHandler() {
     if (
       hasAccessToken ||
       !readyToTryIdentityLogin ||
-      !usingCommServicesAccessToken ||
       loginAttemptedRef.current
     ) {
       return;

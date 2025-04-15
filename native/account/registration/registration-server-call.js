@@ -5,8 +5,6 @@ import * as React from 'react';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import {
-  legacyKeyserverRegisterActionTypes,
-  legacyKeyserverRegister,
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
   deleteAccountActionTypes,
@@ -14,10 +12,8 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { useKeyserverAuthWithRetry } from 'lib/keyserver-conn/keyserver-auth.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { usePreRequestUserState } from 'lib/selectors/account-selectors.js';
 import {
-  type LegacyLogInStartingPayload,
   logInActionSources,
   type LogOutResult,
 } from 'lib/types/account-types.js';
@@ -26,7 +22,6 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useSetLocalFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 import { waitUntilDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
 
@@ -44,7 +39,6 @@ import {
 import { commCoreModule } from '../../native-modules.js';
 import { persistConfig } from '../../redux/persist.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { nativeLegacyLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
   appOutOfDateAlertDetails,
   usernameReservedAlertDetails,
@@ -52,12 +46,8 @@ import {
   unknownErrorAlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
-import { defaultURLPrefix } from '../../utils/url-utils.js';
 import { setNativeCredentials } from '../native-credentials.js';
-import {
-  useLegacySIWEServerCall,
-  useIdentityWalletRegisterCall,
-} from '../siwe-hooks.js';
+import { useIdentityWalletRegisterCall } from '../siwe-hooks.js';
 
 // We can't just do everything in one async callback, since the server calls
 // would get bound to Redux state from before the registration. The registration
@@ -97,12 +87,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   // STEP 1: ACCOUNT REGISTRATION
 
-  const legacyLogInExtraInfo = useSelector(nativeLegacyLogInExtraInfoSelector);
-
   const dispatchActionPromise = useDispatchActionPromise();
-  const callLegacyKeyserverRegister = useLegacyAshoatKeyserverCall(
-    legacyKeyserverRegister,
-  );
   const callIdentityPasswordRegister = useIdentityPasswordRegister();
 
   const identityRegisterUsernameAccount = React.useCallback(
@@ -159,106 +144,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       await identityRegisterPromise;
     },
     [callIdentityPasswordRegister, dispatchActionPromise],
-  );
-
-  const legacyKeyserverRegisterUsernameAccount = React.useCallback(
-    async (
-      accountSelection: UsernameAccountSelection,
-      keyserverURL: string,
-      onAlertAcknowledged: ?() => mixed,
-    ) => {
-      const extraInfo = await legacyLogInExtraInfo();
-      const legacyKeyserverRegisterPromise = (async () => {
-        try {
-          return await callLegacyKeyserverRegister(
-            {
-              ...extraInfo,
-              username: accountSelection.username,
-              password: accountSelection.password,
-            },
-            {
-              urlPrefixOverride: keyserverURL,
-            },
-          );
-        } catch (e) {
-          const messageForException = getMessageForException(e);
-          if (messageForException === 'username_reserved') {
-            Alert.alert(
-              usernameReservedAlertDetails.title,
-              usernameReservedAlertDetails.message,
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
-          } else if (messageForException === 'username_taken') {
-            Alert.alert(
-              usernameTakenAlertDetails.title,
-              usernameTakenAlertDetails.message,
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
-          } else if (messageForException === 'client_version_unsupported') {
-            Alert.alert(
-              appOutOfDateAlertDetails.title,
-              appOutOfDateAlertDetails.message,
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
-          } else {
-            Alert.alert(
-              unknownErrorAlertDetails.title,
-              unknownErrorAlertDetails.message,
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
-          }
-          throw e;
-        }
-      })();
-      void dispatchActionPromise(
-        legacyKeyserverRegisterActionTypes,
-        legacyKeyserverRegisterPromise,
-        undefined,
-        ({
-          calendarQuery: extraInfo.calendarQuery,
-        }: LegacyLogInStartingPayload),
-      );
-      await legacyKeyserverRegisterPromise;
-    },
-    [legacyLogInExtraInfo, callLegacyKeyserverRegister, dispatchActionPromise],
-  );
-
-  const legacySiweServerCall = useLegacySIWEServerCall();
-  const legacyKeyserverRegisterEthereumAccount = React.useCallback(
-    async (
-      accountSelection: EthereumAccountSelection,
-      keyserverURL: string,
-      onAlertAcknowledged: ?() => mixed,
-    ) => {
-      try {
-        await legacySiweServerCall(accountSelection, {
-          urlPrefixOverride: keyserverURL,
-        });
-      } catch (e) {
-        const messageForException = getMessageForException(e);
-        if (messageForException === 'client_version_unsupported') {
-          Alert.alert(
-            appOutOfDateAlertDetails.title,
-            appOutOfDateAlertDetails.message,
-            [{ text: 'OK', onPress: onAlertAcknowledged }],
-            { cancelable: !onAlertAcknowledged },
-          );
-        } else {
-          Alert.alert(
-            unknownErrorAlertDetails.title,
-            unknownErrorAlertDetails.message,
-            [{ text: 'OK', onPress: onAlertAcknowledged }],
-            { cancelable: !onAlertAcknowledged },
-          );
-        }
-        throw e;
-      }
-    },
-    [legacySiweServerCall],
   );
 
   const identityWalletRegisterCall = useIdentityWalletRegisterCall();
@@ -322,26 +207,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               onNonceExpired,
               onAlertAcknowledged,
             } = input;
-            const keyserverURL = passedKeyserverURL ?? defaultURLPrefix;
-            if (
-              accountSelection.accountType === 'username' &&
-              !usingCommServicesAccessToken
-            ) {
-              await legacyKeyserverRegisterUsernameAccount(
-                accountSelection,
-                keyserverURL,
-                onAlertAcknowledged,
-              );
-            } else if (accountSelection.accountType === 'username') {
+            if (accountSelection.accountType === 'username') {
               await identityRegisterUsernameAccount(
                 accountSelection,
                 farcasterID,
-                onAlertAcknowledged,
-              );
-            } else if (!usingCommServicesAccessToken) {
-              await legacyKeyserverRegisterEthereumAccount(
-                accountSelection,
-                keyserverURL,
                 onAlertAcknowledged,
               );
             } else {
@@ -369,38 +238,25 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                     password: accountSelection.password,
                   }
                 : null;
-            if (usingCommServicesAccessToken) {
-              setCurrentStep({
-                step: 'identity_registration_dispatched',
-                avatarData,
-                clearCachedSelections,
-                onAlertAcknowledged,
-                credentialsToSave,
-                resolve,
-                reject,
-              });
-            } else {
-              setCurrentStep({
-                step: 'authoritative_keyserver_registration_dispatched',
-                avatarData,
-                clearCachedSelections,
-                credentialsToSave,
-                resolve,
-                reject,
-              });
-            }
+            setCurrentStep({
+              step: 'identity_registration_dispatched',
+              avatarData,
+              clearCachedSelections,
+              onAlertAcknowledged,
+              credentialsToSave,
+              resolve,
+              reject,
+            });
           } catch (e) {
             reject(e);
           }
         },
       ),
     [
-      currentStep,
-      legacyKeyserverRegisterUsernameAccount,
-      identityRegisterUsernameAccount,
-      legacyKeyserverRegisterEthereumAccount,
-      identityRegisterEthereumAccount,
+      currentStep.step,
       dispatch,
+      identityRegisterEthereumAccount,
+      identityRegisterUsernameAccount,
       setLocalFID,
     ],
   );
