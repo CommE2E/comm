@@ -5,7 +5,10 @@ import olm from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
-import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
+import {
+  getOlmMemory,
+  compareAndLogOlmMemory,
+} from 'lib/utils/olm-memory-utils.js';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
@@ -32,7 +35,10 @@ import { deleteInaccessibleThreads } from '../deleters/thread-deleters.js';
 import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { validateAndUploadAccountPrekeys } from '../utils/olm-utils.js';
+import {
+  getContentSigningKey,
+  validateAndUploadAccountPrekeys,
+} from '../utils/olm-utils.js';
 import {
   isPrimaryNode,
   isAuxiliaryNode,
@@ -86,6 +92,7 @@ if (cluster.isMaster) {
     schedule.scheduleJob(
       '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
       async () => {
+        const memBefore = getOlmMemory();
         try {
           await updateIdentityReservedUsernames();
         } catch (e) {
@@ -94,12 +101,15 @@ if (cluster.isMaster) {
               'identity service',
             e,
           );
+        } finally {
+          compareAndLogOlmMemory(memBefore, 'reserved usernames cronjob');
         }
       },
     );
     schedule.scheduleJob(
       '0 0 * * *', // every day at midnight in the keyserver's timezone
       async () => {
+        const memBefore = getOlmMemory();
         try {
           await fetchCallUpdateOlmAccount(
             'content',
@@ -112,12 +122,15 @@ if (cluster.isMaster) {
           );
         } catch (e) {
           console.warn('encountered error while trying to validate prekeys', e);
+        } finally {
+          compareAndLogOlmMemory(memBefore, 'prekey upload cronjob');
         }
       },
     );
     schedule.scheduleJob(
       '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
       async () => {
+        const memBefore = getOlmMemory();
         try {
           await synchronizeInviteLinksWithBlobs();
         } catch (e) {
@@ -125,14 +138,54 @@ if (cluster.isMaster) {
             'encountered an error while trying to synchronize invite links with blobs',
             e,
           );
+        } finally {
+          compareAndLogOlmMemory(memBefore, 'invite links cronjob');
         }
       },
     );
     schedule.scheduleJob(
       '0,15,30,45 * * * *', // every 15 minutes
       async () => {
-        await olm.init();
-        verifyMemoryUsage('cronjob');
+        const memBefore = getOlmMemory();
+        try {
+          await olm.init();
+        } catch (e) {
+          console.warn(
+            'encountered an error while executing olm init cron job',
+            e,
+          );
+        } finally {
+          compareAndLogOlmMemory(memBefore, 'olm init cronjob');
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '* * * * *', // every 1 minute
+      async () => {
+        try {
+          console.log('Cron begins');
+          const memBefore = getOlmMemory();
+          await olm.init();
+          for (let x = 1; x <= 100000; x = x + 1) {
+            new olm.Account();
+          }
+          compareAndLogOlmMemory(memBefore, 'memleak cronjob');
+
+          console.log('Leaked some memory. Now lets see...');
+          const key = await getContentSigningKey();
+          const memoryAfterTotal = getOlmMemory();
+          console.log(
+            'Fetch succeess:',
+            key,
+            'Memory footprint:',
+            memoryAfterTotal,
+          );
+        } catch (e) {
+          console.warn(
+            'encountered an error while executing memleak cron job',
+            e,
+          );
+        }
       },
     );
   }
