@@ -6,7 +6,6 @@ import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
-import { legacySiweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -184,8 +183,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
         action.payload.preRequestUserState?.currentUserInfo,
         action.payload.authActionSource,
       )) ||
-    ((action.type === legacyLogInActionTypes.success ||
-      action.type === legacySiweAuthActionTypes.success) &&
+    (action.type === legacyLogInActionTypes.success &&
       invalidSessionRecovery(
         state,
         action.payload.preRequestUserInfo,
