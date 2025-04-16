@@ -8,7 +8,6 @@ import WebView from 'react-native-webview';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  legacySiweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import {
   identityGenerateNonceActionTypes,
@@ -42,9 +41,6 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
   identityGenerateNonceActionTypes,
 );
-const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
-  legacySiweAuthActionTypes,
-);
 
 type NonceInfo =
   | { +nonceType: 'local', +nonce: string, +issuedAt: string }
@@ -77,10 +73,6 @@ function SIWEPanel(props: Props): React.Node {
   const { onClosing } = props;
   const { messageType, siweNonce, siweStatement, siweIssuedAt } =
     props.siweSignatureRequestData;
-
-  const legacySiweAuthCallLoading = useSelector(
-    state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
-  );
 
   const [nonceInfo, setNonceInfo] = React.useState<?NonceInfo>(null);
   const [primaryIdentityPublicKey, setPrimaryIdentityPublicKey] =
@@ -318,9 +310,7 @@ function SIWEPanel(props: Props): React.Node {
 
   const setLoadingProp = props.setLoading;
   const loading =
-    !legacyGetSIWENonceCallFailed &&
-    !identityGenerateNonceFailed &&
-    (isLoading || legacySiweAuthCallLoading);
+    !legacyGetSIWENonceCallFailed && !identityGenerateNonceFailed && isLoading;
   React.useEffect(() => {
     setLoadingProp(loading);
   }, [setLoadingProp, loading]);

@@ -9,7 +9,6 @@ import { useAccount, useWalletClient } from 'wagmi';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  legacySiweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import {
   identityGenerateNonceActionTypes,
@@ -54,9 +53,6 @@ const legacyGetSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
   identityGenerateNonceActionTypes,
 );
-const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
-  legacySiweAuthActionTypes,
-);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
@@ -68,9 +64,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const identityGenerateNonce = useIdentityGenerateNonce();
   const identityGenerateNonceLoadingStatus = useSelector(
     identityGenerateNonceLoadingStatusSelector,
-  );
-  const siweAuthLoadingStatus = useSelector(
-    legacySiweAuthLoadingStatusSelector,
   );
 
   const walletLogIn = useWalletLogIn();
@@ -172,7 +165,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [css.hidden]: !error,
   });
 
-  if (siweAuthLoadingStatus === 'loading' || !siweNonce) {
+  if (!siweNonce) {
     return (
       <div className={css.loadingIndicator}>
         <LoadingIndicator status="loading" size="large" />
