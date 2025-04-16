@@ -1,9 +1,9 @@
 #import <Expo/Expo.h>
-#import <React/RCTBridgeDelegate.h>
 #import <UIKit/UIKit.h>
+#import <RCTAppDelegate.h>
 
 @interface AppDelegate
-    : EXAppDelegateWrapper <UIApplicationDelegate, RCTBridgeDelegate>
+    : EXAppDelegateWrapper <UIApplicationDelegate>
 
 @property(nonatomic, strong) UIWindow *window;
 
