@@ -44,6 +44,7 @@ import {
   convertObjToBytes,
 } from 'lib/utils/conversion-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
 import {
@@ -387,8 +388,13 @@ class TunnelbrokerSocket {
   refreshOneTimeKeys: (numberOfKeys: number) => void = numberOfKeys => {
     const oldOneTimeKeysPromise = this.oneTimeKeysPromise;
     this.oneTimeKeysPromise = (async () => {
-      await oldOneTimeKeysPromise;
-      await uploadNewOneTimeKeys(numberOfKeys);
+      try {
+        await oldOneTimeKeysPromise;
+        await uploadNewOneTimeKeys(numberOfKeys);
+        verifyMemoryUsage('otk refresh');
+      } catch (e) {
+        console.error('Encountered error when trying to upload new OTKs:', e);
+      }
     })();
   };
 

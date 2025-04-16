@@ -5,7 +5,10 @@ import olm from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
-import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
+import {
+  getOlmMemory,
+  compareAndLogOlmMemory,
+} from 'lib/utils/olm-memory-utils.js';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
@@ -87,7 +90,9 @@ if (cluster.isMaster) {
       '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
       async () => {
         try {
+          const memBefore = getOlmMemory();
           await updateIdentityReservedUsernames();
+          compareAndLogOlmMemory(memBefore, 'reserved usernames cronjob');
         } catch (e) {
           console.warn(
             'encountered error while trying to update reserved usernames on ' +
@@ -101,6 +106,7 @@ if (cluster.isMaster) {
       '0 0 * * *', // every day at midnight in the keyserver's timezone
       async () => {
         try {
+          const memBefore = getOlmMemory();
           await fetchCallUpdateOlmAccount(
             'content',
             (contentAccount: OlmAccount) =>
@@ -110,6 +116,7 @@ if (cluster.isMaster) {
                   validateAndUploadAccountPrekeys(contentAccount, notifAccount),
               ),
           );
+          compareAndLogOlmMemory(memBefore, 'prekey upload cronjob');
         } catch (e) {
           console.warn('encountered error while trying to validate prekeys', e);
         }
@@ -119,7 +126,9 @@ if (cluster.isMaster) {
       '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
       async () => {
         try {
+          const memBefore = getOlmMemory();
           await synchronizeInviteLinksWithBlobs();
+          compareAndLogOlmMemory(memBefore, 'invite links cronjob');
         } catch (e) {
           console.warn(
             'encountered an error while trying to synchronize invite links with blobs',
@@ -131,8 +140,16 @@ if (cluster.isMaster) {
     schedule.scheduleJob(
       '0,15,30,45 * * * *', // every 15 minutes
       async () => {
-        await olm.init();
-        verifyMemoryUsage('cronjob');
+        try {
+          const memBefore = getOlmMemory();
+          await olm.init();
+          compareAndLogOlmMemory(memBefore, 'olm init cronjob');
+        } catch (e) {
+          console.warn(
+            'encountered an error while executing olm init cron job',
+            e,
+          );
+        }
       },
     );
   }
