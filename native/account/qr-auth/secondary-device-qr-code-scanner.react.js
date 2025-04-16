@@ -2,7 +2,7 @@
 
 import { useFocusEffect } from '@react-navigation/core';
 import { useNavigation } from '@react-navigation/native';
-import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
+//import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
@@ -22,7 +22,7 @@ import { deviceIsEmulator } from '../../utils/url-utils.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
-const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
+//const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
 
 type Props = {
   +navigation: QRAuthNavigationProp<'SecondaryDeviceQRCodeScanner'>,
@@ -39,22 +39,22 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const { goBack, setOptions, navigate } = useNavigation();
   const { panelForegroundTertiaryLabel } = useColors();
 
-  React.useEffect(() => {
-    void (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+  // React.useEffect(() => {
+  //   void (async () => {
+  //     const { status } = await BarCodeScanner.requestPermissionsAsync();
+  //     setHasPermission(status === 'granted');
 
-      if (status !== 'granted') {
-        Alert.alert(
-          'No access to camera',
-          'Please allow Comm to access your camera in order to scan the QR code.',
-          [{ text: 'OK' }],
-        );
+  //     if (status !== 'granted') {
+  //       Alert.alert(
+  //         'No access to camera',
+  //         'Please allow Comm to access your camera in order to scan the QR code.',
+  //         [{ text: 'OK' }],
+  //       );
 
-        goBack();
-      }
-    })();
-  }, [goBack]);
+  //       goBack();
+  //     }
+  //   })();
+  // }, [goBack]);
 
   const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
   const navigateToNextScreen = React.useCallback(
@@ -147,15 +147,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   //    in order to 'pause' the scanner from continuing to scan while we
   //    process the data from the scan.
   // See: https://docs.expo.io/versions/latest/sdk/bar-code-scanner
-  return (
-    <View style={styles.scannerContainer}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barCodeTypes={barCodeTypes}
-        style={styles.scanner}
-      />
-    </View>
-  );
+  return <View style={styles.scannerContainer}></View>;
 }
 
 const unboundStyles = {
