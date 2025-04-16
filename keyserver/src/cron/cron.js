@@ -94,6 +94,8 @@ if (cluster.isMaster) {
               'identity service',
             e,
           );
+        } finally {
+          verifyMemoryUsage('reserved usernames cronjob');
         }
       },
     );
@@ -112,6 +114,8 @@ if (cluster.isMaster) {
           );
         } catch (e) {
           console.warn('encountered error while trying to validate prekeys', e);
+        } finally {
+          verifyMemoryUsage('prekey upload cronjob');
         }
       },
     );
@@ -125,14 +129,24 @@ if (cluster.isMaster) {
             'encountered an error while trying to synchronize invite links with blobs',
             e,
           );
+        } finally {
+          verifyMemoryUsage('invite links cronjob');
         }
       },
     );
     schedule.scheduleJob(
       '0,15,30,45 * * * *', // every 15 minutes
       async () => {
-        await olm.init();
-        verifyMemoryUsage('cronjob');
+        try {
+          await olm.init();
+        } catch (e) {
+          console.warn(
+            'encountered an error while executing olm init cron job',
+            e,
+          );
+        } finally {
+          verifyMemoryUsage('olm init cronjob');
+        }
       },
     );
   }
