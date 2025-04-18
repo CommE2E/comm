@@ -8,9 +8,9 @@ import {
   getRolePermissionBlobs,
   getThreadPermissionBlobFromUserSurfacedPermissions,
 } from 'lib/permissions/thread-permissions.js';
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import {
   type ThinThreadType,
-  threadTypeIsCommunityRoot,
   threadTypes,
 } from 'lib/types/thread-types-enum.js';
 import type { ServerLegacyRoleInfo } from 'lib/types/thread-types.js';
