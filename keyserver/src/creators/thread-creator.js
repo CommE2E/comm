@@ -10,13 +10,11 @@ import {
 } from 'lib/shared/color-utils.js';
 import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo, MessageData } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  threadTypes,
-  threadTypeIsCommunityRoot,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ServerNewThinThreadRequest,
   type NewThreadResponse,

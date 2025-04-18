@@ -38,6 +38,10 @@ import {
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
+import {
+  threadTypeIsPersonal,
+  threadTypeIsSidebar,
+} from 'lib/shared/threads/thread-specs.js';
 import type {
   RelativeMemberInfo,
   ResolvedThreadInfo,
@@ -45,11 +49,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  threadTypeIsSidebar,
-  threadTypeIsThick,
-  threadTypeIsPersonal,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedOptionalThreadInfo,

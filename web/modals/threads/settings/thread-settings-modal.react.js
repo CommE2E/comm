@@ -16,13 +16,11 @@ import {
   threadUIName,
   useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
+import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  threadTypeIsPersonal,
-  threadTypes,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
-import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';

@@ -1,7 +1,7 @@
 // @flow
 
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 
 import type { TextStyle } from '../types/styles.js';

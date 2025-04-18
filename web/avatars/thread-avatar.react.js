@@ -5,16 +5,16 @@ import * as React from 'react';
 import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
 import { useResolvedThreadAvatar } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser, getCommunity } from 'lib/shared/thread-utils.js';
+import {
+  threadTypeIsPersonal,
+  threadTypeIsPrivate,
+} from 'lib/shared/threads/thread-specs.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import {
-  threadTypeIsPersonal,
-  threadTypeIsPrivate,
-} from 'lib/types/thread-types-enum.js';
 
 import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';

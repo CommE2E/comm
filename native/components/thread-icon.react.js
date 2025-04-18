@@ -4,11 +4,8 @@ import EntypoIcon from '@expo/vector-icons/Entypo.js';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
-import {
-  threadTypes,
-  type ThreadType,
-  threadTypeIsSidebar,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 

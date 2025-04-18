@@ -52,6 +52,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
+import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Media,
@@ -75,10 +76,7 @@ import {
   type ClientMediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
-import {
-  threadTypeIsThick,
-  threadTypeIsSidebar,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
