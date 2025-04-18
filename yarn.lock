@@ -1592,6 +1592,11 @@
   resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.3.tgz#d01d322a0c229fee98a874d7cb22141c939585b3"
   integrity sha512-O/3KvGUi5PhHN2An/2a93S8RcXPKOZbmqlLDuaRHYKG27yQ69HnRhn0lhYynYaHLPR6MIdjyRW7F1lLKjsVhsw==
 
+"@commapp/olm@0.2.4-test":
+  version "0.2.4-test"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.4-test.tgz#dd501874606344d2ba01278b3b4b6fb1504bc396"
+  integrity sha512-TaP4VB6oMYFXpyqJAtvVNml9lHu/VJ8974OwyMr41rGIqZVn2a+BY0tr2nDsUYJ9cwN1yN8ur45NT4gYh5JLKQ==
+
 "@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.4.tgz#a3f1b8e3de6508d44b3758852ee0861b486585e8"
