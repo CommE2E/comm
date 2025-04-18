@@ -9,14 +9,12 @@ import {
   getThreadPermissionBlobFromUserSurfacedPermissions,
 } from 'lib/permissions/thread-permissions.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import {
   userSurfacedPermissionsSet,
   threadPermissions,
 } from 'lib/types/thread-permission-types.js';
-import {
-  threadTypeIsCommunityRoot,
-  type ThreadType,
-} from 'lib/types/thread-types-enum.js';
+import { type ThreadType } from 'lib/types/thread-types-enum.js';
 import type {
   RoleModificationRequest,
   RoleModificationResult,

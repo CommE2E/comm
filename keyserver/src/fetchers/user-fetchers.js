@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import { communityThreadTypes } from 'lib/shared/threads/thread-specs.js';
 import {
   hasMinCodeVersion,
   FUTURE_CODE_VERSION,
@@ -13,7 +14,6 @@ import {
   userRelationshipStatus,
 } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { communityThreadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   UserInfos,
   CurrentUserInfo,

@@ -8,9 +8,9 @@ import { createSelector } from 'reselect';
 
 import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { useFetchMessages } from 'lib/shared/message-utils.js';
+import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsPersonal } from 'lib/types/thread-types-enum.js';
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';

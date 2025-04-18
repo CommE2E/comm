@@ -17,7 +17,7 @@ import {
   threadIsPending,
   useIsThreadInChatList,
 } from 'lib/shared/thread-utils.js';
-import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import {

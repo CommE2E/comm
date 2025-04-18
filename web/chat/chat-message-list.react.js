@@ -17,8 +17,8 @@ import {
   threadIsPending,
   threadOtherMembers,
 } from 'lib/shared/thread-utils.js';
+import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsPersonal } from 'lib/types/thread-types-enum.js';
 
 import { defaultMaxTextAreaHeight, editBoxHeight } from './chat-constants.js';
 import css from './chat-message-list.css';

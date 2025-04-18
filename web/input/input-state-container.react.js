@@ -53,6 +53,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
+import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   MediaMission,
@@ -72,10 +73,7 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
-import {
-  threadTypeIsSidebar,
-  threadTypeIsThick,
-} from 'lib/types/thread-types-enum.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,

@@ -18,11 +18,11 @@ import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
+import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import type {
   ClientCommunityInfoWithCommunityName,
   ClientFetchNativeDrawerAndDirectoryInfosResponse,
 } from 'lib/types/community-types.js';
-import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import {
   createRecursiveDrawerItemsData,
   useAppendCommunitySuffix,
