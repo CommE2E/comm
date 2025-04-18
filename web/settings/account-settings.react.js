@@ -16,7 +16,7 @@ import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
+} from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
