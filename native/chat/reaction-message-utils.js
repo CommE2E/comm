@@ -12,7 +12,7 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
+} from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { getNextLocalID } from 'lib/shared/message-utils.js';
 import type { DMSendReactionMessageOperation } from 'lib/types/dm-ops.js';
