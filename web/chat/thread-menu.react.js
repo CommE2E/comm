@@ -15,7 +15,7 @@ import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
   type OutboundDMOperationSpecification,
   dmOperationSpecificationTypes,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
+} from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import {
   threadIsChannel,
