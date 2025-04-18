@@ -35,7 +35,7 @@
     "webpack": "^5.98.0"
   },
   "dependencies": {
-    "@commapp/olm": "0.2.3",
+    "@commapp/olm": "0.2.4-test",
     "@ensdomains/ensjs": "^4.0.1",
     "@rainbow-me/rainbowkit": "^2.0.7",
     "base-64": "^0.1.0",
