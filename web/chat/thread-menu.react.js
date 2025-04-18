@@ -22,13 +22,15 @@ import {
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
-import { type DMLeaveThreadOperation } from 'lib/types/dm-ops.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypeIsPersonal,
   threadTypeIsPrivate,
   threadTypeIsSidebar,
+} from 'lib/shared/threads/thread-specs.js';
+import { type DMLeaveThreadOperation } from 'lib/types/dm-ops.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import {
   threadTypeIsThick,
   thickThreadTypes,
 } from 'lib/types/thread-types-enum.js';
