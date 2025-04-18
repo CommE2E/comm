@@ -15,7 +15,7 @@ import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import {
   type OutboundDMOperationSpecification,
   dmOperationSpecificationTypes,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
+} from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { DMLeaveThreadOperation } from 'lib/types/dm-ops';
