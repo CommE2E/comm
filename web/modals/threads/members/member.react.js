@@ -38,7 +38,8 @@ function ThreadMember(props: Props): React.Node {
   const { pushModal } = useModalContext();
   const userName = stringForUser(memberInfo);
 
-  const roles = useRolesFromCommunityThreadInfo(threadInfo, [memberInfo]);
+  const memberInfos = React.useMemo(() => [memberInfo], [memberInfo]);
+  const roles = useRolesFromCommunityThreadInfo(threadInfo, memberInfos);
   const roleName = roles.get(memberInfo.id)?.name;
 
   const onMenuChange = React.useCallback(

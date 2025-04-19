@@ -987,6 +987,15 @@ function ConnectedChatInputBarBase({
     prevEditedMessage.current = editedMessage;
   }, [blockNavigation, messageEditingContext?.editState.editedMessage]);
 
+  const currentlyEditMode = isEditMode();
+  const expandoButtonsViewStyle: Array<ViewStyle> = React.useMemo(() => {
+    const combined = [styles.innerExpandoButtons];
+    if (currentlyEditMode) {
+      combined.push({ display: 'none' });
+    }
+    return combined;
+  }, [styles.innerExpandoButtons, currentlyEditMode]);
+
   const renderInput = () => {
     const expandoButton = (
       <TouchableOpacity
@@ -1004,12 +1013,6 @@ function ConnectedChatInputBarBase({
       </TouchableOpacity>
     );
     const threadColor = `#${threadInfo.color}`;
-    const expandoButtonsViewStyle: Array<ViewStyle> = [
-      styles.innerExpandoButtons,
-    ];
-    if (isEditMode()) {
-      expandoButtonsViewStyle.push({ display: 'none' });
-    }
     return (
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <View style={styles.inputContainer}>
@@ -1079,6 +1082,10 @@ function ConnectedChatInputBarBase({
   const isMember = viewerIsMember(threadInfo);
   let joinButton = null;
   const threadColor = `#${threadInfo.color}`;
+  const joinButtonStyle = React.useMemo(
+    () => [styles.joinButton, { backgroundColor: threadColor }],
+    [styles.joinButton, threadColor],
+  );
 
   if (!isMember && currentUserCanJoin && !threadCreationInProgress) {
     let buttonContent;
@@ -1106,7 +1113,7 @@ function ConnectedChatInputBarBase({
         <Button
           onPress={onPressJoin}
           iosActiveOpacity={0.85}
-          style={[styles.joinButton, { backgroundColor: threadColor }]}
+          style={joinButtonStyle}
         >
           {buttonContent}
         </Button>
@@ -1163,6 +1170,11 @@ function ConnectedChatInputBarBase({
       <KeyboardInputHost textInputRef={textInputRef.current} />
     );
 
+  const editingLabelStyle = React.useMemo(
+    () => [{ color: threadColor }, styles.editingLabel],
+    [threadColor, styles.editingLabel],
+  );
+
   let editedMessage;
   if (isEditMode() && editedMessagePreview) {
     const { message } = editedMessagePreview;
@@ -1174,9 +1186,7 @@ function ConnectedChatInputBarBase({
       >
         <View style={styles.editViewContent}>
           <TouchableOpacity onPress={scrollToEditedMessage} activeOpacity={0.4}>
-            <Text style={[{ color: threadColor }, styles.editingLabel]}>
-              Editing message
-            </Text>
+            <Text style={editingLabelStyle}>Editing message</Text>
             <SingleLine style={styles.editingMessagePreview}>
               {message.text}
             </SingleLine>

@@ -144,7 +144,10 @@ function UserEntity(props: UserEntityProps) {
 }
 
 function ColorEntity(props: { +color: string }) {
-  const colorStyle = { color: props.color };
+  const colorStyle = React.useMemo(
+    () => ({ color: props.color }),
+    [props.color],
+  );
   return <Text style={colorStyle}>{props.color}</Text>;
 }
 

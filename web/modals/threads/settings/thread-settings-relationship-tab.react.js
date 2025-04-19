@@ -18,7 +18,8 @@ type Props = {
 
 function ThreadSettingsRelationshipTab(props: Props): React.Node {
   const { relationshipButtons, otherUserInfo, setErrorMessage } = props;
-  const [otherUserInfoWithENSName] = useENSNames([otherUserInfo]);
+  const userInfos = React.useMemo(() => [otherUserInfo], [otherUserInfo]);
+  const [otherUserInfoWithENSName] = useENSNames(userInfos);
   const buttons = React.useMemo(
     () =>
       relationshipButtons.map(action => (

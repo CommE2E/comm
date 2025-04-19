@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import { useCallback } from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import type { ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
@@ -29,6 +28,7 @@ const cancelButtonColor: ButtonColor = {
 };
 
 const bottomRowStyle = { height: editBoxBottomRowHeight };
+const buttonClassNames = [css.saveButton, css.smallButton];
 
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
@@ -47,10 +47,7 @@ function EditTextMessage(props: Props): React.Node {
     [threadColor],
   );
 
-  const isMessageEmpty = React.useMemo(
-    () => trimMessage(editedMessageDraft) === '',
-    [editedMessageDraft],
-  );
+  const isMessageEmpty = trimMessage(editedMessageDraft) === '';
 
   const isMessageEdited = React.useMemo(() => {
     const { messageInfo } = item;
@@ -64,7 +61,7 @@ function EditTextMessage(props: Props): React.Node {
     return trimmedDraft !== messageInfo.text;
   }, [editState, editedMessageDraft, item]);
 
-  const checkAndEdit = async () => {
+  const checkAndEdit = React.useCallback(async () => {
     const { id: messageInfoID } = item.messageInfo;
     if (isMessageEmpty) {
       return;
@@ -73,18 +70,26 @@ function EditTextMessage(props: Props): React.Node {
       clearEditModal();
       return;
     }
-    if (!messageInfoID || !editState?.editedMessageDraft) {
+    if (!messageInfoID || !editedMessageDraft) {
       return;
     }
     try {
-      await editMessage(messageInfoID, editState.editedMessageDraft);
+      await editMessage(messageInfoID, editedMessageDraft);
       clearEditModal();
     } catch (e) {
       setError(true);
     }
-  };
+  }, [
+    item.messageInfo,
+    isMessageEmpty,
+    isMessageEdited,
+    editedMessageDraft,
+    editMessage,
+    clearEditModal,
+    setError,
+  ]);
 
-  const updateDimensions = useCallback(() => {
+  const updateDimensions = React.useCallback(() => {
     if (!myRef.current || !background) {
       return;
     }
@@ -156,7 +161,7 @@ function EditTextMessage(props: Props): React.Node {
         {editFailed}
         <div className={css.buttons}>
           <Button
-            className={[css.saveButton, css.smallButton]}
+            className={buttonClassNames}
             variant="filled"
             buttonColor={saveButtonColor}
             onClick={checkAndEdit}
