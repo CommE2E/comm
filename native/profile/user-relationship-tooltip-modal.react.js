@@ -35,17 +35,18 @@ type OnRemoveUserProps = {
   ...UserRelationshipTooltipModalParams,
   +action: Action,
 };
-function useRelationshipAction(input: OnRemoveUserProps) {
+function useRelationshipAction({
+  relativeUserInfo,
+  action,
+}: OnRemoveUserProps) {
   const updateRelationships = useUpdateRelationships();
   const dispatchActionPromise = useDispatchActionPromise();
-  const userText = stringForUser(input.relativeUserInfo);
+  const userText = stringForUser(relativeUserInfo);
 
   return React.useCallback(() => {
     const callRemoveRelationships = async () => {
       try {
-        return await updateRelationships(input.action, [
-          input.relativeUserInfo.id,
-        ]);
+        return await updateRelationships(action, [relativeUserInfo.id]);
       } catch (e) {
         Alert.alert(
           unknownErrorAlertDetails.title,
@@ -59,25 +60,25 @@ function useRelationshipAction(input: OnRemoveUserProps) {
       }
     };
     const onConfirmRemoveUser = () => {
-      const customKeyName = `${updateRelationshipsActionTypes.started}:${input.relativeUserInfo.id}`;
+      const customKeyName = `${updateRelationshipsActionTypes.started}:${relativeUserInfo.id}`;
       void dispatchActionPromise(
         updateRelationshipsActionTypes,
         callRemoveRelationships(),
         { customKeyName },
       );
     };
-    const action = {
+    const actionStr = {
       unfriend: 'removal',
       block: 'block',
       unblock: 'unblock',
-    }[input.action];
+    }[action];
     const message = {
       unfriend: `remove ${userText} from friends?`,
       block: `block ${userText}`,
       unblock: `unblock ${userText}?`,
-    }[input.action];
+    }[action];
     Alert.alert(
-      `Confirm ${action}`,
+      `Confirm ${actionStr}`,
       `Are you sure you want to ${message}`,
       [
         { text: 'Cancel', style: 'cancel' },
@@ -85,7 +86,13 @@ function useRelationshipAction(input: OnRemoveUserProps) {
       ],
       { cancelable: true },
     );
-  }, [updateRelationships, dispatchActionPromise, userText, input]);
+  }, [
+    updateRelationships,
+    dispatchActionPromise,
+    userText,
+    relativeUserInfo,
+    action,
+  ]);
 }
 
 function TooltipMenu(

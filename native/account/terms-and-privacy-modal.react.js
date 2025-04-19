@@ -41,6 +41,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
   policyAcknowledgmentActionTypes,
 );
 
+const safeAreaEdges = ['top', 'bottom'];
+
 function TermsAndPrivacyModal(props: Props): React.Node {
   const loadingStatus = useSelector(loadingStatusSelector);
   const [acknowledgmentError, setAcknowledgmentError] = React.useState('');
@@ -89,7 +91,6 @@ function TermsAndPrivacyModal(props: Props): React.Node {
     };
   }, [onBackPress]);
 
-  const safeAreaEdges = ['top', 'bottom'];
   return (
     <Modal
       disableClosing={true}

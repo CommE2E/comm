@@ -44,7 +44,11 @@ export default function HistoryRevision(props: Props): React.Node {
   const authorUserInfo = useSelector(
     state => state.userStore.userInfos[authorID],
   );
-  const [authorWithENSName] = useENSNames([authorUserInfo]);
+  const authorUserInfos = React.useMemo(
+    () => [authorUserInfo],
+    [authorUserInfo],
+  );
+  const [authorWithENSName] = useENSNames(authorUserInfos);
 
   const author = authorWithENSName?.username ? (
     <span className={css.entryUsername}>{authorWithENSName.username}</span>

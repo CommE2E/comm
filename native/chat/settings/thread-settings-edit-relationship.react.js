@@ -44,7 +44,11 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
     });
     invariant(otherUserInfoFromRedux, 'Other user info should be specified');
 
-    const [otherUserInfo] = useENSNames([otherUserInfoFromRedux]);
+    const ensNames = React.useMemo(
+      () => [otherUserInfoFromRedux],
+      [otherUserInfoFromRedux],
+    );
+    const [otherUserInfo] = useENSNames(ensNames);
 
     const updateRelationships = useUpdateRelationships();
     const updateRelationship = React.useCallback(

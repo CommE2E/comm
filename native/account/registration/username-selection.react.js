@@ -118,26 +118,33 @@ function UsernameSelection(props: Props): React.Node {
   }
 
   const styles = useStyles(unboundStyles);
+  const errorNumberStyle = React.useMemo(
+    () => [styles.errorText, styles.listItemNumber],
+    [styles.errorText, styles.listItemNumber],
+  );
+  const errorTextStyle = React.useMemo(
+    () => [styles.errorText, styles.listItemContent],
+    [styles.errorText, styles.listItemContent],
+  );
+
   let errorText;
   if (usernameError === 'username_invalid') {
     errorText = (
       <>
         <Text style={styles.errorText}>Usernames must:</Text>
         <View style={styles.listItem}>
-          <Text style={[styles.errorText, styles.listItemNumber]}>{'1. '}</Text>
-          <Text style={[styles.errorText, styles.listItemContent]}>
-            Be at least one character long.
-          </Text>
+          <Text style={errorNumberStyle}>{'1. '}</Text>
+          <Text style={errorTextStyle}>Be at least one character long.</Text>
         </View>
         <View style={styles.listItem}>
-          <Text style={[styles.errorText, styles.listItemNumber]}>{'2. '}</Text>
-          <Text style={[styles.errorText, styles.listItemContent]}>
+          <Text style={errorNumberStyle}>{'2. '}</Text>
+          <Text style={errorTextStyle}>
             Start with either a letter or a number.
           </Text>
         </View>
         <View style={styles.listItem}>
-          <Text style={[styles.errorText, styles.listItemNumber]}>{'3. '}</Text>
-          <Text style={[styles.errorText, styles.listItemContent]}>
+          <Text style={errorNumberStyle}>{'3. '}</Text>
+          <Text style={errorTextStyle}>
             Contain only letters, numbers, or the characters “-” and “_”.
           </Text>
         </View>

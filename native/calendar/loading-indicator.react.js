@@ -12,11 +12,14 @@ type Props = {
   +canUseRed: boolean,
 };
 function LoadingIndicator(props: Props): React.Node {
-  if (props.loadingStatus === 'error') {
-    const colorStyle = props.canUseRed
+  const errorStyle = React.useMemo(() => {
+    const errorColorStyle = props.canUseRed
       ? { color: 'red' }
       : { color: props.color };
-    return <Icon name="x-circle" style={[styles.errorIcon, colorStyle]} />;
+    return [styles.errorIcon, errorColorStyle];
+  }, [props.canUseRed, props.color]);
+  if (props.loadingStatus === 'error') {
+    return <Icon name="x-circle" style={errorStyle} />;
   } else if (props.loadingStatus === 'loading') {
     return <ActivityIndicator size="small" color={props.color} />;
   } else {

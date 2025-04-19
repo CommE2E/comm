@@ -75,28 +75,26 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentText]);
 
-    const onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        if (!escape) {
-          return;
+    const onKeyDown = React.useCallback(
+      (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          escape?.();
+        } else if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          send?.();
         }
-        escape();
-      } else if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        if (!send) {
-          return;
-        }
-        send();
-      }
-    };
+      },
+      [escape, send],
+    );
 
-    const onChangeMessageText = (
-      event: SyntheticEvent<HTMLTextAreaElement>,
-    ) => {
-      setCurrentText(event.currentTarget.value);
-      updateHeight();
-    };
+    const onChangeMessageText = React.useCallback(
+      (event: SyntheticEvent<HTMLTextAreaElement>) => {
+        setCurrentText(event.currentTarget.value);
+        updateHeight();
+      },
+      [setCurrentText, updateHeight],
+    );
 
     return (
       <div className={css.inputBarTextInput}>
