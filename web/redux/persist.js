@@ -824,6 +824,19 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     WebNavInfo,
     AppState,
   >),
+  [91]: (async (state: AppState) => ({
+    state: {
+      ...state,
+      alertStore: {
+        ...state.alertStore,
+        alertInfos: {
+          ...defaultAlertInfos,
+          ...state.alertStore.alertInfos,
+        },
+      },
+    },
+    ops: {},
+  }): MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
