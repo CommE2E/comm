@@ -1589,6 +1589,19 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       [messageTypes.DELETE_MESSAGE],
       handleReduxMigrationFailure,
     ): MigrationFunction<NavInfo, AppState>),
+  [91]: (async (state: AppState) => ({
+    state: {
+      ...state,
+      alertStore: {
+        ...state.alertStore,
+        alertInfos: {
+          ...defaultAlertInfos,
+          ...state.alertStore.alertInfos,
+        },
+      },
+    },
+    ops: {},
+  }): MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {
