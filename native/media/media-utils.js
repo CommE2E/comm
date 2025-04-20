@@ -244,6 +244,12 @@ async function innerProcessMedia(
     return await finish();
   }
 
+  // The upload logic (uploadURI) requires a filesystem URI.
+  // The only case where processImage and processVideo don't return a filesystem
+  // URI is when they return the URI they were passed (selection.uri). Since we
+  // check that case directly above, we can safely set uploadURI here.
+  uploadURI = uriAfterProcessing;
+
   if (!config.finalFileHeaderCheck) {
     returnResult();
   }
@@ -255,9 +261,6 @@ async function innerProcessMedia(
   if (!finalFileInfoResult.success) {
     return await finish(finalFileInfoResult);
   }
-
-  // the upload logic (uploadURI) requires a filesystem uri
-  uploadURI = finalFileInfoResult.uri;
 
   if (finalFileInfoResult.mime && finalFileInfoResult.mime !== mime) {
     return await finish({
