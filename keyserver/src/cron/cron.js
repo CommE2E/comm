@@ -15,7 +15,6 @@ import { createDailyUpdatesThread } from './daily-updates.js';
 import { postMetrics } from './metrics.js';
 import { postLeaderboard } from './phab-leaderboard.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
-import { updateIdentityReservedUsernames } from './update-identity-reserved-usernames.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
 import { deleteOrphanedDays } from '../deleters/day-deleters.js';
@@ -83,23 +82,6 @@ if (cluster.isMaster) {
           await deleteOrphanedInviteLinks();
         } catch (e) {
           console.warn('encountered error while trying to clean database', e);
-        }
-      },
-    );
-    schedule.scheduleJob(
-      '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
-      async () => {
-        const memBefore = getOlmMemory();
-        try {
-          await updateIdentityReservedUsernames();
-        } catch (e) {
-          console.warn(
-            'encountered error while trying to update reserved usernames on ' +
-              'identity service',
-            e,
-          );
-        } finally {
-          compareAndLogOlmMemory(memBefore, 'reserved usernames cronjob');
         }
       },
     );
