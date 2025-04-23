@@ -28,7 +28,6 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import {
-  type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
@@ -68,6 +67,7 @@ import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
+  type SendMultimediaMessagePayload,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';

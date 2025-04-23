@@ -20,7 +20,6 @@ import {
 } from 'lib/actions/upload-actions.js';
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
-  type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
@@ -66,6 +65,7 @@ import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
+  type SendMultimediaMessagePayload,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
