@@ -16,12 +16,10 @@ import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type BlobServiceUploadResult,
-  updateMultimediaMessageMediaActionType,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
-  type SendMultimediaMessagePayload,
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
@@ -54,18 +52,20 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
-import type {
-  Media,
-  MediaMission,
-  MediaMissionResult,
-  MediaMissionStep,
-  NativeMediaSelection,
+import {
+  type Media,
+  type MediaMission,
+  type MediaMissionResult,
+  type MediaMissionStep,
+  type NativeMediaSelection,
+  updateMultimediaMessageMediaActionType,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
+  type SendMultimediaMessagePayload,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
