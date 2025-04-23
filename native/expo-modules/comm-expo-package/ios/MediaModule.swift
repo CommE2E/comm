@@ -161,15 +161,48 @@ public class MediaModule: Module {
       promise.reject(TranscodingFailed("File has no video track"))
       return
     }
-    let audioTrack = asset.tracks(withMediaType: .audio).first
+    
+    // use video composition to rotate the video according to preferredTransform
+    let videoComposition = AVMutableVideoComposition()
+    let videoSize = videoTrack.naturalSize
+    
+    var preferredTransform = videoTrack.preferredTransform
+    // preferredTransform is sometimes read incorrectly and it doesn't have correct tx, ty values
+    // https://stackoverflow.com/questions/64161544/avassettracks-preferredtransform-sometimes-seems-to-be-wrong-how-can-this-be-f
+    let naturalFrame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+    let preferredFrame = CGRectApplyAffineTransform(naturalFrame, preferredTransform);
+    preferredTransform.tx -= preferredFrame.origin.x;
+    preferredTransform.ty -= preferredFrame.origin.y;
+    
+    let shouldFlipDimensions = abs(preferredTransform.b) == 1.0 || abs(preferredTransform.c) == 1.0
+    
+    if shouldFlipDimensions {
+      videoComposition.renderSize = CGSize(width: videoSize.height, height: videoSize.width)
+    } else {
+      videoComposition.renderSize = videoSize
+    }
+    
+    videoComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(videoTrack.nominalFrameRate))
+    
+    let instruction = AVMutableVideoCompositionInstruction()
+    instruction.timeRange = CMTimeRangeMake(start: .zero, duration: asset.duration)
+    
+    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+    layerInstruction.setTransform(preferredTransform, at: .zero)
+    
+    instruction.layerInstructions = [layerInstruction]
+    videoComposition.instructions = [instruction]
     
     let videoReaderSettings: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
     
-    let videoTrackOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: videoReaderSettings)
+    let videoTrackOutput = AVAssetReaderVideoCompositionOutput(videoTracks: [videoTrack], videoSettings: videoReaderSettings)
+    videoTrackOutput.videoComposition = videoComposition
     
     if assetReader.canAdd(videoTrackOutput) {
       assetReader.add(videoTrackOutput)
     }
+    
+    let audioTrack = asset.tracks(withMediaType: .audio).first
     
     var audioTrackOutput:AVAssetReaderTrackOutput? = nil
     
@@ -192,19 +225,10 @@ public class MediaModule: Module {
     }
     assetWriter.shouldOptimizeForNetworkUse = true
     
-    guard let videoTrack = asset.tracks(withMediaType: .video).first else {
-      promise.reject(TranscodingFailed("No video track in file"))
-      return
-    }
-    let preferredTransform = videoTrack.preferredTransform
-    
-    let naturalFrame = CGRectMake(0, 0, options.width, options.height);
-    let preferredFrame = CGRectApplyAffineTransform(naturalFrame, preferredTransform);
-    
     var videoCompressionSettings: [String: Any] = [
       AVVideoCodecKey: AVVideoCodecType.h264,
-      AVVideoWidthKey: preferredFrame.width,
-      AVVideoHeightKey: preferredFrame.height,
+      AVVideoWidthKey: options.width,
+      AVVideoHeightKey: options.height,
     ]
     
     var videoCompressionProperties: [String: Any] = [:]
@@ -223,8 +247,6 @@ public class MediaModule: Module {
     videoCompressionSettings[AVVideoCompressionPropertiesKey] = videoCompressionProperties
     
     let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoCompressionSettings)
-    
-    videoWriterInput.transform = preferredTransform
     
     if assetWriter.canAdd(videoWriterInput) {
       assetWriter.add(videoWriterInput)
