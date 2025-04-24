@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useBlobServiceUpload } from 'lib/actions/upload-actions.js';
+import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
