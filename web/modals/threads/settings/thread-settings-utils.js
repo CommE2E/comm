@@ -49,7 +49,7 @@ function useOnSaveGeneralThreadSettings(
             threadInfo,
             ...changeThreadSettingsRequest,
           }
-        : { thick: false, ...changeThreadSettingsRequest };
+        : { thick: false, threadInfo, ...changeThreadSettingsRequest };
 
       return await callChangeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
@@ -104,6 +104,7 @@ function useOnSavePrivacyThreadSettings(
         thick: false,
         threadID: threadInfo.id,
         changes: queuedChanges,
+        threadInfo,
       });
       modalContext.popModal();
       return response;
@@ -118,7 +119,7 @@ function useOnSavePrivacyThreadSettings(
     queuedChanges,
     setErrorMessage,
     setQueuedChanges,
-    threadInfo.id,
+    threadInfo,
   ]);
 
   const onSubmit = React.useCallback(

@@ -205,7 +205,11 @@ class ThreadSettingsName extends React.PureComponent<Props> {
             threadInfo: this.props.threadInfo,
             ...changeThreadSetingsRequest,
           }
-        : { thick: false, ...changeThreadSetingsRequest };
+        : {
+            thick: false,
+            threadInfo: this.props.threadInfo,
+            ...changeThreadSetingsRequest,
+          };
 
       return await this.props.changeThreadSettings(changeThreadSettingsInput);
     } catch (e) {

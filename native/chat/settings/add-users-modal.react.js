@@ -75,13 +75,13 @@ function AddUsersModal(props: Props): React.Node {
   const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
   const { route } = props;
   const { threadInfo } = route.params;
-  const threadID = threadInfo.id;
   const addUsersToThread = React.useCallback(async () => {
     try {
       const result = await callChangeThreadSettings({
         thick: false,
-        threadID: threadID,
+        threadID: threadInfo.id,
         changes: { newMemberIDs: userInfoInputIDs },
+        threadInfo,
       });
       close();
       return result;
@@ -96,7 +96,7 @@ function AddUsersModal(props: Props): React.Node {
     }
   }, [
     callChangeThreadSettings,
-    threadID,
+    threadInfo,
     userInfoInputIDs,
     close,
     onUnknownErrorAlertAcknowledged,
