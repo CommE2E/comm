@@ -3,11 +3,9 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  toggleMessagePinActionTypes,
-  useToggleMessagePin,
-} from 'lib/actions/message-actions.js';
+import { toggleMessagePinActionTypes } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useToggleMessagePin } from 'lib/hooks/message-hooks.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';

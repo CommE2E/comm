@@ -4,10 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import {
-  toggleMessagePinActionTypes,
-  useToggleMessagePin,
-} from 'lib/actions/message-actions.js';
+import { toggleMessagePinActionTypes } from 'lib/actions/message-actions.js';
+import { useToggleMessagePin } from 'lib/hooks/message-hooks.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';

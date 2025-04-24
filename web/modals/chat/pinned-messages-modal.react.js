@@ -2,11 +2,9 @@
 
 import * as React from 'react';
 
-import {
-  fetchPinnedMessageActionTypes,
-  useFetchPinnedMessages,
-} from 'lib/actions/message-actions.js';
+import { fetchPinnedMessageActionTypes } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useFetchPinnedMessages } from 'lib/hooks/message-hooks.js';
 import {
   type ChatMessageInfoItem,
   messageListData,

@@ -4,10 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import uuid from 'uuid';
 
-import {
-  useSendReactionMessage,
-  sendReactionMessageActionTypes,
-} from 'lib/actions/message-actions.js';
+import { sendReactionMessageActionTypes } from 'lib/actions/message-actions.js';
+import { useSendReactionMessage } from 'lib/hooks/message-hooks.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import {
   dmOperationSpecificationTypes,
