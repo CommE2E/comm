@@ -5,7 +5,7 @@
 namespace comm {
 
 WorkerThread::WorkerThread(const std::string name)
-    : tasks(rigtorp::MPMCQueue<std::unique_ptr<taskType>>(500)), name(name) {
+    : tasks(mpmcqueue<std::unique_ptr<taskType>>(500)), name(name) {
   auto job = [this]() {
     while (true) {
       std::unique_ptr<taskType> lastTask;
