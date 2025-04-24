@@ -8,9 +8,9 @@ import { Platform } from 'react-native';
 import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useBlobServiceUpload } from 'lib/actions/upload-actions.js';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,

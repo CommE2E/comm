@@ -21,8 +21,6 @@ import {
   type BlobServiceUploadAction,
   type DeleteUploadInput,
   updateMultimediaMessageMediaActionType,
-  useBlobServiceUpload,
-  useDeleteUpload,
 } from 'lib/actions/upload-actions.js';
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
@@ -35,6 +33,10 @@ import {
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
+import {
+  useBlobServiceUpload,
+  useDeleteUpload,
+} from 'lib/hooks/upload-hooks.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';

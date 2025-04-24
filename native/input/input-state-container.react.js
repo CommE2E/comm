@@ -17,7 +17,6 @@ import {
   type BlobServiceUploadAction,
   type BlobServiceUploadResult,
   updateMultimediaMessageMediaActionType,
-  useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
@@ -26,6 +25,7 @@ import {
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
+import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
 import type {
   CallSingleKeyserverEndpointOptions,
   CallSingleKeyserverEndpointResponse,
