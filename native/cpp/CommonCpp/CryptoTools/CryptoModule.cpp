@@ -469,8 +469,8 @@ void CryptoModule::verifySignature(
 }
 
 std::optional<std::string> CryptoModule::validatePrekey() {
-  static const uint64_t maxPrekeyPublishTime = 10 * 60;
-  static const uint64_t maxOldPrekeyAge = 2 * 60;
+  static const uint64_t maxPrekeyPublishTime = 30 * 24 * 60 * 60; // 30 days
+  static const uint64_t maxOldPrekeyAge = 24 * 60 * 60; // 24 hours
   std::optional<std::string> maybeNewPrekey;
 
   bool prekeyDoesntExist = this->prekeyDoesntExist();
