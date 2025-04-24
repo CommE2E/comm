@@ -1,6 +1,10 @@
 // @flow
 
-import olm, { type Utility as OlmUtility } from '@commapp/olm';
+import olm, {
+  type Account as OlmAccount,
+  type Utility as OlmUtility,
+} from '@commapp/olm';
+import base64 from 'base-64';
 import localforage from 'localforage';
 import uuid from 'uuid';
 
@@ -432,6 +436,41 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   notificationAccount.free();
 
   return signedIdentityKeysBlob;
+}
+
+// sync version of olmAPI.verifyMessage()
+function olmVerifyMessage(
+  message: string | Uint8Array,
+  signature: string,
+  signingPublicKey: string,
+) {
+  const olmUtility: OlmUtility = getOlmUtility();
+  try {
+    olmUtility.ed25519_verify(signingPublicKey, message, signature);
+    return true;
+  } catch (err) {
+    const isSignatureInvalid =
+      getMessageForException(err)?.includes('BAD_MESSAGE_MAC');
+    if (isSignatureInvalid) {
+      return false;
+    }
+    throw err;
+  }
+}
+
+function isPrekeySignatureValid(account: OlmAccount): boolean {
+  const signingPublicKey = JSON.parse(account.identity_keys()).ed25519;
+  const { prekey, prekeySignature } = getAccountPrekeysSet(account);
+  if (!prekey || !prekeySignature) {
+    return false;
+  }
+
+  const prekeyRawUTFString = base64.decode(prekey);
+  const prekeyBytes = new Uint8Array(
+    prekeyRawUTFString.split('').map(c => c.charCodeAt(0)),
+  );
+
+  return olmVerifyMessage(prekeyBytes, prekeySignature, signingPublicKey);
 }
 
 async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
@@ -983,9 +1022,13 @@ const olmAPI: OlmAPI = {
     const notifsCryptoAccount =
       await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
+    const isPrekeyCorrupt =
+      !isPrekeySignatureValid(contentAccount) ||
+      !isPrekeySignatureValid(notifsCryptoAccount.notificationAccount);
+
     // Content and notification accounts' keys are always rotated at the same
     // time so we only need to check one of them.
-    if (shouldRotatePrekey(contentAccount)) {
+    if (shouldRotatePrekey(contentAccount) || isPrekeyCorrupt) {
       contentAccount.generate_prekey();
       notifsCryptoAccount.notificationAccount.generate_prekey();
     }
@@ -1030,22 +1073,11 @@ const olmAPI: OlmAPI = {
     return contentAccount.sign(message);
   },
   async verifyMessage(
-    message: string,
+    message: string | Uint8Array,
     signature: string,
     signingPublicKey: string,
   ): Promise<boolean> {
-    const olmUtility: OlmUtility = getOlmUtility();
-    try {
-      olmUtility.ed25519_verify(signingPublicKey, message, signature);
-      return true;
-    } catch (err) {
-      const isSignatureInvalid =
-        getMessageForException(err)?.includes('BAD_MESSAGE_MAC');
-      if (isSignatureInvalid) {
-        return false;
-      }
-      throw err;
-    }
+    return olmVerifyMessage(message, signature, signingPublicKey);
   },
   async markPrekeysAsPublished(): Promise<void> {
     if (!cryptoStore) {
