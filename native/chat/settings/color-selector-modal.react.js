@@ -111,7 +111,11 @@ function ColorSelectorModal(props: Props): React.Node {
               threadInfo: props.route.params.threadInfo,
               ...changeThreadSettingRequest,
             }
-          : { thick: false, ...changeThreadSettingRequest };
+          : {
+              thick: false,
+              threadInfo: props.route.params.threadInfo,
+              ...changeThreadSettingRequest,
+            };
         return await updateThreadSettings(changeThreadSettingInput);
       } catch (e) {
         Alert.alert(
