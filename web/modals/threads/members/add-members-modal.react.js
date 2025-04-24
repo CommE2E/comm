@@ -77,6 +77,7 @@ function AddMembersModalContent(props: Props): React.Node {
         callChangeThreadSettings({
           thick: false,
           threadID,
+          threadInfo,
           changes: { newMemberIDs },
         }),
       );
