@@ -35,6 +35,7 @@ import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type {
   CalendarQuery,
@@ -50,7 +51,6 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -848,9 +848,10 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       `keyserver ${keyserverID ?? 'null'} missing from keyserverStore`,
     );
 
-    const online = threadTypeIsThick(threadInfo.type)
-      ? !!socketState.connected
-      : keyserverConnectionStatus.status === 'connected';
+    const online = threadSpecs[threadInfo.type].protocol.calendarIsOnline(
+      socketState,
+      keyserverConnectionStatus.status === 'connected',
+    );
 
     const canEditEntry = useThreadHasPermission(
       threadInfo,
