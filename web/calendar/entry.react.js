@@ -40,7 +40,6 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -503,16 +502,17 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const { socketState } = useTunnelbroker();
 
     const keyserverID = extractKeyserverIDFromIDOptional(threadID);
-    const keyserverConnectionStatus = useSelector(state => {
+    const isKeyserverConnected = useSelector(state => {
       if (!keyserverID) {
         return true;
       }
-      return connectionSelector(keyserverID)(state) === 'connected';
+      return connectionSelector(keyserverID)(state)?.status === 'connected';
     });
 
-    const online = threadTypeIsThick(threadInfo.type)
-      ? !!socketState.connected
-      : keyserverConnectionStatus;
+    const online = threadSpecs[threadInfo.type].protocol.calendarIsOnline(
+      socketState,
+      isKeyserverConnected,
+    );
 
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();
