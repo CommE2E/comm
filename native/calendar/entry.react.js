@@ -652,16 +652,10 @@ class InternalEntry extends React.Component<Props, State> {
         calendarQuery: this.props.calendarQuery(),
       };
 
-      const useCreateEntryInput = threadTypeIsThick(this.props.threadInfo.type)
-        ? {
-            thick: true,
-            threadInfo: this.props.threadInfo,
-            createEntryInfo,
-          }
-        : {
-            thick: false,
-            createEntryInfo,
-          };
+      const useCreateEntryInput = {
+        threadInfo: this.props.threadInfo,
+        createEntryInfo,
+      };
 
       const response = await this.props.createEntry(useCreateEntryInput);
 
@@ -706,16 +700,10 @@ class InternalEntry extends React.Component<Props, State> {
         calendarQuery: this.props.calendarQuery(),
       };
 
-      const useSaveEntryInput = threadTypeIsThick(this.props.threadInfo.type)
-        ? {
-            thick: true,
-            threadInfo: this.props.threadInfo,
-            saveEntryInfo,
-          }
-        : {
-            thick: false,
-            saveEntryInfo,
-          };
+      const useSaveEntryInput = {
+        threadInfo: this.props.threadInfo,
+        saveEntryInfo,
+      };
 
       const response = await this.props.saveEntry(useSaveEntryInput);
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
@@ -797,16 +785,10 @@ class InternalEntry extends React.Component<Props, State> {
         calendarQuery: this.props.calendarQuery(),
       };
 
-      const useDeleteEntryInput = threadTypeIsThick(this.props.threadInfo.type)
-        ? {
-            thick: true,
-            threadInfo: this.props.threadInfo,
-            deleteEntryInfo,
-          }
-        : {
-            thick: false,
-            deleteEntryInfo,
-          };
+      const useDeleteEntryInput = {
+        threadInfo: this.props.threadInfo,
+        deleteEntryInfo,
+      };
 
       return await this.props.deleteEntry(useDeleteEntryInput);
     } else if (this.creating || this.currentlySaving) {
