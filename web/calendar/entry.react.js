@@ -26,6 +26,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   type EntryInfo,
@@ -175,7 +176,7 @@ class Entry extends React.PureComponent<Props, State> {
       let historyButton = null;
       if (
         this.props.entryInfo.id &&
-        !threadTypeIsThick(this.props.threadInfo.type)
+        threadSpecs[this.props.threadInfo.type].protocol.supportsCalendarHistory
       ) {
         historyButton = (
           <a href="#" onClick={this.onHistory}>
