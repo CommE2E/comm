@@ -5,8 +5,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -132,12 +132,12 @@ function ChatThreadListItem({
     [data.threadInfo, styles.avatarContainer],
   );
 
-  const isThick = threadTypeIsThick(data.threadInfo.type);
   const iconStyle = data.threadInfo.currentUser.unread
     ? styles.iconUnread
     : styles.iconRead;
-
-  const iconName = isThick ? 'lock' : 'server';
+  const iconName =
+    threadSpecs[data.threadInfo.type].protocol.presentationDetails
+      .chatThreadListIcon;
 
   const threadDetails = React.useMemo(
     () => (
