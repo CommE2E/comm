@@ -23,6 +23,7 @@ import {
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import {
+  threadSpecs,
   threadTypeIsPersonal,
   threadTypeIsPrivate,
   threadTypeIsSidebar,
@@ -113,7 +114,10 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   );
 
   const threadMediaGalleryItem = React.useMemo(() => {
-    if (threadTypeIsThick(threadInfo.type)) {
+    if (
+      !threadSpecs[threadInfo.type].protocol.presentationDetails
+        .supportsMediaGallery
+    ) {
       return null;
     }
     return (
