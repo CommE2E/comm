@@ -22,7 +22,7 @@ import {
   chatMessageItemKey,
   chatMessageItemHasNonViewerMessage,
 } from 'lib/shared/chat-message-item-utils.js';
-import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { localIDPrefix } from 'lib/shared/id-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import NewMessagesPill from './new-messages-pill.react.js';

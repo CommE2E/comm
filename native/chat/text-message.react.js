@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { messageKey } from 'lib/shared/id-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
