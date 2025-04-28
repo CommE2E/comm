@@ -12,7 +12,6 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ThreadChanges } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -38,18 +37,11 @@ function useOnSaveGeneralThreadSettings(
   const changeThreadSettingsAction = React.useCallback(async () => {
     try {
       setErrorMessage('');
-      const changeThreadSettingsRequest = {
+      const changeThreadSettingsInput = {
+        threadInfo,
         threadID: threadInfo.id,
         changes: queuedChanges,
       };
-
-      const changeThreadSettingsInput = threadTypeIsThick(threadInfo.type)
-        ? {
-            thick: true,
-            threadInfo,
-            ...changeThreadSettingsRequest,
-          }
-        : { thick: false, threadInfo, ...changeThreadSettingsRequest };
 
       return await callChangeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
@@ -101,7 +93,6 @@ function useOnSavePrivacyThreadSettings(
     try {
       setErrorMessage('');
       const response = await callChangeThreadSettings({
-        thick: false,
         threadID: threadInfo.id,
         changes: queuedChanges,
         threadInfo,
