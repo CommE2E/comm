@@ -1,32 +1,13 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
-import uuid from 'uuid';
 
-import { sendReactionMessageActionTypes } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useSendReactionMessage } from 'lib/hooks/message-hooks.js';
-import type { ReactionInfo } from 'lib/selectors/chat-selectors';
-import {
-  dmOperationSpecificationTypes,
-  type OutboundDMOperationSpecification,
-} from 'lib/shared/dm-ops/dm-op-types.js';
-import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
-import { getNextLocalID } from 'lib/shared/message-utils.js';
-import { type DMSendReactionMessageOperation } from 'lib/types/dm-ops.js';
-import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { useSendReactionBase } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import {
-  thickThreadTypes,
-  threadTypeIsThick,
-} from 'lib/types/thread-types-enum.js';
-import { SendMessageError, getMessageForException } from 'lib/utils/errors.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Alert from '../modals/alert.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 import {
   type TooltipSize,
   type TooltipPositionStyle,
@@ -40,121 +21,16 @@ function useSendReaction(
 ): (reaction: string) => mixed {
   const { pushModal } = useModalContext();
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
+  const showErrorAlert = React.useCallback(
+    () =>
+      pushModal(
+        <Alert title="Couldn’t send the reaction">
+          Please try again later
+        </Alert>,
+      ),
+    [pushModal],
   );
-
-  const callSendReactionMessage = useSendReactionMessage();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const processAndSendDMOperation = useProcessAndSendDMOperation();
-
-  return React.useCallback(
-    reaction => {
-      if (!messageID) {
-        return;
-      }
-
-      const localID = getNextLocalID();
-
-      invariant(viewerID, 'viewerID should be set');
-
-      const viewerReacted = reactions[reaction]
-        ? reactions[reaction].viewerReacted
-        : false;
-      const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
-
-      const threadID = threadInfo.id;
-
-      if (threadTypeIsThick(threadInfo.type)) {
-        const op: DMSendReactionMessageOperation = {
-          type: 'send_reaction_message',
-          threadID,
-          creatorID: viewerID,
-          time: Date.now(),
-          messageID: uuid.v4(),
-          targetMessageID: messageID,
-          reaction,
-          action,
-        };
-        const opSpecification: OutboundDMOperationSpecification = {
-          type: dmOperationSpecificationTypes.OUTBOUND,
-          op,
-          recipients: {
-            type: 'all_thread_members',
-            threadID:
-              threadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-              threadInfo.parentThreadID
-                ? threadInfo.parentThreadID
-                : threadInfo.id,
-          },
-        };
-        void processAndSendDMOperation(opSpecification);
-        return;
-      }
-
-      const reactionMessagePromise = (async () => {
-        try {
-          const result = await callSendReactionMessage({
-            threadID,
-            localID,
-            targetMessageID: messageID,
-            reaction,
-            action,
-          });
-          const serverID: string = result.id;
-          const time: number = result.time;
-          return {
-            localID,
-            serverID,
-            threadID,
-            time,
-          };
-        } catch (e) {
-          pushModal(
-            <Alert title="Couldn’t send the reaction">
-              Please try again later
-            </Alert>,
-          );
-          const exceptionMessage = getMessageForException(e) ?? '';
-          throw new SendMessageError(
-            `Exception while sending reaction: ${exceptionMessage}`,
-            localID,
-            threadID,
-          );
-        }
-      })();
-
-      const startingPayload: RawReactionMessageInfo = {
-        type: messageTypes.REACTION,
-        threadID,
-        localID,
-        creatorID: viewerID,
-        time: Date.now(),
-        targetMessageID: messageID,
-        reaction,
-        action,
-      };
-
-      void dispatchActionPromise(
-        sendReactionMessageActionTypes,
-        reactionMessagePromise,
-        undefined,
-        startingPayload,
-      );
-    },
-    [
-      messageID,
-      viewerID,
-      reactions,
-      threadInfo.id,
-      threadInfo.type,
-      threadInfo.parentThreadID,
-      dispatchActionPromise,
-      processAndSendDMOperation,
-      callSendReactionMessage,
-      pushModal,
-    ],
-  );
+  return useSendReactionBase(messageID, threadInfo, reactions, showErrorAlert);
 }
 
 type EmojiKeyboardPosition = {
