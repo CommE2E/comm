@@ -19,7 +19,6 @@ import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { type ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -264,24 +263,11 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     newDescription: string,
   ): Promise<ChangeThreadSettingsPayload> {
     try {
-      const changeThreadSettingsRequest = {
+      const changeThreadSettingsInput = {
+        threadInfo: this.props.threadInfo,
         threadID: this.props.threadInfo.id,
         changes: { description: newDescription },
       };
-
-      const changeThreadSettingsInput = threadTypeIsThick(
-        this.props.threadInfo.type,
-      )
-        ? {
-            thick: true,
-            threadInfo: this.props.threadInfo,
-            ...changeThreadSettingsRequest,
-          }
-        : {
-            thick: false,
-            threadInfo: this.props.threadInfo,
-            ...changeThreadSettingsRequest,
-          };
 
       return await this.props.changeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
