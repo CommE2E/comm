@@ -1,8 +1,8 @@
 #include "MessageOperationsUtilities.h"
 #include "Logger.h"
 #include "MessageSpecs.h"
+#include "StringUtils.h"
 
-//#include <folly/String.h>
 #include <folly/json.h>
 #include <optional>
 #include <stdexcept>
@@ -84,8 +84,8 @@ MessageOperationsUtilities::translateStringToClientDBMessageInfos(
   std::vector<ClientDBMessageInfo> clientDBMessageInfos;
   folly::dynamic rawMessageInfos;
   try {
-    // rawMessageInfos =
-    //     folly::parseJson(folly::trimWhitespace(rawMessageInfosString));
+     rawMessageInfos =
+         folly::parseJson(StringUtils::trimWhitespace(rawMessageInfosString));
   } catch (const folly::json::parse_error &e) {
     Logger::log(
         "Failed to convert message into JSON object. Details: " +
