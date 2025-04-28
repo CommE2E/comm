@@ -39,10 +39,10 @@ import {
   combineLoadingStatuses,
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
+import { getNextLocalID } from 'lib/shared/id-utils.js';
 import {
   createMediaMessageInfo,
   useMessageCreationSideEffectsFunc,
-  getNextLocalID,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
 import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-utils.js';

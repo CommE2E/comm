@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { messageID } from 'lib/shared/message-utils.js';
+import { messageID } from 'lib/shared/id-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RawComposableMessageInfo,

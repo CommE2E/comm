@@ -17,6 +17,7 @@ import {
 } from 'lib/hooks/chat-mention-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { getNextLocalID } from 'lib/shared/id-utils.js';
 import {
   getTypeaheadRegexMatches,
   type MentionTypeaheadSuggestionItem,
@@ -25,7 +26,7 @@ import {
   useMentionTypeaheadUserSuggestions,
   useUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
-import { trimMessage, getNextLocalID } from 'lib/shared/message-utils.js';
+import { trimMessage } from 'lib/shared/message-utils.js';
 import {
   checkIfDefaultMembersAreVoiced,
   threadActualMembers,

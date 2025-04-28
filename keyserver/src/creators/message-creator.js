@@ -10,10 +10,10 @@ import {
   generateNotifUserInfo,
   type FetchMessageNotifyTypeReturnInstance,
 } from 'lib/push/utils.js';
+import { stripLocalIDs } from 'lib/shared/id-utils.js';
 import {
   rawMessageInfoFromMessageData,
   shimUnsupportedRawMessageInfos,
-  stripLocalIDs,
 } from 'lib/shared/message-utils.js';
 import { messageNotifyTypes } from 'lib/shared/messages/message-spec.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
