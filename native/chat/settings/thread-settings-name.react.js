@@ -17,7 +17,6 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
@@ -192,24 +191,11 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
   async editName(newName: string): Promise<ChangeThreadSettingsPayload> {
     try {
-      const changeThreadSetingsRequest = {
+      const changeThreadSettingsInput = {
+        threadInfo: this.props.threadInfo,
         threadID: this.props.threadInfo.id,
         changes: { name: newName },
       };
-
-      const changeThreadSettingsInput = threadTypeIsThick(
-        this.props.threadInfo.type,
-      )
-        ? {
-            thick: true,
-            threadInfo: this.props.threadInfo,
-            ...changeThreadSetingsRequest,
-          }
-        : {
-            thick: false,
-            threadInfo: this.props.threadInfo,
-            ...changeThreadSetingsRequest,
-          };
 
       return await this.props.changeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
