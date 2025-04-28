@@ -8,6 +8,7 @@ set(TOOLS_HDRS
   "WorkerThread.h"
   "StaffUtils.h"
   "OlmUtils.h"
+  "StringUtils.h"
 )
 
 set(TOOLS_SRCS
@@ -15,6 +16,7 @@ set(TOOLS_SRCS
   "WorkerThread.cpp"
   "StaffUtils.cpp"
   "OlmUtils.cpp"
+  "StringUtils.cpp"
 )
 
 add_library(comm-tools
