@@ -38,13 +38,12 @@ import {
 } from 'lib/hooks/upload-hooks.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import { getNextLocalID, localIDPrefix } from 'lib/shared/id-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
   createMediaMessageInfo,
-  localIDPrefix,
   useMessageCreationSideEffectsFunc,
-  getNextLocalID,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
 import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-utils.js';

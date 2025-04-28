@@ -40,10 +40,10 @@ import {
   wnsNotifInputDataValidator,
   createWNSNotification,
 } from 'lib/push/wns-notif-creators.js';
+import { sortMessageInfoList } from 'lib/shared/id-utils.js';
 import {
   createMessageInfo,
   shimUnsupportedRawMessageInfos,
-  sortMessageInfoList,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import {
