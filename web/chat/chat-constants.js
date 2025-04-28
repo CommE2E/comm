@@ -1,6 +1,6 @@
 // @flow
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { messageKey } from 'lib/shared/id-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 
 import type { ComposedMessageID } from './composed-message.react.js';

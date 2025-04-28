@@ -5,11 +5,11 @@ import * as React from 'react';
 
 import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
+import { messageID } from 'lib/shared/id-utils.js';
 import {
   getInlineEngagementSidebarText,
   reactionsToRawString,
 } from 'lib/shared/inline-engagement-utils.js';
-import { messageID } from 'lib/shared/message-utils.js';
 import {
   messageTypes,
   type MessageType,
