@@ -5,13 +5,11 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.util.Log
-import com.facebook.react.bridge.ReactContext
 import expo.modules.core.Promise
 import expo.modules.kotlin.exception.CodedException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
@@ -26,10 +24,10 @@ data class SecureStoreOptions(
   var requireAuthentication: Boolean = false
 )
 
-class SecureStoreModule(private var reactContext: ReactContext) {
+class SecureStoreModule(private var context: Context) {
   private val mAESEncryptor = AESEncryptor()
   private var keyStore: KeyStore
-  private var authenticationHelper: AuthenticationHelper = AuthenticationHelper(reactContext)
+  private var authenticationHelper: AuthenticationHelper = AuthenticationHelper(context)
   private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
   init {
@@ -206,7 +204,7 @@ class SecureStoreModule(private var reactContext: ReactContext) {
     var success = true
     val prefs = getSharedPreferences()
     val keychainAwareKey = createKeychainAwareKey(key, options.keychainService)
-    val legacyPrefs = PreferenceManager.getDefaultSharedPreferences(reactContext)
+    val legacyPrefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     if (prefs.contains(keychainAwareKey)) {
       success = prefs.edit().remove(keychainAwareKey).commit()
@@ -326,7 +324,7 @@ class SecureStoreModule(private var reactContext: ReactContext) {
   }
 
   private fun getSharedPreferences(): SharedPreferences {
-    return reactContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+    return context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
   }
 
   /**
