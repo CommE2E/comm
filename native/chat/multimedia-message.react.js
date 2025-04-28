@@ -9,7 +9,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { messageKey } from 'lib/shared/id-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';

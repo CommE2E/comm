@@ -43,6 +43,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
+import { getNextLocalID, messageKey } from 'lib/shared/id-utils.js';
 import {
   getTypeaheadRegexMatches,
   type MentionTypeaheadSuggestionItem,
@@ -52,12 +53,7 @@ import {
   useMentionTypeaheadUserSuggestions,
   useUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
-import {
-  messageKey,
-  trimMessage,
-  useMessagePreview,
-  getNextLocalID,
-} from 'lib/shared/message-utils.js';
+import { trimMessage, useMessagePreview } from 'lib/shared/message-utils.js';
 import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,

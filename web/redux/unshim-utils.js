@@ -4,7 +4,7 @@ import {
   type MessageStoreOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
-import { messageID } from 'lib/shared/message-utils.js';
+import { messageID } from 'lib/shared/id-utils.js';
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
 import type {
