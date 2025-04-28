@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { messageKey } from 'lib/shared/id-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 import type { MultimediaMessageInfo } from 'lib/types/message-types.js';
 

@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import _difference from 'lodash/fp/difference.js';
 import _max from 'lodash/fp/max.js';
 
-import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { localIDPrefix } from 'lib/shared/id-utils.js';
 import type {
   ActivityUpdate,
   UpdateActivityResult,
