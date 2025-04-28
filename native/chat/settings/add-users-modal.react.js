@@ -78,7 +78,6 @@ function AddUsersModal(props: Props): React.Node {
   const addUsersToThread = React.useCallback(async () => {
     try {
       const result = await callChangeThreadSettings({
-        thick: false,
         threadID: threadInfo.id,
         changes: { newMemberIDs: userInfoInputIDs },
         threadInfo,

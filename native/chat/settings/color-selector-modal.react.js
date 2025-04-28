@@ -10,7 +10,6 @@ import {
   type UseChangeThreadSettingsInput,
 } from 'lib/actions/thread-actions.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { type ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -98,24 +97,11 @@ function ColorSelectorModal(props: Props): React.Node {
     async (newColor: string) => {
       const threadID = threadInfo.id;
       try {
-        const changeThreadSettingRequest = {
+        const changeThreadSettingInput = {
+          threadInfo: props.route.params.threadInfo,
           threadID,
           changes: { color: newColor },
         };
-
-        const changeThreadSettingInput = threadTypeIsThick(
-          props.route.params.threadInfo.type,
-        )
-          ? {
-              thick: true,
-              threadInfo: props.route.params.threadInfo,
-              ...changeThreadSettingRequest,
-            }
-          : {
-              thick: false,
-              threadInfo: props.route.params.threadInfo,
-              ...changeThreadSettingRequest,
-            };
         return await updateThreadSettings(changeThreadSettingInput);
       } catch (e) {
         Alert.alert(
