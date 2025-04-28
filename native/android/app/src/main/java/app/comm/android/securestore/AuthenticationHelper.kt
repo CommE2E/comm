@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 
 class AuthenticationHelper(
-    private val context: ReactContext
+    private val context: Context
 ) {
   private var isAuthenticating = false
 
@@ -41,7 +41,7 @@ class AuthenticationHelper(
     isAuthenticating = true
 
     assertBiometricsSupport()
-    val fragmentActivity = context.currentActivity as? FragmentActivity
+    val fragmentActivity = (context as? ReactContext)?.currentActivity as? FragmentActivity
       ?: throw AuthenticationException("Cannot display biometric prompt when the app is not in the foreground")
 
     val authenticationPrompt = AuthenticationPrompt(fragmentActivity, context, title)

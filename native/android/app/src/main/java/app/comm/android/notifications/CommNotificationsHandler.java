@@ -41,6 +41,7 @@ import java.util.Map;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import app.comm.android.securestore.SecureStoreModule;
 
 public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BADGE_KEY = "badge";
@@ -86,6 +87,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   @Override
   public void onCreate() {
     super.onCreate();
+    CommSecureStore.getInstance().initialize(() -> new SecureStoreModule(this.getApplicationContext()));
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
     localBroadcastManager = LocalBroadcastManager.getInstance(this);
