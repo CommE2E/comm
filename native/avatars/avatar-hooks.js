@@ -15,6 +15,7 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import type {
   NativeMediaSelection,
@@ -25,7 +26,6 @@ import type {
   RawThreadInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import CommIcon from '../components/comm-icon.react.js';
@@ -400,9 +400,10 @@ function useNativeUpdateThreadImageAvatar(): (
       selection: NativeMediaSelection,
       threadInfo: ThreadInfo | RawThreadInfo,
     ): Promise<void> => {
-      const metadataUploadLocation = threadTypeIsThick(threadInfo.type)
-        ? 'none'
-        : 'keyserver';
+      const metadataUploadLocation = threadSpecs[threadInfo.type].protocol
+        .uploadMultimediaMetadataToKeyserver
+        ? 'keyserver'
+        : 'none';
       const imageAvatarUpdateRequest = await uploadSelectedMedia(
         selection,
         metadataUploadLocation,
