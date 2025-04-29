@@ -53,7 +53,10 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
-import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsSidebar,
+} from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   MediaMission,
@@ -868,7 +871,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(threadInfo: ThreadInfo, upload: PendingMultimediaUpload) {
     const { selectTime, localID, encryptionKey } = upload;
     const threadID = threadInfo.id;
-    const isThickThread = threadTypeIsThick(threadInfo.type);
+    const uploadMultimediaToKeyserver =
+      threadSpecs[threadInfo.type].protocol.uploadMultimediaToKeyserver;
     const isEncrypted =
       !!encryptionKey &&
       (upload.mediaType === 'encrypted_photo' ||
@@ -933,7 +937,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           loop: false,
           thumbHash,
         },
-        keyserverOrThreadID: isThickThread ? null : threadID,
+        keyserverOrThreadID: uploadMultimediaToKeyserver ? threadID : null,
         callbacks,
       });
     } catch (e) {
@@ -1007,10 +1011,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               serverID: result.id,
               blobHolder: result.blobHolder,
               abort: null,
-              // For thin threads we can send message right after serverID
-              // is present, but for thick threads we need to wait until
+              // When we upload files to a keyserver, we can send message right
+              // after serverID is present, otherwise we need to wait until
               // a "real" Blob URI is assigned to the message.
-              canBeSent: !isThickThread,
+              canBeSent: uploadMultimediaToKeyserver,
             },
           },
         },
@@ -1207,7 +1211,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         }
         if (pendingUpload.serverID) {
           const { serverID } = pendingUpload;
-          if (!threadTypeIsThick(threadInfo.type)) {
+          if (
+            threadSpecs[threadInfo.type].protocol.uploadMultimediaToKeyserver
+          ) {
             void this.props.deleteUpload({
               id: serverID,
               keyserverOrThreadID: threadInfo.id,

@@ -51,7 +51,10 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
-import { threadTypeIsSidebar } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsSidebar,
+} from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Media,
@@ -852,14 +855,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadThumbnailResult,
       mediaMissionResult;
 
-    const isThickThread = threadTypeIsThick(threadInfo.type);
     try {
       invariant(
         processedMedia.mediaType === 'encrypted_photo' ||
           processedMedia.mediaType === 'encrypted_video',
         'uploaded media should be encrypted',
       );
-      const uploadMetadataToKeyserver = !isThickThread;
+      const uploadMetadataToKeyserver =
+        threadSpecs[threadInfo.type].protocol.uploadMultimediaToKeyserver;
       const uploadPromise = this.props.blobServiceUpload({
         uploadInput: {
           blobInput: {
