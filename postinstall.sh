@@ -7,7 +7,7 @@ if [[ "$OSTYPE" == "msys" ]]; then
   exit 0
 fi
 
-echo '{"name": "olm", "version": "3.2.4"}' > ./node_modules/olm/package.json
+echo '{"name": "olm", "version": "0.2.5"}' > ./node_modules/olm/package.json
 yarn patch-package
 yarn flow-mono create-symlinks native
 
