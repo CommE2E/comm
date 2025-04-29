@@ -1,5 +1,7 @@
 #include "CryptoModule.h"
+#include "Base64.h"
 #include "Logger.h"
+#include "OlmUtils.h"
 #include "PlatformSpecificTools.h"
 #include "olm/account.hh"
 #include "olm/session.hh"
@@ -8,6 +10,7 @@
 #include <folly/json.h>
 #include <ctime>
 #include <stdexcept>
+#include <string>
 
 namespace comm {
 namespace crypto {
@@ -137,6 +140,29 @@ bool CryptoModule::prekeyDoesntExist() {
 
   return prekey.find(emptyPrekey) != std::string::npos ||
       signature == emptySignature;
+}
+
+bool CryptoModule::isPrekeySignatureValid() {
+  const std::string signingPublicKey =
+      getSigningPublicKey(this->getIdentityKeys());
+  const std::string prekey = parseOLMPrekey(this->getPrekey());
+  const std::string preKeySignature = this->getPrekeySignature();
+
+  const OlmBuffer prekeyBytes = Base64::decode(prekey);
+  try {
+    this->verifySignature(signingPublicKey, prekeyBytes, preKeySignature);
+    return true;
+  } catch (const std::exception &e) {
+    std::string rawMessage{e.what()};
+    if (rawMessage.find("BAD_MESSAGE_MAC") != std::string::npos) {
+      return false;
+    }
+
+    std::string errorMessage{
+        "prekey signature verification failed with: " + rawMessage};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
+  }
 }
 
 Keys CryptoModule::keysFromStrings(
@@ -474,7 +500,8 @@ std::optional<std::string> CryptoModule::validatePrekey() {
   std::optional<std::string> maybeNewPrekey;
 
   bool prekeyDoesntExist = this->prekeyDoesntExist();
-  if (prekeyDoesntExist) {
+  bool prekeySignatureValid = this->isPrekeySignatureValid();
+  if (prekeyDoesntExist || !prekeySignatureValid) {
     return this->generateAndGetPrekey();
   }
 

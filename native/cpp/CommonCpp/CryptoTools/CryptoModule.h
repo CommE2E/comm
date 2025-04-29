@@ -30,6 +30,7 @@ class CryptoModule {
   size_t publishOneTimeKeys();
   bool prekeyExistsAndOlderThan(uint64_t threshold);
   bool prekeyDoesntExist();
+  bool isPrekeySignatureValid();
   OlmBuffer pickleAccount(const std::string &secretKey);
 
 public:
