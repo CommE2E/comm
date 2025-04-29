@@ -12,8 +12,8 @@ import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selector
 import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -73,15 +73,27 @@ function AddUsersModal(props: Props): React.Node {
   const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
   const { route } = props;
   const { threadInfo } = route.params;
-  const addUsersToThread = React.useCallback(async () => {
+
+  const inputLength = userInfoInputArray.length;
+  const dispatchActionPromise = useDispatchActionPromise();
+  const userInfoInputArrayEmpty = inputLength === 0;
+  const addDMThreadMembers = useAddDMThreadMembers();
+
+  const onPressAdd = React.useCallback(async () => {
+    if (userInfoInputArrayEmpty) {
+      return;
+    }
+
     try {
-      const result = await callChangeThreadSettings({
-        threadID: threadInfo.id,
-        changes: { newMemberIDs: userInfoInputIDs },
-        threadInfo,
-      });
+      await threadSpecs[threadInfo.type].protocol.addThreadMembers(
+        { newMemberIDs: userInfoInputIDs, threadInfo },
+        {
+          dmAddThreadMembers: addDMThreadMembers,
+          changeThreadSettings: callChangeThreadSettings,
+          dispatchActionPromise,
+        },
+      );
       close();
-      return result;
     } catch (e) {
       Alert.alert(
         unknownErrorAlertDetails.title,
@@ -89,41 +101,16 @@ function AddUsersModal(props: Props): React.Node {
         [{ text: 'OK', onPress: onUnknownErrorAlertAcknowledged }],
         { cancelable: false },
       );
-      throw e;
-    }
-  }, [
-    callChangeThreadSettings,
-    threadInfo,
-    userInfoInputIDs,
-    close,
-    onUnknownErrorAlertAcknowledged,
-  ]);
-
-  const inputLength = userInfoInputArray.length;
-  const dispatchActionPromise = useDispatchActionPromise();
-  const userInfoInputArrayEmpty = inputLength === 0;
-  const addDMThreadMembers = useAddDMThreadMembers();
-
-  const onPressAdd = React.useCallback(() => {
-    if (userInfoInputArrayEmpty) {
-      return;
-    }
-
-    if (threadTypeIsThick(threadInfo.type)) {
-      void addDMThreadMembers(userInfoInputIDs, threadInfo);
-    } else {
-      void dispatchActionPromise(
-        changeThreadSettingsActionTypes,
-        addUsersToThread(),
-      );
     }
   }, [
     userInfoInputArrayEmpty,
     threadInfo,
     dispatchActionPromise,
-    addUsersToThread,
     addDMThreadMembers,
     userInfoInputIDs,
+    callChangeThreadSettings,
+    close,
+    onUnknownErrorAlertAcknowledged,
   ]);
 
   const changeThreadSettingsLoadingStatus = useSelector(
