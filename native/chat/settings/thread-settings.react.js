@@ -39,6 +39,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
 import {
+  threadSpecs,
   threadTypeIsPersonal,
   threadTypeIsSidebar,
 } from 'lib/shared/threads/thread-specs.js';
@@ -49,7 +50,6 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedOptionalThreadInfo,
@@ -703,7 +703,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         const listData: ChatSettingsItem[] = [];
         const limit = 6;
 
-        if (threadTypeIsThick(threadInfo.type)) {
+        if (
+          !threadSpecs[threadInfo.type].protocol.presentationDetails
+            .supportsMediaGallery
+        ) {
           return listData;
         }
 
