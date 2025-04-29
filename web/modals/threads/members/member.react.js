@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { useRemoveUsersFromThread } from 'lib/hooks/thread-hooks.js';
 import { removeMemberFromThread } from 'lib/shared/thread-actions-utils.js';
 import { useAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';

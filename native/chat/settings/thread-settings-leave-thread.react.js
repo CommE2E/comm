@@ -5,11 +5,9 @@ import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import uuid from 'uuid';
 
-import type { LeaveThreadInput } from 'lib/actions/thread-actions.js';
-import {
-  leaveThreadActionTypes,
-  useLeaveThread,
-} from 'lib/actions/thread-actions.js';
+import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
+import type { LeaveThreadInput } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import {

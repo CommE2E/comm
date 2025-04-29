@@ -3,11 +3,9 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import {
-  changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
-} from 'lib/actions/thread-actions.js';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';

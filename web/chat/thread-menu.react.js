@@ -4,13 +4,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import uuid from 'uuid';
 
-import {
-  leaveThreadActionTypes,
-  useLeaveThread,
-} from 'lib/actions/thread-actions.js';
+import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
 import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
   type OutboundDMOperationSpecification,

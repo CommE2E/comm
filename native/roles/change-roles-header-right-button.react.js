@@ -6,10 +6,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import {
-  useChangeThreadMemberRoles,
-  changeThreadMemberRolesActionTypes,
-} from 'lib/actions/thread-actions.js';
+import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
+import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
