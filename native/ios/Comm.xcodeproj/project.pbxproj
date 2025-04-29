@@ -46,6 +46,7 @@
 		7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */; };
 		7FDFC0FE2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */; };
 		7FDFC0FF2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */; };
+		7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
@@ -1306,6 +1307,7 @@
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
 				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
+				7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */,
 				CBB0DF612B768007008E22FF /* CommMMKV.mm in Sources */,
 				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
