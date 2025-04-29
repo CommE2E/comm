@@ -182,20 +182,14 @@ impl IdentityClientService for AuthenticatedService {
     let content_prekey = DBPrekey::from(content_key);
     let notif_prekey = DBPrekey::from(notif_key);
 
-    if let Err(err) = content_prekey.verify(&device_id) {
-      error!(
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "Content prekey verification failed: {err}"
-      );
+    if let Err(_err) = content_prekey.verify(&device_id) {
+      info!("Refresh user prekey request");
       return Err(Status::invalid_argument(
         tonic_status_messages::MALFORMED_KEY,
       ));
     }
-    if let Err(err) = notif_prekey.verify(&notif_signing_pub_key) {
-      error!(
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "Notif prekey verification failed: {err}"
-      );
+    if let Err(_err) = notif_prekey.verify(&notif_signing_pub_key) {
+      info!("Refresh user prekeys request");
       return Err(Status::invalid_argument(
         tonic_status_messages::MALFORMED_KEY,
       ));
