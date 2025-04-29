@@ -4,10 +4,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import {
-  leaveThreadActionTypes,
-  useLeaveThread,
-} from 'lib/actions/thread-actions.js';
+import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useJoinCommunity } from 'lib/shared/community-utils.js';
 import {

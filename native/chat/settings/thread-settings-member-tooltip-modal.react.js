@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
+import { useRemoveUsersFromThread } from 'lib/hooks/thread-hooks.js';
 import { removeMemberFromThread } from 'lib/shared/thread-actions-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
