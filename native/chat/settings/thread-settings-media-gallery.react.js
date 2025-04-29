@@ -7,7 +7,7 @@ import { View, useWindowDimensions } from 'react-native';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import { FlatList } from 'react-native-gesture-handler';
 
-import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useFetchThreadMedia } from 'lib/hooks/thread-hooks.js';
 import type { MediaInfo, Media } from 'lib/types/media-types';
 
 import {

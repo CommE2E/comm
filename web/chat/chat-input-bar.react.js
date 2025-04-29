@@ -7,14 +7,14 @@ import * as React from 'react';
 import {
   joinThreadActionTypes,
   newThreadActionTypes,
-  useJoinThread,
 } from 'lib/actions/thread-actions.js';
-import type { UseJoinThreadInput } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,
 } from 'lib/hooks/chat-mention-hooks.js';
+import { useJoinThread } from 'lib/hooks/thread-hooks.js';
+import type { UseJoinThreadInput } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { getNextLocalID } from 'lib/shared/id-utils.js';
