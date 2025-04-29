@@ -2,10 +2,8 @@
 
 import * as React from 'react';
 
-import {
-  changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
-} from 'lib/actions/thread-actions.js';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
+import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
 import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';

@@ -3,8 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useFetchThreadMedia } from 'lib/hooks/thread-hooks.js';
 import {
   encryptedMediaBlobURI,
   encryptedVideoThumbnailBlobURI,

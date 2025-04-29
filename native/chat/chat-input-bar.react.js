@@ -33,12 +33,12 @@ import {
 import {
   joinThreadActionTypes,
   newThreadActionTypes,
-  useJoinThread,
 } from 'lib/actions/thread-actions.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,
 } from 'lib/hooks/chat-mention-hooks.js';
+import { useJoinThread } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
