@@ -12,7 +12,6 @@ import {
   sendTextMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
-import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type BlobServiceUploadResult,
@@ -23,7 +22,7 @@ import {
   useInputStateContainerSendMultimediaMessage,
   useInputStateContainerSendTextMessage,
 } from 'lib/hooks/input-state-container-hooks.js';
-import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
+import { useNewThickThread, useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
 import type {
   CallSingleKeyserverEndpointOptions,
