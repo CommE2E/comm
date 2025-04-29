@@ -7,12 +7,12 @@ import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { getCommunity } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -72,7 +72,8 @@ function EditThreadAvatarMenu(props: Props): React.Node {
   );
 
   const uploadAvatarMedia = useUploadAvatarMedia({
-    uploadMetadataToKeyserver: !threadTypeIsThick(threadInfo.type),
+    uploadMetadataToKeyserver:
+      threadSpecs[threadInfo.type].protocol.uploadMultimediaToKeyserver,
   });
   const onImageSelected = React.useCallback(
     async (event: SyntheticEvent<HTMLInputElement>) => {
