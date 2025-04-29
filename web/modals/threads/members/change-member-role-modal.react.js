@@ -3,12 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  changeThreadMemberRolesActionTypes,
-  useChangeThreadMemberRoles,
-} from 'lib/actions/thread-actions.js';
+import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type {

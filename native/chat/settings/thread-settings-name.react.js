@@ -9,11 +9,9 @@ import {
   View,
 } from 'react-native';
 
-import {
-  changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
-  type UseChangeThreadSettingsInput,
-} from 'lib/actions/thread-actions.js';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
+import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
+import type { UseChangeThreadSettingsInput } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';

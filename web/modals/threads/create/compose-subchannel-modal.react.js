@@ -2,10 +2,8 @@
 
 import * as React from 'react';
 
-import {
-  newThreadActionTypes,
-  useNewThinThread,
-} from 'lib/actions/thread-actions.js';
+import { newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';

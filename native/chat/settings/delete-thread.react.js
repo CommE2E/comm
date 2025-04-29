@@ -10,11 +10,9 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import type { DeleteThreadInput } from 'lib/actions/thread-actions.js';
-import {
-  deleteThreadActionTypes,
-  useDeleteThread,
-} from 'lib/actions/thread-actions.js';
+import { deleteThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { useDeleteThread } from 'lib/hooks/thread-hooks.js';
+import type { DeleteThreadInput } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   containedThreadInfos,

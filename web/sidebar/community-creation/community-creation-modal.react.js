@@ -2,11 +2,9 @@
 
 import * as React from 'react';
 
-import {
-  useNewThinThread,
-  newThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+import { newThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
