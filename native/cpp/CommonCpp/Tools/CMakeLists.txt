@@ -7,12 +7,14 @@ set(TOOLS_HDRS
   "Base64.h"
   "WorkerThread.h"
   "StaffUtils.h"
+  "OlmUtils.h"
 )
 
 set(TOOLS_SRCS
   "Base64.cpp"
   "WorkerThread.cpp"
   "StaffUtils.cpp"
+  "OlmUtils.cpp"
 )
 
 add_library(comm-tools
