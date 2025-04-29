@@ -4,11 +4,13 @@ import * as React from 'react';
 
 import {
   changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
   deleteThreadActionTypes,
-  useDeleteThread,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import {
+  useChangeThreadSettings,
+  useDeleteThread,
+} from 'lib/hooks/thread-hooks.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
