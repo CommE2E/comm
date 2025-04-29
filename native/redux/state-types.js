@@ -50,6 +50,11 @@ const nonUserSpecificFieldsNative = [
   'commServicesAccessToken',
 ];
 
+// Before making changes here, make sure to consider how the added property
+// should be stored. Think about redux-persist or SQLite as storage,
+// backup and make sure blacklists/whitelists on all platforms are
+// reflecting that. Please also update the Notion doc with Redux state:
+// https://www.notion.so/commapp/Application-storage-1e3d823c518b807ab023daed163682b5#1e4d823c518b80bc97c2d0b5448413ad.
 export type AppState = {
   +navInfo: NavInfo,
   +currentUserInfo: ?CurrentUserInfo,
