@@ -2073,8 +2073,10 @@ jsi::Value CommCoreModule::verifySignature(
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
+            crypto::OlmBuffer messageBuffer(
+                messageStr.begin(), messageStr.end());
             crypto::CryptoModule::verifySignature(
-                keyStr, messageStr, signatureStr);
+                keyStr, messageBuffer, signatureStr);
           } catch (const std::exception &e) {
             error = "verifying signature failed with: " + std::string(e.what());
           }

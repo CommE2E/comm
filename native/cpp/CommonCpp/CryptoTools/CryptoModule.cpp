@@ -449,7 +449,7 @@ std::string CryptoModule::signMessage(const std::string &message) {
 
 void CryptoModule::verifySignature(
     const std::string &publicKey,
-    const std::string &message,
+    const OlmBuffer &message,
     const std::string &signature) {
   OlmBuffer utilityBuffer;
   utilityBuffer.resize(::olm_utility_size());
@@ -458,8 +458,8 @@ void CryptoModule::verifySignature(
       olmUtility,
       (uint8_t *)publicKey.data(),
       publicKey.length(),
-      (uint8_t *)message.data(),
-      message.length(),
+      message.data(),
+      message.size(),
       (uint8_t *)signature.data(),
       signature.length());
   if (verificationResult == -1) {
@@ -470,7 +470,7 @@ void CryptoModule::verifySignature(
 
 std::optional<std::string> CryptoModule::validatePrekey() {
   static const uint64_t maxPrekeyPublishTime = 30 * 24 * 60 * 60; // 30 days
-  static const uint64_t maxOldPrekeyAge = 24 * 60 * 60; // 24 hours
+  static const uint64_t maxOldPrekeyAge = 24 * 60 * 60;           // 24 hours
   std::optional<std::string> maybeNewPrekey;
 
   bool prekeyDoesntExist = this->prekeyDoesntExist();

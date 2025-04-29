@@ -83,7 +83,7 @@ public:
   std::string signMessage(const std::string &message);
   static void verifySignature(
       const std::string &publicKey,
-      const std::string &message,
+      const OlmBuffer &message,
       const std::string &signature);
   std::optional<std::string> validatePrekey();
 };
