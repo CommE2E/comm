@@ -449,7 +449,7 @@ std::string CryptoModule::signMessage(const std::string &message) {
 
 void CryptoModule::verifySignature(
     const std::string &publicKey,
-    const std::string &message,
+    const OlmBuffer &message,
     const std::string &signature) {
   OlmBuffer utilityBuffer;
   utilityBuffer.resize(::olm_utility_size());
@@ -458,8 +458,8 @@ void CryptoModule::verifySignature(
       olmUtility,
       (uint8_t *)publicKey.data(),
       publicKey.length(),
-      (uint8_t *)message.data(),
-      message.length(),
+      message.data(),
+      message.size(),
       (uint8_t *)signature.data(),
       signature.length());
   if (verificationResult == -1) {
