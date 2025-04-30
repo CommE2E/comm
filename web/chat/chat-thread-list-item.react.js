@@ -12,7 +12,6 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import {
   useResolvedThreadInfo,
@@ -129,14 +128,23 @@ function ChatThreadListItem(props: Props): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const isThick = threadTypeIsThick(threadInfo.type);
+  const presentationDetails =
+    threadSpecs[threadInfo.type].protocol.presentationDetails;
 
   const iconClass = unread ? css.iconUnread : css.iconRead;
-  const icon = isThick ? lock : server;
-  const breadCrumbs =
-    threadSpecs[
-      threadInfo.type
-    ].protocol.presentationDetails.threadAncestorLabel(ancestorPath);
+  const iconCreationFunction = React.useCallback(
+    (iconName: 'lock' | 'server') => {
+      const icon = iconName === 'lock' ? lock : server;
+      return <FontAwesomeIcon size="xs" className={iconClass} icon={icon} />;
+    },
+    [iconClass],
+  );
+
+  const icon = React.useMemo(
+    () => presentationDetails.webChatThreadListIcon(iconCreationFunction),
+    [iconCreationFunction, presentationDetails],
+  );
+  const breadCrumbs = presentationDetails.threadAncestorLabel(ancestorPath);
 
   return (
     <>
@@ -149,9 +157,7 @@ function ChatThreadListItem(props: Props): React.Node {
         </div>
         <div className={css.threadButton}>
           <div className={css.header}>
-            <div className={css.iconWrapper}>
-              <FontAwesomeIcon size="xs" className={iconClass} icon={icon} />
-            </div>
+            <div className={css.iconWrapper}>{icon}</div>
             <p className={breadCrumbsClassName}>{breadCrumbs}</p>
           </div>
           <div className={css.threadRow}>
