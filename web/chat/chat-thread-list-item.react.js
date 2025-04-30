@@ -12,7 +12,6 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import {
   useResolvedThreadInfo,
@@ -129,14 +128,13 @@ function ChatThreadListItem(props: Props): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const isThick = threadTypeIsThick(threadInfo.type);
+  const presentationDetails =
+    threadSpecs[threadInfo.type].protocol.presentationDetails;
 
   const iconClass = unread ? css.iconUnread : css.iconRead;
-  const icon = isThick ? lock : server;
-  const breadCrumbs =
-    threadSpecs[
-      threadInfo.type
-    ].protocol.presentationDetails.threadAncestorLabel(ancestorPath);
+  const icon =
+    presentationDetails.webChatThreadListIcon === 'lock' ? lock : server;
+  const breadCrumbs = presentationDetails.threadAncestorLabel(ancestorPath);
 
   return (
     <>
