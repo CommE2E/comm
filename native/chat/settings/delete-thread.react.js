@@ -18,10 +18,8 @@ import {
   containedThreadInfos,
   threadInfoSelector,
 } from 'lib/selectors/thread-selectors.js';
-import {
-  getThreadsToDeleteText,
-  identifyInvalidatedThreads,
-} from 'lib/shared/thread-utils.js';
+import { getThreadsToDeleteText } from 'lib/shared/thread-utils.js';
+import { identifyInvalidatedThreads } from 'lib/shared/updates/utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   ResolvedThreadInfo,
