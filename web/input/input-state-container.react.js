@@ -76,7 +76,6 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
@@ -1362,7 +1361,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
-      if (!threadTypeIsThick(threadInfo.type)) {
+      if (
+        threadSpecs[threadInfo.type].protocol
+          .shouldPerformSideEffectsBeforeSendingMessage
+      ) {
         await this.props.textMessageCreationSideEffectsFunc(
           messageInfo,
           threadInfo,
@@ -1382,7 +1384,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         parentThreadInfo,
         sidebarCreation,
       );
-      if (threadTypeIsThick(threadInfo.type)) {
+      if (
+        !threadSpecs[threadInfo.type].protocol
+          .shouldPerformSideEffectsBeforeSendingMessage
+      ) {
         await this.props.textMessageCreationSideEffectsFunc(
           messageInfo,
           threadInfo,
