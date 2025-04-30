@@ -134,9 +134,9 @@ function ChatThreadListItem(props: Props): React.Node {
   const iconClass = unread ? css.iconUnread : css.iconRead;
   const icon = isThick ? lock : server;
   const breadCrumbs =
-    threadSpecs[threadInfo.type].protocol.presentationDetails.breadCrumbs(
-      ancestorPath,
-    );
+    threadSpecs[
+      threadInfo.type
+    ].protocol.presentationDetails.threadAncestorLabel(ancestorPath);
 
   return (
     <>
