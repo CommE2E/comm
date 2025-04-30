@@ -1,20 +1,12 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
-import uuid from 'uuid';
 
-import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
 import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
-import {
-  type OutboundDMOperationSpecification,
-  dmOperationSpecificationTypes,
-} from 'lib/shared/dm-ops/dm-op-types.js';
-import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import {
   threadIsChannel,
   useThreadHasPermission,
@@ -26,14 +18,8 @@ import {
   threadTypeIsPrivate,
   threadTypeIsSidebar,
 } from 'lib/shared/threads/thread-specs.js';
-import { type DMLeaveThreadOperation } from 'lib/types/dm-ops.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  threadTypeIsThick,
-  thickThreadTypes,
-} from 'lib/types/thread-types-enum.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-menu.css';
 import MenuItem from '../components/menu-item.react.js';
@@ -214,53 +200,13 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [canCreateSubchannels, onClickCreateSubchannel]);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callLeaveThread = useLeaveThread();
-  const processAndSendDMOperation = useProcessAndSendDMOperation();
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-
+  const leaveThread = useLeaveThread();
   const onConfirmLeaveThread = React.useCallback(() => {
-    if (threadTypeIsThick(threadInfo.type)) {
-      invariant(viewerID, 'viewerID should be set');
-      const op: DMLeaveThreadOperation = {
-        type: 'leave_thread',
-        editorID: viewerID,
-        time: Date.now(),
-        messageID: uuid.v4(),
-        threadID: threadInfo.id,
-      };
-      const opSpecification: OutboundDMOperationSpecification = {
-        type: dmOperationSpecificationTypes.OUTBOUND,
-        op,
-        recipients: {
-          type: 'all_thread_members',
-          threadID:
-            threadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-            threadInfo.parentThreadID
-              ? threadInfo.parentThreadID
-              : threadInfo.id,
-        },
-      };
-      void processAndSendDMOperation(opSpecification);
-    } else {
-      void dispatchActionPromise(
-        leaveThreadActionTypes,
-        callLeaveThread({ threadID: threadInfo.id }),
-      );
-    }
+    void leaveThread({
+      threadInfo,
+    });
     popModal();
-  }, [
-    threadInfo.type,
-    threadInfo.id,
-    threadInfo.parentThreadID,
-    popModal,
-    viewerID,
-    processAndSendDMOperation,
-    dispatchActionPromise,
-    callLeaveThread,
-  ]);
+  }, [leaveThread, popModal, threadInfo]);
 
   const onClickLeaveThread = React.useCallback(
     () =>
