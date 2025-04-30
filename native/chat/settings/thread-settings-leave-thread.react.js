@@ -15,7 +15,7 @@ import {
   dmOperationSpecificationTypes,
 } from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
-import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
+import { identifyInvalidatedThreads } from 'lib/shared/updates/utils.js';
 import type { DMLeaveThreadOperation } from 'lib/types/dm-ops';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
