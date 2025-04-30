@@ -78,10 +78,7 @@ import {
   type ClientMediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
-import {
-  threadTypeIsThick,
-  type ThreadType,
-} from 'lib/types/thread-types-enum.js';
+import { type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -588,7 +585,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
-      if (!threadTypeIsThick(threadInfo.type)) {
+      if (
+        threadSpecs[threadInfo.type].protocol
+          .shouldPerformSideEffectsBeforeSendingMessage
+      ) {
         await this.props.textMessageCreationSideEffectsFunc(
           messageInfo,
           threadInfo,
@@ -608,7 +608,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         parentThreadInfo,
         sidebarCreation,
       );
-      if (threadTypeIsThick(threadInfo.type)) {
+      if (
+        !threadSpecs[threadInfo.type].protocol
+          .shouldPerformSideEffectsBeforeSendingMessage
+      ) {
         await this.props.textMessageCreationSideEffectsFunc(
           messageInfo,
           threadInfo,
