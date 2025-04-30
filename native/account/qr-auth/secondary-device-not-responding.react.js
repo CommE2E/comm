@@ -94,7 +94,7 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
         />
         <PrimaryButton
           onPress={navigateToLinkedDevices}
-          label="Ignore"
+          label="Keep device"
           variant="enabled"
         />
       </AuthButtonContainer>
