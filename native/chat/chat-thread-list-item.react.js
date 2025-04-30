@@ -137,7 +137,7 @@ function ChatThreadListItem({
     : styles.iconRead;
   const iconName =
     threadSpecs[data.threadInfo.type].protocol.presentationDetails
-      .chatThreadListIcon;
+      .nativeChatThreadListIcon;
 
   const threadDetails = React.useMemo(
     () => (
