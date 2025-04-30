@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useJoinCommunity } from 'lib/shared/community-utils.js';
@@ -20,7 +19,6 @@ import type {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import PrimaryButton from './primary-button.react.js';
 import SingleLine from './single-line.react.js';
@@ -103,21 +101,18 @@ function CommunityListItem(props: Props): React.Node {
     }
   }, [joinCommunity]);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callLeaveThread = useLeaveThread();
+  const leaveThread = useLeaveThread();
 
   const handleLeave = React.useCallback(async () => {
     setJoinStatus('leaving');
     try {
-      const leavePromise = callLeaveThread({ threadID: threadInfo.id });
-      void dispatchActionPromise(leaveThreadActionTypes, leavePromise);
-      await leavePromise;
+      await leaveThread({ threadInfo });
       setJoinStatus('notJoined');
     } catch (error) {
       console.error('Failed to leave community:', error);
       setJoinStatus('joined');
     }
-  }, [callLeaveThread, dispatchActionPromise, threadInfo.id]);
+  }, [leaveThread, threadInfo]);
 
   const leaveButtonStyle = React.useMemo(
     () => [styles.primaryButton, styles.primaryButtonToggled],
