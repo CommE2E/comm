@@ -5,8 +5,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import { useColors, useStyles } from '../themes/colors.js';
@@ -51,17 +51,18 @@ function ThreadAncestorsLabel(props: Props): React.Node {
     return unread ? [styles.pathText, styles.unread] : styles.pathText;
   }, [styles.pathText, styles.unread, unread]);
 
-  const isThick = threadTypeIsThick(threadInfo.type);
-
   return React.useMemo(() => {
-    const label = isThick ? 'Local DM' : ancestorPath;
+    const label =
+      threadSpecs[
+        threadInfo.type
+      ].protocol.presentationDetails.threadAncestorLabel(ancestorPath);
 
     return (
       <Text numberOfLines={1} style={ancestorPathStyle}>
         {label}
       </Text>
     );
-  }, [ancestorPath, ancestorPathStyle, isThick]);
+  }, [ancestorPath, ancestorPathStyle, threadInfo.type]);
 }
 
 const unboundStyles = {
