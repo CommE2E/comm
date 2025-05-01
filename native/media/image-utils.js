@@ -14,6 +14,7 @@ import { generateThumbhashStep } from './media-utils.js';
 
 type ProcessImageInfo = {
   uri: string,
+  filesystemUri: string,
   dimensions: Dimensions,
   mime: string,
   fileSize: number,
@@ -33,7 +34,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
   const steps: Array<MediaMissionStep> = [];
   let { uri, dimensions, mime } = input;
 
-  const { fileSize, orientation } = input;
+  const { fileSize, orientation, filesystemUri } = input;
   const plan = getImageProcessingPlan({
     inputMIME: mime,
     inputDimensions: dimensions,
@@ -41,7 +42,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
     inputOrientation: orientation,
   });
   if (plan.action === 'none') {
-    const thumbhashStep = await generateThumbhashStep(uri);
+    const thumbhashStep = await generateThumbhashStep(filesystemUri);
     steps.push(thumbhashStep);
     const { thumbHash } = thumbhashStep;
     return {

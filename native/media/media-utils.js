@@ -226,6 +226,7 @@ async function innerProcessMedia(
     const { steps: imageSteps, result: imageResult } = await processImage({
       // we pass selection.uri for consistency with videos
       uri: selection.uri,
+      filesystemUri: fileInfoResult.uri,
       dimensions,
       mime,
       fileSize,
