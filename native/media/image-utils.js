@@ -25,6 +25,7 @@ type ProcessImageResponse = {
   mime: string,
   dimensions: Dimensions,
   thumbHash: ?string,
+  shouldDisposePath: ?string,
 };
 async function processImage(input: ProcessImageInfo): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
@@ -46,7 +47,14 @@ async function processImage(input: ProcessImageInfo): Promise<{
     const { thumbHash } = thumbhashStep;
     return {
       steps,
-      result: { success: true, uri, dimensions, mime, thumbHash },
+      result: {
+        success: true,
+        uri,
+        dimensions,
+        mime,
+        thumbHash,
+        shouldDisposePath: null,
+      },
     };
   }
   const { targetMIME, compressionRatio, fitInside } = plan;
@@ -68,7 +76,8 @@ async function processImage(input: ProcessImageInfo): Promise<{
   const saveConfig = { format, compress: compressionRatio };
 
   let success = false,
-    exceptionMessage;
+    exceptionMessage,
+    shouldDisposePath;
   const start = Date.now();
   try {
     const result = await ImageManipulator.manipulateAsync(
@@ -80,6 +89,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
     uri = result.uri;
     mime = targetMIME;
     dimensions = { width: result.width, height: result.height };
+    shouldDisposePath = result.uri;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
@@ -111,7 +121,14 @@ async function processImage(input: ProcessImageInfo): Promise<{
 
   return {
     steps,
-    result: { success: true, uri, dimensions, mime, thumbHash },
+    result: {
+      success: true,
+      uri,
+      dimensions,
+      mime,
+      thumbHash,
+      shouldDisposePath,
+    },
   };
 }
 
