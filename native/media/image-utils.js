@@ -54,7 +54,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
         dimensions,
         mime,
         thumbHash,
-        shouldDisposePath: null,
+        shouldDisposeURI: null,
       },
     };
   }
@@ -78,7 +78,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
 
   let success = false,
     exceptionMessage,
-    shouldDisposePath;
+    shouldDisposeURI;
   const start = Date.now();
   try {
     const result = await ImageManipulator.manipulateAsync(
@@ -90,7 +90,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
     uri = result.uri;
     mime = targetMIME;
     dimensions = { width: result.width, height: result.height };
-    shouldDisposePath = result.uri;
+    shouldDisposeURI = result.uri;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
@@ -128,7 +128,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
       dimensions,
       mime,
       thumbHash,
-      shouldDisposePath,
+      shouldDisposeURI,
     },
   };
 }

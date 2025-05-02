@@ -28,7 +28,7 @@ type MediaProcessConfig = {
 type SharedMediaResult = {
   +success: true,
   +uploadURI: string,
-  +shouldDisposePath: ?string,
+  +shouldDisposeURI: ?string,
   +filename: string,
   +mime: string,
   +dimensions: Dimensions,
@@ -95,7 +95,7 @@ async function innerProcessMedia(
     loop = false,
     resultReturned = false,
     thumbHash = null,
-    shouldDisposePath = null;
+    shouldDisposeURI = null;
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
@@ -117,7 +117,7 @@ async function innerProcessMedia(
         success: true,
         uploadURI,
         uploadThumbnailURI,
-        shouldDisposePath,
+        shouldDisposeURI,
         filename,
         mime,
         mediaType,
@@ -129,7 +129,7 @@ async function innerProcessMedia(
       sendResult({
         success: true,
         uploadURI,
-        shouldDisposePath,
+        shouldDisposeURI,
         filename,
         mime,
         mediaType,
@@ -220,7 +220,7 @@ async function innerProcessMedia(
       dimensions,
       loop,
       thumbHash,
-      shouldDisposePath,
+      shouldDisposeURI,
     } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
@@ -245,7 +245,7 @@ async function innerProcessMedia(
       mime,
       dimensions,
       thumbHash,
-      shouldDisposePath,
+      shouldDisposeURI,
     } = imageResult);
   } else {
     invariant(false, `unknown mediaType ${mediaType}`);
