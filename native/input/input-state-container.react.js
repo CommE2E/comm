@@ -758,7 +758,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let userTime;
     let errorMessage;
     let reportPromise: ?Promise<$ReadOnlyArray<MediaMissionStep>>;
-    const filesToDispose = [];
+    const fileURIsToDispose = [];
 
     const onUploadFinished = async (result: MediaMissionResult) => {
       if (!this.props.mediaReportsEnabled) {
@@ -805,8 +805,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         onUploadFailed(message);
         return await onUploadFinished(processResult);
       }
-      if (processResult.shouldDisposePath) {
-        filesToDispose.push(processResult.shouldDisposePath);
+      if (processResult.shouldDisposeURI) {
+        fileURIsToDispose.push(processResult.shouldDisposeURI);
       }
       processedMedia = processResult;
     } catch (e) {
@@ -828,8 +828,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         onUploadFailed(encryptionResult.reason);
         return await onUploadFinished(encryptionResult);
       }
-      if (encryptionResult.shouldDisposePath) {
-        filesToDispose.push(encryptionResult.shouldDisposePath);
+      if (encryptionResult.shouldDisposeURI) {
+        fileURIsToDispose.push(encryptionResult.shouldDisposeURI);
       }
       processedMedia = encryptionResult;
     } catch (e) {
@@ -1046,15 +1046,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const cleanupPromises = [];
 
-    if (filesToDispose.length > 0) {
-      // If processMedia needed to do any transcoding before upload, we dispose
-      // of the resultant temporary file here. Since the transcoded temporary
-      // file is only used for upload, we can dispose of it after processMedia
-      // (reportPromise) and the upload are complete
-      filesToDispose.forEach(shouldDisposePath => {
+    if (fileURIsToDispose.length > 0) {
+      // If processMedia and/or encryptMedia needed to do any transcoding before
+      // upload, we dispose of the resultant temporary files here. Since the
+      // transcoded temporary files are only prior to upload, we can dispose of
+      // them after the upload is complete
+      fileURIsToDispose.forEach(shouldDisposeURI => {
         cleanupPromises.push(
           (async () => {
-            const disposeStep = await disposeTempFile(shouldDisposePath);
+            const disposeStep = await disposeTempFile(shouldDisposeURI);
             steps.push(disposeStep);
           })(),
         );
@@ -1067,13 +1067,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const { uploadThumbnailURI } = processedMedia;
       cleanupPromises.push(
         (async () => {
-          const { steps: clearSteps, result: thumbnailPath } =
+          const { steps: clearSteps } =
             await this.waitForCaptureURIUnload(uploadThumbnailURI);
           steps.push(...clearSteps);
-          if (!thumbnailPath) {
-            return;
-          }
-          const disposeStep = await disposeTempFile(thumbnailPath);
+          const disposeStep = await disposeTempFile(uploadThumbnailURI);
           steps.push(disposeStep);
         })(),
       );
@@ -1090,13 +1087,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const captureURI = selection.uri;
       cleanupPromises.push(
         (async () => {
-          const { steps: clearSteps, result: capturePath } =
+          const { steps: clearSteps } =
             await this.waitForCaptureURIUnload(captureURI);
           steps.push(...clearSteps);
-          if (!capturePath) {
-            return;
-          }
-          const disposeStep = await disposeTempFile(capturePath);
+          const disposeStep = await disposeTempFile(captureURI);
           steps.push(disposeStep);
         })(),
       );
@@ -1617,26 +1611,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   waitForCaptureURIUnload(uri: string): Promise<{
     +steps: $ReadOnlyArray<MediaMissionStep>,
-    +result: ?string,
   }> {
     const start = Date.now();
-    const path = pathFromURI(uri);
-    if (!path) {
-      return Promise.resolve({
-        result: null,
-        steps: [
-          {
-            step: 'wait_for_capture_uri_unload',
-            success: false,
-            time: Date.now() - start,
-            uri,
-          },
-        ],
-      });
-    }
 
     const getResult = () => ({
-      result: path,
       steps: [
         {
           step: 'wait_for_capture_uri_unload',
