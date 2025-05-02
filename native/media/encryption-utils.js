@@ -216,7 +216,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
         blobHash: encryptionResult.sha256Hash,
         thumbHash: thumbHashResult?.base64,
         encryptionKey: encryptionResult.encryptionKey,
-        shouldDisposePath: pathFromURI(encryptionResult.uri),
+        shouldDisposeURI: encryptionResult.uri,
       },
     };
   }
@@ -249,7 +249,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
       uploadThumbnailURI: thumbnailEncryptionResult.uri,
       thumbnailBlobHash: thumbnailEncryptionResult.sha256Hash,
       thumbnailEncryptionKey: thumbnailEncryptionResult.encryptionKey,
-      shouldDisposePath: pathFromURI(encryptionResult.uri),
+      shouldDisposeURI: encryptionResult.uri,
     },
   };
 }
