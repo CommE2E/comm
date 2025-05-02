@@ -46,7 +46,7 @@ import {
 import { getMediaLibraryIdentifier } from './identifier-utils.js';
 import { commCoreModule } from '../native-modules.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
-import { requestAndroidPermission } from '../utils/android-permissions.js';
+import { requestAndroidPermissions } from '../utils/android-permissions.js';
 
 export type IntentionalSaveMediaIDs = {
   +uploadID?: ?string,
@@ -188,8 +188,13 @@ async function innerSaveMedia(
   }
 }
 
-const androidSavePermission =
-  PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+const androidSavePermissions =
+  Number(Platform.Version) >= 33
+    ? [
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+      ]
+    : [PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE];
 
 // On Android, we save the media to our own Comm folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
@@ -205,10 +210,11 @@ async function saveMediaAndroid(
     permissionCheckExceptionMessage;
   const permissionCheckStart = Date.now();
   try {
-    hasPermission = await requestAndroidPermission(
-      androidSavePermission,
+    const permissionsResult = await requestAndroidPermissions(
+      androidSavePermissions,
       'throw',
     );
+    hasPermission = Object.values(permissionsResult).every(Boolean);
   } catch (e) {
     permissionCheckExceptionMessage = getMessageForException(e);
   }
@@ -218,7 +224,7 @@ async function saveMediaAndroid(
     exceptionMessage: permissionCheckExceptionMessage,
     time: Date.now() - permissionCheckStart,
     platform: Platform.OS,
-    permissions: [androidSavePermission],
+    permissions: androidSavePermissions,
   });
   if (!hasPermission) {
     sendResult({ success: false, reason: 'missing_permission' });
