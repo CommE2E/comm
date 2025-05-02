@@ -53,6 +53,7 @@ type ProcessVideoResponse = {
   +dimensions: Dimensions,
   +loop: boolean,
   +thumbHash: ?string,
+  +shouldDisposePath: ?string,
 };
 async function processVideo(
   input: ProcessVideoInfo,
@@ -113,6 +114,7 @@ async function processVideo(
         mime: 'video/mp4',
         dimensions: input.dimensions,
         loop: false,
+        shouldDisposePath: null,
       },
     };
   }
@@ -169,16 +171,18 @@ async function processVideo(
   const thumbhashStep = await generateThumbhashStep(thumbnailURI);
   steps.push(thumbhashStep);
   const { thumbHash } = thumbhashStep;
+  const uri = `file://${plan.outputPath}`;
   return {
     steps,
     result: {
       success: true,
-      uri: `file://${plan.outputPath}`,
+      uri,
       thumbnailURI,
       thumbHash,
       mime: 'video/mp4',
       dimensions,
       loop,
+      shouldDisposePath: uri,
     },
   };
 }
