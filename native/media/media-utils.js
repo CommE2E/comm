@@ -197,8 +197,8 @@ async function innerProcessMedia(
   if (mediaType === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo(
       {
-        // we pass selection.uri, because for processing videos filesystem
-        // uris don't work due to permissions
+        // We pass in selection.uri because our iOS transcoding module seems to
+        // have permission issues when passed a filesystem URI
         uri: selection.uri,
         mime,
         filename: selection.filename,
@@ -224,8 +224,13 @@ async function innerProcessMedia(
     } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
-      // we pass selection.uri for consistency with videos
+      // We pass in selection.uri so that the returned imageResult.uri can be
+      // compared to selection.uri to determine if any processing occurred.
+      // processImage would be fine taking fileInfoResult.uri instead, but
+      // processVideo can't, which would force us to make the comparison below
+      // different in the image vs. video case
       uri: selection.uri,
+      filesystemURI: fileInfoResult.uri,
       dimensions,
       mime,
       fileSize,

@@ -13,11 +13,12 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { generateThumbhashStep } from './media-utils.js';
 
 type ProcessImageInfo = {
-  uri: string,
-  dimensions: Dimensions,
-  mime: string,
-  fileSize: number,
-  orientation: ?number,
+  +uri: string,
+  +filesystemURI: string,
+  +dimensions: Dimensions,
+  +mime: string,
+  +fileSize: number,
+  +orientation: ?number,
 };
 type ProcessImageResponse = {
   success: true,
@@ -33,7 +34,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
   const steps: Array<MediaMissionStep> = [];
   let { uri, dimensions, mime } = input;
 
-  const { fileSize, orientation } = input;
+  const { fileSize, orientation, filesystemURI } = input;
   const plan = getImageProcessingPlan({
     inputMIME: mime,
     inputDimensions: dimensions,
@@ -41,7 +42,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
     inputOrientation: orientation,
   });
   if (plan.action === 'none') {
-    const thumbhashStep = await generateThumbhashStep(uri);
+    const thumbhashStep = await generateThumbhashStep(filesystemURI);
     steps.push(thumbhashStep);
     const { thumbHash } = thumbhashStep;
     return {
