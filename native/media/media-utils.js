@@ -94,7 +94,8 @@ async function innerProcessMedia(
     mime = null,
     loop = false,
     resultReturned = false,
-    thumbHash = null;
+    thumbHash = null,
+    shouldDisposePath = null;
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
@@ -109,8 +110,6 @@ async function innerProcessMedia(
       uploadURI && mime && mediaType,
       'missing required fields in returnResult',
     );
-    const shouldDisposePath =
-      selection.uri !== uploadURI ? pathFromURI(uploadURI) : null;
     const filename = sanitizeFilename(selection.filename, mime);
     if (mediaType === 'video') {
       invariant(uploadThumbnailURI, 'video should have uploadThumbnailURI');
@@ -221,6 +220,7 @@ async function innerProcessMedia(
       dimensions,
       loop,
       thumbHash,
+      shouldDisposePath,
     } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
@@ -240,7 +240,13 @@ async function innerProcessMedia(
     if (!imageResult.success) {
       return await finish(imageResult);
     }
-    ({ uri: uriAfterProcessing, mime, dimensions, thumbHash } = imageResult);
+    ({
+      uri: uriAfterProcessing,
+      mime,
+      dimensions,
+      thumbHash,
+      shouldDisposePath,
+    } = imageResult);
   } else {
     invariant(false, `unknown mediaType ${mediaType}`);
   }
