@@ -240,7 +240,7 @@ async function saveMediaAndroid(
   );
 
   let uri = inputURI;
-  let tempFile, mime;
+  let tempFileURI, mime;
   if (uri.startsWith('http') || isBlobServiceURI(uri)) {
     promises.push(
       (async () => {
@@ -255,16 +255,24 @@ async function saveMediaAndroid(
           success = false;
           sendResult(tempSaveResult);
         } else {
-          tempFile = tempSaveResult.path;
-          uri = `file://${tempFile}`;
+          ({ uri } = tempSaveResult);
+          tempFileURI = uri;
           mime = tempSaveResult.mime;
         }
       })(),
     );
   }
 
+  const disposeTempSavedFile = async () => {
+    if (tempFileURI) {
+      const disposeStep = await disposeTempFile(tempFileURI);
+      steps.push(disposeStep);
+    }
+  };
+
   await Promise.all(promises);
   if (!success) {
+    await disposeTempSavedFile();
     return steps;
   }
 
@@ -276,27 +284,20 @@ async function saveMediaAndroid(
   steps.push(...copySteps);
   if (!copyResult.success) {
     sendResult(copyResult);
+    await disposeTempSavedFile();
     return steps;
   }
   sendResult({ success: true });
 
   const postResultPromises = [];
 
+  postResultPromises.push(disposeTempSavedFile());
   postResultPromises.push(
     (async () => {
       const scanFileStep = await androidScanFile(copyResult.path);
       steps.push(scanFileStep);
     })(),
   );
-
-  if (tempFile) {
-    postResultPromises.push(
-      (async (file: string) => {
-        const disposeStep = await disposeTempFile(file);
-        steps.push(disposeStep);
-      })(tempFile),
-    );
-  }
 
   await Promise.all(postResultPromises);
   return steps;
@@ -316,11 +317,11 @@ async function saveMediaIOS(
   );
 
   steps.push(...saveMediaToDiskIOSResult.steps);
-  const { tempFilePath } = saveMediaToDiskIOSResult;
+  const { tempFileURI } = saveMediaToDiskIOSResult;
 
   if (!saveMediaToDiskIOSResult.success) {
-    if (tempFilePath) {
-      const disposeStep = await disposeTempFile(tempFilePath);
+    if (tempFileURI) {
+      const disposeStep = await disposeTempFile(tempFileURI);
       steps.push(disposeStep);
     }
     sendResult(saveMediaToDiskIOSResult.result);
@@ -352,8 +353,8 @@ async function saveMediaIOS(
     sendResult({ success: false, reason: 'save_to_library_failed', uri });
   }
 
-  if (tempFilePath) {
-    const disposeStep = await disposeTempFile(tempFilePath);
+  if (tempFileURI) {
+    const disposeStep = await disposeTempFile(tempFileURI);
     steps.push(disposeStep);
   }
   return steps;
@@ -363,13 +364,13 @@ type SaveMediaToDiskIOSResult =
   | {
       +success: true,
       +uri: string,
-      +tempFilePath: ?string,
+      +tempFileURI: ?string,
       +steps: $ReadOnlyArray<MediaMissionStep>,
     }
   | {
       +success: false,
       +result: MediaMissionResult,
-      +tempFilePath?: ?string,
+      +tempFileURI?: ?string,
       +steps: $ReadOnlyArray<MediaMissionStep>,
     };
 async function saveMediaToDiskIOS(
@@ -379,7 +380,7 @@ async function saveMediaToDiskIOS(
   const steps: Array<MediaMissionStep> = [];
 
   let uri = inputURI;
-  let tempFilePath;
+  let tempFileURI;
   if (uri.startsWith('http') || isBlobServiceURI(uri)) {
     const { result: tempSaveResult, steps: tempSaveSteps } =
       await saveRemoteMediaToDisk(uri, encryptionKey, temporaryDirectoryPath);
@@ -391,8 +392,8 @@ async function saveMediaToDiskIOS(
         steps,
       };
     }
-    tempFilePath = tempSaveResult.path;
-    uri = `file://${tempFilePath}`;
+    ({ uri } = tempSaveResult);
+    tempFileURI = uri;
   } else if (!uri.startsWith('file://')) {
     const mediaNativeID = getMediaLibraryIdentifier(uri);
     if (mediaNativeID) {
@@ -410,7 +411,7 @@ async function saveMediaToDiskIOS(
     return {
       success: false,
       result: { success: false, reason: 'resolve_failed', uri },
-      tempFilePath,
+      tempFileURI,
       steps,
     };
   }
@@ -418,23 +419,22 @@ async function saveMediaToDiskIOS(
   return {
     success: true,
     uri,
-    tempFilePath,
+    tempFileURI,
     steps,
   };
 }
 
-type IntermediateSaveResult = {
+type SaveRemoteMediaToDiskResult = {
   +result:
-    | { +success: true, +path: string, +mime: string }
+    | { +success: true, +uri: string, +mime: string }
     | MediaMissionFailure,
   +steps: $ReadOnlyArray<MediaMissionStep>,
 };
-
 async function saveRemoteMediaToDisk(
   inputURI: string,
   encryptionKey?: ?string,
   directory: string, // should end with a /
-): Promise<IntermediateSaveResult> {
+): Promise<SaveRemoteMediaToDiskResult> {
   const steps: Array<MediaMissionStep> = [];
   if (encryptionKey) {
     const authMetadata = await commCoreModule.getCommServicesAuthMetadata();
@@ -449,13 +449,6 @@ async function saveRemoteMediaToDisk(
       return { result: decryptionResult, steps };
     }
     const { uri } = decryptionResult;
-    const path = pathFromURI(uri);
-    if (!path) {
-      return {
-        result: { success: false, reason: 'resolve_failed', uri },
-        steps,
-      };
-    }
 
     const { steps: fetchFileInfoSteps, result: fetchFileInfoResult } =
       await fetchFileInfo(uri, undefined, {
@@ -478,7 +471,7 @@ async function saveRemoteMediaToDisk(
     }
 
     return {
-      result: { success: true, path, mime },
+      result: { success: true, uri, mime },
       steps,
     };
   }
@@ -521,14 +514,20 @@ async function saveRemoteMediaToDisk(
   if (!success) {
     return { result: { success: false, reason: 'write_file_failed' }, steps };
   }
-  return { result: { success: true, path: tempPath, mime }, steps };
+  return { result: { success: true, uri: `file://${tempPath}`, mime }, steps };
 }
 
+type CopyToSortedDirectoryResult = {
+  +result:
+    | { +success: true, +path: string, +mime: string }
+    | MediaMissionFailure,
+  +steps: $ReadOnlyArray<MediaMissionStep>,
+};
 async function copyToSortedDirectory(
   localURI: string,
   directory: string, // should end with a /
   inputMIME: ?string,
-): Promise<IntermediateSaveResult> {
+): Promise<CopyToSortedDirectoryResult> {
   const steps: Array<MediaMissionStep> = [];
 
   const path = pathFromURI(localURI);
@@ -617,9 +616,9 @@ async function copyMediaIOS(
   );
 
   if (!saveMediaToDiskIOSResult.success) {
-    const { tempFilePath } = saveMediaToDiskIOSResult;
-    if (tempFilePath) {
-      await disposeTempFile(tempFilePath);
+    const { tempFileURI } = saveMediaToDiskIOSResult;
+    if (tempFileURI) {
+      await disposeTempFile(tempFileURI);
     }
     return { success: false };
   }

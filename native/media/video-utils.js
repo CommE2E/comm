@@ -53,7 +53,7 @@ type ProcessVideoResponse = {
   +dimensions: Dimensions,
   +loop: boolean,
   +thumbHash: ?string,
-  +shouldDisposePath: ?string,
+  +shouldDisposeURI: ?string,
 };
 async function processVideo(
   input: ProcessVideoInfo,
@@ -114,7 +114,7 @@ async function processVideo(
         mime: 'video/mp4',
         dimensions: input.dimensions,
         loop: false,
-        shouldDisposePath: null,
+        shouldDisposeURI: null,
       },
     };
   }
@@ -182,7 +182,7 @@ async function processVideo(
       mime: 'video/mp4',
       dimensions,
       loop,
-      shouldDisposePath: uri,
+      shouldDisposeURI: uri,
     },
   };
 }

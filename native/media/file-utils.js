@@ -330,13 +330,13 @@ async function getMediaTypeInfo(
 }
 
 async function disposeTempFile(
-  path: string,
+  uri: string,
 ): Promise<DisposeTemporaryFileMediaMissionStep> {
   let success = false,
     exceptionMessage;
   const start = Date.now();
   try {
-    await filesystem.unlink(path);
+    await ExpoFileSystem.deleteAsync(uri);
     success = true;
   } catch (e) {
     exceptionMessage = getMessageForException(e);
@@ -346,7 +346,7 @@ async function disposeTempFile(
     success,
     exceptionMessage,
     time: Date.now() - start,
-    path,
+    uri,
   };
 }
 
