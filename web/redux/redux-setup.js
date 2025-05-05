@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import type { PersistState } from 'redux-persist/es/types.js';
 
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
@@ -96,6 +97,7 @@ const nonUserSpecificFieldsWeb = [
   'initialStateLoaded',
   '_persist',
   'customServer',
+  'clientDBStateLoaded',
 ];
 
 // Before making changes here, make sure to consider how the added property
@@ -140,6 +142,7 @@ export type AppState = {
   +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
   +queuedDMOperations: QueuedDMOperations,
   +holderStore: HolderStore,
+  +clientDBStateLoaded: boolean,
 };
 
 export type Action = $ReadOnly<
@@ -336,6 +339,11 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         ...action.payload,
         keyserverIDs: newKeyserverIDs,
       },
+    };
+  } else if (action.type === setClientDBStoreActionType) {
+    state = {
+      ...state,
+      clientDBStateLoaded: true,
     };
   }
 
