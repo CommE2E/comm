@@ -74,7 +74,6 @@ import {
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
 import { defaultWebState } from './default-state.js';
 import reduceNavInfo from './nav-reducer.js';
-import { onStateDifference } from './redux-debug-utils.js';
 import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
@@ -368,7 +367,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       );
     }
 
-    const baseReducerResult = baseReducer(state, action, onStateDifference);
+    const baseReducerResult = baseReducer(state, action);
     state = baseReducerResult.state;
     storeOperations = {
       ...baseReducerResult.storeOperations,
