@@ -36,6 +36,10 @@ impl AuthorizationCredential {
       }
     }
   }
+
+  pub fn is_services_token(&self) -> bool {
+    matches!(self, Self::ServicesToken(_))
+  }
 }
 
 impl std::fmt::Display for AuthorizationCredential {
