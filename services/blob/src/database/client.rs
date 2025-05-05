@@ -16,7 +16,7 @@ use comm_lib::{
   },
 };
 use std::collections::HashMap;
-use tracing::{debug, error, trace};
+use tracing::{debug, error, trace, warn};
 
 use crate::constants::db::*;
 use crate::constants::error_types;
@@ -292,6 +292,80 @@ impl DatabaseClient {
     }
 
     Ok(blob_sizes)
+  }
+
+  /// Creates or updates size DDB attributes for given blob hashes
+  pub async fn save_blob_sizes(
+    &self,
+    blob_sizes: impl IntoIterator<Item = (String, u64)>,
+  ) -> DBResult<()> {
+    let inputs: Vec<_> = blob_sizes.into_iter().collect();
+
+    // single transaction can update up to 100 blobs
+    for chunk in inputs.chunks(100) {
+      let mut transaction = Vec::new();
+
+      for (blob_hash, blob_size) in chunk {
+        let primary_key = PrimaryKey::for_blob_item(blob_hash);
+        let update_request = Update::builder()
+          .table_name(BLOB_TABLE_NAME)
+          .set_key(Some(primary_key.into()))
+          // even though we checked that the blob item exists, we still need to check it again
+          // using DDB built-in conditions in case it was deleted in meantime
+          .condition_expression(
+            "attribute_exists(#blob_hash) AND attribute_exists(#holder)",
+          )
+          .update_expression("SET #blob_size = :blob_size")
+          .expression_attribute_names("#blob_hash", ATTR_BLOB_HASH)
+          .expression_attribute_names("#holder", ATTR_HOLDER)
+          .expression_attribute_names("#blob_size", ATTR_BLOB_SIZE)
+          .expression_attribute_values(
+            ":blob_size",
+            AttributeValue::N(blob_size.to_string()),
+          )
+          .build()
+          .expect(
+            "key, table_name or update_expression not set in Update builder",
+          );
+        transaction
+          .push(TransactWriteItem::builder().update(update_request).build());
+      }
+
+      let db_transaction_operation = self
+        .ddb
+        .transact_write_items()
+        .set_transact_items(Some(transaction));
+
+      let retry_config = ExponentialBackoffConfig::default();
+      let mut exponential_backoff = retry_config.new_counter();
+
+      'retries: loop {
+        match db_transaction_operation.clone().send().await {
+          Ok(_) => break 'retries,
+          Err(err) => match DynamoDBError::from(err) {
+            ref conflict_err if is_transaction_conflict(conflict_err) => {
+              if exponential_backoff.sleep_and_retry().await.is_err() {
+                warn!(
+                  chunkSize = chunk.len(),
+                  error = ?conflict_err,
+                  "Transaction chunk retry limit exceeded. Skipping."
+                );
+                break 'retries;
+              }
+            }
+            error => {
+              error!(
+                errorType = error_types::DDB_ERROR,
+                "DynamoDB client failed to run size update transaction: {:?}",
+                error
+              );
+              return Err(DBError::AwsSdk(Box::new(error)));
+            }
+          },
+        }
+      }
+    }
+    Ok(())
   }
 
   /// Returns a list of primary keys for rows that already exist in the table
