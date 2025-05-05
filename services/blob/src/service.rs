@@ -223,10 +223,10 @@ impl BlobService {
       upload_session.add_part(s3_chunk).await?;
     }
     // Complete the upload session
-    upload_session.finish_upload().await?;
+    let upload_size = upload_session.finish_upload().await?;
 
     trace!("S3 upload complete, putting item to db");
-    self.db.put_blob_item(blob_item).await?;
+    self.db.put_blob_item(blob_item, upload_size).await?;
     Ok(())
   }
 
