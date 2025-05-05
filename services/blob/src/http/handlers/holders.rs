@@ -1,4 +1,4 @@
-use actix_web::error::{ErrorBadRequest, ErrorForbidden};
+use actix_web::error::ErrorBadRequest;
 use actix_web::{web, HttpResponse};
 use comm_lib::auth::AuthorizationCredential;
 use comm_lib::blob::types::http::{
@@ -7,6 +7,7 @@ use comm_lib::blob::types::http::{
 };
 use tracing::{info, instrument, trace, warn};
 
+use crate::http::utils::verify_caller_is_service;
 use crate::service::BlobService;
 
 #[instrument(name = "assign_multiple_holders", skip_all)]
@@ -121,16 +122,4 @@ fn validate_request(items: &[BlobInfo]) -> actix_web::Result<()> {
   }
 
   Ok(())
-}
-
-/// Returns HTTP 403 if caller is not a Comm service
-fn verify_caller_is_service(
-  requesting_identity: &AuthorizationCredential,
-) -> actix_web::Result<()> {
-  match requesting_identity {
-    AuthorizationCredential::ServicesToken(_) => Ok(()),
-    _ => Err(ErrorForbidden(
-      "This endpoint can only be called by other services",
-    )),
-  }
 }
