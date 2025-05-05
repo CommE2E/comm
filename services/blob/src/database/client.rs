@@ -12,7 +12,7 @@ use comm_lib::{
   blob::types::BlobInfo,
   database::{
     self, batch_operations::ExponentialBackoffConfig, is_transaction_conflict,
-    AttributeExtractor, TryFromAttribute,
+    parse_int_attribute, AttributeExtractor, TryFromAttribute,
   },
 };
 use std::collections::HashMap;
@@ -259,6 +259,39 @@ impl DatabaseClient {
       })
       .collect::<Result<Vec<_>, _>>()
       .map_err(DBError::Attribute)
+  }
+
+  /// Gets blob sizes for given blob hashes. PrimaryKeys should be blob PKs
+  /// (holder PKs will be ignored). Non-existing blobs, or blobs with missing
+  /// size attribute will not be returned.
+  pub async fn get_blob_sizes(
+    &self,
+    keys: impl IntoIterator<Item = PrimaryKey>,
+  ) -> DBResult<HashMap<String, u64>> {
+    let primary_keys: Vec<_> = keys.into_iter().collect();
+    let projection_expression = format!("{ATTR_BLOB_HASH}, {ATTR_BLOB_SIZE}");
+
+    let returned_items = comm_lib::database::batch_operations::batch_get(
+      &self.ddb,
+      BLOB_TABLE_NAME,
+      primary_keys,
+      Some(projection_expression),
+      Default::default(),
+    )
+    .await?;
+
+    let mut blob_sizes = HashMap::with_capacity(returned_items.len());
+    for mut attrs in returned_items {
+      let blob_hash: String = attrs.take_attr(ATTR_BLOB_HASH)?;
+      let size_attr = attrs.remove(ATTR_BLOB_SIZE);
+
+      if size_attr.is_some() {
+        let blob_size: u64 = parse_int_attribute(ATTR_BLOB_SIZE, size_attr)?;
+        blob_sizes.insert(blob_hash, blob_size);
+      }
+    }
+
+    Ok(blob_sizes)
   }
 
   /// Returns a list of primary keys for rows that already exist in the table
