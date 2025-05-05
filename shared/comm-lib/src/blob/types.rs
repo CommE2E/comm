@@ -111,6 +111,13 @@ pub mod http {
   pub struct BlobSizesResponse {
     pub blob_sizes: HashMap<String, u64>,
   }
+
+  impl BlobSizesResponse {
+    /// Returns total size of all requested blobs.
+    pub fn total_size(&self) -> u64 {
+      self.blob_sizes.values().sum()
+    }
+  }
 }
 
 /// Blob owning information - stores both blob_hash and holder
