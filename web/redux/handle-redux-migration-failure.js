@@ -10,7 +10,6 @@ const persistWhitelist = [
   'enabledApps',
   'alertStore',
   'commServicesAccessToken',
-  'keyserverStore',
   'globalThemeInfo',
   'customServer',
   'messageStore',
