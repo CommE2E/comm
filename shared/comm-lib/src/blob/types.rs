@@ -11,6 +11,8 @@ use sha2::{Digest, Sha256};
 /// If you edit the definitions in one file,
 /// please make sure to update the corresponding definitions in the other.
 pub mod http {
+  use std::collections::HashMap;
+
   use serde::{Deserialize, Serialize};
 
   pub use super::BlobInfo;
@@ -92,6 +94,22 @@ pub mod http {
         instant_delete: false,
       }
     }
+  }
+
+  // Blob metadata endpoint types
+  // NOTE: These are accessible from other services and should not be exposed
+  // to `lib/types/blob-service-types.js` JS definitions.
+
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct BlobSizesRequest {
+    pub blob_hashes: Vec<String>,
+  }
+
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct BlobSizesResponse {
+    pub blob_sizes: HashMap<String, u64>,
   }
 }
 

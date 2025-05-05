@@ -13,6 +13,7 @@ mod utils;
 mod handlers {
   pub(super) mod blob;
   pub(super) mod holders;
+  pub(super) mod metadata;
 }
 
 pub async fn run_http_server(
@@ -47,9 +48,14 @@ pub async fn run_http_server(
       )
       .service(
         web::resource("/holders")
-          .wrap(auth_middleware)
+          .wrap(auth_middleware.clone())
           .route(web::post().to(handlers::holders::assign_holders_handler))
           .route(web::delete().to(handlers::holders::remove_holders_handler)),
+      )
+      .service(
+        web::resource("/metadata/get_blob_size")
+          .wrap(auth_middleware)
+          .route(web::post().to(handlers::metadata::get_blob_size)),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
