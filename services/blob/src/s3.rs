@@ -257,6 +257,7 @@ pub struct MultiPartUploadSession {
   object_name: String,
   upload_id: String,
   upload_parts: Vec<CompletedPart>,
+  blob_size: u64,
 }
 
 impl MultiPartUploadSession {
@@ -295,11 +296,13 @@ impl MultiPartUploadSession {
       object_name: String::from(&s3_path.object_name),
       upload_id: String::from(upload_id),
       upload_parts: Vec::new(),
+      blob_size: 0,
     })
   }
 
   /// adds data part to the multipart upload
   pub async fn add_part(&mut self, part: Vec<u8>) -> S3Result<()> {
+    let part_size = part.len() as u64;
     let stream = ByteStream::from(part);
     let part_number: i32 = self.upload_parts.len() as i32 + 1;
     let upload_result = self
@@ -330,12 +333,13 @@ impl MultiPartUploadSession {
       "Uploaded part {}.",
       part_number
     );
+    self.blob_size += part_size;
     self.upload_parts.push(completed_part);
     Ok(())
   }
 
-  /// finishes the upload
-  pub async fn finish_upload(&self) -> S3Result<()> {
+  /// finishes the upload, returns uploaded blob size
+  pub async fn finish_upload(&self) -> S3Result<u64> {
     if self.upload_parts.is_empty() {
       return Err(Error::EmptyUpload);
     }
@@ -361,8 +365,12 @@ impl MultiPartUploadSession {
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
-    debug!(upload_id = self.upload_id, "Multipart upload complete");
-    Ok(())
+    debug!(
+      blob_size = self.blob_size,
+      upload_id = self.upload_id,
+      "Multipart upload complete"
+    );
+    Ok(self.blob_size)
   }
 }
 

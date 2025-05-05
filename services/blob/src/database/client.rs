@@ -53,7 +53,11 @@ impl DatabaseClient {
 
   /// Inserts a new blob item row into the database. Returns Error
   /// if the item already exists.
-  pub async fn put_blob_item(&self, blob_item: BlobItemInput) -> DBResult<()> {
+  pub async fn put_blob_item(
+    &self,
+    blob_item: BlobItemInput,
+    blob_size: u64,
+  ) -> DBResult<()> {
     let item = HashMap::from([
       (
         ATTR_BLOB_HASH.to_string(),
@@ -68,6 +72,10 @@ impl DatabaseClient {
         AttributeValue::S(blob_item.s3_path.to_full_path()),
       ),
       (ATTR_UNCHECKED.to_string(), UncheckedKind::Blob.into()),
+      (
+        ATTR_BLOB_SIZE.to_string(),
+        AttributeValue::N(blob_size.to_string()),
+      ),
     ]);
 
     self.insert_item(item).await?;
