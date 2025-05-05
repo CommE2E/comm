@@ -263,6 +263,29 @@ impl BlobService {
     Ok(())
   }
 
+  pub async fn query_blob_sizes(
+    &self,
+    blob_hashes: HashSet<String>,
+  ) -> BlobServiceResult<HashMap<String, u64>> {
+    let primary_keys = blob_hashes.iter().map(PrimaryKey::for_blob_item);
+    let ddb_results = self.db.get_blob_sizes(primary_keys).await?;
+
+    let mut results = HashMap::with_capacity(blob_hashes.len());
+    for blob_hash in blob_hashes {
+      let blob_size = match ddb_results.get(&blob_hash) {
+        Some(ddb_size) => *ddb_size,
+        None => {
+          let s3_path = BlobItemInput::new(&blob_hash).s3_path;
+          let s3_size = self.s3.get_object_size(&s3_path).await?;
+          s3_size
+        }
+      };
+      results.insert(blob_hash, blob_size);
+    }
+
+    Ok(results)
+  }
+
   pub async fn find_existing_blobs(
     &self,
     blob_hashes: HashSet<&String>,
