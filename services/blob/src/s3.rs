@@ -23,6 +23,9 @@ pub enum Error {
   EmptyUpload,
   #[display(fmt = "Missing upload ID")]
   MissingUploadID,
+  #[display(fmt = "Missing or invalid S3 object attribute: {}", "_0")]
+  #[error(ignore)]
+  InvalidAttribute(&'static str),
 }
 
 #[derive(Debug, derive_more::Error)]
@@ -142,6 +145,33 @@ impl S3Client {
       })?;
 
     Ok(response)
+  }
+
+  pub async fn get_object_size(&self, s3_path: &S3Path) -> S3Result<u64> {
+    trace!("Getting S3 object metadata...");
+    let object_metadata = self.get_object_metadata(s3_path).await?;
+    let blob_size = object_metadata
+      .content_length()
+      .ok_or_else(|| {
+        error!(
+          errorType = error_types::S3_ERROR,
+          "Failed to get S3 object content length"
+        );
+        Error::InvalidAttribute("content_length")
+      })
+      .and_then(|len| {
+        if len >= 0 {
+          Ok(len as u64)
+        } else {
+          error!(
+            errorType = error_types::S3_ERROR,
+            "S3 object content length is negative"
+          );
+          Err(Error::InvalidAttribute("content_length"))
+        }
+      })?;
+
+    Ok(blob_size)
   }
 
   /// Downloads object and retrieves data bytes within provided range
