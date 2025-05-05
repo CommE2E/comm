@@ -44,7 +44,6 @@ pub enum InviteLinkError {
 pub enum BlobServiceError {
   BlobNotFound,
   BlobAlreadyExists,
-  InvalidState,
   DB(DBError),
   S3(S3Error),
   #[from(ignore)]
@@ -121,29 +120,8 @@ impl BlobService {
     }?;
     debug!("S3 path: {:?}", s3_path);
 
-    // 2. Get S3 Object metadata
-    trace!("Getting S3 object metadata...");
-    let object_metadata = self.s3.get_object_metadata(&s3_path).await?;
-    let blob_size = object_metadata
-      .content_length()
-      .ok_or_else(|| {
-        error!(
-          errorType = error_types::S3_ERROR,
-          "Failed to get S3 object content length"
-        );
-        BlobServiceError::InvalidState
-      })
-      .and_then(|len| {
-        if len >= 0 {
-          Ok(len as u64)
-        } else {
-          error!(
-            errorType = error_types::S3_ERROR,
-            "S3 object content length is negative"
-          );
-          Err(BlobServiceError::InvalidState)
-        }
-      })?;
+    // 2. Get S3 object size
+    let blob_size = self.s3.get_object_size(&s3_path).await?;
     debug!("S3 object size: {} bytes", blob_size);
 
     // 3. Create download session
