@@ -24,6 +24,7 @@ const persistBlacklist = [
   'inviteLinksStore',
   'integrityStore',
   'communityStore',
+  'keyserverStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
