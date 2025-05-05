@@ -12,6 +12,7 @@ import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ClientStore } from 'lib/types/store-ops-types.js';
 import { threadIDIsThick } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
@@ -27,6 +28,20 @@ import { useSelector } from './redux-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import Loading from '../loading.react.js';
 import type { InitialReduxStateActionPayload } from '../types/redux-types.js';
+
+type CurrentStep =
+  | { +step: 'before_rehydrate' }
+  | {
+      +step: 'client_store_dispatched',
+      +clientDBStore: ClientStore,
+    }
+  | {
+      +step: 'client_store_ready',
+      +clientDBStore: ClientStore,
+    }
+  | {
+      +step: 'initial_redux_state_dispatched',
+    };
 
 type Props = {
   +persistor: Persistor,
@@ -46,14 +61,51 @@ function InitialReduxStateGate(props: Props): React.Node {
 
   const isRehydrated = useSelector(state => !!state._persist?.rehydrated);
   const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
+  const clientDBStateLoaded = useSelector(state => state.clientDBStateLoaded);
 
+  const [step, setStep] = React.useState<CurrentStep>({
+    step: 'before_rehydrate',
+  });
   const prevIsRehydrated = React.useRef(false);
   React.useEffect(() => {
-    if (prevIsRehydrated.current || !isRehydrated) {
+    if (
+      step.step !== 'before_rehydrate' ||
+      prevIsRehydrated.current ||
+      !isRehydrated
+    ) {
       return;
     }
     prevIsRehydrated.current = isRehydrated;
+
     void (async () => {
+      try {
+        const { sqliteAPI } = getConfig();
+        const clientDBStore = await sqliteAPI.getClientDBStore(null);
+        dispatch({
+          type: setClientDBStoreActionType,
+          payload: clientDBStore,
+        });
+        setStep({ step: 'client_store_dispatched', clientDBStore });
+      } catch (err) {
+        setInitError(err);
+      }
+    })();
+  }, [dispatch, isRehydrated, step.step]);
+
+  React.useEffect(() => {
+    if (step.step !== 'client_store_dispatched' || !clientDBStateLoaded) {
+      return;
+    }
+
+    setStep({ step: 'client_store_ready', clientDBStore: step.clientDBStore });
+  }, [clientDBStateLoaded, dispatch, isRehydrated, step]);
+
+  React.useEffect(() => {
+    if (step.step !== 'client_store_ready') {
+      return;
+    }
+    void (async () => {
+      const clientDBStore = step.clientDBStore;
       try {
         let urlInfo = infoFromURL(decodeURI(window.location.href));
         const isThickThreadOpen =
@@ -68,13 +120,6 @@ function InitialReduxStateGate(props: Props): React.Node {
             ),
           };
         }
-
-        const { sqliteAPI } = getConfig();
-        const clientDBStore = await sqliteAPI.getClientDBStore(null);
-        dispatch({
-          type: setClientDBStoreActionType,
-          payload: clientDBStore,
-        });
 
         const payload = await callGetInitialReduxState({
           urlInfo,
@@ -172,6 +217,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           const messageSearchStoreOperations = getMessageSearchStoreOps(
             messageStoreOperations,
           );
+          const { sqliteAPI } = getConfig();
           await sqliteAPI.processDBStoreOperations({
             threadStoreOperations,
             draftStoreOperations: [],
@@ -195,9 +241,17 @@ function InitialReduxStateGate(props: Props): React.Node {
         });
       } catch (err) {
         setInitError(err);
+      } finally {
+        setStep({ step: 'initial_redux_state_dispatched' });
       }
     })();
-  }, [callGetInitialReduxState, dispatch, isRehydrated, allUpdatesCurrentAsOf]);
+  }, [
+    callGetInitialReduxState,
+    dispatch,
+    isRehydrated,
+    allUpdatesCurrentAsOf,
+    step,
+  ]);
 
   const initialStateLoaded = useSelector(state => state.initialStateLoaded);
 
