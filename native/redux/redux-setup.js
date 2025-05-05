@@ -50,7 +50,6 @@ import { setAccessTokenActionType } from './action-types.js';
 import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
-import { onStateDifference } from './redux-debug-utils.js';
 import type { AppState } from './state-types.js';
 import { nonUserSpecificFieldsNative } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
@@ -291,11 +290,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     );
   }
 
-  const baseReducerResult = baseReducer(
-    state,
-    (action: BaseAction),
-    onStateDifference,
-  );
+  const baseReducerResult = baseReducer(state, (action: BaseAction));
   state = baseReducerResult.state;
 
   const { storeOperations } = baseReducerResult;
