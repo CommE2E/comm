@@ -104,6 +104,7 @@ const defaultWebState: AppState = Object.freeze({
   holderStore: {
     storedHolders: {},
   },
+  clientDBStateLoaded: false,
 });
 
 export { defaultWebState };
