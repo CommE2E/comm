@@ -271,17 +271,33 @@ impl BlobService {
     let ddb_results = self.db.get_blob_sizes(primary_keys).await?;
 
     let mut results = HashMap::with_capacity(blob_hashes.len());
+    let mut updated_values = Vec::new();
     for blob_hash in blob_hashes {
       let blob_size = match ddb_results.get(&blob_hash) {
         Some(ddb_size) => *ddb_size,
         None => {
           let s3_path = BlobItemInput::new(&blob_hash).s3_path;
           let s3_size = self.s3.get_object_size(&s3_path).await?;
+          updated_values.push((blob_hash.clone(), s3_size));
           s3_size
         }
       };
       results.insert(blob_hash, blob_size);
     }
+
+    // Asynchronously values fetched from S3 to DDB
+    let db = self.db.clone();
+    tokio::spawn(
+      async move {
+        if let Err(err) = db.save_blob_sizes(updated_values).await {
+          error!(
+            errorType = error_types::OTHER_ERROR,
+            "Failed to update blob sizes in DDB: {:?}", err
+          );
+        }
+      }
+      .in_current_span(),
+    );
 
     Ok(results)
   }
