@@ -21,7 +21,9 @@ use crate::{
   },
 };
 
-use super::types::http::RemoveHoldersResponse;
+use super::types::http::{
+  BlobSizesRequest, BlobSizesResponse, RemoveHoldersResponse,
+};
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -276,6 +278,48 @@ impl BlobServiceClient {
     debug!(
       "Request successful. {} holders failed to be removed.",
       result.failed_requests.len()
+    );
+    Ok(result)
+  }
+
+  /// Fetches blob sizes for requested blob hashes.
+  ///
+  /// # Example
+  /// ```ignore
+  /// let client =
+  ///   BlobServiceClient::new("http://localhost:50053".parse()?);
+  /// let blob_hashes = vec!["blob1".to_string(), "blob2".to_string()];
+  ///
+  /// let response = client
+  ///   .fetch_blob_sizes(BlobSizesRequest { blob_hashes }).await?
+  ///
+  /// let blob1_size = response.blob_sizes.get("blob1").unwrap();
+  /// let all_blobs_size = response.total_size();
+  /// ```
+  pub async fn fetch_blob_sizes(
+    &self,
+    request: BlobSizesRequest,
+  ) -> BlobResult<BlobSizesResponse> {
+    let url = self
+      .blob_service_url
+      .join("/metadata/get_blob_size")
+      .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
+
+    trace!("Request payload: {:?}", request);
+    let response = self
+      .request(Method::POST, url)?
+      .json(&request)
+      .send()
+      .await?;
+
+    if !response.status().is_success() {
+      return error_response_result(response).await;
+    }
+
+    let result: BlobSizesResponse = response.json().await?;
+    debug!(
+      "Request successful. Fetched sizes for {} blobs.",
+      result.blob_sizes.len()
     );
     Ok(result)
   }
