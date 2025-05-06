@@ -16,7 +16,7 @@ use comm_lib::{
   blob::client::BlobServiceClient,
   database::{
     self, batch_operations::ExponentialBackoffConfig, parse_int_attribute,
-    Error,
+    AttributeMap, Error,
   },
 };
 use tracing::{error, trace, warn};
@@ -223,24 +223,27 @@ impl DatabaseClient {
     Ok(())
   }
 
-  pub async fn fetch_log_items(
+  async fn fetch_raw_log_items(
     &self,
     user_id: &str,
     backup_id: &str,
+    projection_expression: Option<&String>,
     from_id: Option<usize>,
-  ) -> Result<(Vec<LogItem>, Option<usize>), Error> {
+    limit: Option<i32>,
+  ) -> Result<(Vec<AttributeMap>, Option<usize>), Error> {
     let id = LogItem::partition_key(user_id, backup_id);
     let mut query = self
       .client
       .query()
       .table_name(log_table::TABLE_NAME)
+      .set_projection_expression(projection_expression.cloned())
       .key_condition_expression("#backupID = :valueToMatch")
       .expression_attribute_names("#backupID", log_table::attr::BACKUP_ID)
       .expression_attribute_values(
         ":valueToMatch",
         AttributeValue::S(id.clone()),
       )
-      .limit(LOG_DEFAULT_PAGE_SIZE);
+      .set_limit(limit);
 
     if let Some(from_id) = from_id {
       query = query
@@ -269,9 +272,27 @@ impl DatabaseClient {
       })
       .transpose()?;
 
-    let items = response
-      .items
-      .unwrap_or_default()
+    let items = response.items.unwrap_or_default();
+    Ok((items, last_id))
+  }
+
+  pub async fn fetch_log_items(
+    &self,
+    user_id: &str,
+    backup_id: &str,
+    from_id: Option<usize>,
+  ) -> Result<(Vec<LogItem>, Option<usize>), Error> {
+    let (raw_items, last_id) = self
+      .fetch_raw_log_items(
+        user_id,
+        backup_id,
+        None,
+        from_id,
+        Some(LOG_DEFAULT_PAGE_SIZE),
+      )
+      .await?;
+
+    let items = raw_items
       .into_iter()
       .map(LogItem::try_from)
       .collect::<Result<Vec<_>, _>>()?;
@@ -279,12 +300,11 @@ impl DatabaseClient {
     Ok((items, last_id))
   }
 
-  pub async fn remove_log_items_for_backup(
+  pub async fn fetch_all_log_items_for_backup(
     &self,
     user_id: &str,
     backup_id: &str,
-    blob_client: &BlobServiceClient,
-  ) -> Result<(), Error> {
+  ) -> Result<Vec<LogItem>, Error> {
     let (mut items, mut last_id) =
       self.fetch_log_items(user_id, backup_id, None).await?;
     while last_id.is_some() {
@@ -294,6 +314,18 @@ impl DatabaseClient {
       items.append(&mut new_items);
       last_id = new_last_id;
     }
+    Ok(items)
+  }
+
+  pub async fn remove_log_items_for_backup(
+    &self,
+    user_id: &str,
+    backup_id: &str,
+    blob_client: &BlobServiceClient,
+  ) -> Result<(), Error> {
+    let items = self
+      .fetch_all_log_items_for_backup(user_id, backup_id)
+      .await?;
 
     for log_item in &items {
       log_item.revoke_holders(blob_client);
