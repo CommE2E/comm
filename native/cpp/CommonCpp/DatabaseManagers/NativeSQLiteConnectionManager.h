@@ -17,16 +17,22 @@ private:
       std::string encryptionKey);
   std::vector<std::string>
   getAttachmentsFromLog(std::uint8_t *patchsetPtr, int patchsetSize);
+  void onDatabaseOpen(sqlite3 *db, std::string sqliteEncryptionKey);
 
 public:
   NativeSQLiteConnectionManager();
-  void setLogsMonitoring(bool enabled);
-  bool getLogsMonitoring();
+  ~NativeSQLiteConnectionManager();
+
+  sqlite3 *getEphemeralConnection(
+      std::string sqliteFilePath,
+      std::string sqliteEncryptionKey) override;
   void initializeConnection(
       std::string sqliteFilePath,
-      std::function<void(sqlite3 *)> on_db_open_callback) override;
+      std::string sqliteEncryptionKey) override;
   void closeConnection() override;
-  ~NativeSQLiteConnectionManager();
+
+  void setLogsMonitoring(bool enabled);
+  bool getLogsMonitoring();
   bool captureLogs(
       std::string backupID,
       std::string logID,
