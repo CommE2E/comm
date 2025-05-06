@@ -1,3 +1,4 @@
+#include "SQLiteBackup.cpp"
 #include "SQLiteQueryExecutor.cpp"
 #include "SQLiteSchema.cpp"
 #include "SQLiteSchemaMigrations.cpp"
