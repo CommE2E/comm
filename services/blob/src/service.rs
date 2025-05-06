@@ -277,9 +277,14 @@ impl BlobService {
         Some(ddb_size) => *ddb_size,
         None => {
           let s3_path = BlobItemInput::new(&blob_hash).s3_path;
-          let s3_size = self.s3.get_object_size(&s3_path).await?;
-          updated_values.push((blob_hash.clone(), s3_size));
-          s3_size
+          match self.s3.get_object_size(&s3_path).await {
+            Ok(s3_size) => {
+              updated_values.push((blob_hash.clone(), s3_size));
+              s3_size
+            }
+            Err(s3_err) if s3_err.is_s3_object_not_found() => 0,
+            Err(s3_err) => return Err(s3_err.into()),
+          }
         }
       };
       results.insert(blob_hash, blob_size);

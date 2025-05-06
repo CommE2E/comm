@@ -48,23 +48,22 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       }
     },
     BlobServiceError::S3(s3_err) => match s3_err {
-      S3Error::AwsSdk(aws_err) => match aws_err.as_ref() {
-        aws_sdk_s3::Error::NotFound(_) | aws_sdk_s3::Error::NoSuchKey(_) => {
-          error!(
+      S3Error::AwsSdk(aws_err) => {
+        error!(
+          errorType = error_types::S3_ERROR,
+          "Received an unexpected AWS S3 error: {0:?} - {0}",
+          aws_err.as_ref()
+        );
+        ErrorInternalServerError("server error")
+      }
+      S3Error::EmptyUpload => ErrorBadRequest("empty upload"),
+      s3_error if s3_error.is_s3_object_not_found() => {
+        error!(
             errorType = error_types::S3_ERROR,
             "Data inconsistency! Blob is present in database but not present in S3!"
           );
-          ErrorInternalServerError("server error")
-        }
-        err => {
-          error!(
-            errorType = error_types::S3_ERROR,
-            "Received an unexpected AWS S3 error: {0:?} - {0}", err
-          );
-          ErrorInternalServerError("server error")
-        }
-      },
-      S3Error::EmptyUpload => ErrorBadRequest("empty upload"),
+        ErrorInternalServerError("server error")
+      }
       unexpected => {
         error!(
           errorType = error_types::S3_ERROR,
