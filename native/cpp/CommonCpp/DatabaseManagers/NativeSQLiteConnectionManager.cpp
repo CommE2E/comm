@@ -1,8 +1,10 @@
 #include "NativeSQLiteConnectionManager.h"
+
 #include "AESCrypto.h"
 #include "Logger.h"
 #include "PlatformSpecificTools.h"
 #include "SQLiteBackup.h"
+#include "SQLiteUtils.h"
 
 #include <fstream>
 #include <sstream>
@@ -196,11 +198,28 @@ bool NativeSQLiteConnectionManager::getLogsMonitoring() {
   return sqlite3session_enable(backupLogsSession, -1);
 }
 
+void NativeSQLiteConnectionManager::onDatabaseOpen(
+    sqlite3 *db,
+    std::string sqliteEncryptionKey) {
+  SQLiteUtils::setEncryptionKey(db, sqliteEncryptionKey);
+}
+
+sqlite3 *NativeSQLiteConnectionManager::getEphemeralConnection(
+    std::string sqliteFilePath,
+    std::string sqliteEncryptionKey) {
+  sqlite3 *db = this->createConnection(sqliteFilePath);
+  onDatabaseOpen(db, sqliteEncryptionKey);
+  return db;
+}
+
 void NativeSQLiteConnectionManager::initializeConnection(
     std::string sqliteFilePath,
-    std::function<void(sqlite3 *)> on_db_open_callback) {
-  SQLiteConnectionManager::initializeConnection(
-      sqliteFilePath, on_db_open_callback);
+    std::string sqliteEncryptionKey) {
+  if (this->dbConnection) {
+    return;
+  }
+  this->dbConnection = this->createConnection(sqliteFilePath);
+  onDatabaseOpen(getConnection(), sqliteEncryptionKey);
   attachSession();
   setLogsMonitoring(false);
 }
