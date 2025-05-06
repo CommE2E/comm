@@ -55,7 +55,7 @@ std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesAllowlist = {
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #else
-SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
+WebSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
 
 // We don't want to run `PRAGMA key = ...;`

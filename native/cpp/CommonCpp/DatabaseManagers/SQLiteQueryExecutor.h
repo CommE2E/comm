@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "NativeSQLiteConnectionManager.h"
+#include "WebSQLiteConnectionManager.h"
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/DMOperation.h"
@@ -41,7 +42,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void initializeTablesForLogMonitoring();
   void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
 #else
-  static SQLiteConnectionManager connectionManager;
+  static WebSQLiteConnectionManager connectionManager;
 #endif
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
