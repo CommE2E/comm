@@ -1,5 +1,6 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
+#include "SQLiteBackup.h"
 #include "SQLiteSchema.h"
 #include "SQLiteUtils.h"
 
@@ -41,16 +42,6 @@ int SQLiteQueryExecutor::backupDataKeySize = 64;
 
 std::string SQLiteQueryExecutor::backupLogDataKey;
 int SQLiteQueryExecutor::backupLogDataKeySize = 32;
-
-std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesAllowlist = {
-    "drafts",
-    "threads",
-    "message_store_threads",
-    "users",
-    "synced_metadata",
-    "aux_users",
-    "entries",
-};
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -1795,8 +1786,8 @@ void SQLiteQueryExecutor::initializeTablesForLogMonitoring() {
          stepResult = sqlite3_step(preparedSQL)) {
       std::string table_name =
           reinterpret_cast<const char *>(sqlite3_column_text(preparedSQL, 0));
-      if (SQLiteQueryExecutor::backedUpTablesAllowlist.find(table_name) !=
-          SQLiteQueryExecutor::backedUpTablesAllowlist.end()) {
+      if (SQLiteBackup::tablesAllowlist.find(table_name) !=
+          SQLiteBackup::tablesAllowlist.end()) {
         tablesToMonitor.emplace_back(table_name);
       }
     }
@@ -1812,8 +1803,8 @@ void SQLiteQueryExecutor::cleanupDatabaseExceptAllowlist(sqlite3 *db) const {
 
   std::ostringstream removeDeviceSpecificDataSQL;
   for (const auto &tableName : tables) {
-    if (backedUpTablesAllowlist.find(tableName) ==
-        backedUpTablesAllowlist.end()) {
+    if (SQLiteBackup::tablesAllowlist.find(tableName) ==
+        SQLiteBackup::tablesAllowlist.end()) {
       removeDeviceSpecificDataSQL << "DELETE FROM " << tableName << ";"
                                   << std::endl;
     }
@@ -2082,8 +2073,8 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   }
 
   std::vector<std::string> tablesVector(
-      SQLiteQueryExecutor::backedUpTablesAllowlist.begin(),
-      SQLiteQueryExecutor::backedUpTablesAllowlist.end());
+      SQLiteBackup::tablesAllowlist.begin(),
+      SQLiteBackup::tablesAllowlist.end());
   copyTablesDataUsingAttach(
       SQLiteQueryExecutor::getConnection(), plaintextBackupPath, tablesVector);
 
