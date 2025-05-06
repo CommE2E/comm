@@ -282,7 +282,8 @@ impl BlobServiceClient {
     Ok(result)
   }
 
-  /// Fetches blob sizes for requested blob hashes.
+  /// Fetches blob sizes for requested blob hashes. If blob with given hash
+  /// doesn't exist, it's returned size will be 0.
   /// This endpoint is callable only by other services.
   ///
   /// # Example
