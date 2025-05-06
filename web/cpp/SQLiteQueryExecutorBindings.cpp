@@ -2,6 +2,7 @@
 #include "SQLiteSchema.cpp"
 #include "SQLiteSchemaMigrations.cpp"
 #include "SQLiteUtils.cpp"
+#include "WebSQLiteConnectionManager.cpp"
 #include "entities/InboundP2PMessage.h"
 #include "entities/OutboundP2PMessage.h"
 
