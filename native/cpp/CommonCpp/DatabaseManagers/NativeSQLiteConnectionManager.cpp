@@ -2,6 +2,7 @@
 #include "AESCrypto.h"
 #include "Logger.h"
 #include "PlatformSpecificTools.h"
+#include "SQLiteBackup.h"
 
 #include <fstream>
 #include <sstream>
@@ -20,6 +21,10 @@ void NativeSQLiteConnectionManager::attachSession() {
   int sessionCreationResult =
       sqlite3session_create(dbConnection, "main", &backupLogsSession);
   handleSQLiteError(sessionCreationResult, "Failed to create sqlite3 session.");
+
+  std::vector<std::string> tablesToMonitor(
+      SQLiteBackup::tablesAllowlist.begin(),
+      SQLiteBackup::tablesAllowlist.end());
 
   for (const auto &table : tablesToMonitor) {
     int sessionAttachResult =
