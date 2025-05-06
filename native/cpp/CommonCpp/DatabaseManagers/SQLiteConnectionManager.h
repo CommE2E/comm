@@ -24,7 +24,7 @@ public:
   virtual void initializeConnection(
       std::string sqliteFilePath,
       std::function<void(sqlite3 *)> on_db_open_callback);
-  virtual void closeConnection();
+  virtual void closeConnection() = 0;
   virtual ~SQLiteConnectionManager();
   virtual void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
 };
