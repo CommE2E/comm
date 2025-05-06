@@ -101,8 +101,6 @@ void SQLiteQueryExecutor::migrate() {
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
 #ifndef EMSCRIPTEN
-  SQLiteQueryExecutor::initializeTablesForLogMonitoring();
-
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
@@ -1768,34 +1766,6 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     }
     SQLiteQueryExecutor::generateBackupDataKey();
   });
-}
-
-void SQLiteQueryExecutor::initializeTablesForLogMonitoring() {
-  sqlite3 *db;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  default_on_db_open_callback(db);
-
-  std::vector<std::string> tablesToMonitor;
-  {
-    SQLiteStatementWrapper preparedSQL(
-        db,
-        "SELECT name FROM sqlite_master WHERE type='table';",
-        "Failed to get all database tables");
-
-    for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
-         stepResult = sqlite3_step(preparedSQL)) {
-      std::string table_name =
-          reinterpret_cast<const char *>(sqlite3_column_text(preparedSQL, 0));
-      if (SQLiteBackup::tablesAllowlist.find(table_name) !=
-          SQLiteBackup::tablesAllowlist.end()) {
-        tablesToMonitor.emplace_back(table_name);
-      }
-    }
-    // Runs preparedSQL destructor which finalizes the sqlite statement
-  }
-  sqlite3_close(db);
-
-  SQLiteQueryExecutor::connectionManager.tablesToMonitor = tablesToMonitor;
 }
 
 void SQLiteQueryExecutor::cleanupDatabaseExceptAllowlist(sqlite3 *db) const {
