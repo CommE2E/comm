@@ -28,6 +28,19 @@ pub enum Error {
   InvalidAttribute(&'static str),
 }
 
+impl Error {
+  pub fn is_s3_object_not_found(&self) -> bool {
+    let Self::AwsSdk(aws_error) = self else {
+      return false;
+    };
+
+    matches!(
+      aws_error.as_ref(),
+      S3Error::NotFound(_) | S3Error::NoSuchKey(_)
+    )
+  }
+}
+
 #[derive(Debug, derive_more::Error)]
 pub enum S3PathError {
   MissingSeparator(#[error(ignore)] String),
