@@ -37,7 +37,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static NativeSQLiteConnectionManager connectionManager;
   static void generateBackupDataKey();
   static void generateBackupLogDataKey();
-  static void initializeTablesForLogMonitoring();
   void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
 #else
   static WebSQLiteConnectionManager connectionManager;
