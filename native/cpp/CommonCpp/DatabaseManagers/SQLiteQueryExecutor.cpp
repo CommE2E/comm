@@ -49,15 +49,6 @@ NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 WebSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
 
-// We don't want to run `PRAGMA key = ...;`
-// on main web database. The context is here:
-// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-void default_on_db_open_callback(sqlite3 *db) {
-#ifndef EMSCRIPTEN
-  SQLiteUtils::setEncryptionKey(db, SQLiteQueryExecutor::backupDataKey);
-#endif
-}
-
 void SQLiteQueryExecutor::migrate() {
 // We don't want to run `PRAGMA key = ...;`
 // on main web database. The context is here:
@@ -67,14 +58,13 @@ void SQLiteQueryExecutor::migrate() {
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 #endif
 
-  sqlite3 *db;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  default_on_db_open_callback(db);
-
   std::stringstream db_path;
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
           << std::endl;
   Logger::log(db_path.str());
+
+  sqlite3 *db = SQLiteQueryExecutor::connectionManager.getEphemeralConnection(
+      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 
   auto db_version = SQLiteUtils::getDatabaseVersion(db);
   std::stringstream version_msg;
@@ -119,7 +109,7 @@ sqlite3 *SQLiteQueryExecutor::getConnection() {
     return SQLiteQueryExecutor::connectionManager.getConnection();
   }
   SQLiteQueryExecutor::connectionManager.initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, default_on_db_open_callback);
+      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
   return SQLiteQueryExecutor::connectionManager.getConnection();
 }
 
