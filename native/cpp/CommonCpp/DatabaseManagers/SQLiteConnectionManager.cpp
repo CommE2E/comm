@@ -27,16 +27,11 @@ void SQLiteConnectionManager::handleSQLiteError(
   }
 }
 
-void SQLiteConnectionManager::initializeConnection(
-    std::string sqliteFilePath,
-    std::function<void(sqlite3 *)> on_db_open_callback) {
-  if (dbConnection) {
-    return;
-  }
-
+sqlite3 *SQLiteConnectionManager::createConnection(std::string sqliteFilePath) {
+  sqlite3 *dbConnection;
   int connectResult = sqlite3_open(sqliteFilePath.c_str(), &dbConnection);
-  handleSQLiteError(connectResult, "Failed to open database connection.");
-  on_db_open_callback(dbConnection);
+  handleSQLiteError(connectResult, "Failed to open database connection");
+  return dbConnection;
 }
 
 void SQLiteConnectionManager::closeConnectionInternal() {
