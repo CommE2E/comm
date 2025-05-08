@@ -4,6 +4,7 @@
 
 #include <folly/String.h>
 #include <folly/json.h>
+#include <optional>
 #include <stdexcept>
 
 namespace comm {
@@ -16,26 +17,27 @@ MessageOperationsUtilities::translateRawMessageInfoToClientDBMessageInfo(
   std::string thread = rawMessageInfo["threadID"].asString();
   std::string user = rawMessageInfo["creatorID"].asString();
 
-  std::unique_ptr<std::string> localID = nullptr;
+  std::optional<std::string> localID = std::nullopt;
   if (rawMessageInfo.count("localID")) {
-    localID =
-        std::make_unique<std::string>(rawMessageInfo["localID"].asString());
+    localID = rawMessageInfo["localID"].asString();
   }
 
   int type = rawMessageInfo["type"].asInt();
   MessageType messageType = static_cast<MessageType>(type);
   int64_t time = rawMessageInfo["time"].asInt();
 
-  std::unique_ptr<int> futureType = nullptr;
+  std::optional<int> futureType = std::nullopt;
   if (messageType == MessageType::UNSUPPORTED) {
-    futureType = std::make_unique<int>(
-        rawMessageInfo["unsupportedMessageInfo"]["type"].asInt());
+    futureType = rawMessageInfo["unsupportedMessageInfo"]["type"].asInt();
   }
 
-  std::unique_ptr<std::string> content = nullptr;
+  std::optional<std::string> content = std::nullopt;
   if (messageSpecsHolder.find(messageType) != messageSpecsHolder.end()) {
-    content = messageSpecsHolder.at(messageType)
-                  ->messageContentForClientDB(rawMessageInfo);
+    auto contentPtr = messageSpecsHolder.at(messageType)
+                          ->messageContentForClientDB(rawMessageInfo);
+    if (contentPtr) {
+      content = *contentPtr;
+    }
   }
   std::vector<Media> mediaVector;
   if (messageType == MessageType::IMAGES ||

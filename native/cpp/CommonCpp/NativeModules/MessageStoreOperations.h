@@ -4,6 +4,7 @@
 #include "../DatabaseManagers/entities/Message.h"
 #include "DBOperationBase.h"
 #include "DatabaseManager.h"
+#include <optional>
 #include <vector>
 
 namespace comm {
@@ -61,9 +62,9 @@ public:
     auto msg_id = payload.getProperty(rt, "id").asString(rt).utf8(rt);
 
     auto maybe_local_id = payload.getProperty(rt, "local_id");
-    auto local_id = maybe_local_id.isString()
-        ? std::make_unique<std::string>(maybe_local_id.asString(rt).utf8(rt))
-        : nullptr;
+    std::optional<std::string> local_id = maybe_local_id.isString()
+        ? std::optional<std::string>(maybe_local_id.asString(rt).utf8(rt))
+        : std::nullopt;
 
     auto thread = payload.getProperty(rt, "thread").asString(rt).utf8(rt);
     auto user = payload.getProperty(rt, "user").asString(rt).utf8(rt);
@@ -71,28 +72,20 @@ public:
         std::stoi(payload.getProperty(rt, "type").asString(rt).utf8(rt));
 
     auto maybe_future_type = payload.getProperty(rt, "future_type");
-    auto future_type = maybe_future_type.isString()
-        ? std::make_unique<int>(
-              std::stoi(maybe_future_type.asString(rt).utf8(rt)))
-        : nullptr;
+    std::optional<int> future_type = maybe_future_type.isString()
+        ? std::optional<int>(std::stoi(maybe_future_type.asString(rt).utf8(rt)))
+        : std::nullopt;
 
     auto maybe_content = payload.getProperty(rt, "content");
-    auto content = maybe_content.isString()
-        ? std::make_unique<std::string>(maybe_content.asString(rt).utf8(rt))
-        : nullptr;
+    std::optional<std::string> content = maybe_content.isString()
+        ? std::optional<std::string>(maybe_content.asString(rt).utf8(rt))
+        : std::nullopt;
 
     auto time =
         std::stoll(payload.getProperty(rt, "time").asString(rt).utf8(rt));
 
     this->msg = std::make_unique<Message>(Message{
-        msg_id,
-        std::move(local_id),
-        thread,
-        user,
-        type,
-        std::move(future_type),
-        std::move(content),
-        time});
+        msg_id, local_id, thread, user, type, future_type, content, time});
 
     if (payload.getProperty(rt, "media_infos").isObject()) {
       auto media_infos =

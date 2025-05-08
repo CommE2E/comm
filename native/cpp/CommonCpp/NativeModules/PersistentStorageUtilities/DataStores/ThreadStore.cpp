@@ -28,13 +28,14 @@ jsi::Array ThreadStore::parseDBDataStore(
     jsiThread.setProperty(
         rt,
         "name",
-        thread.name ? jsi::String::createFromUtf8(rt, *thread.name)
-                    : jsi::Value::null());
+        thread.name.has_value()
+            ? jsi::String::createFromUtf8(rt, thread.name.value())
+            : jsi::Value::null());
     jsiThread.setProperty(
         rt,
         "description",
-        thread.description
-            ? jsi::String::createFromUtf8(rt, *thread.description)
+        thread.description.has_value()
+            ? jsi::String::createFromUtf8(rt, thread.description.value())
             : jsi::Value::null());
     jsiThread.setProperty(rt, "color", thread.color);
     jsiThread.setProperty(
@@ -42,39 +43,42 @@ jsi::Array ThreadStore::parseDBDataStore(
     jsiThread.setProperty(
         rt,
         "parentThreadID",
-        thread.parent_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.parent_thread_id)
+        thread.parent_thread_id.has_value()
+            ? jsi::String::createFromUtf8(rt, thread.parent_thread_id.value())
             : jsi::Value::null());
     jsiThread.setProperty(
         rt,
         "containingThreadID",
-        thread.containing_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.containing_thread_id)
+        thread.containing_thread_id.has_value()
+            ? jsi::String::createFromUtf8(
+                  rt, thread.containing_thread_id.value())
             : jsi::Value::null());
     jsiThread.setProperty(
         rt,
         "community",
-        thread.community ? jsi::String::createFromUtf8(rt, *thread.community)
-                         : jsi::Value::null());
+        thread.community.has_value()
+            ? jsi::String::createFromUtf8(rt, thread.community.value())
+            : jsi::Value::null());
     jsiThread.setProperty(rt, "members", thread.members);
     jsiThread.setProperty(rt, "roles", thread.roles);
     jsiThread.setProperty(rt, "currentUser", thread.current_user);
     jsiThread.setProperty(
         rt,
         "sourceMessageID",
-        thread.source_message_id
-            ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
+        thread.source_message_id.has_value()
+            ? jsi::String::createFromUtf8(rt, thread.source_message_id.value())
             : jsi::Value::null());
     jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
     jsiThread.setProperty(rt, "pinnedCount", thread.pinned_count);
 
-    if (thread.avatar) {
-      auto avatar = jsi::String::createFromUtf8(rt, *thread.avatar);
+    if (thread.avatar.has_value()) {
+      auto avatar = jsi::String::createFromUtf8(rt, thread.avatar.value());
       jsiThread.setProperty(rt, "avatar", avatar);
     }
 
-    if (thread.timestamps) {
-      auto timestamps = jsi::String::createFromUtf8(rt, *thread.timestamps);
+    if (thread.timestamps.has_value()) {
+      auto timestamps =
+          jsi::String::createFromUtf8(rt, thread.timestamps.value());
       jsiThread.setProperty(rt, "timestamps", timestamps);
     }
 
@@ -111,15 +115,14 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
           threadObj.getProperty(rt, "id").asString(rt).utf8(rt);
       int type = std::lround(threadObj.getProperty(rt, "type").asNumber());
       jsi::Value maybeName = threadObj.getProperty(rt, "name");
-      std::unique_ptr<std::string> name = maybeName.isString()
-          ? std::make_unique<std::string>(maybeName.asString(rt).utf8(rt))
-          : nullptr;
+      std::optional<std::string> name = maybeName.isString()
+          ? std::optional<std::string>(maybeName.asString(rt).utf8(rt))
+          : std::nullopt;
 
       jsi::Value maybeDescription = threadObj.getProperty(rt, "description");
-      std::unique_ptr<std::string> description = maybeDescription.isString()
-          ? std::make_unique<std::string>(
-                maybeDescription.asString(rt).utf8(rt))
-          : nullptr;
+      std::optional<std::string> description = maybeDescription.isString()
+          ? std::optional<std::string>(maybeDescription.asString(rt).utf8(rt))
+          : std::nullopt;
 
       std::string color =
           threadObj.getProperty(rt, "color").asString(rt).utf8(rt);
@@ -128,24 +131,23 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
 
       jsi::Value maybeParentThreadID =
           threadObj.getProperty(rt, "parentThreadID");
-      std::unique_ptr<std::string> parentThreadID =
-          maybeParentThreadID.isString()
-          ? std::make_unique<std::string>(
+      std::optional<std::string> parentThreadID = maybeParentThreadID.isString()
+          ? std::optional<std::string>(
                 maybeParentThreadID.asString(rt).utf8(rt))
-          : nullptr;
+          : std::nullopt;
 
       jsi::Value maybeContainingThreadID =
           threadObj.getProperty(rt, "containingThreadID");
-      std::unique_ptr<std::string> containingThreadID =
+      std::optional<std::string> containingThreadID =
           maybeContainingThreadID.isString()
-          ? std::make_unique<std::string>(
+          ? std::optional<std::string>(
                 maybeContainingThreadID.asString(rt).utf8(rt))
-          : nullptr;
+          : std::nullopt;
 
       jsi::Value maybeCommunity = threadObj.getProperty(rt, "community");
-      std::unique_ptr<std::string> community = maybeCommunity.isString()
-          ? std::make_unique<std::string>(maybeCommunity.asString(rt).utf8(rt))
-          : nullptr;
+      std::optional<std::string> community = maybeCommunity.isString()
+          ? std::optional<std::string>(maybeCommunity.asString(rt).utf8(rt))
+          : std::nullopt;
 
       std::string members =
           threadObj.getProperty(rt, "members").asString(rt).utf8(rt);
@@ -156,19 +158,19 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
 
       jsi::Value maybeSourceMessageID =
           threadObj.getProperty(rt, "sourceMessageID");
-      std::unique_ptr<std::string> sourceMessageID =
+      std::optional<std::string> sourceMessageID =
           maybeSourceMessageID.isString()
-          ? std::make_unique<std::string>(
+          ? std::optional<std::string>(
                 maybeSourceMessageID.asString(rt).utf8(rt))
-          : nullptr;
+          : std::nullopt;
 
       int repliesCount =
           std::lround(threadObj.getProperty(rt, "repliesCount").asNumber());
 
       jsi::Value maybeAvatar = threadObj.getProperty(rt, "avatar");
-      std::unique_ptr<std::string> avatar = maybeAvatar.isString()
-          ? std::make_unique<std::string>(maybeAvatar.asString(rt).utf8(rt))
-          : nullptr;
+      std::optional<std::string> avatar = maybeAvatar.isString()
+          ? std::optional<std::string>(maybeAvatar.asString(rt).utf8(rt))
+          : std::nullopt;
 
       jsi::Value maybePinnedCount = threadObj.getProperty(rt, "pinnedCount");
       int pinnedCount = maybePinnedCount.isNumber()
@@ -176,27 +178,27 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
           : 0;
 
       jsi::Value maybeTimestamps = threadObj.getProperty(rt, "timestamps");
-      std::unique_ptr<std::string> timestamps = maybeTimestamps.isString()
-          ? std::make_unique<std::string>(maybeTimestamps.asString(rt).utf8(rt))
-          : nullptr;
+      std::optional<std::string> timestamps = maybeTimestamps.isString()
+          ? std::optional<std::string>(maybeTimestamps.asString(rt).utf8(rt))
+          : std::nullopt;
       Thread thread{
           threadID,
           type,
-          std::move(name),
-          std::move(description),
+          name,
+          description,
           color,
           creationTime,
-          std::move(parentThreadID),
-          std::move(containingThreadID),
-          std::move(community),
+          parentThreadID,
+          containingThreadID,
+          community,
           members,
           roles,
           currentUser,
-          std::move(sourceMessageID),
+          sourceMessageID,
           repliesCount,
-          std::move(avatar),
+          avatar,
           pinnedCount,
-          std::move(timestamps)};
+          timestamps};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
