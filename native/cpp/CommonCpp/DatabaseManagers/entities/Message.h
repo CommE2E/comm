@@ -82,7 +82,7 @@ struct WebMessage {
 };
 
 struct MessageWithMedias {
-  WebMessage message;
+  Message message;
   std::vector<Media> medias;
 };
 
