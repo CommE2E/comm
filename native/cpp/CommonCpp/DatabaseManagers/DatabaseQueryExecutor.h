@@ -199,22 +199,7 @@ public:
   getDMOperationsByType(const std::string &operationType) const = 0;
   virtual ~DatabaseQueryExecutor() = default;
 
-#ifdef EMSCRIPTEN
-  virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
-  virtual void replaceThreadWeb(const WebThread &thread) const = 0;
-  virtual std::vector<MessageWithMedias> getInitialMessagesWeb() const = 0;
-  virtual std::vector<MessageWithMedias>
-  fetchMessagesWeb(std::string threadID, int limit, int offset) const = 0;
-  virtual void replaceMessageWeb(const WebMessage &message) const = 0;
-  virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;
-  virtual std::vector<MessageWithMedias>
-  getRelatedMessagesWeb(const std::string &messageID) const = 0;
-  virtual std::vector<MessageWithMedias> searchMessagesWeb(
-      std::string query,
-      std::string threadID,
-      std::optional<std::string> timestampCursor,
-      std::optional<std::string> messageIDCursor) const = 0;
-#else
+#ifndef EMSCRIPTEN
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;
   virtual void triggerBackupFileUpload() const = 0;
