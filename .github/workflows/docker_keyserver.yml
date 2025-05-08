@@ -2,20 +2,25 @@ name: Docker keyserver CI
 
 on:
   push:
-    branches: [master]
-    paths-ignore:
-      - 'native/**'
-      - 'docs/**'
-      - 'services/**'
-      - 'desktop/**'
+  #   branches: [master]
+  #   paths-ignore:
+  #     - 'native/**'
+  #     - 'docs/**'
+  #     - 'services/**'
+  #     - 'desktop/**'
   pull_request:
-    types: [opened, reopened]
+    # types: [opened, reopened]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
       - uses: actions/checkout@v3
 
       - name: Build Docker
