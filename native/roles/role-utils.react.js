@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { deleteCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { deleteCommunityRoleActionTypes } from 'lib/actions/thread-action-types.js';
 import { useDeleteCommunityRole } from 'lib/hooks/thread-hooks.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';

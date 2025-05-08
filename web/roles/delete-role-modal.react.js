@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { deleteCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { deleteCommunityRoleActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useDeleteCommunityRole } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';

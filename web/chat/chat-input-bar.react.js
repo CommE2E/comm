@@ -7,7 +7,7 @@ import * as React from 'react';
 import {
   joinThreadActionTypes,
   newThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-action-types.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   useChatMentionContext,
