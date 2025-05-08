@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 
-import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModifyCommunityRole } from 'lib/hooks/thread-hooks.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';

@@ -4,7 +4,7 @@ import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { TouchableHighlight } from 'react-native';
 
-import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-action-types.js';
 import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import type { UseChangeThreadSettingsInput } from 'lib/hooks/thread-hooks.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';

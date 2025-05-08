@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-action-types.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
