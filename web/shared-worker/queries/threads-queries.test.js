@@ -1,7 +1,6 @@
 // @flow
 
 import { getDatabaseModule } from '../db-module.js';
-import { createNullableString } from '../types/entities.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -22,62 +21,62 @@ describe('Threads queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor.replaceThreadWeb({
+    queryExecutor.replaceThread({
       id: '1',
       type: 1,
-      name: createNullableString(),
-      avatar: createNullableString(),
-      description: createNullableString(),
+      name: null,
+      avatar: null,
+      description: null,
       color: '1',
-      creationTime: '1',
-      parentThreadID: createNullableString(),
-      containingThreadID: createNullableString(),
-      community: createNullableString(),
+      creationTime: BigInt(1),
+      parentThreadID: null,
+      containingThreadID: null,
+      community: null,
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: createNullableString(),
+      sourceMessageID: null,
       repliesCount: 1,
       pinnedCount: 1,
-      timestamps: createNullableString(),
+      timestamps: null,
     });
-    queryExecutor.replaceThreadWeb({
+    queryExecutor.replaceThread({
       id: '2',
       type: 1,
-      name: createNullableString(),
-      avatar: createNullableString(),
-      description: createNullableString(),
+      name: null,
+      avatar: null,
+      description: null,
       color: '1',
-      creationTime: '1',
-      parentThreadID: createNullableString(),
-      containingThreadID: createNullableString(),
-      community: createNullableString(),
+      creationTime: BigInt(1),
+      parentThreadID: null,
+      containingThreadID: null,
+      community: null,
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: createNullableString(),
+      sourceMessageID: null,
       repliesCount: 1,
       pinnedCount: 1,
-      timestamps: createNullableString(),
+      timestamps: null,
     });
-    queryExecutor.replaceThreadWeb({
+    queryExecutor.replaceThread({
       id: '3',
       type: 1,
-      name: createNullableString(),
-      avatar: createNullableString(),
-      description: createNullableString(),
+      name: null,
+      avatar: null,
+      description: null,
       color: '1',
-      creationTime: '1',
-      parentThreadID: createNullableString(),
-      containingThreadID: createNullableString(),
-      community: createNullableString(),
+      creationTime: BigInt(1),
+      parentThreadID: null,
+      containingThreadID: null,
+      community: null,
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: createNullableString(),
+      sourceMessageID: null,
       repliesCount: 1,
       pinnedCount: 1,
-      timestamps: createNullableString(),
+      timestamps: null,
     });
   });
 
@@ -86,19 +85,19 @@ describe('Threads queries', () => {
   });
 
   it('should return all threads', () => {
-    const threads = queryExecutor.getAllThreadsWeb();
+    const threads = queryExecutor.getAllThreads();
     expect(threads.length).toBe(3);
   });
 
   it('should remove all threads', () => {
     queryExecutor.removeAllThreads();
-    const threads = queryExecutor.getAllThreadsWeb();
+    const threads = queryExecutor.getAllThreads();
     expect(threads.length).toBe(0);
   });
 
   it('should remove subset of threads', () => {
     queryExecutor.removeThreads(['2']);
-    const threads = queryExecutor.getAllThreadsWeb();
+    const threads = queryExecutor.getAllThreads();
     expect(threads.length).toBe(2);
   });
 });

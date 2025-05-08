@@ -109,10 +109,10 @@ declare export class SQLiteQueryExecutor {
   removeAllUsers(): void;
   getAllUsers(): ClientDBUserInfo[];
 
-  replaceThreadWeb(thread: WebClientDBThreadInfo): void;
+  replaceThread(thread: WebClientDBThreadInfo): void;
   removeThreads(ids: $ReadOnlyArray<string>): void;
   removeAllThreads(): void;
-  getAllThreadsWeb(): WebClientDBThreadInfo[];
+  getAllThreads(): WebClientDBThreadInfo[];
 
   replaceKeyserver(keyserverInfo: ClientDBKeyserverInfo): void;
   removeKeyservers(ids: $ReadOnlyArray<string>): void;
