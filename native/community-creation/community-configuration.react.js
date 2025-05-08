@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { newThreadActionTypes } from 'lib/actions/thread-action-types.js';
 import { useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
