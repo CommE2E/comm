@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace comm {
-typedef std::pair<Message, std::vector<Media>> ClientDBMessageInfo;
+typedef MessageEntity ClientDBMessageInfo;
 class MessageOperationsUtilities {
   static ClientDBMessageInfo translateRawMessageInfoToClientDBMessageInfo(
       const folly::dynamic &rawMessageInfo);
