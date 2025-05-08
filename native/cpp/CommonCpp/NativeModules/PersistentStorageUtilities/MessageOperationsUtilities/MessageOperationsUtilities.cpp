@@ -47,17 +47,18 @@ MessageOperationsUtilities::translateRawMessageInfoToClientDBMessageInfo(
           translateMediaToClientDBMediaInfo(media, id, thread));
     }
   }
-  return {
-      Message{
-          id,
-          std::move(localID),
-          thread,
-          user,
-          type,
-          std::move(futureType),
-          std::move(content),
-          time},
-      std::move(mediaVector)};
+  MessageEntity entity;
+  entity.message = Message{
+      id,
+      std::move(localID),
+      thread,
+      user,
+      type,
+      std::move(futureType),
+      std::move(content),
+      time};
+  entity.medias = std::move(mediaVector);
+  return entity;
 }
 
 Media MessageOperationsUtilities::translateMediaToClientDBMediaInfo(
@@ -115,8 +116,8 @@ void MessageOperationsUtilities::storeMessageInfos(
       translateStringToClientDBMessageInfos(rawMessageInfosString);
   for (const auto &clientDBMessageInfo : clientDBMessageInfos) {
     DatabaseManager::getQueryExecutor().replaceMessage(
-        clientDBMessageInfo.first);
-    for (const auto &mediaInfo : clientDBMessageInfo.second) {
+        clientDBMessageInfo.message);
+    for (const auto &mediaInfo : clientDBMessageInfo.medias) {
       DatabaseManager::getQueryExecutor().replaceMedia(mediaInfo);
     }
   }
