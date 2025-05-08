@@ -9,8 +9,8 @@ on:
       - 'docs/**'
       - 'keyserver/**'
       - 'desktop/**'
-  pull_request:
-    types: [opened, reopened]
+  # pull_request:
+  #   types: [opened, reopened]
 
 jobs:
   build:

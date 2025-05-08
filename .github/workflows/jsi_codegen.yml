@@ -3,8 +3,8 @@ name: JSI Codegen
 on:
   push:
     branches: [master]
-  pull_request:
-    types: [opened, reopened]
+  # pull_request:
+  #   types: [opened, reopened]
 
 jobs:
   build:
