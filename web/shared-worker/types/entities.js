@@ -5,15 +5,6 @@ import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
 import type { Media, WebMessage } from './sqlite-query-executor.js';
 
-export type Nullable<T> = {
-  +value: T,
-  +isNull: boolean,
-};
-
-export type NullableString = Nullable<string>;
-
-export type NullableInt = Nullable<number>;
-
 export type WebClientDBThreadInfo = {
   +id: string,
   +type: number,
@@ -33,32 +24,6 @@ export type WebClientDBThreadInfo = {
   +pinnedCount: number,
   +timestamps: ?string,
 };
-
-function createNullableString(value: ?string): NullableString {
-  if (value === null || value === undefined) {
-    return {
-      value: '',
-      isNull: true,
-    };
-  }
-  return {
-    value,
-    isNull: false,
-  };
-}
-
-function createNullableInt(value: ?string): NullableInt {
-  if (value === null || value === undefined) {
-    return {
-      value: 0,
-      isNull: true,
-    };
-  }
-  return {
-    value: Number(value),
-    isNull: false,
-  };
-}
 
 function clientDBThreadInfoToWebThread(
   info: ClientDBThreadInfo,
@@ -178,6 +143,4 @@ export {
   webThreadToClientDBThreadInfo,
   clientDBMessageInfoToWebMessage,
   webMessageToClientDBMessageInfo,
-  createNullableString,
-  createNullableInt,
 };

@@ -2813,76 +2813,7 @@ SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
   return tableNames;
 }
 
-#ifdef EMSCRIPTEN
-std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
-  auto threads = this->getAllThreads();
-  std::vector<WebThread> webThreads;
-  webThreads.reserve(threads.size());
-  for (const auto &thread : threads) {
-    webThreads.emplace_back(thread);
-  }
-  return webThreads;
-};
-
-void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
-  this->replaceThread(thread.toThread());
-};
-
-std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
-    const std::vector<MessageEntity> &messages) const {
-  std::vector<MessageWithMedias> messageWithMedias;
-  for (auto &messageEntity : messages) {
-    messageWithMedias.push_back(
-        {Message(messageEntity.message), messageEntity.medias});
-  }
-
-  return messageWithMedias;
-}
-
-std::vector<MessageWithMedias>
-SQLiteQueryExecutor::getInitialMessagesWeb() const {
-  auto messages = this->getInitialMessages();
-  return this->transformToWebMessages(messages);
-}
-
-std::vector<MessageWithMedias> SQLiteQueryExecutor::fetchMessagesWeb(
-    std::string threadID,
-    int limit,
-    int offset) const {
-  auto messages = this->fetchMessages(threadID, limit, offset);
-  return this->transformToWebMessages(messages);
-}
-
-void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
-  this->replaceMessage(message.toMessage());
-};
-
-NullableString
-SQLiteQueryExecutor::getOlmPersistAccountDataWeb(int accountID) const {
-  std::optional<std::string> accountData =
-      this->getOlmPersistAccountData(accountID);
-  if (!accountData.has_value()) {
-    return NullableString();
-  }
-  return std::make_unique<std::string>(accountData.value());
-}
-
-std::vector<MessageWithMedias>
-SQLiteQueryExecutor::getRelatedMessagesWeb(const std::string &messageID) const {
-  auto relatedMessages = this->getRelatedMessages(messageID);
-  return this->transformToWebMessages(relatedMessages);
-}
-
-std::vector<MessageWithMedias> SQLiteQueryExecutor::searchMessagesWeb(
-    std::string query,
-    std::string threadID,
-    std::optional<std::string> timestampCursor,
-    std::optional<std::string> messageIDCursor) const {
-  auto messages =
-      this->searchMessages(query, threadID, timestampCursor, messageIDCursor);
-  return this->transformToWebMessages(messages);
-}
-#else
+#ifndef EMSCRIPTEN
 void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::closeConnection();
   if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
