@@ -1435,14 +1435,17 @@ std::vector<MessageEntity> SQLiteQueryExecutor::processMessagesResults(
        stepResult = sqlite3_step(preparedSQL)) {
     Message message = Message::fromSQLResult(preparedSQL, 0);
     if (message.id == prevMsgIdx) {
-      messages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
+      messages.back().medias.push_back(Media::fromSQLResult(preparedSQL, 8));
     } else {
       prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
       if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
         mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
       }
-      messages.push_back(std::make_pair(std::move(message), mediaForMsg));
+      MessageEntity entity;
+      entity.message = std::move(message);
+      entity.medias = std::move(mediaForMsg);
+      messages.push_back(std::move(entity));
     }
   }
   return messages;
@@ -2691,7 +2694,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
       this->processMessagesResults(preparedSQL);
   std::vector<std::string> messageIDs;
   for (const auto &message : messages) {
-    messageIDs.push_back(message.first.id);
+    messageIDs.push_back(message.message.id);
   }
   std::vector<MessageEntity> relatedMessages =
       this->getRelatedMessagesForSearch(messageIDs);
@@ -2828,9 +2831,9 @@ void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
 std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
     const std::vector<MessageEntity> &messages) const {
   std::vector<MessageWithMedias> messageWithMedias;
-  for (auto &messageWithMedia : messages) {
+  for (auto &messageEntity : messages) {
     messageWithMedias.push_back(
-        {std::move(messageWithMedia.first), messageWithMedia.second});
+        {WebMessage(messageEntity.message), messageEntity.medias});
   }
 
   return messageWithMedias;
