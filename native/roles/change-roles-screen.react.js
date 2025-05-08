@@ -7,7 +7,7 @@ import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
+import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-action-types.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';

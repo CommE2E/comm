@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { newThreadActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';

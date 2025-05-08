@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-action-types.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';

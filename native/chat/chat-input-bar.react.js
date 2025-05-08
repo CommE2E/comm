@@ -33,7 +33,7 @@ import {
 import {
   joinThreadActionTypes,
   newThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-action-types.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,

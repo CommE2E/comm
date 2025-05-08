@@ -21,7 +21,7 @@ import {
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
   removeUsersFromThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-action-types.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { useAddUsersPermissions } from 'lib/permissions/add-users-permissions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
