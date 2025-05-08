@@ -17,7 +17,7 @@ import type {
   InboundP2PMessage,
 } from 'lib/types/sqlite-types.js';
 
-import { type NullableString, type WebClientDBThreadInfo } from './entities.js';
+import { type WebClientDBThreadInfo } from './entities.js';
 
 export type WebMessage = {
   +id: string,
@@ -169,7 +169,7 @@ declare export class SQLiteQueryExecutor {
 
   getContentAccountID(): number;
   getNotifsAccountID(): number;
-  getOlmPersistAccountDataWeb(accountID: number): NullableString;
+  getOlmPersistAccountData(accountID: number): ?string;
   getOlmPersistSessionsData(): $ReadOnlyArray<OlmPersistSession>;
   storeOlmPersistAccount(accountID: number, accountData: string): void;
   storeOlmPersistSession(session: OlmPersistSession): void;
