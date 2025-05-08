@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useModifyCommunityRole } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
