@@ -125,6 +125,7 @@ EMCC_FLAGS=(
   -s FORCE_FILESYSTEM=1
   -s SINGLE_FILE=0
   -s EXPORTED_RUNTIME_METHODS=["FS"]
+  -s WASM_BIGINT=1
 
   # node/babel/webpack helpers
   -s NODEJS_CATCH_EXIT=0
