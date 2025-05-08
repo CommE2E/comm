@@ -17,21 +17,21 @@ export type NullableInt = Nullable<number>;
 export type WebClientDBThreadInfo = {
   +id: string,
   +type: number,
-  +name: NullableString,
-  +avatar: NullableString,
-  +description: NullableString,
+  +name: ?string,
+  +avatar: ?string,
+  +description: ?string,
   +color: string,
-  +creationTime: string,
-  +parentThreadID: NullableString,
-  +containingThreadID: NullableString,
-  +community: NullableString,
+  +creationTime: bigint,
+  +parentThreadID: ?string,
+  +containingThreadID: ?string,
+  +community: ?string,
   +members: string,
   +roles: string,
   +currentUser: string,
-  +sourceMessageID: NullableString,
+  +sourceMessageID: ?string,
   +repliesCount: number,
   +pinnedCount: number,
-  +timestamps: NullableString,
+  +timestamps: ?string,
 };
 
 function createNullableString(value: ?string): NullableString {
@@ -66,21 +66,21 @@ function clientDBThreadInfoToWebThread(
   return {
     id: info.id,
     type: info.type,
-    name: createNullableString(info.name),
-    avatar: createNullableString(info.avatar),
-    description: createNullableString(info.description),
+    name: info.name,
+    avatar: info.avatar,
+    description: info.description,
     color: info.color,
-    creationTime: info.creationTime,
-    parentThreadID: createNullableString(info.parentThreadID),
-    containingThreadID: createNullableString(info.containingThreadID),
-    community: createNullableString(info.community),
+    creationTime: BigInt(Number(info.creationTime)),
+    parentThreadID: info.parentThreadID,
+    containingThreadID: info.containingThreadID,
+    community: info.community,
     members: info.members,
     roles: info.roles,
     currentUser: info.currentUser,
-    sourceMessageID: createNullableString(info.sourceMessageID),
+    sourceMessageID: info.sourceMessageID,
     repliesCount: info.repliesCount,
     pinnedCount: info.pinnedCount || 0,
-    timestamps: createNullableString(info.timestamps),
+    timestamps: info.timestamps,
   };
 }
 
@@ -90,29 +90,25 @@ function webThreadToClientDBThreadInfo(
   let result: ClientDBThreadInfo = {
     id: thread.id,
     type: thread.type,
-    name: thread.name.isNull ? null : thread.name.value,
-    avatar: thread.avatar.isNull ? null : thread.avatar.value,
-    description: thread.description.isNull ? null : thread.description.value,
+    name: thread.name,
+    avatar: thread.avatar,
+    description: thread.description,
     color: thread.color,
-    creationTime: thread.creationTime,
-    parentThreadID: thread.parentThreadID.isNull
-      ? null
-      : thread.parentThreadID.value,
-    containingThreadID: thread.containingThreadID.isNull
-      ? null
-      : thread.containingThreadID.value,
-    community: thread.community.isNull ? null : thread.community.value,
+    creationTime: thread.creationTime.toString(),
+    parentThreadID: thread.parentThreadID,
+    containingThreadID: thread.containingThreadID,
+    community: thread.community,
     members: thread.members,
     roles: thread.roles,
     currentUser: thread.currentUser,
     repliesCount: thread.repliesCount,
     pinnedCount: thread.pinnedCount,
-    timestamps: thread.timestamps.isNull ? null : thread.timestamps.value,
+    timestamps: thread.timestamps,
   };
-  if (!thread.sourceMessageID.isNull) {
+  if (thread.sourceMessageID) {
     result = {
       ...result,
-      sourceMessageID: thread.sourceMessageID.value,
+      sourceMessageID: thread.sourceMessageID,
     };
   }
   return result;

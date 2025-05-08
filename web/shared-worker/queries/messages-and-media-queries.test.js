@@ -3,7 +3,6 @@
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { getDatabaseModule } from '../db-module.js';
-import { createNullableString } from '../types/entities.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -86,43 +85,43 @@ describe('Message and media store queries', () => {
       type: 'photo',
       extras: '1',
     });
-    queryExecutor.replaceThreadWeb({
+    queryExecutor.replaceThread({
       id: '1',
       type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-      name: createNullableString(),
-      avatar: createNullableString(),
-      description: createNullableString(),
+      name: null,
+      avatar: null,
+      description: null,
       color: 'ffffff',
-      creationTime: '1',
-      parentThreadID: createNullableString(),
-      containingThreadID: createNullableString(),
-      community: createNullableString(),
+      creationTime: BigInt(1),
+      parentThreadID: null,
+      containingThreadID: null,
+      community: null,
       members: '1',
       roles: '1',
       currentUser: '{}',
-      sourceMessageID: createNullableString(),
+      sourceMessageID: null,
       repliesCount: 0,
       pinnedCount: 0,
-      timestamps: createNullableString(),
+      timestamps: null,
     });
-    queryExecutor.replaceThreadWeb({
+    queryExecutor.replaceThread({
       id: '2',
       type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-      name: createNullableString(),
-      avatar: createNullableString(),
-      description: createNullableString(),
+      name: null,
+      avatar: null,
+      description: null,
       color: 'ffffff',
-      creationTime: '1',
-      parentThreadID: createNullableString(),
-      containingThreadID: createNullableString(),
-      community: createNullableString(),
+      creationTime: BigInt(1),
+      parentThreadID: null,
+      containingThreadID: null,
+      community: null,
       members: '1',
       roles: '1',
       currentUser: '{}',
-      sourceMessageID: createNullableString(),
+      sourceMessageID: null,
       repliesCount: 0,
       pinnedCount: 0,
-      timestamps: createNullableString(),
+      timestamps: null,
     });
   });
 

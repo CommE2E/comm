@@ -116,7 +116,7 @@ function processThreadStoreOperations(
         const { ids } = operation.payload;
         sqliteQueryExecutor.removeThreads(ids);
       } else if (operation.type === 'replace') {
-        sqliteQueryExecutor.replaceThreadWeb(
+        sqliteQueryExecutor.replaceThread(
           clientDBThreadInfoToWebThread(operation.payload),
         );
       } else {
@@ -673,7 +673,7 @@ function getClientStoreFromQueryExecutor(
       .getInitialMessagesWeb()
       .map(webMessageToClientDBMessageInfo),
     threads: sqliteQueryExecutor
-      .getAllThreadsWeb()
+      .getAllThreads()
       .map(webThreadToClientDBThreadInfo),
     messageStoreThreads: sqliteQueryExecutor
       .getAllMessageStoreThreads()
