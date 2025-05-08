@@ -59,20 +59,31 @@ describe('Olm Tables queries', () => {
   });
 
   it('should return olm account data', () => {
-    const contentOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(
+    const contentOlmAccount = queryExecutor.getOlmPersistAccountData(
       queryExecutor.getContentAccountID(),
     );
-    expect(contentOlmAccount.value).toBe('contentAccountData');
+    expect(contentOlmAccount).toBe('contentAccountData');
 
-    const notifsOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(
+    const notifsOlmAccount = queryExecutor.getOlmPersistAccountData(
       queryExecutor.getNotifsAccountID(),
     );
-    expect(notifsOlmAccount.value).toBe('notifsAccountData');
+    expect(notifsOlmAccount).toBe('notifsAccountData');
   });
 
   it('should return all olm sessions', () => {
     const olmSessions = queryExecutor.getOlmPersistSessionsData();
     expect(olmSessions.length).toBe(3);
     expect(olmSessions).toStrictEqual(TEST_SESSION_DATA);
+  });
+
+  it('should return empty olm account data', () => {
+    clearSensitiveData(dbModule, FILE_PATH, queryExecutor);
+
+    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+
+    const notifsOlmAccount = queryExecutor.getOlmPersistAccountData(
+      queryExecutor.getNotifsAccountID(),
+    );
+    expect(notifsOlmAccount).toBe(null);
   });
 });

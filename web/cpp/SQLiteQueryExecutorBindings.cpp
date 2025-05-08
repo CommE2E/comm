@@ -286,8 +286,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "getOlmPersistSessionsData",
           &SQLiteQueryExecutor::getOlmPersistSessionsData)
       .function(
-          "getOlmPersistAccountDataWeb",
-          &SQLiteQueryExecutor::getOlmPersistAccountDataWeb)
+          "getOlmPersistAccountData",
+          &SQLiteQueryExecutor::getOlmPersistAccountData)
       .function(
           "storeOlmPersistSession",
           &SQLiteQueryExecutor::storeOlmPersistSession)
