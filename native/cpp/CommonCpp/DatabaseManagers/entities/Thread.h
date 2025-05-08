@@ -2,6 +2,7 @@
 
 #include <sqlite3.h>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "Nullable.h"
@@ -12,62 +13,62 @@ namespace comm {
 struct Thread {
   std::string id;
   int type;
-  std::unique_ptr<std::string> name;
-  std::unique_ptr<std::string> description;
+  std::optional<std::string> name;
+  std::optional<std::string> description;
   std::string color;
   int64_t creation_time;
-  std::unique_ptr<std::string> parent_thread_id;
-  std::unique_ptr<std::string> containing_thread_id;
-  std::unique_ptr<std::string> community;
+  std::optional<std::string> parent_thread_id;
+  std::optional<std::string> containing_thread_id;
+  std::optional<std::string> community;
   std::string members;
   std::string roles;
   std::string current_user;
-  std::unique_ptr<std::string> source_message_id;
+  std::optional<std::string> source_message_id;
   int replies_count;
-  std::unique_ptr<std::string> avatar;
+  std::optional<std::string> avatar;
   int pinned_count;
-  std::unique_ptr<std::string> timestamps;
+  std::optional<std::string> timestamps;
 
   static Thread fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return Thread{
         getStringFromSQLRow(sqlRow, idx),
         getIntFromSQLRow(sqlRow, idx + 1),
-        getStringPtrFromSQLRow(sqlRow, idx + 2),
-        getStringPtrFromSQLRow(sqlRow, idx + 3),
+        getOptionalStringFromSQLRow(sqlRow, idx + 2),
+        getOptionalStringFromSQLRow(sqlRow, idx + 3),
         getStringFromSQLRow(sqlRow, idx + 4),
         getInt64FromSQLRow(sqlRow, idx + 5),
-        getStringPtrFromSQLRow(sqlRow, idx + 6),
-        getStringPtrFromSQLRow(sqlRow, idx + 7),
-        getStringPtrFromSQLRow(sqlRow, idx + 8),
+        getOptionalStringFromSQLRow(sqlRow, idx + 6),
+        getOptionalStringFromSQLRow(sqlRow, idx + 7),
+        getOptionalStringFromSQLRow(sqlRow, idx + 8),
         getStringFromSQLRow(sqlRow, idx + 9),
         getStringFromSQLRow(sqlRow, idx + 10),
         getStringFromSQLRow(sqlRow, idx + 11),
-        getStringPtrFromSQLRow(sqlRow, idx + 12),
+        getOptionalStringFromSQLRow(sqlRow, idx + 12),
         getIntFromSQLRow(sqlRow, idx + 13),
-        getStringPtrFromSQLRow(sqlRow, idx + 14),
+        getOptionalStringFromSQLRow(sqlRow, idx + 14),
         getIntFromSQLRow(sqlRow, idx + 15),
-        getStringPtrFromSQLRow(sqlRow, idx + 16),
+        getOptionalStringFromSQLRow(sqlRow, idx + 16),
     };
   }
 
   int bindToSQL(sqlite3_stmt *sql, int idx) const {
     bindStringToSQL(id, sql, idx);
     bindIntToSQL(type, sql, idx + 1);
-    bindStringPtrToSQL(name, sql, idx + 2);
-    bindStringPtrToSQL(description, sql, idx + 3);
+    bindOptionalStringToSQL(name, sql, idx + 2);
+    bindOptionalStringToSQL(description, sql, idx + 3);
     bindStringToSQL(color, sql, idx + 4);
     bindInt64ToSQL(creation_time, sql, idx + 5);
-    bindStringPtrToSQL(parent_thread_id, sql, idx + 6);
-    bindStringPtrToSQL(containing_thread_id, sql, idx + 7);
-    bindStringPtrToSQL(community, sql, idx + 8);
+    bindOptionalStringToSQL(parent_thread_id, sql, idx + 6);
+    bindOptionalStringToSQL(containing_thread_id, sql, idx + 7);
+    bindOptionalStringToSQL(community, sql, idx + 8);
     bindStringToSQL(members, sql, idx + 9);
     bindStringToSQL(roles, sql, idx + 10);
     bindStringToSQL(current_user, sql, idx + 11);
-    bindStringPtrToSQL(source_message_id, sql, idx + 12);
+    bindOptionalStringToSQL(source_message_id, sql, idx + 12);
     bindIntToSQL(replies_count, sql, idx + 13);
-    bindStringPtrToSQL(avatar, sql, idx + 14);
+    bindOptionalStringToSQL(avatar, sql, idx + 14);
     bindIntToSQL(pinned_count, sql, idx + 15);
-    return bindStringPtrToSQL(timestamps, sql, idx + 16);
+    return bindOptionalStringToSQL(timestamps, sql, idx + 16);
   }
 };
 
