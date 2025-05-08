@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
+import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';

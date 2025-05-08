@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import { leaveThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { leaveThreadActionTypes } from 'lib/actions/thread-action-types.js';
 import {
   useLeaveThread,
   type UseLeaveThreadInput,
