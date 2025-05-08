@@ -3,7 +3,6 @@
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { getDatabaseModule } from '../db-module.js';
-import { createNullableInt, createNullableString } from '../types/entities.js';
 import type {
   MessageEntity,
   WebMessage,
@@ -32,15 +31,15 @@ describe('Fetch messages queries', () => {
     for (let i = 0; i < 50; i++) {
       const message: WebMessage = {
         id: i.toString(),
-        localID: createNullableString(),
+        localID: null,
         thread: threadID,
         user: userID,
         type: messageTypes.TEXT,
-        futureType: createNullableInt(),
-        content: createNullableString(`text-${i}`),
-        time: i.toString(),
+        futureType: null,
+        content: `text-${i}`,
+        time: BigInt(i),
       };
-      queryExecutor.replaceMessageWeb(message);
+      queryExecutor.replaceMessage(message);
     }
   });
 
@@ -51,19 +50,19 @@ describe('Fetch messages queries', () => {
   function assertMessageEqual(message: MessageEntity, id: number) {
     const expected: WebMessage = {
       id: id.toString(),
-      localID: createNullableString(),
+      localID: null,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
-      futureType: createNullableInt(),
-      content: createNullableString(`text-${id}`),
-      time: id.toString(),
+      futureType: null,
+      content: `text-${id}`,
+      time: BigInt(id),
     };
     expect(message.message).toEqual(expected);
   }
 
   it('should fetch the first messages', () => {
-    const result = queryExecutor.fetchMessagesWeb(threadID, 5, 0);
+    const result = queryExecutor.fetchMessages(threadID, 5, 0);
     expect(result.length).toBe(5);
     for (let i = 0; i < 5; i++) {
       assertMessageEqual(result[i], 49 - i);
@@ -71,7 +70,7 @@ describe('Fetch messages queries', () => {
   });
 
   it('should fetch the following messages', () => {
-    const result = queryExecutor.fetchMessagesWeb(threadID, 5, 5);
+    const result = queryExecutor.fetchMessages(threadID, 5, 5);
     expect(result.length).toBe(5);
     for (let i = 0; i < 5; i++) {
       assertMessageEqual(result[i], 44 - i);
@@ -79,7 +78,7 @@ describe('Fetch messages queries', () => {
   });
 
   it('should fetch the last messages', () => {
-    const result = queryExecutor.fetchMessagesWeb(threadID, 5, 45);
+    const result = queryExecutor.fetchMessages(threadID, 5, 45);
     expect(result.length).toBe(5);
     for (let i = 0; i < 5; i++) {
       assertMessageEqual(result[i], 4 - i);
@@ -87,12 +86,12 @@ describe('Fetch messages queries', () => {
   });
 
   it('should check if thread ID matches', () => {
-    const result = queryExecutor.fetchMessagesWeb('000', 5, 45);
+    const result = queryExecutor.fetchMessages('000', 5, 45);
     expect(result.length).toBe(0);
   });
 
   it('should fetch the remaining messages when limit exceeds the bounds', () => {
-    const result = queryExecutor.fetchMessagesWeb(threadID, 100, 40);
+    const result = queryExecutor.fetchMessages(threadID, 100, 40);
     expect(result.length).toBe(10);
     for (let i = 0; i < 10; i++) {
       assertMessageEqual(result[i], 9 - i);
@@ -100,7 +99,7 @@ describe('Fetch messages queries', () => {
   });
 
   it('should return all the messages when limit is high enough', () => {
-    const result = queryExecutor.fetchMessagesWeb(threadID, 500, 0);
+    const result = queryExecutor.fetchMessages(threadID, 500, 0);
     expect(result.length).toBe(50);
     for (let i = 0; i < 50; i++) {
       assertMessageEqual(result[i], 49 - i);

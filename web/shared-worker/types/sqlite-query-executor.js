@@ -17,21 +17,17 @@ import type {
   InboundP2PMessage,
 } from 'lib/types/sqlite-types.js';
 
-import {
-  type NullableInt,
-  type NullableString,
-  type WebClientDBThreadInfo,
-} from './entities.js';
+import { type NullableString, type WebClientDBThreadInfo } from './entities.js';
 
 export type WebMessage = {
   +id: string,
-  +localID: NullableString,
+  +localID: ?string,
   +thread: string,
   +user: string,
   +type: number,
-  +futureType: NullableInt,
-  +content: NullableString,
-  +time: string,
+  +futureType: ?number,
+  +content: ?string,
+  +time: bigint,
 };
 
 export type Media = {
@@ -63,8 +59,8 @@ declare export class SQLiteQueryExecutor {
   removeAllDrafts(): void;
   removeDrafts(ids: $ReadOnlyArray<string>): void;
 
-  getInitialMessagesWeb(): $ReadOnlyArray<MessageEntity>;
-  fetchMessagesWeb(
+  getInitialMessages(): $ReadOnlyArray<MessageEntity>;
+  fetchMessages(
     threadID: string,
     limit: number,
     offset: number,
@@ -72,7 +68,7 @@ declare export class SQLiteQueryExecutor {
   removeAllMessages(): void;
   removeMessages(ids: $ReadOnlyArray<string>): void;
   removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
-  replaceMessageWeb(message: WebMessage): void;
+  replaceMessage(message: WebMessage): void;
   rekeyMessage(from: string, to: string): void;
   removeAllMedia(): void;
   removeMediaForThreads(threadIDs: $ReadOnlyArray<string>): void;
@@ -208,7 +204,7 @@ declare export class SQLiteQueryExecutor {
     ids: $ReadOnlyArray<string>,
   ): $ReadOnlyArray<InboundP2PMessage>;
 
-  getRelatedMessagesWeb(id: string): $ReadOnlyArray<MessageEntity>;
+  getRelatedMessages(id: string): $ReadOnlyArray<MessageEntity>;
 
   updateMessageSearchIndex(
     originalMessageID: string,

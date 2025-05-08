@@ -280,7 +280,7 @@ function processMessageStoreOperations(
         const { message, medias } = clientDBMessageInfoToWebMessage(
           operation.payload,
         );
-        sqliteQueryExecutor.replaceMessageWeb(message);
+        sqliteQueryExecutor.replaceMessage(message);
         for (const media of medias) {
           sqliteQueryExecutor.replaceMedia(media);
         }
@@ -670,7 +670,7 @@ function getClientStoreFromQueryExecutor(
   return {
     drafts: sqliteQueryExecutor.getAllDrafts(),
     messages: sqliteQueryExecutor
-      .getInitialMessagesWeb()
+      .getInitialMessages()
       .map(webMessageToClientDBMessageInfo),
     threads: sqliteQueryExecutor
       .getAllThreads()

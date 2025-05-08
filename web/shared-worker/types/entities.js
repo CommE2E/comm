@@ -121,13 +121,15 @@ function clientDBMessageInfoToWebMessage(messageInfo: ClientDBMessageInfo): {
   return {
     message: {
       id: messageInfo.id,
-      localID: createNullableString(messageInfo.local_id),
+      localID: messageInfo.local_id,
       thread: messageInfo.thread,
       user: messageInfo.user,
       type: Number(messageInfo.type),
-      futureType: createNullableInt(messageInfo.future_type),
-      content: createNullableString(messageInfo.content),
-      time: messageInfo.time,
+      futureType: messageInfo.future_type
+        ? Number(messageInfo.future_type)
+        : null,
+      content: messageInfo.content,
+      time: BigInt(Number(messageInfo.time)),
     },
     medias:
       messageInfo.media_infos?.map(({ id, uri, type, extras }) => ({
@@ -160,15 +162,13 @@ function webMessageToClientDBMessageInfo({
 
   return {
     id: message.id,
-    local_id: message.localID.isNull ? null : message.localID.value,
+    local_id: message.localID,
     thread: message.thread,
     user: message.user,
     type: message.type.toString(),
-    future_type: message.futureType.isNull
-      ? null
-      : message.futureType.value.toString(),
-    content: message.content.isNull ? null : message.content.value,
-    time: message.time,
+    future_type: message.futureType ? message.futureType.toString() : null,
+    content: message.content,
+    time: message.time.toString(),
     media_infos,
   };
 }
