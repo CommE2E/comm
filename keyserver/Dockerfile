@@ -33,7 +33,8 @@ RUN \
     groupmod --new-name comm `getent group $HOST_GID | cut -d: -f1`; \
   fi && \
   if [ -z "`getent passwd $HOST_UID`" ]; then \
-    adduser --system --uid $HOST_UID --ingroup comm --shell /bin/bash comm; \
+    # adduser --system --uid $HOST_UID --ingroup comm --shell /bin/bash comm; \
+    useradd -l --system --uid $HOST_UID --gid comm --shell /bin/bash comm; \
   else \
     usermod --login comm --gid $HOST_GID --home /home/comm --move-home \
       `getent passwd $HOST_UID | cut -d: -f1`; \
