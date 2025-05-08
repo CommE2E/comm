@@ -1,7 +1,6 @@
 #include "SQLiteQueryExecutor.cpp"
 #include "SQLiteUtils.cpp"
 #include "entities/InboundP2PMessage.h"
-#include "entities/Nullable.h"
 #include "entities/OutboundP2PMessage.h"
 
 #include <emscripten/bind.h>
@@ -26,13 +25,6 @@ std::string getExceptionMessage(int exceptionPtr) {
 
 EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   function("getExceptionMessage", &getExceptionMessage);
-
-  value_object<NullableString>("NullableString")
-      .field("value", &NullableString::value)
-      .field("isNull", &NullableString::isNull);
-  value_object<NullableInt>("NullableInt")
-      .field("value", &NullableInt::value)
-      .field("isNull", &NullableInt::isNull);
 
   value_object<Draft>("Draft")
       .field("key", &Draft::key)

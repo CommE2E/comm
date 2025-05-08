@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Media.h"
-#include "Nullable.h"
 #include <sqlite3.h>
 #include <memory>
 #include <optional>
@@ -42,48 +41,6 @@ struct Message {
     bindOptionalStringToSQL(content, sql, idx + 6);
     return bindInt64ToSQL(time, sql, idx + 7);
   }
-};
-
-struct WebMessage {
-  std::string id;
-  NullableString local_id;
-  std::string thread;
-  std::string user;
-  int type;
-  NullableInt future_type;
-  NullableString content;
-  std::string time;
-
-  WebMessage() = default;
-
-  WebMessage(const Message &message) {
-    id = message.id;
-    local_id = NullableString(message.local_id);
-    thread = message.thread;
-    user = message.user;
-    type = message.type;
-    future_type = NullableInt(message.future_type);
-    content = NullableString(message.content);
-    time = std::to_string(message.time);
-  }
-
-  Message toMessage() const {
-    Message message;
-    message.id = id;
-    message.local_id = local_id.resetValue();
-    message.thread = thread;
-    message.user = user;
-    message.type = type;
-    message.future_type = future_type.resetValue();
-    message.content = content.resetValue();
-    message.time = std::stoll(time);
-    return message;
-  }
-};
-
-struct MessageWithMedias {
-  Message message;
-  std::vector<Media> medias;
 };
 
 struct MessageEntity {

@@ -42,8 +42,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
 #else
   static SQLiteConnectionManager connectionManager;
-  std::vector<MessageWithMedias>
-  transformToWebMessages(const std::vector<MessageEntity> &messages) const;
 #endif
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
@@ -217,22 +215,7 @@ public:
   std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const override;
 
-#ifdef EMSCRIPTEN
-  std::vector<WebThread> getAllThreadsWeb() const override;
-  void replaceThreadWeb(const WebThread &thread) const override;
-  std::vector<MessageWithMedias> getInitialMessagesWeb() const override;
-  std::vector<MessageWithMedias>
-  fetchMessagesWeb(std::string threadID, int limit, int offset) const override;
-  void replaceMessageWeb(const WebMessage &message) const override;
-  NullableString getOlmPersistAccountDataWeb(int accountID) const override;
-  std::vector<MessageWithMedias>
-  getRelatedMessagesWeb(const std::string &messageID) const override;
-  std::vector<MessageWithMedias> searchMessagesWeb(
-      std::string query,
-      std::string threadID,
-      std::optional<std::string> timestampCursor,
-      std::optional<std::string> messageIDCursor) const override;
-#else
+#ifndef EMSCRIPTEN
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
   void createMainCompaction(std::string backupID) const override;
