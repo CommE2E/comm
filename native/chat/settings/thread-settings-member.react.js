@@ -13,7 +13,7 @@ import {
 import {
   changeThreadMemberRolesActionTypes,
   removeUsersFromThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-action-types.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
