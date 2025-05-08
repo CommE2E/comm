@@ -48,14 +48,14 @@ jobs:
           # sudo docker builder prune -a
           df -h
 
-      - name: Increase swapfile
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 15G /mnt/swapfile
-          sudo chmod 600 /mnt/swapfile
-          sudo mkswap /mnt/swapfile
-          sudo swapon /mnt/swapfile
-          sudo swapon --show
+      # - name: Increase swapfile
+      #   run: |
+      #     sudo swapoff -a
+      #     sudo fallocate -l 15G /mnt/swapfile
+      #     sudo chmod 600 /mnt/swapfile
+      #     sudo mkswap /mnt/swapfile
+      #     sudo swapon /mnt/swapfile
+      #     sudo swapon --show
 
       - name: Show space again
         run: |
