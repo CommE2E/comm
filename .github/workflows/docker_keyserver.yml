@@ -18,8 +18,15 @@ jobs:
     steps:
       - name: Show space
         run: |
-          echo "Free space:"
-          df -h
+          echo "Memory and swap:"
+          sudo free
+          echo
+          sudo swapon --show
+          echo
+
+          echo "Available storage:"
+          sudo df -h
+          echo
 
       # - name: Maximize build space
       #   uses: easimon/maximize-build-space@v10
@@ -52,11 +59,33 @@ jobs:
 
       - name: Show space again
         run: |
-          echo "Free space:"
-          df -h
+          echo "Memory and swap:"
+          sudo free
+          echo
+          sudo swapon --show
+          echo
+
+          echo "Available storage:"
+          sudo df -h
+          echo
 
       - uses: actions/checkout@v3
 
       - name: Build Docker
         working-directory: ./keyserver
         run: touch .env && bash/dc.sh build --no-cache
+
+      - name: Print docker images
+        run: docker image ls
+
+      - name: Show space again
+        run: |
+          echo "Memory and swap:"
+          sudo free
+          echo
+          sudo swapon --show
+          echo
+
+          echo "Available storage:"
+          sudo df -h
+          echo
