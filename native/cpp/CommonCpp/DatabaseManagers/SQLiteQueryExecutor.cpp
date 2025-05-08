@@ -2833,7 +2833,7 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
   std::vector<MessageWithMedias> messageWithMedias;
   for (auto &messageEntity : messages) {
     messageWithMedias.push_back(
-        {WebMessage(messageEntity.message), messageEntity.medias});
+        {Message(messageEntity.message), messageEntity.medias});
   }
 
   return messageWithMedias;

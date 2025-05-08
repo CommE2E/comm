@@ -254,12 +254,12 @@ async function processAppRequest(
       outboundP2PMessages: sqliteQueryExecutor.getUnsentOutboundP2PMessages(),
     };
   } else if (message.type === workerRequestMessageTypes.GET_RELATED_MESSAGES) {
-    const webMessageEntities = sqliteQueryExecutor.getRelatedMessagesWeb(
+    const messageEntities = sqliteQueryExecutor.getRelatedMessages(
       message.messageID,
     );
     return {
       type: workerResponseMessageTypes.GET_MESSAGES,
-      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
+      messages: messageEntities.map(webMessageToClientDBMessageInfo),
     };
   } else if (
     message.type === workerRequestMessageTypes.GET_OUTBOUND_P2P_MESSAGES_BY_ID
@@ -271,7 +271,7 @@ async function processAppRequest(
       ),
     };
   } else if (message.type === workerRequestMessageTypes.SEARCH_MESSAGES) {
-    const webMessageEntities = sqliteQueryExecutor.searchMessages(
+    const messageEntities = sqliteQueryExecutor.searchMessages(
       message.query,
       message.threadID,
       message.timestampCursor,
@@ -279,17 +279,17 @@ async function processAppRequest(
     );
     return {
       type: workerResponseMessageTypes.GET_MESSAGES,
-      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
+      messages: messageEntities.map(webMessageToClientDBMessageInfo),
     };
   } else if (message.type === workerRequestMessageTypes.FETCH_MESSAGES) {
-    const webMessageEntities = sqliteQueryExecutor.fetchMessagesWeb(
+    const messageEntities = sqliteQueryExecutor.fetchMessages(
       message.threadID,
       message.limit,
       message.offset,
     );
     return {
       type: workerResponseMessageTypes.GET_MESSAGES,
-      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
+      messages: messageEntities.map(webMessageToClientDBMessageInfo),
     };
   } else if (
     message.type === workerRequestMessageTypes.GET_INBOUND_P2P_MESSAGES_BY_ID
