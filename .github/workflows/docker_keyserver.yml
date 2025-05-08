@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04-large
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Show space
@@ -21,18 +21,19 @@ jobs:
           echo "Free space:"
           df -h
 
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@master
-      #   with:
-      #     root-reserve-mb: '32768'
-      #     # build-mount-path: '/'
-      #     remove-dotnet: 'true'
-      #     remove-android: 'true'
-      #
-      # - name: Show space again
-      #   run: |
-      #     echo "Free space:"
-      #     df -h
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: '30000'
+          # build-mount-path: '/'
+          remove-dotnet: 'true'
+          remove-android: 'true'
+        continue-on-error: true
+
+      - name: Show space again
+        run: |
+          echo "Free space:"
+          df -h
 
       - uses: actions/checkout@v3
 
