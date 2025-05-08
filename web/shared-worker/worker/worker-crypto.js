@@ -258,7 +258,7 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
   let accountDBString;
   try {
     accountDBString =
-      sqliteQueryExecutor.getOlmPersistAccountDataWeb(accountIDInDB);
+      sqliteQueryExecutor.getOlmPersistAccountData(accountIDInDB);
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
@@ -293,11 +293,11 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
   const account = new olm.Account();
   let picklingKey;
 
-  if (accountDBString.isNull) {
+  if (!accountDBString) {
     picklingKey = uuid.v4();
     account.create();
   } else {
-    const dbAccount: PickledOLMAccount = JSON.parse(accountDBString.value);
+    const dbAccount: PickledOLMAccount = JSON.parse(accountDBString);
     picklingKey = dbAccount.picklingKey;
     account.unpickle(picklingKey, dbAccount.pickledAccount);
   }
