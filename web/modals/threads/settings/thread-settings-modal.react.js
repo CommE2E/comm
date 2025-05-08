@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   changeThreadSettingsActionTypes,
   deleteThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
