@@ -42,23 +42,21 @@ jsi::Array MessageStore::parseDBDataStore(
     auto jsiMessage = jsi::Object(rt);
     jsiMessage.setProperty(rt, "id", message.id);
 
-    if (message.local_id) {
-      auto local_id = message.local_id.get();
-      jsiMessage.setProperty(rt, "local_id", *local_id);
+    if (message.local_id.has_value()) {
+      jsiMessage.setProperty(rt, "local_id", message.local_id.value());
     }
 
     jsiMessage.setProperty(rt, "thread", message.thread);
     jsiMessage.setProperty(rt, "user", message.user);
     jsiMessage.setProperty(rt, "type", std::to_string(message.type));
 
-    if (message.future_type) {
-      auto future_type = message.future_type.get();
-      jsiMessage.setProperty(rt, "future_type", std::to_string(*future_type));
+    if (message.future_type.has_value()) {
+      int future_type = message.future_type.value();
+      jsiMessage.setProperty(rt, "future_type", std::to_string(future_type));
     }
 
-    if (message.content) {
-      auto content = message.content.get();
-      jsiMessage.setProperty(rt, "content", *content);
+    if (message.content.has_value()) {
+      jsiMessage.setProperty(rt, "content", message.content.value());
     }
 
     jsiMessage.setProperty(rt, "time", std::to_string(message.time));

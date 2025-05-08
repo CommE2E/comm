@@ -9,21 +9,21 @@ int getIntFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
   return sqlite3_column_int(sqlRow, idx);
 }
 
-std::unique_ptr<std::string>
-getStringPtrFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
+std::optional<std::string>
+getOptionalStringFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
   const char *maybeString =
       reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx));
   if (!maybeString) {
-    return nullptr;
+    return std::nullopt;
   }
-  return std::make_unique<std::string>(maybeString);
+  return std::string(maybeString);
 }
 
-std::unique_ptr<int> getIntPtrFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
+std::optional<int> getOptionalIntFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
   if (sqlite3_column_type(sqlRow, idx) == SQLITE_NULL) {
-    return nullptr;
+    return std::nullopt;
   }
-  return std::make_unique<int>(sqlite3_column_int(sqlRow, idx));
+  return sqlite3_column_int(sqlRow, idx);
 }
 
 int64_t getInt64FromSQLRow(sqlite3_stmt *sqlRow, int idx) {
@@ -34,11 +34,11 @@ int bindStringToSQL(const std::string &data, sqlite3_stmt *sql, int idx) {
   return sqlite3_bind_text(sql, idx, data.c_str(), -1, SQLITE_TRANSIENT);
 }
 
-int bindStringPtrToSQL(
-    const std::unique_ptr<std::string> &data,
+int bindOptionalStringToSQL(
+    const std::optional<std::string> &data,
     sqlite3_stmt *sql,
     int idx) {
-  if (data == nullptr) {
+  if (!data.has_value()) {
     return sqlite3_bind_null(sql, idx);
   }
   return sqlite3_bind_text(sql, idx, data->c_str(), -1, SQLITE_TRANSIENT);
@@ -48,11 +48,11 @@ int bindIntToSQL(int data, sqlite3_stmt *sql, int idx) {
   return sqlite3_bind_int(sql, idx, data);
 }
 
-int bindIntPtrToSQL(
-    const std::unique_ptr<int> &data,
+int bindOptionalIntToSQL(
+    const std::optional<int> &data,
     sqlite3_stmt *sql,
     int idx) {
-  if (data == nullptr) {
+  if (!data.has_value()) {
     return sqlite3_bind_null(sql, idx);
   }
   return sqlite3_bind_int(sql, idx, *data);

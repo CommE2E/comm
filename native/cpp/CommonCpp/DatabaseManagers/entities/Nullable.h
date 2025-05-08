@@ -16,6 +16,10 @@ template <typename T> struct Nullable {
       : value((ptr) ? *ptr : T()), isNull(!ptr) {
   }
 
+  Nullable(const std::optional<T> &opt)
+      : value(opt.value_or(T())), isNull(!opt.has_value()) {
+  }
+
   Nullable &operator=(const std::unique_ptr<T> &ptr) {
     if (ptr) {
       value = *ptr;
@@ -27,8 +31,19 @@ template <typename T> struct Nullable {
     return *this;
   }
 
-  std::unique_ptr<T> resetValue() const {
-    return isNull ? nullptr : std::make_unique<T>(value);
+  Nullable &operator=(const std::optional<T> &opt) {
+    if (opt.has_value()) {
+      value = *opt;
+      isNull = false;
+    } else {
+      value = T();
+      isNull = true;
+    }
+    return *this;
+  }
+
+  std::optional<T> resetValue() const {
+    return isNull ? std::nullopt : std::optional<T>(value);
   }
 };
 
