@@ -1,7 +1,7 @@
 name: Docker keyserver CI
 
 on:
-  push:
+  # push:
   #   branches: [master]
   #   paths-ignore:
   #     - 'native/**'
@@ -21,12 +21,19 @@ jobs:
           echo "Free space:"
           df -h
 
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@master
-      #   with:
-      #     remove-dotnet: 'true'
-      #     remove-android: 'true'
-      #
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: '32768'
+          # build-mount-path: '/'
+          remove-dotnet: 'true'
+          remove-android: 'true'
+
+      - name: Show space again
+        run: |
+          echo "Free space:"
+          df -h
+
       - uses: actions/checkout@v3
 
       - name: Build Docker
