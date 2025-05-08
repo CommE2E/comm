@@ -100,15 +100,15 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("pinnedCount", &Thread::pinned_count)
       .field("timestamps", &Thread::timestamps);
 
-  value_object<WebMessage>("WebMessage")
-      .field("id", &WebMessage::id)
-      .field("localID", &WebMessage::local_id)
-      .field("thread", &WebMessage::thread)
-      .field("user", &WebMessage::user)
-      .field("type", &WebMessage::type)
-      .field("futureType", &WebMessage::future_type)
-      .field("content", &WebMessage::content)
-      .field("time", &WebMessage::time);
+  value_object<Message>("WebMessage")
+      .field("id", &Message::id)
+      .field("localID", &Message::local_id)
+      .field("thread", &Message::thread)
+      .field("user", &Message::user)
+      .field("type", &Message::type)
+      .field("futureType", &Message::future_type)
+      .field("content", &Message::content)
+      .field("time", &Message::time);
 
   value_object<Media>("Media")
       .field("id", &Media::id)
@@ -118,9 +118,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("type", &Media::type)
       .field("extras", &Media::extras);
 
-  value_object<MessageWithMedias>("MessageWithMedias")
-      .field("message", &MessageWithMedias::message)
-      .field("medias", &MessageWithMedias::medias);
+  value_object<MessageEntity>("MessageEntity")
+      .field("message", &MessageEntity::message)
+      .field("medias", &MessageEntity::medias);
 
   value_object<OlmPersistSession>("OlmPersistSession")
       .field("targetDeviceID", &OlmPersistSession::target_device_id)
@@ -152,13 +152,13 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
       .function("removeDrafts", &SQLiteQueryExecutor::removeDrafts)
       .function(
-          "getInitialMessagesWeb", &SQLiteQueryExecutor::getInitialMessagesWeb)
+          "getInitialMessages", &SQLiteQueryExecutor::getInitialMessages)
       .function("removeAllMessages", &SQLiteQueryExecutor::removeAllMessages)
       .function("removeMessages", &SQLiteQueryExecutor::removeMessages)
       .function(
           "removeMessagesForThreads",
           &SQLiteQueryExecutor::removeMessagesForThreads)
-      .function("replaceMessageWeb", &SQLiteQueryExecutor::replaceMessageWeb)
+      .function("replaceMessage", &SQLiteQueryExecutor::replaceMessage)
       .function("rekeyMessage", &SQLiteQueryExecutor::rekeyMessage)
       .function("removeAllMedia", &SQLiteQueryExecutor::removeAllMedia)
       .function(
@@ -337,15 +337,15 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "getInboundP2PMessagesByID",
           &SQLiteQueryExecutor::getInboundP2PMessagesByID)
       .function(
-          "getRelatedMessagesWeb", &SQLiteQueryExecutor::getRelatedMessagesWeb)
+          "getRelatedMessages", &SQLiteQueryExecutor::getRelatedMessages)
       .function(
           "updateMessageSearchIndex",
           &SQLiteQueryExecutor::updateMessageSearchIndex)
       .function(
           "deleteMessageFromSearchIndex",
           &SQLiteQueryExecutor::deleteMessageFromSearchIndex)
-      .function("searchMessages", &SQLiteQueryExecutor::searchMessagesWeb)
-      .function("fetchMessagesWeb", &SQLiteQueryExecutor::fetchMessagesWeb);
+      .function("searchMessages", &SQLiteQueryExecutor::searchMessages)
+      .function("fetchMessages", &SQLiteQueryExecutor::fetchMessages);
 }
 
 } // namespace comm

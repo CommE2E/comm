@@ -3,7 +3,7 @@
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { getDatabaseModule } from '../db-module.js';
-import { type WebMessage } from '../types/sqlite-query-executor.js';
+import type { WebMessage } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -13,8 +13,8 @@ describe('Message search queries', () => {
   let dbModule;
   const threadID = '100';
   const userID = '111';
-  const futureType = { value: 0, isNull: true };
-  const localID = { value: '', isNull: true };
+  const futureType = null;
+  const localID = null;
 
   beforeAll(async () => {
     dbModule = getDatabaseModule();
@@ -44,10 +44,10 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
-      time: '123',
+      content: text,
+      time: BigInt(123),
     };
-    queryExecutor.replaceMessageWeb(message);
+    queryExecutor.replaceMessage(message);
     queryExecutor.updateMessageSearchIndex(id, id, text);
     const result = queryExecutor.searchMessages('test', threadID, null, null);
     expect(result.length).toBe(1);
@@ -57,29 +57,29 @@ describe('Message search queries', () => {
   it('should find all messages matching provided query', () => {
     const text1 = 'test text';
     const id1 = '1';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id1,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text1, isNull: false },
-      time: '1',
+      content: text1,
+      time: BigInt(1),
     });
     queryExecutor.updateMessageSearchIndex(id1, id1, text1);
 
     const text2 = 'I am test';
     const id2 = '2';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id2,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text2, isNull: false },
-      time: '1',
+      content: text2,
+      time: BigInt(1),
     });
     queryExecutor.updateMessageSearchIndex(id2, id2, text2);
     const result = queryExecutor.searchMessages('test', threadID, null, null);
@@ -96,23 +96,23 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text1, isNull: false },
-      time: '123',
+      content: text1,
+      time: BigInt(123),
     };
-    queryExecutor.replaceMessageWeb(matchingMessage);
+    queryExecutor.replaceMessage(matchingMessage);
     queryExecutor.updateMessageSearchIndex(id1, id1, text1);
 
     const text2 = 'I am text';
     const id2 = '2';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id2,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text2, isNull: false },
-      time: '1',
+      content: text2,
+      time: BigInt(1),
     });
     queryExecutor.updateMessageSearchIndex(id2, id2, text2);
     const result = queryExecutor.searchMessages('test', threadID, null, null);
@@ -130,26 +130,23 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text1, isNull: false },
-      time: '1',
+      content: text1,
+      time: BigInt(1),
     };
-    queryExecutor.replaceMessageWeb(matchingMessage);
+    queryExecutor.replaceMessage(matchingMessage);
     queryExecutor.updateMessageSearchIndex(id1, id1, text1);
 
     const text2 = 'I am test';
     const id2 = '2';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id2,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.EDIT_MESSAGE,
       futureType,
-      content: {
-        value: JSON.stringify({ targetMessageID: id1 }),
-        isNull: false,
-      },
-      time: '5',
+      content: JSON.stringify({ targetMessageID: id1 }),
+      time: BigInt(5),
     });
     queryExecutor.updateMessageSearchIndex(id1, id2, text2);
     const result = queryExecutor.searchMessages('test', threadID, null, null);
@@ -159,9 +156,9 @@ describe('Message search queries', () => {
   });
 
   it('should return only messages with time equal or smaller than timestampCursor', () => {
-    const timeOlderThanSearchedFor = '1';
+    const timeOlderThanSearchedFor = BigInt(1);
     const timeSearchedFor = '1000';
-    const timeNewerThanSearchedFor = '2000';
+    const timeNewerThanSearchedFor = BigInt(2000);
 
     const text = 'test';
 
@@ -173,21 +170,21 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time: timeOlderThanSearchedFor,
     };
-    queryExecutor.replaceMessageWeb(matchingMessage);
+    queryExecutor.replaceMessage(matchingMessage);
     queryExecutor.updateMessageSearchIndex(id1, id1, text);
 
     const id2 = '2';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id2,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time: timeNewerThanSearchedFor,
     });
     queryExecutor.updateMessageSearchIndex(id2, id2, text);
@@ -203,7 +200,7 @@ describe('Message search queries', () => {
 
   it('should correctly return messages with regards to messageIDCursor', () => {
     const text = 'test';
-    const time = '1';
+    const time = BigInt(1);
 
     const id1 = '1';
     const matchingMessage: WebMessage = {
@@ -213,26 +210,31 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time,
     };
-    queryExecutor.replaceMessageWeb(matchingMessage);
+    queryExecutor.replaceMessage(matchingMessage);
     queryExecutor.updateMessageSearchIndex(id1, id1, text);
 
     const id2 = '2';
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: id2,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time,
     });
     queryExecutor.updateMessageSearchIndex(id2, id2, text);
 
-    const result = queryExecutor.searchMessages(text, threadID, time, id2);
+    const result = queryExecutor.searchMessages(
+      text,
+      threadID,
+      time.toString(),
+      id2,
+    );
     expect(result.length).toBe(1);
     expect(result[0].message).toStrictEqual(matchingMessage);
   });
@@ -244,8 +246,8 @@ describe('Message search queries', () => {
     const smallerID = '2';
     const intBetweenIDs = '100';
 
-    const olderTimestamp = '1';
-    const youngerTimestamp = '1000';
+    const olderTimestamp = BigInt(1);
+    const youngerTimestamp = BigInt(1000);
     const timeBetweenTimestamps = '500';
 
     const matchingMessage: WebMessage = {
@@ -255,20 +257,20 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time: olderTimestamp,
     };
-    queryExecutor.replaceMessageWeb(matchingMessage);
+    queryExecutor.replaceMessage(matchingMessage);
     queryExecutor.updateMessageSearchIndex(greaterID, greaterID, text);
 
-    queryExecutor.replaceMessageWeb({
+    queryExecutor.replaceMessage({
       id: smallerID,
       localID,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
+      content: text,
       time: youngerTimestamp,
     });
     queryExecutor.updateMessageSearchIndex(smallerID, smallerID, text);
@@ -295,10 +297,10 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
-      time: '1',
+      content: text,
+      time: BigInt(1),
     };
-    queryExecutor.replaceMessageWeb(secondMessage);
+    queryExecutor.replaceMessage(secondMessage);
     queryExecutor.updateMessageSearchIndex(id1, id1, text);
 
     const id2 = '2';
@@ -309,10 +311,10 @@ describe('Message search queries', () => {
       user: userID,
       type: messageTypes.TEXT,
       futureType,
-      content: { value: text, isNull: false },
-      time: '2',
+      content: text,
+      time: BigInt(2),
     };
-    queryExecutor.replaceMessageWeb(firstMessage);
+    queryExecutor.replaceMessage(firstMessage);
     queryExecutor.updateMessageSearchIndex(id2, id2, text);
 
     const result = queryExecutor.searchMessages(text, threadID, null, null);
