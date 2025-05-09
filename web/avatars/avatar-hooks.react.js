@@ -60,7 +60,7 @@ function useUploadAvatarMedia(
           loop: false,
           thumbHash,
         },
-        keyserverOrThreadID: uploadMetadataToKeyserver
+        keyserverOrThreadIDForMetadata: uploadMetadataToKeyserver
           ? authoritativeKeyserverID
           : null,
         callbacks: {},

@@ -935,7 +935,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           loop: false,
           thumbHash,
         },
-        keyserverOrThreadID: uploadMultimediaMetadataToKeyserver
+        keyserverOrThreadIDForMetadata: uploadMultimediaMetadataToKeyserver
           ? threadID
           : null,
         callbacks,
@@ -1217,7 +1217,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           ) {
             void this.props.deleteUpload({
               id: serverID,
-              keyserverOrThreadID: threadInfo.id,
+              keyserverOrThreadIDForMetadata: threadInfo.id,
             });
           }
           if (isBlobServiceURI(pendingUpload.uri)) {
