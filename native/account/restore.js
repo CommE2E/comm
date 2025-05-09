@@ -69,7 +69,23 @@ function useRestoreProtocol(): (
       if (!latestBackupInfo) {
         throw new Error('Backup not found');
       }
-      const { userID, backupID, keyserverDeviceID } = latestBackupInfo;
+      const {
+        userID,
+        backupID,
+        keyserverDeviceID,
+        creationTimestamp,
+        totalBackupSize,
+        versionInfo,
+      } = latestBackupInfo;
+
+      const backupDetails = {
+        backupID,
+        backupDate: new Date(creationTimestamp).toString(),
+        totalBackupSize,
+        versionInfo,
+      };
+      const stringifiedDetails = JSON.stringify(backupDetails, undefined, 2);
+      console.log(`Restoring from Backup:\n${stringifiedDetails}`);
 
       const { pickledAccount, pickleKey, backupDataKey, backupLogDataKey } =
         await getBackupUserKeys(userIdentifier, secret, backupID);
