@@ -16,98 +16,40 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Show space
-        run: |
-          echo "Memory and swap:"
-          sudo free
-          echo
-          sudo swapon --show
-          echo
-
-          echo "Available storage:"
-          sudo df -h
-          echo
-
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@v10
-      #   with:
-      #     root-reserve-mb: '30000'
-      #     # build-mount-path: '/'
-      #     remove-dotnet: 'true'
-      #     remove-android: 'true'
-      #   continue-on-error: true
-      - name: Remove software
+      - name: Free up disk space
         shell: bash
         run: |
-          df -h
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          # sudo docker image prune --all --force
-          # sudo docker builder prune -a
           df -h
 
-      # - name: Increase swapfile
-      #   run: |
-      #     sudo swapoff -a
-      #     sudo fallocate -l 15G /mnt/swapfile
-      #     sudo chmod 600 /mnt/swapfile
-      #     sudo mkswap /mnt/swapfile
-      #     sudo swapon /mnt/swapfile
-      #     sudo swapon --show
-
-      - name: Show space again
-        run: |
-          echo "Memory and swap:"
-          sudo free
-          echo
-          sudo swapon --show
-          echo
-
-          echo "Available storage:"
-          sudo df -h
-          echo
-
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build Docker
+
+      - name: Verify docker-compose config
         working-directory: ./keyserver
-        run: touch .env && bash/dc.sh build --no-cache
+        run: docker compose config --quiet --no-env-resolution
 
-      # - name: Prepare build args
-      #   id: prepare_args
-      #   run: |
-      #     echo "host_uid=$(id -u)" >> $GITHUB_OUTPUT
-      #     echo "host_gid=$(id -g)" >> $GITHUB_OUTPUT
-      #
-      # - name: Docker build
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: .
-      #     file: ./keyserver/Dockerfile
-      #     tags: commapp/node-keyserver:1.0
-      #     push: false
-      #     no-cache: true
-      #     load: true
-      #     build-args: |
-      #       HOST_UID=${{ steps.prepare_args.outputs.host_uid }}
-      #       HOST_GID=${{ steps.prepare_args.outputs.host_gid }}
-
-      - name: Print docker images
-        run: docker image ls
-        continue-on-error: true
-
-      - name: Show space again
+      - name: Prepare build args
+        id: prepare_args
         run: |
-          echo "Memory and swap:"
-          sudo free
-          echo
-          sudo swapon --show
-          echo
+          echo "host_uid=$(id -u)" >> $GITHUB_OUTPUT
+          echo "host_gid=$(id -g)" >> $GITHUB_OUTPUT
 
-          echo "Available storage:"
-          sudo df -h
-          echo
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./keyserver/Dockerfile
+          tags: commapp/node-keyserver:1.0
+          push: false
+          load: false
+          no-cache: true
+          build-args: |
+            HOST_UID=${{ steps.prepare_args.outputs.host_uid }}
+            HOST_GID=${{ steps.prepare_args.outputs.host_gid }}
