@@ -16,8 +16,42 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Free up disk space
+        shell: bash
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Verify docker-compose config
+        working-directory: ./keyserver
+        run: |
+          touch .env
+          docker compose config --quiet
+
+      - name: Prepare build args
+        id: prepare_args
+        run: |
+          echo "host_uid=$(id -u)" >> $GITHUB_OUTPUT
+          echo "host_gid=$(id -g)" >> $GITHUB_OUTPUT
 
       - name: Build Docker
-        working-directory: ./keyserver
-        run: touch .env && bash/dc.sh build --no-cache
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./keyserver/Dockerfile
+          tags: commapp/node-keyserver:1.0
+          push: false
+          load: false
+          no-cache: true
+          build-args: |
+            HOST_UID=${{ steps.prepare_args.outputs.host_uid }}
+            HOST_GID=${{ steps.prepare_args.outputs.host_gid }}
