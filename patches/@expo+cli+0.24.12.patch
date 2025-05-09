@@ -1,8 +1,8 @@
 diff --git a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
-index 7941956..04638da 100644
+index 1604ed4..7c93ac7 100644
 --- a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
 +++ b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
-@@ -78,12 +78,17 @@ class DevServerManagerActions {
+@@ -80,12 +80,17 @@ class DevServerManagerActions {
          if (this.devServerManager.getNativeDevServerPort()) {
              const devServer = this.devServerManager.getDefaultDevServer();
              try {
@@ -21,11 +21,11 @@ index 7941956..04638da 100644
                      // Print the URL to stdout for tests
                      console.info(`[__EXPO_E2E_TEST:server] ${JSON.stringify({
 diff --git a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
-index 086c102..e469757 100644
+index c0ebf7e..b3ee4c5 100644
 --- a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
 +++ b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
-@@ -291,6 +291,16 @@ class BundlerDevServer {
-         if (options.hostType === "localhost") {
+@@ -293,6 +293,16 @@ class BundlerDevServer {
+         if (options.hostType === 'localhost') {
              return `${location.protocol}://localhost:${location.port}`;
          }
 +        if (location.host === 'localhost') {
@@ -42,10 +42,10 @@ index 086c102..e469757 100644
      }
      getDevServerUrlOrAssert(options = {}) {
 diff --git a/node_modules/@expo/cli/build/src/utils/scheme.js b/node_modules/@expo/cli/build/src/utils/scheme.js
-index 476fc9f..d3682c6 100644
+index a1a78ca..b0f9626 100644
 --- a/node_modules/@expo/cli/build/src/utils/scheme.js
 +++ b/node_modules/@expo/cli/build/src/utils/scheme.js
-@@ -125,7 +125,9 @@ function sortLongest(obj) {
+@@ -133,7 +133,9 @@ function sortLongest(obj) {
  }
  async function getSchemesForIosAsync(projectRoot) {
      try {
@@ -55,11 +55,11 @@ index 476fc9f..d3682c6 100644
 +        const infoPlistBuildProperty = (0, _getInfoPlistPath).getInfoPlistPathFromPbxproj(projectRoot, { buildConfiguration: 'Debug' });
          debug(`ios application Info.plist path:`, infoPlistBuildProperty);
          if (infoPlistBuildProperty) {
-             const configPath = _path().default.join(projectRoot, "ios", infoPlistBuildProperty);
-@@ -146,6 +148,14 @@ async function getSchemesForAndroidAsync(projectRoot) {
-         const configPath = await _configPlugins().AndroidConfig.Paths.getAndroidManifestAsync(projectRoot);
-         const manifest = await _configPlugins().AndroidConfig.Manifest.readAndroidManifestAsync(configPath);
-         const schemes = await _configPlugins().AndroidConfig.Scheme.getSchemesFromManifest(manifest);
+             const configPath = _path().default.join(projectRoot, 'ios', infoPlistBuildProperty);
+@@ -154,6 +156,14 @@ async function getSchemesForAndroidAsync(projectRoot) {
+         const configPath = await _configplugins().AndroidConfig.Paths.getAndroidManifestAsync(projectRoot);
+         const manifest = await _configplugins().AndroidConfig.Manifest.readAndroidManifestAsync(configPath);
+         const schemes = await _configplugins().AndroidConfig.Scheme.getSchemesFromManifest(manifest);
 +        // see https://github.com/expo/expo/discussions/20875 for details on this patch
 +        // if this patch ever breaks, it can be worked around by adding a --scheme flag to the expo start command
 +        if (schemes.length < 1) {
