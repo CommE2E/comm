@@ -15,8 +15,8 @@ use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
-  BackupClient, BackupDescriptor, LatestBackupInfoResponse, RequestedData,
-  TryStreamExt, UserIdentity,
+  BackupClient, BackupDescriptor, BackupVersionInfo, LatestBackupInfoResponse,
+  RequestedData, TryStreamExt, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
 use siwe::Message;
@@ -258,7 +258,9 @@ pub mod ffi {
         user_id,
         siwe_backup_msg,
         keyserver_device_id,
-        ..
+        creation_timestamp,
+        total_backup_size,
+        version_info,
       } = result;
 
       let siwe_backup_data = match siwe_backup_msg {
@@ -279,6 +281,9 @@ pub mod ffi {
         user_id,
         siwe_backup_data,
         keyserver_device_id,
+        creation_timestamp,
+        total_backup_size,
+        version_info,
       };
 
       let serialize_result = serde_json::to_string(&result);
@@ -487,6 +492,10 @@ struct LatestBackupInfo {
   pub siwe_backup_data: Option<SIWEBackupData>,
   #[serde(rename = "keyserverDeviceID")]
   pub keyserver_device_id: Option<String>,
+  // ISO 8601 / RFC 3339 DateTime string
+  pub creation_timestamp: String,
+  pub total_backup_size: u64,
+  pub version_info: BackupVersionInfo,
 }
 
 struct CompactionDownloadResult {

@@ -4,8 +4,8 @@ mod web;
 use async_stream::{stream, try_stream};
 pub use comm_lib::auth::UserIdentity;
 pub use comm_lib::backup::{
-  DownloadLogsRequest, LatestBackupInfoResponse, LogWSRequest, LogWSResponse,
-  UploadLogRequest,
+  BackupVersionInfo, DownloadLogsRequest, LatestBackupInfoResponse,
+  LogWSRequest, LogWSResponse, UploadLogRequest,
 };
 pub use futures_util::{Sink, SinkExt, Stream, StreamExt, TryStreamExt};
 use hex::ToHex;
