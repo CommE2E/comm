@@ -92,6 +92,7 @@ jobs:
           tags: commapp/node-keyserver:1.0
           push: false
           no-cache: true
+          load: true
           build-args: |
             HOST_UID=${{ steps.prepare_args.outputs.host_uid }}
             HOST_GID=${{ steps.prepare_args.outputs.host_gid }}
