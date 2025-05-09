@@ -71,12 +71,34 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - name: Build Docker
-        working-directory: ./keyserver
-        run: touch .env && bash/dc.sh build --no-cache
+      # - name: Build Docker
+      #   working-directory: ./keyserver
+      #   run: touch .env && bash/dc.sh build --no-cache
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Prepare build args
+        id: prepare_args
+        run: |
+          echo "host_uid=$(id -u)" >> $GITHUB_OUTPUT
+          echo "host_gid=$(id -g)" >> $GITHUB_OUTPUT
+
+      - name: Docker build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./keyserver/Dockerfile
+          tags: commapp/node-keyserver:1.0
+          push: false
+          no-cache: true
+          build-args: |
+            HOST_UID=${{ steps.prepare_args.outputs.host_uid }}
+            HOST_GID=${{ steps.prepare_args.outputs.host_gid }}
 
       - name: Print docker images
         run: docker image ls
+        continue-on-error: true
 
       - name: Show space again
         run: |
