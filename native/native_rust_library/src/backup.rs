@@ -258,6 +258,7 @@ pub mod ffi {
         user_id,
         siwe_backup_msg,
         keyserver_device_id,
+        ..
       } = result;
 
       let siwe_backup_data = match siwe_backup_msg {
@@ -380,19 +381,9 @@ async fn download_latest_backup_info(
     Err(err) => return Err(err.into()),
   };
 
-  let LatestBackupInfoResponse {
-    backup_id,
-    user_id,
-    siwe_backup_msg,
-    keyserver_device_id,
-  } = serde_json::from_slice(&backup_info_response)?;
-
-  Ok(Some(LatestBackupInfoResponse {
-    backup_id,
-    user_id,
-    siwe_backup_msg,
-    keyserver_device_id,
-  }))
+  let response: LatestBackupInfoResponse =
+    serde_json::from_slice(&backup_info_response)?;
+  Ok(Some(response))
 }
 
 async fn download_backup_keys(
