@@ -88,7 +88,7 @@ function useUploadProcessedMedia(): (
           thumbHash,
           loop: false,
         },
-        keyserverOrThreadID:
+        keyserverOrThreadIDForMetadata:
           metadataUploadLocation === 'keyserver'
             ? authoritativeKeyserverID
             : null,
