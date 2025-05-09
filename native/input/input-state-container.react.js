@@ -882,7 +882,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               ? processedMedia.thumbHash
               : null,
         },
-        keyserverOrThreadID: uploadMetadataToKeyserver ? threadInfo.id : null,
+        keyserverOrThreadIDForMetadata: uploadMetadataToKeyserver
+          ? threadInfo.id
+          : null,
         callbacks: {
           blobServiceUploadHandler,
           onProgress: (percent: number) => {
@@ -915,7 +917,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               dimensions: processedMedia.dimensions,
               thumbHash: processedMedia.thumbHash,
             },
-            keyserverOrThreadID: uploadMetadataToKeyserver
+            keyserverOrThreadIDForMetadata: uploadMetadataToKeyserver
               ? threadInfo.id
               : null,
             callbacks: {
