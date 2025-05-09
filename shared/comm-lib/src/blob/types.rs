@@ -96,6 +96,17 @@ pub mod http {
     }
   }
 
+  impl AssignHoldersResponse {
+    pub fn failed_blob_infos(&self) -> Vec<BlobInfo> {
+      self
+        .results
+        .iter()
+        .filter(|result| !result.success)
+        .map(|result| result.request.clone())
+        .collect()
+    }
+  }
+
   // Blob metadata endpoint types
   // NOTE: These are accessible from other services and should not be exposed
   // to `lib/types/blob-service-types.js` JS definitions.

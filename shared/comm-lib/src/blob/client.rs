@@ -22,7 +22,8 @@ use crate::{
 };
 
 use super::types::http::{
-  BlobSizesRequest, BlobSizesResponse, RemoveHoldersResponse,
+  AssignHoldersRequest, AssignHoldersResponse, BlobSizesRequest,
+  BlobSizesResponse, RemoveHoldersResponse,
 };
 
 #[derive(From, Error, Debug, Display)]
@@ -237,6 +238,60 @@ impl BlobServiceClient {
     error_response_result(response).await
   }
 
+  /// Assigns multiple holders.
+  /// - Holders don't have to own the same blob item. For each item
+  ///   a (blob hash; holder) pair is specified.
+  /// - Operation is idempotent. Already-existing holders are treated as
+  ///   successfully added, `holder_already_exists` response flag is set.
+  /// - If one or more removal failed server-side, for these, the `success`
+  ///   response flag will be set to false. You can use the
+  ///   [`AssignHoldersResponse::failed_blob_infos()`] to construct a new
+  ///   retry request.
+  ///
+  /// For single holder assignment, see [`BlobServiceClient::assign_holder`].
+  pub async fn assign_multiple_holders(
+    &self,
+    request: AssignHoldersRequest,
+  ) -> BlobResult<AssignHoldersResponse> {
+    if request.requests.is_empty() {
+      return Ok(AssignHoldersResponse {
+        results: Vec::new(),
+      });
+    }
+
+    let url = self.get_holders_url()?;
+    trace!("Request payload: {:?}", request);
+    let response = self
+      .request(Method::POST, url)?
+      .json(&request)
+      .send()
+      .await?;
+
+    if !response.status().is_success() {
+      return error_response_result(response).await;
+    }
+
+    let response: AssignHoldersResponse = response.json().await?;
+    let failed_requests_count =
+      response.results.iter().filter(|it| !it.success).count();
+    let already_exist_count = response
+      .results
+      .iter()
+      .filter(|it| it.holder_already_exists)
+      .count();
+    let data_exist_count =
+      response.results.iter().filter(|it| it.data_exists).count();
+
+    debug!(
+      failed_requests_count,
+      already_exist_count,
+      data_exist_count,
+      "Request successful. Processed {} holders.",
+      response.results.len(),
+    );
+    Ok(response)
+  }
+
   /// Removes multiple holders.
   /// - Holders don't have to own the same blob item. For each item
   ///   a (blob hash; holder) pair is specified.
@@ -252,12 +307,24 @@ impl BlobServiceClient {
     &self,
     request: RemoveHoldersRequest,
   ) -> BlobResult<RemoveHoldersResponse> {
+    fn create_empty_response() -> RemoveHoldersResponse {
+      RemoveHoldersResponse {
+        failed_requests: Vec::new(),
+      }
+    }
+
     match &request {
       RemoveHoldersRequest::Items { requests, .. } => {
+        if requests.is_empty() {
+          return Ok(create_empty_response());
+        }
         let num_holders = requests.len();
         debug!(num_holders, "Remove multiple holders request.");
       }
       RemoveHoldersRequest::ByIndexedTags { tags } => {
+        if tags.is_empty() {
+          return Ok(create_empty_response());
+        }
         debug!("Remove holders request for {} tags.", tags.len());
       }
     }
