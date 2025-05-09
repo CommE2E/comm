@@ -6,7 +6,10 @@ use actix_web::{
 use comm_lib::{
   auth::{AuthorizationCredential, UserIdentity},
   backup::LatestBackupInfoResponse,
-  blob::{client::BlobServiceClient, types::BlobInfo},
+  blob::{
+    client::BlobServiceClient,
+    types::{http::BlobSizesRequest, BlobInfo},
+  },
   http::{
     auth_service::Authenticated,
     multipart::{get_named_text_field, get_text_field},
@@ -430,6 +433,7 @@ pub async fn get_latest_backup_info(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
   auth_service: comm_lib::auth::AuthService,
+  blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<impl Responder> {
   let user_identifier = path.into_inner();
   let user_id = find_user_id(&user_identifier).await?;
@@ -445,11 +449,22 @@ pub async fn get_latest_backup_info(
   let keyserver_device_id =
     find_keyserver_device_for_user(&user_id, &auth_service).await?;
 
+  let total_backup_size = get_total_backup_size(
+    &user_id,
+    &backup_item.backup_id,
+    &auth_service,
+    &db_client,
+    &blob_client,
+  )
+  .await?;
+
   let response = LatestBackupInfoResponse {
     backup_id: backup_item.backup_id,
     user_id,
     siwe_backup_msg: backup_item.siwe_backup_msg,
     keyserver_device_id,
+    total_backup_size,
+    creation_timestamp: backup_item.created.to_rfc3339(),
   };
 
   Ok(web::Json(response))
@@ -562,4 +577,42 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
   );
 
   Ok((item, revokes))
+}
+
+async fn get_total_backup_size(
+  user_id: &str,
+  backup_id: &str,
+  auth_service: &comm_lib::auth::AuthService,
+  db_client: &DatabaseClient,
+  blob_client: &BlobServiceClient,
+) -> Result<u64, BackupError> {
+  let backup_item = db_client
+    .find_backup_item(user_id, backup_id)
+    .await?
+    .ok_or(BackupError::NoBackup)?;
+
+  // gather blob infos for backup item
+  let mut blob_infos = backup_item.attachments;
+  blob_infos.push(backup_item.user_keys);
+  blob_infos.extend(backup_item.user_data);
+
+  // gather blob infos and DDB size for logs
+  let (log_blob_infos, ddb_logs_size) = db_client
+    .get_blob_infos_and_size_for_logs(user_id, &backup_item.backup_id)
+    .await?;
+  blob_infos.extend(log_blob_infos);
+
+  // we have to re-auth blob client with s2s token because the sizes endpoint is service-only
+  let credential = auth_service.get_services_token().await?;
+  let blob_client = blob_client.with_authentication(credential.into());
+
+  // query Blob Service for blobs size
+  let blob_hashes = blob_infos.into_iter().map(|it| it.blob_hash).collect();
+  let total_blobs_size = blob_client
+    .fetch_blob_sizes(BlobSizesRequest { blob_hashes })
+    .await?
+    .total_size();
+
+  let total_backup_size = total_blobs_size + ddb_logs_size;
+  Ok(total_backup_size)
 }

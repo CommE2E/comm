@@ -14,6 +14,9 @@ pub struct LatestBackupInfoResponse {
   pub siwe_backup_msg: Option<String>,
   #[serde(rename = "keyserverDeviceID")]
   pub keyserver_device_id: Option<String>,
+  // ISO 8601 / RFC 3339 DateTime string
+  pub creation_timestamp: String,
+  pub total_backup_size: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
