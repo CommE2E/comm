@@ -13,7 +13,7 @@ use aws_sdk_dynamodb::{
   types::{AttributeValue, DeleteRequest, ReturnValue, WriteRequest},
 };
 use comm_lib::{
-  blob::client::BlobServiceClient,
+  blob::{client::BlobServiceClient, types::BlobInfo},
   database::{
     self, batch_operations::ExponentialBackoffConfig, parse_int_attribute,
     AttributeMap, Error,
@@ -328,6 +328,33 @@ impl DatabaseClient {
       .map(LogItem::try_from)
       .collect::<Result<Vec<_>, _>>()?;
     Ok(items)
+  }
+
+  pub async fn get_blob_infos_and_size_for_logs(
+    &self,
+    user_id: &str,
+    backup_id: &str,
+  ) -> Result<(Vec<BlobInfo>, u64), Error> {
+    let mut blob_infos = Vec::new();
+    let mut logs_ddb_size = 0u64;
+
+    let log_items = self
+      .fetch_all_log_items_for_backup(user_id, backup_id)
+      .await?;
+
+    use comm_lib::database::blob::BlobOrDBContent as LogContent;
+    for mut log in log_items {
+      match log.content {
+        LogContent::Blob(blob_info) => blob_infos.push(blob_info),
+        LogContent::Database(db_content) => {
+          logs_ddb_size += db_content.len() as u64;
+        }
+      }
+
+      blob_infos.append(&mut log.attachments);
+    }
+
+    Ok((blob_infos, logs_ddb_size))
   }
 
   pub async fn remove_log_items_for_backup(
