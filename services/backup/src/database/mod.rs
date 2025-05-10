@@ -10,7 +10,9 @@ use crate::constants::{
 };
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
-  types::{AttributeValue, DeleteRequest, ReturnValue, WriteRequest},
+  types::{
+    AttributeValue, DeleteRequest, PutRequest, ReturnValue, WriteRequest,
+  },
 };
 use comm_lib::{
   blob::{client::BlobServiceClient, types::BlobInfo},
@@ -18,6 +20,7 @@ use comm_lib::{
     self, batch_operations::ExponentialBackoffConfig, parse_int_attribute,
     AttributeMap, Error,
   },
+  tools::Defer,
 };
 use tracing::{error, trace, warn};
 
@@ -391,6 +394,59 @@ impl DatabaseClient {
     .await?;
 
     Ok(())
+  }
+
+  pub async fn copy_log_items_to_new_backup<'revoke, 'blob: 'revoke>(
+    &self,
+    user_id: &str,
+    old_backup_id: &str,
+    new_backup_id: &str,
+    blob_client: &'blob BlobServiceClient,
+  ) -> Result<Defer<'revoke>, crate::error::BackupError> {
+    // 0. Fetch logs for old backup
+    let mut items = self
+      .fetch_all_log_items_for_backup(user_id, old_backup_id)
+      .await?;
+
+    // 1. Update backup ID, create new random holders for blobs
+    for log_item in &mut items {
+      log_item.reassign_backup_id_and_holders(new_backup_id.to_string());
+    }
+
+    // 2. Assign new holders on Blob service
+    let blob_infos: Vec<BlobInfo> =
+      items.iter().flat_map(LogItem::blob_infos).collect();
+    let assigned_holder_infos = blob_client
+      .assign_multiple_holders_with_retries(blob_infos, Default::default())
+      .await?;
+
+    let revoke = Defer::new(|| {
+      for BlobInfo { blob_hash, holder } in assigned_holder_infos {
+        blob_client.schedule_revoke_holder(blob_hash, holder);
+      }
+    });
+
+    // 3. Store new logs in DDB
+    let write_requests = items
+      .into_iter()
+      .map(|log_item| {
+        let put_request = PutRequest::builder()
+          .set_item(Some(log_item.into()))
+          .build()
+          .expect("item not set in PutRequest builder");
+        WriteRequest::builder().put_request(put_request).build()
+      })
+      .collect::<Vec<_>>();
+
+    database::batch_operations::batch_write(
+      &self.client,
+      log_table::TABLE_NAME,
+      write_requests,
+      ExponentialBackoffConfig::default(),
+    )
+    .await?;
+
+    Ok(revoke)
   }
 }
 
