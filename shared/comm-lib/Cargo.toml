@@ -37,7 +37,7 @@ constant_time_eq = "0.3"
 derive_more = { workspace = true }
 grpc_clients = { path = "../grpc_clients", optional = true }
 rand = "0.8"
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
 tracing = { workspace = true }
 anyhow = { workspace = true }
 hex = { workspace = true }

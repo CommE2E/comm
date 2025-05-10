@@ -1,5 +1,6 @@
 use comm_lib::aws::DynamoDBError;
 use comm_lib::database::DBItemError;
+use comm_lib::tools::exponential_backoff::MaxRetriesExceededError;
 use tracing::error;
 
 #[derive(
@@ -64,5 +65,11 @@ impl From<comm_lib::database::Error> for Error {
       E::Attribute(err) => Self::Attribute(err),
       E::MaxRetriesExceeded => Self::MaxRetriesExceeded,
     }
+  }
+}
+
+impl From<MaxRetriesExceededError> for Error {
+  fn from(_: MaxRetriesExceededError) -> Self {
+    Self::MaxRetriesExceeded
   }
 }

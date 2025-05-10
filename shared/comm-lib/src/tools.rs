@@ -1,5 +1,7 @@
 use rand::{distributions::DistString, CryptoRng, Rng};
 
+pub mod exponential_backoff;
+
 // colon is valid because it is used as a separator
 // in some backup service identifiers
 const VALID_IDENTIFIER_CHARS: &[char] = &['_', '-', '=', ':'];
