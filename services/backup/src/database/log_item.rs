@@ -84,6 +84,27 @@ impl LogItem {
       ),
     ])
   }
+
+  /// Assigns a new backup ID for this log item. This also refreshes holders
+  /// for all [`BlobInfo`]s of this log.
+  pub fn reassign_backup_id_and_holders(&mut self, new_backup_id: String) {
+    self.backup_id = new_backup_id;
+
+    if let BlobOrDBContent::Blob(ref mut blob_info) = self.content {
+      blob_info.holder = uuid::Uuid::new_v4().to_string();
+    }
+    for attachment in &mut self.attachments {
+      attachment.holder = uuid::Uuid::new_v4().to_string();
+    }
+  }
+
+  pub fn blob_infos(&self) -> Vec<BlobInfo> {
+    let mut blobs = self.attachments.clone();
+    if let BlobOrDBContent::Blob(content_blob) = &self.content {
+      blobs.push(content_blob.clone());
+    }
+    blobs
+  }
 }
 
 impl From<LogItem> for HashMap<String, AttributeValue> {
