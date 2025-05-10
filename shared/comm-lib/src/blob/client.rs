@@ -19,11 +19,17 @@ use crate::{
     AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
     RemoveHoldersRequest,
   },
+  tools::exponential_backoff::{
+    ExponentialBackoffConfig, MaxRetriesExceededError,
+  },
 };
 
-use super::types::http::{
-  AssignHoldersRequest, AssignHoldersResponse, BlobSizesRequest,
-  BlobSizesResponse, RemoveHoldersResponse,
+use super::types::{
+  http::{
+    AssignHoldersRequest, AssignHoldersResponse, BlobSizesRequest,
+    BlobSizesResponse, RemoveHoldersResponse,
+  },
+  BlobInfo,
 };
 
 #[derive(From, Error, Debug, Display)]
@@ -55,6 +61,14 @@ pub enum BlobServiceError {
   UnexpectedHttpStatus(#[error(ignore)] reqwest::StatusCode),
   #[display(...)]
   UnexpectedError,
+  #[display(fmt = "Maximum retires exceeded")]
+  MaxRetriesExceeded,
+}
+
+impl From<MaxRetriesExceededError> for BlobServiceError {
+  fn from(_: MaxRetriesExceededError) -> Self {
+    Self::MaxRetriesExceeded
+  }
 }
 
 /// A client interface to Blob service.
@@ -290,6 +304,34 @@ impl BlobServiceClient {
       response.results.len(),
     );
     Ok(response)
+  }
+
+  pub async fn assign_multiple_holders_with_retries(
+    &self,
+    blob_infos: Vec<super::types::BlobInfo>,
+    retry_config: ExponentialBackoffConfig,
+  ) -> BlobResult<Vec<BlobInfo>> {
+    let mut exponential_backoff = retry_config.new_counter();
+    let mut blob_requests = blob_infos;
+    let mut established_holders = Vec::new();
+
+    while !blob_requests.is_empty() {
+      let request = AssignHoldersRequest {
+        requests: std::mem::take(&mut blob_requests),
+      };
+      let response = self.assign_multiple_holders(request).await?;
+
+      let holders_added = response.established_new_holders();
+      established_holders.extend(holders_added);
+
+      let failed_requests = response.failed_blob_infos();
+      if !failed_requests.is_empty() {
+        blob_requests = failed_requests;
+        exponential_backoff.sleep_and_retry().await?;
+      }
+    }
+
+    Ok(established_holders)
   }
 
   /// Removes multiple holders.
