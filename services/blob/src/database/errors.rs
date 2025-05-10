@@ -1,7 +1,9 @@
 use std::fmt::{Display, Formatter};
 
 use aws_sdk_dynamodb::Error as DynamoDBError;
-use comm_lib::database::DBItemError;
+use comm_lib::{
+  database::DBItemError, tools::exponential_backoff::MaxRetriesExceededError,
+};
 
 use crate::s3::S3PathError;
 
@@ -29,6 +31,12 @@ impl From<comm_lib::database::Error> for Error {
       E::Attribute(err) => Self::Attribute(err),
       E::MaxRetriesExceeded => Self::MaxRetriesExceeded,
     }
+  }
+}
+
+impl From<MaxRetriesExceededError> for Error {
+  fn from(_: MaxRetriesExceededError) -> Self {
+    Self::MaxRetriesExceeded
   }
 }
 
