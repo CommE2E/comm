@@ -34,7 +34,6 @@ pub async fn upload(
   mut multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
   let backup_id = get_named_text_field("backup_id", &mut multipart).await?;
-  let blob_client = blob_client.with_user_identity(user.clone());
   tracing::Span::current().record("backup_id", &backup_id);
 
   info!("Backup data upload started");
@@ -87,8 +86,6 @@ pub async fn upload_user_keys(
   db_client: web::Data<DatabaseClient>,
   multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
-  let blob_client = blob_client.with_user_identity(user.clone());
-
   let (item, revokes) = upload_userkeys_and_create_backup_item(
     &db_client,
     &blob_client,
@@ -155,7 +152,6 @@ pub async fn upload_user_data(
   mut multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
   let backup_id = get_named_text_field("backup_id", &mut multipart).await?;
-  let blob_client = blob_client.with_user_identity(user.clone());
   tracing::Span::current().record("backup_id", &backup_id);
 
   info!("Backup User Data upload started");
