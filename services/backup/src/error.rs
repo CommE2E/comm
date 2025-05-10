@@ -37,6 +37,7 @@ impl From<&BackupError> for actix_web::Error {
         err @ (BlobServiceError::ClientError(_)
         | BlobServiceError::UnexpectedHttpStatus(_)
         | BlobServiceError::ServerError
+        | BlobServiceError::MaxRetriesExceeded
         | BlobServiceError::UnexpectedError),
       ) => {
         warn!("Transient blob error occurred: {err}");
