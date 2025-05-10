@@ -337,6 +337,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
 
   let mut revokes = vec![user_keys_revoke];
 
+  // copy user data and logs from old backup item, but assign new holders for all blobs
   let (user_data, attachments) = match old_backup_item.clone() {
     None => (None, Vec::new()),
     // If attachments and user_data exists, we need to create holder.
@@ -357,25 +358,28 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
 
       revokes.extend(attachments_revokes);
 
-      match item.user_data {
-        None => (None, attachments),
-        Some(data) => {
-          let (blob_infos, defers) =
-            blob_utils::create_holders_for_blob_hashes(
-              vec![data.blob_hash],
-              blob_client,
-            )
+      let user_data = if let Some(data) = item.user_data {
+        let (blob_info, defer) =
+          blob_utils::create_holder_for_hash(&data.blob_hash, blob_client)
             .await?;
+        revokes.push(defer);
 
-          let blob_info = blob_infos
-            .into_iter()
-            .next()
-            .ok_or(BackupError::BadRequest)?;
-          revokes.extend(defers);
+        Some(blob_info)
+      } else {
+        None
+      };
 
-          (Some(blob_info), attachments)
-        }
-      }
+      let log_revoke = db_client
+        .copy_log_items_to_new_backup(
+          user_id,
+          &item.backup_id,
+          &backup_id,
+          blob_client,
+        )
+        .await?;
+      revokes.push(log_revoke);
+
+      (user_data, attachments)
     }
   };
 
