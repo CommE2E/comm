@@ -110,6 +110,18 @@ pub mod http {
         })
         .collect()
     }
+
+    /// Returns a vec of [`BlobInfo`]s which have just been successfully
+    /// established. Doesn't include entries for which `holder_already_exists`
+    /// is true.
+    pub fn established_new_holders(&self) -> Vec<BlobInfo> {
+      self
+        .results
+        .iter()
+        .filter(|result| result.success && !result.holder_already_exists)
+        .map(|result| result.request.clone())
+        .collect()
+    }
   }
 
   // Blob metadata endpoint types
