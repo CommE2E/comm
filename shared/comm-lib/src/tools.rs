@@ -48,6 +48,7 @@ pub type BoxedError = Box<dyn std::error::Error>;
 ///     }
 /// }
 /// ```
+#[must_use = "Defer will immediately go out of scope if not used"]
 pub struct Defer<'s>(Option<Box<dyn FnOnce() + 's + Send>>);
 
 impl<'s> Defer<'s> {
