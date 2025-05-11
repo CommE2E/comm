@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { FlatList } from 'react-native';
+import type { RenderItemProps } from 'react-native/Libraries/Lists/VirtualizedList';
 
 import SearchIndex from 'lib/shared/search-index.js';
 import { reorderThreadSearchResults } from 'lib/shared/thread-utils.js';
@@ -30,9 +31,8 @@ type Props = {
   +searchIndex: SearchIndex,
 };
 
-const keyExtractor = (
-  threadInfoAndFarcasterChannelID: ThreadInfoAndFarcasterChannelID,
-): string => threadInfoAndFarcasterChannelID.threadInfo.id;
+const keyExtractor = (item: ThreadInfoAndFarcasterChannelID): string =>
+  item.threadInfo.id;
 
 const getItemLayout = (
   data: ?$ReadOnlyArray<ThreadInfoAndFarcasterChannelID>,
@@ -48,7 +48,7 @@ function CommunityList(props: Props): React.Node {
 
   const [searchText, setSearchText] = React.useState<string>('');
   const [searchResults, setSearchResults] = React.useState<
-    $ReadOnlyArray<ThreadInfo>,
+    $ReadOnlyArray<ThreadInfoAndFarcasterChannelID>,
   >([]);
 
   const listData = React.useMemo(
@@ -67,14 +67,30 @@ function CommunityList(props: Props): React.Node {
         threadInfos,
         results,
       );
+
+      const idToFCChannelID = new Map(
+        threadInfosAndFCChannelIDs.map(({ threadInfo, farcasterChannelID }) => [
+          threadInfo.id,
+          farcasterChannelID,
+        ]),
+      );
+
+      const fullResults: ThreadInfoAndFarcasterChannelID[] =
+        threadInfoResults.map(threadInfo => ({
+          threadInfo,
+          farcasterChannelID: idToFCChannelID.get(threadInfo.id),
+        }));
+
       setSearchText(text);
-      setSearchResults(threadInfoResults);
+      setSearchResults(fullResults);
     },
     [searchIndex, threadInfosAndFCChannelIDs],
   );
 
   const renderItem = React.useCallback(
-    ({ item }: { +item: ThreadInfoAndFarcasterChannelID, ... }): React.Node => (
+    ({
+      item,
+    }: RenderItemProps<ThreadInfoAndFarcasterChannelID>): React.Node => (
       <CommunityListItem
         threadInfo={item.threadInfo}
         style={itemStyle}
