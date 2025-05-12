@@ -23,6 +23,8 @@ pub struct AppConfig {
   #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+  #[arg(long, default_value_t = false)]
+  pub remove_old_backups: bool,
 }
 
 /// Stores configuration parsed from command-line arguments
