@@ -484,7 +484,7 @@ impl DatabaseClient {
     user_id: &str,
     limit: Option<i32>,
   ) -> Result<Vec<OrderedBackupItem>, Error> {
-    let response = self
+    let query = self
       .client
       .query()
       .table_name(backup_table::TABLE_NAME)
@@ -495,11 +495,19 @@ impl DatabaseClient {
         ":valueToMatch",
         AttributeValue::S(user_id.to_string()),
       )
-      .scan_index_forward(false)
-      .set_limit(limit)
-      .send()
-      .await
-      .map_err(|e| {
+      .scan_index_forward(false);
+
+    let mut raw_items = Vec::new();
+    let mut cursor = None;
+    loop {
+      let new_limit = limit
+        .map(|it| it - raw_items.len() as i32)
+        .filter(|it| *it > 0);
+      let request = query
+        .clone()
+        .set_exclusive_start_key(cursor)
+        .set_limit(new_limit);
+      let response = request.send().await.map_err(|e| {
         error!(
           errorType = error_types::DDB_ERROR,
           "DynamoDB client failed to fetch backups"
@@ -507,16 +515,16 @@ impl DatabaseClient {
         Error::AwsSdk(e.into())
       })?;
 
-    if response.last_evaluated_key().is_some() && limit.is_none() {
-      // In the intial version of the backup service this function will be run
-      // for every new backup (each user only has one backup), so this shouldn't
-      // happen
-      warn!("Not all backups have been retrieved from the index");
+      raw_items.extend(response.items.unwrap_or_default());
+      let limit_reached = limit.is_some_and(|it| raw_items.len() as i32 >= it);
+
+      cursor = match response.last_evaluated_key {
+        key @ Some(_) if !limit_reached => key,
+        _ => break,
+      };
     }
 
-    let items = response
-      .items
-      .unwrap_or_default()
+    let items = raw_items
       .into_iter()
       .map(OrderedBackupItem::try_from)
       .collect::<Result<Vec<_>, _>>()?;
