@@ -5,8 +5,9 @@ use self::{
   backup_item::{BackupItem, OrderedBackupItem},
   log_item::LogItem,
 };
-use crate::constants::{
-  backup_table, error_types, log_table, LOG_DEFAULT_PAGE_SIZE,
+use crate::{
+  constants::{backup_table, error_types, log_table, LOG_DEFAULT_PAGE_SIZE},
+  CONFIG,
 };
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
@@ -155,9 +156,13 @@ impl DatabaseClient {
     user_id: &str,
     blob_client: &BlobServiceClient,
   ) -> Result<Vec<BackupItem>, Error> {
-    let items = self.query_ordered_backups_index(user_id, None).await?;
     let mut removed_backups = vec![];
 
+    if !CONFIG.remove_old_backups {
+      return Ok(removed_backups);
+    }
+
+    let items = self.query_ordered_backups_index(user_id, None).await?;
     let Some(latest) = items.iter().map(|item| item.created).max() else {
       return Ok(removed_backups);
     };
