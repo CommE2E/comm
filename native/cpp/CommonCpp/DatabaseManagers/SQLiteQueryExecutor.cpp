@@ -35,7 +35,6 @@ const int NOTIFS_ACCOUNT_ID = 2;
 namespace comm {
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
-std::once_flag SQLiteQueryExecutor::initialized;
 
 std::string SQLiteQueryExecutor::backupDataKey;
 int SQLiteQueryExecutor::backupDataKeySize = 64;
@@ -1656,8 +1655,10 @@ SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
 }
 
 #ifndef EMSCRIPTEN
-void SQLiteQueryExecutor::clearSensitiveData() {
-  SQLiteQueryExecutor::closeConnection();
+void SQLiteQueryExecutor::clearSensitiveData(
+    std::string &backupDataKey,
+    std::string &backupLogDataKey) {
+  SQLiteQueryExecutor::connectionManager.closeConnection();
   if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
@@ -1666,35 +1667,18 @@ void SQLiteQueryExecutor::clearSensitiveData() {
     Logger::log(errorStream.str());
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
-  SQLiteQueryExecutor::generateBackupDataKey();
-  SQLiteQueryExecutor::generateBackupLogDataKey();
+  SQLiteQueryExecutor::backupDataKey = backupDataKey;
+  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
   SQLiteQueryExecutor::migrate();
 }
 
-void SQLiteQueryExecutor::initialize(std::string &databasePath) {
-  std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
-    SQLiteQueryExecutor::sqliteFilePath = databasePath;
-    folly::Optional<std::string> maybeBackupDataKey =
-        CommSecureStore::get(CommSecureStore::backupDataKey);
-    folly::Optional<std::string> maybeBackupLogDataKey =
-        CommSecureStore::get(CommSecureStore::backupLogDataKey);
-
-    // In case of a non-existent database file, we always want to generate fresh
-    // key.
-    if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupDataKey) {
-      SQLiteQueryExecutor::generateBackupDataKey();
-    } else {
-      SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
-    }
-
-    // In case of a non-existent database file, we always want to generate fresh
-    // key.
-    if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupLogDataKey) {
-      SQLiteQueryExecutor::generateBackupLogDataKey();
-    } else {
-      SQLiteQueryExecutor::backupLogDataKey = maybeBackupLogDataKey.value();
-    }
-  });
+void SQLiteQueryExecutor::initialize(
+    std::string &databasePath,
+    std::string &backupDataKey,
+    std::string &backupLogDataKey) {
+  SQLiteQueryExecutor::sqliteFilePath = databasePath;
+  SQLiteQueryExecutor::backupDataKey = backupDataKey;
+  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
 }
 
 void SQLiteQueryExecutor::cleanupDatabaseExceptAllowlist(sqlite3 *db) const {
@@ -1817,20 +1801,6 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   if (ServicesUtils::fullBackupSupport) {
     SQLiteQueryExecutor::connectionManager.setLogsMonitoring(true);
   }
-}
-
-void SQLiteQueryExecutor::generateBackupDataKey() {
-  std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::backupDataKeySize);
-  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-}
-
-void SQLiteQueryExecutor::generateBackupLogDataKey() {
-  std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::backupLogDataKeySize);
-  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
 }
 
 void SQLiteQueryExecutor::captureBackupLogs() const {
