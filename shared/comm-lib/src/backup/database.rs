@@ -10,7 +10,8 @@ use super::BackupVersionInfo;
 use crate::blob::client::BlobServiceClient;
 #[cfg(feature = "aws")]
 use crate::database::{
-  AttributeExtractor, AttributeTryInto, DBItemError, TryFromAttribute,
+  parse_int_attribute, AttributeExtractor, AttributeMap, AttributeTryInto,
+  DBItemError, TryFromAttribute,
 };
 #[cfg(feature = "aws")]
 use aws_sdk_dynamodb::types::AttributeValue;
@@ -27,6 +28,14 @@ pub mod backup_table {
     pub const USER_KEYS: &str = "userKeys";
     pub const ATTACHMENTS: &str = "attachments";
     pub const SIWE_BACKUP_MSG: &str = "siweBackupMsg";
+    pub const TOTAL_SIZE: &str = "totalSize";
+    pub const VERSION_INFO: &str = "versionInfo";
+
+    pub mod version_info {
+      pub const CODE_VERSION: &str = "codeVersion";
+      pub const STATE_VERSION: &str = "stateVersion";
+      pub const DB_VERSION: &str = "dbVersion";
+    }
   }
 }
 
@@ -111,7 +120,7 @@ impl BackupItem {
 }
 
 #[cfg(feature = "aws")]
-impl From<BackupItem> for HashMap<String, AttributeValue> {
+impl From<BackupItem> for AttributeMap {
   fn from(value: BackupItem) -> Self {
     let mut attrs = HashMap::from([
       (
@@ -129,6 +138,14 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
       (
         backup_table::attr::USER_KEYS.to_string(),
         value.user_keys.into(),
+      ),
+      (
+        backup_table::attr::TOTAL_SIZE.to_string(),
+        AttributeValue::N(value.total_size.to_string()),
+      ),
+      (
+        backup_table::attr::VERSION_INFO.to_string(),
+        value.version_info.into(),
       ),
     ]);
 
@@ -160,12 +177,10 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
 }
 
 #[cfg(feature = "aws")]
-impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
+impl TryFrom<AttributeMap> for BackupItem {
   type Error = DBItemError;
 
-  fn try_from(
-    mut value: HashMap<String, AttributeValue>,
-  ) -> Result<Self, Self::Error> {
+  fn try_from(mut value: AttributeMap) -> Result<Self, Self::Error> {
     let user_id = String::try_from_attr(
       backup_table::attr::USER_ID,
       value.remove(backup_table::attr::USER_ID),
@@ -200,6 +215,15 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
     let siwe_backup_msg: Option<String> =
       value.take_attr(backup_table::attr::SIWE_BACKUP_MSG)?;
 
+    let size_attr = value.remove(backup_table::attr::TOTAL_SIZE);
+    let total_size = if size_attr.is_some() {
+      parse_int_attribute(backup_table::attr::TOTAL_SIZE, size_attr)?
+    } else {
+      0u64
+    };
+
+    let version_info = value.take_attr(backup_table::attr::VERSION_INFO)?;
+
     Ok(BackupItem {
       user_id,
       backup_id,
@@ -208,10 +232,50 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       user_data,
       attachments,
       siwe_backup_msg,
-      // TODO: Parse real values from DDB
-      total_size: 0,
-      version_info: Default::default(),
+      total_size,
+      version_info,
     })
+  }
+}
+
+#[cfg(feature = "aws")]
+impl TryFromAttribute for BackupVersionInfo {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    let mut map_attrs = AttributeMap::try_from_attr(attribute_name, attribute)?;
+
+    use backup_table::attr::version_info::*;
+    let code_version_attr = map_attrs.remove(CODE_VERSION);
+    let state_version_attr = map_attrs.remove(CODE_VERSION);
+    let db_version_attr = map_attrs.remove(CODE_VERSION);
+
+    let code_version = parse_int_attribute(CODE_VERSION, code_version_attr)?;
+    let state_version = parse_int_attribute(STATE_VERSION, state_version_attr)?;
+    let db_version = parse_int_attribute(DB_VERSION, db_version_attr)?;
+    Ok(Self {
+      code_version,
+      state_version,
+      db_version,
+    })
+  }
+}
+
+#[cfg(feature = "aws")]
+impl From<BackupVersionInfo> for AttributeValue {
+  fn from(value: BackupVersionInfo) -> Self {
+    let code_version = value.code_version.to_string();
+    let state_version = value.state_version.to_string();
+    let db_version = value.db_version.to_string();
+
+    use backup_table::attr::version_info::*;
+    let map_attrs = HashMap::from([
+      (CODE_VERSION.to_string(), AttributeValue::N(code_version)),
+      (STATE_VERSION.to_string(), AttributeValue::N(state_version)),
+      (DB_VERSION.to_string(), AttributeValue::N(db_version)),
+    ]);
+    AttributeValue::M(map_attrs)
   }
 }
 
