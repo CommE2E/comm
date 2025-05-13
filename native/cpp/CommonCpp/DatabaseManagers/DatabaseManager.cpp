@@ -5,10 +5,12 @@
 #include "Logger.h"
 #include "PlatformSpecificTools.h"
 #include "SQLiteQueryExecutor.h"
+#include "SQLiteUtils.h"
 
 namespace comm {
 
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
+std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
 
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
@@ -35,7 +37,11 @@ void DatabaseManager::clearSensitiveData() {
   CommSecureStore::set(CommSecureStore::userID, "");
   CommSecureStore::set(CommSecureStore::deviceID, "");
   CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
-  SQLiteQueryExecutor::clearSensitiveData();
+
+  std::string backupDataKey = DatabaseManager::generateBackupDataKey();
+  std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
+  SQLiteQueryExecutor::clearSensitiveData(backupDataKey, backupLogDataKey);
+
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
   NotificationsCryptoModule::clearSensitiveData();
@@ -44,7 +50,7 @@ void DatabaseManager::clearSensitiveData() {
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
   try {
-    SQLiteQueryExecutor::initialize(databasePath);
+    DatabaseManager::initializeSQLiteQueryExecutorProperties(databasePath);
     DatabaseManager::getQueryExecutor();
     DatabaseManager::indicateQueryExecutorCreation();
     Logger::log("Database manager initialized");
@@ -83,6 +89,53 @@ void DatabaseManager::indicateQueryExecutorCreation() {
     // and operation will not crash, this case should not be overridden
     CommSecureStore::set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
   }
+}
+
+std::string DatabaseManager::generateBackupDataKey() {
+  std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::backupDataKeySize);
+  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  return backupDataKey;
+}
+
+std::string DatabaseManager::generateBackupLogDataKey() {
+  std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::backupLogDataKeySize);
+  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  return backupLogDataKey;
+}
+
+void DatabaseManager::initializeSQLiteQueryExecutorProperties(
+    std::string &databasePath) {
+  std::call_once(
+      DatabaseManager::sqliteQueryExecutorPropertiesInitialized,
+      [&databasePath]() {
+        folly::Optional<std::string> maybeBackupDataKey =
+            CommSecureStore::get(CommSecureStore::backupDataKey);
+        folly::Optional<std::string> maybeBackupLogDataKey =
+            CommSecureStore::get(CommSecureStore::backupLogDataKey);
+
+        std::string backupDataKey, backupLogDataKey;
+
+        // In case of a non-existent database file, we always want to generate
+        // fresh key.
+        if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupDataKey) {
+          backupDataKey = DatabaseManager::generateBackupDataKey();
+        } else {
+          backupDataKey = maybeBackupDataKey.value();
+        }
+
+        // In case of a non-existent database file, we always want to generate
+        // fresh key.
+        if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupLogDataKey) {
+          backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
+        } else {
+          backupLogDataKey = maybeBackupLogDataKey.value();
+        }
+
+        SQLiteQueryExecutor::initialize(
+            databasePath, backupDataKey, backupLogDataKey);
+      });
 }
 
 bool DatabaseManager::checkIfDatabaseNeedsDeletion() {
