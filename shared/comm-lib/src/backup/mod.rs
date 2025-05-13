@@ -4,6 +4,17 @@ use serde::{Deserialize, Serialize};
 /// shared database types and constants
 pub mod database;
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BackupVersionInfo {
+  /// App code version
+  pub code_version: u16,
+  /// Redux state version
+  pub state_version: u16,
+  /// SQLite DB version
+  pub db_version: u16,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LatestBackupInfoResponse {

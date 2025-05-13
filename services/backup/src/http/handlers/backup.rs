@@ -58,6 +58,8 @@ pub async fn upload(
     Some(user_data_blob_info),
     attachments,
     siwe_backup_msg,
+    // TODO: use real values here
+    Default::default(),
   );
 
   db_client
@@ -176,6 +178,8 @@ pub async fn upload_user_data(
     Some(user_data_blob_info),
     attachments,
     existing_backup_item.siwe_backup_msg.clone(),
+    // TODO: use real values here
+    Default::default(),
   );
 
   db_client
@@ -390,6 +394,8 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
     user_data,
     attachments,
     siwe_backup_msg,
+    // TODO: use real values here
+    Default::default(),
   );
 
   Ok((item, revokes))
