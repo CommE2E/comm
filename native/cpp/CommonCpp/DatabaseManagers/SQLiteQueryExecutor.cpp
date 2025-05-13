@@ -1667,6 +1667,7 @@ void SQLiteQueryExecutor::clearSensitiveData() {
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
   SQLiteQueryExecutor::generateBackupDataKey();
+  SQLiteQueryExecutor::generateBackupLogDataKey();
   SQLiteQueryExecutor::migrate();
 }
 
@@ -1678,17 +1679,21 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     folly::Optional<std::string> maybeBackupLogDataKey =
         CommSecureStore::get(CommSecureStore::backupLogDataKey);
 
-    if (SQLiteUtils::fileExists(databasePath) && maybeBackupDataKey &&
-        maybeBackupLogDataKey) {
+    // In case of a non-existent database file, we always want to generate fresh
+    // key.
+    if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupDataKey) {
+      SQLiteQueryExecutor::generateBackupDataKey();
+    } else {
       SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
-      SQLiteQueryExecutor::backupLogDataKey = maybeBackupLogDataKey.value();
-      return;
-    } else if (SQLiteUtils::fileExists(databasePath) && maybeBackupDataKey) {
-      SQLiteQueryExecutor::backupDataKey = maybeBackupDataKey.value();
-      SQLiteQueryExecutor::generateBackupLogDataKey();
-      return;
     }
-    SQLiteQueryExecutor::generateBackupDataKey();
+
+    // In case of a non-existent database file, we always want to generate fresh
+    // key.
+    if (!SQLiteUtils::fileExists(databasePath) || !maybeBackupLogDataKey) {
+      SQLiteQueryExecutor::generateBackupLogDataKey();
+    } else {
+      SQLiteQueryExecutor::backupLogDataKey = maybeBackupLogDataKey.value();
+    }
   });
 }
 
@@ -1819,7 +1824,6 @@ void SQLiteQueryExecutor::generateBackupDataKey() {
       SQLiteQueryExecutor::backupDataKeySize);
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::generateBackupLogDataKey();
 }
 
 void SQLiteQueryExecutor::generateBackupLogDataKey() {
