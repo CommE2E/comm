@@ -15,10 +15,8 @@ import {
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils.js';
-import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
-import { keyserverThreadProtocol } from 'lib/shared/threads/protocols/keyserver-thread-protocol.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
@@ -162,13 +160,15 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     if (searching) {
       const { userInfoInputArray, genesisThreadInfo } = this.props;
       let parentThreadHeader;
-      if (threadTypeIsThick(threadInfo.type)) {
+      const protocol = threadSpecs[threadInfo.type].protocol;
+      const childThreadType = protocol.pendingThreadType(
+        userInfoInputArray.length,
+      );
+      const threadSearchHeaderShowsGenesis =
+        protocol.presentationDetails.threadSearchHeaderShowsGenesis;
+      if (!threadSearchHeaderShowsGenesis) {
         parentThreadHeader = (
-          <ParentThreadHeader
-            childThreadType={dmThreadProtocol.pendingThreadType(
-              userInfoInputArray.length,
-            )}
-          />
+          <ParentThreadHeader childThreadType={childThreadType} />
         );
       } else if (genesisThreadInfo) {
         // It's technically possible for the client to be missing the Genesis
@@ -176,9 +176,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
-            childThreadType={keyserverThreadProtocol.pendingThreadType(
-              userInfoInputArray.length,
-            )}
+            childThreadType={childThreadType}
           />
         );
       }
