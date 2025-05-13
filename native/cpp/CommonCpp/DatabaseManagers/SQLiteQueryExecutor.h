@@ -49,10 +49,6 @@ public:
   static std::string sqliteFilePath;
   static std::string backupDataKey;
 
-  // Constant key sizes
-  static int backupDataKeySize;
-  static int backupLogDataKeySize;
-
   SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
   SQLiteQueryExecutor(std::string sqliteFilePath);
