@@ -23,7 +23,6 @@
 #ifndef EMSCRIPTEN
 #include "../CryptoTools/CryptoModule.h"
 #include "../Tools/ServicesUtils.h"
-#include "CommSecureStore.h"
 #include "PlatformSpecificTools.h"
 #include "StaffUtils.h"
 #include "lib.rs.h"
@@ -37,10 +36,8 @@ namespace comm {
 std::string SQLiteQueryExecutor::sqliteFilePath;
 
 std::string SQLiteQueryExecutor::backupDataKey;
-int SQLiteQueryExecutor::backupDataKeySize = 64;
 
 std::string SQLiteQueryExecutor::backupLogDataKey;
-int SQLiteQueryExecutor::backupLogDataKeySize = 32;
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -1832,34 +1829,6 @@ void SQLiteQueryExecutor::triggerBackupFileUpload() const {
   ::triggerBackupFileUpload();
 }
 
-void SQLiteQueryExecutor::setUserDataKeys(
-    const std::string &backupDataKey,
-    const std::string &backupLogDataKey) const {
-  if (SQLiteQueryExecutor::backupDataKey.empty()) {
-    throw std::runtime_error("backupDataKey is not set");
-  }
-
-  if (SQLiteQueryExecutor::backupLogDataKey.empty()) {
-    throw std::runtime_error("invalid backupLogDataKey size");
-  }
-
-  if (backupDataKey.size() != SQLiteQueryExecutor::backupDataKeySize) {
-    throw std::runtime_error("invalid backupDataKey size");
-  }
-
-  if (backupLogDataKey.size() != SQLiteQueryExecutor::backupLogDataKeySize) {
-    throw std::runtime_error("invalid backupLogDataKey size");
-  }
-
-  SQLiteUtils::rekeyDatabase(
-      SQLiteQueryExecutor::getConnection(), backupDataKey);
-
-  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-
-  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-}
 #endif
 
 void SQLiteQueryExecutor::copyTablesDataUsingAttach(

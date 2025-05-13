@@ -51,10 +51,6 @@ public:
   static WebSQLiteConnectionManager connectionManager;
 #endif
 
-  // Constant key sizes
-  static int backupDataKeySize;
-  static int backupLogDataKeySize;
-
   SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
   SQLiteQueryExecutor(std::string sqliteFilePath);
@@ -225,9 +221,6 @@ public:
   void createMainCompaction(std::string backupID) const override;
   void captureBackupLogs() const override;
   void triggerBackupFileUpload() const override;
-  void setUserDataKeys(
-      const std::string &backupDataKey,
-      const std::string &backupLogDataKey) const override;
 #endif
 };
 
