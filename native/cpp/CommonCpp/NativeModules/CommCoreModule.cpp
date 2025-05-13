@@ -2657,7 +2657,7 @@ jsi::Value CommCoreModule::setUserDataKeys(
         taskType job = [=]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor().setUserDataKeys(
+            DatabaseManager::setUserDataKeys(
                 backupDataKeyCpp, backupLogDataKeyCpp);
           } catch (std::system_error &e) {
             error = e.what();
