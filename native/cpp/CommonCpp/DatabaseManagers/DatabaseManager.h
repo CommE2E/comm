@@ -8,6 +8,10 @@
 namespace comm {
 
 class DatabaseManager {
+  // Constant key sizes
+  static const int backupDataKeySize;
+  static const int backupLogDataKeySize;
+
   // Path and keys for the main database. DatabaseManager owns, manages, and
   // passes them to the appropriate SQLiteQueryExecutor when creating the
   // instance. It is important to keep them here and up-to-date because
@@ -43,6 +47,14 @@ public:
   static void initializeQueryExecutor(std::string &databasePath);
   static bool checkIfDatabaseNeedsDeletion();
   static void reportDBOperationsFailure();
+
+  // Set SQLite keys to keep using the previous User Data keys. It is required
+  // to upload User Keys during restoring RPC and be able to restore again even
+  // if User Data upload fails (which is not part of a single RPC).
+  // By default, it is applied to the main database.
+  static void setUserDataKeys(
+      const std::string &backupDataKey,
+      const std::string &backupLogDataKey);
 };
 
 } // namespace comm

@@ -9,6 +9,9 @@
 
 namespace comm {
 
+const int DatabaseManager::backupDataKeySize = 64;
+const int DatabaseManager::backupLogDataKeySize = 32;
+
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
 std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
 
@@ -97,14 +100,14 @@ void DatabaseManager::indicateQueryExecutorCreation() {
 
 std::string DatabaseManager::generateBackupDataKey() {
   std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::backupDataKeySize);
+      DatabaseManager::backupDataKeySize);
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   return backupDataKey;
 }
 
 std::string DatabaseManager::generateBackupLogDataKey() {
   std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::backupLogDataKeySize);
+      DatabaseManager::backupLogDataKeySize);
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
   return backupLogDataKey;
 }
@@ -156,6 +159,35 @@ bool DatabaseManager::checkIfDatabaseNeedsDeletion() {
 
 void DatabaseManager::reportDBOperationsFailure() {
   CommSecureStore::set(DATABASE_MANAGER_STATUS_KEY, DB_OPERATIONS_FAILURE);
+}
+
+void DatabaseManager::setUserDataKeys(
+    const std::string &backupDataKey,
+    const std::string &backupLogDataKey) {
+  if (DatabaseManager::backupDataKey.empty()) {
+    throw std::runtime_error("backupDataKey is not set");
+  }
+
+  if (DatabaseManager::backupLogDataKey.empty()) {
+    throw std::runtime_error("backupLogDataKey is not set");
+  }
+
+  if (backupDataKey.size() != DatabaseManager::backupDataKeySize) {
+    throw std::runtime_error("invalid backupDataKey size");
+  }
+
+  if (backupLogDataKey.size() != DatabaseManager::backupLogDataKeySize) {
+    throw std::runtime_error("invalid backupLogDataKey size");
+  }
+
+  DatabaseManager::getQueryExecutor().setUserDataKeys(
+      backupDataKey, backupLogDataKey);
+
+  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  DatabaseManager::backupDataKey = backupDataKey;
+
+  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  DatabaseManager::backupLogDataKey = backupLogDataKey;
 }
 
 } // namespace comm
