@@ -4,6 +4,8 @@ use std::collections::HashMap;
 
 use crate::blob::types::BlobInfo;
 
+use super::BackupVersionInfo;
+
 #[cfg(feature = "blob-client")]
 use crate::blob::client::BlobServiceClient;
 #[cfg(feature = "aws")]
@@ -37,6 +39,10 @@ pub struct BackupItem {
   pub user_data: Option<BlobInfo>,
   pub attachments: Vec<BlobInfo>,
   pub siwe_backup_msg: Option<String>,
+  #[serde(default)]
+  pub total_size: u64,
+  #[serde(default)]
+  pub version_info: BackupVersionInfo,
 }
 
 impl BackupItem {
@@ -47,6 +53,8 @@ impl BackupItem {
     user_data: Option<BlobInfo>,
     attachments: Vec<BlobInfo>,
     siwe_backup_msg: Option<String>,
+    total_size: u64,
+    version_info: BackupVersionInfo,
   ) -> Self {
     BackupItem {
       user_id,
@@ -56,6 +64,8 @@ impl BackupItem {
       user_data,
       attachments,
       siwe_backup_msg,
+      total_size,
+      version_info,
     }
   }
 
@@ -198,6 +208,39 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       user_data,
       attachments,
       siwe_backup_msg,
+      // TODO: Parse real values from DDB
+      total_size: 0,
+      version_info: Default::default(),
     })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_backup_item_deserialize_defaults() {
+    // BackupItem is passed between services. It might happen that one service
+    // has old implementation that doesn't include `total_size`
+    // and `version_info` fields. When absent, deserialized object should have
+    // default values for these fields set.
+    let payload = r#"{
+      "user_id": "uid",
+      "backup_id": "bid",
+      "created":"2025-05-13T11:20:33.799712136Z",
+      "user_keys": {"blobHash":"hash1","holder":"holder1"},
+      "user_data": null,
+      "attachments": [],
+      "siwe_backup_msg": null
+    }"#;
+
+    let deserialized: BackupItem =
+      serde_json::from_str(payload).expect("failed to deserialized BackupItem");
+
+    assert_eq!(deserialized.total_size, 0u64);
+    assert_eq!(deserialized.version_info.code_version, 0u16);
+    assert_eq!(deserialized.version_info.state_version, 0u16);
+    assert_eq!(deserialized.version_info.db_version, 0u16);
   }
 }
