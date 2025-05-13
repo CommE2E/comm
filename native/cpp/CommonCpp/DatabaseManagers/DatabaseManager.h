@@ -9,7 +9,10 @@
 namespace comm {
 
 class DatabaseManager {
-  static std::once_flag initialized;
+  // Indicate that at least one instance of SQLiteQueryExecutor was created,
+  // which is identical to finishing the migration process and having a fully
+  // operational database that can be used by application logic.
+  static std::once_flag queryExecutorCreationIndicated;
 
   static void setDatabaseStatusAsWorkable();
   static void indicateQueryExecutorCreation();
