@@ -12,6 +12,10 @@ namespace comm {
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
 std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
 
+std::string DatabaseManager::sqliteFilePath;
+std::string DatabaseManager::backupDataKey;
+std::string DatabaseManager::backupLogDataKey;
+
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
 DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
@@ -39,7 +43,9 @@ void DatabaseManager::clearSensitiveData() {
   CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
 
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
+  DatabaseManager::backupDataKey = backupDataKey;
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
+  DatabaseManager::backupLogDataKey = backupLogDataKey;
   SQLiteQueryExecutor::clearSensitiveData(backupDataKey, backupLogDataKey);
 
   PlatformSpecificTools::removeBackupDirectory();
@@ -132,6 +138,10 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
         } else {
           backupLogDataKey = maybeBackupLogDataKey.value();
         }
+
+        DatabaseManager::sqliteFilePath = databasePath;
+        DatabaseManager::backupDataKey = backupDataKey;
+        DatabaseManager::backupLogDataKey = backupLogDataKey;
 
         SQLiteQueryExecutor::initialize(
             databasePath, backupDataKey, backupLogDataKey);

@@ -9,6 +9,15 @@
 namespace comm {
 
 class DatabaseManager {
+  // Path and keys for the main database. DatabaseManager owns, manages, and
+  // passes them to the appropriate SQLiteQueryExecutor when creating the
+  // instance. It is important to keep them here and up-to-date because
+  // SQLiteQueryExecutor is a thread_local, and an instance can be created at
+  // any time; therefore should use the correct properties.
+  static std::string sqliteFilePath;
+  static std::string backupDataKey;
+  static std::string backupLogDataKey;
+
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
   // operational database that can be used by application logic.
