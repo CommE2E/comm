@@ -14,10 +14,9 @@ import {
   usePotentialMemberItems,
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
-import {
-  pendingThreadType,
-  useExistingThreadInfoFinder,
-} from 'lib/shared/thread-utils.js';
+import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils.js';
+import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
+import { keyserverThreadProtocol } from 'lib/shared/threads/protocols/keyserver-thread-protocol.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
@@ -166,9 +165,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       if (threadTypeIsThick(threadInfo.type)) {
         parentThreadHeader = (
           <ParentThreadHeader
-            childThreadType={pendingThreadType(
+            childThreadType={dmThreadProtocol.pendingThreadType(
               userInfoInputArray.length,
-              'thick',
             )}
           />
         );
@@ -178,9 +176,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
-            childThreadType={pendingThreadType(
+            childThreadType={keyserverThreadProtocol.pendingThreadType(
               userInfoInputArray.length,
-              'thin',
             )}
           />
         );
