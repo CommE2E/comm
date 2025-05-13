@@ -113,12 +113,7 @@ sqlite3 *SQLiteQueryExecutor::getConnection() {
   return SQLiteQueryExecutor::connectionManager.getConnection();
 }
 
-void SQLiteQueryExecutor::closeConnection() {
-  SQLiteQueryExecutor::connectionManager.closeConnection();
-}
-
 SQLiteQueryExecutor::~SQLiteQueryExecutor() {
-  SQLiteQueryExecutor::closeConnection();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
@@ -1657,7 +1652,7 @@ SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
 
 #ifndef EMSCRIPTEN
 void SQLiteQueryExecutor::clearSensitiveData() {
-  SQLiteQueryExecutor::closeConnection();
+  SQLiteQueryExecutor::connectionManager.closeConnection();
   if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;

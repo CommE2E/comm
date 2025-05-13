@@ -44,10 +44,6 @@ void SQLiteConnectionManager::closeConnectionInternal() {
   dbConnection = nullptr;
 }
 
-void SQLiteConnectionManager::closeConnection() {
-  closeConnectionInternal();
-}
-
 SQLiteConnectionManager::~SQLiteConnectionManager() {
   closeConnectionInternal();
 }
