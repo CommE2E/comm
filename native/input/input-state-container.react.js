@@ -44,7 +44,6 @@ import {
   useMessageCreationSideEffectsFunc,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
-import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-utils.js';
 import {
   patchThreadInfoToIncludeMentionedMembersOfParent,
   threadIsPending,
@@ -565,7 +564,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
       const calendarQuery = this.props.calendarQuery();
-      threadCreationPromise = createRealThreadFromPendingThread({
+      threadCreationPromise = threadSpecs[
+        threadInfo.type
+      ].protocol.createRealThreadFromPendingThread({
         threadInfo,
         dispatchActionPromise: this.props.dispatchActionPromise,
         createNewThinThread: this.props.newThinThread,
