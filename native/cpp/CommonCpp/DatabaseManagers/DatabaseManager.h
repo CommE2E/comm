@@ -8,6 +8,10 @@
 namespace comm {
 
 class DatabaseManager {
+  // Constant key sizes
+  static const int backupDataKeySize;
+  static const int backupLogDataKeySize;
+
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
   // operational database that can be used by application logic.
@@ -34,6 +38,14 @@ public:
   static void initializeQueryExecutor(std::string &databasePath);
   static bool checkIfDatabaseNeedsDeletion();
   static void reportDBOperationsFailure();
+
+  // Set SQLite keys to keep using the previous User Data keys. It is required
+  // to upload User Keys during restoring RPC and be able to restore again even
+  // if User Data upload fails (which is not part of a single RPC).
+  // By default, it is applied to the main database.
+  static void setUserDataKeys(
+      const std::string &backupDataKey,
+      const std::string &backupLogDataKey);
 };
 
 } // namespace comm
