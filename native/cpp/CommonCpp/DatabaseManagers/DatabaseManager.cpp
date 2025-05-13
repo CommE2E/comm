@@ -8,7 +8,7 @@
 
 namespace comm {
 
-std::once_flag DatabaseManager::initialized;
+std::once_flag DatabaseManager::queryExecutorCreationIndicated;
 
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
@@ -25,7 +25,7 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
 
   // creating an instance means that migration code was executed
   // and finished without error and database is workable
-  std::call_once(DatabaseManager::initialized, []() {
+  std::call_once(DatabaseManager::queryExecutorCreationIndicated, []() {
     DatabaseManager::indicateQueryExecutorCreation();
   });
   return instance;
