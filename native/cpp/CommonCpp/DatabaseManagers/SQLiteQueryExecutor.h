@@ -18,7 +18,6 @@
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
-#include <mutex>
 #include <string>
 
 namespace comm {
@@ -28,15 +27,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static sqlite3 *getConnection();
   static void closeConnection();
 
-  static std::once_flag initialized;
-  static int backupDataKeySize;
   static std::string backupLogDataKey;
-  static int backupLogDataKeySize;
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
-  static void generateBackupDataKey();
-  static void generateBackupLogDataKey();
   void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
 #else
   static WebSQLiteConnectionManager connectionManager;
@@ -55,6 +49,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 public:
   static std::string sqliteFilePath;
   static std::string backupDataKey;
+
+  // Constant key sizes
+  static int backupDataKeySize;
+  static int backupLogDataKeySize;
 
   SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
@@ -214,8 +212,12 @@ public:
   getDMOperationsByType(const std::string &operationType) const override;
 
 #ifndef EMSCRIPTEN
-  static void clearSensitiveData();
-  static void initialize(std::string &databasePath);
+  static void
+  clearSensitiveData(std::string &backupDataKey, std::string &backupLogDataKey);
+  static void initialize(
+      std::string &databasePath,
+      std::string &backupDataKey,
+      std::string &backupLogDataKey);
   void createMainCompaction(std::string backupID) const override;
   void captureBackupLogs() const override;
   void triggerBackupFileUpload() const override;
