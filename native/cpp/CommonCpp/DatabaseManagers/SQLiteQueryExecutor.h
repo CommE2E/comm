@@ -24,7 +24,7 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
-  static sqlite3 *getConnection();
+  sqlite3 *getConnection() const;
 
   static std::string backupLogDataKey;
 
