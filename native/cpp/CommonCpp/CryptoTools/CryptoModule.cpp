@@ -152,6 +152,16 @@ bool CryptoModule::isPrekeySignatureValid() {
   try {
     this->verifySignature(signingPublicKey, prekeyBytes, preKeySignature);
     return true;
+  } catch (const std::runtime_error &e) {
+    std::string rawMessage{e.what()};
+    if (rawMessage.find("BAD_MESSAGE_MAC") != std::string::npos) {
+      return false;
+    }
+
+    std::string errorMessage{
+        "prekey signature verification failed with: " + rawMessage};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
   } catch (const std::exception &e) {
     std::string rawMessage{e.what()};
     if (rawMessage.find("BAD_MESSAGE_MAC") != std::string::npos) {

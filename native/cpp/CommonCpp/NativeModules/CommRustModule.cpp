@@ -21,6 +21,8 @@ jsi::Value CommRustModule::generateNonce(jsi::Runtime &rt) {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityGenerateNonce(currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -80,6 +82,8 @@ jsi::Value CommRustModule::registerPasswordUser(
               farcasterIDRust,
               initialDeviceListRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -142,6 +146,8 @@ jsi::Value CommRustModule::registerReservedPasswordUser(
               keyserverSignatureRust,
               initialDeviceListRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -195,6 +201,8 @@ jsi::Value CommRustModule::logInPasswordUser(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -254,6 +262,8 @@ jsi::Value CommRustModule::registerWalletUser(
               farcasterIDRust,
               initialDeviceListRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -307,6 +317,8 @@ jsi::Value CommRustModule::logInWalletUser(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -343,6 +355,8 @@ jsi::Value CommRustModule::updatePassword(
               oldPasswordRust,
               newPasswordRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -376,6 +390,8 @@ jsi::Value CommRustModule::deletePasswordUser(
               accessTokenRust,
               passwordRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -403,6 +419,8 @@ jsi::Value CommRustModule::deleteWalletUser(
               {promise, this->jsInvoker_, innerRt});
           identityDeleteWalletUser(
               userIDRust, deviceIDRust, accessTokenRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -429,6 +447,8 @@ jsi::Value CommRustModule::logOut(
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityLogOut(userIDRust, deviceIDRust, accessTokenRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -462,6 +482,8 @@ jsi::Value CommRustModule::logOutPrimaryDevice(
               accessTokenRust,
               deviceListRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -489,6 +511,8 @@ jsi::Value CommRustModule::logOutSecondaryDevice(
               {promise, this->jsInvoker_, innerRt});
           identityLogOutSecondaryDevice(
               userIDRust, deviceIDRust, accessTokenRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -522,6 +546,8 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
               authAccessTokenRust,
               userIDRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -555,6 +581,8 @@ jsi::Value CommRustModule::getInboundKeysForUser(
               authAccessTokenRust,
               userIDRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -573,6 +601,8 @@ jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityVersionSupported(currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -611,6 +641,8 @@ jsi::Value CommRustModule::uploadOneTimeKeys(
               contentOneTimePreKeysRust,
               notifOneTimePreKeysRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -644,6 +676,8 @@ jsi::Value CommRustModule::getKeyserverKeys(
               authAccessTokenRust,
               keyserverIDRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -680,6 +714,8 @@ jsi::Value CommRustModule::getDeviceListForUser(
               userIDRust,
               timestampI64,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -713,6 +749,8 @@ jsi::Value CommRustModule::getDeviceListsForUsers(
               authAccessTokenRust,
               userIDsRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -745,6 +783,8 @@ jsi::Value CommRustModule::updateDeviceList(
               authAccessTokenRust,
               updatePayloadRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -771,6 +811,8 @@ jsi::Value CommRustModule::syncPlatformDetails(
               {promise, this->jsInvoker_, innerRt});
           identitySyncPlatformDetails(
               authUserIDRust, authDeviceIDRust, authAccessTokenRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -826,6 +868,8 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -859,6 +903,8 @@ jsi::Value CommRustModule::logInExistingDevice(
               nonceRust,
               nonceSignatureRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -880,6 +926,8 @@ jsi::Value CommRustModule::findUserIDForWalletAddress(
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityFindUserIDForWalletAddress(walletAddressRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -900,6 +948,8 @@ CommRustModule::findUserIDForUsername(jsi::Runtime &rt, jsi::String username) {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityFindUserIDForUsername(usernameRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -920,6 +970,8 @@ CommRustModule::getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityGetFarcasterUsers(farcasterIDsRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -952,6 +1004,8 @@ jsi::Value CommRustModule::linkFarcasterAccount(
               accessTokenRust,
               farcasterIDRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -978,6 +1032,8 @@ jsi::Value CommRustModule::unlinkFarcasterAccount(
               {promise, this->jsInvoker_, innerRt});
           identityUnlinkFarcasterAccount(
               userIDRust, deviceIDRust, accessTokenRust, currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -1011,6 +1067,8 @@ jsi::Value CommRustModule::findUserIdentities(
               authAccessTokenRust,
               userIDsRust,
               currentID);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         };

@@ -612,6 +612,8 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
             try {
               this->persistCryptoModules(
                   contentPersist.isEmpty(), maybeNotifsCryptoAccountToPersist);
+            } catch (const std::runtime_error &e) {
+              error = e.what();
             } catch (const std::exception &e) {
               error = e.what();
             }
@@ -840,6 +842,8 @@ CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
             notifResult = notifsCryptoModuleWithPicklingKey.first
                               ->getOneTimeKeysForPublishing(oneTimeKeysAmount);
             this->persistCryptoModules(true, notifsCryptoModuleWithPicklingKey);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -901,6 +905,8 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
                   notifsCryptoModuleWithPicklingKey.value()
                       .first->getUnpublishedPrekey();
             }
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1050,6 +1056,8 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
 
             contentPrekey = parseOLMPrekey(contentPrekeyBlob.value());
             notifPrekey = parseOLMPrekey(notifPrekeyBlob.value());
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1147,6 +1155,8 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
                 .first->removeSessionByDeviceId(keyserverIDCpp);
             this->persistCryptoModules(
                 false, notifsCryptoModuleWithPicklingKey);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1174,6 +1184,8 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
             result =
                 NotificationsCryptoModule::isNotificationsSessionInitialized(
                     "Comm");
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1209,6 +1221,8 @@ jsi::Value CommCoreModule::isDeviceNotificationsSessionInitialized(
           try {
             result = NotificationsCryptoModule::
                 isDeviceNotificationsSessionInitialized(deviceIDCpp);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1252,6 +1266,8 @@ jsi::Value CommCoreModule::isNotificationsSessionInitializedWithDevices(
           try {
             result = NotificationsCryptoModule::
                 isNotificationsSessionInitializedWithDevices(deviceIDsCpp);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1300,6 +1316,8 @@ jsi::Value CommCoreModule::updateKeyserverDataInNotifStorage(
           for (const auto &keyserverData : keyserversDataCpp) {
             CommMMKV::setInt(keyserverData.first, keyserverData.second);
           }
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -1331,6 +1349,8 @@ jsi::Value CommCoreModule::removeKeyserverDataFromNotifStorage(
         std::string error;
         try {
           CommMMKV::removeKeys(keyserverIDsToDeleteCpp);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -1373,6 +1393,8 @@ jsi::Value CommCoreModule::getKeyserverDataFromNotifStorage(
 
             keyserversDataVector.push_back({keyserverID, unreadCount.value()});
           }
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -1425,6 +1447,8 @@ jsi::Value CommCoreModule::updateUnreadThickThreadsInNotifsStorage(
           CommMMKV::setStringSet(
               CommMMKV::notifsStorageUnreadThickThreadsKey,
               unreadThickThreadIDsCpp);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -1448,6 +1472,8 @@ CommCoreModule::getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) {
         try {
           unreadThickThreadIDs = CommMMKV::getStringSet(
               CommMMKV::notifsStorageUnreadThickThreadsKey);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -1521,6 +1547,8 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
                 contentCryptoModule->encrypt(deviceIDCpp, initMessage);
 
             this->persistCryptoModules(true, std::nullopt);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1578,6 +1606,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
             this->persistCryptoModules(true, std::nullopt);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1614,6 +1644,8 @@ jsi::Value CommCoreModule::isContentSessionInitialized(
 
           try {
             result = this->contentCryptoModule->hasSessionFor(deviceIDCpp);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1690,6 +1722,8 @@ jsi::Value CommCoreModule::initializeNotificationsOutboundSession(
                 .first->removeSessionByDeviceId(deviceIDCpp);
             this->persistCryptoModules(
                 false, notifsCryptoModuleWithPicklingKey);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1721,6 +1755,8 @@ jsi::Value CommCoreModule::encrypt(
             encryptedMessage =
                 contentCryptoModule->encrypt(deviceIDCpp, messageCpp);
             this->persistCryptoModules(true, std::nullopt);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1753,6 +1789,8 @@ jsi::Value CommCoreModule::encryptNotification(
           try {
             result =
                 NotificationsCryptoModule::encrypt(deviceIDCpp, payloadCpp);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1825,6 +1863,8 @@ jsi::Value CommCoreModule::encryptAndPersist(
                 });
             persistenceFuture.get();
 
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1871,6 +1911,8 @@ jsi::Value CommCoreModule::decrypt(
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
             this->persistCryptoModules(true, std::nullopt);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1954,6 +1996,8 @@ jsi::Value CommCoreModule::decryptAndPersist(
                   }
                 });
             persistenceFuture.get();
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2104,6 +2148,8 @@ CommCoreModule::stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) {
           try {
             DatabaseManager::getQueryExecutor().stampSQLiteDBUserID(
                 currentUserID);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2129,6 +2175,8 @@ jsi::Value CommCoreModule::getSQLiteStampedUserID(jsi::Runtime &rt) {
           try {
             result =
                 DatabaseManager::getQueryExecutor().getSQLiteStampedUserID();
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2154,6 +2202,8 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
           try {
             this->innerClearCommServicesAuthMetadata();
             DatabaseManager::clearSensitiveData();
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2224,6 +2274,8 @@ jsi::Value CommCoreModule::setCommServicesAuthMetadata(
         try {
           this->innerSetCommServicesAuthMetadata(
               userIDStr, deviceIDStr, accessTokenStr);
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -2270,6 +2322,8 @@ jsi::Value CommCoreModule::getCommServicesAuthMetadata(jsi::Runtime &rt) {
           if (accessTokenOpt.hasValue()) {
             accessToken = accessTokenOpt.value();
           }
+        } catch (const std::runtime_error &e) {
+          error = e.what();
         } catch (const std::exception &e) {
           error = e.what();
         }
@@ -2502,6 +2556,8 @@ jsi::Value CommCoreModule::getQRAuthBackupData(jsi::Runtime &rt) {
             } else {
               throw std::runtime_error("missing backupLogDataKey");
             }
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2586,6 +2642,8 @@ jsi::Value CommCoreModule::setSIWEBackupSecrets(
           try {
             DatabaseManager::getQueryExecutor().setMetadata(
                 "siweBackupSecrets", backupSecrets);
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -2611,6 +2669,8 @@ jsi::Value CommCoreModule::getSIWEBackupSecrets(jsi::Runtime &rt) {
           try {
             backupSecrets = DatabaseManager::getQueryExecutor().getMetadata(
                 "siweBackupSecrets");
+          } catch (const std::runtime_error &e) {
+            error = e.what();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -3301,6 +3361,8 @@ jsi::Value CommCoreModule::restoreUser(
                   rust::string(pickledAccount),
                   rust::string(backupMessage),
                   currentID);
+            } catch (const std::runtime_error &e) {
+              error = e.what();
             } catch (const std::exception &e) {
               error = e.what();
             };
