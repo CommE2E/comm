@@ -106,7 +106,12 @@ sqlite3 *SQLiteQueryExecutor::getConnection() const {
   return SQLiteQueryExecutor::connectionManager.getConnection();
 }
 
+void SQLiteQueryExecutor::closeConnection() {
+  SQLiteQueryExecutor::connectionManager.closeConnection();
+}
+
 SQLiteQueryExecutor::~SQLiteQueryExecutor() {
+  SQLiteQueryExecutor::closeConnection();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
