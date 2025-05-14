@@ -3,11 +3,9 @@
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 
+import { getThreadPermissionBlobFromUserSurfacedPermissions } from 'lib/permissions/keyserver-permissions.js';
 import { specialRoles } from 'lib/permissions/special-roles.js';
-import {
-  getRolePermissionBlobs,
-  getThreadPermissionBlobFromUserSurfacedPermissions,
-} from 'lib/permissions/thread-permissions.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import {
   type ThinThreadType,
