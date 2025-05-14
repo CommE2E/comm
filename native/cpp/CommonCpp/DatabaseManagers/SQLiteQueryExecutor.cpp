@@ -85,7 +85,7 @@ void SQLiteQueryExecutor::migrate() {
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
-  SQLiteQueryExecutor::migrate();
+  this->migrate();
 #ifndef EMSCRIPTEN
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
@@ -97,7 +97,7 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
 
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
   SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
-  SQLiteQueryExecutor::migrate();
+  this->migrate();
 }
 
 sqlite3 *SQLiteQueryExecutor::getConnection() const {
@@ -1573,7 +1573,7 @@ void SQLiteQueryExecutor::clearSensitiveData(
   }
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
   SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-  SQLiteQueryExecutor::migrate();
+  this->migrate();
 }
 
 void SQLiteQueryExecutor::initialize(

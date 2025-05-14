@@ -47,7 +47,10 @@ void DatabaseManager::clearSensitiveData() {
   DatabaseManager::backupDataKey = backupDataKey;
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
   DatabaseManager::backupLogDataKey = backupLogDataKey;
-  SQLiteQueryExecutor::clearSensitiveData(backupDataKey, backupLogDataKey);
+
+  // FIIXME
+  thread_local SQLiteQueryExecutor instance;
+  instance.clearSensitiveData(backupDataKey, backupLogDataKey);
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
