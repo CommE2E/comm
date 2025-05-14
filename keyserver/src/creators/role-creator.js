@@ -1,13 +1,11 @@
 // @flow
 
+import { getThreadPermissionBlobFromUserSurfacedPermissions } from 'lib/permissions/keyserver-permissions.js';
 import {
   defaultSpecialRoles,
   specialRoles,
 } from 'lib/permissions/special-roles.js';
-import {
-  getRolePermissionBlobs,
-  getThreadPermissionBlobFromUserSurfacedPermissions,
-} from 'lib/permissions/thread-permissions.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import {
