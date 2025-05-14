@@ -454,7 +454,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 492
         versionName '1.0.492'
-        missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
 

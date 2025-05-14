@@ -1715,14 +1715,6 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
-  - react-native-camera (3.31.0):
-    - React
-    - react-native-camera/RCT (= 3.31.0)
-    - react-native-camera/RN (= 3.31.0)
-  - react-native-camera/RCT (3.31.0):
-    - React
-  - react-native-camera/RN (3.31.0):
-    - React
   - react-native-in-app-message (1.0.2):
     - React
   - react-native-netinfo (11.4.1):
@@ -2384,6 +2376,12 @@ PODS:
   - SQLCipher-Amalgamation/standard (4.5.5-e):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
+  - VisionCamera (4.6.4):
+    - VisionCamera/Core (= 4.6.4)
+    - VisionCamera/React (= 4.6.4)
+  - VisionCamera/Core (4.6.4)
+  - VisionCamera/React (4.6.4):
+    - React-Core
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2454,7 +2452,6 @@ DEPENDENCIES:
   - React-logger (from `../../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
-  - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-in-app-message (from `../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
@@ -2506,6 +2503,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
+  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2652,8 +2650,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
-  react-native-camera:
-    :path: "../node_modules/react-native-camera"
   react-native-in-app-message:
     :path: "../node_modules/react-native-in-app-message"
   react-native-netinfo:
@@ -2756,6 +2752,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   SQLCipher-Amalgamation:
     :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
+  VisionCamera:
+    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
@@ -2831,7 +2829,6 @@ SPEC CHECKSUMS:
   React-logger: 368570a253f00879a1e4fea24ed4047e72e7bbf3
   React-Mapbuffer: c04fcda1c6281fc0a6824c7dcc1633dd217ac1ec
   React-microtasksnativemodule: ca2804a25fdcefffa0aa942aa23ab53b99614a34
-  react-native-camera: b5c8c7a71feecfdd5b39f0dbbf6b64b957ed55f2
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: f0a9899081c185db1de5bb2fdc1c88c202a059ac
   react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
@@ -2888,8 +2885,9 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SQLCipher-Amalgamation: 121e91239c53a3aba13ca742d6dd824c627c66ee
-  Yoga: 9f110fc4b7aa538663cba3c14cbb1c335f43c13f
+  VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
+  Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
 PODFILE CHECKSUM: 06d2fbec8c85e5bb92342c824f4641c42a22aa89
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.3
