@@ -1,10 +1,8 @@
 // @flow
 
+import { getUniversalCommunityRootPermissionsBlob } from 'lib/permissions/keyserver-permissions.js';
 import { specialRoles } from 'lib/permissions/special-roles.js';
-import {
-  getRolePermissionBlobs,
-  getUniversalCommunityRootPermissionsBlob,
-} from 'lib/permissions/thread-permissions.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import {
   configurableCommunityPermissions,
   userSurfacedPermissions,
