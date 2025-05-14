@@ -17,8 +17,9 @@ def common_comm_target_pods
 end
 
 # Enable Video Caching
-#$RNVideoUseVideoCaching=true
-#use_modular_headers!
+plugin 'cocoapods-swift-modular-headers'
+  $RNVideoUseVideoCaching = true
+  apply_modular_headers_for_swift_dependencies()
 
   use_expo_modules!
 
