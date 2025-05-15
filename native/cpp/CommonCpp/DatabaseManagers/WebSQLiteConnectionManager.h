@@ -11,7 +11,7 @@ public:
 
   sqlite3 *getEphemeralConnection(
       std::string sqliteFilePath,
-      std::string sqliteEncryptionKey) override;
+      std::string sqliteEncryptionKey) const override;
   void initializeConnection(
       std::string sqliteFilePath,
       std::string sqliteEncryptionKey) override;
