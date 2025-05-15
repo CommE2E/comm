@@ -60,6 +60,18 @@ public class AppDelegate: ExpoAppDelegate {
       in: window,
       launchOptions: launchOptions)
 #endif
+    
+    if let launchScreenView = UIStoryboard.init(name: "SplashScreen", bundle: nil).instantiateInitialViewController()?.view {
+      if let bounds = window?.bounds {
+        launchScreenView.frame = bounds;
+      }
+      if let rootView = (window?.rootViewController?.view as? RCTRootView) {
+        rootView.backgroundColor = UIColor.systemBackground
+        rootView.loadingView = launchScreenView
+        rootView.loadingViewFadeDelay = 0
+        rootView.loadingViewFadeDuration = 0.001
+      }
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

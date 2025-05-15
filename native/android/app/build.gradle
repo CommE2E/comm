@@ -366,6 +366,12 @@ if (!isCleanRunning()) {
     }
 }
 
+gradle.projectsEvaluated {
+  tasks.named('createBundleReleaseJsAndAssets').configure {
+    dependsOn copyNativeRustLibraryFiles
+  }
+}
+
 // Run removing CXX task before the clean execution
 beforeEvaluate {
     clean.dependsOn(removeCXX)

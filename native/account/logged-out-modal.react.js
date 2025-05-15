@@ -69,10 +69,10 @@ function getPanelPaddingTop(
   contentHeightValue: number,
 ): number {
   'worklet';
-  const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
+  const headerHeight = 66;
   let containerSize = headerHeight;
   if (modeValue === 'loading' || modeValue === 'prompt') {
-    containerSize += Platform.OS === 'ios' ? 40 : 61;
+    containerSize += 0;
   } else if (modeValue === 'log-in') {
     containerSize += 140;
   } else if (modeValue === 'siwe') {

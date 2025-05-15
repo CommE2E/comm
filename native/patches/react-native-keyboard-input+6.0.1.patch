@@ -1,0 +1,577 @@
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build.gradle b/node_modules/react-native-keyboard-input/lib/android/build.gradle
+index 1dd0e57..ec8db1e 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build.gradle
++++ b/node_modules/react-native-keyboard-input/lib/android/build.gradle
+@@ -1,12 +1,12 @@
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 28
++    compileSdkVersion 34
+     buildToolsVersion "28.0.3"
+ 
+     defaultConfig {
+         minSdkVersion 16
+-        targetSdkVersion 28
++        targetSdkVersion 34
+         versionCode 1
+         versionName "1.0"
+     }
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/results.bin b/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/transformed/classes/classes_dex/classes.dex b/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..0780aea
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/lib/android/build/.transforms/bbb8f63eb927fc2be57eb2360166ee76/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/generated/source/buildConfig/debug/com/wix/reactnativekeyboardinput/BuildConfig.java b/node_modules/react-native-keyboard-input/lib/android/build/generated/source/buildConfig/debug/com/wix/reactnativekeyboardinput/BuildConfig.java
+index d9380a5..5862cc0 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build/generated/source/buildConfig/debug/com/wix/reactnativekeyboardinput/BuildConfig.java
++++ b/node_modules/react-native-keyboard-input/lib/android/build/generated/source/buildConfig/debug/com/wix/reactnativekeyboardinput/BuildConfig.java
+@@ -5,9 +5,6 @@ package com.wix.reactnativekeyboardinput;
+ 
+ public final class BuildConfig {
+   public static final boolean DEBUG = Boolean.parseBoolean("true");
+-  public static final String APPLICATION_ID = "com.wix.reactnativekeyboardinput";
++  public static final String LIBRARY_PACKAGE_NAME = "com.wix.reactnativekeyboardinput";
+   public static final String BUILD_TYPE = "debug";
+-  public static final String FLAVOR = "";
+-  public static final int VERSION_CODE = 1;
+-  public static final String VERSION_NAME = "1.0";
+ }
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..8144772
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.wix.reactnativekeyboardinput" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++    <application>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..9473038
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.wix.reactnativekeyboardinput",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..7d5afcd
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..8018370
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..d892d7b
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Wed May 14 21:51:05 CEST 2025
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..75feef0
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+index dec73f6..f8c817b 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -1,2 +1,2 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+index 63110c7..1bc5277 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -1,2 +1,2 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+index 0172efc..c2fc527 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/packageDebugAssets/merger.xml
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -1,2 +1,2 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/assets"/><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/build/intermediates/shader_assets/debug/compileDebugShaders/out"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/debug/assets"/></dataSet></merger>
+\ No newline at end of file
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/build/intermediates/shader_assets/debug/compileDebugShaders/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder$1.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder$1.class
+index 8d06662..fffb0a3 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder$1.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder$1.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder.class
+index 317f9db..43c0879 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/AppContextHolder.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/BuildConfig.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/BuildConfig.class
+index 5a6962c..7f7c396 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/BuildConfig.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/BuildConfig.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$1.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$1.class
+index 3d41d86..fc20f30 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$1.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$1.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$2.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$2.class
+index 7f6c08b..45084bb 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$2.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$2.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$3.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$3.class
+index 1796bf5..71ed99a 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$3.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$3.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$4.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$4.class
+index fcbd909..b0b61c5 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$4.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$4.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$5.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$5.class
+index 7d1c545..ff9ad66 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$5.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout$5.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout.class
+index 1012724..e60e881 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardLayout.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootView.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootView.class
+index 62c5b8a..b5072f9 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootView.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootView.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewManager.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewManager.class
+index 05d1aec..3f8a4eb 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewManager.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewManager.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.class
+index 1bd142c..7532d46 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/GlobalDefs.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/GlobalDefs.class
+index 2564f6b..10e7831 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/GlobalDefs.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/GlobalDefs.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputModule.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputModule.class
+index b328941..c88d95a 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputModule.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputModule.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputPackage.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputPackage.class
+index a7f949d..70e8cac 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputPackage.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/KeyboardInputPackage.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactContextHolder.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactContextHolder.class
+index fafdae3..801a36d 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactContextHolder.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactContextHolder.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$1.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$1.class
+index 534a061..6c1c857 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$1.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$1.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$Listener.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$Listener.class
+index 73718ec..cbfb722 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$Listener.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor$Listener.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor.class
+index 130ce18..aa9b8bc 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactScreenMonitor.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$1.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$1.class
+index 5ec2f57..be57626 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$1.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$1.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$2.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$2.class
+index 1774bb9..1f74902 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$2.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$2.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$Listener.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$Listener.class
+index f7573dd..2b3d8cd 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$Listener.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor$Listener.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.class
+index eb9280d..217df8c 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/Logger.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/Logger.class
+index 9829521..9774bbf 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/Logger.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/Logger.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/PredicateFunc.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/PredicateFunc.class
+index a9b8355..4628f06 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/PredicateFunc.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/PredicateFunc.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$1.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$1.class
+index 3677b30..0a164ca 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$1.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$1.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$2.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$2.class
+index 48ce2c6..373c135 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$2.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils$2.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils.class
+index 8508a05..5fbc5dc 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/RuntimeUtils.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils$VisibleViewClassMatchPredicate.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils$VisibleViewClassMatchPredicate.class
+index eb3b540..6a6bcc2 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils$VisibleViewClassMatchPredicate.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils$VisibleViewClassMatchPredicate.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils.class b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils.class
+index ededfdd..5dfab7e 100644
+Binary files a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils.class and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/wix/reactnativekeyboardinput/utils/ViewUtils.class differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..f59444f
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,11 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.wix.reactnativekeyboardinput" >
++4
++5    <uses-sdk android:minSdkVersion="16" />
++6
++7    <application>
++7-->/Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:6:5-7:19
++8    </application>
++9
++10</manifest>
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..8144772
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.wix.reactnativekeyboardinput" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++    <application>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+new file mode 100644
+index 0000000..b727497
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..a3798c0
+--- /dev/null
++++ b/node_modules/react-native-keyboard-input/lib/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1 @@
++com.wix.reactnativekeyboardinput
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-keyboard-input/lib/android/build/outputs/logs/manifest-merger-debug-report.txt
+index 4265e5f..1466a80 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build/outputs/logs/manifest-merger-debug-report.txt
++++ b/node_modules/react-native-keyboard-input/lib/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -1,39 +1,19 @@
+ -- Merging decision tree log ---
+ manifest
+-ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
++ADDED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
++INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+ 	package
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:4:5-47
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-	android:versionName
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-	android:versionCode
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:2:1-8:12
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
++		ADDED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:4:5-47
++		INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+ 	xmlns:android
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:3:5-63
++		ADDED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:3:5-63
+ application
+-ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:6:5-7:19
++ADDED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml:6:5-7:19
+ uses-sdk
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
++INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
++INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+ 	android:targetSdkVersion
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+ 	android:minSdkVersion
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		ADDED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+-		INJECTED from /Users/michaelle/Dev/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/angelikaserwa/Projects/comm/native/node_modules/react-native-keyboard-input/lib/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-keyboard-input/lib/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..f0e05fb
+Binary files /dev/null and b/node_modules/react-native-keyboard-input/lib/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
+index 46d2207..830c7b5 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
++++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
+@@ -14,7 +14,6 @@ public class CustomKeyboardRootViewShadow extends LayoutShadowNode {
+         mLayout.setShadowNode(this);
+     }
+ 
+-    @Override
+     public void onBeforeLayout(NativeViewHierarchyOptimizer nativeViewHierarchyOptimizer) {
+         mLayout.setShadowNode(this);
+     }
+diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
+index 6bd4453..a0f588a 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
++++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
+@@ -1,6 +1,11 @@
+ package com.wix.reactnativekeyboardinput;
+ 
++import android.graphics.Point;
+ import android.graphics.Rect;
++import android.os.Build;
++import android.util.Log;
++import android.util.TypedValue;
++import android.view.Display;
+ import android.view.ViewTreeObserver;
+ import android.view.Window;
+ 
+@@ -65,8 +70,33 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+     private Listener mExternalListener;
+     private ReactRootView mLastReactRootView;
+ 
++    private int translucentNavBarHeight;
++
+     public ReactSoftKeyboardMonitor(ReactScreenMonitor screenMonitor) {
+         screenMonitor.addListener(this);
++
++        this.translucentNavBarHeight = 0;
++
++        if (getWindow() == null) {
++            return;
++        }
++
++        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
++            return;
++        }
++
++        TypedValue typedValue = new TypedValue();
++        getWindow().getContext().getTheme().resolveAttribute(android.R.attr.windowTranslucentNavigation, typedValue, true);
++        if (typedValue.data == 0) {
++            return;
++        }
++
++        Display defaultDisplay = getWindow().getWindowManager().getDefaultDisplay();
++        Point size = new Point();
++        defaultDisplay.getSize(size);
++        Point realSize = new Point();
++        defaultDisplay.getRealSize(realSize);
++        this.translucentNavBarHeight = realSize.y - size.y;
+     }
+ 
+     @Override
+@@ -132,21 +162,21 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+         RuntimeUtils.runOnUIThread(new Runnable() {
+             @Override
+             public void run() {
+-                final Integer locallyVisibleHeight = getLocallyVisibleHeight();
+-                if (locallyVisibleHeight == null) {
++                final Integer viewportVisibleHeight = getViewportVisibleHeight();
++                if (viewportVisibleHeight == null) {
+                     // Too late to join the party - react-view seems to be gone...
+                     return;
+                 }
+ 
+                 if (mLocallyVisibleHeight == null) {
+-                    mLocallyVisibleHeight = locallyVisibleHeight;
++                    mLocallyVisibleHeight = viewportVisibleHeight;
+                     mKeyboardHeight = mLocallyVisibleHeight;
+                     Logger.d(TAG, "mLocallyVisibleHeight WAS NULL, now is: " + mLocallyVisibleHeight);
+-                } else if (mLocallyVisibleHeight > locallyVisibleHeight) {
+-                    mKeyboardHeight = mLocallyVisibleHeight - locallyVisibleHeight;
++                } else if (mMaxViewportVisibleHeight > viewportVisibleHeight) {
++                    mKeyboardHeight = mMaxViewportVisibleHeight - viewportVisibleHeight + translucentNavBarHeight;
+                 } else {
+-                    mKeyboardHeight = locallyVisibleHeight;
+-                    Logger.d(TAG, "mKeyboardHeight = " + mKeyboardHeight + " mLocallyVisibleHeight = " + mLocallyVisibleHeight + " locallyVisibleHeight = " + locallyVisibleHeight);
++                    mKeyboardHeight = viewportVisibleHeight;
++                    Logger.d(TAG, "mKeyboardHeight = " + mKeyboardHeight + " mLocallyVisibleHeight = " + mLocallyVisibleHeight + " viewportVisibleHeight= " + viewportVisibleHeight);
+                 }
+             }
+         });
+diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
+index 2a31b47..21090bf 100644
+--- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
++++ b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
+@@ -222,7 +222,7 @@ -(UIView*)getFirstResponder:(UIView*)view
+     }
+ }
+ 
+--(void)changeKeyboardHeightForInput:(nonnull NSNumber*)inputFieldTag newHeight:(CGFloat)newHeight
++RCT_EXPORT_METHOD(changeKeyboardHeightForInput:(nonnull NSNumber*)inputFieldTag newHeight:(CGFloat)newHeight)
+ {
+     UIView* inputField = [self.bridge.uiManager viewForReactTag:inputFieldTag];
+     if(inputField != nil)
+diff --git a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
+index 59cae03..ec6f756 100644
+--- a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
++++ b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
+@@ -75,16 +75,16 @@ export default class CustomKeyboardView extends Component {
+     }
+   }
+ 
+-  async UNSAFE_componentWillReceiveProps(nextProps) { //eslint-disable-line
+-    const {inputRef, component, initialProps, onRequestShowKeyboard} = nextProps;
++  async componentDidUpdate(prevProps) {
++    const {inputRef, component, initialProps, onRequestShowKeyboard} = this.props;
+ 
+     if (IsAndroid) {
+-      if (this.props.component !== component && !component) {
++      if (prevProps.component !== component && !component) {
+         await TextInputKeyboardManagerAndroid.reset();
+       }
+     }
+ 
+-    if (IsIOS && TextInputKeyboardManagerIOS && inputRef && component !== this.props.component) {
++    if (IsIOS && TextInputKeyboardManagerIOS && inputRef && component !== prevProps.component) {
+       if (component) {
+         TextInputKeyboardManagerIOS.setInputComponent(inputRef, {component, initialProps});
+       } else {
+@@ -98,7 +98,7 @@ export default class CustomKeyboardView extends Component {
+         onRequestShowKeyboard(args.keyboardId);
+       });
+     }
+-    this.registerListener(this.props, nextProps);
++    this.registerListener(prevProps, this.props);
+   }
+ 
+   registerListener(props, nextProps) {
+diff --git a/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js b/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
+index b91aa83..cafdd69 100644
+--- a/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
++++ b/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
+@@ -51,8 +51,8 @@ export default class KeyboardAccessoryView extends Component {
+     if (this.customInputControllerEventsSubscriber) {
+       this.customInputControllerEventsSubscriber.remove();
+     }
+-    if (IsAndroid) {
+-      BackHandler.removeEventListener('hardwareBackPress', this.onAndroidBackPressed);
++    if (IsAndroid && this.backHandlerSubscription) {
++      this.backHandlerSubscription.remove();
+     }
+   }
+ 
+@@ -106,7 +106,7 @@ export default class KeyboardAccessoryView extends Component {
+ 
+   registerAndroidBackHandler() {
+     if (IsAndroid) {
+-      BackHandler.addEventListener('hardwareBackPress', this.onAndroidBackPressed);
++      this.backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', this.onAndroidBackPressed);
+     }
+   }
+ 
+@@ -126,11 +126,15 @@ export default class KeyboardAccessoryView extends Component {
+   }
+ 
+   render() {
++    let onLayout = undefined;
++    if (this.props.onHeightChanged) {
++      onLayout = this.onContainerComponentHeightChanged;
++    }
+     return (
+       <KeyboardTrackingView
+         ref={r => this.trackingViewRef = r}
+         style={styles.trackingToolbarContainer}
+-        onLayout={this.onContainerComponentHeightChanged}
++        onLayout={onLayout}
+         scrollBehavior={this.getIOSTrackingScrollBehavior()}
+         revealKeyboardInteractive={this.props.revealKeyboardInteractive}
+         manageScrollView={this.props.manageScrollView}
+diff --git a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
+index 20d61c9..e8369f0 100644
+--- a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
++++ b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
+@@ -41,6 +41,11 @@ export default class TextInputKeyboardManagerIOS {
+       }
+     }
+   };
++
++  static setKeyboardHeight(textInputRef, keyboardHeight) {
++    const reactTag = findNodeHandle(textInputRef);
++    CustomInputController.changeKeyboardHeightForInput(reactTag, keyboardHeight);
++  }
+ }
+ 
+ function findNodeHandle(ref) {
