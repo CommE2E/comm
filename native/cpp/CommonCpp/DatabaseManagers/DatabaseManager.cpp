@@ -7,6 +7,8 @@
 #include "SQLiteQueryExecutor.h"
 #include "SQLiteUtils.h"
 
+#include <sstream>
+
 namespace comm {
 
 const int DatabaseManager::backupDataKeySize = 64;
@@ -41,7 +43,19 @@ void DatabaseManager::clearSensitiveData() {
 
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
-  SQLiteQueryExecutor::clearSensitiveData(backupDataKey, backupLogDataKey);
+
+  SQLiteQueryExecutor::connectionManager.closeConnection();
+  if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
+      std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
+    std::ostringstream errorStream;
+    errorStream << "Failed to delete database file. Details: "
+                << strerror(errno);
+    Logger::log(errorStream.str());
+    throw std::system_error(errno, std::generic_category(), errorStream.str());
+  }
+  SQLiteQueryExecutor::backupDataKey = backupDataKey;
+  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+  SQLiteQueryExecutor::migrate();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
