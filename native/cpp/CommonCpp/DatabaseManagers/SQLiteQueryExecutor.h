@@ -210,7 +210,6 @@ public:
       std::string &backupDataKey,
       std::string &backupLogDataKey);
   void createMainCompaction(std::string backupID) const override;
-  void captureBackupLogs() const override;
   void triggerBackupFileUpload() const override;
   void setUserDataKeys(
       const std::string &backupDataKey,

@@ -7,6 +7,8 @@
 #include "SQLiteQueryExecutor.h"
 #include "SQLiteUtils.h"
 
+#include "../Tools/ServicesUtils.h"
+
 #include <sstream>
 
 namespace comm {
@@ -205,6 +207,31 @@ void DatabaseManager::setUserDataKeys(
 
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
   DatabaseManager::backupLogDataKey = backupLogDataKey;
+}
+
+void DatabaseManager::captureBackupLogs() {
+  if (!ServicesUtils::fullBackupSupport) {
+    return;
+  }
+  std::string backupID =
+      DatabaseManager::getQueryExecutor().getMetadata("backupID");
+  if (!backupID.size()) {
+    return;
+  }
+
+  std::string logID = DatabaseManager::getQueryExecutor().getMetadata("logID");
+  if (!logID.size()) {
+    logID = "1";
+  }
+
+  bool newLogCreated = SQLiteQueryExecutor::connectionManager.captureLogs(
+      backupID, logID, DatabaseManager::backupLogDataKey);
+  if (!newLogCreated) {
+    return;
+  }
+
+  DatabaseManager::getQueryExecutor().setMetadata(
+      "logID", std::to_string(std::stoi(logID) + 1));
 }
 
 } // namespace comm
