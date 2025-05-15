@@ -62,7 +62,7 @@ public:
         throw std::runtime_error(error);
       }
 
-      DatabaseManager::getQueryExecutor().triggerBackupFileUpload();
+      DatabaseManager::triggerBackupFileUpload();
     });
   }
 };

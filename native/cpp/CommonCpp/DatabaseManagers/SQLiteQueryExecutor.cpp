@@ -1691,13 +1691,6 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   }
 }
 
-void SQLiteQueryExecutor::triggerBackupFileUpload() const {
-  if (!ServicesUtils::fullBackupSupport) {
-    return;
-  }
-  ::triggerBackupFileUpload();
-}
-
 void SQLiteQueryExecutor::setUserDataKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) const {
