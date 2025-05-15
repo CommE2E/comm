@@ -28,7 +28,7 @@ resource "aws_dynamodb_table" "backup-service-backup" {
     hash_key           = "userID"
     range_key          = "created"
     projection_type    = "INCLUDE"
-    non_key_attributes = ["userKeys", "siweBackupMsg"]
+    non_key_attributes = ["userKeys", "siweBackupMsg", "totalSize", "versionInfo"]
   }
 
   point_in_time_recovery {
