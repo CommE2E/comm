@@ -468,7 +468,7 @@ jsi::Value CommCoreModule::processDBStoreOperations(
           }
 
           if (!error.size()) {
-            DatabaseManager::getQueryExecutor().triggerBackupFileUpload();
+            DatabaseManager::triggerBackupFileUpload();
           }
 
           this->jsInvoker_->invokeAsync([=]() {

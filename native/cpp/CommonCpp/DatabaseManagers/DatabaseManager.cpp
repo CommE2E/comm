@@ -8,6 +8,7 @@
 #include "SQLiteUtils.h"
 
 #include "../Tools/ServicesUtils.h"
+#include "lib.rs.h"
 
 #include <sstream>
 
@@ -219,6 +220,13 @@ void DatabaseManager::captureBackupLogs() {
 
   DatabaseManager::getQueryExecutor().setMetadata(
       "logID", std::to_string(std::stoi(logID) + 1));
+}
+
+void DatabaseManager::triggerBackupFileUpload() {
+  if (!ServicesUtils::fullBackupSupport) {
+    return;
+  }
+  ::triggerBackupFileUpload();
 }
 
 } // namespace comm
