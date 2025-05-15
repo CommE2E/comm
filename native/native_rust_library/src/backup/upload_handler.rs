@@ -234,12 +234,20 @@ pub mod compaction {
       Err(err) => return Err(err.into()),
     };
 
+    let version_info = backup_client::BackupVersionInfo {
+      code_version: crate::generated::CODE_VERSION as u16,
+      state_version: crate::generated::STATE_VERSION as u16,
+      // TODO: Pass DB version value here
+      ..Default::default()
+    };
+
     let backup_data = BackupData {
       backup_id: backup_id.clone(),
       user_data,
       user_keys,
       attachments,
       siwe_backup_msg,
+      version_info,
     };
 
     let result = backup_client

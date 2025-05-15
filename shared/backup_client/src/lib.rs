@@ -54,6 +54,7 @@ impl BackupClient {
       user_data,
       attachments,
       siwe_backup_msg,
+      version_info,
     } = backup_data;
 
     let endpoint = match (user_data.clone(), user_keys.clone()) {
@@ -88,6 +89,9 @@ impl BackupClient {
     if let Some(siwe_backup_msg_value) = siwe_backup_msg {
       form = form.text("siwe_backup_msg", siwe_backup_msg_value);
     }
+
+    let version_info_payload = serde_json::to_string(&version_info)?;
+    form = form.text("version_info", version_info_payload);
 
     let response = client
       .post(self.url.join(endpoint)?)
@@ -343,6 +347,7 @@ pub struct BackupData {
   pub user_data: Option<Vec<u8>>,
   pub attachments: Vec<String>,
   pub siwe_backup_msg: Option<String>,
+  pub version_info: BackupVersionInfo,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
