@@ -46,6 +46,9 @@ public:
   static void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey);
+
+  // Backup methods
+  static void captureBackupLogs();
 };
 
 } // namespace comm
