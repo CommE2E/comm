@@ -49,6 +49,7 @@ public:
 
   // Backup methods
   static void captureBackupLogs();
+  static void triggerBackupFileUpload();
 };
 
 } // namespace comm
