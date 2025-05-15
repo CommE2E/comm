@@ -1559,22 +1559,6 @@ SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
 }
 
 #ifndef EMSCRIPTEN
-void SQLiteQueryExecutor::clearSensitiveData(
-    std::string &backupDataKey,
-    std::string &backupLogDataKey) {
-  SQLiteQueryExecutor::connectionManager.closeConnection();
-  if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
-      std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
-    std::ostringstream errorStream;
-    errorStream << "Failed to delete database file. Details: "
-                << strerror(errno);
-    Logger::log(errorStream.str());
-    throw std::system_error(errno, std::generic_category(), errorStream.str());
-  }
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-  this->migrate();
-}
 
 void SQLiteQueryExecutor::initialize(
     std::string &databasePath,
