@@ -24,6 +24,7 @@ pub fn generate_backup_data(predefined_byte_value: Option<u8>) -> BackupData {
     )),
     attachments: vec![],
     siwe_backup_msg: Some("message".to_string()),
+    version_info: Default::default(),
   }
 }
 

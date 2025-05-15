@@ -5,7 +5,7 @@ use actix_web::{
 };
 use comm_lib::{
   auth::{AuthorizationCredential, UserIdentity},
-  backup::LatestBackupInfoResponse,
+  backup::{BackupVersionInfo, LatestBackupInfoResponse},
   blob::{
     client::BlobServiceClient,
     types::{http::BlobSizesRequest, BlobInfo},
@@ -54,6 +54,9 @@ pub async fn upload(
 
   let aux_data = multipart.get_aux_data().await?;
   let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
+  let version_info = aux_data
+    .get_backup_version_info()?
+    .ok_or(BackupError::BadRequest)?;
 
   let item = BackupItem::new(
     user.user_id.clone(),
@@ -62,8 +65,7 @@ pub async fn upload(
     Some(user_data_blob_info),
     attachments,
     siwe_backup_msg,
-    // TODO: use real values here
-    Default::default(),
+    version_info,
   );
 
   db_client
@@ -169,6 +171,11 @@ pub async fn upload_user_data(
   let (attachments, attachments_revokes) =
     multipart.process_attachmens_field(&blob_client).await?;
 
+  let aux_data = multipart.get_aux_data().await?;
+  let version_info = aux_data
+    .get_backup_version_info()?
+    .ok_or(BackupError::BadRequest)?;
+
   let existing_backup_item = db_client
     .find_backup_item(&user.user_id, &backup_id)
     .await
@@ -182,8 +189,7 @@ pub async fn upload_user_data(
     Some(user_data_blob_info),
     attachments,
     existing_backup_item.siwe_backup_msg.clone(),
-    // TODO: use real values here
-    Default::default(),
+    version_info,
   );
 
   db_client
@@ -332,6 +338,9 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
 
   let aux_data = multipart.get_aux_data().await?;
   let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
+  // old clients didn't upload version info
+  let version_info = aux_data.get_backup_version_info()?.unwrap_or_default();
+
   let ordered_backup_item = db_client
     .find_last_backup_item(user_id)
     .await
@@ -400,8 +409,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
     user_data,
     attachments,
     siwe_backup_msg,
-    // TODO: use real values here
-    Default::default(),
+    version_info,
   );
 
   Ok((item, revokes))
@@ -585,6 +593,17 @@ impl BackupAuxFields {
 
     let siwe_backup_msg = parse_bytes_to_string(buf.clone())?;
     Ok(Some(siwe_backup_msg))
+  }
+
+  fn get_backup_version_info(
+    &self,
+  ) -> actix_web::Result<Option<BackupVersionInfo>> {
+    let Some(buf) = self.0.get("version_info") else {
+      return Ok(None);
+    };
+
+    let version_info = serde_json::from_slice(buf)?;
+    Ok(Some(version_info))
   }
 }
 

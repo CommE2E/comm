@@ -191,6 +191,7 @@ async fn backup_upload_user_keys_and_user_data() -> Result<(), Error> {
     user_data: new_backup_data.user_data.clone(),
     attachments: new_backup_data.attachments,
     siwe_backup_msg: None,
+    version_info: Default::default(),
   };
 
   backup_client
