@@ -201,7 +201,6 @@ public:
 
 #ifndef EMSCRIPTEN
   virtual void createMainCompaction(std::string backupID) const = 0;
-  virtual void triggerBackupFileUpload() const = 0;
 #endif
 };
 
