@@ -24,16 +24,10 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
-  static sqlite3 *getConnection();
   static void closeConnection();
 
-  static std::string backupLogDataKey;
-
 #ifndef EMSCRIPTEN
-  static NativeSQLiteConnectionManager connectionManager;
   void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
-#else
-  static WebSQLiteConnectionManager connectionManager;
 #endif
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
@@ -49,6 +43,13 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 public:
   static std::string sqliteFilePath;
   static std::string backupDataKey;
+  static std::string backupLogDataKey;
+
+#ifndef EMSCRIPTEN
+  static NativeSQLiteConnectionManager connectionManager;
+#else
+  static WebSQLiteConnectionManager connectionManager;
+#endif
 
   // Constant key sizes
   static int backupDataKeySize;
@@ -57,6 +58,9 @@ public:
   SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
   SQLiteQueryExecutor(std::string sqliteFilePath);
+
+  static sqlite3 *getConnection();
+
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
   void updateDraft(std::string key, std::string text) const override;
