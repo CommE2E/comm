@@ -67,7 +67,6 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { ThreadJoinPayload } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -842,37 +841,17 @@ function ConnectedChatInputBarBase({
     onNavigationFocus,
   ]);
 
-  const callJoinThread = useJoinThread();
-
-  const joinAction = React.useCallback(async (): Promise<ThreadJoinPayload> => {
-    let joinThreadInput;
-    if (rawThreadInfo.thick) {
-      joinThreadInput = {
-        thick: true,
-        rawThreadInfo: rawThreadInfo,
-      };
-    } else {
-      const query = calendarQuery();
-      joinThreadInput = {
-        thick: false,
-        threadID: threadInfo.id,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [threadInfo.id] },
-          ],
-        },
-      };
-    }
-
-    return await callJoinThread(joinThreadInput);
-  }, [calendarQuery, callJoinThread, threadInfo.id, rawThreadInfo]);
+  const joinThread = useJoinThread();
 
   const onPressJoin = React.useCallback(() => {
-    void dispatchActionPromise(joinThreadActionTypes, joinAction());
-  }, [dispatchActionPromise, joinAction]);
+    void dispatchActionPromise(
+      joinThreadActionTypes,
+      joinThread({
+        rawThreadInfo,
+        calendarQuery,
+      }),
+    );
+  }, [calendarQuery, dispatchActionPromise, joinThread, rawThreadInfo]);
 
   const setIOSKeyboardHeight = React.useCallback(() => {
     if (Platform.OS !== 'ios') {
