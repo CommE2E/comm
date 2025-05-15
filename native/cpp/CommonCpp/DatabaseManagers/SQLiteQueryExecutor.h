@@ -205,8 +205,6 @@ public:
   getDMOperationsByType(const std::string &operationType) const override;
 
 #ifndef EMSCRIPTEN
-  void
-  clearSensitiveData(std::string &backupDataKey, std::string &backupLogDataKey);
   static void initialize(
       std::string &databasePath,
       std::string &backupDataKey,
