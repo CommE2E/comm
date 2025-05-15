@@ -19,7 +19,7 @@ protected:
   void closeConnectionInternal();
 
   // Shared implementation of creating a connection used by derived classes.
-  sqlite3 *createConnection(std::string sqliteFilePath);
+  sqlite3 *createConnection(std::string sqliteFilePath) const;
 
 public:
   SQLiteConnectionManager();
@@ -32,13 +32,13 @@ public:
   // classes.
   virtual sqlite3 *getEphemeralConnection(
       std::string sqliteFilePath,
-      std::string sqliteEncryptionKey) = 0;
+      std::string sqliteEncryptionKey) const = 0;
   // Creates a SQLite connection that is cached and stored as an attribute. It
   // can be accessed using `getConnection` and closed using `closeConnection`
   virtual void initializeConnection(
       std::string sqliteFilePath,
       std::string sqliteEncryptionKey) = 0;
-  sqlite3 *getConnection();
+  sqlite3 *getConnection() const;
   virtual void closeConnection() = 0;
 
   virtual void validateEncryption(

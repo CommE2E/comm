@@ -17,7 +17,7 @@ private:
       std::string encryptionKey);
   std::vector<std::string>
   getAttachmentsFromLog(std::uint8_t *patchsetPtr, int patchsetSize);
-  void onDatabaseOpen(sqlite3 *db, std::string sqliteEncryptionKey);
+  void onDatabaseOpen(sqlite3 *db, std::string sqliteEncryptionKey) const;
 
 public:
   NativeSQLiteConnectionManager();
@@ -25,7 +25,7 @@ public:
 
   sqlite3 *getEphemeralConnection(
       std::string sqliteFilePath,
-      std::string sqliteEncryptionKey) override;
+      std::string sqliteEncryptionKey) const override;
   void initializeConnection(
       std::string sqliteFilePath,
       std::string sqliteEncryptionKey) override;
