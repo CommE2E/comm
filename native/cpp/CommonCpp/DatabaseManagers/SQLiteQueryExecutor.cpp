@@ -1784,13 +1784,6 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   }
 }
 
-void SQLiteQueryExecutor::triggerBackupFileUpload() const {
-  if (!ServicesUtils::fullBackupSupport) {
-    return;
-  }
-  ::triggerBackupFileUpload();
-}
-
 #endif
 
 void SQLiteQueryExecutor::copyTablesDataUsingAttach(
