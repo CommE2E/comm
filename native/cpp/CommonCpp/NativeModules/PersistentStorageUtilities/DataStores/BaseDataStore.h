@@ -51,7 +51,7 @@ public:
         for (const auto &operation : storeOps) {
           operation->execute();
         }
-        DatabaseManager::getQueryExecutor().captureBackupLogs();
+        DatabaseManager::captureBackupLogs();
         DatabaseManager::getQueryExecutor().commitTransaction();
       } catch (const std::exception &e) {
         error = e.what();
