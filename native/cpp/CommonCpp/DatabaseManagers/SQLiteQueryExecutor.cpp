@@ -1784,28 +1784,6 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   }
 }
 
-void SQLiteQueryExecutor::captureBackupLogs() const {
-  if (!ServicesUtils::fullBackupSupport) {
-    return;
-  }
-  std::string backupID = this->getMetadata("backupID");
-  if (!backupID.size()) {
-    return;
-  }
-
-  std::string logID = this->getMetadata("logID");
-  if (!logID.size()) {
-    logID = "1";
-  }
-
-  bool newLogCreated = SQLiteQueryExecutor::connectionManager.captureLogs(
-      backupID, logID, SQLiteQueryExecutor::backupLogDataKey);
-  if (!newLogCreated) {
-    return;
-  }
-  this->setMetadata("logID", std::to_string(std::stoi(logID) + 1));
-}
-
 void SQLiteQueryExecutor::triggerBackupFileUpload() const {
   if (!ServicesUtils::fullBackupSupport) {
     return;
