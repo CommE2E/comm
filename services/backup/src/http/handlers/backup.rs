@@ -12,11 +12,14 @@ use comm_lib::{
   },
   http::{
     auth_service::Authenticated,
-    multipart::{get_named_text_field, get_text_field},
+    multipart::{
+      get_all_remaining_fields, get_named_text_field, get_text_field,
+      parse_bytes_to_string,
+    },
   },
   tools::Defer,
 };
-use std::convert::Infallible;
+use std::{collections::HashMap, convert::Infallible};
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tracing::{info, instrument, trace, warn};
 
@@ -49,7 +52,8 @@ pub async fn upload(
   let (attachments, attachments_revokes) =
     multipart.process_attachmens_field(&blob_client).await?;
 
-  let siwe_backup_msg = multipart.get_siwe_backup_msg().await?;
+  let aux_data = multipart.get_aux_data().await?;
+  let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
 
   let item = BackupItem::new(
     user.user_id.clone(),
@@ -355,7 +359,8 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
     .forward_field_to_blob(blob_client, "user_keys_hash", "user_keys")
     .await?;
 
-  let siwe_backup_msg = multipart.get_siwe_backup_msg().await?;
+  let aux_data = multipart.get_aux_data().await?;
+  let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
   let ordered_backup_item = db_client
     .find_last_backup_item(user_id)
     .await
@@ -483,9 +488,6 @@ trait BackupRequestInput {
     data_field_name: &str,
   ) -> actix_web::Result<(BlobInfo, Defer<'revoke>)>;
 
-  /// Consumes a text field named `siwe_backup_msg`
-  async fn get_siwe_backup_msg(&mut self) -> actix_web::Result<Option<String>>;
-
   /// Consumes a text field named `attachments`.
   /// For each attachment hash, establishes a new blob holder.
   /// Returns BlobInfos and a revoke handle for removing the holder
@@ -495,6 +497,9 @@ trait BackupRequestInput {
     &mut self,
     blob_client: &'blob BlobServiceClient,
   ) -> Result<(Vec<BlobInfo>, Vec<Defer<'revoke>>), BackupError>;
+
+  /// Consumes all remaining fields and stores them in [`BackupAuxFields`]
+  async fn get_aux_data(&mut self) -> actix_web::Result<BackupAuxFields>;
 }
 
 impl BackupRequestInput for actix_multipart::Multipart {
@@ -570,16 +575,6 @@ impl BackupRequestInput for actix_multipart::Multipart {
   }
 
   #[instrument(skip_all)]
-  async fn get_siwe_backup_msg(&mut self) -> actix_web::Result<Option<String>> {
-    Ok(
-      get_text_field(self)
-        .await?
-        .filter(|(name, _)| name == "siwe_backup_msg")
-        .map(|(_, siwe_backup_msg)| siwe_backup_msg),
-    )
-  }
-
-  #[instrument(skip_all)]
   async fn process_attachmens_field<'revoke, 'blob: 'revoke>(
     &mut self,
     blob_client: &'blob BlobServiceClient,
@@ -602,6 +597,24 @@ impl BackupRequestInput for actix_multipart::Multipart {
 
     blob_utils::create_holders_for_blob_hashes(attachments_hashes, blob_client)
       .await
+  }
+
+  async fn get_aux_data(&mut self) -> actix_web::Result<BackupAuxFields> {
+    let field_map = get_all_remaining_fields(self).await?;
+    Ok(BackupAuxFields(field_map))
+  }
+}
+
+struct BackupAuxFields(HashMap<String, Vec<u8>>);
+
+impl BackupAuxFields {
+  fn get_siwe_backup_msg(&self) -> actix_web::Result<Option<String>> {
+    let Some(buf) = self.0.get("siwe_backup_msg") else {
+      return Ok(None);
+    };
+
+    let siwe_backup_msg = parse_bytes_to_string(buf.clone())?;
+    Ok(Some(siwe_backup_msg))
   }
 }
 

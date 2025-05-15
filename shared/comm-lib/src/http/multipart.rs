@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use actix_multipart::{Field, MultipartError};
 use actix_web::error::{ErrorBadRequest, ParseError};
 use tokio_stream::StreamExt;
@@ -36,8 +38,7 @@ pub async fn get_text_field(
     buf.extend_from_slice(&chunk);
   }
 
-  let text =
-    String::from_utf8(buf).map_err(|err| ParseError::Utf8(err.utf8_error()))?;
+  let text = parse_bytes_to_string(buf)?;
 
   Ok(Some((name, text)))
 }
@@ -57,4 +58,29 @@ pub async fn get_named_text_field(
   }
 
   Ok(backup_id)
+}
+
+pub async fn get_all_remaining_fields(
+  multipart: &mut actix_multipart::Multipart,
+) -> Result<std::collections::HashMap<String, Vec<u8>>, MultipartError> {
+  let mut found_fields = HashMap::new();
+
+  while let Some(mut field) = multipart.try_next().await? {
+    let name = field.name().to_string();
+    let mut buf = Vec::new();
+    while let Some(chunk) = field.try_next().await? {
+      buf.extend_from_slice(&chunk);
+    }
+    found_fields.insert(name, buf);
+  }
+
+  Ok(found_fields)
+}
+
+pub fn parse_bytes_to_string(
+  utf8_buffer: Vec<u8>,
+) -> Result<String, MultipartError> {
+  let parsed_string = String::from_utf8(utf8_buffer)
+    .map_err(|err| ParseError::Utf8(err.utf8_error()))?;
+  Ok(parsed_string)
 }
