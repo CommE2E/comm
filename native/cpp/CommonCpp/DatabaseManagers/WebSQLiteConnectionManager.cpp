@@ -16,7 +16,7 @@ void WebSQLiteConnectionManager::closeConnection() {
 
 sqlite3 *WebSQLiteConnectionManager::getEphemeralConnection(
     std::string sqliteFilePath,
-    std::string sqliteEncryptionKey) {
+    std::string sqliteEncryptionKey) const {
   return this->createConnection(sqliteFilePath);
   // We don't want to run `PRAGMA key = ...;`
   // on main web database. The context is here:

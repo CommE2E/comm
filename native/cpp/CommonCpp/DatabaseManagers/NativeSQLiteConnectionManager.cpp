@@ -200,13 +200,13 @@ bool NativeSQLiteConnectionManager::getLogsMonitoring() {
 
 void NativeSQLiteConnectionManager::onDatabaseOpen(
     sqlite3 *db,
-    std::string sqliteEncryptionKey) {
+    std::string sqliteEncryptionKey) const {
   SQLiteUtils::setEncryptionKey(db, sqliteEncryptionKey);
 }
 
 sqlite3 *NativeSQLiteConnectionManager::getEphemeralConnection(
     std::string sqliteFilePath,
-    std::string sqliteEncryptionKey) {
+    std::string sqliteEncryptionKey) const {
   sqlite3 *db = this->createConnection(sqliteFilePath);
   onDatabaseOpen(db, sqliteEncryptionKey);
   return db;
