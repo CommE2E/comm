@@ -538,29 +538,10 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   async joinAction(): Promise<ThreadJoinPayload> {
-    let joinThreadInput;
-    if (this.props.rawThreadInfo.thick) {
-      joinThreadInput = {
-        thick: true,
-        rawThreadInfo: this.props.rawThreadInfo,
-      };
-    } else {
-      const query = this.props.calendarQuery();
-      joinThreadInput = {
-        thick: false,
-        threadID: this.props.threadInfo.id,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [this.props.threadInfo.id] },
-          ],
-        },
-      };
-    }
-
-    return await this.props.joinThread(joinThreadInput);
+    return await this.props.joinThread({
+      rawThreadInfo: this.props.rawThreadInfo,
+      calendarQuery: this.props.calendarQuery,
+    });
   }
 }
 
