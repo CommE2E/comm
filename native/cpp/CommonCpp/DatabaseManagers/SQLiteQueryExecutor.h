@@ -23,7 +23,6 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  static void migrate();
   static void closeConnection();
 
 #ifndef EMSCRIPTEN
@@ -56,6 +55,7 @@ public:
   SQLiteQueryExecutor(std::string sqliteFilePath);
 
   static sqlite3 *getConnection();
+  static void migrate();
 
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
@@ -212,8 +212,6 @@ public:
   getDMOperationsByType(const std::string &operationType) const override;
 
 #ifndef EMSCRIPTEN
-  static void
-  clearSensitiveData(std::string &backupDataKey, std::string &backupLogDataKey);
   static void initialize(
       std::string &databasePath,
       std::string &backupDataKey,
