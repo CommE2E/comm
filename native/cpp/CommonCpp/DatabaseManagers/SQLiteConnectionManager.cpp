@@ -11,7 +11,7 @@ namespace comm {
 SQLiteConnectionManager::SQLiteConnectionManager() : dbConnection(nullptr) {
 }
 
-sqlite3 *SQLiteConnectionManager::getConnection() {
+sqlite3 *SQLiteConnectionManager::getConnection() const {
   return dbConnection;
 }
 
@@ -27,7 +27,8 @@ void SQLiteConnectionManager::handleSQLiteError(
   }
 }
 
-sqlite3 *SQLiteConnectionManager::createConnection(std::string sqliteFilePath) {
+sqlite3 *
+SQLiteConnectionManager::createConnection(std::string sqliteFilePath) const {
   sqlite3 *dbConnection;
   int connectResult = sqlite3_open(sqliteFilePath.c_str(), &dbConnection);
   handleSQLiteError(connectResult, "Failed to open database connection");
