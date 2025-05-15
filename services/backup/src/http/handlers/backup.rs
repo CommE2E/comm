@@ -277,6 +277,7 @@ pub async fn get_latest_backup_info(
     keyserver_device_id,
     total_backup_size,
     creation_timestamp: backup_item.created.to_rfc3339(),
+    version_info: backup_item.version_info,
   };
 
   Ok(web::Json(response))
