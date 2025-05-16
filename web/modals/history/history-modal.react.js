@@ -18,6 +18,7 @@ import type { FetchRevisionsForEntryInput } from 'lib/actions/entry-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type {
   EntryInfo,
   CalendarQuery,
@@ -117,10 +118,13 @@ class HistoryModal extends React.PureComponent<Props, State> {
     const threadInfos = this.props.threadInfos;
     if (entryInfos) {
       entries = _flow(
-        _filter(
-          (entryInfo: EntryInfo) =>
-            entryInfo.id && !threadInfos?.[entryInfo.threadID].thick,
-        ),
+        _filter((entryInfo: EntryInfo) => {
+          const threadType = threadInfos?.[entryInfo.threadID].type;
+          const supportsCalendarHistory =
+            !threadType ||
+            threadSpecs[threadType].protocol.supportsCalendarHistory;
+          return entryInfo.id && supportsCalendarHistory;
+        }),
         _map((entryInfo: EntryInfo) => {
           const serverID = entryInfo.id;
           invariant(serverID, 'serverID should be set');
