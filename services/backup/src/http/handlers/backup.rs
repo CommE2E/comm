@@ -288,6 +288,8 @@ pub async fn get_latest_backup_info(
   auth_service: comm_lib::auth::AuthService,
   blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<impl Responder> {
+  info!("Latest backup info request.");
+
   let user_identifier = path.into_inner();
   let user_id = find_user_id(&user_identifier).await?;
 
@@ -330,6 +332,8 @@ pub async fn download_latest_backup_keys(
   db_client: web::Data<DatabaseClient>,
   blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<HttpResponse> {
+  info!("UserKeys download request.");
+
   let user_identifier = path.into_inner();
   let user_id = find_user_id(&user_identifier).await?;
 
@@ -393,6 +397,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
     // If attachments and user_data exists, we need to create holder.
     // Otherwise, cleanup can remove this data.
     Some(item) => {
+      tracing::debug!("Found existing backup item, copying data.");
       let attachments_hashes: Vec<String> = item
         .attachments
         .iter()
@@ -448,6 +453,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
   Ok((item, revokes))
 }
 
+#[tracing::instrument(skip_all, fields(backup_id))]
 async fn get_total_backup_size(
   user_id: &str,
   backup_id: &str,
@@ -483,6 +489,13 @@ async fn get_total_backup_size(
     .total_size();
 
   let total_backup_size = total_blobs_size + ddb_logs_size;
+  tracing::debug!(
+    total_blobs_size,
+    ddb_logs_size,
+    total_backup_size,
+    "Calculated backup size."
+  );
+
   Ok(total_backup_size)
 }
 
