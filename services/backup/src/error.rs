@@ -1,7 +1,7 @@
 use actix_web::{
   error::{
     ErrorBadRequest, ErrorConflict, ErrorInternalServerError, ErrorNotFound,
-    ErrorServiceUnavailable, HttpError,
+    ErrorServiceUnavailable,
   },
   HttpResponse, ResponseError,
 };
@@ -24,7 +24,8 @@ pub enum BackupError {
   AuthError(AuthServiceError),
   DB(comm_lib::database::Error),
   IdentityClientError(IdentityClientError),
-  BadRequest,
+  #[error(ignore)]
+  BadRequest(&'static str),
   NoUserData,
 }
 
@@ -86,16 +87,10 @@ impl From<&BackupError> for actix_web::Error {
         warn!("Transient identity error occurred: {err}");
         ErrorServiceUnavailable("please retry")
       }
-      BackupError::NoUserID => ErrorBadRequest("bad request"),
-      BackupError::BadRequest => ErrorBadRequest("bad request"),
+      BackupError::NoUserID => ErrorBadRequest("no_user_id"),
+      BackupError::BadRequest(reason) => ErrorBadRequest(*reason),
       BackupError::NoUserData => ErrorNotFound("not found"),
     }
-  }
-}
-
-impl From<BackupError> for HttpError {
-  fn from(value: BackupError) -> Self {
-    value.into()
   }
 }
 

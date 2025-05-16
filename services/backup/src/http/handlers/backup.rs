@@ -56,7 +56,7 @@ pub async fn upload(
   let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
   let version_info = aux_data
     .get_backup_version_info()?
-    .ok_or(BackupError::BadRequest)?;
+    .ok_or(BackupError::BadRequest("missing_version_info"))?;
 
   let item = BackupItem::new(
     user.user_id.clone(),
@@ -174,7 +174,7 @@ pub async fn upload_user_data(
   let aux_data = multipart.get_aux_data().await?;
   let version_info = aux_data
     .get_backup_version_info()?
-    .ok_or(BackupError::BadRequest)?;
+    .ok_or(BackupError::BadRequest("missing_version_info"))?;
 
   let existing_backup_item = db_client
     .find_backup_item(&user.user_id, &backup_id)
@@ -508,14 +508,14 @@ impl BackupRequestInput for actix_multipart::Multipart {
 
     let Some(mut field) = multipart.try_next().await? else {
       warn!("Malformed request: expected a field.");
-      return Err(ErrorBadRequest("Bad request"))?;
+      return Err(ErrorBadRequest("multipart_field_expected"))?;
     };
     if field.name() != data_field_name {
       warn!(
         hash_field_name,
         "Malformed request: '{data_field_name}' data field expected."
       );
-      return Err(ErrorBadRequest("Bad request"))?;
+      return Err(ErrorBadRequest("missing_data_field"))?;
     }
 
     let blob_info = BlobInfo {
@@ -577,13 +577,13 @@ impl BackupRequestInput for actix_multipart::Multipart {
             name,
             "Malformed request: 'attachments' text field expected."
           );
-          return Err(BackupError::BadRequest);
+          return Err(BackupError::BadRequest("attachments_field_expected"));
         }
 
         attachments.lines().map(ToString::to_string).collect()
       }
       Ok(None) => Vec::new(),
-      Err(_) => return Err(BackupError::BadRequest),
+      Err(_) => return Err(BackupError::BadRequest("multipart_error")),
     };
 
     blob_utils::create_holders_for_blob_hashes(attachments_hashes, blob_client)
