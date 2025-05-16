@@ -120,6 +120,9 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
     } catch (e) {
       const messageForException = getMessageForException(e);
       let alertMessage = unknownErrorAlertDetails;
+      console.log(
+        `Password restore error: ${messageForException ?? 'unknown error'}`,
+      );
       let onPress = null;
       if (
         messageForException === 'user_not_found' ||

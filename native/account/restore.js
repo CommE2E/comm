@@ -66,6 +66,7 @@ function useRestoreProtocol(): (
       const { olmAPI } = getConfig();
       await olmAPI.initializeCryptoAccount();
 
+      console.log('F');
       //2. Retrieve User Keys Backup and `userID`
       const latestBackupInfo = await retrieveLatestBackupInfo(userIdentifier);
       if (!latestBackupInfo) {
@@ -103,6 +104,7 @@ function useRestoreProtocol(): (
       const devices = keyserverDeviceID
         ? [primaryDeviceID, keyserverDeviceID]
         : [primaryDeviceID];
+      console.log('Device list:', devices, 'Ks:', keyserverDeviceID);
       const initialDeviceList = composeRawDeviceList(devices);
       const rawDeviceList = JSON.stringify(initialDeviceList);
       const [curPrimarySignature, lastPrimarySignature] = await Promise.all([
@@ -264,18 +266,23 @@ function useV1Login(): (
   return React.useCallback(
     async (userIdentifier, credentials) => {
       console.log('Performing a V1 login fallback');
-      if (credentials.type === 'password') {
-        await identityPasswordLogIn(userIdentifier, credentials.password);
-        await setNativeCredentials({
-          username: userIdentifier,
-          password: credentials.password,
-        });
-      } else {
-        await walletLogIn(
-          userIdentifier,
-          credentials.socialProof.message,
-          credentials.socialProof.signature,
-        );
+      try {
+        if (credentials.type === 'password') {
+          await identityPasswordLogIn(userIdentifier, credentials.password);
+          await setNativeCredentials({
+            username: userIdentifier,
+            password: credentials.password,
+          });
+        } else {
+          await walletLogIn(
+            userIdentifier,
+            credentials.socialProof.message,
+            credentials.socialProof.signature,
+          );
+        }
+      } catch (e) {
+        console.log('V1 login err:', e);
+        throw e;
       }
     },
     [identityPasswordLogIn, walletLogIn],

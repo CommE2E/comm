@@ -178,6 +178,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           deviceID,
           keyserverDeviceID,
         );
+        console.log('Logout device list:', signedDeviceList);
         return authVerifiedEndpoint(
           commRustModule.logOutPrimaryDevice(
             userID,

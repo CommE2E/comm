@@ -468,6 +468,10 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       this.platformDetails,
       identityDeviceKeyUpload,
     );
+    console.log(
+      'Auth request device key upload payload',
+      identityDeviceKeyUpload.keyPayload,
+    );
     const { nonce, nonceSignature } = nonceChallengeResponse;
 
     const request = new SecondaryDeviceKeysUploadRequest();

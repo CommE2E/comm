@@ -69,7 +69,7 @@ class CommSharedWorker {
         clearDatabase &&
         this.status.type === sharedWorkerStatuses.INIT_SUCCESS
       ) {
-        console.info('Clearing sensitive data');
+        console.info('[Worker provider] Clearing sensitive data');
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
@@ -109,7 +109,7 @@ class CommSharedWorker {
           backupClientFilename,
         });
         this.status = { type: sharedWorkerStatuses.INIT_SUCCESS };
-        console.info('Database initialization success');
+        console.info('[Worker provider] Database initialization success');
       } catch (error) {
         this.status = { type: sharedWorkerStatuses.INIT_ERROR };
         console.error(`Database initialization failure`, error);

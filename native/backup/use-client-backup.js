@@ -49,18 +49,24 @@ async function getBackupUserKeys(
 async function retrieveLatestBackupInfo(
   userIdentifier: string,
 ): Promise<?LatestBackupInfo> {
-  const response =
-    await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
+  try {
+    const response =
+      await commCoreModule.retrieveLatestBackupInfo(userIdentifier);
 
-  const parsedResponse = JSON.parse(response);
-  if (!parsedResponse) {
-    return null;
+    const parsedResponse = JSON.parse(response);
+    if (!parsedResponse) {
+      return null;
+    }
+    console.log(parsedResponse);
+
+    return assertWithValidator<LatestBackupInfo>(
+      parsedResponse,
+      latestBackupInfoResponseValidator,
+    );
+  } catch (e) {
+    console.log('Retrieve latest info fail:', e);
+    throw e;
   }
-
-  return assertWithValidator<LatestBackupInfo>(
-    parsedResponse,
-    latestBackupInfoResponseValidator,
-  );
 }
 
 function useClientBackup(): ClientBackup {

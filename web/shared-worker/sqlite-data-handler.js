@@ -25,6 +25,7 @@ function SQLiteDataHandler(): React.Node {
   );
 
   const handleSensitiveData = React.useCallback(async () => {
+    console.log('[sqlite handler] handleSensitiveData start');
     const sharedWorker = await getCommSharedWorker();
     let sqliteStampedUserID,
       errorGettingStampedUserID = false;
@@ -47,6 +48,10 @@ function SQLiteDataHandler(): React.Node {
       shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
     ) {
       try {
+        console.log('[sqlite handler] Artificially Waiting 3s...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        console.log('[sqlite handler] 3s passed. Will reset DB now.');
+
         setDatabaseResetStatus(databaseResetStatus.RESET_IN_PROGRESS);
         await sharedWorker.init({ clearDatabase: true });
         setDatabaseResetStatus(databaseResetStatus.READY);
