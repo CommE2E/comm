@@ -428,6 +428,7 @@ impl DatabaseClient {
     let assigned_holder_infos = blob_client
       .assign_multiple_holders_with_retries(blob_infos, Default::default())
       .await?;
+    let num_holders_assigned = assigned_holder_infos.len();
 
     let revoke = Defer::new(|| {
       for BlobInfo { blob_hash, holder } in assigned_holder_infos {
@@ -446,6 +447,7 @@ impl DatabaseClient {
         WriteRequest::builder().put_request(put_request).build()
       })
       .collect::<Vec<_>>();
+    let num_writes = write_requests.len();
 
     database::batch_operations::batch_write(
       &self.client,
@@ -455,6 +457,11 @@ impl DatabaseClient {
     )
     .await?;
 
+    tracing::debug!(
+      "Logs copied. {} logs written to DDB, {} holders assigned.",
+      num_writes,
+      num_holders_assigned
+    );
     Ok(revoke)
   }
 }

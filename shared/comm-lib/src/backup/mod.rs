@@ -1,11 +1,18 @@
 use crate::auth::UserIdentity;
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
 /// shared database types and constants
 pub mod database;
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Display, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[display(
+  fmt = "BackupVersion(code={}, state={}, db={})",
+  code_version,
+  state_version,
+  db_version
+)]
 pub struct BackupVersionInfo {
   /// App code version
   pub code_version: u16,
