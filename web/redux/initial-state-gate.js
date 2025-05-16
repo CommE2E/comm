@@ -11,9 +11,9 @@ import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
+import { getProtocolByThreadID } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
-import { threadIDIsThick } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
@@ -97,10 +97,13 @@ function InitialReduxStateGate(props: Props): React.Node {
     void (async () => {
       try {
         let urlInfo = infoFromURL(decodeURI(window.location.href));
-        const isThickThreadOpen =
-          urlInfo.thread && threadIDIsThick(urlInfo.thread);
+        const protocol = urlInfo.thread
+          ? getProtocolByThreadID(urlInfo.thread)
+          : null;
+        const isNonConvertibleThreadOpen =
+          protocol && !protocol.shouldConvertIDs;
         // Handle older links
-        if (urlInfo.thread && !isThickThreadOpen) {
+        if (urlInfo.thread && !isNonConvertibleThreadOpen) {
           urlInfo = {
             ...urlInfo,
             thread: convertIDToNewSchema(
@@ -121,7 +124,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           allUpdatesCurrentAsOf,
         });
 
-        if (isThickThreadOpen) {
+        if (isNonConvertibleThreadOpen) {
           payload.navInfo.activeChatThreadID = urlInfo.thread;
         }
 
