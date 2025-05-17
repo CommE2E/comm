@@ -58,3 +58,6 @@ desktop/*.provisionprofile
 
 # Cargo workspace
 target/
+
+.claude.json
+**/.claude/settings.local.json
