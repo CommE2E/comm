@@ -24,7 +24,7 @@ function DebugLogsScreen(props: Props): React.Node {
   const { logs, clearLogs } = useDebugLogs();
 
   const copyLogs = React.useCallback(() => {
-    Clipboard.setString(JSON.stringify(logs));
+    Clipboard.setString(JSON.stringify(logs, null, 2));
   }, [logs]);
 
   const styles = useStyles(unboundStyles);
@@ -47,8 +47,8 @@ function DebugLogsScreen(props: Props): React.Node {
   return (
     <View style={styles.view}>
       <FlatList data={logs} renderItem={renderItem} />
-      <PrimaryButton onPress={clearLogs} variant="danger" label="Clear Logs" />
-      <PrimaryButton onPress={copyLogs} variant="enabled" label="Copy Logs" />
+      <PrimaryButton onPress={clearLogs} variant="danger" label="Clear logs" />
+      <PrimaryButton onPress={copyLogs} variant="enabled" label="Copy logs" />
     </View>
   );
 }

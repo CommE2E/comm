@@ -30,7 +30,7 @@ function DebugLogsModal(): React.Node {
   );
 
   const copyLogs = React.useCallback(async () => {
-    await navigator.clipboard.writeText(JSON.stringify(logs));
+    await navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
   }, [logs]);
 
   return (
@@ -39,7 +39,7 @@ function DebugLogsModal(): React.Node {
         <div className={css.logsList}>{messageList}</div>
         <div className={css.buttons}>
           <Button variant="filled" className={css.button} onClick={copyLogs}>
-            Copy Logs
+            Copy logs
           </Button>
           <Button
             variant="filled"
@@ -47,7 +47,7 @@ function DebugLogsModal(): React.Node {
             className={css.button}
             onClick={clearLogs}
           >
-            Clear Logs
+            Clear logs
           </Button>
         </div>
       </div>
