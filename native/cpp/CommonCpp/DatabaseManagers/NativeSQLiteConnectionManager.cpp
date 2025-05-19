@@ -237,8 +237,7 @@ NativeSQLiteConnectionManager::~NativeSQLiteConnectionManager() {
 
 bool NativeSQLiteConnectionManager::captureLogs(
     std::string backupID,
-    std::string logID,
-    std::string encryptionKey) {
+    std::string logID) {
   int patchsetSize;
   std::uint8_t *patchsetPtr;
   int getPatchsetResult = sqlite3session_patchset(
@@ -254,7 +253,8 @@ bool NativeSQLiteConnectionManager::captureLogs(
     return false;
   }
 
-  persistLog(backupID, logID, patchsetPtr, patchsetSize, encryptionKey);
+  persistLog(
+      backupID, logID, patchsetPtr, patchsetSize, this->backupLogDataKey);
   sqlite3_free(patchsetPtr);
 
   // The session is not "zeroed" after capturing log.
@@ -277,6 +277,14 @@ void NativeSQLiteConnectionManager::restoreFromBackupLog(
 void NativeSQLiteConnectionManager::setNewKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) {
+  if (this->backupDataKey.empty()) {
+    throw std::runtime_error("backupDataKey is not set");
+  }
+
+  if (this->backupLogDataKey.empty()) {
+    throw std::runtime_error("backupLogDataKey is not set");
+  }
+
   bool isConnectionInitialized = this->dbConnection;
   if (isConnectionInitialized) {
     this->closeConnection();
