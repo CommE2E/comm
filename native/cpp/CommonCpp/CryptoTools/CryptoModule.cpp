@@ -311,9 +311,9 @@ void CryptoModule::initializeInboundForReceivingSession(
   if (this->hasSessionFor(targetDeviceId)) {
     std::shared_ptr<Session> existingSession =
         getSessionByDeviceId(targetDeviceId);
-    if (existingSession->getVersion() > sessionVersion) {
+    if (!overwrite && existingSession->getVersion() > sessionVersion) {
       throw std::runtime_error{"OLM_SESSION_ALREADY_CREATED"};
-    } else if (existingSession->getVersion() == sessionVersion) {
+    } else if (!overwrite && existingSession->getVersion() == sessionVersion) {
       throw std::runtime_error{"OLM_SESSION_CREATION_RACE_CONDITION"};
     }
 
