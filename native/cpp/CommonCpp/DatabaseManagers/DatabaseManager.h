@@ -21,6 +21,8 @@ class DatabaseManager {
   static std::string backupDataKey;
   static std::string backupLogDataKey;
 
+  static std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
   // operational database that can be used by application logic.
@@ -60,6 +62,7 @@ public:
   static void captureBackupLogs();
   static void triggerBackupFileUpload();
   static void createMainCompaction(std::string backupID);
+  static void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
 };
 
 } // namespace comm

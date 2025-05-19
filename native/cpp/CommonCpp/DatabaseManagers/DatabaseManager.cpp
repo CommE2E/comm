@@ -27,6 +27,9 @@ std::string DatabaseManager::sqliteFilePath;
 std::string DatabaseManager::backupDataKey;
 std::string DatabaseManager::backupLogDataKey;
 
+std::shared_ptr<NativeSQLiteConnectionManager>
+    DatabaseManager::connectionManager;
+
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
 DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
@@ -36,7 +39,7 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
-  thread_local SQLiteQueryExecutor instance;
+  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
 
   // creating an instance means that migration code was executed
   // and finished without error and database is workable
@@ -54,7 +57,7 @@ void DatabaseManager::clearSensitiveData() {
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
-  SQLiteQueryExecutor::connectionManager.closeConnection();
+  DatabaseManager::connectionManager->closeConnection();
   if (SQLiteUtils::fileExists(DatabaseManager::sqliteFilePath) &&
       std::remove(DatabaseManager::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
@@ -69,7 +72,7 @@ void DatabaseManager::clearSensitiveData() {
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
   SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
 
-  thread_local SQLiteQueryExecutor instance;
+  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
   instance.migrate();
 
   PlatformSpecificTools::removeBackupDirectory();
@@ -80,6 +83,8 @@ void DatabaseManager::clearSensitiveData() {
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
   try {
+    DatabaseManager::connectionManager =
+        std::make_shared<NativeSQLiteConnectionManager>();
     DatabaseManager::initializeSQLiteQueryExecutorProperties(databasePath);
     DatabaseManager::getQueryExecutor();
     DatabaseManager::indicateQueryExecutorCreation();
@@ -228,7 +233,7 @@ void DatabaseManager::captureBackupLogs() {
     logID = "1";
   }
 
-  bool newLogCreated = SQLiteQueryExecutor::connectionManager.captureLogs(
+  bool newLogCreated = DatabaseManager::connectionManager->captureLogs(
       backupID, logID, DatabaseManager::backupLogDataKey);
   if (!newLogCreated) {
     return;
@@ -246,7 +251,7 @@ void DatabaseManager::triggerBackupFileUpload() {
 }
 
 void DatabaseManager::createMainCompaction(std::string backupID) {
-  thread_local SQLiteQueryExecutor instance;
+  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
 
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
@@ -347,8 +352,13 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   instance.setMetadata("backupID", backupID);
   instance.clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
-    SQLiteQueryExecutor::connectionManager.setLogsMonitoring(true);
+    DatabaseManager::connectionManager->setLogsMonitoring(true);
   }
+}
+
+void DatabaseManager::restoreFromBackupLog(
+    const std::vector<std::uint8_t> &backupLog) {
+  DatabaseManager::connectionManager->restoreFromBackupLog(backupLog);
 }
 
 } // namespace comm

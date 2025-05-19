@@ -23,8 +23,6 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  static void closeConnection();
-
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
@@ -33,6 +31,12 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
       sqlite3 *db,
       const std::string &sourceDbPath,
       const std::vector<std::string> &tableNames) const;
+
+#ifndef EMSCRIPTEN
+  std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+#else
+  std::shared_ptr<WebSQLiteConnectionManager> connectionManager;
+#endif
 
 public:
   static std::string sqliteFilePath;
@@ -43,9 +47,8 @@ public:
 
   void migrate();
 
-  SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
-  SQLiteQueryExecutor(std::string sqliteFilePath);
+
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
   void updateDraft(std::string key, std::string text) const override;
@@ -154,8 +157,7 @@ public:
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
       std::string maxVersion) const override;
-  void restoreFromBackupLog(
-      const std::vector<std::uint8_t> &backupLog) const override;
+  void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
   void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const override;
   std::vector<OutboundP2PMessage> getOutboundP2PMessagesByID(
@@ -201,6 +203,8 @@ public:
   getDMOperationsByType(const std::string &operationType) const override;
 
 #ifndef EMSCRIPTEN
+  SQLiteQueryExecutor(
+      std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
   static void initialize(
       std::string &databasePath,
       std::string &backupDataKey,
@@ -208,9 +212,8 @@ public:
   void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const override;
-  static NativeSQLiteConnectionManager connectionManager;
 #else
-  static WebSQLiteConnectionManager connectionManager;
+  SQLiteQueryExecutor(std::string sqliteFilePath);
 #endif
 };
 
