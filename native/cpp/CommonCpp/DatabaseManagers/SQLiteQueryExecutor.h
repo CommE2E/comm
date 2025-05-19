@@ -35,10 +35,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
       const std::vector<std::string> &tableNames) const;
 
 public:
-  static std::string sqliteFilePath;
-  static std::string backupDataKey;
-  static std::string backupLogDataKey;
-
 #ifndef EMSCRIPTEN
   std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
   SQLiteQueryExecutor(

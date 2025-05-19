@@ -6,18 +6,12 @@ namespace comm {
 class WebSQLiteConnectionManager : public SQLiteConnectionManager {
 
 public:
-  WebSQLiteConnectionManager();
+  WebSQLiteConnectionManager(std::string sqliteFilePath);
   ~WebSQLiteConnectionManager();
 
-  sqlite3 *getEphemeralConnection(
-      std::string sqliteFilePath,
-      std::string sqliteEncryptionKey) const override;
-  void initializeConnection(
-      std::string sqliteFilePath,
-      std::string sqliteEncryptionKey) override;
+  sqlite3 *getEphemeralConnection() const override;
+  void initializeConnection() override;
   void closeConnection() override;
-  virtual void validateEncryption(
-      const std::string &sqliteFilePath,
-      const std::string &encryptionKey) override;
+  virtual void validateEncryption() override;
 };
 } // namespace comm
