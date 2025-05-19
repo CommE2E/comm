@@ -213,9 +213,8 @@ void DatabaseManager::setUserDataKeys(
   DatabaseManager::connectionManager->setNewKeys(
       backupDataKey, backupLogDataKey);
 
-  // TODO rekey
-  DatabaseManager::getQueryExecutor().setUserDataKeys(
-      backupDataKey, backupLogDataKey);
+  SQLiteUtils::rekeyDatabase(
+      DatabaseManager::connectionManager->getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   DatabaseManager::backupDataKey = backupDataKey;

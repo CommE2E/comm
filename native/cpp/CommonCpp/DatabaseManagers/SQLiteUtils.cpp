@@ -1,6 +1,7 @@
 #include "SQLiteUtils.h"
 
 #include "Logger.h"
+#include "entities/EntityQueryHelpers.h"
 #include <sqlite3.h>
 
 #include <fstream>
@@ -220,6 +221,12 @@ std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
   sqlite3_finalize(stmt);
 
   return tableNames;
+}
+
+void SQLiteUtils::rekeyDatabase(sqlite3 *db, const std::string &encryptionKey) {
+  std::string rekey_encryption_key_query =
+      "PRAGMA rekey = \"x'" + encryptionKey + "'\";";
+  executeQuery(db, rekey_encryption_key_query);
 }
 
 } // namespace comm
