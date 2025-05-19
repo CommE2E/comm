@@ -50,6 +50,7 @@ public:
   // Backup methods
   static void captureBackupLogs();
   static void triggerBackupFileUpload();
+  static void createMainCompaction(std::string backupID);
 };
 
 } // namespace comm
