@@ -25,15 +25,10 @@ namespace comm {
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void closeConnection();
 
-#ifndef EMSCRIPTEN
-  void cleanupDatabaseExceptAllowlist(sqlite3 *db) const;
-#endif
-
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
   std::string getThickThreadTypesList() const;
-  std::vector<std::string> getAllTableNames(sqlite3 *db) const;
   void copyTablesDataUsingAttach(
       sqlite3 *db,
       const std::string &sourceDbPath,
