@@ -12,6 +12,10 @@ class DatabaseManager {
   static const int backupDataKeySize;
   static const int backupLogDataKeySize;
 
+  // Connection manager instance, should be only one (globally) to each
+  // database.
+  static std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
   // operational database that can be used by application logic.

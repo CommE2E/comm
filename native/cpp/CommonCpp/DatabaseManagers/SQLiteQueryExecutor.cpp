@@ -35,14 +35,8 @@ std::string SQLiteQueryExecutor::backupDataKey;
 
 std::string SQLiteQueryExecutor::backupLogDataKey;
 
-#ifndef EMSCRIPTEN
-NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
-#else
-WebSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
-#endif
-
 void SQLiteQueryExecutor::migrate() const {
-  SQLiteQueryExecutor::connectionManager.validateEncryption(
+  this->connectionManager->validateEncryption(
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 
   std::stringstream db_path;
@@ -50,7 +44,7 @@ void SQLiteQueryExecutor::migrate() const {
           << std::endl;
   Logger::log(db_path.str());
 
-  sqlite3 *db = SQLiteQueryExecutor::connectionManager.getEphemeralConnection(
+  sqlite3 *db = this->connectionManager->getEphemeralConnection(
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 
   auto db_version = SQLiteUtils::getDatabaseVersion(db);
@@ -75,34 +69,54 @@ void SQLiteQueryExecutor::migrate() const {
   sqlite3_close(db);
 }
 
-SQLiteQueryExecutor::SQLiteQueryExecutor() {
-  this->migrate();
 #ifndef EMSCRIPTEN
+SQLiteQueryExecutor::SQLiteQueryExecutor(
+    std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
+    : connectionManager(std::move(connectionManager)) {
+  this->migrate();
+  SQLiteQueryExecutor::connectionManager->initializeConnection(
+      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
   }
-  SQLiteQueryExecutor::connectionManager.setLogsMonitoring(true);
-#endif
+  SQLiteQueryExecutor::connectionManager->setLogsMonitoring(true);
 }
 
-SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
+#else
+SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
+    : connectionManager(std::make_shared<WebSQLiteConnectionManager>()) {
   SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
   this->migrate();
+  SQLiteQueryExecutor::connectionManager->initializeConnection(
+      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 }
+#endif
 
 sqlite3 *SQLiteQueryExecutor::getConnection() const {
-  SQLiteQueryExecutor::connectionManager.initializeConnection(
+  this->connectionManager->initializeConnection(
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
-  return SQLiteQueryExecutor::connectionManager.getConnection();
+  return this->connectionManager->getConnection();
 }
 
-void SQLiteQueryExecutor::closeConnection() {
-  SQLiteQueryExecutor::connectionManager.closeConnection();
-}
-
+// This logic is crucial for managing the connectionManager's lifecycle within
+// the SQLiteQueryExecutor. For newly instantiated connectionManagers, their
+// lifecycle aligns with SQLiteQueryExecutor they belong to, and they are
+// disposed of simultaneously. When using an existing connectionManager (such as
+// NativeSQLiteConnectionManager from a static context like DatabaseManager),
+// handling the destruction is more complex. connectionManager does not get
+// destructed until the application exits (static member). There is no mechanism
+// to automatically detect when all thread_local instances of
+// SQLiteQueryExecutor are done, as their lifecycle is tied to thread execution,
+// not directly managed through code. This code ensures that all active
+// connections are closed once their corresponding threads have finished. This
+// is crucial to prevent leftover issues like database file locks if the
+// application is stopped unexpectedly and then run again. In
+// `SQLiteQueryExecutor`, when a connection is needed, we always use the
+// internal `getConnection`, which lazy-initializes the connection after it was
+// closed by another instance whose thread is no longer alive.
 SQLiteQueryExecutor::~SQLiteQueryExecutor() {
-  SQLiteQueryExecutor::closeConnection();
+  this->connectionManager->closeConnection();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
@@ -1619,7 +1633,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
 
 void SQLiteQueryExecutor::restoreFromBackupLog(
     const std::vector<std::uint8_t> &backupLog) const {
-  SQLiteQueryExecutor::connectionManager.restoreFromBackupLog(backupLog);
+  this->connectionManager->restoreFromBackupLog(backupLog);
 }
 
 } // namespace comm
