@@ -12,7 +12,7 @@ void BackupOperationsExecutor::createMainCompaction(
     size_t futureID) {
   taskType job = [backupID, futureID]() {
     try {
-      DatabaseManager::getQueryExecutor().createMainCompaction(backupID);
+      DatabaseManager::createMainCompaction(backupID);
       ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
       ::rejectFuture(futureID, rust::String(e.what()));

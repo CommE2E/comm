@@ -23,7 +23,6 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  sqlite3 *getConnection() const;
   static void closeConnection();
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
@@ -39,6 +38,8 @@ public:
   static std::string sqliteFilePath;
   static std::string backupDataKey;
   static std::string backupLogDataKey;
+
+  sqlite3 *getConnection() const;
 
   void migrate();
 
@@ -204,7 +205,6 @@ public:
       std::string &databasePath,
       std::string &backupDataKey,
       std::string &backupLogDataKey);
-  void createMainCompaction(std::string backupID) const override;
   void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const override;
