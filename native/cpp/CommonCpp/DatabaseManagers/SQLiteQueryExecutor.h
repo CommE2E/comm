@@ -40,14 +40,15 @@ public:
   static std::string backupLogDataKey;
 
 #ifndef EMSCRIPTEN
-  static NativeSQLiteConnectionManager connectionManager;
+  std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+  SQLiteQueryExecutor(
+      std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
 #else
-  static WebSQLiteConnectionManager connectionManager;
+  std::shared_ptr<WebSQLiteConnectionManager> connectionManager;
+  SQLiteQueryExecutor(std::string sqliteFilePath);
 #endif
 
-  SQLiteQueryExecutor();
   ~SQLiteQueryExecutor();
-  SQLiteQueryExecutor(std::string sqliteFilePath);
 
   sqlite3 *getConnection() const;
   void migrate() const override;
