@@ -8,11 +8,16 @@
 
 namespace comm {
 
-SQLiteConnectionManager::SQLiteConnectionManager() : dbConnection(nullptr) {
+SQLiteConnectionManager::SQLiteConnectionManager(std::string sqliteFilePath)
+    : dbConnection(nullptr), sqliteFilePath(sqliteFilePath) {
 }
 
-sqlite3 *SQLiteConnectionManager::getConnection() const {
+sqlite3 *SQLiteConnectionManager::getConnection() {
   return dbConnection;
+}
+
+std::string SQLiteConnectionManager::getSQLiteFilePath() {
+  return this->sqliteFilePath;
 }
 
 void SQLiteConnectionManager::handleSQLiteError(
@@ -27,10 +32,9 @@ void SQLiteConnectionManager::handleSQLiteError(
   }
 }
 
-sqlite3 *
-SQLiteConnectionManager::createConnection(std::string sqliteFilePath) const {
+sqlite3 *SQLiteConnectionManager::createConnection() {
   sqlite3 *dbConnection;
-  int connectResult = sqlite3_open(sqliteFilePath.c_str(), &dbConnection);
+  int connectResult = sqlite3_open(this->sqliteFilePath.c_str(), &dbConnection);
   handleSQLiteError(connectResult, "Failed to open database connection");
   return dbConnection;
 }

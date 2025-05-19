@@ -39,10 +39,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 #endif
 
 public:
-  static std::string sqliteFilePath;
-  static std::string backupDataKey;
-  static std::string backupLogDataKey;
-
   sqlite3 *getConnection() const;
 
   void migrate();
@@ -205,10 +201,6 @@ public:
 #ifndef EMSCRIPTEN
   SQLiteQueryExecutor(
       std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
-  static void initialize(
-      std::string &databasePath,
-      std::string &backupDataKey,
-      std::string &backupLogDataKey);
   void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const override;

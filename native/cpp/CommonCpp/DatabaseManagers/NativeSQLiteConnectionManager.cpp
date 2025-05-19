@@ -180,8 +180,14 @@ std::vector<std::string> NativeSQLiteConnectionManager::getAttachmentsFromLog(
   return attachments;
 }
 
-NativeSQLiteConnectionManager::NativeSQLiteConnectionManager()
-    : backupLogsSession(nullptr) {
+NativeSQLiteConnectionManager::NativeSQLiteConnectionManager(
+    std::string &databasePath,
+    std::string &backupDataKey,
+    std::string &backupLogDataKey)
+    : SQLiteConnectionManager(databasePath),
+      backupLogsSession(nullptr),
+      backupDataKey(backupDataKey),
+      backupLogDataKey(backupLogDataKey) {
 }
 
 void NativeSQLiteConnectionManager::setLogsMonitoring(bool enabled) {
@@ -200,26 +206,22 @@ bool NativeSQLiteConnectionManager::getLogsMonitoring() {
 
 void NativeSQLiteConnectionManager::onDatabaseOpen(
     sqlite3 *db,
-    std::string sqliteEncryptionKey) const {
+    std::string sqliteEncryptionKey) {
   SQLiteUtils::setEncryptionKey(db, sqliteEncryptionKey);
 }
 
-sqlite3 *NativeSQLiteConnectionManager::getEphemeralConnection(
-    std::string sqliteFilePath,
-    std::string sqliteEncryptionKey) const {
-  sqlite3 *db = this->createConnection(sqliteFilePath);
-  onDatabaseOpen(db, sqliteEncryptionKey);
+sqlite3 *NativeSQLiteConnectionManager::getEphemeralConnection() {
+  sqlite3 *db = this->createConnection();
+  onDatabaseOpen(db, this->backupDataKey);
   return db;
 }
 
-void NativeSQLiteConnectionManager::initializeConnection(
-    std::string sqliteFilePath,
-    std::string sqliteEncryptionKey) {
+void NativeSQLiteConnectionManager::initializeConnection() {
   if (this->dbConnection) {
     return;
   }
-  this->dbConnection = this->createConnection(sqliteFilePath);
-  onDatabaseOpen(getConnection(), sqliteEncryptionKey);
+  this->dbConnection = this->createConnection();
+  onDatabaseOpen(getConnection(), this->backupDataKey);
   attachSession();
   setLogsMonitoring(false);
 }
@@ -271,4 +273,32 @@ void NativeSQLiteConnectionManager::restoreFromBackupLog(
   SQLiteConnectionManager::restoreFromBackupLog(backupLog);
   setLogsMonitoring(initialEnabledValue);
 }
+
+void NativeSQLiteConnectionManager::setNewKeys(
+    const std::string &backupDataKey,
+    const std::string &backupLogDataKey) {
+  bool isConnectionInitialized = this->dbConnection;
+  if (isConnectionInitialized) {
+    this->closeConnection();
+  }
+
+  this->backupDataKey = backupDataKey;
+  this->backupLogDataKey = backupLogDataKey;
+  if (isConnectionInitialized) {
+    this->initializeConnection();
+  }
+}
+
+std::string NativeSQLiteConnectionManager::getBackupDataKey() {
+  return this->backupDataKey;
+}
+
+std::string NativeSQLiteConnectionManager::getBackupLogDataKey() {
+  return this->backupLogDataKey;
+}
+
+void NativeSQLiteConnectionManager::validateEncryption() {
+  SQLiteUtils::validateEncryption(this->sqliteFilePath, this->backupDataKey);
+}
+
 } // namespace comm
