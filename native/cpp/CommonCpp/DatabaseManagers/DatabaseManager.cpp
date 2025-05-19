@@ -69,10 +69,11 @@ void DatabaseManager::clearSensitiveData() {
 
   DatabaseManager::connectionManager->setNewKeys(
       backupDataKey, backupLogDataKey);
-  DatabaseManager::connectionManager->initializeConnection();
 
   thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
   instance.migrate();
+
+  DatabaseManager::connectionManager->initializeConnection();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
@@ -194,11 +195,11 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
-  DatabaseManager::connectionManager->setNewKeys(
-      backupDataKey, backupLogDataKey);
-
   SQLiteUtils::rekeyDatabase(
       DatabaseManager::connectionManager->getConnection(), backupDataKey);
+
+  DatabaseManager::connectionManager->setNewKeys(
+      backupDataKey, backupLogDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
