@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace comm {
 
@@ -198,6 +199,27 @@ void SQLiteUtils::validateEncryption(
       sqliteFilePath,
       "Failed to move encrypted database to default location.");
   Logger::log("Encryption completed successfully.");
+}
+
+std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
+  std::vector<std::string> tableNames;
+
+  std::string getAllTablesQuery =
+      "SELECT name "
+      "FROM sqlite_master"
+      "WHERE type='table';";
+
+  sqlite3_stmt *stmt;
+  sqlite3_prepare_v2(db, getAllTablesQuery.c_str(), -1, &stmt, nullptr);
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    const unsigned char *text = sqlite3_column_text(stmt, 0);
+    if (text) {
+      tableNames.push_back(reinterpret_cast<const char *>(text));
+    }
+  }
+  sqlite3_finalize(stmt);
+
+  return tableNames;
 }
 
 } // namespace comm
