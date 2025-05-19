@@ -200,7 +200,6 @@ public:
   virtual ~DatabaseQueryExecutor() = default;
 
 #ifndef EMSCRIPTEN
-  virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey) const = 0;
