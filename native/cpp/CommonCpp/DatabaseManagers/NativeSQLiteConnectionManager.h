@@ -42,10 +42,7 @@ public:
 
   void setLogsMonitoring(bool enabled);
   bool getLogsMonitoring();
-  bool captureLogs(
-      std::string backupID,
-      std::string logID,
-      std::string encryptionKey);
+  bool captureLogs(std::string backupID, std::string logID);
   void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) override;
 
