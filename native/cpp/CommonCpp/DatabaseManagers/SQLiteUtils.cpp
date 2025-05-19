@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace comm {
 
@@ -205,6 +206,27 @@ void SQLiteUtils::rekeyDatabase(sqlite3 *db, const std::string &encryptionKey) {
   std::string rekey_encryption_key_query =
       "PRAGMA rekey = \"x'" + encryptionKey + "'\";";
   executeQuery(db, rekey_encryption_key_query);
+}
+
+std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
+  std::vector<std::string> tableNames;
+
+  std::string getAllTablesQuery =
+      "SELECT name "
+      "FROM sqlite_master"
+      "WHERE type='table';";
+
+  sqlite3_stmt *stmt;
+  sqlite3_prepare_v2(db, getAllTablesQuery.c_str(), -1, &stmt, nullptr);
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    const unsigned char *text = sqlite3_column_text(stmt, 0);
+    if (text) {
+      tableNames.push_back(reinterpret_cast<const char *>(text));
+    }
+  }
+  sqlite3_finalize(stmt);
+
+  return tableNames;
 }
 
 } // namespace comm

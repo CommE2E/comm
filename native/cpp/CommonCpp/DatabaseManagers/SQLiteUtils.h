@@ -28,6 +28,7 @@ public:
       const std::string &sqliteFilePath,
       const std::string &encryptionKey);
   static void rekeyDatabase(sqlite3 *db, const std::string &encryptionKey);
+  static std::vector<std::string> getAllTableNames(sqlite3 *db);
 };
 
 } // namespace comm
