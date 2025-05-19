@@ -29,23 +29,15 @@ const int NOTIFS_ACCOUNT_ID = 2;
 
 namespace comm {
 
-std::string SQLiteQueryExecutor::sqliteFilePath;
-
-std::string SQLiteQueryExecutor::backupDataKey;
-
-std::string SQLiteQueryExecutor::backupLogDataKey;
-
 void SQLiteQueryExecutor::migrate() const {
-  this->connectionManager->validateEncryption(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  this->connectionManager->validateEncryption();
 
   std::stringstream db_path;
-  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
+  db_path << "db path: " << this->connectionManager->getSQLiteFilePath()
           << std::endl;
   Logger::log(db_path.str());
 
-  sqlite3 *db = this->connectionManager->getEphemeralConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  sqlite3 *db = this->connectionManager->getEphemeralConnection();
 
   auto db_version = SQLiteUtils::getDatabaseVersion(db);
   std::stringstream version_msg;
@@ -74,8 +66,7 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(
     std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
     : connectionManager(std::move(connectionManager)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  SQLiteQueryExecutor::connectionManager->initializeConnection();
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
@@ -85,17 +76,15 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(
 
 #else
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
-    : connectionManager(std::make_shared<WebSQLiteConnectionManager>()) {
-  SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
+    : connectionManager(
+          std::make_shared<WebSQLiteConnectionManager>(sqliteFilePath)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  SQLiteQueryExecutor::connectionManager->initializeConnection();
 }
 #endif
 
 sqlite3 *SQLiteQueryExecutor::getConnection() const {
-  this->connectionManager->initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  this->connectionManager->initializeConnection();
   return this->connectionManager->getConnection();
 }
 
