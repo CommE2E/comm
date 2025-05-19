@@ -198,10 +198,6 @@ public:
   virtual std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const = 0;
   virtual ~DatabaseQueryExecutor() = default;
-
-#ifndef EMSCRIPTEN
-  virtual void createMainCompaction(std::string backupID) const = 0;
-#endif
 };
 
 } // namespace comm

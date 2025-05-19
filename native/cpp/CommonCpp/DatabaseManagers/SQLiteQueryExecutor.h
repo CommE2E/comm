@@ -211,7 +211,6 @@ public:
       std::string &databasePath,
       std::string &backupDataKey,
       std::string &backupLogDataKey);
-  void createMainCompaction(std::string backupID) const override;
 #endif
 };
 
