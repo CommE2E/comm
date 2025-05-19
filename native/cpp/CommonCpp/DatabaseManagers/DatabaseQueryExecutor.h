@@ -196,12 +196,6 @@ public:
   virtual std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const = 0;
   virtual ~DatabaseQueryExecutor() = default;
-
-#ifndef EMSCRIPTEN
-  virtual void setUserDataKeys(
-      const std::string &backupDataKey,
-      const std::string &backupLogDataKey) const = 0;
-#endif
 };
 
 } // namespace comm

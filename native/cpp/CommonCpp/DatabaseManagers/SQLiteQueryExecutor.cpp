@@ -1518,18 +1518,6 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
       this->getConnection(), query, types);
 }
 
-#ifndef EMSCRIPTEN
-
-void SQLiteQueryExecutor::setUserDataKeys(
-    const std::string &backupDataKey,
-    const std::string &backupLogDataKey) const {
-  std::string rekey_encryption_key_query =
-      "PRAGMA rekey = \"x'" + backupDataKey + "'\";";
-
-  executeQuery(this->getConnection(), rekey_encryption_key_query);
-}
-#endif
-
 void SQLiteQueryExecutor::copyTablesDataUsingAttach(
     sqlite3 *db,
     const std::string &sourceDbPath,

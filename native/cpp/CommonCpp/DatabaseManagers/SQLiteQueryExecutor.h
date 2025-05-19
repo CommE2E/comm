@@ -201,9 +201,6 @@ public:
 #ifndef EMSCRIPTEN
   SQLiteQueryExecutor(
       std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
-  void setUserDataKeys(
-      const std::string &backupDataKey,
-      const std::string &backupLogDataKey) const override;
 #else
   SQLiteQueryExecutor(std::string sqliteFilePath);
 #endif
