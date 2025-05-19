@@ -54,17 +54,23 @@ void DatabaseManager::clearSensitiveData() {
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
   DatabaseManager::connectionManager->closeConnection();
-  if (SQLiteUtils::fileExists(SQLiteQueryExecutor::sqliteFilePath) &&
-      std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
+  std::string sqliteFilePath =
+      DatabaseManager::connectionManager->getSQLiteFilePath();
+
+  if (SQLiteUtils::fileExists(sqliteFilePath) &&
+      std::remove(sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
     errorStream << "Failed to delete database file. Details: "
                 << strerror(errno);
     Logger::log(errorStream.str());
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+
+  DatabaseManager::connectionManager->setNewKeys(
+      backupDataKey, backupLogDataKey);
+
   DatabaseManager::getQueryExecutor().migrate();
+  DatabaseManager::connectionManager->initializeConnection();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
@@ -74,8 +80,6 @@ void DatabaseManager::clearSensitiveData() {
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
   try {
-    DatabaseManager::connectionManager =
-        std::make_shared<NativeSQLiteConnectionManager>();
     DatabaseManager::initializeSQLiteQueryExecutorProperties(databasePath);
     DatabaseManager::getQueryExecutor();
     DatabaseManager::indicateQueryExecutorCreation();
@@ -159,9 +163,9 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
           backupLogDataKey = maybeBackupLogDataKey.value();
         }
 
-        SQLiteQueryExecutor::sqliteFilePath = databasePath;
-        SQLiteQueryExecutor::backupDataKey = backupDataKey;
-        SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+        DatabaseManager::connectionManager =
+            std::make_shared<NativeSQLiteConnectionManager>(
+                databasePath, backupDataKey, backupLogDataKey);
       });
 }
 
@@ -180,11 +184,11 @@ void DatabaseManager::reportDBOperationsFailure() {
 void DatabaseManager::setUserDataKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) {
-  if (SQLiteQueryExecutor::backupDataKey.empty()) {
+  if (DatabaseManager::connectionManager->getBackupDataKey().empty()) {
     throw std::runtime_error("backupDataKey is not set");
   }
 
-  if (SQLiteQueryExecutor::backupLogDataKey.empty()) {
+  if (DatabaseManager::connectionManager->getBackupLogDataKey().empty()) {
     throw std::runtime_error("backupLogDataKey is not set");
   }
 
@@ -200,10 +204,10 @@ void DatabaseManager::setUserDataKeys(
       DatabaseManager::connectionManager->getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+
+  DatabaseManager::connectionManager->setNewKeys(
+      backupDataKey, backupLogDataKey);
 }
 
 void DatabaseManager::captureBackupLogs() {
@@ -221,8 +225,8 @@ void DatabaseManager::captureBackupLogs() {
     logID = "1";
   }
 
-  bool newLogCreated = DatabaseManager::connectionManager->captureLogs(
-      backupID, logID, SQLiteQueryExecutor::backupLogDataKey);
+  bool newLogCreated =
+      DatabaseManager::connectionManager->captureLogs(backupID, logID);
   if (!newLogCreated) {
     return;
   }
@@ -270,7 +274,8 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
-  SQLiteUtils::setEncryptionKey(backupDB, SQLiteQueryExecutor::backupDataKey);
+  SQLiteUtils::setEncryptionKey(
+      backupDB, DatabaseManager::connectionManager->getBackupDataKey());
 
   sqlite3_backup *backupObj = sqlite3_backup_init(
       backupDB,
