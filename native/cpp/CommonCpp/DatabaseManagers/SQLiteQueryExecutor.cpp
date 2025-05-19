@@ -1629,28 +1629,6 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
       SQLiteQueryExecutor::getConnection(), query, types);
 }
 
-std::vector<std::string>
-SQLiteQueryExecutor::getAllTableNames(sqlite3 *db) const {
-  std::vector<std::string> tableNames;
-
-  std::string getAllTablesQuery =
-      "SELECT name "
-      "FROM sqlite_master"
-      "WHERE type='table';";
-
-  sqlite3_stmt *stmt;
-  sqlite3_prepare_v2(db, getAllTablesQuery.c_str(), -1, &stmt, nullptr);
-  while (sqlite3_step(stmt) == SQLITE_ROW) {
-    const unsigned char *text = sqlite3_column_text(stmt, 0);
-    if (text) {
-      tableNames.push_back(reinterpret_cast<const char *>(text));
-    }
-  }
-  sqlite3_finalize(stmt);
-
-  return tableNames;
-}
-
 #ifndef EMSCRIPTEN
 
 void SQLiteQueryExecutor::initialize(
@@ -1660,24 +1638,6 @@ void SQLiteQueryExecutor::initialize(
   SQLiteQueryExecutor::sqliteFilePath = databasePath;
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
   SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-}
-
-void SQLiteQueryExecutor::cleanupDatabaseExceptAllowlist(sqlite3 *db) const {
-  std::vector<std::string> tables = getAllTableNames(db);
-
-  std::ostringstream removeDeviceSpecificDataSQL;
-  for (const auto &tableName : tables) {
-    if (SQLiteBackup::tablesAllowlist.find(tableName) ==
-        SQLiteBackup::tablesAllowlist.end()) {
-      removeDeviceSpecificDataSQL << "DELETE FROM " << tableName << ";"
-                                  << std::endl;
-    }
-  }
-
-  std::string sqlQuery = removeDeviceSpecificDataSQL.str();
-  if (!sqlQuery.empty()) {
-    executeQuery(db, sqlQuery);
-  }
 }
 
 void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
@@ -1740,7 +1700,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
     throw std::runtime_error(error_message.str());
   }
 
-  cleanupDatabaseExceptAllowlist(backupDB);
+  SQLiteBackup::cleanupDatabaseExceptAllowlist(backupDB);
   executeQuery(backupDB, "VACUUM;");
   sqlite3_close(backupDB);
 
