@@ -33,28 +33,17 @@ const int NOTIFS_ACCOUNT_ID = 2;
 
 namespace comm {
 
-std::string SQLiteQueryExecutor::sqliteFilePath;
-
-std::string SQLiteQueryExecutor::backupDataKey;
-
-std::string SQLiteQueryExecutor::backupLogDataKey;
-
 void SQLiteQueryExecutor::migrate() {
-// We don't want to run `PRAGMA key = ...;`
-// on main web database. The context is here:
-// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-#ifndef EMSCRIPTEN
-  SQLiteUtils::validateEncryption(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
-#endif
+  SQLiteQueryExecutor::connectionManager->validateEncryption();
 
   std::stringstream db_path;
-  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
+  db_path << "db path: "
+          << SQLiteQueryExecutor::connectionManager->getSQLiteFilePath()
           << std::endl;
   Logger::log(db_path.str());
 
-  sqlite3 *db = SQLiteQueryExecutor::connectionManager->getEphemeralConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  sqlite3 *db =
+      SQLiteQueryExecutor::connectionManager->getEphemeralConnection();
 
   auto db_version = SQLiteUtils::getDatabaseVersion(db);
   std::stringstream version_msg;
@@ -83,22 +72,19 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(
     std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
     : connectionManager(std::move(connectionManager)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  SQLiteQueryExecutor::connectionManager->initializeConnection();
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
   }
   SQLiteQueryExecutor::connectionManager->setLogsMonitoring(true);
 }
-
 #else
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
-    : connectionManager(std::make_unique<WebSQLiteConnectionManager>()) {
-  SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
+    : connectionManager(
+          std::make_unique<WebSQLiteConnectionManager>(sqliteFilePath)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection(
-      SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
+  SQLiteQueryExecutor::connectionManager->initializeConnection();
 }
 #endif
 
@@ -1534,15 +1520,6 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
 
 #ifndef EMSCRIPTEN
 
-void SQLiteQueryExecutor::initialize(
-    std::string &databasePath,
-    std::string &backupDataKey,
-    std::string &backupLogDataKey) {
-  SQLiteQueryExecutor::sqliteFilePath = databasePath;
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-}
-
 void SQLiteQueryExecutor::setUserDataKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) const {
@@ -1550,9 +1527,6 @@ void SQLiteQueryExecutor::setUserDataKeys(
       "PRAGMA rekey = \"x'" + backupDataKey + "'\";";
 
   executeQuery(this->getConnection(), rekey_encryption_key_query);
-
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
 }
 #endif
 

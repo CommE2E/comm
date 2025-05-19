@@ -58,6 +58,7 @@ void DatabaseManager::clearSensitiveData() {
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
   DatabaseManager::connectionManager->closeConnection();
+
   if (SQLiteUtils::fileExists(DatabaseManager::sqliteFilePath) &&
       std::remove(DatabaseManager::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
@@ -66,11 +67,13 @@ void DatabaseManager::clearSensitiveData() {
     Logger::log(errorStream.str());
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
+
   DatabaseManager::backupDataKey = backupDataKey;
   DatabaseManager::backupLogDataKey = backupLogDataKey;
 
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
+  DatabaseManager::connectionManager->setNewKeys(
+      backupDataKey, backupLogDataKey);
+  DatabaseManager::connectionManager->initializeConnection();
 
   thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
   instance.migrate();
@@ -83,8 +86,6 @@ void DatabaseManager::clearSensitiveData() {
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
   try {
-    DatabaseManager::connectionManager =
-        std::make_shared<NativeSQLiteConnectionManager>();
     DatabaseManager::initializeSQLiteQueryExecutorProperties(databasePath);
     DatabaseManager::getQueryExecutor();
     DatabaseManager::indicateQueryExecutorCreation();
@@ -168,12 +169,13 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
           backupLogDataKey = maybeBackupLogDataKey.value();
         }
 
+        DatabaseManager::connectionManager =
+            std::make_shared<NativeSQLiteConnectionManager>(
+                databasePath, backupDataKey, backupLogDataKey);
+
         DatabaseManager::sqliteFilePath = databasePath;
         DatabaseManager::backupDataKey = backupDataKey;
         DatabaseManager::backupLogDataKey = backupLogDataKey;
-
-        SQLiteQueryExecutor::initialize(
-            databasePath, backupDataKey, backupLogDataKey);
       });
 }
 
@@ -208,6 +210,10 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
+  DatabaseManager::connectionManager->setNewKeys(
+      backupDataKey, backupLogDataKey);
+
+  // TODO rekey
   DatabaseManager::getQueryExecutor().setUserDataKeys(
       backupDataKey, backupLogDataKey);
 
@@ -284,7 +290,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
-  SQLiteUtils::setEncryptionKey(backupDB, SQLiteQueryExecutor::backupDataKey);
+  SQLiteUtils::setEncryptionKey(backupDB, DatabaseManager::backupDataKey);
 
   sqlite3_backup *backupObj =
       sqlite3_backup_init(backupDB, "main", instance.getConnection(), "main");
