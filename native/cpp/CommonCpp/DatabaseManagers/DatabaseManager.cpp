@@ -21,8 +21,6 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
-  //  TODO: conditionally create desired type of db manager
-  //  maybe basing on some preprocessor flag
   thread_local SQLiteQueryExecutor instance;
 
   // creating an instance means that migration code was executed
