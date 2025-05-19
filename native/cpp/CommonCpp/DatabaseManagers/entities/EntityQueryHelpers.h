@@ -10,7 +10,7 @@
 
 namespace comm {
 
-template <typename T>
+inline template <typename T>
 std::vector<T> getAllEntities(sqlite3 *db, std::string getAllEntitiesSQL) {
   SQLiteStatementWrapper preparedSQL(
       db, getAllEntitiesSQL, "Failed to retrieve entities.");
@@ -23,7 +23,7 @@ std::vector<T> getAllEntities(sqlite3 *db, std::string getAllEntitiesSQL) {
   return allEntities;
 }
 
-template <typename T>
+inline template <typename T>
 std::unique_ptr<T>
 getEntityByPrimaryKeyCommon(SQLiteStatementWrapper &preparedSQL) {
   int stepResult = sqlite3_step(preparedSQL);
@@ -43,7 +43,7 @@ getEntityByPrimaryKeyCommon(SQLiteStatementWrapper &preparedSQL) {
   return std::make_unique<T>(std::move(entity));
 }
 
-template <typename T>
+inline template <typename T>
 std::unique_ptr<T> getEntityByPrimaryKey(
     sqlite3 *db,
     std::string getEntityByPrimaryKeySQL,
@@ -62,7 +62,7 @@ std::unique_ptr<T> getEntityByPrimaryKey(
   return getEntityByPrimaryKeyCommon<T>(preparedSQL);
 }
 
-template <typename T>
+inline template <typename T>
 std::unique_ptr<T> getEntityByIntegerPrimaryKey(
     sqlite3 *db,
     std::string getEntityByPrimaryKeySQL,
@@ -80,7 +80,7 @@ std::unique_ptr<T> getEntityByIntegerPrimaryKey(
   return getEntityByPrimaryKeyCommon<T>(preparedSQL);
 }
 
-template <typename T>
+inline template <typename T>
 std::vector<T> getAllEntitiesByPrimaryKeys(
     sqlite3 *db,
     std::string getAllEntitiesSQL,
@@ -109,7 +109,7 @@ std::vector<T> getAllEntitiesByPrimaryKeys(
   return allEntities;
 }
 
-template <typename T>
+inline template <typename T>
 void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
   SQLiteStatementWrapper preparedSQL(
       db, replaceEntitySQL, "Failed to replace entity.");
@@ -127,13 +127,13 @@ void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
   sqlite3_step(preparedSQL);
 }
 
-void removeAllEntities(sqlite3 *db, std::string removeAllEntitiesSQL) {
+inline void removeAllEntities(sqlite3 *db, std::string removeAllEntitiesSQL) {
   SQLiteStatementWrapper preparedSQL(
       db, removeAllEntitiesSQL, "Failed to remove all entities.");
   sqlite3_step(preparedSQL);
 }
 
-void removeEntitiesByKeys(
+inline void removeEntitiesByKeys(
     sqlite3 *db,
     std::string removeEntitiesByKeysSQL,
     const std::vector<std::string> &keys) {
@@ -154,7 +154,7 @@ void removeEntitiesByKeys(
   sqlite3_step(preparedSQL);
 }
 
-void rekeyAllEntities(
+inline void rekeyAllEntities(
     sqlite3 *db,
     std::string rekeyAllEntitiesSQL,
     std::string from,
@@ -176,7 +176,7 @@ void rekeyAllEntities(
   sqlite3_step(preparedSQL);
 }
 
-std::string getSQLStatementArray(int length) {
+inline std::string getSQLStatementArray(int length) {
   std::stringstream array;
   array << "(";
   for (int i = 0; i < length - 1; i++) {
@@ -186,7 +186,7 @@ std::string getSQLStatementArray(int length) {
   return array.str();
 }
 
-void executeQuery(sqlite3 *db, std::string querySQL) {
+inline void executeQuery(sqlite3 *db, std::string querySQL) {
   char *err;
   sqlite3_exec(db, querySQL.c_str(), nullptr, nullptr, &err);
   if (err) {
