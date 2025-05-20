@@ -205,13 +205,6 @@ public:
   std::vector<DMOperation> getDMOperations() const override;
   std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const override;
-
-#ifndef EMSCRIPTEN
-  static void initialize(
-      std::string &databasePath,
-      std::string &backupDataKey,
-      std::string &backupLogDataKey);
-#endif
 };
 
 } // namespace comm

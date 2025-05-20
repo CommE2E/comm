@@ -154,8 +154,9 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
           backupLogDataKey = maybeBackupLogDataKey.value();
         }
 
-        SQLiteQueryExecutor::initialize(
-            databasePath, backupDataKey, backupLogDataKey);
+        SQLiteQueryExecutor::sqliteFilePath = databasePath;
+        SQLiteQueryExecutor::backupDataKey = backupDataKey;
+        SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
       });
 }
 
