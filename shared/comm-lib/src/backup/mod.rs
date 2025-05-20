@@ -33,8 +33,11 @@ pub struct LatestBackupInfoResponse {
   #[serde(rename = "keyserverDeviceID")]
   pub keyserver_device_id: Option<String>,
   // ISO 8601 / RFC 3339 DateTime string
+  #[serde(default)]
   pub creation_timestamp: String,
+  #[serde(default)]
   pub total_backup_size: u64,
+  #[serde(default)]
   pub version_info: BackupVersionInfo,
 }
 
