@@ -42,13 +42,8 @@ WebSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
 
 void SQLiteQueryExecutor::migrate() {
-// We don't want to run `PRAGMA key = ...;`
-// on main web database. The context is here:
-// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-#ifndef EMSCRIPTEN
-  SQLiteUtils::validateEncryption(
+  SQLiteQueryExecutor::connectionManager.validateEncryption(
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
-#endif
 
   std::stringstream db_path;
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()

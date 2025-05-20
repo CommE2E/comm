@@ -35,4 +35,12 @@ void WebSQLiteConnectionManager::initializeConnection(
   // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
 }
 
+void WebSQLiteConnectionManager::validateEncryption(
+    const std::string &sqliteFilePath,
+    const std::string &encryptionKey) {
+  // We don't want to run `PRAGMA key = ...;`
+  // on main web database. The context is here:
+  // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
+}
+
 } // namespace comm
