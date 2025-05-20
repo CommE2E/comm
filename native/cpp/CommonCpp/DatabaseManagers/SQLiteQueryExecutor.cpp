@@ -21,11 +21,7 @@
 #include <thread>
 
 #ifndef EMSCRIPTEN
-#include "../CryptoTools/CryptoModule.h"
 #include "../Tools/ServicesUtils.h"
-#include "PlatformSpecificTools.h"
-#include "StaffUtils.h"
-#include "lib.rs.h"
 #endif
 
 const int CONTENT_ACCOUNT_ID = 1;
@@ -1628,19 +1624,6 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
   return getAllEntitiesByPrimaryKeys<DMOperation>(
       SQLiteQueryExecutor::getConnection(), query, types);
 }
-
-#ifndef EMSCRIPTEN
-
-void SQLiteQueryExecutor::initialize(
-    std::string &databasePath,
-    std::string &backupDataKey,
-    std::string &backupLogDataKey) {
-  SQLiteQueryExecutor::sqliteFilePath = databasePath;
-  SQLiteQueryExecutor::backupDataKey = backupDataKey;
-  SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-}
-
-#endif
 
 void SQLiteQueryExecutor::copyTablesDataUsingAttach(
     sqlite3 *db,
