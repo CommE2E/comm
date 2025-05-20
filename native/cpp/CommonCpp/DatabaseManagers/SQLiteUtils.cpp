@@ -1,6 +1,7 @@
 #include "SQLiteUtils.h"
 
 #include "Logger.h"
+#include "entities/EntityQueryHelpers.h"
 #include <sqlite3.h>
 
 #include <fstream>
@@ -198,6 +199,12 @@ void SQLiteUtils::validateEncryption(
       sqliteFilePath,
       "Failed to move encrypted database to default location.");
   Logger::log("Encryption completed successfully.");
+}
+
+void SQLiteUtils::rekeyDatabase(sqlite3 *db, const std::string &encryptionKey) {
+  std::string rekey_encryption_key_query =
+      "PRAGMA rekey = \"x'" + encryptionKey + "'\";";
+  executeQuery(db, rekey_encryption_key_query);
 }
 
 } // namespace comm
