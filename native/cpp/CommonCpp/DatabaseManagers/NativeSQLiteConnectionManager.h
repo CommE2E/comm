@@ -30,6 +30,9 @@ public:
       std::string sqliteFilePath,
       std::string sqliteEncryptionKey) override;
   void closeConnection() override;
+  virtual void validateEncryption(
+      const std::string &sqliteFilePath,
+      const std::string &encryptionKey) override;
 
   void setLogsMonitoring(bool enabled);
   bool getLogsMonitoring();
