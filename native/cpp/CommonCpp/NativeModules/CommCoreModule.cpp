@@ -52,7 +52,9 @@ jsi::Value CommCoreModule::updateDraft(
       });
 }
 
-jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
+jsi::Value
+CommCoreModule::getClientDBStore(jsi::Runtime &rt, jsi::String dbJSI) {
+  std::string db = dbJSI.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -73,34 +75,36 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
           std::vector<DMOperation> dmOperationsVector;
           try {
-            draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
+            draftsVector = DatabaseManager::getQueryExecutor(db).getAllDrafts();
             messagesVector =
-                DatabaseManager::getQueryExecutor().getInitialMessages();
-            threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
-            messageStoreThreadsVector =
-                DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
+                DatabaseManager::getQueryExecutor(db).getInitialMessages();
+            threadsVector =
+                DatabaseManager::getQueryExecutor(db).getAllThreads();
+            messageStoreThreadsVector = DatabaseManager::getQueryExecutor(db)
+                                            .getAllMessageStoreThreads();
             reportStoreVector =
-                DatabaseManager::getQueryExecutor().getAllReports();
-            userStoreVector = DatabaseManager::getQueryExecutor().getAllUsers();
+                DatabaseManager::getQueryExecutor(db).getAllReports();
+            userStoreVector =
+                DatabaseManager::getQueryExecutor(db).getAllUsers();
             keyserverStoreVector =
-                DatabaseManager::getQueryExecutor().getAllKeyservers();
+                DatabaseManager::getQueryExecutor(db).getAllKeyservers();
             communityStoreVector =
-                DatabaseManager::getQueryExecutor().getAllCommunities();
-            integrityStoreVector = DatabaseManager::getQueryExecutor()
+                DatabaseManager::getQueryExecutor(db).getAllCommunities();
+            integrityStoreVector = DatabaseManager::getQueryExecutor(db)
                                        .getAllIntegrityThreadHashes();
             syncedMetadataStoreVector =
-                DatabaseManager::getQueryExecutor().getAllSyncedMetadata();
+                DatabaseManager::getQueryExecutor(db).getAllSyncedMetadata();
             auxUserStoreVector =
-                DatabaseManager::getQueryExecutor().getAllAuxUserInfos();
-            threadActivityStoreVector = DatabaseManager::getQueryExecutor()
+                DatabaseManager::getQueryExecutor(db).getAllAuxUserInfos();
+            threadActivityStoreVector = DatabaseManager::getQueryExecutor(db)
                                             .getAllThreadActivityEntries();
             entryStoreVector =
-                DatabaseManager::getQueryExecutor().getAllEntries();
+                DatabaseManager::getQueryExecutor(db).getAllEntries();
             messageStoreLocalMessageInfosVector =
-                DatabaseManager::getQueryExecutor()
+                DatabaseManager::getQueryExecutor(db)
                     .getAllMessageStoreLocalMessageInfos();
             dmOperationsVector =
-                DatabaseManager::getQueryExecutor().getDMOperations();
+                DatabaseManager::getQueryExecutor(db).getDMOperations();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -317,9 +321,10 @@ void CommCoreModule::appendDBStoreOps(
 
 jsi::Value CommCoreModule::processDBStoreOperations(
     jsi::Runtime &rt,
-    jsi::Object operations) {
+    jsi::Object operations,
+    jsi::String dbJSI) {
   std::string createOperationsError;
-
+  std::string db = dbJSI.utf8(rt);
   auto storeOpsPtr =
       std::make_shared<std::vector<std::unique_ptr<DBOperationBase>>>();
   try {
@@ -453,7 +458,7 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             try {
               DatabaseManager::getQueryExecutor().beginTransaction();
               for (const auto &operation : *storeOpsPtr) {
-                operation->execute();
+                operation->execute(db);
               }
               if (messages.size() > 0) {
                 DatabaseManager::getQueryExecutor().addOutboundP2PMessages(
@@ -3346,6 +3351,30 @@ CommCoreModule::getDMOperationsByType(jsi::Runtime &rt, jsi::String type) {
                     dmOperationStore.parseDBDataStore(innerRt, operations);
                 promise->resolve(std::move(jsiOperations));
               });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::copyBackupDatabase(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            DatabaseManager::copyBackupDatabase();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);

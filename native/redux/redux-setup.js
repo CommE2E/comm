@@ -251,16 +251,16 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       ? undefined
       : state.currentUserInfo?.id;
     const actionCurrentLoggedInUserID = action.payload.currentUserID;
-    if (
-      !currentLoggedInUserID ||
-      !actionCurrentLoggedInUserID ||
-      actionCurrentLoggedInUserID !== currentLoggedInUserID
-    ) {
-      // If user is logged out now, was logged out at the time action was
-      // dispatched or their ID changed between action dispatch and a
-      // call to reducer we ignore the SQLite data since it is not valid
-      return state;
-    }
+    // if (
+    //   !currentLoggedInUserID ||
+    //   !actionCurrentLoggedInUserID ||
+    //   actionCurrentLoggedInUserID !== currentLoggedInUserID
+    // ) {
+    //   // If user is logged out now, was logged out at the time action was
+    //   // dispatched or their ID changed between action dispatch and a
+    //   // call to reducer we ignore the SQLite data since it is not valid
+    //   return state;
+    // }
   }
 
   // We're calling this reducer twice: here and in the baseReducer. This call

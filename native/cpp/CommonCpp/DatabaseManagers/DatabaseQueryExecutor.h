@@ -34,6 +34,7 @@ namespace comm {
  */
 class DatabaseQueryExecutor {
 public:
+  virtual void migrate() const = 0;
   virtual std::string getDraft(std::string key) const = 0;
   virtual std::unique_ptr<Thread> getThread(std::string threadID) const = 0;
   virtual void updateDraft(std::string key, std::string text) const = 0;
@@ -148,6 +149,8 @@ public:
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
       std::string maxVersion) const = 0;
+  virtual void
+  copyContentFromDatabase(const std::string databasePath) const = 0;
   virtual void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const = 0;
   virtual std::vector<OutboundP2PMessage>

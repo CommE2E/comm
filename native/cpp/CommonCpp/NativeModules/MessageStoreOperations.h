@@ -20,8 +20,9 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessages(this->msg_ids_to_remove);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeMessages(
+        this->msg_ids_to_remove);
     DatabaseManager::getQueryExecutor().removeMediaForMessages(
         this->msg_ids_to_remove);
   }
@@ -44,8 +45,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessagesForThreads(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeMessagesForThreads(
         this->thread_ids);
     DatabaseManager::getQueryExecutor().removeMediaForThreads(this->thread_ids);
   }
@@ -109,8 +110,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMediaForMessage(msg->id);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeMediaForMessage(msg->id);
     for (auto &&media : this->media_vector) {
       DatabaseManager::getQueryExecutor().replaceMedia(std::move(*media));
     }
@@ -129,8 +130,8 @@ public:
     this->to = payload.getProperty(rt, "to").asString(rt).utf8(rt);
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().rekeyMessage(this->from, this->to);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).rekeyMessage(this->from, this->to);
     DatabaseManager::getQueryExecutor().rekeyMediaContainers(
         this->from, this->to);
   }
@@ -142,8 +143,8 @@ private:
 
 class RemoveAllMessagesOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllMessages();
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeAllMessages();
     DatabaseManager::getQueryExecutor().removeAllMedia();
   }
 };
@@ -165,8 +166,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceMessageStoreThreads(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).replaceMessageStoreThreads(
         this->msg_threads);
   }
 
@@ -176,8 +177,8 @@ private:
 
 class RemoveAllMessageStoreThreadsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllMessageStoreThreads();
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeAllMessageStoreThreads();
   }
 };
 
@@ -194,8 +195,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessageStoreThreads(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeMessageStoreThreads(
         this->thread_ids);
   }
 
@@ -216,8 +217,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessageStoreLocalMessageInfos(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeMessageStoreLocalMessageInfos(
         this->ids);
   }
 
@@ -238,8 +239,8 @@ public:
     this->localMessageInfo = LocalMessageInfo{id, local_message_info};
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceMessageStoreLocalMessageInfo(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).replaceMessageStoreLocalMessageInfo(
         this->localMessageInfo);
   }
 
@@ -249,8 +250,8 @@ private:
 
 class RemoveAllMessageStoreLocalMessageInfosOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor()
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db)
         .removeAllMessageStoreLocalMessageInfos();
   }
 };

@@ -4,7 +4,7 @@ namespace comm {
 
 class DBOperationBase {
 public:
-  virtual void execute() = 0;
+  virtual void execute(std::string db) = 0;
   virtual ~DBOperationBase(){};
 };
 

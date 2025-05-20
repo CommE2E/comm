@@ -21,13 +21,13 @@ protected:
 
 public:
   virtual jsi::Value updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) = 0;
-  virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getClientDBStore(jsi::Runtime &rt, jsi::String db) = 0;
   virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) = 0;
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
   virtual void processReportStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) = 0;
+  virtual jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations, jsi::String db) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
@@ -90,6 +90,7 @@ public:
   virtual jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) = 0;
   virtual jsi::Value restoreUser(jsi::Runtime &rt, jsi::String userID, std::optional<jsi::String> siweSocialProofMessage, std::optional<jsi::String> siweSocialProofSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String deviceList, jsi::String backupSecret) = 0;
   virtual jsi::Value getDMOperationsByType(jsi::Runtime &rt, jsi::String type) = 0;
+  virtual jsi::Value copyBackupDatabase(jsi::Runtime &rt) = 0;
 
 };
 
@@ -119,13 +120,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDraft, jsInvoker_, instance_, std::move(key), std::move(text));
     }
-    jsi::Value getClientDBStore(jsi::Runtime &rt) override {
+    jsi::Value getClientDBStore(jsi::Runtime &rt, jsi::String db) override {
       static_assert(
-          bridging::getParameterCount(&T::getClientDBStore) == 1,
-          "Expected getClientDBStore(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getClientDBStore) == 2,
+          "Expected getClientDBStore(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getClientDBStore, jsInvoker_, instance_);
+          rt, &T::getClientDBStore, jsInvoker_, instance_, std::move(db));
     }
     jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override {
       static_assert(
@@ -167,13 +168,13 @@ private:
       return bridging::callFromJs<void>(
           rt, &T::processThreadStoreOperationsSync, jsInvoker_, instance_, std::move(operations));
     }
-    jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override {
+    jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations, jsi::String db) override {
       static_assert(
-          bridging::getParameterCount(&T::processDBStoreOperations) == 2,
-          "Expected processDBStoreOperations(...) to have 2 parameters");
+          bridging::getParameterCount(&T::processDBStoreOperations) == 3,
+          "Expected processDBStoreOperations(...) to have 3 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::processDBStoreOperations, jsInvoker_, instance_, std::move(operations));
+          rt, &T::processDBStoreOperations, jsInvoker_, instance_, std::move(operations), std::move(db));
     }
     jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override {
       static_assert(
@@ -670,6 +671,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getDMOperationsByType, jsInvoker_, instance_, std::move(type));
+    }
+    jsi::Value copyBackupDatabase(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::copyBackupDatabase) == 1,
+          "Expected copyBackupDatabase(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::copyBackupDatabase, jsInvoker_, instance_);
     }
 
   private:

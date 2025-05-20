@@ -229,6 +229,7 @@ function SQLiteDataHandler(): React.Node {
       try {
         const { sqliteAPI } = getConfig();
         const clientDBStore = await sqliteAPI.getClientDBStore(
+          'main',
           currentLoggedInUserID,
         );
         dispatch({

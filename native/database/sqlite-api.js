@@ -33,6 +33,7 @@ const sqliteAPI: SQLiteAPI = {
 
   async processDBStoreOperations(
     storeOperations: StoreOperations,
+    db: string,
   ): Promise<void> {
     const keyserversToRemoveFromNotifsStore =
       getKeyserversToRemoveFromNotifsStore(
@@ -52,7 +53,7 @@ const sqliteAPI: SQLiteAPI = {
       const dbOps =
         convertStoreOperationsToClientDBStoreOperations(storeOperations);
       if (values(dbOps).some(ops => ops && ops.length > 0)) {
-        promises.push(commCoreModule.processDBStoreOperations(dbOps));
+        promises.push(commCoreModule.processDBStoreOperations(dbOps, db));
       }
       await Promise.all(promises);
     } catch (e) {
@@ -76,6 +77,8 @@ const sqliteAPI: SQLiteAPI = {
       storeVersion.toString(),
     );
   },
+
+  copy: commCoreModule.copyBackupDatabase,
 };
 
 export { sqliteAPI };

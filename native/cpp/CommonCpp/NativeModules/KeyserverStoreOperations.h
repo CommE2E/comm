@@ -12,8 +12,8 @@ public:
   RemoveKeyserversOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeKeyservers(this->ids);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeKeyservers(this->ids);
   }
 
 private:
@@ -26,8 +26,8 @@ public:
       : keyserver{std::move(keyserver)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceKeyserver(this->keyserver);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).replaceKeyserver(this->keyserver);
   }
 
 private:
@@ -36,8 +36,8 @@ private:
 
 class RemoveAllKeyserversOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllKeyservers();
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeAllKeyservers();
   }
 };
 

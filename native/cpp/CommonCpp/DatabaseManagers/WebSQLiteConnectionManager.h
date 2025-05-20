@@ -14,5 +14,7 @@ public:
   void closeConnection() override;
 
   void validateEncryption() override;
+
+  void setSQLiteFilePath(std::string sqliteFilePath);
 };
 } // namespace comm

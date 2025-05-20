@@ -6,6 +6,7 @@ import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 let sqliteQueryExecutor: ?SQLiteQueryExecutor = null;
+let backupExecutor: ?SQLiteQueryExecutor = null;
 
 function getSQLiteQueryExecutor(): ?SQLiteQueryExecutor {
   return sqliteQueryExecutor;
@@ -13,6 +14,14 @@ function getSQLiteQueryExecutor(): ?SQLiteQueryExecutor {
 
 function setSQLiteQueryExecutor(newSQLiteQueryExecutor: ?SQLiteQueryExecutor) {
   sqliteQueryExecutor = newSQLiteQueryExecutor;
+}
+
+function getBackupQueryExecutor(): ?SQLiteQueryExecutor {
+  return backupExecutor;
+}
+
+function setBackupQueryExecutor(newSQLiteQueryExecutor: ?SQLiteQueryExecutor) {
+  backupExecutor = newSQLiteQueryExecutor;
 }
 
 let dbModule: ?EmscriptenModule = null;
@@ -42,4 +51,6 @@ export {
   setDBModule,
   getPlatformDetails,
   setPlatformDetails,
+  getBackupQueryExecutor,
+  setBackupQueryExecutor,
 };

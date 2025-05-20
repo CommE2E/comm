@@ -37,7 +37,7 @@ type CommServicesAuthMetadata = {
 
 interface Spec extends TurboModule {
   +updateDraft: (key: string, text: string) => Promise<boolean>;
-  +getClientDBStore: () => Promise<ClientDBStore>;
+  +getClientDBStore: (db: string) => Promise<ClientDBStore>;
   +getInitialMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
@@ -49,7 +49,7 @@ interface Spec extends TurboModule {
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
-  +processDBStoreOperations: (operations: Object) => Promise<void>;
+  +processDBStoreOperations: (operations: Object, db: string) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
@@ -227,6 +227,7 @@ interface Spec extends TurboModule {
     backupSecret: string,
   ) => Promise<string>;
   +getDMOperationsByType: (type: string) => Promise<Array<ClientDBDMOperation>>;
+  +copyBackupDatabase: () => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
@@ -248,6 +249,7 @@ export interface CoreModuleSpec extends Spec {
   +getSIWEBackupSecrets: () => Promise<?SignedMessage>;
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
+    db: string,
   ) => Promise<void>;
   +getQRAuthBackupData: () => Promise<QRAuthBackupData>;
 }

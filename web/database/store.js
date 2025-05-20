@@ -17,7 +17,10 @@ import { defaultWebState } from '../redux/default-state.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
-async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
+async function getClientDBStore(
+  db: string,
+  currentUserID: ?string,
+): Promise<ClientStore> {
   const sharedWorker = await getCommSharedWorker();
   let result: ClientStore = {
     currentUserID,
@@ -38,6 +41,7 @@ async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    db,
   });
   if (data?.store?.drafts) {
     result = {

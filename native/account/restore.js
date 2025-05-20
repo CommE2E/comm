@@ -196,6 +196,7 @@ function useRestore(): (
         await sqliteAPI.restoreUserData(backupData, identityAuthResult);
 
         const clientDBStore = await sqliteAPI.getClientDBStore(
+          'main',
           identityAuthResult.userID,
         );
         dispatch({

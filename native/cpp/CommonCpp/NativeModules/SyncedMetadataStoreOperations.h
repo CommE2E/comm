@@ -12,8 +12,8 @@ public:
   RemoveSyncedMetadataOperation(std::vector<std::string> names) : names{names} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeSyncedMetadata(this->names);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeSyncedMetadata(this->names);
   }
 
 private:
@@ -26,8 +26,8 @@ public:
       : syncedMetadataEntry{std::move(syncedMetadataEntry)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceSyncedMetadataEntry(
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).replaceSyncedMetadataEntry(
         this->syncedMetadataEntry);
   }
 
@@ -37,8 +37,8 @@ private:
 
 class RemoveAllSyncedMetadataOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllSyncedMetadata();
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeAllSyncedMetadata();
   }
 };
 

@@ -141,7 +141,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("status", &InboundP2PMessage::status);
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
-      .constructor<std::string>()
+      .constructor<std::string, bool>()
       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)

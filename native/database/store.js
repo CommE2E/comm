@@ -15,7 +15,10 @@ import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.
 
 import { commCoreModule } from '../native-modules.js';
 
-async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
+async function getClientDBStore(
+  db: string,
+  currentUserID: ?string,
+): Promise<ClientStore> {
   const {
     threads,
     messages,
@@ -31,7 +34,7 @@ async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
     threadActivityEntries,
     entries,
     messageStoreLocalMessageInfos,
-  } = await commCoreModule.getClientDBStore();
+  } = await commCoreModule.getClientDBStore(db);
   const threadInfosFromDB =
     threadStoreOpsHandlers.translateClientDBData(threads);
   const reportsFromDB = reportStoreOpsHandlers.translateClientDBData(reports);

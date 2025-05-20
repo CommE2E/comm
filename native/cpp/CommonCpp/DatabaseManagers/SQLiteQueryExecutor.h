@@ -32,16 +32,12 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
       const std::string &sourceDbPath,
       const std::vector<std::string> &tableNames) const;
 
-#ifndef EMSCRIPTEN
-  std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
-#else
-  std::shared_ptr<WebSQLiteConnectionManager> connectionManager;
-#endif
+  std::shared_ptr<SQLiteConnectionManager> connectionManager;
 
 public:
   sqlite3 *getConnection() const;
 
-  void migrate();
+  void migrate() const override;
 
   ~SQLiteQueryExecutor();
 
@@ -153,6 +149,7 @@ public:
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
       std::string maxVersion) const override;
+  void copyContentFromDatabase(const std::string databasePath) const override;
   void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
   void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const override;
@@ -200,9 +197,10 @@ public:
 
 #ifndef EMSCRIPTEN
   SQLiteQueryExecutor(
-      std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
+      std::shared_ptr<SQLiteConnectionManager> connectionManager,
+      bool skipMigrations);
 #else
-  SQLiteQueryExecutor(std::string sqliteFilePath);
+  SQLiteQueryExecutor(std::string sqliteFilePath, bool skipMigrations = false);
 #endif
 };
 

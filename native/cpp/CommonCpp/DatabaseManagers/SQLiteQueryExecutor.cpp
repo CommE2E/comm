@@ -33,7 +33,10 @@ const int NOTIFS_ACCOUNT_ID = 2;
 
 namespace comm {
 
-void SQLiteQueryExecutor::migrate() {
+void SQLiteQueryExecutor::migrate() const {
+  if (!SQLiteQueryExecutor::connectionManager) {
+    Logger::log("MISSING MANAGER");
+  }
   SQLiteQueryExecutor::connectionManager->validateEncryption();
 
   std::stringstream db_path;
@@ -69,20 +72,32 @@ void SQLiteQueryExecutor::migrate() {
 
 #ifndef EMSCRIPTEN
 SQLiteQueryExecutor::SQLiteQueryExecutor(
-    std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
+    std::shared_ptr<SQLiteConnectionManager> connectionManager,
+    bool skipMigrations)
     : connectionManager(std::move(connectionManager)) {
+
+  Logger::log("CREATE OBJECT");
+  if (skipMigrations) {
+    return;
+  }
   this->migrate();
   SQLiteQueryExecutor::connectionManager->initializeConnection();
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
   }
-  SQLiteQueryExecutor::connectionManager->setLogsMonitoring(true);
+  // TOOD: move to contstructor
+  //  SQLiteQueryExecutor::connectionManager->setLogsMonitoring(true);
 }
 #else
-SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
+SQLiteQueryExecutor::SQLiteQueryExecutor(
+    std::string sqliteFilePath,
+    bool skipMigrations)
     : connectionManager(
           std::make_unique<WebSQLiteConnectionManager>(sqliteFilePath)) {
+  if (skipMigrations) {
+    return;
+  }
   this->migrate();
   SQLiteQueryExecutor::connectionManager->initializeConnection();
 }
@@ -1592,20 +1607,24 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     Logger::log(error_message.str());
     throw std::runtime_error(error_message.str());
   }
+}
 
+void SQLiteQueryExecutor::copyContentFromDatabase(
+    const std::string databasePath) const {
   std::vector<std::string> tablesVector(
       SQLiteBackup::tablesAllowlist.begin(),
       SQLiteBackup::tablesAllowlist.end());
-  copyTablesDataUsingAttach(
-      this->getConnection(), plaintextBackupPath, tablesVector);
 
-  SQLiteUtils::attemptDeleteFile(
-      plaintextBackupPath,
-      "Failed to delete plaintext compaction file after successful restore.");
+  copyTablesDataUsingAttach(this->getConnection(), databasePath, tablesVector);
 
-  SQLiteUtils::attemptDeleteFile(
-      mainCompactionPath,
-      "Failed to delete main compaction file after successful restore.");
+  //   SQLiteUtils::attemptDeleteFile(
+  //       databasePath,
+  //       "Failed to delete plaintext compaction file after successful
+  //       restore.");
+  //
+  //   SQLiteUtils::attemptDeleteFile(
+  //       databasePath,
+  //       "Failed to delete main compaction file after successful restore.");
 }
 
 void SQLiteQueryExecutor::restoreFromBackupLog(

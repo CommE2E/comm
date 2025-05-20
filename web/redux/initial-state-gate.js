@@ -76,7 +76,7 @@ function InitialReduxStateGate(props: Props): React.Node {
     void (async () => {
       try {
         const { sqliteAPI } = getConfig();
-        const clientDBStore = await sqliteAPI.getClientDBStore(null);
+        const clientDBStore = await sqliteAPI.getClientDBStore('main', null);
         dispatch({
           type: setClientDBStoreActionType,
           payload: clientDBStore,
@@ -207,21 +207,24 @@ function InitialReduxStateGate(props: Props): React.Node {
             messageStoreOperations,
           );
           const { sqliteAPI } = getConfig();
-          await sqliteAPI.processDBStoreOperations({
-            threadStoreOperations,
-            draftStoreOperations: [],
-            messageStoreOperations,
-            reportStoreOperations: [],
-            userStoreOperations,
-            keyserverStoreOperations: [],
-            communityStoreOperations: [],
-            integrityStoreOperations: [],
-            syncedMetadataStoreOperations: [],
-            auxUserStoreOperations: [],
-            threadActivityStoreOperations: [],
-            entryStoreOperations,
-            messageSearchStoreOperations,
-          });
+          await sqliteAPI.processDBStoreOperations(
+            {
+              threadStoreOperations,
+              draftStoreOperations: [],
+              messageStoreOperations,
+              reportStoreOperations: [],
+              userStoreOperations,
+              keyserverStoreOperations: [],
+              communityStoreOperations: [],
+              integrityStoreOperations: [],
+              syncedMetadataStoreOperations: [],
+              auxUserStoreOperations: [],
+              threadActivityStoreOperations: [],
+              entryStoreOperations,
+              messageSearchStoreOperations,
+            },
+            'main',
+          );
         }
 
         dispatch({

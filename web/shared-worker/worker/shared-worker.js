@@ -18,6 +18,8 @@ import {
   setSQLiteQueryExecutor,
   getPlatformDetails,
   setPlatformDetails,
+  getBackupQueryExecutor,
+  setBackupQueryExecutor,
 } from './worker-database.js';
 import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
@@ -47,6 +49,7 @@ import {
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
   DEFAULT_BACKUP_CLIENT_FILENAME,
+  COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -113,7 +116,7 @@ async function initDatabase(
     console.info('Creating fresh database');
   }
   setSQLiteQueryExecutor(
-    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH),
+    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH, false),
   );
 }
 
@@ -176,6 +179,7 @@ async function processAppRequest(
   }
 
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
+  const backupQueryExecutor = getBackupQueryExecutor();
   const dbModule = getDBModule();
 
   // database operations
@@ -221,6 +225,17 @@ async function processAppRequest(
 
   // read-only operations
   if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
+    if (message.db === 'backup') {
+      if (!backupQueryExecutor) {
+        throw new Error(
+          `Backup database not initialized, unable to process request type: ${message.type}`,
+        );
+      }
+      return {
+        type: workerResponseMessageTypes.CLIENT_STORE,
+        store: getClientStoreFromQueryExecutor(backupQueryExecutor),
+      };
+    }
     return {
       type: workerResponseMessageTypes.CLIENT_STORE,
       store: getClientStoreFromQueryExecutor(sqliteQueryExecutor),
@@ -349,6 +364,19 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
   ) {
+    if (message.db === 'backup') {
+      if (!backupQueryExecutor) {
+        throw new Error(
+          `Backup database not initialized, unable to process request type: ${message.type}`,
+        );
+      }
+      processDBStoreOperations(
+        backupQueryExecutor,
+        message.storeOperations,
+        dbModule,
+      );
+    }
+
     processDBStoreOperations(
       sqliteQueryExecutor,
       message.storeOperations,
@@ -367,8 +395,15 @@ async function processAppRequest(
   ) {
     sqliteQueryExecutor.removePersistStorageItem(message.key);
   } else if (message.type === workerRequestMessageTypes.BACKUP_RESTORE) {
+    const backupQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
+      true,
+    );
+
+    setBackupQueryExecutor(backupQueryExecutor);
+
     await restoreBackup(
-      sqliteQueryExecutor,
+      backupQueryExecutor,
       dbModule,
       message.authMetadata,
       message.backupID,

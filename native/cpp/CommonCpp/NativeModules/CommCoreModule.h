@@ -64,7 +64,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
-  virtual jsi::Value getClientDBStore(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  getClientDBStore(jsi::Runtime &rt, jsi::String db) override;
   virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override;
   virtual void processReportStoreOperationsSync(
       jsi::Runtime &rt,
@@ -76,8 +77,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
-  virtual jsi::Value
-  processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override;
+  virtual jsi::Value processDBStoreOperations(
+      jsi::Runtime &rt,
+      jsi::Object operations,
+      jsi::String db) override;
   template <typename T>
   void appendDBStoreOps(
       jsi::Runtime &rt,
@@ -283,6 +286,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String backupSecret) override;
   virtual jsi::Value
   getDMOperationsByType(jsi::Runtime &rt, jsi::String type) override;
+  virtual jsi::Value copyBackupDatabase(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

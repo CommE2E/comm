@@ -98,10 +98,12 @@ export type GenerateDatabaseEncryptionKeyRequestMessage = {
 export type ProcessStoreOperationsRequestMessage = {
   +type: 3,
   +storeOperations: ClientDBStoreOperations,
+  +db?: ?string,
 };
 
 export type GetClientStoreRequestMessage = {
   +type: 4,
+  +db?: ?string,
 };
 
 export type SetCurrentUserIDRequestMessage = {

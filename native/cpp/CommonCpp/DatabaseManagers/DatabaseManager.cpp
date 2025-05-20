@@ -3,16 +3,19 @@
 #include "../Tools/CommMMKV.h"
 #include "../Tools/CommSecureStore.h"
 #include "Logger.h"
+#include "NativeSQLiteConnectionManager.h"
 #include "PlatformSpecificTools.h"
 #include "SQLiteBackup.h"
 #include "SQLiteQueryExecutor.h"
 #include "SQLiteUtils.h"
+#include "WebSQLiteConnectionManager.h"
 #include "entities/EntityQueryHelpers.h"
 
 #include "../Tools/ServicesUtils.h"
 #include "lib.rs.h"
 
 #include <fstream>
+#include <map>
 #include <sstream>
 
 namespace comm {
@@ -26,6 +29,9 @@ std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
 std::shared_ptr<NativeSQLiteConnectionManager>
     DatabaseManager::connectionManager;
 
+std::shared_ptr<WebSQLiteConnectionManager>
+    DatabaseManager::backupConnectionManager;
+
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
 DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
@@ -35,14 +41,27 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
-  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
+  return DatabaseManager::getQueryExecutor("main");
+}
+
+const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor(std::string id) {
+  thread_local SQLiteQueryExecutor main(
+      DatabaseManager::connectionManager, false);
+
+  thread_local SQLiteQueryExecutor backup(
+      DatabaseManager::backupConnectionManager, true);
+
+  if (id == "backup") {
+    return backup;
+  }
 
   // creating an instance means that migration code was executed
   // and finished without error and database is workable
   std::call_once(DatabaseManager::queryExecutorCreationIndicated, []() {
+    DatabaseManager::connectionManager->setLogsMonitoring(true);
     DatabaseManager::indicateQueryExecutorCreation();
   });
-  return instance;
+  return main;
 }
 
 void DatabaseManager::clearSensitiveData() {
@@ -70,8 +89,7 @@ void DatabaseManager::clearSensitiveData() {
   DatabaseManager::connectionManager->setNewKeys(
       backupDataKey, backupLogDataKey);
 
-  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
-  instance.migrate();
+  DatabaseManager::getQueryExecutor().migrate();
 
   DatabaseManager::connectionManager->initializeConnection();
 
@@ -169,6 +187,9 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
         DatabaseManager::connectionManager =
             std::make_shared<NativeSQLiteConnectionManager>(
                 databasePath, backupDataKey, backupLogDataKey);
+
+        DatabaseManager::backupConnectionManager =
+            std::make_shared<WebSQLiteConnectionManager>("");
       });
 }
 
@@ -238,7 +259,9 @@ void DatabaseManager::triggerBackupFileUpload() {
 }
 
 void DatabaseManager::createMainCompaction(std::string backupID) {
-  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
+  // TODO avoid creaing instance here
+  thread_local SQLiteQueryExecutor instance(
+      DatabaseManager::connectionManager, true);
 
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
@@ -302,6 +325,10 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   SQLiteBackup::cleanupDatabaseExceptAllowlist(backupDB);
   executeQuery(backupDB, "VACUUM;");
+
+  // TODO setVersion
+  //   auto db_version = SQLiteUtils::getDatabaseVersion(db);
+
   sqlite3_close(backupDB);
 
   SQLiteUtils::attemptRenameFile(
@@ -347,6 +374,23 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 void DatabaseManager::restoreFromBackupLog(
     const std::vector<std::uint8_t> &backupLog) {
   DatabaseManager::connectionManager->restoreFromBackupLog(backupLog);
+}
+
+void DatabaseManager::restoreFromMainCompaction(
+    std::string mainCompactionPath,
+    std::string mainCompactionEncryptionKey,
+    std::string maxVersion) {
+  DatabaseManager::getQueryExecutor("backup").restoreFromMainCompaction(
+      mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
+  Logger::log(mainCompactionPath);
+  DatabaseManager::backupConnectionManager->setSQLiteFilePath(
+      mainCompactionPath + "_plaintext");
+  //   DatabaseManager::getQueryExecutor("backup").migrate();
+}
+
+void DatabaseManager::copyBackupDatabase() {
+  DatabaseManager::getQueryExecutor().copyContentFromDatabase(
+      DatabaseManager::backupConnectionManager->getSQLiteFilePath());
 }
 
 } // namespace comm

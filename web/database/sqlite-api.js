@@ -183,6 +183,7 @@ const sqliteAPI: SQLiteAPI = {
 
   async processDBStoreOperations(
     storeOperations: StoreOperations,
+    db: string,
   ): Promise<void> {
     const dbOps =
       convertStoreOperationsToClientDBStoreOperations(storeOperations);
@@ -200,6 +201,7 @@ const sqliteAPI: SQLiteAPI = {
       await sharedWorker.schedule({
         type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
         storeOperations: dbOps,
+        db,
       });
     } catch (e) {
       console.log(e);
@@ -240,6 +242,7 @@ const sqliteAPI: SQLiteAPI = {
       backupLogDataKey,
     });
   },
+  async copy(): Promise<void> {},
 };
 
 export { sqliteAPI };

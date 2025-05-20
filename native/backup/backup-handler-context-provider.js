@@ -32,7 +32,7 @@ import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 // Two weeks in milliseconds
-const backupInterval = 14 * 24 * 60 * 60 * 1000;
+const backupInterval = 60 * 1000;
 
 function checkIfCompactionNeeded(
   latestBackupInfo: ?LocalLatestBackupInfo,
@@ -211,6 +211,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         step = 'migrating to signed device lists';
         await performMigrationToNewFlow(currentIdentityUserState);
       } else if (shouldUploadUserData) {
+        console.log(step);
         step = 'creating User Data backup';
         await performBackupUpload();
       } else if (shouldUploadUserKeys) {

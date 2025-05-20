@@ -68,6 +68,7 @@
 		8EF7756B2A7433630046A385 /* ThreadStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775692A7433630046A385 /* ThreadStore.cpp */; };
 		8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF7756D2A7513F40046A385 /* MessageStore.cpp */; };
 		8EF775712A751B780046A385 /* ReportStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF7756F2A751B780046A385 /* ReportStore.cpp */; };
+		8EFCAAF82DDB9C4C003188FF /* WebSQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EFCAAF72DDB9C4B003188FF /* WebSQLiteConnectionManager.cpp */; };
 		B3B02EBF2B8538980020D118 /* CommunityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3B02EBD2B8536560020D118 /* CommunityStore.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB01F0C22B67EF5A0089E1F9 /* SQLiteDataConverters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB01F0C12B67EF470089E1F9 /* SQLiteDataConverters.cpp */; };
@@ -286,6 +287,8 @@
 		8EF7756D2A7513F40046A385 /* MessageStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MessageStore.cpp; path = PersistentStorageUtilities/DataStores/MessageStore.cpp; sourceTree = "<group>"; };
 		8EF7756F2A751B780046A385 /* ReportStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ReportStore.cpp; path = PersistentStorageUtilities/DataStores/ReportStore.cpp; sourceTree = "<group>"; };
 		8EF775702A751B780046A385 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReportStore.h; path = PersistentStorageUtilities/DataStores/ReportStore.h; sourceTree = "<group>"; };
+		8EFCAAF72DDB9C4B003188FF /* WebSQLiteConnectionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebSQLiteConnectionManager.cpp; sourceTree = "<group>"; };
+		8EFCAAF92DDB9C80003188FF /* WebSQLiteConnectionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebSQLiteConnectionManager.h; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3B02EBC2B8534C00020D118 /* CommunityStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CommunityStore.h; path = PersistentStorageUtilities/DataStores/CommunityStore.h; sourceTree = "<group>"; };
@@ -559,6 +562,8 @@
 		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
+				8EFCAAF92DDB9C80003188FF /* WebSQLiteConnectionManager.h */,
+				8EFCAAF72DDB9C4B003188FF /* WebSQLiteConnectionManager.cpp */,
 				8EF0F6012DCA43CD00F2B171 /* SQLiteBackup.h */,
 				8EF0F6022DCA43CD00F2B171 /* SQLiteBackup.cpp */,
 				8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */,
@@ -1260,6 +1265,7 @@
 				7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
+				8EFCAAF82DDB9C4C003188FF /* WebSQLiteConnectionManager.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,

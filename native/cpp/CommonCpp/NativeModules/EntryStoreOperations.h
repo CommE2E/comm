@@ -11,8 +11,8 @@ public:
   RemoveEntriesOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeEntries(this->ids);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeEntries(this->ids);
   }
 
 private:
@@ -24,8 +24,8 @@ public:
   ReplaceEntryOperation(EntryInfo &&entry) : entry{std::move(entry)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceEntry(this->entry);
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).replaceEntry(this->entry);
   }
 
 private:
@@ -34,8 +34,8 @@ private:
 
 class RemoveAllEntriesOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllEntries();
+  virtual void execute(std::string db) override {
+    DatabaseManager::getQueryExecutor(db).removeAllEntries();
   }
 };
 

@@ -39,4 +39,16 @@ void WebSQLiteConnectionManager::validateEncryption() {
   // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
 }
 
+void WebSQLiteConnectionManager::setSQLiteFilePath(std::string sqliteFilePath) {
+  bool isConnectionInitialized = this->dbConnection;
+  if (isConnectionInitialized) {
+    this->closeConnection();
+  }
+
+  this->sqliteFilePath = sqliteFilePath;
+  if (isConnectionInitialized) {
+    this->initializeConnection();
+  }
+}
+
 } // namespace comm

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "DatabaseQueryExecutor.h"
+#include "NativeSQLiteConnectionManager.h"
 #include "SQLiteQueryExecutor.h"
+#include "WebSQLiteConnectionManager.h"
 
 #include <mutex>
 
@@ -13,6 +15,8 @@ class DatabaseManager {
   static const int backupLogDataKeySize;
 
   static std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+
+  static std::shared_ptr<WebSQLiteConnectionManager> backupConnectionManager;
 
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
@@ -36,6 +40,7 @@ class DatabaseManager {
 
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
+  static const DatabaseQueryExecutor &getQueryExecutor(std::string id);
   static void clearSensitiveData();
   static void initializeQueryExecutor(std::string &databasePath);
   static bool checkIfDatabaseNeedsDeletion();
@@ -54,6 +59,12 @@ public:
   static void triggerBackupFileUpload();
   static void createMainCompaction(std::string backupID);
   static void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
+  static void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey,
+      std::string maxVersion);
+
+  static void copyBackupDatabase();
 };
 
 } // namespace comm

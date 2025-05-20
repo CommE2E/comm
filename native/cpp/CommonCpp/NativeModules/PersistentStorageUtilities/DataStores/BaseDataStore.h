@@ -49,7 +49,7 @@ public:
       try {
         DatabaseManager::getQueryExecutor().beginTransaction();
         for (const auto &operation : storeOps) {
-          operation->execute();
+          operation->execute("main");
         }
         DatabaseManager::captureBackupLogs();
         DatabaseManager::getQueryExecutor().commitTransaction();
