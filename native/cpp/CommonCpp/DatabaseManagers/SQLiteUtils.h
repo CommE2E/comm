@@ -27,6 +27,7 @@ public:
   static void validateEncryption(
       const std::string &sqliteFilePath,
       const std::string &encryptionKey);
+  static void rekeyDatabase(sqlite3 *db, const std::string &encryptionKey);
 };
 
 } // namespace comm
