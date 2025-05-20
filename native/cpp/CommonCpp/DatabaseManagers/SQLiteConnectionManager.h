@@ -41,6 +41,10 @@ public:
   sqlite3 *getConnection();
   virtual void closeConnection() = 0;
 
+  virtual void validateEncryption(
+      const std::string &sqliteFilePath,
+      const std::string &encryptionKey) = 0;
+
   virtual void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
 };
 } // namespace comm
