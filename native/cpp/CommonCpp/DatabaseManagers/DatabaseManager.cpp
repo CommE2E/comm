@@ -61,7 +61,7 @@ void DatabaseManager::clearSensitiveData() {
   }
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
   SQLiteQueryExecutor::backupLogDataKey = backupLogDataKey;
-  SQLiteQueryExecutor::migrate();
+  DatabaseManager::getQueryExecutor().migrate();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
