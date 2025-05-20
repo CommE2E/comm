@@ -191,8 +191,8 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
-  SQLiteUtils::rekeyDatabase(
-      SQLiteQueryExecutor::getConnection(), backupDataKey);
+  thread_local SQLiteQueryExecutor instance;
+  SQLiteUtils::rekeyDatabase(instance.getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
@@ -234,6 +234,8 @@ void DatabaseManager::triggerBackupFileUpload() {
 }
 
 void DatabaseManager::createMainCompaction(std::string backupID) {
+  thread_local SQLiteQueryExecutor instance;
+
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
   std::string finalAttachmentsPath =
@@ -267,8 +269,8 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
   SQLiteUtils::setEncryptionKey(backupDB, SQLiteQueryExecutor::backupDataKey);
 
-  sqlite3_backup *backupObj = sqlite3_backup_init(
-      backupDB, "main", SQLiteQueryExecutor::getConnection(), "main");
+  sqlite3_backup *backupObj =
+      sqlite3_backup_init(backupDB, "main", instance.getConnection(), "main");
   if (!backupObj) {
     std::stringstream error_message;
     error_message << "Failed to init backup for main compaction. Details: "
@@ -314,7 +316,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   std::string getAllBlobServiceMediaSQL =
       "SELECT * FROM media WHERE uri LIKE 'comm-blob-service://%';";
   std::vector<Media> blobServiceMedia = getAllEntities<Media>(
-      SQLiteQueryExecutor::getConnection(), getAllBlobServiceMediaSQL);
+      instance.getConnection(), getAllBlobServiceMediaSQL);
 
   for (const auto &media : blobServiceMedia) {
     std::string blobServiceURI = media.uri;
