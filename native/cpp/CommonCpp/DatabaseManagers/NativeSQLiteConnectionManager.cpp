@@ -271,4 +271,11 @@ void NativeSQLiteConnectionManager::restoreFromBackupLog(
   SQLiteConnectionManager::restoreFromBackupLog(backupLog);
   setLogsMonitoring(initialEnabledValue);
 }
+
+void NativeSQLiteConnectionManager::validateEncryption(
+    const std::string &sqliteFilePath,
+    const std::string &encryptionKey) {
+  SQLiteUtils::validateEncryption(sqliteFilePath, encryptionKey);
+}
+
 } // namespace comm
