@@ -41,7 +41,7 @@ NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 WebSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
 
-void SQLiteQueryExecutor::migrate() {
+void SQLiteQueryExecutor::migrate() const {
   SQLiteQueryExecutor::connectionManager.validateEncryption(
       SQLiteQueryExecutor::sqliteFilePath, SQLiteQueryExecutor::backupDataKey);
 
@@ -76,7 +76,7 @@ void SQLiteQueryExecutor::migrate() {
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
-  SQLiteQueryExecutor::migrate();
+  this->migrate();
 #ifndef EMSCRIPTEN
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
@@ -88,7 +88,7 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
 
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
   SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
-  SQLiteQueryExecutor::migrate();
+  this->migrate();
 }
 
 sqlite3 *SQLiteQueryExecutor::getConnection() {

@@ -34,6 +34,7 @@ namespace comm {
  */
 class DatabaseQueryExecutor {
 public:
+  virtual void migrate() const = 0;
   virtual std::string getDraft(std::string key) const = 0;
   virtual std::unique_ptr<Thread> getThread(std::string threadID) const = 0;
   virtual void updateDraft(std::string key, std::string text) const = 0;
