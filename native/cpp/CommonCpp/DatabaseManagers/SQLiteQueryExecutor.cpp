@@ -1851,11 +1851,8 @@ void SQLiteQueryExecutor::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
-  std::string rekey_encryption_key_query =
-      "PRAGMA rekey = \"x'" + backupDataKey + "'\";";
-
-  executeQuery(
-      SQLiteQueryExecutor::getConnection(), rekey_encryption_key_query);
+  SQLiteUtils::rekeyDatabase(
+      SQLiteQueryExecutor::getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   SQLiteQueryExecutor::backupDataKey = backupDataKey;
