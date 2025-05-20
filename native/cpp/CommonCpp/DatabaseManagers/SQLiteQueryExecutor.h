@@ -49,7 +49,7 @@ public:
   ~SQLiteQueryExecutor();
   SQLiteQueryExecutor(std::string sqliteFilePath);
 
-  static sqlite3 *getConnection();
+  sqlite3 *getConnection() const;
   void migrate() const override;
 
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
