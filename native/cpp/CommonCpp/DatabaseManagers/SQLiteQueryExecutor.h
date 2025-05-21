@@ -30,9 +30,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   std::string getThickThreadTypesList() const;
 
 public:
-  SQLiteQueryExecutor(std::string sqliteFilePath);
+  SQLiteQueryExecutor(std::string sqliteFilePath, bool skipMigration = false);
   SQLiteQueryExecutor(
-      std::shared_ptr<SQLiteConnectionManager> connectionManager);
+      std::shared_ptr<SQLiteConnectionManager> connectionManager,
+      bool skipMigration = false);
   ~SQLiteQueryExecutor();
 
   void migrate() const override;
