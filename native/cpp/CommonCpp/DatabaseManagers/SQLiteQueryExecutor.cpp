@@ -1,8 +1,10 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
 #include "SQLiteBackup.h"
+#include "SQLiteConnectionManager.h"
 #include "SQLiteSchema.h"
 #include "SQLiteUtils.h"
+#include "WebSQLiteConnectionManager.h"
 
 #include "../NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageTypeEnum.h"
 #include "../NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities/ThreadTypeEnum.h"
@@ -19,10 +21,6 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
-
-#ifndef EMSCRIPTEN
-#include "../Tools/ServicesUtils.h"
-#endif
 
 const int CONTENT_ACCOUNT_ID = 1;
 const int NOTIFS_ACCOUNT_ID = 2;
@@ -61,20 +59,17 @@ void SQLiteQueryExecutor::migrate() const {
   sqlite3_close(db);
 }
 
-#ifndef EMSCRIPTEN
 SQLiteQueryExecutor::SQLiteQueryExecutor(
-    std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
+    std::shared_ptr<SQLiteConnectionManager> connectionManager)
     : connectionManager(std::move(connectionManager)) {
   this->migrate();
 }
 
-#else
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
     : connectionManager(
           std::make_unique<WebSQLiteConnectionManager>(sqliteFilePath)) {
   this->migrate();
 }
-#endif
 
 sqlite3 *SQLiteQueryExecutor::getConnection() const {
   this->connectionManager->initializeConnection();

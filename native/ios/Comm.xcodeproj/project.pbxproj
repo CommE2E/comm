@@ -62,6 +62,7 @@
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */; };
 		8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */; };
+		8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF4E172DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp */; };
 		8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF0F6022DCA43CD00F2B171 /* SQLiteBackup.cpp */; };
 		8EF29DAA2DA52AE7003D677E /* SQLiteUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF29DA92DA52AE7003D677E /* SQLiteUtils.cpp */; };
 		8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775672A74032C0046A385 /* CommRustModule.cpp */; };
@@ -272,6 +273,8 @@
 		8EA59BD52A6E8E0400EB4F53 /* DraftStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DraftStore.h; path = PersistentStorageUtilities/DataStores/DraftStore.h; sourceTree = "<group>"; };
 		8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "rustJSI-generated.cpp"; sourceTree = "<group>"; };
 		8EA59BD82A73DAB000EB4F53 /* rustJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rustJSI.h; sourceTree = "<group>"; };
+		8ECF4E162DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebSQLiteConnectionManager.h; sourceTree = "<group>"; };
+		8ECF4E172DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebSQLiteConnectionManager.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
 		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
 		8EF0F6012DCA43CD00F2B171 /* SQLiteBackup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SQLiteBackup.h; sourceTree = "<group>"; };
@@ -559,6 +562,8 @@
 		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
+				8ECF4E162DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.h */,
+				8ECF4E172DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp */,
 				8EF0F6012DCA43CD00F2B171 /* SQLiteBackup.h */,
 				8EF0F6022DCA43CD00F2B171 /* SQLiteBackup.cpp */,
 				8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */,
@@ -1260,6 +1265,7 @@
 				7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
+				8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
