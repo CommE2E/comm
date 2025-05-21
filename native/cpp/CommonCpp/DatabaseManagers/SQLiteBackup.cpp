@@ -76,9 +76,18 @@ std::string SQLiteBackup::restoreFromMainCompaction(
       "SELECT sqlcipher_export('plaintext');"
       "DETACH DATABASE plaintext;";
   executeQuery(backupDB, plaintextMigrationDBQuery);
+  int v1 = SQLiteUtils::getDatabaseVersion(backupDB);
+  Logger::log("################");
+  Logger::log(std::to_string(v1));
   sqlite3_close(backupDB);
 
   sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
+
+  int v2 = SQLiteUtils::getDatabaseVersion(backupDB);
+  Logger::log("################");
+  Logger::log(std::to_string(v2));
+
+  SQLiteUtils::setDatabaseVersion(backupDB, v1);
 
   int version = SQLiteUtils::getSyncedDatabaseVersion(backupDB).value_or(-1);
   if (version > std::stoi(maxVersion)) {

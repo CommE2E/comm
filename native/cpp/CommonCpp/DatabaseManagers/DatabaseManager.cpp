@@ -338,6 +338,20 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   SQLiteBackup::cleanupDatabaseExceptAllowlist(backupDB);
   executeQuery(backupDB, "VACUUM;");
+
+  int v1 = SQLiteUtils::getDatabaseVersion(backupDB);
+  Logger::log("################");
+  Logger::log(std::to_string(v1));
+  int v2 = SQLiteUtils::getDatabaseVersion(
+      DatabaseManager::mainConnectionManager->getConnection());
+  Logger::log("################");
+  Logger::log(std::to_string(v2));
+
+  SQLiteUtils::setDatabaseVersion(
+      backupDB,
+      SQLiteUtils::getDatabaseVersion(
+          DatabaseManager::mainConnectionManager->getConnection()));
+
   sqlite3_close(backupDB);
 
   SQLiteUtils::attemptRenameFile(
