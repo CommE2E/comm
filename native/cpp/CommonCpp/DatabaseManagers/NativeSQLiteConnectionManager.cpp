@@ -251,7 +251,8 @@ bool NativeSQLiteConnectionManager::captureLogs(
     return false;
   }
 
-  persistLog(backupID, logID, patchsetPtr, patchsetSize, this->backupDataKey);
+  persistLog(
+      backupID, logID, patchsetPtr, patchsetSize, this->backupLogDataKey);
   sqlite3_free(patchsetPtr);
 
   // The session is not "zeroed" after capturing log.
