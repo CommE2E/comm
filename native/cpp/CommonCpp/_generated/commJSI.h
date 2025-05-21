@@ -90,6 +90,8 @@ public:
   virtual jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) = 0;
   virtual jsi::Value restoreUser(jsi::Runtime &rt, jsi::String userID, std::optional<jsi::String> siweSocialProofMessage, std::optional<jsi::String> siweSocialProofSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String deviceList, jsi::String backupSecret) = 0;
   virtual jsi::Value getDMOperationsByType(jsi::Runtime &rt, jsi::String type) = 0;
+  virtual jsi::Value migrateBackupSchema(jsi::Runtime &rt) = 0;
+  virtual jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) = 0;
 
 };
 
@@ -670,6 +672,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getDMOperationsByType, jsInvoker_, instance_, std::move(type));
+    }
+    jsi::Value migrateBackupSchema(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::migrateBackupSchema) == 1,
+          "Expected migrateBackupSchema(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::migrateBackupSchema, jsInvoker_, instance_);
+    }
+    jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::copyContentFromBackupDatabase) == 1,
+          "Expected copyContentFromBackupDatabase(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::copyContentFromBackupDatabase, jsInvoker_, instance_);
     }
 
   private:

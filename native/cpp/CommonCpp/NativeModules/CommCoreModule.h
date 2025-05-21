@@ -283,6 +283,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String backupSecret) override;
   virtual jsi::Value
   getDMOperationsByType(jsi::Runtime &rt, jsi::String type) override;
+  virtual jsi::Value migrateBackupSchema(jsi::Runtime &rt) override;
+  virtual jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
