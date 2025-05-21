@@ -141,10 +141,6 @@ public:
   void setMetadata(std::string entryName, std::string data) const override;
   void clearMetadata(std::string entryName) const override;
   std::string getMetadata(std::string entryName) const override;
-  void restoreFromMainCompaction(
-      std::string mainCompactionPath,
-      std::string mainCompactionEncryptionKey,
-      std::string maxVersion) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
   void copyContentFromDatabase(const std::string databasePath) const override;
