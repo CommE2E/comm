@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "entities/EntityQueryHelpers.h"
+#include "entities/SyncedMetadataEntry.h"
 #include <sqlite3.h>
 
 #include <fstream>
@@ -227,6 +228,19 @@ std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
   sqlite3_finalize(stmt);
 
   return tableNames;
+}
+
+std::optional<int> SQLiteUtils::getSyncedDatabaseVersion(sqlite3 *db) {
+  static std::string getDBVersionSyncedMetadataSQL =
+      "SELECT * "
+      "FROM synced_metadata "
+      "WHERE name=\"db_version\";";
+  std::vector<SyncedMetadataEntry> entries =
+      getAllEntities<SyncedMetadataEntry>(db, getDBVersionSyncedMetadataSQL);
+  for (auto &entry : entries) {
+    return std::stoi(entry.data);
+  }
+  return std::nullopt;
 }
 
 } // namespace comm
