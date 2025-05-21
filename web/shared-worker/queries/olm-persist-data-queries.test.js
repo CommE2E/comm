@@ -36,7 +36,7 @@ describe('Olm Tables queries', () => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -79,7 +79,7 @@ describe('Olm Tables queries', () => {
   it('should return empty olm account data', () => {
     clearSensitiveData(dbModule, FILE_PATH, queryExecutor);
 
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
 
     const notifsOlmAccount = queryExecutor.getOlmPersistAccountData(
       queryExecutor.getNotifsAccountID(),

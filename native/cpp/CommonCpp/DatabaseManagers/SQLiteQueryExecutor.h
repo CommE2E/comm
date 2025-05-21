@@ -34,9 +34,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
       const std::vector<std::string> &tableNames) const;
 
 public:
-  SQLiteQueryExecutor(std::string sqliteFilePath);
+  SQLiteQueryExecutor(std::string sqliteFilePath, bool skipMigration = false);
   SQLiteQueryExecutor(
-      std::shared_ptr<SQLiteConnectionManager> connectionManager);
+      std::shared_ptr<SQLiteConnectionManager> connectionManager,
+      bool skipMigration = false);
   ~SQLiteQueryExecutor();
 
   void migrate() const override;

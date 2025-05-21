@@ -113,7 +113,7 @@ async function initDatabase(
     console.info('Creating fresh database');
   }
   setSQLiteQueryExecutor(
-    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH),
+    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH, false),
   );
 }
 

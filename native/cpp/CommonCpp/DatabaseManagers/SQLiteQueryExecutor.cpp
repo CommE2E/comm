@@ -60,15 +60,22 @@ void SQLiteQueryExecutor::migrate() const {
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor(
-    std::shared_ptr<SQLiteConnectionManager> connectionManager)
+    std::shared_ptr<SQLiteConnectionManager> connectionManager,
+    bool skipMigration)
     : connectionManager(std::move(connectionManager)) {
-  this->migrate();
+  if (!skipMigration) {
+    this->migrate();
+  }
 }
 
-SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
+SQLiteQueryExecutor::SQLiteQueryExecutor(
+    std::string sqliteFilePath,
+    bool skipMigration)
     : connectionManager(
           std::make_unique<WebSQLiteConnectionManager>(sqliteFilePath)) {
-  this->migrate();
+  if (!skipMigration) {
+    this->migrate();
+  }
 }
 
 sqlite3 *SQLiteQueryExecutor::getConnection() const {

@@ -21,12 +21,15 @@ describe('Multiple databases', () => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    mainQueryExecutor = new dbModule.SQLiteQueryExecutor(MAIN_FILE_PATH);
+    mainQueryExecutor = new dbModule.SQLiteQueryExecutor(MAIN_FILE_PATH, false);
     if (!mainQueryExecutor) {
       throw new Error('Main SQLiteQueryExecutor is missing');
     }
 
-    backupQueryExecutor = new dbModule.SQLiteQueryExecutor(BACKUP_FILE_PATH);
+    backupQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      BACKUP_FILE_PATH,
+      false,
+    );
     if (!backupQueryExecutor) {
       throw new Error('Backup SQLiteQueryExecutor is missing');
     }

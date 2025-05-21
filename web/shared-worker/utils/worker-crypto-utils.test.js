@@ -28,7 +28,10 @@ describe('database encryption utils', () => {
 
   beforeAll(async () => {
     dbModule = getDatabaseModule();
-    sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor('test.sqlite');
+    sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      'test.sqlite',
+      false,
+    );
     sqliteQueryExecutor.setMetadata(TEST_KEY, TEST_VAL);
 
     cryptoKey = await generateCryptoKey({ extractable: false });
@@ -75,7 +78,7 @@ describe('database encryption utils', () => {
 
     importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
 
-    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite');
+    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite', false);
 
     expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });
@@ -97,7 +100,7 @@ describe('database encryption utils', () => {
 
     importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
 
-    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite');
+    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite', false);
 
     expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });
