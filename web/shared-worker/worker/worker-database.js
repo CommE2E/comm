@@ -1,18 +1,35 @@
 // @flow
 
+import {
+  databaseIdentifier,
+  type DatabaseIdentifier,
+} from 'lib/types/database-identifier-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
-let sqliteQueryExecutor: ?SQLiteQueryExecutor = null;
+let mainQueryExecutor: ?SQLiteQueryExecutor = null;
+let restoredQueryExecutor: ?SQLiteQueryExecutor = null;
 
-function getSQLiteQueryExecutor(): ?SQLiteQueryExecutor {
-  return sqliteQueryExecutor;
+function getSQLiteQueryExecutor(
+  id: DatabaseIdentifier = databaseIdentifier.MAIN,
+): ?SQLiteQueryExecutor {
+  if (id === databaseIdentifier.RESTORED) {
+    return restoredQueryExecutor;
+  }
+  return mainQueryExecutor;
 }
 
-function setSQLiteQueryExecutor(newSQLiteQueryExecutor: ?SQLiteQueryExecutor) {
-  sqliteQueryExecutor = newSQLiteQueryExecutor;
+function setSQLiteQueryExecutor(
+  newSQLiteQueryExecutor: ?SQLiteQueryExecutor,
+  id: DatabaseIdentifier = databaseIdentifier.MAIN,
+) {
+  if (id === databaseIdentifier.RESTORED) {
+    restoredQueryExecutor = newSQLiteQueryExecutor;
+    return;
+  }
+  mainQueryExecutor = newSQLiteQueryExecutor;
 }
 
 let dbModule: ?EmscriptenModule = null;
