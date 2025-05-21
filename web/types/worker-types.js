@@ -52,6 +52,8 @@ export const workerRequestMessageTypes = Object.freeze({
   FETCH_MESSAGES: 25,
   GET_INBOUND_P2P_MESSAGES_BY_ID: 26,
   GET_DM_OPERATIONS_BY_TYPE: 27,
+  MIGRATE_BACKUP_SCHEMA: 28,
+  COPY_CONTENT_FROM_BACKUP_DB: 29,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -65,6 +67,8 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.MARK_OUTBOUND_P2P_MESSAGE_AS_SENT,
   workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGE,
   workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
+  workerRequestMessageTypes.MIGRATE_BACKUP_SCHEMA,
+  workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -238,6 +242,14 @@ export type GetDMOperationsByTypeRequestMessage = {
   +operationType: string,
 };
 
+export type MigrateBackupSchemaRequestMessage = {
+  +type: 28,
+};
+
+export type CopyContentFromBackupDatabaseRequestMessage = {
+  +type: 29,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -266,7 +278,9 @@ export type WorkerRequestMessage =
   | ResetOutboundP2PMessagesRequestMessage
   | FetchMessagesRequestMessage
   | GetInboundP2PMessagesByIDRequestMessage
-  | GetDMOperationsByTypeRequestMessage;
+  | GetDMOperationsByTypeRequestMessage
+  | MigrateBackupSchemaRequestMessage
+  | CopyContentFromBackupDatabaseRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,

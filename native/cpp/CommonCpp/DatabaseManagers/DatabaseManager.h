@@ -69,6 +69,7 @@ public:
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
       std::string maxVersion);
+  static void copyContentFromBackupDatabase();
 };
 
 } // namespace comm

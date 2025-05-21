@@ -76,6 +76,8 @@ const sqliteAPI: SQLiteAPI = {
       storeVersion.toString(),
     );
   },
+  migrateBackupSchema: commCoreModule.migrateBackupSchema,
+  copyContentFromBackupDatabase: commCoreModule.copyContentFromBackupDatabase,
 };
 
 export { sqliteAPI };
