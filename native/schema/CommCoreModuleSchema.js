@@ -37,7 +37,8 @@ type CommServicesAuthMetadata = {
 
 interface Spec extends TurboModule {
   +updateDraft: (key: string, text: string) => Promise<boolean>;
-  +getClientDBStore: () => Promise<ClientDBStore>;
+  // This type should be DatabaseIdentifier
+  +getClientDBStore: (dbID?: ?string) => Promise<ClientDBStore>;
   +getInitialMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
@@ -253,7 +254,7 @@ export interface CoreModuleSpec extends Spec {
   +getSIWEBackupSecrets: () => Promise<?SignedMessage>;
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
-    //This type should be DatabaseIdentifier
+    // This type should be DatabaseIdentifier
     dbID?: ?string,
   ) => Promise<void>;
   +getQRAuthBackupData: () => Promise<QRAuthBackupData>;

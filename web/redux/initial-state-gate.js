@@ -77,7 +77,10 @@ function InitialReduxStateGate(props: Props): React.Node {
     void (async () => {
       try {
         const { sqliteAPI } = getConfig();
-        const clientDBStore = await sqliteAPI.getClientDBStore(null);
+        const clientDBStore = await sqliteAPI.getClientDBStore(
+          databaseIdentifier.MAIN,
+          null,
+        );
         dispatch({
           type: setClientDBStoreActionType,
           payload: clientDBStore,
