@@ -12,8 +12,8 @@ public:
   RemoveCommunitiesOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeCommunities(this->ids);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeCommunities(this->ids);
   }
 
 private:
@@ -26,8 +26,8 @@ public:
       : community{std::move(community)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceCommunity(this->community);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceCommunity(this->community);
   }
 
 private:
@@ -36,8 +36,8 @@ private:
 
 class RemoveAllCommunitiesOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllCommunities();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllCommunities();
   }
 };
 
