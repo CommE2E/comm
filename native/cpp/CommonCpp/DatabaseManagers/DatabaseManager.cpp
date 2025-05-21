@@ -24,6 +24,11 @@ const int DatabaseManager::backupLogDataKeySize = 32;
 std::shared_ptr<NativeSQLiteConnectionManager>
     DatabaseManager::mainConnectionManager;
 
+// Backup database after decrypting (at backup level) is not encrypted, so we
+// use an unencrypted connection manager.
+std::shared_ptr<WebSQLiteConnectionManager>
+    DatabaseManager::restoredConnectionManager;
+
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
 std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
 
@@ -36,6 +41,21 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
+  return DatabaseManager::getQueryExecutor(DatabaseIdentifier::MAIN);
+}
+
+const DatabaseQueryExecutor &
+DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
+  if (id == DatabaseIdentifier::RESTORED) {
+    if (!DatabaseManager::restoredConnectionManager) {
+      throw std::runtime_error("restoredConnectionManager is not set");
+    }
+
+    thread_local SQLiteQueryExecutor restoredQueryExecutor(
+        DatabaseManager::restoredConnectionManager, true);
+    return restoredQueryExecutor;
+  }
+
   thread_local SQLiteQueryExecutor mainQueryExecutor(
       DatabaseManager::mainConnectionManager);
 
@@ -367,6 +387,8 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string maxVersion) {
   std::string backupPath = SQLiteBackup::restoreFromMainCompaction(
       mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
+  DatabaseManager::restoredConnectionManager =
+      std::make_shared<WebSQLiteConnectionManager>(backupPath);
   DatabaseManager::getQueryExecutor().copyContentFromDatabase(backupPath);
 }
 
