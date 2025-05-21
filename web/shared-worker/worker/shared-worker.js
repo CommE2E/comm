@@ -2,6 +2,7 @@
 
 import localforage from 'localforage';
 
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { restoreBackup } from './backup.js';
@@ -60,6 +61,8 @@ let encryptionKey: ?CryptoKey = null;
 
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
+
+let backupPath: ?string = null;
 
 async function initDatabase(
   webworkerModulesFilePath: string,
@@ -367,7 +370,7 @@ async function processAppRequest(
   ) {
     sqliteQueryExecutor.removePersistStorageItem(message.key);
   } else if (message.type === workerRequestMessageTypes.BACKUP_RESTORE) {
-    await restoreBackup(
+    backupPath = await restoreBackup(
       sqliteQueryExecutor,
       dbModule,
       message.authMetadata,
@@ -413,6 +416,23 @@ async function processAppRequest(
       type: workerResponseMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
       messageIDs,
     };
+  } else if (message.type === workerRequestMessageTypes.MIGRATE_SCHEMA) {
+    const restoredQueryExecutor = getSQLiteQueryExecutor(
+      databaseIdentifier.RESTORED,
+    );
+    if (!restoredQueryExecutor) {
+      throw new Error(
+        `restoredQueryExecutor not initialized, unable to process request type: ${message.type}`,
+      );
+    }
+    restoredQueryExecutor.migrate();
+  } else if (
+    message.type === workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB
+  ) {
+    if (!backupPath) {
+      throw new Error('backupPath not set');
+    }
+    sqliteQueryExecutor.copyContentFromDatabase(backupPath);
   }
 
   persistNeeded = true;

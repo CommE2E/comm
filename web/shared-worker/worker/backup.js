@@ -6,10 +6,7 @@ import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
-import {
-  getSQLiteQueryExecutor,
-  setSQLiteQueryExecutor,
-} from './worker-database.js';
+import { setSQLiteQueryExecutor } from './worker-database.js';
 import {
   BackupClient,
   RequestedData,
@@ -30,7 +27,7 @@ async function restoreBackup(
   backupID: string,
   backupDataKey: string,
   backupLogDataKey: string,
-) {
+): Promise<string> {
   const decryptionKey = new TextEncoder().encode(backupLogDataKey);
   const { userID, deviceID, accessToken } = authMetadata;
   if (!userID || !deviceID || !accessToken) {
@@ -64,34 +61,26 @@ async function restoreBackup(
       `${storeVersion ?? -1}`,
     );
 
-    setSQLiteQueryExecutor(
-      new dbModule.SQLiteQueryExecutor(backupPath, true),
-      databaseIdentifier.RESTORED,
+    const restoredQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      backupPath,
+      true,
     );
+
+    setSQLiteQueryExecutor(restoredQueryExecutor, databaseIdentifier.RESTORED);
 
     sqliteQueryExecutor.setPersistStorageItem(
       completeRootKey,
       reduxPersistData,
     );
+
+    await client.downloadLogs(userIdentity, backupID, async log => {
+      const content = await decryptCommon(crypto, decryptionKey, log);
+      restoredQueryExecutor.restoreFromBackupLog(content);
+    });
+    return backupPath;
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
-
-  const restoredQueryExecutor = getSQLiteQueryExecutor(
-    databaseIdentifier.RESTORED,
-  );
-  if (!restoredQueryExecutor) {
-    throw new Error('restoredQueryExecutor is not set');
-  }
-
-  await client.downloadLogs(userIdentity, backupID, async log => {
-    const content = await decryptCommon(crypto, decryptionKey, log);
-    try {
-      restoredQueryExecutor.restoreFromBackupLog(content);
-    } catch (err) {
-      throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
-    }
-  });
 }
 
 export { restoreBackup };
