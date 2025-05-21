@@ -27,7 +27,7 @@ public:
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
   virtual void processReportStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) = 0;
+  virtual jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations, std::optional<jsi::String> dbID) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
@@ -169,13 +169,13 @@ private:
       return bridging::callFromJs<void>(
           rt, &T::processThreadStoreOperationsSync, jsInvoker_, instance_, std::move(operations));
     }
-    jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override {
+    jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations, std::optional<jsi::String> dbID) override {
       static_assert(
-          bridging::getParameterCount(&T::processDBStoreOperations) == 2,
-          "Expected processDBStoreOperations(...) to have 2 parameters");
+          bridging::getParameterCount(&T::processDBStoreOperations) == 3,
+          "Expected processDBStoreOperations(...) to have 3 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::processDBStoreOperations, jsInvoker_, instance_, std::move(operations));
+          rt, &T::processDBStoreOperations, jsInvoker_, instance_, std::move(operations), std::move(dbID));
     }
     jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override {
       static_assert(

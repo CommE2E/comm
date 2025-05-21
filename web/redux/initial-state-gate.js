@@ -11,6 +11,7 @@ import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
 import { threadIDIsThick } from 'lib/types/thread-types.js';
@@ -207,21 +208,24 @@ function InitialReduxStateGate(props: Props): React.Node {
             messageStoreOperations,
           );
           const { sqliteAPI } = getConfig();
-          await sqliteAPI.processDBStoreOperations({
-            threadStoreOperations,
-            draftStoreOperations: [],
-            messageStoreOperations,
-            reportStoreOperations: [],
-            userStoreOperations,
-            keyserverStoreOperations: [],
-            communityStoreOperations: [],
-            integrityStoreOperations: [],
-            syncedMetadataStoreOperations: [],
-            auxUserStoreOperations: [],
-            threadActivityStoreOperations: [],
-            entryStoreOperations,
-            messageSearchStoreOperations,
-          });
+          await sqliteAPI.processDBStoreOperations(
+            {
+              threadStoreOperations,
+              draftStoreOperations: [],
+              messageStoreOperations,
+              reportStoreOperations: [],
+              userStoreOperations,
+              keyserverStoreOperations: [],
+              communityStoreOperations: [],
+              integrityStoreOperations: [],
+              syncedMetadataStoreOperations: [],
+              auxUserStoreOperations: [],
+              threadActivityStoreOperations: [],
+              entryStoreOperations,
+              messageSearchStoreOperations,
+            },
+            databaseIdentifier.MAIN,
+          );
         }
 
         dispatch({
