@@ -212,6 +212,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         await performMigrationToNewFlow(currentIdentityUserState);
       } else if (shouldUploadUserData) {
         step = 'creating User Data backup';
+        console.log('creating user data backup');
         await performBackupUpload();
       } else if (shouldUploadUserKeys) {
         step = 'creating User Keys backup';

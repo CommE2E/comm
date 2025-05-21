@@ -269,6 +269,7 @@ void DatabaseManager::triggerBackupFileUpload() {
     return;
   }
   ::triggerBackupFileUpload();
+  Logger::log("triggerBackupFileUpload");
 }
 
 void DatabaseManager::createMainCompaction(std::string backupID) {

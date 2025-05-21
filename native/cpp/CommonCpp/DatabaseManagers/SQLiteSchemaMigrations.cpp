@@ -778,6 +778,28 @@ bool create_dm_operations_table(sqlite3 *db) {
   return SQLiteSchema::createTable(db, query, "dm_operations");
 }
 
+bool test_migration(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "REPLACE INTO synced_metadata (name, data) "
+      "VALUES ('backup_key', 'backup_data');",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error running test query " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -822,6 +844,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {51, {update_messages_idx_target_message_type_time, true}},
      {52, {recreate_inbound_p2p_messages_table, true}},
      {53, {add_timestamps_column_to_threads_table, true}},
-     {54, {create_dm_operations_table, true}}}};
+     {54, {create_dm_operations_table, true}},
+     {55, {test_migration, true}}}};
 
 } // namespace comm
