@@ -56,6 +56,10 @@ public:
   static void captureBackupLogs();
   static void triggerBackupFileUpload();
   static void createMainCompaction(std::string backupID);
+  static void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey,
+      std::string maxVersion);
 };
 
 } // namespace comm

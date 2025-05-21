@@ -145,10 +145,6 @@ public:
   virtual void setMetadata(std::string entryName, std::string data) const = 0;
   virtual void clearMetadata(std::string entryName) const = 0;
   virtual std::string getMetadata(std::string entryName) const = 0;
-  virtual void restoreFromMainCompaction(
-      std::string mainCompactionPath,
-      std::string mainCompactionEncryptionKey,
-      std::string maxVersion) const = 0;
   virtual void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
   virtual void

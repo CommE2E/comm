@@ -53,11 +53,13 @@ async function restoreBackup(
     const reduxPersistData =
       sqliteQueryExecutor.getPersistStorageItem(completeRootKey);
 
-    sqliteQueryExecutor.restoreFromMainCompaction(
+    const backupPath = dbModule.SQLiteBackup.restoreFromMainCompaction(
       COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
       backupDataKey,
       `${storeVersion ?? -1}`,
     );
+
+    sqliteQueryExecutor.copyContentFromDatabase(backupPath);
 
     sqliteQueryExecutor.setPersistStorageItem(
       completeRootKey,

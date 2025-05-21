@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "entities/EntityQueryHelpers.h"
+#include "entities/SyncedMetadataEntry.h"
 #include <sqlite3.h>
 
 #include <fstream>

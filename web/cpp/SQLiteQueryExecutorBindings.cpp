@@ -292,9 +292,6 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction)
       .function(
-          "restoreFromMainCompaction",
-          &SQLiteQueryExecutor::restoreFromMainCompaction)
-      .function(
           "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog)
       .function(
           "copyContentFromDatabase",
@@ -343,6 +340,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           &SQLiteQueryExecutor::deleteMessageFromSearchIndex)
       .function("searchMessages", &SQLiteQueryExecutor::searchMessages)
       .function("fetchMessages", &SQLiteQueryExecutor::fetchMessages);
+
+  class_<SQLiteBackup>("SQLiteBackup")
+      .class_function(
+          "restoreFromMainCompaction",
+          &SQLiteBackup::restoreFromMainCompaction);
 }
 
 } // namespace comm

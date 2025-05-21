@@ -18,6 +18,16 @@ type Emscripten$WebAssemblyExports = $ReadOnlyArray<{
   +kind: string,
 }>;
 
+declare export class SQLiteBackup {
+  static restoreFromMainCompaction(
+    mainCompactionPath: string,
+    mainCompactionEncryptionKey: string,
+    maxVersion: string,
+  ): string;
+}
+
+export type SQLiteBackupType = typeof SQLiteBackup;
+
 declare export class EmscriptenModule {
   print(str: string): void;
   printErr(str: string): void;
@@ -67,5 +77,6 @@ declare export class EmscriptenModule {
   FS: FS;
 
   SQLiteQueryExecutor: SQLiteQueryExecutorType;
+  SQLiteBackup: SQLiteBackupType;
   getExceptionMessage(exceptionPtr: number): string;
 }

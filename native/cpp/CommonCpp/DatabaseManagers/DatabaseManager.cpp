@@ -360,4 +360,13 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   }
 }
 
+void DatabaseManager::restoreFromMainCompaction(
+    std::string mainCompactionPath,
+    std::string mainCompactionEncryptionKey,
+    std::string maxVersion) {
+  std::string backupPath = SQLiteBackup::restoreFromMainCompaction(
+      mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
+  DatabaseManager::getQueryExecutor().copyContentFromDatabase(backupPath);
+}
+
 } // namespace comm
