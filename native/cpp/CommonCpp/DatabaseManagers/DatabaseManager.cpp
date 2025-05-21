@@ -200,6 +200,7 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
+  DatabaseManager::connectionManager->initializeConnection();
   SQLiteUtils::rekeyDatabase(
       DatabaseManager::connectionManager->getConnection(), backupDataKey);
 
@@ -277,6 +278,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   SQLiteUtils::setEncryptionKey(
       backupDB, DatabaseManager::connectionManager->getBackupDataKey());
 
+  DatabaseManager::connectionManager->initializeConnection();
   sqlite3_backup *backupObj = sqlite3_backup_init(
       backupDB,
       "main",
