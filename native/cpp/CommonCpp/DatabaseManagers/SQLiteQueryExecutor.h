@@ -23,7 +23,7 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  static void closeConnection();
+  sqlite3 *getConnection() const;
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
@@ -46,7 +46,6 @@ public:
 
   ~SQLiteQueryExecutor();
 
-  sqlite3 *getConnection() const;
   void migrate() const override;
 
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
