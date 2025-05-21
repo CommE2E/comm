@@ -7,6 +7,7 @@ import type {
   OLMIdentityKeys,
   OlmAPI,
 } from 'lib/types/crypto-types.js';
+import type { DatabaseIdentifier } from 'lib/types/database-identifier-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   IdentityServiceClient,
@@ -102,6 +103,7 @@ export type GenerateDatabaseEncryptionKeyRequestMessage = {
 export type ProcessStoreOperationsRequestMessage = {
   +type: 3,
   +storeOperations: ClientDBStoreOperations,
+  +dbID?: DatabaseIdentifier,
 };
 
 export type GetClientStoreRequestMessage = {
