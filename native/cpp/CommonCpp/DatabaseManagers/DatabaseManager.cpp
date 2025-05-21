@@ -22,7 +22,12 @@ const int DatabaseManager::backupDataKeySize = 64;
 const int DatabaseManager::backupLogDataKeySize = 32;
 
 std::shared_ptr<NativeSQLiteConnectionManager>
-    DatabaseManager::connectionManager;
+    DatabaseManager::mainConnectionManager;
+// Backup database after decrypting (at backup level) is not encrypted, so we
+// use an unencrypted connection manager.
+
+std::shared_ptr<WebSQLiteConnectionManager>
+    DatabaseManager::backupConnectionManager;
 
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
 std::once_flag DatabaseManager::sqliteQueryExecutorPropertiesInitialized;
@@ -36,20 +41,35 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
-  thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
+  return DatabaseManager::getQueryExecutor("main");
+}
+
+const DatabaseQueryExecutor &
+DatabaseManager::getQueryExecutor(std::string databaseID) {
+  if (databaseID == "backup") {
+    if (!DatabaseManager::backupConnectionManager) {
+      throw std::runtime_error("backupConnectionManager is not set");
+    }
+
+    thread_local SQLiteQueryExecutor backup(
+        DatabaseManager::backupConnectionManager, true);
+    return backup;
+  }
+
+  thread_local SQLiteQueryExecutor main(DatabaseManager::mainConnectionManager);
 
   // Creating an instance means the migration code was executed and finished
   // without error, and the database is workable. We also want to start
   // monitoring logs when this device should handle backup.
   std::call_once(DatabaseManager::queryExecutorCreationIndicated, []() {
     DatabaseManager::indicateQueryExecutorCreation();
-    std::string currentBackupID = instance.getMetadata("backupID");
+    std::string currentBackupID = main.getMetadata("backupID");
     if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
       return;
     }
-    DatabaseManager::connectionManager->setLogsMonitoring(true);
+    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
   });
-  return instance;
+  return main;
 }
 
 void DatabaseManager::clearSensitiveData() {
@@ -60,9 +80,9 @@ void DatabaseManager::clearSensitiveData() {
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
-  DatabaseManager::connectionManager->closeConnection();
+  DatabaseManager::mainConnectionManager->closeConnection();
   std::string sqliteFilePath =
-      DatabaseManager::connectionManager->getSQLiteFilePath();
+      DatabaseManager::mainConnectionManager->getSQLiteFilePath();
 
   if (SQLiteUtils::fileExists(sqliteFilePath) &&
       std::remove(sqliteFilePath.c_str())) {
@@ -73,11 +93,11 @@ void DatabaseManager::clearSensitiveData() {
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
 
-  DatabaseManager::connectionManager->setNewKeys(
+  DatabaseManager::mainConnectionManager->setNewKeys(
       backupDataKey, backupLogDataKey);
 
   DatabaseManager::getQueryExecutor().migrate();
-  DatabaseManager::connectionManager->initializeConnection();
+  DatabaseManager::mainConnectionManager->initializeConnection();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
@@ -170,7 +190,7 @@ void DatabaseManager::initializeSQLiteQueryExecutorProperties(
           backupLogDataKey = maybeBackupLogDataKey.value();
         }
 
-        DatabaseManager::connectionManager =
+        DatabaseManager::mainConnectionManager =
             std::make_shared<NativeSQLiteConnectionManager>(
                 databasePath, backupDataKey, backupLogDataKey);
       });
@@ -191,11 +211,11 @@ void DatabaseManager::reportDBOperationsFailure() {
 void DatabaseManager::setUserDataKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) {
-  if (DatabaseManager::connectionManager->getBackupDataKey().empty()) {
+  if (DatabaseManager::mainConnectionManager->getBackupDataKey().empty()) {
     throw std::runtime_error("backupDataKey is not set");
   }
 
-  if (DatabaseManager::connectionManager->getBackupLogDataKey().empty()) {
+  if (DatabaseManager::mainConnectionManager->getBackupLogDataKey().empty()) {
     throw std::runtime_error("backupLogDataKey is not set");
   }
 
@@ -207,14 +227,14 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
-  DatabaseManager::connectionManager->initializeConnection();
+  DatabaseManager::mainConnectionManager->initializeConnection();
   SQLiteUtils::rekeyDatabase(
-      DatabaseManager::connectionManager->getConnection(), backupDataKey);
+      DatabaseManager::mainConnectionManager->getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
 
-  DatabaseManager::connectionManager->setNewKeys(
+  DatabaseManager::mainConnectionManager->setNewKeys(
       backupDataKey, backupLogDataKey);
 }
 
@@ -234,7 +254,7 @@ void DatabaseManager::captureBackupLogs() {
   }
 
   bool newLogCreated =
-      DatabaseManager::connectionManager->captureLogs(backupID, logID);
+      DatabaseManager::mainConnectionManager->captureLogs(backupID, logID);
   if (!newLogCreated) {
     return;
   }
@@ -283,13 +303,13 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
   SQLiteUtils::setEncryptionKey(
-      backupDB, DatabaseManager::connectionManager->getBackupDataKey());
+      backupDB, DatabaseManager::mainConnectionManager->getBackupDataKey());
 
-  DatabaseManager::connectionManager->initializeConnection();
+  DatabaseManager::mainConnectionManager->initializeConnection();
   sqlite3_backup *backupObj = sqlite3_backup_init(
       backupDB,
       "main",
-      DatabaseManager::connectionManager->getConnection(),
+      DatabaseManager::mainConnectionManager->getConnection(),
       "main");
   if (!backupObj) {
     std::stringstream error_message;
@@ -336,7 +356,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   std::string getAllBlobServiceMediaSQL =
       "SELECT * FROM media WHERE uri LIKE 'comm-blob-service://%';";
   std::vector<Media> blobServiceMedia = getAllEntities<Media>(
-      DatabaseManager::connectionManager->getConnection(),
+      DatabaseManager::mainConnectionManager->getConnection(),
       getAllBlobServiceMediaSQL);
 
   for (const auto &media : blobServiceMedia) {
@@ -356,7 +376,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
-    DatabaseManager::connectionManager->setLogsMonitoring(true);
+    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
   }
 }
 
@@ -366,7 +386,8 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string maxVersion) {
   std::string backupPath = SQLiteBackup::restoreFromMainCompaction(
       mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
-  DatabaseManager::getQueryExecutor().copyContentFromDatabase(backupPath);
+  DatabaseManager::backupConnectionManager =
+      std::make_shared<WebSQLiteConnectionManager>(backupPath);
 }
 
 } // namespace comm

@@ -6,6 +6,10 @@ import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
+  getSQLiteQueryExecutor,
+  setSQLiteQueryExecutor,
+} from './worker-database.js';
+import {
   BackupClient,
   RequestedData,
 } from '../../backup-client-wasm/wasm/backup-client-wasm.js';
@@ -59,7 +63,10 @@ async function restoreBackup(
       `${storeVersion ?? -1}`,
     );
 
-    sqliteQueryExecutor.copyContentFromDatabase(backupPath);
+    setSQLiteQueryExecutor(
+      new dbModule.SQLiteQueryExecutor(backupPath, true),
+      'backup',
+    );
 
     sqliteQueryExecutor.setPersistStorageItem(
       completeRootKey,
@@ -69,14 +76,22 @@ async function restoreBackup(
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 
+  const backupExecutor = getSQLiteQueryExecutor('backup');
+
+  if (!backupExecutor) {
+    throw new Error('backupExecutor is not set');
+  }
+
   await client.downloadLogs(userIdentity, backupID, async log => {
     const content = await decryptCommon(crypto, decryptionKey, log);
     try {
-      sqliteQueryExecutor.restoreFromBackupLog(content);
+      backupExecutor.restoreFromBackupLog(content);
     } catch (err) {
       throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
     }
   });
+
+  backupExecutor.migrate();
 }
 
 export { restoreBackup };

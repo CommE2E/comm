@@ -5,14 +5,27 @@ import type { PlatformDetails } from 'lib/types/device-types.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
-let sqliteQueryExecutor: ?SQLiteQueryExecutor = null;
+let mainQueryExecutor: ?SQLiteQueryExecutor = null;
+let backupQueryExecutor: ?SQLiteQueryExecutor = null;
 
-function getSQLiteQueryExecutor(): ?SQLiteQueryExecutor {
-  return sqliteQueryExecutor;
+function getSQLiteQueryExecutor(
+  databaseID: string = 'main',
+): ?SQLiteQueryExecutor {
+  if (databaseID === 'backup') {
+    return backupQueryExecutor;
+  }
+  return mainQueryExecutor;
 }
 
-function setSQLiteQueryExecutor(newSQLiteQueryExecutor: ?SQLiteQueryExecutor) {
-  sqliteQueryExecutor = newSQLiteQueryExecutor;
+function setSQLiteQueryExecutor(
+  newSQLiteQueryExecutor: ?SQLiteQueryExecutor,
+  databaseID: string = 'main',
+) {
+  if (databaseID === 'backup') {
+    backupQueryExecutor = newSQLiteQueryExecutor;
+    return;
+  }
+  mainQueryExecutor = newSQLiteQueryExecutor;
 }
 
 let dbModule: ?EmscriptenModule = null;
