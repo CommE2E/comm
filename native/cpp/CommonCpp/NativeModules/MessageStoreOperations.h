@@ -20,9 +20,10 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessages(this->msg_ids_to_remove);
-    DatabaseManager::getQueryExecutor().removeMediaForMessages(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeMessages(
+        this->msg_ids_to_remove);
+    DatabaseManager::getQueryExecutor(id).removeMediaForMessages(
         this->msg_ids_to_remove);
   }
 
@@ -44,10 +45,11 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessagesForThreads(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeMessagesForThreads(
         this->thread_ids);
-    DatabaseManager::getQueryExecutor().removeMediaForThreads(this->thread_ids);
+    DatabaseManager::getQueryExecutor(id).removeMediaForThreads(
+        this->thread_ids);
   }
 
 private:
@@ -109,7 +111,7 @@ public:
     }
   }
 
-  virtual void execute() override {
+  virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor().removeMediaForMessage(msg->id);
     for (auto &&media : this->media_vector) {
       DatabaseManager::getQueryExecutor().replaceMedia(std::move(*media));
@@ -129,9 +131,9 @@ public:
     this->to = payload.getProperty(rt, "to").asString(rt).utf8(rt);
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().rekeyMessage(this->from, this->to);
-    DatabaseManager::getQueryExecutor().rekeyMediaContainers(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).rekeyMessage(this->from, this->to);
+    DatabaseManager::getQueryExecutor(id).rekeyMediaContainers(
         this->from, this->to);
   }
 
@@ -142,9 +144,9 @@ private:
 
 class RemoveAllMessagesOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllMessages();
-    DatabaseManager::getQueryExecutor().removeAllMedia();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllMessages();
+    DatabaseManager::getQueryExecutor(id).removeAllMedia();
   }
 };
 
@@ -165,8 +167,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceMessageStoreThreads(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceMessageStoreThreads(
         this->msg_threads);
   }
 
@@ -176,8 +178,8 @@ private:
 
 class RemoveAllMessageStoreThreadsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllMessageStoreThreads();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllMessageStoreThreads();
   }
 };
 
@@ -194,8 +196,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessageStoreThreads(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeMessageStoreThreads(
         this->thread_ids);
   }
 
@@ -216,8 +218,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessageStoreLocalMessageInfos(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeMessageStoreLocalMessageInfos(
         this->ids);
   }
 
@@ -238,8 +240,8 @@ public:
     this->localMessageInfo = LocalMessageInfo{id, local_message_info};
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceMessageStoreLocalMessageInfo(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceMessageStoreLocalMessageInfo(
         this->localMessageInfo);
   }
 
@@ -249,8 +251,8 @@ private:
 
 class RemoveAllMessageStoreLocalMessageInfosOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor()
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id)
         .removeAllMessageStoreLocalMessageInfos();
   }
 };
