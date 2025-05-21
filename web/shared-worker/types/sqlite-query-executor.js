@@ -51,7 +51,7 @@ export type MessageEntity = {
 };
 
 declare export class SQLiteQueryExecutor {
-  constructor(sqliteFilePath: string): void;
+  constructor(sqliteFilePath: string, skipMigration: boolean): void;
 
   updateDraft(key: string, text: string): void;
   moveDraft(oldKey: string, newKey: string): boolean;
