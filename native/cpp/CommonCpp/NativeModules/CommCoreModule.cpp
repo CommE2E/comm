@@ -52,7 +52,14 @@ jsi::Value CommCoreModule::updateDraft(
       });
 }
 
-jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getClientDBStore(
+    jsi::Runtime &rt,
+    std::optional<jsi::String> dbID) {
+  DatabaseIdentifier identifier = DatabaseIdentifier::MAIN;
+  if (dbID.has_value()) {
+    identifier = stringToDatabaseIdentifier(dbID->utf8(rt));
+  }
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -73,34 +80,40 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
           std::vector<DMOperation> dmOperationsVector;
           try {
-            draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
-            messagesVector =
-                DatabaseManager::getQueryExecutor().getInitialMessages();
-            threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
+            draftsVector =
+                DatabaseManager::getQueryExecutor(identifier).getAllDrafts();
+            messagesVector = DatabaseManager::getQueryExecutor(identifier)
+                                 .getInitialMessages();
+            threadsVector =
+                DatabaseManager::getQueryExecutor(identifier).getAllThreads();
             messageStoreThreadsVector =
-                DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
+                DatabaseManager::getQueryExecutor(identifier)
+                    .getAllMessageStoreThreads();
             reportStoreVector =
-                DatabaseManager::getQueryExecutor().getAllReports();
-            userStoreVector = DatabaseManager::getQueryExecutor().getAllUsers();
-            keyserverStoreVector =
-                DatabaseManager::getQueryExecutor().getAllKeyservers();
-            communityStoreVector =
-                DatabaseManager::getQueryExecutor().getAllCommunities();
-            integrityStoreVector = DatabaseManager::getQueryExecutor()
+                DatabaseManager::getQueryExecutor(identifier).getAllReports();
+            userStoreVector =
+                DatabaseManager::getQueryExecutor(identifier).getAllUsers();
+            keyserverStoreVector = DatabaseManager::getQueryExecutor(identifier)
+                                       .getAllKeyservers();
+            communityStoreVector = DatabaseManager::getQueryExecutor(identifier)
+                                       .getAllCommunities();
+            integrityStoreVector = DatabaseManager::getQueryExecutor(identifier)
                                        .getAllIntegrityThreadHashes();
             syncedMetadataStoreVector =
-                DatabaseManager::getQueryExecutor().getAllSyncedMetadata();
-            auxUserStoreVector =
-                DatabaseManager::getQueryExecutor().getAllAuxUserInfos();
-            threadActivityStoreVector = DatabaseManager::getQueryExecutor()
-                                            .getAllThreadActivityEntries();
+                DatabaseManager::getQueryExecutor(identifier)
+                    .getAllSyncedMetadata();
+            auxUserStoreVector = DatabaseManager::getQueryExecutor(identifier)
+                                     .getAllAuxUserInfos();
+            threadActivityStoreVector =
+                DatabaseManager::getQueryExecutor(identifier)
+                    .getAllThreadActivityEntries();
             entryStoreVector =
-                DatabaseManager::getQueryExecutor().getAllEntries();
+                DatabaseManager::getQueryExecutor(identifier).getAllEntries();
             messageStoreLocalMessageInfosVector =
-                DatabaseManager::getQueryExecutor()
+                DatabaseManager::getQueryExecutor(identifier)
                     .getAllMessageStoreLocalMessageInfos();
             dmOperationsVector =
-                DatabaseManager::getQueryExecutor().getDMOperations();
+                DatabaseManager::getQueryExecutor(identifier).getDMOperations();
           } catch (std::system_error &e) {
             error = e.what();
           }

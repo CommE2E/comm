@@ -21,7 +21,7 @@ protected:
 
 public:
   virtual jsi::Value updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) = 0;
-  virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getClientDBStore(jsi::Runtime &rt, std::optional<jsi::String> dbID) = 0;
   virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) = 0;
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
@@ -121,13 +121,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDraft, jsInvoker_, instance_, std::move(key), std::move(text));
     }
-    jsi::Value getClientDBStore(jsi::Runtime &rt) override {
+    jsi::Value getClientDBStore(jsi::Runtime &rt, std::optional<jsi::String> dbID) override {
       static_assert(
-          bridging::getParameterCount(&T::getClientDBStore) == 1,
-          "Expected getClientDBStore(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getClientDBStore) == 2,
+          "Expected getClientDBStore(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getClientDBStore, jsInvoker_, instance_);
+          rt, &T::getClientDBStore, jsInvoker_, instance_, std::move(dbID));
     }
     jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override {
       static_assert(

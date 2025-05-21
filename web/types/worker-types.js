@@ -108,6 +108,7 @@ export type ProcessStoreOperationsRequestMessage = {
 
 export type GetClientStoreRequestMessage = {
   +type: 4,
+  +dbID?: DatabaseIdentifier,
 };
 
 export type SetCurrentUserIDRequestMessage = {

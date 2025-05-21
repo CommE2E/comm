@@ -10,12 +10,16 @@ import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-op
 import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
+import type { DatabaseIdentifier } from 'lib/types/database-identifier-types';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
 import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 
 import { commCoreModule } from '../native-modules.js';
 
-async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
+async function getClientDBStore(
+  dbID: DatabaseIdentifier,
+  currentUserID: ?string,
+): Promise<ClientStore> {
   const {
     threads,
     messages,
@@ -31,7 +35,7 @@ async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
     threadActivityEntries,
     entries,
     messageStoreLocalMessageInfos,
-  } = await commCoreModule.getClientDBStore();
+  } = await commCoreModule.getClientDBStore(dbID);
   const threadInfosFromDB =
     threadStoreOpsHandlers.translateClientDBData(threads);
   const reportsFromDB = reportStoreOpsHandlers.translateClientDBData(reports);

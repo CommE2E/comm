@@ -15,6 +15,7 @@ import {
   recoveryFromDataHandlerActionSources,
   type RecoveryFromDataHandlerActionSource,
 } from 'lib/types/account-types.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -229,6 +230,7 @@ function SQLiteDataHandler(): React.Node {
       try {
         const { sqliteAPI } = getConfig();
         const clientDBStore = await sqliteAPI.getClientDBStore(
+          databaseIdentifier.MAIN,
           currentLoggedInUserID,
         );
         dispatch({
