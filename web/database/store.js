@@ -10,6 +10,7 @@ import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-op
 import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
+import type { DatabaseIdentifier } from 'lib/types/database-identifier-types.js';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
 import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 
@@ -17,7 +18,10 @@ import { defaultWebState } from '../redux/default-state.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
-async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
+async function getClientDBStore(
+  dbID: DatabaseIdentifier,
+  currentUserID: ?string,
+): Promise<ClientStore> {
   const sharedWorker = await getCommSharedWorker();
   let result: ClientStore = {
     currentUserID,
@@ -38,6 +42,7 @@ async function getClientDBStore(currentUserID: ?string): Promise<ClientStore> {
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    dbID,
   });
   if (data?.store?.drafts) {
     result = {

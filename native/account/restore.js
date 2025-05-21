@@ -15,6 +15,7 @@ import {
   useWalletLogIn,
 } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import {
   type IdentityAuthResult,
   type SignedDeviceList,
@@ -215,6 +216,7 @@ function useRestore(): (
         await sqliteAPI.copyContentFromBackupDatabase();
 
         const clientDBStore = await sqliteAPI.getClientDBStore(
+          databaseIdentifier.MAIN,
           identityAuthResult.userID,
         );
         dispatch({
