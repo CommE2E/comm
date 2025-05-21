@@ -37,10 +37,16 @@ const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
   thread_local SQLiteQueryExecutor instance(DatabaseManager::connectionManager);
 
-  // creating an instance means that migration code was executed
-  // and finished without error and database is workable
+  // Creating an instance means the migration code was executed and finished
+  // without error, and the database is workable. We also want to start
+  // monitoring logs when this device should handle backup.
   std::call_once(DatabaseManager::queryExecutorCreationIndicated, []() {
     DatabaseManager::indicateQueryExecutorCreation();
+    std::string currentBackupID = instance.getMetadata("backupID");
+    if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
+      return;
+    }
+    DatabaseManager::connectionManager->setLogsMonitoring(true);
   });
   return instance;
 }
