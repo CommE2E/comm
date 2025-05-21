@@ -3,6 +3,7 @@
 #include "../Tools/CommMMKV.h"
 #include "../Tools/CommSecureStore.h"
 #include "Logger.h"
+#include "NativeSQLiteConnectionManager.h"
 #include "PlatformSpecificTools.h"
 #include "SQLiteBackup.h"
 #include "SQLiteQueryExecutor.h"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DatabaseQueryExecutor.h"
+#include "NativeSQLiteConnectionManager.h"
 #include "SQLiteQueryExecutor.h"
 
 #include <mutex>

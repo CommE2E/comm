@@ -2,8 +2,7 @@
 
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
-#include "NativeSQLiteConnectionManager.h"
-#include "WebSQLiteConnectionManager.h"
+#include "SQLiteConnectionManager.h"
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/DMOperation.h"
@@ -24,6 +23,7 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   sqlite3 *getConnection() const;
+  std::shared_ptr<SQLiteConnectionManager> connectionManager;
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
@@ -35,15 +35,9 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
       const std::vector<std::string> &tableNames) const;
 
 public:
-#ifndef EMSCRIPTEN
-  std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
-  SQLiteQueryExecutor(
-      std::shared_ptr<NativeSQLiteConnectionManager> connectionManager);
-#else
-  std::shared_ptr<WebSQLiteConnectionManager> connectionManager;
   SQLiteQueryExecutor(std::string sqliteFilePath);
-#endif
-
+  SQLiteQueryExecutor(
+      std::shared_ptr<SQLiteConnectionManager> connectionManager);
   ~SQLiteQueryExecutor();
 
   void migrate() const override;
