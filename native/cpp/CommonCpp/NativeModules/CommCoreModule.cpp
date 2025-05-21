@@ -3352,4 +3352,51 @@ CommCoreModule::getDMOperationsByType(jsi::Runtime &rt, jsi::String type) {
       });
 }
 
+jsi::Value CommCoreModule::migrateBackupSchema(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor(DatabaseIdentifier::RESTORED)
+                .migrate();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::copyContentFromBackupDatabase(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::copyContentFromBackupDatabase();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm

@@ -240,6 +240,20 @@ const sqliteAPI: SQLiteAPI = {
       backupLogDataKey,
     });
   },
+
+  async migrateBackupSchema(): Promise<void> {
+    const sharedWorker = await getCommSharedWorker();
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.MIGRATE_BACKUP_SCHEMA,
+    });
+  },
+
+  async copyContentFromBackupDatabase(): Promise<void> {
+    const sharedWorker = await getCommSharedWorker();
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB,
+    });
+  },
 };
 
 export { sqliteAPI };
