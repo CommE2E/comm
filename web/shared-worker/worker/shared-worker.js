@@ -352,6 +352,21 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
   ) {
+    if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
+      const backupQueryExecutor = getSQLiteQueryExecutor(
+        databaseIdentifier.RESTORED,
+      );
+      if (!backupQueryExecutor) {
+        throw new Error(
+          `Backup not initialized, unable to process request type: ${message.type}`,
+        );
+      }
+      processDBStoreOperations(
+        backupQueryExecutor,
+        message.storeOperations,
+        dbModule,
+      );
+    }
     processDBStoreOperations(
       sqliteQueryExecutor,
       message.storeOperations,
