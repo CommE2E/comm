@@ -29,10 +29,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
   std::string getThickThreadTypesList() const;
-  void copyTablesDataUsingAttach(
-      sqlite3 *db,
-      const std::string &sourceDbPath,
-      const std::vector<std::string> &tableNames) const;
 
 public:
   SQLiteQueryExecutor(std::string sqliteFilePath);
@@ -152,6 +148,7 @@ public:
       std::string maxVersion) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
+  void copyContentFromDatabase(const std::string databasePath) const override;
   void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const override;
   std::vector<OutboundP2PMessage> getOutboundP2PMessagesByID(

@@ -1518,28 +1518,6 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
       this->getConnection(), query, types);
 }
 
-void SQLiteQueryExecutor::copyTablesDataUsingAttach(
-    sqlite3 *db,
-    const std::string &sourceDbPath,
-    const std::vector<std::string> &tableNames) const {
-  if (!SQLiteUtils::fileExists(sourceDbPath)) {
-    std::stringstream errorMessage;
-    errorMessage << "Error: File does not exist at path: " << sourceDbPath
-                 << std::endl;
-    Logger::log(errorMessage.str());
-    throw std::runtime_error(errorMessage.str());
-  }
-
-  std::ostringstream sql;
-  sql << "ATTACH DATABASE '" << sourceDbPath << "' AS sourceDB KEY '';";
-  for (const auto &tableName : tableNames) {
-    sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
-        << " FROM sourceDB." << tableName << ";" << std::endl;
-  }
-  sql << "DETACH DATABASE sourceDB;";
-  executeQuery(db, sql.str());
-}
-
 void SQLiteQueryExecutor::restoreFromMainCompaction(
     std::string mainCompactionPath,
     std::string mainCompactionEncryptionKey,
@@ -1596,16 +1574,34 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   std::vector<std::string> tablesVector(
       SQLiteBackup::tablesAllowlist.begin(),
       SQLiteBackup::tablesAllowlist.end());
-  copyTablesDataUsingAttach(
-      this->getConnection(), plaintextBackupPath, tablesVector);
-
-  SQLiteUtils::attemptDeleteFile(
-      plaintextBackupPath,
-      "Failed to delete plaintext compaction file after successful restore.");
 
   SQLiteUtils::attemptDeleteFile(
       mainCompactionPath,
       "Failed to delete main compaction file after successful restore.");
+}
+
+void SQLiteQueryExecutor::copyContentFromDatabase(
+    const std::string sourceDatabasePath) const {
+  std::vector<std::string> tableNames(
+      SQLiteBackup::tablesAllowlist.begin(),
+      SQLiteBackup::tablesAllowlist.end());
+
+  if (!SQLiteUtils::fileExists(sourceDatabasePath)) {
+    std::stringstream errorMessage;
+    errorMessage << "Error: Source file does not exist at path: "
+                 << sourceDatabasePath << std::endl;
+    Logger::log(errorMessage.str());
+    throw std::runtime_error(errorMessage.str());
+  }
+
+  std::ostringstream sql;
+  sql << "ATTACH DATABASE '" << sourceDatabasePath << "' AS sourceDB KEY '';";
+  for (const auto &tableName : tableNames) {
+    sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
+        << " FROM sourceDB." << tableName << ";" << std::endl;
+  }
+  sql << "DETACH DATABASE sourceDB;";
+  executeQuery(this->getConnection(), sql.str());
 }
 
 void SQLiteQueryExecutor::restoreFromBackupLog(
