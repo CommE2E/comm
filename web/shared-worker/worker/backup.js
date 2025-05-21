@@ -3,6 +3,7 @@
 import backupService from 'lib/facts/backup-service.js';
 import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
@@ -66,7 +67,7 @@ async function restoreBackup(
 
     setSQLiteQueryExecutor(
       new dbModule.SQLiteQueryExecutor(backupPath, true),
-      'backup',
+      databaseIdentifier.RESTORED,
     );
 
     sqliteQueryExecutor.setPersistStorageItem(
@@ -77,7 +78,7 @@ async function restoreBackup(
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 
-  const backupExecutor = getSQLiteQueryExecutor('backup');
+  const backupExecutor = getSQLiteQueryExecutor(databaseIdentifier.RESTORED);
 
   if (!backupExecutor) {
     throw new Error('backupExecutor is not set');

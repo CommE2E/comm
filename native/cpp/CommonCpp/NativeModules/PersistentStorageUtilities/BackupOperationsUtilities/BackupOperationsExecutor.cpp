@@ -51,8 +51,8 @@ void BackupOperationsExecutor::restoreFromBackupLog(
     size_t futureID) {
   taskType job = [backupLog, futureID]() {
     try {
-      DatabaseManager::getQueryExecutor("backup").restoreFromBackupLog(
-          backupLog);
+      DatabaseManager::getQueryExecutor(DatabaseIdentifier::RESTORED)
+          .restoreFromBackupLog(backupLog);
       ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
       std::string errorDetails = std::string(e.what());

@@ -2,6 +2,7 @@
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "../Tools/CommMMKV.h"
 #include "../Tools/CommSecureStore.h"
+#include "DatabaseIdentifier.h"
 #include "Logger.h"
 #include "NativeSQLiteConnectionManager.h"
 #include "PlatformSpecificTools.h"
@@ -41,12 +42,12 @@ DatabaseManagerStatus DB_OPERATIONS_FAILURE = "DB_OPERATIONS_FAILURE";
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
 const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
-  return DatabaseManager::getQueryExecutor("main");
+  return DatabaseManager::getQueryExecutor(DatabaseIdentifier::MAIN);
 }
 
 const DatabaseQueryExecutor &
-DatabaseManager::getQueryExecutor(std::string databaseID) {
-  if (databaseID == "backup") {
+DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
+  if (id == DatabaseIdentifier::RESTORED) {
     if (!DatabaseManager::backupConnectionManager) {
       throw std::runtime_error("backupConnectionManager is not set");
     }

@@ -3358,7 +3358,8 @@ jsi::Value CommCoreModule::migrateSchema(jsi::Runtime &rt) {
         taskType job = [this, &innerRt, promise]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor("backup").migrate();
+            DatabaseManager::getQueryExecutor(DatabaseIdentifier::RESTORED)
+                .migrate();
           } catch (const std::exception &e) {
             error = e.what();
           }

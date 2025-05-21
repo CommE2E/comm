@@ -2,6 +2,7 @@
 
 import localforage from 'localforage';
 
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { restoreBackup } from './backup.js';
@@ -416,7 +417,9 @@ async function processAppRequest(
       messageIDs,
     };
   } else if (message.type === workerRequestMessageTypes.MIGRATE_SCHEMA) {
-    const backupQueryExecutor = getSQLiteQueryExecutor('backup');
+    const backupQueryExecutor = getSQLiteQueryExecutor(
+      databaseIdentifier.RESTORED,
+    );
     if (!backupQueryExecutor) {
       throw new Error(
         `Backup not initialized, unable to process request type: ${message.type}`,

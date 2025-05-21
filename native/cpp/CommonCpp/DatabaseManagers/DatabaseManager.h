@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DatabaseIdentifier.h"
 #include "DatabaseQueryExecutor.h"
 #include "NativeSQLiteConnectionManager.h"
 #include "SQLiteQueryExecutor.h"
@@ -43,7 +44,7 @@ class DatabaseManager {
 
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
-  static const DatabaseQueryExecutor &getQueryExecutor(std::string databaseID);
+  static const DatabaseQueryExecutor &getQueryExecutor(DatabaseIdentifier id);
 
   static void clearSensitiveData();
   static void initializeQueryExecutor(std::string &databasePath);

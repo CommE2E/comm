@@ -1,5 +1,9 @@
 // @flow
 
+import {
+  databaseIdentifier,
+  type DatabaseIdentifier,
+} from 'lib/types/database-identifier-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 
 import type { EmscriptenModule } from '../types/module.js';
@@ -9,9 +13,9 @@ let mainQueryExecutor: ?SQLiteQueryExecutor = null;
 let backupQueryExecutor: ?SQLiteQueryExecutor = null;
 
 function getSQLiteQueryExecutor(
-  databaseID: string = 'main',
+  id: DatabaseIdentifier = databaseIdentifier.MAIN,
 ): ?SQLiteQueryExecutor {
-  if (databaseID === 'backup') {
+  if (id === databaseIdentifier.RESTORED) {
     return backupQueryExecutor;
   }
   return mainQueryExecutor;
@@ -19,9 +23,9 @@ function getSQLiteQueryExecutor(
 
 function setSQLiteQueryExecutor(
   newSQLiteQueryExecutor: ?SQLiteQueryExecutor,
-  databaseID: string = 'main',
+  id: DatabaseIdentifier = databaseIdentifier.MAIN,
 ) {
-  if (databaseID === 'backup') {
+  if (id === databaseIdentifier.RESTORED) {
     backupQueryExecutor = newSQLiteQueryExecutor;
     return;
   }
