@@ -13,8 +13,9 @@ public:
       : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeIntegrityThreadHashes(this->ids);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeIntegrityThreadHashes(
+        this->ids);
   }
 
 private:
@@ -28,8 +29,8 @@ public:
       : threadHashes{std::move(threadHashes)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceIntegrityThreadHashes(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceIntegrityThreadHashes(
         this->threadHashes);
   }
 
@@ -39,8 +40,8 @@ private:
 
 class RemoveAllIntegrityThreadHashesOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllIntegrityThreadHashes();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllIntegrityThreadHashes();
   }
 };
 

@@ -20,8 +20,8 @@ public:
         content{payload.getProperty(rt, "content").asString(rt).utf8(rt)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().updateMessageSearchIndex(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).updateMessageSearchIndex(
         this->originalMessageID, this->messageID, this->content);
   }
 
@@ -39,8 +39,8 @@ public:
       : messageID{payload.getProperty(rt, "messageID").asString(rt).utf8(rt)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().deleteMessageFromSearchIndex(
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).deleteMessageFromSearchIndex(
         this->messageID);
   }
 

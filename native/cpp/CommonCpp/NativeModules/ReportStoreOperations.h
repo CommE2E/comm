@@ -19,8 +19,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeReports(this->ids_to_remove);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeReports(this->ids_to_remove);
   }
 
 private:
@@ -35,8 +35,9 @@ public:
 
     this->report = std::make_unique<Report>(Report{report_id, report_data});
   }
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceReport(std::move(*this->report));
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceReport(
+        std::move(*this->report));
   }
 
 private:
@@ -45,8 +46,8 @@ private:
 
 class RemoveAllReportsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllReports();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllReports();
   }
 };
 

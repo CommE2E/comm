@@ -14,8 +14,8 @@ public:
       : key{payload.getProperty(rt, "key").asString(rt).utf8(rt)},
         text{payload.getProperty(rt, "text").asString(rt).utf8(rt)} {
   }
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().updateDraft(this->key, this->text);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).updateDraft(this->key, this->text);
   }
 
 private:
@@ -29,8 +29,8 @@ public:
       : oldKey{payload.getProperty(rt, "oldKey").asString(rt).utf8(rt)},
         newKey{payload.getProperty(rt, "newKey").asString(rt).utf8(rt)} {
   }
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().moveDraft(this->oldKey, this->newKey);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).moveDraft(this->oldKey, this->newKey);
   }
 
 private:
@@ -40,8 +40,8 @@ private:
 
 class RemoveAllDraftsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllDrafts();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllDrafts();
   }
 };
 
@@ -56,8 +56,8 @@ public:
     }
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeDrafts(this->idsToRemove);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeDrafts(this->idsToRemove);
   }
 
 private:
