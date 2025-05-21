@@ -12,8 +12,8 @@ public:
   RemoveAuxUserInfosOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAuxUserInfos(this->ids);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAuxUserInfos(this->ids);
   }
 
 private:
@@ -26,8 +26,8 @@ public:
       : auxUserInfo{std::move(auxUserInfo)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceAuxUserInfo(this->auxUserInfo);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceAuxUserInfo(this->auxUserInfo);
   }
 
 private:
@@ -36,8 +36,8 @@ private:
 
 class RemoveAllAuxUserInfosOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllAuxUserInfos();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllAuxUserInfos();
   }
 };
 

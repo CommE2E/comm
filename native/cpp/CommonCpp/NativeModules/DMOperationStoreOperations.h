@@ -11,8 +11,8 @@ public:
   RemoveDMOperationsOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeDMOperations(this->ids);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeDMOperations(this->ids);
   }
 
 private:
@@ -25,8 +25,8 @@ public:
       : operation{std::move(operation)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceDMOperation(this->operation);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceDMOperation(this->operation);
   }
 
 private:
@@ -35,8 +35,8 @@ private:
 
 class RemoveAllDMOperationsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllDMOperations();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllDMOperations();
   }
 };
 

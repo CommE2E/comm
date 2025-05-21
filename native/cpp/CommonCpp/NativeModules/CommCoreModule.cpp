@@ -453,7 +453,7 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             try {
               DatabaseManager::getQueryExecutor().beginTransaction();
               for (const auto &operation : *storeOpsPtr) {
-                operation->execute();
+                operation->execute(DatabaseIdentifier::MAIN);
               }
               if (messages.size() > 0) {
                 DatabaseManager::getQueryExecutor().addOutboundP2PMessages(

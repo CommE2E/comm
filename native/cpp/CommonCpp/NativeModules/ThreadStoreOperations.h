@@ -13,8 +13,8 @@ public:
   RemoveThreadsOperation(std::vector<std::string> ids) : ids{ids} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeThreads(this->ids);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeThreads(this->ids);
   }
 
 private:
@@ -26,8 +26,8 @@ public:
   ReplaceThreadOperation(Thread &&thread) : thread{std::move(thread)} {
   }
 
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().replaceThread(this->thread);
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).replaceThread(this->thread);
   }
 
 private:
@@ -36,8 +36,8 @@ private:
 
 class RemoveAllThreadsOperation : public DBOperationBase {
 public:
-  virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeAllThreads();
+  virtual void execute(DatabaseIdentifier id) override {
+    DatabaseManager::getQueryExecutor(id).removeAllThreads();
   }
 };
 
