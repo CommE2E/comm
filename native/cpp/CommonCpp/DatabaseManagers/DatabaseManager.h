@@ -1,8 +1,10 @@
 #pragma once
 
+#include "DatabaseIdentifier.h"
 #include "DatabaseQueryExecutor.h"
 #include "NativeSQLiteConnectionManager.h"
 #include "SQLiteQueryExecutor.h"
+#include "WebSQLiteConnectionManager.h"
 
 #include <mutex>
 
@@ -17,6 +19,10 @@ class DatabaseManager {
   // database.
   // DatabaseIdentifier::MAIN connectionManager.
   static std::shared_ptr<NativeSQLiteConnectionManager> mainConnectionManager;
+  // Backup database after decrypting (at backup level) is not encrypted, so we
+  // use an unencrypted connection manager.
+  // DatabaseIdentifier::RESTORED connectionManager.
+  static std::shared_ptr<WebSQLiteConnectionManager> restoredConnectionManager;
 
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
@@ -40,6 +46,8 @@ class DatabaseManager {
 
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
+  static const DatabaseQueryExecutor &getQueryExecutor(DatabaseIdentifier id);
+
   static void clearSensitiveData();
   static void initializeQueryExecutor(std::string &databasePath);
   static bool checkIfDatabaseNeedsDeletion();
