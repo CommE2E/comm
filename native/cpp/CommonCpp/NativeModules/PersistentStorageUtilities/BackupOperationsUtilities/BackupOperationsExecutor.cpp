@@ -33,7 +33,7 @@ void BackupOperationsExecutor::restoreFromMainCompaction(
                   maxVersion,
                   futureID]() {
     try {
-      DatabaseManager::getQueryExecutor().restoreFromMainCompaction(
+      DatabaseManager::restoreFromMainCompaction(
           mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
       ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {

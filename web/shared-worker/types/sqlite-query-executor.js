@@ -174,12 +174,6 @@ declare export class SQLiteQueryExecutor {
   storeOlmPersistAccount(accountID: number, accountData: string): void;
   storeOlmPersistSession(session: OlmPersistSession): void;
 
-  restoreFromMainCompaction(
-    mainCompactionPath: string,
-    mainCompactionEncryptionKey: string,
-    maxVersion: string,
-  ): void;
-
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
   copyContentFromDatabase(databasePath: string): void;
