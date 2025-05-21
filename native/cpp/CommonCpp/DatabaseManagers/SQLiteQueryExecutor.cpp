@@ -780,20 +780,6 @@ SQLiteQueryExecutor::getAllSyncedMetadata() const {
       this->getConnection(), getAllSyncedMetadataSQL);
 }
 
-std::optional<int>
-SQLiteQueryExecutor::getSyncedDatabaseVersion(sqlite3 *db) const {
-  static std::string getDBVersionSyncedMetadataSQL =
-      "SELECT * "
-      "FROM synced_metadata "
-      "WHERE name=\"db_version\";";
-  std::vector<SyncedMetadataEntry> entries =
-      getAllEntities<SyncedMetadataEntry>(db, getDBVersionSyncedMetadataSQL);
-  for (auto &entry : entries) {
-    return std::stoi(entry.data);
-  }
-  return std::nullopt;
-}
-
 void SQLiteQueryExecutor::replaceAuxUserInfo(
     const AuxUserInfo &userInfo) const {
   static std::string replaceAuxUserInfoSQL =
@@ -1543,7 +1529,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
 
   sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
 
-  int version = this->getSyncedDatabaseVersion(backupDB).value_or(-1);
+  int version = SQLiteUtils::getSyncedDatabaseVersion(backupDB).value_or(-1);
   if (version > std::stoi(maxVersion)) {
     std::stringstream error_message;
     error_message << "Failed to restore a backup because it was created "
