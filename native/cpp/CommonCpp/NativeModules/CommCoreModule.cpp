@@ -317,8 +317,14 @@ void CommCoreModule::appendDBStoreOps(
 
 jsi::Value CommCoreModule::processDBStoreOperations(
     jsi::Runtime &rt,
-    jsi::Object operations) {
+    jsi::Object operations,
+    std::optional<jsi::String> dbID) {
   std::string createOperationsError;
+
+  DatabaseIdentifier identifier = DatabaseIdentifier::MAIN;
+  if (dbID.has_value()) {
+    identifier = stringToDatabaseIdentifier(dbID->utf8(rt));
+  }
 
   auto storeOpsPtr =
       std::make_shared<std::vector<std::unique_ptr<DBOperationBase>>>();
@@ -453,7 +459,7 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             try {
               DatabaseManager::getQueryExecutor().beginTransaction();
               for (const auto &operation : *storeOpsPtr) {
-                operation->execute(DatabaseIdentifier::MAIN);
+                operation->execute(identifier);
               }
               if (messages.size() > 0) {
                 DatabaseManager::getQueryExecutor().addOutboundP2PMessages(

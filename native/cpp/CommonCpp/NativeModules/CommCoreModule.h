@@ -76,8 +76,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
-  virtual jsi::Value
-  processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override;
+  virtual jsi::Value processDBStoreOperations(
+      jsi::Runtime &rt,
+      jsi::Object operations,
+      std::optional<jsi::String> dbID) override;
   template <typename T>
   void appendDBStoreOps(
       jsi::Runtime &rt,

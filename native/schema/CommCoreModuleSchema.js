@@ -49,7 +49,10 @@ interface Spec extends TurboModule {
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
-  +processDBStoreOperations: (operations: Object) => Promise<void>;
+  +processDBStoreOperations: (
+    operations: Object,
+    dbID?: ?string,
+  ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
@@ -250,6 +253,8 @@ export interface CoreModuleSpec extends Spec {
   +getSIWEBackupSecrets: () => Promise<?SignedMessage>;
   +processDBStoreOperations: (
     operations: ClientDBStoreOperations,
+    //This type should be DatabaseIdentifier
+    dbID?: ?string,
   ) => Promise<void>;
   +getQRAuthBackupData: () => Promise<QRAuthBackupData>;
 }

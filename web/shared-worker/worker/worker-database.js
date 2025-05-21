@@ -13,9 +13,9 @@ let mainQueryExecutor: ?SQLiteQueryExecutor = null;
 let backupQueryExecutor: ?SQLiteQueryExecutor = null;
 
 function getSQLiteQueryExecutor(
-  id: DatabaseIdentifier = databaseIdentifier.MAIN,
+  dbID: DatabaseIdentifier = databaseIdentifier.MAIN,
 ): ?SQLiteQueryExecutor {
-  if (id === databaseIdentifier.RESTORED) {
+  if (dbID === databaseIdentifier.RESTORED) {
     return backupQueryExecutor;
   }
   return mainQueryExecutor;
@@ -23,9 +23,9 @@ function getSQLiteQueryExecutor(
 
 function setSQLiteQueryExecutor(
   newSQLiteQueryExecutor: ?SQLiteQueryExecutor,
-  id: DatabaseIdentifier = databaseIdentifier.MAIN,
+  dbID: DatabaseIdentifier = databaseIdentifier.MAIN,
 ) {
-  if (id === databaseIdentifier.RESTORED) {
+  if (dbID === databaseIdentifier.RESTORED) {
     backupQueryExecutor = newSQLiteQueryExecutor;
     return;
   }

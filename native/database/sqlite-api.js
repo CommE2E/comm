@@ -2,6 +2,7 @@
 
 import { getKeyserversToRemoveFromNotifsStore } from 'lib/ops/keyserver-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
+import type { DatabaseIdentifier } from 'lib/types/database-identifier-types';
 import type { SQLiteAPI } from 'lib/types/sqlite-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types';
 import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
@@ -33,6 +34,7 @@ const sqliteAPI: SQLiteAPI = {
 
   async processDBStoreOperations(
     storeOperations: StoreOperations,
+    dbID: DatabaseIdentifier,
   ): Promise<void> {
     const keyserversToRemoveFromNotifsStore =
       getKeyserversToRemoveFromNotifsStore(
@@ -52,7 +54,7 @@ const sqliteAPI: SQLiteAPI = {
       const dbOps =
         convertStoreOperationsToClientDBStoreOperations(storeOperations);
       if (values(dbOps).some(ops => ops && ops.length > 0)) {
-        promises.push(commCoreModule.processDBStoreOperations(dbOps));
+        promises.push(commCoreModule.processDBStoreOperations(dbOps, dbID));
       }
       await Promise.all(promises);
     } catch (e) {

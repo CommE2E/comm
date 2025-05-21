@@ -2,6 +2,7 @@
 
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
+import type { DatabaseIdentifier } from 'lib/types/database-identifier-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
@@ -183,6 +184,7 @@ const sqliteAPI: SQLiteAPI = {
 
   async processDBStoreOperations(
     storeOperations: StoreOperations,
+    dbID: DatabaseIdentifier,
   ): Promise<void> {
     const dbOps =
       convertStoreOperationsToClientDBStoreOperations(storeOperations);
@@ -200,6 +202,7 @@ const sqliteAPI: SQLiteAPI = {
       await sharedWorker.schedule({
         type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
         storeOperations: dbOps,
+        dbID,
       });
     } catch (e) {
       console.log(e);
