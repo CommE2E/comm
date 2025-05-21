@@ -297,6 +297,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog)
       .function(
+          "copyContentFromDatabase",
+          &SQLiteQueryExecutor::copyContentFromDatabase)
+      .function(
           "addOutboundP2PMessages",
           &SQLiteQueryExecutor::addOutboundP2PMessages)
       .function(

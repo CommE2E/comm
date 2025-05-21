@@ -1580,16 +1580,19 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   std::vector<std::string> tablesVector(
       SQLiteBackup::tablesAllowlist.begin(),
       SQLiteBackup::tablesAllowlist.end());
-  copyTablesDataUsingAttach(
-      this->getConnection(), plaintextBackupPath, tablesVector);
-
-  SQLiteUtils::attemptDeleteFile(
-      plaintextBackupPath,
-      "Failed to delete plaintext compaction file after successful restore.");
 
   SQLiteUtils::attemptDeleteFile(
       mainCompactionPath,
       "Failed to delete main compaction file after successful restore.");
+}
+
+void SQLiteQueryExecutor::copyContentFromDatabase(
+    const std::string databasePath) const {
+  std::vector<std::string> tablesVector(
+      SQLiteBackup::tablesAllowlist.begin(),
+      SQLiteBackup::tablesAllowlist.end());
+
+  copyTablesDataUsingAttach(this->getConnection(), databasePath, tablesVector);
 }
 
 void SQLiteQueryExecutor::restoreFromBackupLog(

@@ -182,6 +182,8 @@ declare export class SQLiteQueryExecutor {
 
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
+  copyContentFromDatabase(databasePath: string): void;
+
   addOutboundP2PMessages(messages: $ReadOnlyArray<OutboundP2PMessage>): void;
   removeOutboundP2PMessage(confirmedMessageID: string, deviceID: string): void;
   removeAllOutboundP2PMessages(deviceID: string): void;
