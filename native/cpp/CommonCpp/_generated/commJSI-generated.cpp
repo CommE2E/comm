@@ -37,7 +37,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadSto
   return jsi::Value::undefined();
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processDBStoreOperations(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processDBStoreOperations(rt, args[0].asObject(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processDBStoreOperations(rt, args[0].asObject(rt), args[1].isNull() || args[1].isUndefined() ? std::nullopt : std::make_optional(args[1].asString(rt)));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeCryptoAccount(rt);
@@ -245,7 +245,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getAllThreadsSync"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllThreadsSync};
   methodMap_["processReportStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processReportStoreOperationsSync};
   methodMap_["processThreadStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync};
-  methodMap_["processDBStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processDBStoreOperations};
+  methodMap_["processDBStoreOperations"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processDBStoreOperations};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOneTimeKeys};
