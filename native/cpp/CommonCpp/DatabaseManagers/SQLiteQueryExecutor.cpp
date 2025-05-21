@@ -66,7 +66,6 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(
     std::shared_ptr<NativeSQLiteConnectionManager> connectionManager)
     : connectionManager(std::move(connectionManager)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection();
   std::string currentBackupID = this->getMetadata("backupID");
   if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
     return;
@@ -79,7 +78,6 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath)
     : connectionManager(
           std::make_unique<WebSQLiteConnectionManager>(sqliteFilePath)) {
   this->migrate();
-  SQLiteQueryExecutor::connectionManager->initializeConnection();
 }
 #endif
 
