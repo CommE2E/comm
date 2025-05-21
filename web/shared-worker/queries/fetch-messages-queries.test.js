@@ -23,7 +23,7 @@ describe('Fetch messages queries', () => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
