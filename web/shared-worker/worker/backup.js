@@ -29,7 +29,7 @@ async function restoreBackup(
   backupID: string,
   backupDataKey: string,
   backupLogDataKey: string,
-) {
+): Promise<string> {
   const decryptionKey = new TextEncoder().encode(backupLogDataKey);
   const { userID, deviceID, accessToken } = authMetadata;
   if (!userID || !deviceID || !accessToken) {
@@ -53,11 +53,12 @@ async function restoreBackup(
     COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
   );
 
+  let backupPath = '';
   try {
     const reduxPersistData =
       sqliteQueryExecutor.getPersistStorageItem(completeRootKey);
 
-    const backupPath = dbModule.SQLiteBackup.restoreFromMainCompaction(
+    backupPath = dbModule.SQLiteBackup.restoreFromMainCompaction(
       COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
       backupDataKey,
       `${storeVersion ?? -1}`,
@@ -91,7 +92,7 @@ async function restoreBackup(
     }
   });
 
-  backupExecutor.migrate();
+  return backupPath;
 }
 
 export { restoreBackup };

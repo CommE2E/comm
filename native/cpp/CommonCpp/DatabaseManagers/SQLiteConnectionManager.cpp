@@ -55,6 +55,7 @@ SQLiteConnectionManager::~SQLiteConnectionManager() {
 
 void SQLiteConnectionManager::restoreFromBackupLog(
     const std::vector<std::uint8_t> &backupLog) {
+  this->initializeConnection();
   if (!dbConnection) {
     std::string errorMessage{
         "Programmer error: attempt to restore from backup log, but database "

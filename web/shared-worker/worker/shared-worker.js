@@ -61,6 +61,8 @@ let encryptionKey: ?CryptoKey = null;
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
+let backupPath = '';
+
 async function initDatabase(
   webworkerModulesFilePath: string,
   commQueryExecutorFilename: ?string,
@@ -367,7 +369,7 @@ async function processAppRequest(
   ) {
     sqliteQueryExecutor.removePersistStorageItem(message.key);
   } else if (message.type === workerRequestMessageTypes.BACKUP_RESTORE) {
-    await restoreBackup(
+    backupPath = await restoreBackup(
       sqliteQueryExecutor,
       dbModule,
       message.authMetadata,
@@ -413,6 +415,18 @@ async function processAppRequest(
       type: workerResponseMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
       messageIDs,
     };
+  } else if (message.type === workerRequestMessageTypes.MIGRATE_SCHEMA) {
+    const backupQueryExecutor = getSQLiteQueryExecutor('backup');
+    if (!backupQueryExecutor) {
+      throw new Error(
+        `Backup not initialized, unable to process request type: ${message.type}`,
+      );
+    }
+    backupQueryExecutor.migrate();
+  } else if (
+    message.type === workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB
+  ) {
+    sqliteQueryExecutor.copyContentFromDatabase(backupPath);
   }
 
   persistNeeded = true;

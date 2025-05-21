@@ -229,6 +229,12 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreUser(jsi:
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDMOperationsByType(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDMOperationsByType(rt, args[0].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_migrateSchema(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->migrateSchema(rt);
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_copyContentFromBackupDatabase(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->copyContentFromBackupDatabase(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -302,6 +308,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["fetchMessages"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages};
   methodMap_["restoreUser"] = MethodMetadata {13, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreUser};
   methodMap_["getDMOperationsByType"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDMOperationsByType};
+  methodMap_["migrateSchema"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_migrateSchema};
+  methodMap_["copyContentFromBackupDatabase"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_copyContentFromBackupDatabase};
 }
 
 

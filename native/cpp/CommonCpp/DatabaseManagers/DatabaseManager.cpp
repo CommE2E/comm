@@ -390,4 +390,9 @@ void DatabaseManager::restoreFromMainCompaction(
       std::make_shared<WebSQLiteConnectionManager>(backupPath);
 }
 
+void DatabaseManager::copyContentFromBackupDatabase() {
+  DatabaseManager::getQueryExecutor().copyContentFromDatabase(
+      DatabaseManager::backupConnectionManager->getSQLiteFilePath());
+}
+
 } // namespace comm

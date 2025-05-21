@@ -2464,42 +2464,16 @@ jsi::Value CommCoreModule::restoreBackupData(
   std::string backupDataKeyStr = backupDataKey.utf8(rt);
   std::string backupLogDataKeyStr = backupLogDataKey.utf8(rt);
   std::string maxVersionStr = maxVersion.utf8(rt);
-
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        std::promise<folly::dynamic> restorePromise;
-        std::future<folly::dynamic> restoreFuture = restorePromise.get_future();
-        RustPromiseManager::CPPPromiseInfo promiseInfo = {
-            std::move(restorePromise)};
-        auto currentID =
-            RustPromiseManager::instance.addPromise(std::move(promiseInfo));
-
+        auto currentID = RustPromiseManager::instance.addPromise(
+            {promise, this->jsInvoker_, innerRt});
         ::restoreBackupData(
             rust::string(backupIDStr),
             rust::string(backupDataKeyStr),
             rust::string(backupLogDataKeyStr),
             rust::string(maxVersionStr),
             currentID);
-        restoreFuture.get();
-
-        taskType job = [this, &innerRt, promise]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor("backup").migrate();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
       });
 }
 
@@ -3372,6 +3346,52 @@ CommCoreModule::getDMOperationsByType(jsi::Runtime &rt, jsi::String type) {
                     dmOperationStore.parseDBDataStore(innerRt, operations);
                 promise->resolve(std::move(jsiOperations));
               });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::migrateSchema(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor("backup").migrate();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::copyContentFromBackupDatabase(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::copyContentFromBackupDatabase();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
