@@ -142,6 +142,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string, bool>()
+      .function("migrate", &SQLiteQueryExecutor::migrate)
       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
