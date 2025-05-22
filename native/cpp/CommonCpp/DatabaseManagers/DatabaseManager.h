@@ -15,7 +15,8 @@ class DatabaseManager {
 
   // Connection manager instance, should be only one (globally) to each
   // database.
-  static std::shared_ptr<NativeSQLiteConnectionManager> connectionManager;
+  // DatabaseIdentifier::MAIN connectionManager.
+  static std::shared_ptr<NativeSQLiteConnectionManager> mainConnectionManager;
 
   // Indicate that at least one instance of SQLiteQueryExecutor was created,
   // which is identical to finishing the migration process and having a fully
