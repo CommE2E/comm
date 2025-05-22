@@ -209,6 +209,8 @@ function useRestore(): (
           throw new Error('Missing identityAuthResult');
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
+        await sqliteAPI.migrateBackupSchema();
+        await sqliteAPI.copyContentFromBackupDatabase();
         await sqliteAPI.restoreUserData(backupData, identityAuthResult);
 
         const clientDBStore = await sqliteAPI.getClientDBStore(
