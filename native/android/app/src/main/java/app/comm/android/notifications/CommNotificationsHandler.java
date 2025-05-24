@@ -15,7 +15,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import app.comm.android.ExpoUtils;
 import app.comm.android.MainActivity;
 import app.comm.android.R;
 import app.comm.android.aescrypto.AESCryptoModuleCompat;
@@ -28,6 +27,7 @@ import app.comm.android.fbjni.NetworkModule;
 import app.comm.android.fbjni.NotificationsCryptoModule;
 import app.comm.android.fbjni.StaffUtils;
 import app.comm.android.fbjni.ThreadOperations;
+import app.comm.android.securestore.SecureStoreModule;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
@@ -88,7 +88,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   public void onCreate() {
     super.onCreate();
     CommSecureStore.getInstance().initialize(
-        ExpoUtils.createExpoSecureStoreSupplier(this.getApplicationContext()));
+        () -> new SecureStoreModule(this.getApplicationContext()));
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
     localBroadcastManager = LocalBroadcastManager.getInstance(this);
