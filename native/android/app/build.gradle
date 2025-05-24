@@ -424,6 +424,8 @@ dependencies {
     // https://stackoverflow.com/questions/64290141/android-studio-class-file-for-com-google-common-util-concurrent-listenablefuture
     // https://github.com/google/ExoPlayer/issues/7993
     implementation "com.google.guava:guava:31.0.1-android"
+
+    api "androidx.biometric:biometric:1.1.0"
 }
 
 apply plugin: 'com.google.gms.google-services'
