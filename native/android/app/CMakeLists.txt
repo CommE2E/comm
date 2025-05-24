@@ -21,6 +21,7 @@ set(PACKAGE_NAME "comm_jni_module")
 
 find_library(log-lib log)
 find_package(fbjni REQUIRED CONFIG)
+find_package(ReactAndroid REQUIRED CONFIG)
 
 set(BUILD_TESTING OFF)
 set(HAVE_SYMBOLIZE OFF)
@@ -77,8 +78,6 @@ if(
   set(HAVE_EXECINFO_H OFF CACHE BOOL "Whether platform has execinfo.h")
 endif()
 
-add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
-
 file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}/${ANDROID_ABI}")
 if (NOT LIBRN_DIR)
   # If /${ANDROID_ABI} dir not found, then ${REACT_NATIVE_SO_DIR} is probably:
@@ -86,7 +85,6 @@ if (NOT LIBRN_DIR)
   file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}")
 endif ()
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/folly-target.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/openssl-target.cmake)
 
 add_subdirectory(../../node_modules/olm ./build)
@@ -152,7 +150,7 @@ add_library(
   # React dependencies
   ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
   ${_react_native_dir}/ReactCommon/jsi/jsi/JSIDynamic.cpp
-  ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
+  ${_react_native_dir}/ReactAndroid/src/main/jni/react/turbomodule/ReactCommon/CallInvokerHolder.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
   ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
@@ -185,7 +183,7 @@ target_include_directories(
   ${_react_native_dir}/ReactCommon
   ${_react_native_dir}/ReactCommon/jsi
   ${_react_native_dir}/ReactCommon/callinvoker
-  ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
+  ${_react_native_dir}/ReactAndroid/src/main/jni/react/turbomodule/ReactCommon
 
   # SQLCipher amalgamation
   ${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src
@@ -225,13 +223,20 @@ add_definitions(
   -DSQLITE_ENABLE_FTS5
 )
 
+include("${_react_native_dir}/ReactAndroid/cmake-utils/folly-flags.cmake")
+
+target_compile_options(
+  ${PACKAGE_NAME}
+  PRIVATE
+  ${folly_FLAGS}
+)
+
 target_link_libraries(
   ${PACKAGE_NAME}
   fbjni::fbjni
   android
   ${log-lib}
-  Folly::folly
-  glog::glog
+  ReactAndroid::reactnative
   olm
   openssl-crypto
   openssl-ssl
