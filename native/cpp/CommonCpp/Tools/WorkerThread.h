@@ -1,6 +1,6 @@
 #pragma once
 
-#include <folly/MPMCQueue.h>
+#include "MPMCQueue.h"
 #include <memory>
 #include <string>
 #include <thread>
@@ -11,7 +11,7 @@ using taskType = std::function<void()>;
 
 class WorkerThread {
   std::unique_ptr<std::thread> thread;
-  folly::MPMCQueue<std::unique_ptr<taskType>> tasks;
+  MPMCQueue<std::unique_ptr<taskType>> tasks;
   const std::string name;
 
 public:
