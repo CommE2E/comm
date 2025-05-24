@@ -4,6 +4,8 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+  <key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -87,6 +89,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+  <key>LSMinimumSystemVersion</key>
+	<string>12.0</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to use your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -135,7 +139,7 @@
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
