@@ -1201,8 +1201,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadOptions,
       uploadProgress => {
         if (options && options.onProgress) {
-          const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
-          options.onProgress(totalByteSent / totalBytesExpectedToSend);
+          const { totalBytesSent, totalBytesExpectedToSend } = uploadProgress;
+          options.onProgress(totalBytesSent / totalBytesExpectedToSend);
         }
       },
     );

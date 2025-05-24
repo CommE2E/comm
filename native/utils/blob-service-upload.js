@@ -51,8 +51,8 @@ const blobServiceUploadHandler: BlobServiceUploadHandler = async (
     uploadOptions,
     uploadProgress => {
       if (options?.onProgress) {
-        const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
-        options.onProgress(totalByteSent / totalBytesExpectedToSend);
+        const { totalBytesSent, totalBytesExpectedToSend } = uploadProgress;
+        options.onProgress(totalBytesSent / totalBytesExpectedToSend);
       }
     },
   );
