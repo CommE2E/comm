@@ -115,7 +115,7 @@ function ThreadSettingsAddMember(props: AddMemberProps): React.Node {
       <ThreadSettingsListAction
         onPress={props.onPress}
         text="Add users"
-        iconName="md-add"
+        iconName="add"
         iconStyle={styles.addIcon}
         iconSize={20}
         buttonStyle={styles.addMemberButton}
@@ -135,7 +135,7 @@ function ThreadSettingsAddSubchannel(props: AddChildChannelProps): React.Node {
       <ThreadSettingsListAction
         onPress={props.onPress}
         text="Add subchannel"
-        iconName="md-add"
+        iconName="add"
         iconStyle={styles.addIcon}
         iconSize={20}
         buttonStyle={styles.addSubchannelButton}
