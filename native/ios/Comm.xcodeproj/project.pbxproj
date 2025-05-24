@@ -16,6 +16,8 @@
 		34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */; };
 		34BE127D2BC3F78C00CCAD11 /* ThreadActivityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34BE127C2BC3F78C00CCAD11 /* ThreadActivityStore.cpp */; };
 		34FF25BA2BB757870075EC40 /* AuxUserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FF25B92BB757860075EC40 /* AuxUserStore.cpp */; };
+		443650412E21F3F200026241 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 443650402E21F3F200026241 /* StringUtils.cpp */; };
+		443650422E21F3F200026241 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 443650402E21F3F200026241 /* StringUtils.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -180,6 +182,8 @@
 		34FF25B92BB757860075EC40 /* AuxUserStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxUserStore.cpp; path = PersistentStorageUtilities/DataStores/AuxUserStore.cpp; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		4436503F2E21F3F200026241 /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
+		443650402E21F3F200026241 /* StringUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cpp; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -520,6 +524,8 @@
 				DFD5E7802B05264F00C32B6A /* AESCrypto.h */,
 				CBCA09052A8E0E6B00F75B3E /* StaffUtils.cpp */,
 				CBCA09042A8E0E6B00F75B3E /* StaffUtils.h */,
+				4436503F2E21F3F200026241 /* StringUtils.h */,
+				443650402E21F3F200026241 /* StringUtils.cpp */,
 				7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */,
 				7FBB2A7929EA752D002C6493 /* Base64.h */,
 				71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */,
@@ -1284,6 +1290,7 @@
 				CBB0DF602B768007008E22FF /* CommMMKV.mm in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
+				443650412E21F3F200026241 /* StringUtils.cpp in Sources */,
 				8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */,
 				8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */,
 				DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */,
@@ -1339,6 +1346,7 @@
 				CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */,
 				CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */,
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
+				443650422E21F3F200026241 /* StringUtils.cpp in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
 				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
 				7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */,
