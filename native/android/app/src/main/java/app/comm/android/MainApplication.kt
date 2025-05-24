@@ -3,6 +3,7 @@ package app.comm.android
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
+import app.comm.android.comminitializermodule.CommInitializerPackage
 import app.comm.android.commservices.CommServicesPackage
 import app.comm.android.notifications.CommAndroidNotificationsPackage
 import com.facebook.react.PackageList
@@ -30,6 +31,7 @@ class MainApplication : Application(), ReactApplication {
         packages.add(KeyboardInputPackage(this.application))
         packages.add(CommAndroidNotificationsPackage())
         packages.add(CommServicesPackage())
+        packages.add(CommInitializerPackage())
         return packages
       }
 
