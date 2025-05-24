@@ -55,6 +55,14 @@ target_include_directories(comm-databasemanagers
   "../../../node_modules/olm/include"
 )
 
+include("${_react_native_dir}/ReactAndroid/cmake-utils/folly-flags.cmake")
+
+target_compile_options(
+  comm-databasemanagers
+  PRIVATE
+  ${folly_FLAGS}
+)
+
 target_link_libraries(comm-databasemanagers
-  Folly::folly
+  ReactAndroid::reactnative
 )
