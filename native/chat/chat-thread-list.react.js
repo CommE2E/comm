@@ -61,7 +61,7 @@ import type { ScrollEvent } from '../types/react-native.js';
 const floatingActions = [
   {
     text: 'Compose',
-    icon: <IonIcon name="md-create" size={24} color="#FFFFFF" />,
+    icon: <IonIcon name="create" size={24} color="#FFFFFF" />,
     name: 'compose',
     position: 1,
   },
