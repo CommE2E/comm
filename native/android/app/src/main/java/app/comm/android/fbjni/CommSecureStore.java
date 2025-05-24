@@ -1,20 +1,13 @@
 package app.comm.android.fbjni;
 
+import android.util.Log;
+import app.comm.android.securestore.SecureStoreModule;
 import expo.modules.core.Promise;
-import expo.modules.core.arguments.MapArguments;
-import expo.modules.core.arguments.ReadableArguments;
-import expo.modules.securestore.SecureStoreModule;
 import java.util.function.Supplier;
 
 public class CommSecureStore {
-
   private static final CommSecureStore instance = new CommSecureStore();
   private SecureStoreModule secureStoreModule = null;
-  private final ReadableArguments readableArguments;
-
-  private CommSecureStore() {
-    this.readableArguments = new MapArguments();
-  }
 
   public static CommSecureStore getInstance() {
     return CommSecureStore.instance;
@@ -50,8 +43,7 @@ public class CommSecureStore {
         throw new RuntimeException("secure store set error: " + message);
       }
     };
-    this.secureStoreModule.setValueWithKeyAsync(
-        value, key, this.readableArguments, promise);
+    this.secureStoreModule.setValueWithKey(key, value, promise);
   }
 
   private String internalGet(String key) {
@@ -70,9 +62,7 @@ public class CommSecureStore {
       }
     };
     // The following call will resolve the promise before it returns
-    this.secureStoreModule.getValueWithKeyAsync(
-        key, this.readableArguments, promise);
-
+    this.secureStoreModule.getValueWithKeyAsync(key, promise);
     return result[0];
   }
 
