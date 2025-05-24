@@ -18,6 +18,7 @@
 		34FF25BA2BB757870075EC40 /* AuxUserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FF25B92BB757860075EC40 /* AuxUserStore.cpp */; };
 		443650412E21F3F200026241 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 443650402E21F3F200026241 /* StringUtils.cpp */; };
 		443650422E21F3F200026241 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 443650402E21F3F200026241 /* StringUtils.cpp */; };
+		443650452E21F47600026241 /* CommInitializerModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = 443650442E21F47600026241 /* CommInitializerModule.mm */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -186,6 +187,8 @@
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		4436503F2E21F3F200026241 /* StringUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
 		443650402E21F3F200026241 /* StringUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cpp; sourceTree = "<group>"; };
+		443650432E21F47600026241 /* CommInitializerModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommInitializerModule.h; sourceTree = "<group>"; };
+		443650442E21F47600026241 /* CommInitializerModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CommInitializerModule.mm; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -489,6 +492,8 @@
 				71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */,
 				71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */,
 				71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */,
+				443650432E21F47600026241 /* CommInitializerModule.h */,
+				443650442E21F47600026241 /* CommInitializerModule.mm */,
 				71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */,
 				71CA4AEA262F230A00835C89 /* Tools.h */,
 				71CA4AEB262F236100835C89 /* Tools.mm */,
@@ -1325,6 +1330,7 @@
 				8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */,
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,
 				8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */,
+				443650452E21F47600026241 /* CommInitializerModule.mm in Sources */,
 				DFD5E77E2B05264000C32B6A /* AESCrypto.mm in Sources */,
 				8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
