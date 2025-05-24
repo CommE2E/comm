@@ -80,13 +80,16 @@ function Terms(): React.Node {
       <h2>Are there restrictions in how I can use the Services?</h2>
 
       <p>
-        You agree that you will not provide or contribute anything to the
-        Services, or otherwise use or interact with the Services, in a manner
-        that: (a) infringes or violates the right of Comm Technologies, or our
-        users, or others, including intellectual property or other proprietary
-        rights; or (b) violates any law or regulation, including without
-        limitation, any applicable export control laws, privacy laws or any
-        other purpose not reasonably intended by Comm Technologies.
+        You agree to use the Services only for legal, authorized, and acceptable
+        purposes. You agree that you will not provide or contribute anything to
+        the Services, or otherwise use or interact with the Services, in a
+        manner that: (a) infringes or violates the right of Comm Technologies,
+        or our users, or others, including intellectual property or other
+        proprietary rights; or (b) violates any law or regulation, including
+        without limitation, any applicable export control laws, privacy laws or
+        any other purpose not reasonably intended by Comm Technologies, such as
+        sending illegal or impermissible communications such as spam, bulk
+        messaging, or malicious software.
       </p>
 
       <h2>What are my rights in the Services?</h2>
@@ -170,9 +173,10 @@ function Terms(): React.Node {
       <p>
         Comm Technologies is also free to terminate (or suspend access to) your
         use of the Services or your account for any reason at our discretion,
-        including your breach of these Terms. Comm Technologies has the sole
-        right to decide whether you are in violation of any of the restrictions
-        set forth in these Terms.
+        including your breach of these Terms, including any violation of the
+        acceptable‑use requirements above. Comm Technologies has the sole right
+        to decide whether you are in violation of any of the restrictions set
+        forth in these Terms.
       </p>
 
       <p>
