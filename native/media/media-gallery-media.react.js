@@ -43,6 +43,8 @@ const reanimatedSpec = {
   easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
 };
 
+const AnimatedLottieView = Animated.createAnimatedComponent(LottieView);
+
 type Props = {
   +selection: MediaLibrarySelection,
   +containerHeight: number,
@@ -233,7 +235,7 @@ function MediaGalleryMedia(props: Props): React.Node {
 
   const overlay = (
     <AnimatedView style={buttonsStyle}>
-      <LottieView
+      <AnimatedLottieView
         source={require('../animations/check.json')}
         progress={checkProgress}
         style={styles.checkAnimation}
