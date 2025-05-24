@@ -83,7 +83,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
             {threadTypeDescriptions[threadTypes.COMMUNITY_OPEN_SUBTHREAD]}
           </Text>
           <IonIcon
-            name="ios-arrow-forward"
+            name="arrow-forward"
             size={20}
             style={this.props.styles.forwardIcon}
           />
@@ -99,7 +99,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
             {threadTypeDescriptions[threadTypes.COMMUNITY_SECRET_SUBTHREAD]}
           </Text>
           <IonIcon
-            name="ios-arrow-forward"
+            name="arrow-forward"
             size={20}
             style={this.props.styles.forwardIcon}
           />
