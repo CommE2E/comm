@@ -484,9 +484,12 @@ function ChatThreadList(props: BaseProps): React.Node {
   }, [navigation, onTabPress]);
 
   React.useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', hardwareBack);
+    const backHandlerSubscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      hardwareBack,
+    );
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
+      backHandlerSubscription.remove();
     };
   }, [hardwareBack]);
 
