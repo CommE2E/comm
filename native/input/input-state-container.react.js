@@ -39,11 +39,7 @@ import {
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
 import { getNextLocalID } from 'lib/shared/id-utils.js';
-import {
-  createMediaMessageInfo,
-  useMessageCreationSideEffectsFunc,
-} from 'lib/shared/message-utils.js';
-import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
+import { createMediaMessageInfo } from 'lib/shared/message-utils.js';
 import {
   patchThreadInfoToIncludeMentionedMembersOfParent,
   threadIsPending,
@@ -156,7 +152,6 @@ type Props = {
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
-  +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +invalidTokenLogOut: () => Promise<void>,
 };
 type State = {
@@ -585,40 +580,21 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
+    const { localID } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      'localID should be set',
+    );
+    const sidebarCreation =
+      this.pendingSidebarCreationMessageLocalIDs.has(localID);
+
     try {
-      if (
-        threadSpecs[threadInfo.type].protocol
-          .shouldPerformSideEffectsBeforeSendingMessage
-      ) {
-        await this.props.textMessageCreationSideEffectsFunc(
-          messageInfo,
-          threadInfo,
-          parentThreadInfo,
-        );
-      }
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        'localID should be set',
-      );
-      const sidebarCreation =
-        this.pendingSidebarCreationMessageLocalIDs.has(localID);
       const result = await this.props.sendTextMessage(
         messageInfo,
         threadInfo,
         parentThreadInfo,
         sidebarCreation,
       );
-      if (
-        !threadSpecs[threadInfo.type].protocol
-          .shouldPerformSideEffectsBeforeSendingMessage
-      ) {
-        await this.props.textMessageCreationSideEffectsFunc(
-          messageInfo,
-          threadInfo,
-          parentThreadInfo,
-        );
-      }
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
     } catch (e) {
@@ -1709,8 +1685,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
     const staffCanSee = useStaffCanSee();
-    const textMessageCreationSideEffectsFunc =
-      useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
     const callInvalidTokenLogOut = useInvalidCSATLogOut();
 
     return (
@@ -1730,7 +1704,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
         staffCanSee={staffCanSee}
-        textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         invalidTokenLogOut={callInvalidTokenLogOut}
       />
     );
