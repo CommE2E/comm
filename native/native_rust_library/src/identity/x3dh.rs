@@ -24,11 +24,14 @@ pub mod ffi {
     auth_device_id: String,
     auth_access_token: String,
     user_id: String,
+    selected_devices: Vec<String>,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let get_outbound_keys_request_info =
-        GetOutboundKeysRequestInfo { user_id };
+      let get_outbound_keys_request_info = GetOutboundKeysRequestInfo {
+        user_id,
+        selected_devices,
+      };
       let auth_info = AuthInfo {
         access_token: auth_access_token,
         user_id: auth_user_id,
@@ -48,10 +51,14 @@ pub mod ffi {
     auth_device_id: String,
     auth_access_token: String,
     user_id: String,
+    selected_devices: Vec<String>,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let get_inbound_keys_request_info = GetInboundKeysRequestInfo { user_id };
+      let get_inbound_keys_request_info = GetInboundKeysRequestInfo {
+        user_id,
+        selected_devices,
+      };
       let auth_info = AuthInfo {
         access_token: auth_access_token,
         user_id: auth_user_id,
@@ -152,10 +159,12 @@ pub mod ffi {
 
 struct GetOutboundKeysRequestInfo {
   user_id: String,
+  selected_devices: Vec<String>,
 }
 
 struct GetInboundKeysRequestInfo {
   user_id: String,
+  selected_devices: Vec<String>,
 }
 
 // This struct should not be altered without also updating
