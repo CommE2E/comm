@@ -217,10 +217,11 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<OutboundKeysForUserResponse>, tonic::Status> {
     let message = request.into_inner();
     let user_id = &message.user_id;
+    let selected_devices = message.selected_devices.iter().collect();
 
     let devices_map = self
       .db_client
-      .get_keys_for_user(user_id, true)
+      .get_keys_for_user(user_id, selected_devices, true)
       .await?
       .ok_or_else(|| {
         tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
@@ -243,10 +244,11 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
     let message = request.into_inner();
     let user_id = &message.user_id;
+    let selected_devices = message.selected_devices.iter().collect();
 
     let devices_map = self
       .db_client
-      .get_keys_for_user(user_id, false)
+      .get_keys_for_user(user_id, selected_devices, false)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| {
