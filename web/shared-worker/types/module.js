@@ -22,6 +22,7 @@ declare export class SQLiteBackup {
   static restoreFromMainCompaction(
     mainCompactionPath: string,
     mainCompactionEncryptionKey: string,
+    plaintextDatabasePath: string,
     maxVersion: string,
   ): string;
 }

@@ -48,6 +48,7 @@ import {
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
   DEFAULT_BACKUP_CLIENT_FILENAME,
+  SQLITE_RESTORE_DATABASE_PATH,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -61,8 +62,6 @@ let encryptionKey: ?CryptoKey = null;
 
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
-
-let backupPath: ?string = null;
 
 async function initDatabase(
   webworkerModulesFilePath: string,
@@ -400,7 +399,7 @@ async function processAppRequest(
   ) {
     sqliteQueryExecutor.removePersistStorageItem(message.key);
   } else if (message.type === workerRequestMessageTypes.BACKUP_RESTORE) {
-    backupPath = await restoreBackup(
+    await restoreBackup(
       sqliteQueryExecutor,
       dbModule,
       message.authMetadata,
@@ -459,10 +458,7 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB
   ) {
-    if (!backupPath) {
-      throw new Error('backupPath not set');
-    }
-    sqliteQueryExecutor.copyContentFromDatabase(backupPath);
+    sqliteQueryExecutor.copyContentFromDatabase(SQLITE_RESTORE_DATABASE_PATH);
   }
 
   persistNeeded = true;
