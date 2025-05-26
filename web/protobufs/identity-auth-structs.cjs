@@ -214,7 +214,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.identity.auth.OutboundKeysForUserRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.identity.auth.OutboundKeysForUserRequest.repeatedFields_, null);
 };
 goog.inherits(proto.identity.auth.OutboundKeysForUserRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -277,7 +277,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.identity.auth.InboundKeysForUserRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.identity.auth.InboundKeysForUserRequest.repeatedFields_, null);
 };
 goog.inherits(proto.identity.auth.InboundKeysForUserRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -2240,6 +2240,13 @@ proto.identity.auth.OutboundKeysForUserResponse.prototype.clearDevicesMap = func
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.identity.auth.OutboundKeysForUserRequest.repeatedFields_ = [2];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -2271,7 +2278,8 @@ proto.identity.auth.OutboundKeysForUserRequest.prototype.toObject = function(opt
  */
 proto.identity.auth.OutboundKeysForUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, "")
+    userId: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    selectedDevicesList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -2312,6 +2320,10 @@ proto.identity.auth.OutboundKeysForUserRequest.deserializeBinaryFromReader = fun
       var value = /** @type {string} */ (reader.readString());
       msg.setUserId(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addSelectedDevices(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2348,6 +2360,13 @@ proto.identity.auth.OutboundKeysForUserRequest.serializeBinaryToWriter = functio
       f
     );
   }
+  f = message.getSelectedDevicesList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -2366,6 +2385,43 @@ proto.identity.auth.OutboundKeysForUserRequest.prototype.getUserId = function() 
  */
 proto.identity.auth.OutboundKeysForUserRequest.prototype.setUserId = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * repeated string selected_devices = 2;
+ * @return {!Array<string>}
+ */
+proto.identity.auth.OutboundKeysForUserRequest.prototype.getSelectedDevicesList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.identity.auth.OutboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.OutboundKeysForUserRequest.prototype.setSelectedDevicesList = function(value) {
+  return jspb.Message.setField(this, 2, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.identity.auth.OutboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.OutboundKeysForUserRequest.prototype.addSelectedDevices = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.identity.auth.OutboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.OutboundKeysForUserRequest.prototype.clearSelectedDevicesList = function() {
+  return this.setSelectedDevicesList([]);
 };
 
 
@@ -2808,6 +2864,13 @@ proto.identity.auth.InboundKeysForUserResponse.prototype.hasIdentity = function(
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.identity.auth.InboundKeysForUserRequest.repeatedFields_ = [2];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -2839,7 +2902,8 @@ proto.identity.auth.InboundKeysForUserRequest.prototype.toObject = function(opt_
  */
 proto.identity.auth.InboundKeysForUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, "")
+    userId: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    selectedDevicesList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -2880,6 +2944,10 @@ proto.identity.auth.InboundKeysForUserRequest.deserializeBinaryFromReader = func
       var value = /** @type {string} */ (reader.readString());
       msg.setUserId(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addSelectedDevices(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2916,6 +2984,13 @@ proto.identity.auth.InboundKeysForUserRequest.serializeBinaryToWriter = function
       f
     );
   }
+  f = message.getSelectedDevicesList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -2934,6 +3009,43 @@ proto.identity.auth.InboundKeysForUserRequest.prototype.getUserId = function() {
  */
 proto.identity.auth.InboundKeysForUserRequest.prototype.setUserId = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * repeated string selected_devices = 2;
+ * @return {!Array<string>}
+ */
+proto.identity.auth.InboundKeysForUserRequest.prototype.getSelectedDevicesList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.identity.auth.InboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.InboundKeysForUserRequest.prototype.setSelectedDevicesList = function(value) {
+  return jspb.Message.setField(this, 2, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.identity.auth.InboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.InboundKeysForUserRequest.prototype.addSelectedDevices = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.identity.auth.InboundKeysForUserRequest} returns this
+ */
+proto.identity.auth.InboundKeysForUserRequest.prototype.clearSelectedDevicesList = function() {
+  return this.setSelectedDevicesList([]);
 };
 
 

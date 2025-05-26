@@ -171,6 +171,9 @@ message OutboundKeysForUserResponse {
 // The device receiving a request only needs the content key and prekey.
 message OutboundKeysForUserRequest {
   string user_id = 1;
+  // Specifies for which devices we want to retrieve outbound keys.
+  // If not specified or empty, all devices will be returned.
+  repeated string selected_devices = 2;
 }
 
 // GetInboundKeysForUser
@@ -189,6 +192,9 @@ message InboundKeysForUserResponse {
 
 message InboundKeysForUserRequest {
   string user_id = 1;
+  // Specifies for which devices we want to retrieve inbound keys.
+  // If not specified or empty, all devices will be returned.
+  repeated string selected_devices = 2;
 }
 
 // UpdateUserPassword
