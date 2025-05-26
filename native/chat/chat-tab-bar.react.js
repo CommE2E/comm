@@ -60,9 +60,12 @@ export default function TabBarTop(
   props: MaterialTopTabBarProps<Route<>>,
 ): React.Node {
   const renderTabBarItem = React.useCallback(
-    (
-      innerProps: $ReadOnly<{ ...TabBarItemProps<Route<>>, +key: string, ... }>,
-    ) => <TabBarButton {...innerProps} />,
+    ({
+      key,
+      ...innerProps
+    }: $ReadOnly<{ ...TabBarItemProps<Route<>>, +key: string, ... }>) => (
+      <TabBarButton kwy={key} {...innerProps} />
+    ),
     [],
   );
 
