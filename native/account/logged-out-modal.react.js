@@ -348,9 +348,12 @@ function LoggedOutModal(props: Props) {
     if (!isForeground) {
       return undefined;
     }
-    BackHandler.addEventListener('hardwareBackPress', resetToPrompt);
+    const backHandlerSubscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      resetToPrompt,
+    );
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', resetToPrompt);
+      backHandlerSubscription.remove();
     };
   }, [isForeground, resetToPrompt]);
 
