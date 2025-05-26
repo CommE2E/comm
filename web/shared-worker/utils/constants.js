@@ -18,8 +18,9 @@ export const DEFAULT_OLM_FILENAME = 'olm.wasm';
 export const DEFAULT_WEBWORKERS_OPAQUE_FILENAME = 'comm_opaque2_wasm_bg.wasm';
 
 export const COMM_SQLITE_DATABASE_PATH = 'comm.sqlite';
-export const COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH =
-  'comm_backup_restore.sqlite';
+export const ENCRYPTED_SQLITE_RESTORE_DATABASE_PATH =
+  'comm_encrypted_restore.sqlite';
+export const SQLITE_RESTORE_DATABASE_PATH = 'comm_restore.sqlite';
 
 export const NOTIFICATIONS_OLM_DATA_CONTENT = 'notificationsOlmDataContent';
 
