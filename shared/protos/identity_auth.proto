@@ -15,11 +15,13 @@ service IdentityClientService {
 
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
-    returns (identity.unauth.Empty) {}
+      returns (identity.unauth.Empty) {
+  }
   // Rotate a device's prekey and prekey signature
   // Rotated for deniability of older messages
   rpc RefreshUserPrekeys(RefreshUserPrekeysRequest)
-    returns (identity.unauth.Empty) {}
+      returns (identity.unauth.Empty) {
+  }
 
   // Called by clients to get all device keys associated with a user in order
   // to open a new channel of communication on any of their devices.
@@ -27,86 +29,107 @@ service IdentityClientService {
   //   - Identity keys (both Content and Notif Keys)
   //   - Prekey (including prekey signature)
   //   - One-time Prekey
-  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest) returns
-    (OutboundKeysForUserResponse) {}
+  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest)
+      returns (OutboundKeysForUserResponse) {
+  }
   // Called by receivers of a communication request. The reponse will return
   // identity keys (both content and notif keys) and related prekeys per device,
   // but will not contain one-time keys. Additionally, the response will contain
   // the other user's username.
-  rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
-    (InboundKeysForUserResponse) {}
+  rpc GetInboundKeysForUser(InboundKeysForUserRequest)
+      returns (InboundKeysForUserResponse) {
+  }
   // Called by clients to get required keys for opening a connection
   // to a user's keyserver
-  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
-    (KeyserverKeysResponse) {}
+  rpc GetKeyserverKeys(OutboundKeysForUserRequest)
+      returns (KeyserverKeysResponse) {
+  }
 
   /* Account actions */
 
   // Called by user to update password
-  rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
-    (UpdateUserPasswordStartResponse) {}
-  rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
-    (identity.unauth.Empty) {}
+  rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest)
+      returns (UpdateUserPasswordStartResponse) {
+  }
+  rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest)
+      returns (identity.unauth.Empty) {
+  }
 
   // Called by user to log out (clears device's keys and access token)
-  rpc LogOutUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
+  rpc LogOutUser(identity.unauth.Empty) returns (identity.unauth.Empty) {
+  }
   // Called by a ssecondary device to log out (clear its keys and access token)
-  rpc LogOutSecondaryDevice(identity.unauth.Empty) returns
-    (identity.unauth.Empty) {}
+  rpc LogOutSecondaryDevice(identity.unauth.Empty)
+      returns (identity.unauth.Empty) {
+  }
   // Called by a primary device to log out (clear all devices' keys and tokens)
-  rpc LogOutPrimaryDevice(PrimaryDeviceLogoutRequest) returns
-    (identity.unauth.Empty) {}
+  rpc LogOutPrimaryDevice(PrimaryDeviceLogoutRequest)
+      returns (identity.unauth.Empty) {
+  }
 
   // Called by a user to delete their own account
-  rpc DeletePasswordUserStart(DeletePasswordUserStartRequest) returns
-    (DeletePasswordUserStartResponse) {}
-  rpc DeletePasswordUserFinish(DeletePasswordUserFinishRequest) returns
-    (identity.unauth.Empty) {}
-  rpc DeleteWalletUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
+  rpc DeletePasswordUserStart(DeletePasswordUserStartRequest)
+      returns (DeletePasswordUserStartResponse) {
+  }
+  rpc DeletePasswordUserFinish(DeletePasswordUserFinishRequest)
+      returns (identity.unauth.Empty) {
+  }
+  rpc DeleteWalletUser(identity.unauth.Empty) returns (identity.unauth.Empty) {
+  }
 
   // Called by Comm staff to delete user accounts. Usage is strictly limited to
   // accounts flagged for violating terms of service.
-  rpc PrivilegedDeleteUsers(PrivilegedDeleteUsersRequest) returns
-    (identity.unauth.Empty) {};
+  rpc PrivilegedDeleteUsers(PrivilegedDeleteUsersRequest)
+      returns (identity.unauth.Empty) {
+  };
 
   // Called by Comm staff to reset user passwords. Usage is strictly limited to
   // accounts that have requested a password reset.
   rpc PrivilegedResetUserPasswordStart(PrivilegedResetUserPasswordStartRequest)
-    returns (PrivilegedResetUserPasswordStartResponse) {};
-  rpc PrivilegedResetUserPasswordFinish
-    (PrivilegedResetUserPasswordFinishRequest) returns
-    (identity.unauth.Empty) {};
+      returns (PrivilegedResetUserPasswordStartResponse) {
+  };
+  rpc PrivilegedResetUserPasswordFinish(
+      PrivilegedResetUserPasswordFinishRequest)
+      returns (identity.unauth.Empty) {
+  };
 
   /* Device list actions */
 
   // Returns device list history
-  rpc GetDeviceListForUser(GetDeviceListRequest) returns
-    (GetDeviceListResponse) {}
+  rpc GetDeviceListForUser(GetDeviceListRequest)
+      returns (GetDeviceListResponse) {
+  }
   // Returns current device list for a set of users
-  rpc GetDeviceListsForUsers (PeersDeviceListsRequest) returns
-    (PeersDeviceListsResponse) {}
+  rpc GetDeviceListsForUsers(PeersDeviceListsRequest)
+      returns (PeersDeviceListsResponse) {
+  }
 
-  rpc UpdateDeviceList(UpdateDeviceListRequest) returns
-    (identity.unauth.Empty) {}
+  rpc UpdateDeviceList(UpdateDeviceListRequest)
+      returns (identity.unauth.Empty) {
+  }
 
   /* Farcaster actions */
 
   // Called by an existing user to link their Farcaster account
-  rpc LinkFarcasterAccount(LinkFarcasterAccountRequest) returns
-    (identity.unauth.Empty) {}
+  rpc LinkFarcasterAccount(LinkFarcasterAccountRequest)
+      returns (identity.unauth.Empty) {
+  }
   // Called by an existing user to unlink their Farcaster account
-  rpc UnlinkFarcasterAccount(identity.unauth.Empty) returns
-    (identity.unauth.Empty) {}
+  rpc UnlinkFarcasterAccount(identity.unauth.Empty)
+      returns (identity.unauth.Empty) {
+  }
 
   /* Miscellaneous actions */
 
-  rpc FindUserIdentities(UserIdentitiesRequest) returns
-    (UserIdentitiesResponse) {}
+  rpc FindUserIdentities(UserIdentitiesRequest)
+      returns (UserIdentitiesResponse) {
+  }
 
   // Updates current device PlatformDetails stored on Identity Service.
   // It doesn't require any input - all values are passed via request metadata.
-  rpc SyncPlatformDetails(identity.unauth.Empty) returns
-    (identity.unauth.Empty) {}
+  rpc SyncPlatformDetails(identity.unauth.Empty)
+      returns (identity.unauth.Empty) {
+  }
 }
 
 // Helper types
@@ -131,7 +154,6 @@ message UploadOneTimeKeysRequest {
   repeated string content_one_time_prekeys = 1;
   repeated string notif_one_time_prekeys = 2;
 }
-
 
 // RefreshUserPreKeys
 
@@ -171,6 +193,9 @@ message OutboundKeysForUserResponse {
 // The device receiving a request only needs the content key and prekey.
 message OutboundKeysForUserRequest {
   string user_id = 1;
+  // Specifies for which devices we want to retrieve outbound keys.
+  // If not specified or empty, all devices will be returned.
+  repeated string selected_devices = 2;
 }
 
 // GetInboundKeysForUser
@@ -189,6 +214,9 @@ message InboundKeysForUserResponse {
 
 message InboundKeysForUserRequest {
   string user_id = 1;
+  // Specifies for which devices we want to retrieve inbound keys.
+  // If not specified or empty, all devices will be returned.
+  repeated string selected_devices = 2;
 }
 
 // UpdateUserPassword
