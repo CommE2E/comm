@@ -2,9 +2,15 @@
 
 import { useFocusEffect } from '@react-navigation/core';
 import { useNavigation } from '@react-navigation/native';
-import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+import {
+  useCodeScanner,
+  Camera,
+  useCameraPermission,
+  useCameraDevice,
+  type Code,
+} from 'react-native-vision-camera';
 
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 
@@ -22,7 +28,7 @@ import { deviceIsEmulator } from '../../utils/url-utils.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
 
-const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
+const barCodeTypes = ['qr'];
 
 type Props = {
   +navigation: QRAuthNavigationProp<'SecondaryDeviceQRCodeScanner'>,
@@ -31,7 +37,6 @@ type Props = {
 
 // eslint-disable-next-line no-unused-vars
 function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
-  const [hasPermission, setHasPermission] = React.useState<?boolean>(null);
   const [scanned, setScanned] = React.useState(false);
   const [urlInput, setURLInput] = React.useState('');
 
@@ -39,12 +44,14 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const { goBack, setOptions, navigate } = useNavigation();
   const { panelForegroundTertiaryLabel } = useColors();
 
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const device = useCameraDevice('back');
+
   React.useEffect(() => {
     void (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const status = await requestPermission();
 
-      if (status !== 'granted') {
+      if (!status) {
         Alert.alert(
           'No access to camera',
           'Please allow Comm to access your camera in order to scan the QR code.',
@@ -54,7 +61,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         goBack();
       }
     })();
-  }, [goBack]);
+  }, [goBack, requestPermission]);
 
   const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
   const navigateToNextScreen = React.useCallback(
@@ -106,15 +113,22 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   );
 
   const handleBarCodeScanned = React.useCallback(
-    (barCodeEvent: BarCodeEvent) => {
+    (codes: $ReadOnlyArray<Code>) => {
       setScanned(true);
-      const { data } = barCodeEvent;
-      void navigateToNextScreen(data);
+      const { value } = codes[0];
+      if (value) {
+        void navigateToNextScreen(value);
+      }
     },
     [navigateToNextScreen],
   );
 
-  if (hasPermission === null) {
+  const codeScanner = useCodeScanner({
+    codeTypes: barCodeTypes,
+    onCodeScanned: handleBarCodeScanned,
+  });
+
+  if (!hasPermission) {
     return <View />;
   }
 
@@ -139,23 +153,23 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       </AuthContainer>
     );
   }
-  // Note: According to the BarCodeScanner Expo docs, we should adhere to two
-  // guidances when using the BarCodeScanner:
-  // 1. We should specify the potential barCodeTypes we want to scan for to
-  //    minimize battery usage.
-  // 2. We should set the onBarCodeScanned callback to undefined if it scanned
-  //    in order to 'pause' the scanner from continuing to scan while we
-  //    process the data from the scan.
-  // See: https://docs.expo.io/versions/latest/sdk/bar-code-scanner
-  return (
-    <View style={styles.scannerContainer}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barCodeTypes={barCodeTypes}
+
+  let camera = null;
+
+  if (device) {
+    camera = (
+      <Camera
         style={styles.scanner}
+        device={device}
+        codeScanner={scanned ? undefined : codeScanner}
+        isActive
       />
-    </View>
-  );
+    );
+  } else {
+    <Text style={styles.header}>No camera is available on your device</Text>;
+  }
+
+  return <View style={styles.scannerContainer}>{camera}</View>;
 }
 
 const unboundStyles = {
