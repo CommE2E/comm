@@ -224,6 +224,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       },
       getOutboundKeysForUser: async (
         targetUserID: string,
+        selectedDeviceIDs: $ReadOnlyArray<string> = [],
       ): Promise<UserDevicesOlmOutboundKeys[]> => {
         const {
           deviceID: authDeviceID,
@@ -236,6 +237,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             authDeviceID,
             token,
             targetUserID,
+            selectedDeviceIDs,
           ),
         );
         const resultArray = JSON.parse(result);
@@ -291,6 +293,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       },
       getInboundKeysForUser: async (
         targetUserID: string,
+        selectedDeviceIDs: $ReadOnlyArray<string> = [],
       ): Promise<UserDevicesOlmInboundKeys> => {
         const {
           deviceID: authDeviceID,
@@ -303,6 +306,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             authDeviceID,
             token,
             targetUserID,
+            selectedDeviceIDs,
           ),
         );
         const resultArray = JSON.parse(result);

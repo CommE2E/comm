@@ -49,10 +49,10 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutSecondaryD
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logOutSecondaryDevice(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getOutboundKeysForUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getOutboundKeysForUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asObject(rt).asArray(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_getInboundKeysForUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getInboundKeysForUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getInboundKeysForUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asObject(rt).asArray(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_versionSupported(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->versionSupported(rt);
@@ -114,8 +114,8 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["logOut"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOut};
   methodMap_["logOutPrimaryDevice"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutPrimaryDevice};
   methodMap_["logOutSecondaryDevice"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutSecondaryDevice};
-  methodMap_["getOutboundKeysForUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUser};
-  methodMap_["getInboundKeysForUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getInboundKeysForUser};
+  methodMap_["getOutboundKeysForUser"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUser};
+  methodMap_["getInboundKeysForUser"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getInboundKeysForUser};
   methodMap_["versionSupported"] = MethodMetadata {0, __hostFunction_CommRustModuleSchemaCxxSpecJSI_versionSupported};
   methodMap_["uploadOneTimeKeys"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_uploadOneTimeKeys};
   methodMap_["getKeyserverKeys"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getKeyserverKeys};
