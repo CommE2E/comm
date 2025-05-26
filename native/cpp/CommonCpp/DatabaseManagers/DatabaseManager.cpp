@@ -73,11 +73,7 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
   return mainQueryExecutor;
 }
 
-void DatabaseManager::clearSensitiveData() {
-  CommSecureStore::set(CommSecureStore::userID, "");
-  CommSecureStore::set(CommSecureStore::deviceID, "");
-  CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
-
+void DatabaseManager::clearMainDatabaseSensitiveData() {
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
@@ -88,7 +84,7 @@ void DatabaseManager::clearSensitiveData() {
   if (SQLiteUtils::fileExists(sqliteFilePath) &&
       std::remove(sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
-    errorStream << "Failed to delete database file. Details: "
+    errorStream << "Failed to delete main database file. Details: "
                 << strerror(errno);
     Logger::log(errorStream.str());
     throw std::system_error(errno, std::generic_category(), errorStream.str());
@@ -99,6 +95,35 @@ void DatabaseManager::clearSensitiveData() {
 
   DatabaseManager::getQueryExecutor().migrate();
   DatabaseManager::mainConnectionManager->initializeConnection();
+}
+
+void DatabaseManager::clearRestoredDatabaseSensitiveData() {
+  if (!DatabaseManager::restoredConnectionManager) {
+    return;
+  }
+  DatabaseManager::restoredConnectionManager->closeConnection();
+  std::string sqliteFilePath =
+      DatabaseManager::restoredConnectionManager->getSQLiteFilePath();
+
+  if (SQLiteUtils::fileExists(sqliteFilePath) &&
+      std::remove(sqliteFilePath.c_str())) {
+    std::ostringstream errorStream;
+    errorStream << "Failed to delete restored database file. Details: "
+                << strerror(errno);
+    Logger::log(errorStream.str());
+    throw std::system_error(errno, std::generic_category(), errorStream.str());
+  }
+
+  DatabaseManager::restoredConnectionManager.reset();
+}
+
+void DatabaseManager::clearSensitiveData() {
+  CommSecureStore::set(CommSecureStore::userID, "");
+  CommSecureStore::set(CommSecureStore::deviceID, "");
+  CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
+
+  DatabaseManager::clearMainDatabaseSensitiveData();
+  DatabaseManager::clearRestoredDatabaseSensitiveData();
 
   PlatformSpecificTools::removeBackupDirectory();
   CommMMKV::clearSensitiveData();
