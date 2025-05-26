@@ -42,6 +42,7 @@ void SQLiteBackup::cleanupDatabaseExceptAllowlist(sqlite3 *db) {
 std::string SQLiteBackup::restoreFromMainCompaction(
     std::string mainCompactionPath,
     std::string mainCompactionEncryptionKey,
+    std::optional<std::string> plaintextDatabasePath,
     std::string maxVersion) {
 
   if (!SQLiteUtils::fileExists(mainCompactionPath)) {
@@ -58,7 +59,8 @@ std::string SQLiteBackup::restoreFromMainCompaction(
     throw std::runtime_error(errorMessage);
   }
 
-  std::string plaintextBackupPath = mainCompactionPath + "_plaintext";
+  std::string plaintextBackupPath =
+      plaintextDatabasePath.value_or(mainCompactionPath + "_plaintext");
   if (SQLiteUtils::fileExists(plaintextBackupPath)) {
     SQLiteUtils::attemptDeleteFile(
         plaintextBackupPath,

@@ -17,7 +17,10 @@ import {
 } from '../../redux/persist-constants.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
-import { COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH } from '../utils/constants.js';
+import {
+  ENCRYPTED_SQLITE_RESTORE_DATABASE_PATH,
+  SQLITE_RESTORE_DATABASE_PATH,
+} from '../utils/constants.js';
 import { importDatabaseContent } from '../utils/db-utils.js';
 
 async function restoreBackup(
@@ -27,7 +30,7 @@ async function restoreBackup(
   backupID: string,
   backupDataKey: string,
   backupLogDataKey: string,
-): Promise<string> {
+): Promise<void> {
   const decryptionKey = new TextEncoder().encode(backupLogDataKey);
   const { userID, deviceID, accessToken } = authMetadata;
   if (!userID || !deviceID || !accessToken) {
@@ -48,21 +51,22 @@ async function restoreBackup(
   importDatabaseContent(
     result,
     dbModule,
-    COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
+    ENCRYPTED_SQLITE_RESTORE_DATABASE_PATH,
   );
 
   try {
     const reduxPersistData =
       sqliteQueryExecutor.getPersistStorageItem(completeRootKey);
 
-    const backupPath = dbModule.SQLiteBackup.restoreFromMainCompaction(
-      COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
+    dbModule.SQLiteBackup.restoreFromMainCompaction(
+      ENCRYPTED_SQLITE_RESTORE_DATABASE_PATH,
       backupDataKey,
+      SQLITE_RESTORE_DATABASE_PATH,
       `${storeVersion ?? -1}`,
     );
 
     const restoredQueryExecutor = new dbModule.SQLiteQueryExecutor(
-      backupPath,
+      SQLITE_RESTORE_DATABASE_PATH,
       true,
     );
 
@@ -77,7 +81,6 @@ async function restoreBackup(
       const content = await decryptCommon(crypto, decryptionKey, log);
       restoredQueryExecutor.restoreFromBackupLog(content);
     });
-    return backupPath;
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
