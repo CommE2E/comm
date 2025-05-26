@@ -57,7 +57,7 @@ impl BackupClient {
       version_info,
     } = backup_data;
 
-    let endpoint = match (user_data.clone(), user_keys.clone()) {
+    let endpoint = match (&user_data, &user_keys) {
       (None, None) => return Err(Error::InvalidRequest),
       (Some(_), Some(_)) => "backups",
       (Some(_), None) => "backups/user_data",
