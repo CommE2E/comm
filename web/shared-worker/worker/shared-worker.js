@@ -232,6 +232,18 @@ async function processAppRequest(
       );
     }
     setSQLiteQueryExecutor(null);
+
+    const restoredSQLiteQueryExecutor = getSQLiteQueryExecutor(
+      databaseIdentifier.RESTORED,
+    );
+    if (dbModule && restoredSQLiteQueryExecutor) {
+      clearSensitiveData(
+        dbModule,
+        SQLITE_RESTORE_DATABASE_PATH,
+        restoredSQLiteQueryExecutor,
+      );
+      setSQLiteQueryExecutor(null, databaseIdentifier.RESTORED);
+    }
     return undefined;
   }
 
