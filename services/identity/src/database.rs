@@ -760,11 +760,22 @@ impl DatabaseClient {
   pub async fn get_keys_for_user(
     &self,
     user_id: &str,
+    selected_devices: HashSet<&String>,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
     let mut devices_response = self.get_keys_for_user_devices(user_id).await?;
+
+    // Retain all devices if no filter is specified
+    if !selected_devices.is_empty() {
+      devices_response
+        .retain(|device_id, _| selected_devices.contains(device_id));
+    }
+
     if devices_response.is_empty() {
-      debug!("No devices found for user {}", user_id);
+      debug!(
+        "No devices matching given filter found for user {}",
+        user_id
+      );
       return Ok(None);
     }
 
