@@ -76,6 +76,7 @@ pub mod ffi {
     RUNTIME.spawn(async move {
       let get_keyserver_keys_request = OutboundKeysForUserRequest {
         user_id: keyserver_id,
+        selected_devices: Vec::new(),
       };
       let auth_info = AuthInfo {
         access_token,
@@ -292,6 +293,7 @@ async fn get_outbound_keys_for_user_helper(
   let response = identity_client
     .get_outbound_keys_for_user(OutboundKeysForUserRequest {
       user_id: get_outbound_keys_request_info.user_id,
+      selected_devices: Vec::new(),
     })
     .await?
     .into_inner();
@@ -320,6 +322,7 @@ async fn get_inbound_keys_for_user_helper(
   let response = identity_client
     .get_inbound_keys_for_user(InboundKeysForUserRequest {
       user_id: get_inbound_keys_request_info.user_id,
+      selected_devices: Vec::new(),
     })
     .await?
     .into_inner();

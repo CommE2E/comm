@@ -195,6 +195,11 @@ declare export class OutboundKeysForUserRequest extends Message {
   getUserId(): string;
   setUserId(value: string): OutboundKeysForUserRequest;
 
+  getSelectedDevicesList(): Array<string>;
+  setSelectedDevicesList(value: Array<string>): OutboundKeysForUserRequest;
+  clearSelectedDevicesList(): OutboundKeysForUserRequest;
+  addSelectedDevices(value: string, index?: number): OutboundKeysForUserRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OutboundKeysForUserRequestObject;
   static toObject(includeInstance: boolean, msg: OutboundKeysForUserRequest): OutboundKeysForUserRequestObject;
@@ -205,6 +210,7 @@ declare export class OutboundKeysForUserRequest extends Message {
 
 export type OutboundKeysForUserRequestObject = {
   userId: string,
+  selectedDevicesList: Array<string>,
 };
 
 declare export class InboundKeyInfo extends Message {
@@ -263,6 +269,11 @@ declare export class InboundKeysForUserRequest extends Message {
   getUserId(): string;
   setUserId(value: string): InboundKeysForUserRequest;
 
+  getSelectedDevicesList(): Array<string>;
+  setSelectedDevicesList(value: Array<string>): InboundKeysForUserRequest;
+  clearSelectedDevicesList(): InboundKeysForUserRequest;
+  addSelectedDevices(value: string, index?: number): InboundKeysForUserRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InboundKeysForUserRequestObject;
   static toObject(includeInstance: boolean, msg: InboundKeysForUserRequest): InboundKeysForUserRequestObject;
@@ -273,6 +284,7 @@ declare export class InboundKeysForUserRequest extends Message {
 
 export type InboundKeysForUserRequestObject = {
   userId: string,
+  selectedDevicesList: Array<string>,
 };
 
 declare export class UpdateUserPasswordStartRequest extends Message {

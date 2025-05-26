@@ -42,6 +42,7 @@ async fn set_prekey() {
   // Currently allowed to request your own outbound keys
   let keyserver_request = OutboundKeysForUserRequest {
     user_id: device_info.user_id.clone(),
+    selected_devices: Vec::new(),
   };
 
   println!("Getting keyserver info for user, {}", device_info.user_id);
