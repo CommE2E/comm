@@ -1,3 +1,16 @@
+diff --git a/node_modules/react-native-keyboard-input/lib/android/build.gradle b/node_modules/react-native-keyboard-input/lib/android/build.gradle
+index 1dd0e57..84b4525 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/build.gradle
++++ b/node_modules/react-native-keyboard-input/lib/android/build.gradle
+@@ -1,7 +1,7 @@
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 28
++    compileSdkVersion 30
+     buildToolsVersion "28.0.3"
+ 
+     defaultConfig {
 diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
 index 46d2207..830c7b5 100644
 --- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
@@ -11,7 +24,7 @@ index 46d2207..830c7b5 100644
          mLayout.setShadowNode(this);
      }
 diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
-index 6bd4453..8607b47 100644
+index 6bd4453..a0f588a 100644
 --- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
 +++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
 @@ -1,6 +1,11 @@
@@ -137,9 +150,27 @@ index 59cae03..ec6f756 100644
  
    registerListener(props, nextProps) {
 diff --git a/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js b/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
-index b91aa83..f403d38 100644
+index b91aa83..cc501e6 100644
 --- a/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
 +++ b/node_modules/react-native-keyboard-input/src/KeyboardAccessoryView.js
+@@ -52,7 +52,7 @@ export default class KeyboardAccessoryView extends Component {
+       this.customInputControllerEventsSubscriber.remove();
+     }
+     if (IsAndroid) {
+-      BackHandler.removeEventListener('hardwareBackPress', this.onAndroidBackPressed);
++      this.backHandlerSubscription.remove();
+     }
+   }
+ 
+@@ -106,7 +106,7 @@ export default class KeyboardAccessoryView extends Component {
+ 
+   registerAndroidBackHandler() {
+     if (IsAndroid) {
+-      BackHandler.addEventListener('hardwareBackPress', this.onAndroidBackPressed);
++      this.backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', this.onAndroidBackPressed);
+     }
+   }
+ 
 @@ -126,11 +126,15 @@ export default class KeyboardAccessoryView extends Component {
    }
  
