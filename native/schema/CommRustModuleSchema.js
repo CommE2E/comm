@@ -113,12 +113,14 @@ export interface Spec extends TurboModule {
     authDeviceID: string,
     authAccessToken: string,
     userID: string,
+    selectedDeviceIDs: $ReadOnlyArray<string>,
   ) => Promise<string>;
   +getInboundKeysForUser: (
     authUserID: string,
     authDeviceID: string,
     authAccessToken: string,
     userID: string,
+    selectedDeviceIDs: $ReadOnlyArray<string>,
   ) => Promise<string>;
   +versionSupported: () => Promise<boolean>;
   +uploadOneTimeKeys: (
