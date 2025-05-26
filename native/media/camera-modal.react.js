@@ -13,7 +13,6 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
@@ -30,11 +29,18 @@ import Reanimated, {
   runOnJS,
   interpolate,
   Extrapolate,
+  useAnimatedProps,
 } from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import {
+  Camera,
+  useCameraPermission,
+  useCameraDevice,
+  type CameraProps,
+} from 'react-native-vision-camera';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
@@ -53,19 +59,12 @@ import { colors } from '../themes/colors.js';
 import type { NativeMethods } from '../types/react-native.js';
 import { clamp } from '../utils/animation-utils.js';
 
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+
 const maxZoom = 16;
-const zoomUpdateFactor = (() => {
-  if (Platform.OS === 'ios') {
-    return 0.002;
-  }
-  if (Platform.OS === 'android' && Platform.Version > 26) {
-    return 0.005;
-  }
-  if (Platform.OS === 'android' && Platform.Version > 23) {
-    return 0.01;
-  }
-  return 0.03;
-})();
 
 const stagingModeAnimationConfig = {
   duration: 150,
@@ -96,18 +95,10 @@ async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
   } catch (e) {}
 }
 
-type RNCameraStatus = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
-
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
 >;
-
-type AutoFocusPointOfInterest = ?{
-  +x: number,
-  +y: number,
-  +autoExposure?: boolean,
-};
 
 type Dimensions = {
   +x: number,
@@ -276,7 +267,6 @@ const styles = StyleSheet.create({
 
 const CameraModal: React.ComponentType<Props> = React.memo<Props>(
   function CameraModal(props: Props) {
-    const dimensions = useSelector(state => state.dimensions);
     const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
     const deviceOrientation = useSelector(state => state.deviceOrientation);
     const foreground = useIsAppForegrounded();
@@ -301,18 +291,16 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       };
     }, []);
 
-    const [flashMode, setFlashMode] = React.useState(
-      RNCamera.Constants.FlashMode.off,
-    );
+    const [flashMode, setFlashMode] = React.useState('off');
 
     const changeFlashMode = React.useCallback(() => {
       setFlashMode(prevFlashMode => {
-        if (prevFlashMode === RNCamera.Constants.FlashMode.on) {
-          return RNCamera.Constants.FlashMode.off;
-        } else if (prevFlashMode === RNCamera.Constants.FlashMode.off) {
-          return RNCamera.Constants.FlashMode.auto;
+        if (prevFlashMode === 'on') {
+          return 'off';
+        } else if (prevFlashMode === 'off') {
+          return 'auto';
         }
-        return RNCamera.Constants.FlashMode.on;
+        return 'on';
       });
     }, []);
 
@@ -330,135 +318,89 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
 
     const cameraIDsFetched = React.useRef(false);
 
-    const fetchCameraIDs = React.useCallback(
-      async (camera: RNCamera) => {
-        if (cameraIDsFetched.current) {
-          return;
-        }
-        cameraIDsFetched.current = true;
+    const fetchCameraIDs = React.useCallback(async () => {
+      if (cameraIDsFetched.current) {
+        return;
+      }
+      cameraIDsFetched.current = true;
 
-        const deviceCameras = await camera.getCameraIdsAsync();
+      const deviceCameras = Camera.getAvailableCameraDevices();
 
-        let hasFront = false,
-          hasBack = false,
-          i = 0;
-        while ((!hasFront || !hasBack) && i < deviceCameras.length) {
-          const deviceCamera = deviceCameras[i];
-          if (deviceCamera.type === RNCamera.Constants.Type.front) {
-            hasFront = true;
-          } else if (deviceCamera.type === RNCamera.Constants.Type.back) {
-            hasBack = true;
-          }
-          i++;
+      let hasFront = false,
+        hasBack = false,
+        i = 0;
+      while ((!hasFront || !hasBack) && i < deviceCameras.length) {
+        const deviceCamera = deviceCameras[i];
+        if (deviceCamera.position === 'front') {
+          hasFront = true;
+        } else if (deviceCamera.position === 'back') {
+          hasBack = true;
         }
+        i++;
+      }
 
-        const nextHasCamerasOnBothSides = hasFront && hasBack;
-        const defaultUseFrontCamera = !hasBack && hasFront;
-        if (nextHasCamerasOnBothSides !== hasCamerasOnBothSides) {
-          setHasCamerasOnBothSides(nextHasCamerasOnBothSides);
-        }
-        const {
-          hasCamerasOnBothSides: oldHasCamerasOnBothSides,
-          defaultUseFrontCamera: oldDefaultUseFrontCamera,
-        } = deviceCameraInfo;
-        if (
-          nextHasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
-          defaultUseFrontCamera !== oldDefaultUseFrontCamera
-        ) {
-          dispatch({
-            type: updateDeviceCameraInfoActionType,
-            payload: {
-              hasCamerasOnBothSides: nextHasCamerasOnBothSides,
-              defaultUseFrontCamera,
-            },
-          });
-        }
-      },
-      [deviceCameraInfo, dispatch, hasCamerasOnBothSides],
-    );
+      const nextHasCamerasOnBothSides = hasFront && hasBack;
+      const defaultUseFrontCamera = !hasBack && hasFront;
+      if (nextHasCamerasOnBothSides !== hasCamerasOnBothSides) {
+        setHasCamerasOnBothSides(nextHasCamerasOnBothSides);
+      }
+      const {
+        hasCamerasOnBothSides: oldHasCamerasOnBothSides,
+        defaultUseFrontCamera: oldDefaultUseFrontCamera,
+      } = deviceCameraInfo;
+      if (
+        nextHasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
+        defaultUseFrontCamera !== oldDefaultUseFrontCamera
+      ) {
+        dispatch({
+          type: updateDeviceCameraInfoActionType,
+          payload: {
+            hasCamerasOnBothSides: nextHasCamerasOnBothSides,
+            defaultUseFrontCamera,
+          },
+        });
+      }
+    }, [deviceCameraInfo, dispatch, hasCamerasOnBothSides]);
 
-    const [autoFocusPointOfInterest, setAutoFocusPointOfInterest] =
-      React.useState<AutoFocusPointOfInterest>();
+    const cameraRef = React.useRef<?Camera>();
 
     const focusOnPoint = React.useCallback(
       ([inputX, inputY]: [number, number]) => {
-        const { width: screenWidth, height: screenHeight } = dimensions;
-        const relativeX = inputX / screenWidth;
-        const relativeY = inputY / screenHeight;
-
-        // react-native-camera's autoFocusPointOfInterest prop is based on a
-        // LANDSCAPE-LEFT orientation, so we need to map to that
-        let x, y;
-        if (deviceOrientation === 'LANDSCAPE-LEFT') {
-          x = relativeX;
-          y = relativeY;
-        } else if (deviceOrientation === 'LANDSCAPE-RIGHT') {
-          x = 1 - relativeX;
-          y = 1 - relativeY;
-        } else if (deviceOrientation === 'PORTRAIT-UPSIDEDOWN') {
-          x = 1 - relativeY;
-          y = relativeX;
-        } else {
-          x = relativeY;
-          y = 1 - relativeX;
-        }
-        setAutoFocusPointOfInterest(
-          Platform.OS === 'ios' ? { x, y, autoExposure: true } : { x, y },
-        );
+        const camera = cameraRef.current;
+        invariant(camera, 'camera ref should be set');
+        void camera.focus({ x: inputX, y: inputY });
       },
-      [deviceOrientation, dimensions],
+      [],
     );
-
-    const [zoom, setZoom] = React.useState(0);
-
-    const updateZoom = React.useCallback((nextZoom: number) => {
-      setZoom(nextZoom);
-    }, []);
 
     const [stagingMode, setStagingMode] = React.useState(false);
     const [pendingPhotoCapture, setPendingPhotoCapture] =
       React.useState<?PhotoCapture>();
-
-    const cameraRef = React.useRef<?RNCamera>();
 
     const takePhoto = React.useCallback(async () => {
       const camera = cameraRef.current;
       invariant(camera, 'camera ref should be set');
       setStagingMode(true);
 
-      // We avoid flipping useFrontCamera if we discover we don't
-      // actually have a back camera since it causes a bit of lag, but this
-      // means there are cases where it is false but we are actually using the
-      // front camera
-      const {
-        hasCamerasOnBothSides: hasCamerasOnBothSidesFromDeviceInfo,
-        defaultUseFrontCamera,
-      } = deviceCameraInfo;
-      const usingFrontCamera =
-        useFrontCamera ||
-        (!hasCamerasOnBothSidesFromDeviceInfo && defaultUseFrontCamera);
-
       const startTime = Date.now();
-      const photoPromise = camera.takePictureAsync({
-        pauseAfterCapture: Platform.OS === 'android',
-        mirrorImage: usingFrontCamera,
-        fixOrientation: true,
+      const photoPromise = camera.takePhoto({
+        flash: flashMode,
       });
 
-      if (Platform.OS === 'ios') {
-        camera.pausePreview();
-      }
-      const { uri, width, height } = await photoPromise;
+      const { path: uri, width, height } = await photoPromise;
+
       const filename = filenameFromPathOrURI(uri);
       invariant(
         filename,
-        `unable to parse filename out of react-native-camera URI ${uri}`,
+        `unable to parse filename out of react-native-vision-camera URI ${uri}`,
       );
 
       const now = Date.now();
       const nextPendingPhotoCapture = {
         step: 'photo_capture',
-        uri,
+        // If you want to consume this file (e.g. for displaying it in an <Image> component), you might have to add the file:// prefix.
+        // https://react-native-vision-camera.com/docs/api/interfaces/PhotoFile#path
+        uri: uri.startsWith('file://') ? uri : 'file://' + uri,
         dimensions: { width, height },
         filename,
         time: now - startTime,
@@ -467,11 +409,8 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
         sendTime: 0,
         retries: 0,
       };
-
-      setAutoFocusPointOfInterest(undefined);
-      setZoom(0);
       setPendingPhotoCapture(nextPendingPhotoCapture);
-    }, [deviceCameraInfo, useFrontCamera]);
+    }, [flashMode]);
 
     const close = React.useCallback(() => {
       if (overlayContext && navigation.goBackOnce) {
@@ -499,7 +438,6 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
 
     const clearPendingImage = React.useCallback(() => {
       invariant(cameraRef.current, 'camera ref should be set');
-      cameraRef.current.resumePreview();
       setStagingMode(false);
       setPendingPhotoCapture();
     }, []);
@@ -702,42 +640,25 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     );
 
     const zoomBase = useSharedValue(1);
-    const zoomReported = useSharedValue(1);
     const currentZoom = useSharedValue(1);
+
+    const animatedProps = useAnimatedProps<CameraProps>(
+      () => ({ zoom: currentZoom.value }),
+      [currentZoom],
+    );
 
     const onPinchUpdate = React.useCallback(
       (pinchScale: number) => {
         'worklet';
         currentZoom.value = clamp(zoomBase.value * pinchScale, 1, 8);
-        if (
-          Math.abs(currentZoom.value / zoomReported.value - 1) >
-          zoomUpdateFactor
-        ) {
-          zoomReported.value = currentZoom.value;
-          const cameraZoomFactor = interpolate(
-            zoomReported.value,
-            [1, 8],
-            [0, 1],
-            Extrapolate.CLAMP,
-          );
-          runOnJS(updateZoom)(cameraZoomFactor);
-        }
       },
-      [currentZoom, updateZoom, zoomBase.value, zoomReported],
+      [currentZoom, zoomBase.value],
     );
 
     const onPinchEnd = React.useCallback(() => {
       'worklet';
-      zoomReported.value = currentZoom.value;
       zoomBase.value = currentZoom.value;
-      const cameraZoomFactor = interpolate(
-        zoomReported.value,
-        [1, 8],
-        [0, 1],
-        Extrapolate.CLAMP,
-      );
-      runOnJS(updateZoom)(cameraZoomFactor);
-    }, [currentZoom, updateZoom, zoomBase, zoomReported]);
+    }, [currentZoom, zoomBase]);
 
     const gesture = React.useMemo(() => {
       const pinchGesture = Gesture.Pinch()
@@ -793,17 +714,10 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     const prevDeviceOrientation = React.useRef<?Orientations>();
     React.useEffect(() => {
       if (deviceOrientation !== prevDeviceOrientation.current) {
-        setAutoFocusPointOfInterest(null);
         cancelFocusAnimation();
       }
       prevDeviceOrientation.current = deviceOrientation;
     }, [cancelFocusAnimation, deviceOrientation]);
-
-    React.useEffect(() => {
-      if (foreground && cameraRef.current) {
-        void cameraRef.current.refreshAuthorizationStatus();
-      }
-    }, [foreground]);
 
     const prevStagingMode = React.useRef(false);
     React.useEffect(() => {
@@ -844,16 +758,17 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       return [styles.container, containerAnimatedStyle];
     }, [containerAnimatedStyle, overlayContext]);
 
-    const renderCamera = ({
-      camera,
-      status,
-    }: {
-      +camera: RNCamera & { +_cameraHandle?: mixed, ... },
-      status: RNCameraStatus,
-      ...
-    }): React.Node => {
-      if (camera && camera._cameraHandle) {
-        void fetchCameraIDs(camera);
+    const { hasPermission, requestPermission } = useCameraPermission();
+
+    React.useEffect(() => {
+      if (foreground && !hasPermission) {
+        void requestPermission();
+      }
+    }, [foreground, hasPermission, requestPermission]);
+
+    const renderCamera = (): React.Node => {
+      if (cameraRef.current) {
+        void fetchCameraIDs();
       }
       if (stagingMode) {
         return renderStagingView();
@@ -862,7 +777,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       return (
         <SafeAreaView style={styles.fill}>
           <View style={styles.fill}>
-            {renderCameraContent(status)}
+            {renderCameraContent()}
             <TouchableOpacity
               onPress={close}
               onLayout={onCloseButtonLayout}
@@ -908,10 +823,8 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       );
     };
 
-    const renderCameraContent = (status: RNCameraStatus): React.Node => {
-      if (status === 'PENDING_AUTHORIZATION') {
-        return <ContentLoading fillType="flex" colors={colors.dark} />;
-      } else if (status === 'NOT_AUTHORIZED') {
+    const renderCameraContent = (): React.Node => {
+      if (!hasPermission) {
         return (
           <View style={styles.authorizationDeniedContainer}>
             <Text style={styles.authorizationDeniedText}>
@@ -936,9 +849,9 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       }
 
       let flashIcon;
-      if (flashMode === RNCamera.Constants.FlashMode.on) {
+      if (flashMode === 'on') {
         flashIcon = <Icon name="flash" style={styles.flashIcon} />;
-      } else if (flashMode === RNCamera.Constants.FlashMode.off) {
+      } else if (flashMode === 'off') {
         flashIcon = <Icon name="flash-off" style={styles.flashIcon} />;
       } else {
         flashIcon = (
@@ -978,25 +891,29 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     };
 
     const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
-    const type = useFrontCamera
-      ? RNCamera.Constants.Type.front
-      : RNCamera.Constants.Type.back;
+    const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
+
+    let camera = null;
+    if (device && hasPermission) {
+      camera = (
+        <ReanimatedCamera
+          style={StyleSheet.absoluteFill}
+          ref={cameraRef}
+          device={device}
+          isActive
+          animatedProps={animatedProps}
+          photo
+          torch={flashMode === 'auto' ? 'off' : flashMode}
+          maxZoom={maxZoom}
+        />
+      );
+    }
+
     return (
       <Reanimated.View style={containerStyle}>
         {statusBar}
-        <RNCamera
-          type={type}
-          captureAudio={false}
-          maxZoom={maxZoom}
-          zoom={zoom}
-          flashMode={flashMode}
-          autoFocusPointOfInterest={autoFocusPointOfInterest}
-          style={styles.fill}
-          androidCameraPermissionOptions={null}
-          ref={cameraRef}
-        >
-          {renderCamera}
-        </RNCamera>
+        {camera}
+        <View style={StyleSheet.absoluteFill}>{renderCamera()}</View>
         <Reanimated.View style={overlayStyle} pointerEvents="none" />
       </Reanimated.View>
     );
