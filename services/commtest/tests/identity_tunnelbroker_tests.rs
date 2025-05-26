@@ -58,6 +58,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   // Request outbound keys, which should trigger identity service to ask for more keys
   let keyserver_request = OutboundKeysForUserRequest {
     user_id: keyserver.user_id.clone(),
+    selected_devices: Vec::new(),
   };
 
   println!("Getting keyserver info for user, {}", keyserver.user_id);

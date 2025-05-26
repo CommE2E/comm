@@ -99,6 +99,7 @@ async fn max_hundred_keys_in_ddb() {
 
   let keyserver_request = OutboundKeysForUserRequest {
     user_id: device_info.user_id,
+    selected_devices: Vec::new(),
   };
 
   let first_keyserver_response = identity_client

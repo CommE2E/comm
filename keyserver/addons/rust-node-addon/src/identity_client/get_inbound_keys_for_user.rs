@@ -19,7 +19,10 @@ pub async fn get_inbound_keys_for_user_device(
   )
   .await?;
 
-  let inbound_keys_for_user_request = InboundKeysForUserRequest { user_id };
+  let inbound_keys_for_user_request = InboundKeysForUserRequest {
+    user_id,
+    selected_devices: Vec::new(),
+  };
 
   let mut response = identity_client
     .get_inbound_keys_for_user(inbound_keys_for_user_request)
