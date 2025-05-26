@@ -310,8 +310,6 @@ PODS:
     - React-Core
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
-  - ExpoSecureStore (14.2.3):
-    - ExpoModulesCore
   - ExpoSplashScreen (0.30.8):
     - ExpoModulesCore
   - EXUpdatesInterface (1.1.0):
@@ -2358,7 +2356,6 @@ DEPENDENCIES:
   - ExpoKeepAwake (from `../../node_modules/expo-keep-awake/ios`)
   - ExpoMediaLibrary (from `../../node_modules/expo-media-library/ios`)
   - ExpoModulesCore (from `../../node_modules/expo-modules-core`)
-  - ExpoSecureStore (from `../../node_modules/expo-secure-store/ios`)
   - ExpoSplashScreen (from `../../node_modules/expo-splash-screen/ios`)
   - EXUpdatesInterface (from `../../node_modules/expo-updates-interface/ios`)
   - fast_float (from `../../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
@@ -2523,8 +2520,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-media-library/ios"
   ExpoModulesCore:
     :path: "../../node_modules/expo-modules-core"
-  ExpoSecureStore:
-    :path: "../../node_modules/expo-secure-store/ios"
   ExpoSplashScreen:
     :path: "../../node_modules/expo-splash-screen/ios"
   EXUpdatesInterface:
@@ -2738,7 +2733,6 @@ SPEC CHECKSUMS:
   ExpoKeepAwake: e8dedc115d9f6f24b153ccd2d1d8efcdfd68a527
   ExpoMediaLibrary: ad61cd80ca07da02be3d676e3d9b04b311a82c2c
   ExpoModulesCore: a3709f29a5fc4cb3865d0bfb11b39572720eabc4
-  ExpoSecureStore: 3148869ad24ab94f9e0c5777c7941d7a37d60399
   ExpoSplashScreen: 418ece7a50a404f36b690f0af8ec5c5298dfd659
   EXUpdatesInterface: 64f35449b8ef89ce08cdd8952a4d119b5de6821d
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -2847,6 +2841,6 @@ SPEC CHECKSUMS:
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 2f62288db927690f146509a7462e565e2babc0d2
+PODFILE CHECKSUM: 5e1474a246e82fdfddfca6475d6eb9acc06f5d5a
 
 COCOAPODS: 1.14.3
