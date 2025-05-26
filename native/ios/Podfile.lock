@@ -306,10 +306,31 @@ PODS:
   - ExpoMediaLibrary (17.1.6):
     - ExpoModulesCore
     - React-Core
-  - ExpoModulesCore (1.1.1):
+  - ExpoModulesCore (2.3.12):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
-    - React-RCTAppDelegate
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-jsinspector
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - Yoga
   - ExpoSplashScreen (0.30.8):
     - ExpoModulesCore
   - EXUpdatesInterface (1.1.0):
@@ -2732,7 +2753,7 @@ SPEC CHECKSUMS:
   ExpoImagePicker: d2fff488a0738343a3cc21e98544ee9feafaa0e6
   ExpoKeepAwake: e8dedc115d9f6f24b153ccd2d1d8efcdfd68a527
   ExpoMediaLibrary: ad61cd80ca07da02be3d676e3d9b04b311a82c2c
-  ExpoModulesCore: a3709f29a5fc4cb3865d0bfb11b39572720eabc4
+  ExpoModulesCore: 042609adb7f5d1c055c2b75894b4830f5865074e
   ExpoSplashScreen: 418ece7a50a404f36b690f0af8ec5c5298dfd659
   EXUpdatesInterface: 64f35449b8ef89ce08cdd8952a4d119b5de6821d
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
