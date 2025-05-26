@@ -386,7 +386,10 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string mainCompactionEncryptionKey,
     std::string maxVersion) {
   std::string backupPath = SQLiteBackup::restoreFromMainCompaction(
-      mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
+      mainCompactionPath,
+      mainCompactionEncryptionKey,
+      std::nullopt,
+      maxVersion);
   DatabaseManager::restoredConnectionManager =
       std::make_shared<WebSQLiteConnectionManager>(backupPath);
 }
