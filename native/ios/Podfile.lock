@@ -3,6 +3,7 @@ PODS:
   - CommExpoPackage (0.0.1):
     - ExpoModulesCore
   - DoubleConversion (1.1.6)
+  - DVAssetLoaderDelegate (0.3.3)
   - EXApplication (6.1.4):
     - ExpoModulesCore
   - EXConstants (17.1.6):
@@ -1747,11 +1748,57 @@ PODS:
     - Yoga
   - react-native-safe-area-context (5.4.0):
     - React-Core
-  - react-native-video (5.2.1):
+  - react-native-video (6.14.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
-    - react-native-video/Video (= 5.2.1)
-  - react-native-video/Video (5.2.1):
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - react-native-video/Video (= 6.14.0)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-video/Video (6.14.0):
+    - DoubleConversion
+    - DVAssetLoaderDelegate (~> 0.3.1)
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SPTPersistentCache (~> 1.1.0)
+    - Yoga
   - react-native-webview (13.13.5):
     - DoubleConversion
     - glog
@@ -2324,6 +2371,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
+  - SPTPersistentCache (1.1.0)
   - SQLCipher-Amalgamation (4.5.5-e):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/standard (= 4.5.5-e)
@@ -2464,6 +2512,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - DVAssetLoaderDelegate
     - libavif
     - libdav1d
     - libwebp
@@ -2477,6 +2526,7 @@ SPEC REPOS:
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
     - SocketRocket
+    - SPTPersistentCache
 
 EXTERNAL SOURCES:
   boost:
@@ -2717,6 +2767,7 @@ SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CommExpoPackage: 3f9d8a25537fb9d80f79a63fd1e73c51f55b87e9
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
+  DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
   EXApplication: b28de982d44768fc593de9d19ca5a7a0e49685b1
   EXConstants: be238322d57d084dc055dbd5d6fe6479510504ce
   EXImageLoader: ab4fcf9240cf3636a83c00e3fc5229d692899428
@@ -2790,7 +2841,7 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
   react-native-pager-view: e4cf30bc28e3ccf864f6cfb90590d8cea13b7393
   react-native-safe-area-context: 8870dc3e45c8d241336cd8ee3fa3fc76f3a040ac
-  react-native-video: 10f689069cb894d75030190a9bc62d9393e1f997
+  react-native-video: cef12f163e09d41caf72fd618ba7f590e694b9c4
   react-native-webview: bfc7322cc9f570bc5b5b2251fb38a08da718d00a
   React-NativeModulesApple: 452b86b29fae99ed0a4015dca3ad9cd222f88abf
   React-oscompat: ef5df1c734f19b8003e149317d041b8ce1f7d29c
@@ -2840,10 +2891,11 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   SQLCipher-Amalgamation: 121e91239c53a3aba13ca742d6dd824c627c66ee
   VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
-  Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
+  Yoga: 9f110fc4b7aa538663cba3c14cbb1c335f43c13f
 
-PODFILE CHECKSUM: 5e1474a246e82fdfddfca6475d6eb9acc06f5d5a
+PODFILE CHECKSUM: 566a691f4cadb4a715537e5b98cea3b69df7feb1
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
