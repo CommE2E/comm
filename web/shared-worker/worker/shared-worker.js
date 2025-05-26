@@ -49,6 +49,7 @@ import {
   SQLITE_ENCRYPTION_KEY,
   DEFAULT_BACKUP_CLIENT_FILENAME,
   SQLITE_RESTORE_DATABASE_PATH,
+  RESTORED_SQLITE_CONTENT,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -134,12 +135,17 @@ async function initBackupClient(
 
 async function persist() {
   persistInProgress = true;
-  const sqliteQueryExecutor = getSQLiteQueryExecutor();
+  const mainQueryExecutor = getSQLiteQueryExecutor();
+  const restoredQueryExecutor = getSQLiteQueryExecutor(
+    databaseIdentifier.RESTORED,
+  );
   const dbModule = getDBModule();
-  if (!sqliteQueryExecutor || !dbModule) {
+  // restoredQueryExecutor does not need to be defined, as it is needed
+  // only when restoring
+  if (!mainQueryExecutor || !dbModule) {
     persistInProgress = false;
     throw new Error(
-      'Database not initialized while persisting database content',
+      'Main database not initialized while persisting database content',
     );
   }
 
@@ -155,7 +161,21 @@ async function persist() {
       throw new Error('Encryption key is missing');
     }
     const encryptedData = await encryptData(dbData, encryptionKey);
-    await localforage.setItem(SQLITE_CONTENT, encryptedData);
+
+    const promises: Array<Promise<mixed>> = [];
+    promises.push(localforage.setItem(SQLITE_CONTENT, encryptedData));
+
+    if (restoredQueryExecutor) {
+      const restoredDBData = exportDatabaseContent(
+        dbModule,
+        SQLITE_RESTORE_DATABASE_PATH,
+      );
+      promises.push(
+        localforage.setItem(RESTORED_SQLITE_CONTENT, restoredDBData),
+      );
+    }
+
+    await Promise.all(promises);
   }
   persistInProgress = false;
 }
