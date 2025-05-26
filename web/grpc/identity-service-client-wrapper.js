@@ -187,7 +187,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
   getOutboundKeysForUser: (
     userID: string,
-  ) => Promise<UserDevicesOlmOutboundKeys[]> = async (userID: string) => {
+    selectedDeviceIDs?: $ReadOnlyArray<string>,
+  ) => Promise<UserDevicesOlmOutboundKeys[]> = async (
+    userID: string,
+    selectedDeviceIDs = [],
+  ) => {
     const client = this.authClient;
     if (!client) {
       throw new Error('Identity service client is not initialized');
@@ -195,6 +199,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const request = new IdentityAuthStructs.OutboundKeysForUserRequest();
     request.setUserId(userID);
+    request.setSelectedDevicesList([...selectedDeviceIDs]);
     const response = await client.getOutboundKeysForUser(request);
     const devicesMap = response.toObject()?.devicesMap;
 
@@ -253,7 +258,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
   getInboundKeysForUser: (
     userID: string,
-  ) => Promise<UserDevicesOlmInboundKeys> = async (userID: string) => {
+    selectedDeviceIDs?: $ReadOnlyArray<string>,
+  ) => Promise<UserDevicesOlmInboundKeys> = async (
+    userID: string,
+    selectedDeviceIDs = [],
+  ) => {
     const client = this.authClient;
     if (!client) {
       throw new Error('Identity service client is not initialized');
@@ -261,6 +270,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const request = new IdentityAuthStructs.InboundKeysForUserRequest();
     request.setUserId(userID);
+    request.setSelectedDevicesList([...selectedDeviceIDs]);
     const response = await client.getInboundKeysForUser(request);
     const devicesMap = response.toObject()?.devicesMap;
 
