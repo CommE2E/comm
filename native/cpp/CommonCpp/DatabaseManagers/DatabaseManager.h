@@ -44,6 +44,13 @@ class DatabaseManager {
 
   static void setDatabaseStatusAsWorkable();
 
+  // Clearing the main database should recreate a new database from scratch and
+  // initialize `connectionManager`.
+  static void clearMainDatabaseSensitiveData();
+  // Clearing the backup database should delete all contents and unset
+  // `connectionManager`.
+  static void clearRestoredDatabaseSensitiveData();
+
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static const DatabaseQueryExecutor &getQueryExecutor(DatabaseIdentifier id);
