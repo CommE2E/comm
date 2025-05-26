@@ -18188,6 +18188,11 @@ micro@9.3.3:
     is-stream "1.1.0"
     raw-body "2.3.2"
 
+microdiff@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/microdiff/-/microdiff-1.5.0.tgz#d16219b223396f11ffcf441da26a43d3e6bd06f8"
+  integrity sha512-Drq+/THMvDdzRYrK0oxJmOKiC24ayUV8ahrt8l3oRK51PWt6gdtrIGrlIH3pT/lFh1z93FbAcidtsHcWbnRz8Q==
+
 micromatch@4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.2.tgz#4fcb0999bf9fbc2fcbdd212f6d629b9a56c39259"
@@ -18451,10 +18456,10 @@ mipd@0.0.5:
   dependencies:
     viem "^1.1.4"
 
-mitt@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/mitt/-/mitt-1.1.3.tgz#528c506238a05dce11cd914a741ea2cc332da9b8"
-  integrity sha512-mUDCnVNsAi+eD6qA0HkRkwYczbLHJ49z17BGe2PYRhZL4wpZUFZGJHU7/5tmvohoma+Hdn0Vh/oJTiPEmgSruA==
+mitt@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/mitt/-/mitt-3.0.1.tgz#ea36cf0cc30403601ae074c8f77b7092cdab36d1"
+  integrity sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==
 
 mixin-deep@^1.2.0:
   version "1.3.2"
@@ -20784,15 +20789,6 @@ qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.3.tgz#3aeeffc91967ef6e35c0e488ef46fb296ab76aad"
   integrity sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==
 
-query-string@6.10.1:
-  version "6.10.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.10.1.tgz#30b3505f6fca741d5ae541964d1b3ae9dc2a0de8"
-  integrity sha512-SHTUV6gDlgMXg/AQUuLpTiBtW/etZ9JT6k6RCtCyqADquApLX0Aq5oK/s5UeTUAWBG50IExjIr587GqfXRfM4A==
-  dependencies:
-    decode-uri-component "^0.2.0"
-    split-on-first "^1.0.0"
-    strict-uri-encode "^2.0.0"
-
 query-string@7.1.3, query-string@^7.0.0:
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.1.3.tgz#a1cf90e994abb113a325804a972d98276fe02328"
@@ -21150,7 +21146,7 @@ react-native-figma-squircle@^0.1.2:
   dependencies:
     figma-squircle "^0.1.2"
 
-react-native-flipper@^0.164.0, "react-native-flipper@https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz":
+"react-native-flipper@https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz#f8cae15d883ffc0abc663b5eaaa711fcc64bb5c2"
 
@@ -21561,27 +21557,32 @@ reactcss@^1.2.0:
   dependencies:
     lodash "^4.0.1"
 
-reactotron-core-client@2.8.10:
-  version "2.8.10"
-  resolved "https://registry.yarnpkg.com/reactotron-core-client/-/reactotron-core-client-2.8.10.tgz#798f2a7aa9fd7e18e7a510531a613e8ae3008eb0"
-  integrity sha512-SYRO4OCutJzfWMnaULUGVyETZnMDCU5ECNflXyM3Z5Gnfxp/wV6d7jYonhfxHdpU/aGb4Eg15C22myOCXSu6HQ==
-
-reactotron-react-native@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/reactotron-react-native/-/reactotron-react-native-5.0.3.tgz#5ab884f33e6ffa0437b8b0f4d93cabb5acb7da24"
-  integrity sha512-uUQ074uw3I9X/pc7FBgrrwrFzfwXDKlxzuekNjzspZz9Y0qVLX1cAm9GTC0ZPsZRvY5wDPY/Il7XfV1YeVSDxA==
+reactotron-core-client@2.9.7:
+  version "2.9.7"
+  resolved "https://registry.yarnpkg.com/reactotron-core-client/-/reactotron-core-client-2.9.7.tgz#c1fd2842b095dbd2c7522cfc6bd59e34768038eb"
+  integrity sha512-QWd0ekjU71CQL70J87NT5f7cmIJAMVZND+YgOaaUgmgFjhiXzHrpeIWs19+IFQPVLsJr97gdi58X8Y62Hchs9w==
   dependencies:
-    mitt "1.1.3"
-    query-string "6.10.1"
-    reactotron-core-client "2.8.10"
-    rn-host-detect "1.2.0"
-  optionalDependencies:
-    react-native-flipper "^0.164.0"
+    reactotron-core-contract "0.2.5"
 
-reactotron-redux@^3.1.3:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/reactotron-redux/-/reactotron-redux-3.1.3.tgz#ec61ef7a7e1dffda766e534f858f3bb854396d53"
-  integrity sha512-8QVEbr2R4GtFlXwSe0uK5bkuz3xRWZx8Nwi2g9e6cRbpkesTfycWVK5Oyn+wR9XOTt894WSn8CAH2TB6dVuDyg==
+reactotron-core-contract@0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/reactotron-core-contract/-/reactotron-core-contract-0.2.5.tgz#927160c026895798bfe931bd2462fdd5d4e435f9"
+  integrity sha512-pxuXFG1jffAWQSdT0FBws+/Xvl8++6T6WrAi4g7AxIZU5FPeut2wq//0yDhDWx6lF82eAo5JTZK7zECQy45QxA==
+
+reactotron-react-native@^5.1.13:
+  version "5.1.13"
+  resolved "https://registry.yarnpkg.com/reactotron-react-native/-/reactotron-react-native-5.1.13.tgz#6b3d7835d41bb68e8d497d77ae022a72dd16500d"
+  integrity sha512-+mlAzW9DIOfWkz0v3OoquX9uhvvCzJNczx2YBfU+22TxorpaC/nSVddi63qxoL9q4lNScw4EqXSEbdra1jbNaQ==
+  dependencies:
+    mitt "^3.0.1"
+    reactotron-core-client "2.9.7"
+
+reactotron-redux@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/reactotron-redux/-/reactotron-redux-3.2.0.tgz#b649e5f6e2c3802cf966d9ef5243d80902b0eb6c"
+  integrity sha512-rmD1x2xY7AV3NcfMqosUhNxeXwZ+BWi7zEKIh1o8qjLtEpU6hoe/3yx37ZBRyfKAdHmhHs25sT8yrZthoKleIg==
+  dependencies:
+    microdiff "^1.5.0"
 
 read-only-stream@^2.0.0:
   version "2.0.0"
@@ -22326,7 +22327,7 @@ rn-emoji-keyboard@^1.5.1:
   resolved "https://registry.yarnpkg.com/rn-emoji-keyboard/-/rn-emoji-keyboard-1.5.1.tgz#5da680b809339f9384e3482ae4437c2d5e19536e"
   integrity sha512-4e7edghm5e1i4X0D1q0Ko5gxiEekdln8FU4FI1F4MfOOKcShXU4nKiVfNjFpJbDmcZho9LOMUSx7nbA4Wc2yZg==
 
-rn-host-detect@1.2.0, rn-host-detect@^1.0.1, rn-host-detect@^1.1.5:
+rn-host-detect@^1.0.1, rn-host-detect@^1.1.5:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/rn-host-detect/-/rn-host-detect-1.2.0.tgz#8b0396fc05631ec60c1cb8789e5070cdb04d0da0"
   integrity sha512-btNg5kzHcjZZ7t7mvvV/4wNJ9e3MPgrWivkRgWURzXL0JJ0pwWlU4zrbmdlz3HHzHOxhBhHB4D+/dbMFfu4/4A==
