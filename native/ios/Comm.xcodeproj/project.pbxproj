@@ -8,14 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		0E02677D2D81ED6600788249 /* DMOperationStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0E02677C2D81ED6600788249 /* DMOperationStore.cpp */; };
-		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
 		34055C152BAD31AC0008E713 /* SyncedMetadataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34055C142BAD31AC0008E713 /* SyncedMetadataStore.cpp */; };
 		34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */; };
 		34BE127D2BC3F78C00CCAD11 /* ThreadActivityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34BE127C2BC3F78C00CCAD11 /* ThreadActivityStore.cpp */; };
 		34FF25BA2BB757870075EC40 /* AuxUserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FF25B92BB757860075EC40 /* AuxUserStore.cpp */; };
+		44F116742DE474D30027DDA6 /* DBInit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 44F116732DE474D30027DDA6 /* DBInit.mm */; };
+		44F116752DE474D30027DDA6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116712DE474D30027DDA6 /* AppDelegate.swift */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -159,11 +159,8 @@
 		0E02677E2D81ED7B00788249 /* DMOperationStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMOperationStoreOperations.h; sourceTree = "<group>"; };
 		0E0267862D970E9500788249 /* DeleteMessageSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DeleteMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteMessageSpec.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
 		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
 		34055C132BAD31AB0008E713 /* SyncedMetadataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyncedMetadataStore.h; path = PersistentStorageUtilities/DataStores/SyncedMetadataStore.h; sourceTree = "<group>"; };
 		34055C142BAD31AC0008E713 /* SyncedMetadataStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SyncedMetadataStore.cpp; path = PersistentStorageUtilities/DataStores/SyncedMetadataStore.cpp; sourceTree = "<group>"; };
@@ -180,6 +177,9 @@
 		34FF25B92BB757860075EC40 /* AuxUserStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxUserStore.cpp; path = PersistentStorageUtilities/DataStores/AuxUserStore.cpp; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		44F116712DE474D30027DDA6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Comm/AppDelegate.swift; sourceTree = "<group>"; };
+		44F116722DE474D30027DDA6 /* DBInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DBInit.h; path = Comm/DBInit.h; sourceTree = "<group>"; };
+		44F116732DE474D30027DDA6 /* DBInit.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = DBInit.mm; path = Comm/DBInit.mm; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -420,12 +420,12 @@
 				71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
-				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				7F554F822332D58B007CB9F7 /* Info.debug.plist */,
 				13B07FB61A68108700A75B9A /* Info.release.plist */,
-				13B07FB71A68108700A75B9A /* main.m */,
+				44F116712DE474D30027DDA6 /* AppDelegate.swift */,
+				44F116722DE474D30027DDA6 /* DBInit.h */,
+				44F116732DE474D30027DDA6 /* DBInit.mm */,
 				7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */,
 				7F26E81B24440D87004049C6 /* dummy.swift */,
 			);
@@ -1378,8 +1378,9 @@
 				8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */,
 				DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
-				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
+				44F116742DE474D30027DDA6 /* DBInit.mm in Sources */,
+				44F116752DE474D30027DDA6 /* AppDelegate.swift in Sources */,
 				8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */,
@@ -1403,7 +1404,6 @@
 				8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */,
 				DFD5E77E2B05264000C32B6A /* AESCrypto.mm in Sources */,
 				8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */,
-				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
