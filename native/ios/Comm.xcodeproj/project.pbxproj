@@ -19,6 +19,12 @@
 		443650452E21F47600026241 /* CommInitializerModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = 443650442E21F47600026241 /* CommInitializerModule.mm */; };
 		44F116742DE474D30027DDA6 /* DBInit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 44F116732DE474D30027DDA6 /* DBInit.mm */; };
 		44F116752DE474D30027DDA6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116712DE474D30027DDA6 /* AppDelegate.swift */; };
+		44F116832DE479270027DDA6 /* SecureFileExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F1167E2DE479270027DDA6 /* SecureFileExceptions.swift */; };
+		44F116842DE479270027DDA6 /* SecureStoreModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116802DE479270027DDA6 /* SecureStoreModule.swift */; };
+		44F116852DE479270027DDA6 /* SecureStoreOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116812DE479270027DDA6 /* SecureStoreOptions.swift */; };
+		44F116862DE4798F0027DDA6 /* SecureFileExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F1167E2DE479270027DDA6 /* SecureFileExceptions.swift */; };
+		44F116872DE479980027DDA6 /* SecureStoreModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116802DE479270027DDA6 /* SecureStoreModule.swift */; };
+		44F116882DE4799D0027DDA6 /* SecureStoreOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F116812DE479270027DDA6 /* SecureStoreOptions.swift */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -187,6 +193,10 @@
 		44F116712DE474D30027DDA6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Comm/AppDelegate.swift; sourceTree = "<group>"; };
 		44F116722DE474D30027DDA6 /* DBInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DBInit.h; path = Comm/DBInit.h; sourceTree = "<group>"; };
 		44F116732DE474D30027DDA6 /* DBInit.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = DBInit.mm; path = Comm/DBInit.mm; sourceTree = "<group>"; };
+		44F1167E2DE479270027DDA6 /* SecureFileExceptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureFileExceptions.swift; sourceTree = "<group>"; };
+		44F1167F2DE479270027DDA6 /* SecureStoreModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecureStoreModule.h; sourceTree = "<group>"; };
+		44F116802DE479270027DDA6 /* SecureStoreModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreModule.swift; sourceTree = "<group>"; };
+		44F116812DE479270027DDA6 /* SecureStoreOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreOptions.swift; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -440,6 +450,18 @@
 			name = Comm;
 			sourceTree = "<group>";
 		};
+		44F116822DE479270027DDA6 /* CommSecureStore */ = {
+			isa = PBXGroup;
+			children = (
+				44F1167E2DE479270027DDA6 /* SecureFileExceptions.swift */,
+				44F1167F2DE479270027DDA6 /* SecureStoreModule.h */,
+				44F116802DE479270027DDA6 /* SecureStoreModule.swift */,
+				44F116812DE479270027DDA6 /* SecureStoreOptions.swift */,
+			);
+			name = CommSecureStore;
+			path = Comm/CommSecureStore;
+			sourceTree = "<group>";
+		};
 		5F5A6FB2C6AD630620BBF58C /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
@@ -487,6 +509,7 @@
 				CB38B4782877177B00171182 /* TemporaryMessageStorage */,
 				71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */,
 				71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */,
+				44F116822DE479270027DDA6 /* CommSecureStore */,
 				71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */,
 				443650432E21F47600026241 /* CommInitializerModule.h */,
 				443650442E21F47600026241 /* CommInitializerModule.mm */,
@@ -1418,6 +1441,9 @@
 				8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */,
 				443650452E21F47600026241 /* CommInitializerModule.mm in Sources */,
 				DFD5E77E2B05264000C32B6A /* AESCrypto.mm in Sources */,
+				44F116832DE479270027DDA6 /* SecureFileExceptions.swift in Sources */,
+				44F116842DE479270027DDA6 /* SecureStoreModule.swift in Sources */,
+				44F116852DE479270027DDA6 /* SecureStoreOptions.swift in Sources */,
 				8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
 			);
@@ -1440,15 +1466,18 @@
 				CBCA09072A8E0E7D00F75B3E /* StaffUtils.cpp in Sources */,
 				CB3C0A3B2A125C8F009BD4DA /* NotificationsCryptoModule.cpp in Sources */,
 				CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */,
+				44F116872DE479980027DDA6 /* SecureStoreModule.swift in Sources */,
 				CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */,
 				CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */,
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
 				443650422E21F3F200026241 /* StringUtils.cpp in Sources */,
+				44F116882DE4799D0027DDA6 /* SecureStoreOptions.swift in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
 				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
 				7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */,
 				CBB0DF612B768007008E22FF /* CommMMKV.mm in Sources */,
+				44F116862DE4798F0027DDA6 /* SecureFileExceptions.swift in Sources */,
 				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
