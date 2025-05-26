@@ -73,11 +73,8 @@ post_install do |installer|
       '-DDONT_AUTOINSTALL_REANIMATED -DFOLLY_MOBILE -DFOLLY_USE_LIBCPP -DFOLLY_NO_CONFIG -DFOLLY_CFG_NO_COROUTINES -DFOLLY_HAVE_CLOCK_GETTIME -DRNVERSION=77 -DREANIMATED_VERSION=3.17.2'
   end
 
-  # Lines below are only needed to compile and use Expo Secure Store in
-  # Notification Service.
-  # If Apple disapproves 'APPLICATION_EXTENSION_API_ONLY' flag then we can
-  # safely delete them and use customized Expo Secure Store that does not depend
-  # on ExpoModulesCore
+  # Lines below are needed to compile Notification Service
+  # which depends on RN code
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
