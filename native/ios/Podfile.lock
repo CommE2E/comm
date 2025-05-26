@@ -2345,6 +2345,12 @@ PODS:
   - SQLCipher-Amalgamation/standard (4.5.5-e):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
+  - VisionCamera (4.6.4):
+    - VisionCamera/Core (= 4.6.4)
+    - VisionCamera/React (= 4.6.4)
+  - VisionCamera/Core (4.6.4)
+  - VisionCamera/React (4.6.4):
+    - React-Core
   - Yoga (0.0.0)
   - ZXingObjC/Core (3.6.9)
   - ZXingObjC/OneD (3.6.9):
@@ -2473,6 +2479,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
+  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2726,6 +2733,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   SQLCipher-Amalgamation:
     :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
+  VisionCamera:
+    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
@@ -2859,6 +2868,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SQLCipher-Amalgamation: 121e91239c53a3aba13ca742d6dd824c627c66ee
+  VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
