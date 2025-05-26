@@ -504,11 +504,13 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
     jsi::String authUserID,
     jsi::String authDeviceID,
     jsi::String authAccessToken,
-    jsi::String userID) {
+    jsi::String userID,
+    jsi::Array selectedDeviceIDs) {
   auto authUserIDRust = jsiStringToRustString(authUserID, rt);
   auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
   auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
   auto userIDRust = jsiStringToRustString(userID, rt);
+  auto selectedDeviceIDsRust = jsiStringArrayToRustVec(selectedDeviceIDs, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -521,6 +523,7 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
               authDeviceIDRust,
               authAccessTokenRust,
               userIDRust,
+              selectedDeviceIDsRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -537,11 +540,13 @@ jsi::Value CommRustModule::getInboundKeysForUser(
     jsi::String authUserID,
     jsi::String authDeviceID,
     jsi::String authAccessToken,
-    jsi::String userID) {
+    jsi::String userID,
+    jsi::Array selectedDeviceIDs) {
   auto authUserIDRust = jsiStringToRustString(authUserID, rt);
   auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
   auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
   auto userIDRust = jsiStringToRustString(userID, rt);
+  auto selectedDeviceIDsRust = jsiStringArrayToRustVec(selectedDeviceIDs, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -554,6 +559,7 @@ jsi::Value CommRustModule::getInboundKeysForUser(
               authDeviceIDRust,
               authAccessTokenRust,
               userIDRust,
+              selectedDeviceIDsRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();

@@ -32,8 +32,8 @@ public:
   virtual jsi::Value logOut(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value logOutPrimaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String signedDeviceList) = 0;
   virtual jsi::Value logOutSecondaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
-  virtual jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
-  virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
+  virtual jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::Array selectedDeviceIDs) = 0;
+  virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::Array selectedDeviceIDs) = 0;
   virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
   virtual jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) = 0;
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
@@ -166,21 +166,21 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::logOutSecondaryDevice, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
     }
-    jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) override {
+    jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::Array selectedDeviceIDs) override {
       static_assert(
-          bridging::getParameterCount(&T::getOutboundKeysForUser) == 5,
-          "Expected getOutboundKeysForUser(...) to have 5 parameters");
+          bridging::getParameterCount(&T::getOutboundKeysForUser) == 6,
+          "Expected getOutboundKeysForUser(...) to have 6 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getOutboundKeysForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID));
+          rt, &T::getOutboundKeysForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID), std::move(selectedDeviceIDs));
     }
-    jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) override {
+    jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::Array selectedDeviceIDs) override {
       static_assert(
-          bridging::getParameterCount(&T::getInboundKeysForUser) == 5,
-          "Expected getInboundKeysForUser(...) to have 5 parameters");
+          bridging::getParameterCount(&T::getInboundKeysForUser) == 6,
+          "Expected getInboundKeysForUser(...) to have 6 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getInboundKeysForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID));
+          rt, &T::getInboundKeysForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID), std::move(selectedDeviceIDs));
     }
     jsi::Value versionSupported(jsi::Runtime &rt) override {
       static_assert(

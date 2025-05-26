@@ -210,6 +210,7 @@ mod ffi {
       auth_device_id: String,
       auth_access_token: String,
       user_id: String,
+      selected_devices: Vec<String>,
       promise_id: u32,
     );
 
@@ -219,6 +220,7 @@ mod ffi {
       auth_device_id: String,
       auth_access_token: String,
       user_id: String,
+      selected_devices: Vec<String>,
       promise_id: u32,
     );
 
