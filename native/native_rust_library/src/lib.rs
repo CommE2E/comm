@@ -558,7 +558,7 @@ pub enum Error {
   SerdeJson(serde_json::Error),
   #[display(fmt = "Missing response data")]
   MissingResponseData,
-  #[display(fmt = "{}", "_0")]
+  #[display(fmt = "{}", "_0.network_error_aware_display()")]
   GRPClient(grpc_clients::error::Error),
   #[display(fmt = "Generic error: {}", "_0")]
   Generic(StringError),
