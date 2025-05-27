@@ -359,6 +359,11 @@ async function processAppRequest(
       type: workerResponseMessageTypes.DM_OPERATIONS,
       operations,
     };
+  } else if (message.type === workerRequestMessageTypes.GET_DATABASE_VERSION) {
+    return {
+      type: workerResponseMessageTypes.GET_DATABASE_VERSION,
+      databaseVersion: sqliteQueryExecutor.getDatabaseVersion(),
+    };
   }
 
   // write operations
