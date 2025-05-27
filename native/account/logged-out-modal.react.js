@@ -67,20 +67,21 @@ function getPanelPaddingTop(
   modeValue: string,
   keyboardHeightValue: number,
   contentHeightValue: number,
+  topInset: number,
 ): number {
   'worklet';
-  const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
-  let containerSize = headerHeight;
-  if (modeValue === 'loading' || modeValue === 'prompt') {
-    containerSize += Platform.OS === 'ios' ? 40 : 61;
-  } else if (modeValue === 'log-in') {
+  let containerSize = 66;
+  if (modeValue === 'log-in') {
     containerSize += 140;
   } else if (modeValue === 'siwe') {
     containerSize += 250;
   }
 
   const freeSpace = contentHeightValue - keyboardHeightValue - containerSize;
-  const targetPanelPaddingTop = Math.max(freeSpace, 0) / 2;
+  const targetPanelPaddingTop = Math.max(freeSpace, 0) / 2 - topInset;
+  if (modeValue === 'loading' || modeValue === 'log-in') {
+    return targetPanelPaddingTop;
+  }
   return withTiming(targetPanelPaddingTop, timingConfig);
 }
 
@@ -252,7 +253,8 @@ function LoggedOutModal(props: Props) {
   const nextModeRef = React.useRef<LoggedOutMode>(initialMode);
 
   const dimensions = useSelector(derivedDimensionsInfoSelector);
-  const contentHeight = useSharedValue(dimensions.safeAreaHeight);
+  const contentHeight = useSharedValue(dimensions.height);
+
   const modeValue = useSharedValue(initialMode);
   const buttonOpacity = useSharedValue(canStartAuth ? 1 : 0);
 
@@ -267,7 +269,7 @@ function LoggedOutModal(props: Props) {
     prevOnPromptRef.current = onPrompt;
   }, [onPrompt, buttonOpacity]);
 
-  const curContentHeight = dimensions.safeAreaHeight;
+  const curContentHeight = dimensions.height;
   const prevContentHeightRef = React.useRef(curContentHeight);
   React.useEffect(() => {
     if (curContentHeight === prevContentHeightRef.current) {
@@ -535,6 +537,7 @@ function LoggedOutModal(props: Props) {
       modeValue.value,
       keyboardHeightValue.value,
       contentHeight.value,
+      dimensions.topInset,
     ),
   }));
   const animatedContentStyle = React.useMemo(
