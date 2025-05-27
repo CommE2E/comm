@@ -200,6 +200,8 @@ interface Spec extends TurboModule {
     deviceID: string,
   ) => Promise<Array<string>>;
   +getSyncedDatabaseVersion: () => Promise<string>;
+  // This type should be DatabaseIdentifier
+  +getDatabaseVersion: (dbID: string) => Promise<number>;
   +markPrekeysAsPublished: () => Promise<void>;
   +getRelatedMessages: (
     messageID: string,
