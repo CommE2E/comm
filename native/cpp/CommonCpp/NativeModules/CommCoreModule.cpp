@@ -3052,6 +3052,31 @@ jsi::Value CommCoreModule::getSyncedDatabaseVersion(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::getDatabaseVersion(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          int version = 0;
+          try {
+            version = DatabaseManager::getQueryExecutor().getDatabaseVersion();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise, version]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value(version));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
