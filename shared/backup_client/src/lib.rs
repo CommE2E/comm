@@ -389,6 +389,7 @@ pub enum Error {
   InvalidAuthorizationHeader,
   UrlSchemaError,
   UrlError(url::ParseError),
+  #[display(fmt = "{}", "display_reqwest_err(_0)")]
   ReqwestError(reqwest::Error),
   TungsteniteError(TungsteniteError),
   JsonError(serde_json::Error),
@@ -419,4 +420,23 @@ impl From<InvalidHeaderValue> for Error {
   fn from(_: InvalidHeaderValue) -> Self {
     Self::InvalidAuthorizationHeader
   }
+}
+
+fn display_reqwest_err(err: &reqwest::Error) -> String {
+  if is_connection_error(err) || err.is_timeout() {
+    "network_error".to_string()
+  } else {
+    err.to_string()
+  }
+}
+
+#[inline]
+#[cfg(target_arch = "wasm32")]
+fn is_connection_error(_err: &reqwest::Error) -> bool {
+  false
+}
+#[inline]
+#[cfg(not(target_arch = "wasm32"))]
+fn is_connection_error(e: &reqwest::Error) -> bool {
+  e.is_connect()
 }
