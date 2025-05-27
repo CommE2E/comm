@@ -340,7 +340,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "deleteMessageFromSearchIndex",
           &SQLiteQueryExecutor::deleteMessageFromSearchIndex)
       .function("searchMessages", &SQLiteQueryExecutor::searchMessages)
-      .function("fetchMessages", &SQLiteQueryExecutor::fetchMessages);
+      .function("fetchMessages", &SQLiteQueryExecutor::fetchMessages)
+      .function("getDatabaseVersion", &SQLiteQueryExecutor::getDatabaseVersion);
 
   class_<SQLiteBackup>("SQLiteBackup")
       .class_function(
