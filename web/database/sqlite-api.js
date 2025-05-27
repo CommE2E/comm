@@ -133,6 +133,15 @@ const sqliteAPI: SQLiteAPI = {
 
   getClientDBStore,
 
+  async getDatabaseVersion(dbID: DatabaseIdentifier): Promise<number> {
+    const sharedWorker = await getCommSharedWorker();
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_DATABASE_VERSION,
+      dbID,
+    });
+    return data?.databaseVersion ?? 0;
+  },
+
   // write operations
   async removeInboundP2PMessages(ids: $ReadOnlyArray<string>): Promise<void> {
     const sharedWorker = await getCommSharedWorker();
