@@ -188,6 +188,7 @@ public:
   std::vector<DMOperation> getDMOperations() const override;
   std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const override;
+  int getDatabaseVersion() const override;
 };
 
 } // namespace comm
