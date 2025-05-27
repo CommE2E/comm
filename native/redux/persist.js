@@ -118,6 +118,7 @@ import type {
   MixedRawThreadInfos,
   RawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -1602,6 +1603,20 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [92]: (async (state: AppState) => {
+    const { sqliteAPI } = getConfig();
+    const databaseVersions = await sqliteAPI.getDatabaseVersion();
+    return {
+      state: {
+        ...state,
+        backupStore: {
+          ...state.backupStore,
+          latestDatabaseVersion: databaseVersions,
+        },
+      },
+      ops: {},
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {
