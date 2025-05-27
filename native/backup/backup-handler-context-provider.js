@@ -16,6 +16,7 @@ import {
 import { useStaffAlert } from 'lib/shared/staff-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { type LocalLatestBackupInfo } from 'lib/types/backup-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -65,6 +66,9 @@ function BackupHandlerContextProvider(props: Props): React.Node {
   const ownRawDeviceList = useSelector(getOwnRawDeviceList);
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
+  );
+  const latestDatabaseVersion = useSelector(
+    state => state.backupStore.latestDatabaseVersion,
   );
   const loggedIn = useSelector(isLoggedIn);
   const isBackground = useSelector(
@@ -181,12 +185,21 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         currentRawDeviceList.devices.length > 0 &&
         currentRawDeviceList.devices[0] === deviceID;
 
+      step = 'checking database version';
+      let databaseSchemaChanged = false;
+      if (isPrimary && fullBackupSupport) {
+        const { sqliteAPI } = getConfig();
+        const databaseVersion = await sqliteAPI.getDatabaseVersion();
+        databaseSchemaChanged = databaseVersion !== latestDatabaseVersion;
+      }
+
       step = 'computing conditions';
       const shouldDoMigration =
         usingRestoreFlow && !currentDeviceList.curPrimarySignature;
       const shouldUploadUserKeys = isPrimary && !latestBackupInfo;
       const shouldUploadUserData =
-        isPrimary && checkIfCompactionNeeded(latestBackupInfo);
+        isPrimary &&
+        (checkIfCompactionNeeded(latestBackupInfo) || databaseSchemaChanged);
 
       // Tunnelbroker connection is required to broadcast
       // device list updates after migration.
@@ -236,7 +249,8 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     dispatch,
     getCurrentIdentityUserState,
     latestBackupInfo,
-    ownRawDeviceList,
+    latestDatabaseVersion,
+    ownRawDeviceList?.devices,
     performBackupUpload,
     performMigrationToNewFlow,
     showAlertToStaff,
