@@ -1540,4 +1540,8 @@ void SQLiteQueryExecutor::restoreFromBackupLog(
   this->connectionManager->restoreFromBackupLog(backupLog);
 }
 
+int SQLiteQueryExecutor::getDatabaseVersion() const {
+  return SQLiteUtils::getDatabaseVersion(this->getConnection());
+}
+
 } // namespace comm
