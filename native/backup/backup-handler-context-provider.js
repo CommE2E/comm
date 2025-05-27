@@ -3,7 +3,11 @@
 import * as React from 'react';
 
 import { setPeerDeviceListsActionType } from 'lib/actions/aux-user-actions.js';
-import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
+import {
+  createUserDataBackupActionTypes,
+  type CreateUserDataBackupPayload,
+  createUserKeysBackupActionTypes,
+} from 'lib/actions/backup-actions.js';
 import {
   useCurrentIdentityUserState,
   type CurrentIdentityUserState,
@@ -90,13 +94,9 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     [dispatchActionPromise, migrateToNewFlow],
   );
 
-  const performBackupUpload = React.useCallback(async () => {
+  const performUserKeysUpload = React.useCallback(async () => {
     const promise = (async () => {
-      const backupMethod = fullBackupSupport
-        ? createUserDataBackup
-        : createUserKeysBackup;
-
-      const backupID = await backupMethod();
+      const backupID = await createUserKeysBackup();
       return {
         backupID,
         timestamp: Date.now(),
@@ -104,7 +104,24 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     })();
     void dispatchActionPromise(createUserKeysBackupActionTypes, promise);
     await promise;
-  }, [createUserDataBackup, createUserKeysBackup, dispatchActionPromise]);
+  }, [createUserKeysBackup, dispatchActionPromise]);
+
+  const performUserDataUpload = React.useCallback(async () => {
+    const promise: Promise<CreateUserDataBackupPayload> = (async () => {
+      const { sqliteAPI } = getConfig();
+      const databaseVersion = await sqliteAPI.getDatabaseVersion();
+      const backupID = await createUserDataBackup();
+      return {
+        latestBackupInfo: {
+          backupID,
+          timestamp: Date.now(),
+        },
+        latestDatabaseVersion: databaseVersion,
+      };
+    })();
+    void dispatchActionPromise(createUserDataBackupActionTypes, promise);
+    await promise;
+  }, [createUserDataBackup, dispatchActionPromise]);
 
   const startBackupHandler = React.useCallback(() => {
     if (handlerStartedRef.current) {
@@ -223,12 +240,12 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       if (shouldDoMigration) {
         step = 'migrating to signed device lists';
         await performMigrationToNewFlow(currentIdentityUserState);
-      } else if (shouldUploadUserData) {
+      } else if (shouldUploadUserData && fullBackupSupport) {
         step = 'creating User Data backup';
-        await performBackupUpload();
+        await performUserDataUpload();
       } else if (shouldUploadUserKeys) {
         step = 'creating User Keys backup';
-        await performBackupUpload();
+        await performUserKeysUpload();
       }
     } catch (err) {
       const errorMessage = getMessageForException(err) ?? 'unknown error';
@@ -250,9 +267,10 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     getCurrentIdentityUserState,
     latestBackupInfo,
     latestDatabaseVersion,
-    ownRawDeviceList?.devices,
-    performBackupUpload,
+    ownRawDeviceList,
     performMigrationToNewFlow,
+    performUserDataUpload,
+    performUserKeysUpload,
     showAlertToStaff,
     socketState.isAuthorized,
     startBackupHandler,
