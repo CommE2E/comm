@@ -14,6 +14,15 @@ pub enum Error {
   InvalidDeviceType,
 }
 
+impl Error {
+  pub fn network_error_aware_display(&self) -> String {
+    match self {
+      Self::TransportError(_) => "network_error".to_string(),
+      other_err => other_err.to_string(),
+    }
+  }
+}
+
 pub fn unsupported_version() -> Status {
   Status::unimplemented("unsupported_version")
 }
