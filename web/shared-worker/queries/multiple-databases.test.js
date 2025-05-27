@@ -117,4 +117,22 @@ describe('Multiple databases', () => {
       .find(d => d.key === draftKey);
     expect(backupDraft?.text).toBe(backupDraftContent);
   });
+
+  it('returns correct database version', () => {
+    const migratedFilePath = 'migrated.sqlite';
+    const migratedQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      migratedFilePath,
+      false,
+    );
+    expect(migratedQueryExecutor.getDatabaseVersion()).toBeGreaterThan(0);
+    clearSensitiveData(dbModule, migratedFilePath, migratedQueryExecutor);
+
+    const notMigratedFilePath = 'not-migrated.sqlite';
+    const notMigratedQueryExecutor = new dbModule.SQLiteQueryExecutor(
+      notMigratedFilePath,
+      true,
+    );
+    expect(notMigratedQueryExecutor.getDatabaseVersion()).toBe(0);
+    clearSensitiveData(dbModule, notMigratedFilePath, notMigratedQueryExecutor);
+  });
 });
