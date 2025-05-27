@@ -1,17 +1,9 @@
 <resources>
-  <style name="AppThemeBase" parent="Theme.AppCompat.DayNight.NoActionBar">
-    <item name="android:editTextBackground">@android:color/transparent</item>
-    <item name="android:forceDarkAllowed">false</item>
+  <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
   </style>
-  <style name="AppTheme" parent="AppThemeBase">
-  </style>
-  <style name="SplashThemeBase" parent="Theme.AppCompat.DayNight.NoActionBar">
-    <item name="android:windowNoTitle">true</item>
-    <item name="android:windowDrawsSystemBarBackgrounds">false</item>
-  </style>
-  <style name="NoSplashTheme" parent="SplashThemeBase">
-  </style>
-  <style name="SplashTheme" parent="NoSplashTheme">
-    <item name="android:background">@drawable/splashscreen</item>
+  <style name="Theme.App.SplashScreen" parent="AppTheme">
+    <item name="android:windowSplashScreenBackground">#111727</item>
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/header</item>
   </style>
 </resources>
