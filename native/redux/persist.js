@@ -16,6 +16,7 @@ import {
   convertCalendarFilterToNewIDSchema,
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
+import { sharedMigrations } from 'lib/backup/persist-shared-migrations.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import type {
   ClientDBEntryStoreOperation,
@@ -82,6 +83,7 @@ import {
   defaultAlertInfos,
   alertTypes,
 } from 'lib/types/alert-types.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
@@ -1615,6 +1617,27 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
         },
       },
       ops: {},
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [93]: (async (state: AppState) => {
+    // First we need to execute migration using database logic
+    const ops = await sharedMigrations[93](databaseIdentifier.MAIN);
+
+    // We still can to make changes in the state but making sure database
+    // migrations logic will be executed on backup database
+    const { processStoreOperations: processMessageStoreOperations } =
+      messageStoreOpsHandlers;
+    const processedMessageStore = processMessageStoreOperations(
+      state.messageStore,
+      ops.messageStoreOperations ?? [],
+    );
+
+    return {
+      state: {
+        ...state,
+        messageStore: processedMessageStore,
+      },
+      ops,
     };
   }: MigrationFunction<NavInfo, AppState>),
 });
