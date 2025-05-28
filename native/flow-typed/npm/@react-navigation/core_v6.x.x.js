@@ -433,25 +433,16 @@ declare module '@react-navigation/core' {
    * MAGIC
    */
 
-  declare type $If<Test: boolean, Then, Else = empty> = $Call<
-    ((true, Then, Else) => Then) & ((false, Then, Else) => Else),
-    Test,
-    Then,
-    Else,
-  >;
-  declare type $IsA<X, Y> = $Call<
-    (Y => true) & (mixed => false),
-    X,
-  >;
+  declare type $If<Test: boolean, Then, Else = empty> =
+    Test extends true ? Then : Else;
+  
+  declare type $IsA<X, Y> = X extends Y ? true : false;
   declare type $IsUndefined<X> = $IsA<X, void>;
 
   declare type $Partial<T> = $ReadOnly<$Rest<T, {...}>>;
 
   // If { ...T, ... } counts as a T, then we're inexact
-  declare type $IsExact<T> = $Call<
-    (T => false) & (mixed => true),
-    { ...T, ... },
-  >;
+  declare type $IsExact<T> = { ...T, ... } extends T ? false : true;
 
   /**
    * Actions, state, etc.
