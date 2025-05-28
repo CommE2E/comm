@@ -91,7 +91,7 @@ declare module '@react-navigation/drawer' {
    * DrawerGestureContext
    */
 
-  declare type GestureHandlerRef = React$Ref<
+  declare type GestureHandlerRef = React.ElementRef<
     React$ComponentType<PanGestureHandlerProps>,
   >;
   declare export var DrawerGestureContext: React$Context<?GestureHandlerRef>;
