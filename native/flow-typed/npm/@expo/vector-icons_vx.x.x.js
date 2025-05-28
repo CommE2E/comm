@@ -94,86 +94,71 @@ declare module '@expo/vector-icons' {
 }
 
 declare module '@expo/vector-icons/AntDesign' {
-  declare type IconType = $Exports<"@expo/vector-icons">["AntDesignIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { AntDesignIcon } from '@expo/vector-icons';
+  declare module.exports: AntDesignIcon;
 }
 
 declare module '@expo/vector-icons/Entypo' {
-  declare type IconType = $Exports<"@expo/vector-icons">["EntypoIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { EntypoIcon } from '@expo/vector-icons';
+  declare module.exports: EntypoIcon;
 }
 
 declare module '@expo/vector-icons/EvilIcons' {
-  declare type IconType = $Exports<"@expo/vector-icons">["EvilIconsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { EvilIconsIcon } from '@expo/vector-icons';
+  declare module.exports: EvilIconsIcon;
 }
 
 declare module '@expo/vector-icons/Feather' {
-  declare type IconType = $Exports<"@expo/vector-icons">["FeatherIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { FeatherIcon } from '@expo/vector-icons';
+  declare module.exports: FeatherIcon;
 }
 
 declare module '@expo/vector-icons/FontAwesome' {
-  declare type IconType = $Exports<"@expo/vector-icons">["FontAwesomeIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { FontAwesomeIcon } from '@expo/vector-icons';
+  declare module.exports: FontAwesomeIcon;
 }
 
 declare module '@expo/vector-icons/FontAwesome5' {
-  declare type IconType = $Exports<"@expo/vector-icons">["FontAwesome5Icon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { FontAwesome5Icon } from '@expo/vector-icons';
+  declare module.exports: FontAwesome5Icon;
 }
 
 declare module '@expo/vector-icons/Fontisto' {
-  declare type IconType = $Exports<"@expo/vector-icons">["FontistoIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { FontistoIcon } from '@expo/vector-icons';
+  declare module.exports: FontistoIcon;
 }
 
 declare module '@expo/vector-icons/Foundation' {
-  declare type IconType = $Exports<"@expo/vector-icons">["FoundationIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { FoundationIcon } from '@expo/vector-icons';
+  declare module.exports: FoundationIcon;
 }
 
 declare module '@expo/vector-icons/Ionicons' {
-  declare type IconType = $Exports<"@expo/vector-icons">["IoniconsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { IoniconsIcon } from '@expo/vector-icons';
+  declare module.exports: IoniconsIcon;
 }
 
 declare module '@expo/vector-icons/MaterialCommunityIcons' {
-  declare type IconType =
-    $Exports<"@expo/vector-icons">["MaterialCommunityIconsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { MaterialCommunityIconsIcon } from '@expo/vector-icons';
+  declare module.exports: MaterialCommunityIconsIcon;
 }
 
 declare module '@expo/vector-icons/MaterialIcons' {
-  declare type IconType = $Exports<"@expo/vector-icons">["MaterialIconsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { MaterialIconsIcon } from '@expo/vector-icons';
+  declare module.exports: MaterialIconsIcon;
 }
 
 declare module '@expo/vector-icons/Octicons' {
-  declare type IconType = $Exports<"@expo/vector-icons">["OcticonsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { OcticonsIcon } from '@expo/vector-icons';
+  declare module.exports: OcticonsIcon;
 }
 
 declare module '@expo/vector-icons/SimpleLineIcons' {
-  declare type IconType = $Exports<"@expo/vector-icons">["SimpleLineIconsIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { SimpleLineIconsIcon } from '@expo/vector-icons';
+  declare module.exports: SimpleLineIconsIcon;
 }
 
 declare module '@expo/vector-icons/Zocial' {
-  declare type IconType = $Exports<"@expo/vector-icons">["ZocialIcon"];
-  declare var Icon: IconType;
-  declare module.exports: Icon;
+  import type { ZocialIcon } from '@expo/vector-icons';
+  declare module.exports: ZocialIcon;
 }
