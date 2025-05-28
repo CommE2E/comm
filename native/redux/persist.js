@@ -1640,6 +1640,18 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       ops,
     };
   }: MigrationFunction<NavInfo, AppState>),
+  [94]: (async (state: AppState) => {
+    return {
+      state: {
+        ...state,
+        backupStore: {
+          ...state.backupStore,
+          newField: '',
+        },
+      },
+      ops: {},
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {

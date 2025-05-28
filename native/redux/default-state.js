@@ -111,6 +111,7 @@ const defaultState = ({
   backupStore: {
     latestBackupInfo: null,
     latestDatabaseVersion: 0,
+    newField: ':',
   },
 }: AppState);
 
