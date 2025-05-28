@@ -6,6 +6,7 @@ import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import { sharedMigrations } from 'lib/backup/persist-shared-migrations.js';
 import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
@@ -29,6 +30,7 @@ import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-t
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { unshimDMOperations } from 'lib/shared/unshim-utils.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
@@ -841,6 +843,27 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     state,
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [93]: (async (state: AppState) => {
+    // First we need to execute migration using database logic
+    const ops = await sharedMigrations[93](databaseIdentifier.MAIN);
+
+    // We still can to make changes in the state but making sure database
+    // migrations logic will be executed on backup database
+    const { processStoreOperations: processMessageStoreOperations } =
+      messageStoreOpsHandlers;
+    const processedMessageStore = processMessageStoreOperations(
+      state.messageStore,
+      ops.messageStoreOperations ?? [],
+    );
+
+    return {
+      state: {
+        ...state,
+        messageStore: processedMessageStore,
+      },
+      ops,
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
