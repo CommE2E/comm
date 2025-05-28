@@ -24,6 +24,7 @@ import { usePreventUserFromLeavingScreen } from '../navigation/use-prevent-user-
 import { useColors, useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
+  networkErrorAlertDetails,
   unknownErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
@@ -98,6 +99,8 @@ function RestorePromptScreen(props: Props): React.Node {
             title: 'Login attempt timed out',
             message: 'Please try again',
           };
+        } else if (messageForException === 'network_error') {
+          alertDetails = networkErrorAlertDetails;
         }
         Alert.alert(
           alertDetails.title,
