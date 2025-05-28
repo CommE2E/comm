@@ -8,6 +8,7 @@ import {
   restoreUserActionTypes,
   type RestoreUserResult,
 } from 'lib/actions/user-actions.js';
+import { runRestoredBackupMigrations } from 'lib/backup/restored-migrations.js';
 import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import {
   useLogIn,
@@ -211,6 +212,7 @@ function useRestore(): (
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
         await sqliteAPI.migrateBackupSchema();
+        await runRestoredBackupMigrations();
         await sqliteAPI.copyContentFromBackupDatabase();
         await sqliteAPI.restoreUserData(backupData, identityAuthResult);
 
