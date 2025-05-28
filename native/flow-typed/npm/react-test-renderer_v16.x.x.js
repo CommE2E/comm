@@ -4,7 +4,7 @@
 // Type definitions for react-test-renderer 16.x.x
 // Ported from: https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react-test-renderer
 
-type ReactComponentInstance = React$Component<any>;
+type ReactComponentInstance = React.ComponentType<any>;
 
 type ReactTestRendererJSON = {
   type: string,
