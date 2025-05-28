@@ -3,6 +3,7 @@
 
 // @flow
 declare module "react-hot-loader" {
+  import * as React from 'react';
   declare type Module = { id: string, ... };
 
   declare type ErrorReporterProps = {|
@@ -13,21 +14,21 @@ declare module "react-hot-loader" {
   declare export type ContainerProps = {|
     children: React$Element<any>,
     errorBoundary?: boolean,
-    errorReporter?: React$ComponentType<ErrorReporterProps>,
+    errorReporter?: React.ComponentType<ErrorReporterProps>,
   |}
 
-  declare export class AppContainer extends React$Component<ContainerProps> {}
+  declare export class AppContainer extends React.Component<ContainerProps> {}
 
-  declare export function hot(module: Module): <T: React$ComponentType<any>>(
+  declare export function hot(module: Module): <T: React.ComponentType<any>>(
     Component: T,
     props?: $Diff<ContainerProps, { children: React$Element<any>, ... }>
   ) => T
 
-  declare export function cold<T: React$ComponentType<any>>(component: T): T
+  declare export function cold<T: React.ComponentType<any>>(component: T): T
 
   declare export function areComponentsEqual<T>(
-    typeA: React$ComponentType<T>,
-    typeB: React$ComponentType<T>
+    typeA: React.ComponentType<T>,
+    typeB: React.ComponentType<T>
   ): boolean
 
   declare type Config = {|
@@ -39,8 +40,8 @@ declare module "react-hot-loader" {
     disableHotRendererWhenInjected: boolean,
     ignoreSFC: boolean,
     ignoreComponents: boolean,
-    errorReporter: React$ComponentType<ErrorReporterProps>,
-    ErrorOverlay: React$ComponentType<{ errors: Array<ErrorReporterProps>, ... }>,
+    errorReporter: React.ComponentType<ErrorReporterProps>,
+    ErrorOverlay: React.ComponentType<{ errors: Array<ErrorReporterProps>, ... }>,
     onComponentRegister: (type: any, uniqueLocalName: string, fileName: string) => any,
     onComponentCreate: (type: any, displayName: string) => any,
   |}
@@ -51,7 +52,7 @@ declare module "react-hot-loader" {
 declare module "react-hot-loader/root" {
   import type { ContainerProps } from 'react-hot-loader';
 
-  declare export function hot<T: React$ComponentType<any>>(
+  declare export function hot<T: React.ComponentType<any>>(
     Component: T,
     props?: $Diff<ContainerProps, { children: React$Element<any>, ... }>
   ): T;
