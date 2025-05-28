@@ -1,6 +1,54 @@
 // flow-typed signature: 23d2a3641578673e8eb7c9f8b6bcc3af
 // flow-typed version: 6912183195/lodash_v4.x.x/flow_>=v0.201.x
 
+declare function compose(): <T>(a: T) => T;
+declare function compose<F: (...$ReadOnlyArray<empty>) => mixed>(
+  f: F,
+): F;
+declare function compose<A, T: $ReadOnlyArray<any>, R>(
+  f1: (a: A) => R,
+  f2: (...T) => A,
+): (...T) => R;
+declare function compose<A, B, T: $ReadOnlyArray<any>, R>(
+  f1: (b: B) => R,
+  f2: (a: A) => B,
+  f3: (...T) => A,
+): (...T) => R;
+declare function compose<A, B, C, T: $ReadOnlyArray<any>, R>(
+  f1: (c: C) => R,
+  f2: (b: B) => C,
+  f3: (a: A) => B,
+  f4: (...T) => A,
+): (...T) => R;
+declare function compose<R>(
+  f1: (b: any) => R,
+  ...funcs: $ReadOnlyArray<(...$ReadOnlyArray<empty>) => mixed>
+): (...$ReadOnlyArray<any>) => R;
+declare function compose<R>(
+  ...funcs: $ReadOnlyArray<(...$ReadOnlyArray<empty>) => mixed>
+): (...$ReadOnlyArray<any>) => R;
+
+declare function composeReverse(): <T>(a: T) => T;
+declare function composeReverse<F: (...$ReadOnlyArray<empty>) => mixed>(f: F): F;
+declare function composeReverse<A, T: $ReadOnlyArray<any>, R>(
+  f1: (...T) => A,
+  f2: (a: A) => R,
+): (...T) => R;
+declare function composeReverse<A, B, T: $ReadOnlyArray<any>, R>(
+  f1: (...T) => A,
+  f2: (a: A) => B,
+  f3: (b: B) => R,
+): (...T) => R;
+declare function composeReverse<A, B, C, T: $ReadOnlyArray<any>, R>(
+  f1: (...T) => A,
+  f2: (a: A) => B,
+  f3: (b: B) => C,
+  f4: (c: C) => R,
+): (...T) => R;
+declare function composeReverse<R>(
+  ...funcs: $ReadOnlyArray<(...$ReadOnlyArray<empty>) => mixed>
+): (...$ReadOnlyArray<any>) => R;
+
 declare module "lodash" {
   declare type Path = $ReadOnlyArray<string | number> | string | number;
   declare type __CurriedFunction1<A, R, AA: A> = (...r: [AA]) => R;
@@ -1514,8 +1562,8 @@ declare module "lodash" {
       ) => T1)
       // NaN is a number instead of its own type, otherwise it would behave like null/void
       & (<T1: number, T2>(value: T1, defaultValue: T2) => T1 | T2);
-    flow: $ComposeReverse & ((funcs: $ReadOnlyArray<Function>) => Function);
-    flowRight: $Compose & ((funcs: $ReadOnlyArray<Function>) => Function);
+    flow: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof composeReverse;
+    flowRight: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof compose;
     identity<T>(value: T): T;
     iteratee(func?: any): Function;
     matches(source?: ?Object): Function;
@@ -3464,10 +3512,10 @@ declare module "lodash/fp" {
       // NaN is a number instead of its own type, otherwise it would behave like null/void
       & (<T1: number, T2>(defaultValue: T2) => ((value: T1) => T1 | T2))
       & (<T1: number, T2>(defaultValue: T2, value: T1) => T1 | T2);
-    flow: $ComposeReverse & ((funcs: $ReadOnlyArray<Function>) => Function);
-    pipe: $ComposeReverse & ((funcs: $ReadOnlyArray<Function>) => Function);
-    flowRight: $Compose & ((funcs: $ReadOnlyArray<Function>) => Function);
-    compose: $Compose & ((funcs: $ReadOnlyArray<Function>) => Function);
+    flow: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof composeReverse;
+    pipe: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof composeReverse;
+    flowRight: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof compose;
+    compose: ((funcs: $ReadOnlyArray<Function>) => Function) & typeof compose;
     identity<T>(value: T): T;
     iteratee(func: any): Function;
     matches:
