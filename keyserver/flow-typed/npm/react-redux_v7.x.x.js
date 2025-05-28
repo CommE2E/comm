@@ -315,7 +315,7 @@ declare module "react-redux" {
   >(
     selectorFactory: SelectorFactory<Com, D, S, OP, EFO, CP>,
     connectAdvancedOptions: ?(ConnectAdvancedOptions & EFO),
-  ): (component: Com) => React$ComponentType<OP> & $Shape<ST>;
+  ): (component: Com) => React$ComponentType<OP> & Partial<ST>;
 
   declare export function batch(() => void): void
 
