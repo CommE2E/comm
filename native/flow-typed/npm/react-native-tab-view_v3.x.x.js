@@ -20,7 +20,7 @@ declare module 'react-native-tab-view' {
   // We couldn't find a good way to type this
   declare type AnimatedInterpolation = any;
 
-  declare export var TabBarItem: React$ComponentType<{
+  declare export var TabBarItem: React.ComponentType<{
     +position: AnimatedInterpolation,
     +route: Route<>,
     +navigationState: { +index: number, ... },
@@ -36,7 +36,7 @@ declare module 'react-native-tab-view' {
     ...
   }>;
 
-  declare export var TabView: React$ComponentType<{
+  declare export var TabView: React.ComponentType<{
     +navigationState: { +index: number, ... },
     +renderScene: (props: SceneRendererProps & { +route: Route<>, ... }) => React$Node,
     +onIndexChange: (number) => void,
@@ -49,7 +49,7 @@ declare module 'react-native-tab-view' {
     [key: string]: () => React$Node,
   }): (props: SceneRendererProps & { +route: Route<>, ... }) => React$Node;
 
-  declare export var TabBar: React$ComponentType<{
+  declare export var TabBar: React.ComponentType<{
     +style: ViewStyle,
     +indicatorStyle: ViewStyle,
     ...
