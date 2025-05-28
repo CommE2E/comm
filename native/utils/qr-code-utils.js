@@ -14,6 +14,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import * as AES from './aes-crypto-module.js';
 import {
   appOutOfDateAlertDetails,
+  networkErrorAlertDetails,
   unknownErrorAlertDetails,
 } from './alert-messages.js';
 import Alert from './alert.js';
@@ -68,6 +69,11 @@ function handleSecondaryDeviceLogInError(error: mixed): void {
     Alert.alert(
       appOutOfDateAlertDetails.title,
       appOutOfDateAlertDetails.message,
+    );
+  } else if (messageForException === 'network_error') {
+    Alert.alert(
+      networkErrorAlertDetails.title,
+      networkErrorAlertDetails.message,
     );
   } else {
     Alert.alert(
