@@ -105,7 +105,7 @@ declare module '@react-navigation/stack' {
    * GestureHandler accessors
    */
 
-  declare type GestureHandlerRef = React$Ref<
+  declare type GestureHandlerRef = React.ElementRef<
     React$ComponentType<PanGestureHandlerProps>,
   >;
   declare export var GestureHandlerRefContext: React$Context<
