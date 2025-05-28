@@ -34,7 +34,7 @@ declare module '@react-navigation/material-top-tabs' {
     ...MaterialTopTabNavigationConfig,
     ...MaterialTopTabNavigationBuilderResult,
   |};
-  declare export var MaterialTopTabView: React$ComponentType<
+  declare export var MaterialTopTabView: React.ComponentType<
     MaterialTopTabViewProps,
   >;
 
@@ -42,7 +42,7 @@ declare module '@react-navigation/material-top-tabs' {
    * MaterialTopTabBar
    */
 
-  declare export var MaterialTopTabBar: React$ComponentType<
+  declare export var MaterialTopTabBar: React.ComponentType<
     MaterialTopTabBarProps<Route<>>,
   >;
 
