@@ -1016,7 +1016,7 @@ declare module '@react-navigation/core' {
           ScreenOptions,
           EventMap,
         >,
-        +component: React$ComponentType<{|
+        +component: React.ComponentType<{|
           +route: RouteProp<ParamList, RouteName>,
           +navigation: NavProp,
         |}>,
@@ -1030,7 +1030,7 @@ declare module '@react-navigation/core' {
           ScreenOptions,
           EventMap,
         >,
-        +getComponent: () => React$ComponentType<{|
+        +getComponent: () => React.ComponentType<{|
           +route: RouteProp<ParamList, RouteName>,
           +navigation: NavProp,
         |}>,
@@ -1150,14 +1150,14 @@ declare module '@react-navigation/core' {
       ScreenOptions,
       EventMap,
     >,
-    +Navigator: React$ComponentType<$Exact<NavigatorProps<
+    +Navigator: React.ComponentType<$Exact<NavigatorProps<
       ScreenOptions,
       ScreenListeners<State, EventMap>,
       RouteProp<ParamList>,
       NavHelpers,
       ExtraNavigatorProps,
     >>>,
-    +Group: React$ComponentType<{|
+    +Group: React.ComponentType<{|
       ...ScreenOptionsProps<ScreenOptions, RouteProp<ParamList>, NavHelpers>,
       +children: React$Node,
       +navigationKey?: string,
@@ -1175,7 +1175,7 @@ declare module '@react-navigation/core' {
     >,
     ExtraNavigatorProps: ExtraNavigatorPropsBase,
   >(
-    navigator: React$ComponentType<$Exact<NavigatorProps<
+    navigator: React.ComponentType<$Exact<NavigatorProps<
       ScreenOptions,
       ScreenListeners<State, EventMap>,
       RouteProp<>,
