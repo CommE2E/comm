@@ -103,6 +103,14 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           const message = getMessageForException(e);
           if (message === 'bad_credentials') {
             void invalidTokenLogOut();
+          } else if (
+            // These come from grpc-web:
+            // - http status code: 0 is added when XmlHttpRequest request fails
+            // - DEADLINE_EXCEEDED is gRPC-web timeout error
+            message?.includes('http status code: 0') ||
+            message?.includes('DEADLINE_EXCEEDED')
+          ) {
+            throw new Error('network_error');
           }
           throw e;
         }
