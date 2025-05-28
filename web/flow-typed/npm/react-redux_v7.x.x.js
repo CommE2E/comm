@@ -57,7 +57,7 @@ declare module "react-redux" {
     // and provide the StateProps type to the SP type parameter.
     | ((state: S, ownProps: OP) => (state: S, ownProps: OP) => SP);
 
-  declare type Bind<D> = <A, R>((...A) => R) => (...A) => $Call<D, R>;
+  declare type Bind<D> = <A, R>((...A) => R) => (...A) => ReturnType<D>;
 
   declare type MapDispatchToPropsFn<D, OP, DP> =
     | ((dispatch: D, ownProps: OP) => DP)
