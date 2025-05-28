@@ -47,6 +47,41 @@ const networkErrorAlertDetails: AlertDetails = {
     'Failed to contact Comm services. Please check your network connection.',
 };
 
+const backupInfoFetchErrorAlertDetails: AlertDetails = {
+  title: 'Restoration error',
+  message:
+    'Failed to retrieve your backup information. ' +
+    'If the problem keeps reoccurring, please contact Comm staff.',
+};
+
+const passwordLoginErrorAlertDetails: AlertDetails = {
+  title: 'Login error',
+  message:
+    'Failed to log in using password. ' +
+    'If the problem keeps reoccurring, please contact Comm staff.',
+};
+
+const siweLoginErrorAlertDetails: AlertDetails = {
+  title: 'Login error',
+  message:
+    'Failed to sign in with Ethereum. ' +
+    'If the problem keeps reoccurring, please contact Comm staff.',
+};
+
+const userKeysRestoreErrorAlertDetails: AlertDetails = {
+  title: 'Restoraion failed',
+  message:
+    'Failed to restore your encrypted account. ' +
+    'If the problem keeps reoccurring, please contact Comm staff.',
+};
+
+const userDataRestoreErrorAlertDetails: AlertDetails = {
+  title: 'Restoraion failed',
+  message:
+    'Failed to restore your data from backup. ' +
+    'If the problem keeps reoccurring, please contact Comm staff.',
+};
+
 const getFarcasterAccountAlreadyLinkedAlertDetails = (
   commUsername: ?string,
 ): AlertDetails => ({
@@ -63,5 +98,10 @@ export {
   userNotFoundAlertDetails,
   unknownErrorAlertDetails,
   networkErrorAlertDetails,
+  backupInfoFetchErrorAlertDetails,
+  passwordLoginErrorAlertDetails,
+  siweLoginErrorAlertDetails,
+  userKeysRestoreErrorAlertDetails,
+  userDataRestoreErrorAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };
