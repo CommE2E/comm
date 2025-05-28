@@ -2,7 +2,7 @@
 // flow-typed version: 5f4b3cb313/react-router-dom_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router-dom" {
-  declare export var BrowserRouter: React$ComponentType<{|
+  declare export var BrowserRouter: React.ComponentType<{|
     basename?: string,
     forceRefresh?: boolean,
     getUserConfirmation?: GetUserConfirmation,
@@ -10,14 +10,14 @@ declare module "react-router-dom" {
     children?: React$Node
   |}>
 
-  declare export var HashRouter: React$ComponentType<{|
+  declare export var HashRouter: React.ComponentType<{|
     basename?: string,
     getUserConfirmation?: GetUserConfirmation,
     hashType?: "slash" | "noslash" | "hashbang",
     children?: React$Node
   |}>
 
-  declare export var Link: React$ComponentType<{
+  declare export var Link: React.ComponentType<{
     +className?: string,
     +to: string | LocationShape,
     +replace?: boolean,
@@ -25,7 +25,7 @@ declare module "react-router-dom" {
     ...
   }>
 
-  declare export var NavLink: React$ComponentType<{
+  declare export var NavLink: React.ComponentType<{
     +to: string | LocationShape,
     +activeClassName?: string,
     +className?: string,
@@ -108,14 +108,14 @@ declare module "react-router-dom" {
 
   declare export type StaticRouterContext = { url?: string, ... };
 
-  declare export var StaticRouter: React$ComponentType<{|
+  declare export var StaticRouter: React.ComponentType<{|
     basename?: string,
     location?: string | Location,
     context: StaticRouterContext,
     children?: React$Node
   |}>
 
-  declare export var MemoryRouter: React$ComponentType<{|
+  declare export var MemoryRouter: React.ComponentType<{|
     initialEntries?: Array<LocationShape | string>,
     initialIndex?: number,
     getUserConfirmation?: GetUserConfirmation,
@@ -123,17 +123,17 @@ declare module "react-router-dom" {
     children?: React$Node
   |}>
 
-  declare export var Router: React$ComponentType<{|
+  declare export var Router: React.ComponentType<{|
     history: RouterHistory,
     children?: React$Node
   |}>
 
-  declare export var Prompt: React$ComponentType<{|
+  declare export var Prompt: React.ComponentType<{|
     message: string | ((location: Location) => string | boolean),
     when?: boolean
   |}>
 
-  declare export var Redirect: React$ComponentType<{|
+  declare export var Redirect: React.ComponentType<{|
     to: string | LocationShape,
     push?: boolean,
     from?: string,
@@ -141,10 +141,10 @@ declare module "react-router-dom" {
     strict?: boolean
   |}>
 
-  declare export var Route: React$ComponentType<{|
-    component?: React$ComponentType<*>,
+  declare export var Route: React.ComponentType<{|
+    component?: React.ComponentType<*>,
     render?: (router: ContextRouter) => React$Node,
-    children?: React$ComponentType<ContextRouter> | React$Node,
+    children?: React.ComponentType<ContextRouter> | React$Node,
     path?: string | Array<string>,
     exact?: boolean,
     strict?: boolean,
@@ -152,14 +152,14 @@ declare module "react-router-dom" {
     sensitive?: boolean
   |}>
 
-  declare export var Switch: React$ComponentType<{|
+  declare export var Switch: React.ComponentType<{|
     children?: React$Node,
     location?: Location
   |}>
 
-  declare export function withRouter<Props: {...}, Component: React$ComponentType<Props>>(
+  declare export function withRouter<Props: {...}, Component: React.ComponentType<Props>>(
     WrappedComponent: Component
-  ): React$ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
+  ): React.ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
 
   declare type MatchPathOptions = {
     path?: string | string[],
