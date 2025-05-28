@@ -1,5 +1,5 @@
-// flow-typed signature: d2ddacbbca9700881249a9435381e689
-// flow-typed version: c6154227d1/react-redux_v7.x.x/flow_>=v0.89.x <=v0.103.x
+// flow-typed signature: d3d375af4b8c9095e7360110a2a087fa
+// flow-typed version: 6912183195/react-redux_v7.x.x/flow_>=v0.201.x
 
 /**
 The order of type arguments for connect() is as follows:
@@ -67,16 +67,19 @@ declare module "react-redux" {
     // and provide the DispatchProps type to the DP type parameter.
     | ((dispatch: D, ownProps: OP) => (dispatch: D, ownProps: OP) => DP);
 
-  declare class ConnectedComponent<OP, +WC> extends React$Component<OP> {
+  declare class ConnectedComponentClass<OP, +WC> extends React$Component<OP> {
     static +WrappedComponent: WC;
     getWrappedInstance(): React$ElementRef<WC>;
   }
+
+  declare export type ConnectedComponent<OP, +WC> = ConnectedComponentClass<OP, WC>;
+
   // The connection of the Wrapped Component and the Connected Component
   // happens here in `MP: P`. It means that type wise MP belongs to P,
   // so to say MP >= P.
   declare type Connector<P, OP, MP: P> = <WC: React$ComponentType<P>>(
     WC,
-  ) => Class<ConnectedComponent<OP, WC>> & WC;
+  ) => Class<ConnectedComponentClass<OP, WC>> & WC;
 
   // No `mergeProps` argument
 
@@ -203,7 +206,37 @@ declare module "react-redux" {
   // Typings for Hooks
   // ------------------------------------------------------------
 
-  declare export function useDispatch<D>(): D;
+  /* Action and AnyAction are taken from the redux TypeScript types defined here:
+   * https://github.com/reduxjs/redux/blob/d794c56f78eccb56ba3c67971c26df8ee34dacc1/src/types/actions.ts
+   *
+   * We turn them into objects so that they can be spread.
+   *
+   * We use AnyAction as the default for useDispatch as DefinitelyTyped does:
+   * https://github.com/DefinitelyTyped/DefinitelyTyped/blob/f7ec78508c6797e42f87a4390735bc2c650a1bfd/types/react-redux/index.d.ts#L540
+   */
+  declare export type Action<T> = {
+    type: T,
+    ...
+  }
+
+  declare export type AnyAction = {
+    ...Action<any>,
+    [string]: any
+  }
+
+  declare export type Dispatch<-A: Action<any>> = (action: A, ...extraArgs: any[]) => mixed
+
+  // Since A is contravariant in Dispatch, empty is a reasonable bound here. This is equivalent
+  // to using mixed as a default in a read-only position.
+  declare export function useDispatch<D: Dispatch<empty> = Dispatch<AnyAction>>(): (
+    & (<T: { [key: string]: any }>(T) => T)
+    // Supports thunks at their various lengths and use cases depending if user has typed them as tuple vs array
+    & (<T>((...args: [any]) => T) => T)
+    & (<T>((...args: [any, any]) => T) => T)
+    & (<T>((...args: [any, any, any]) => T) => T)
+    & (<T>((...args: Array<any>) => T) => T)
+    & D
+  );
 
   declare export function useSelector<S, SS>(
     selector: (state: S) => SS,
@@ -219,12 +252,13 @@ declare module "react-redux" {
   declare export class Provider<Store> extends React$Component<{
     store: Store,
     children?: React$Node,
+    ...
   }> {}
 
   declare export function createProvider(
     storeKey?: string,
     subKey?: string,
-  ): Class<Provider<*>>;
+  ): Class<Provider<any>>;
 
   // ------------------------------------------------------------
   // Typings for connectAdvanced()
@@ -237,6 +271,7 @@ declare module "react-redux" {
     shouldHandleStateChanges?: boolean,
     storeKey?: string,
     forwardRef?: boolean,
+    ...
   };
 
   declare type SelectorFactoryOptions<Com> = {
@@ -249,6 +284,7 @@ declare module "react-redux" {
     displayName: string,
     wrappedComponentName: string,
     WrappedComponent: Com,
+    ...
   };
 
   declare type MapStateToPropsEx<S: Object, SP: Object, RSP: Object> = (
@@ -257,7 +293,7 @@ declare module "react-redux" {
   ) => RSP;
 
   declare type SelectorFactory<
-    Com: React$ComponentType<*>,
+    Com: React$ComponentType<any>,
     Dispatch,
     S: Object,
     OP: Object,
@@ -269,17 +305,21 @@ declare module "react-redux" {
   ) => MapStateToPropsEx<S, OP, CP>;
 
   declare export function connectAdvanced<
-    Com: React$ComponentType<*>,
+    Com: React$ComponentType<any>,
     D,
     S: Object,
     OP: Object,
     CP: Object,
     EFO: Object,
-    ST: { [_: $Keys<Com>]: any },
+    ST: { [_: $Keys<Com>]: any, ... },
   >(
     selectorFactory: SelectorFactory<Com, D, S, OP, EFO, CP>,
     connectAdvancedOptions: ?(ConnectAdvancedOptions & EFO),
   ): (component: Com) => React$ComponentType<OP> & $Shape<ST>;
+
+  declare export function batch(() => void): void
+
+  declare export function shallowEqual<T>(left: T, right: any): boolean
 
   declare export default {
     Provider: typeof Provider,
@@ -289,5 +329,7 @@ declare module "react-redux" {
     useDispatch: typeof useDispatch,
     useSelector: typeof useSelector,
     useStore: typeof useStore,
+    batch: typeof batch,
+    ...
   };
 }
