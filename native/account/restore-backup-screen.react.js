@@ -18,6 +18,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
+  networkErrorAlertDetails,
   unknownErrorAlertDetails,
   userNotFoundAlertDetails,
 } from '../utils/alert-messages.js';
@@ -90,6 +91,8 @@ function RestoreBackupScreen(props: Props): React.Node {
           messageForException === 'use_new_flow'
         ) {
           alertDetails = appOutOfDateAlertDetails;
+        } else if (messageForException === 'network_error') {
+          alertDetails = networkErrorAlertDetails;
         } else if (messageForException === 'use_v1_flow') {
           try {
             await performV1Login(userIdentifier, credentials);

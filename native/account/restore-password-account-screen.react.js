@@ -21,6 +21,7 @@ import { usePreventUserFromLeavingScreen } from '../navigation/use-prevent-user-
 import { useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
+  networkErrorAlertDetails,
   unknownErrorAlertDetails,
   userNotFoundAlertDetails,
 } from '../utils/alert-messages.js';
@@ -127,6 +128,8 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
         messageForException === 'use_new_flow'
       ) {
         alertMessage = appOutOfDateAlertDetails;
+      } else if (messageForException === 'network_error') {
+        alertMessage = networkErrorAlertDetails;
       }
       Alert.alert(
         alertMessage.title,

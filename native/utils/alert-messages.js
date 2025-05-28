@@ -41,6 +41,12 @@ const unknownErrorAlertDetails: AlertDetails = {
   message: 'Uhh... try again?',
 };
 
+const networkErrorAlertDetails: AlertDetails = {
+  title: 'Network error',
+  message:
+    'Failed to contact Comm services. Please check your network connection.',
+};
+
 const getFarcasterAccountAlreadyLinkedAlertDetails = (
   commUsername: ?string,
 ): AlertDetails => ({
@@ -56,5 +62,6 @@ export {
   usernameTakenAlertDetails,
   userNotFoundAlertDetails,
   unknownErrorAlertDetails,
+  networkErrorAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };
