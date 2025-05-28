@@ -14,6 +14,7 @@
  */
 
 declare module 'react-native-reanimated' {
+  import * as React from 'react';
   // This was taken from the flow typed library definitions of bottom-tabs_v6
   declare type StyleObj =
     | null
@@ -42,7 +43,7 @@ declare module 'react-native-reanimated' {
 
   declare class ClockImpl extends NodeImpl { }
 
-  declare class ViewImpl extends React$Component<{
+  declare class ViewImpl extends React.Component<{
     +entering?:
       | ReanimatedAnimationBuilder
       | EntryAnimationFunction
@@ -53,7 +54,7 @@ declare module 'react-native-reanimated' {
       | Keyframe,
     ...
   }> { }
-  declare class TextImpl extends React$Component<{
+  declare class TextImpl extends React.Component<{
     +entering?:
       | ReanimatedAnimationBuilder
       | EntryAnimationFunction
@@ -64,7 +65,7 @@ declare module 'react-native-reanimated' {
       | Keyframe,
     ...
   }> { }
-  declare class ImageImpl extends React$Component<{
+  declare class ImageImpl extends React.Component<{
     +entering?:
       | ReanimatedAnimationBuilder
       | EntryAnimationFunction
@@ -76,7 +77,7 @@ declare module 'react-native-reanimated' {
     ...
   }> { }
 
-  declare class CodeImpl extends React$Component<{
+  declare class CodeImpl extends React.Component<{
     +exec: NodeImpl,
     ...
   }> { }
