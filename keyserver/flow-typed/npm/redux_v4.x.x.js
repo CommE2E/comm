@@ -100,5 +100,32 @@ declare module 'redux' {
     reducers: $ObjMap<RootState, <V>(V) => Reducer<V, A>>,
   ): Reducer<RootState, A>;
 
-  declare export var compose: $Compose;
+  declare function _compose(): <T>(a: T) => T;
+  declare function _compose<F: (...$ReadOnlyArray<empty>) => mixed>(
+    f: F,
+  ): F;
+  declare function _compose<A, T: $ReadOnlyArray<any>, R>(
+    f1: (a: A) => R,
+    f2: (...T) => A,
+  ): (...T) => R;
+  declare function _compose<A, B, T: $ReadOnlyArray<any>, R>(
+    f1: (b: B) => R,
+    f2: (a: A) => B,
+    f3: (...T) => A,
+  ): (...T) => R;
+  declare function _compose<A, B, C, T: $ReadOnlyArray<any>, R>(
+    f1: (c: C) => R,
+    f2: (b: B) => C,
+    f3: (a: A) => B,
+    f4: (...T) => A,
+  ): (...T) => R;
+  declare function _compose<R>(
+    f1: (b: any) => R,
+    ...funcs: $ReadOnlyArray<(...$ReadOnlyArray<empty>) => mixed>
+  ): (...$ReadOnlyArray<any>) => R;
+  declare function _compose<R>(
+    ...funcs: $ReadOnlyArray<(...$ReadOnlyArray<empty>) => mixed>
+  ): (...$ReadOnlyArray<any>) => R;
+
+  declare export var compose: typeof _compose;
 }
