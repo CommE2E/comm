@@ -67,6 +67,13 @@ function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
         messageForException === 'unsupported_version'
       ) {
         pushModal(<VersionUnsupportedModal />);
+      } else if (messageForException === 'network_error') {
+        pushModal(
+          <Alert title="Network error">
+            Failed to contact Comm services. Please check your network
+            connection.
+          </Alert>,
+        );
       } else {
         pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
       }
