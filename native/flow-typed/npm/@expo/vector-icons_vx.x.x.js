@@ -21,7 +21,7 @@ declare module '@expo/vector-icons' {
   |};
 
   declare export type Icon<Glyphs: string> =
-    & React$ComponentType<IconProps<Glyphs>>
+    & React.ComponentType<IconProps<Glyphs>>
     & IconStatics;
 
   declare export type IconButtonProps<Glyphs: string> = {
@@ -31,7 +31,7 @@ declare module '@expo/vector-icons' {
     ...
   };
 
-  declare export type IconButton<Glyphs: string> = React$ComponentType<
+  declare export type IconButton<Glyphs: string> = React.ComponentType<
     IconButtonProps<Glyphs>
   >;
 

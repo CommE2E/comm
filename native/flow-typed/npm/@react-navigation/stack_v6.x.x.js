@@ -49,7 +49,7 @@ declare module '@react-navigation/stack' {
    * Header components
    */
 
-  declare export var Header: React$ComponentType<
+  declare export var Header: React.ComponentType<
     StackHeaderProps
   >;
 
@@ -106,7 +106,7 @@ declare module '@react-navigation/stack' {
    */
 
   declare type GestureHandlerRef = React.ElementRef<
-    React$ComponentType<PanGestureHandlerProps>,
+    React.ComponentType<PanGestureHandlerProps>,
   >;
   declare export var GestureHandlerRefContext: React$Context<
     ?GestureHandlerRef,
