@@ -171,7 +171,7 @@ declare module 'react-native-reanimated' {
     extrapolate?: ?ExtrapolateType,
   ) => number;
 
-  declare export type InterpolateColorConfig = $Shape<{
+  declare export type InterpolateColorConfig = Partial<{
     +gamma: number,
     +useCorrectedHSVInterpolation: boolean,
   }>;
@@ -518,7 +518,7 @@ declare module 'react-native-reanimated' {
   declare type ToValue = (val: mixed) => ValueImpl;
   declare type Event = <T: { ... }, E: $Event<T> = $Event<T>>(
     defs: $ReadOnlyArray<{
-      +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
+      +nativeEvent: Partial<$ObjMap<E, ToValue>>,
       ...
     }>,
   ) => EventResult<T, E>;
@@ -526,12 +526,12 @@ declare module 'react-native-reanimated' {
   declare type UseValue = (initialVal: number) => ValueImpl;
 
   declare type AnimatedGestureHandlerEventCallback<T, E: $Event<T>> = (
-    event: $Shape<E>,
+    event: Partial<E>,
     context: {| [name: string]: mixed |},
   ) => mixed;
 
   declare type UseAnimatedGestureHandler = <T, E: $Event<T> = $Event<T>>(
-    callbacks: $Shape<{|
+    callbacks: Partial<{|
       +onStart: AnimatedGestureHandlerEventCallback<T, E>,
       +onActive: AnimatedGestureHandlerEventCallback<T, E>,
       +onEnd: AnimatedGestureHandlerEventCallback<T, E>,
@@ -561,7 +561,7 @@ declare module 'react-native-reanimated' {
     dependencies?: $ReadOnlyArray<mixed>,
   ) => T;
 
-  declare export type WithSpringConfig = $Shape<{|
+  declare export type WithSpringConfig = Partial<{|
     +stiffness: number,
     +damping: number,
     +mass: number,
@@ -578,7 +578,7 @@ declare module 'react-native-reanimated' {
     springConfig?: WithSpringConfig,
   ) => number;
 
-  declare type WithTimingConfig = $Shape<{
+  declare type WithTimingConfig = Partial<{
     +duration: number,
     +easing: EasingFn | EasingFnFactory,
   }>;
