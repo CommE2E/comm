@@ -97,8 +97,8 @@ declare module 'redux' {
   ): C;
 
   declare export function combineReducers<RootState: {...}, A>(
-    reducers: $ObjMap<RootState, <V>(V) => Reducer<V, A>>,
+    reducers: {[K in keyof RootState]: Reducer<RootState[K], A>}
   ): Reducer<RootState, A>;
 
-  declare export var compose: $Compose;
+  declare export var compose: (<A, B>(f1: (a: A) => B) => (a: A) => B) & (<A, B, C>(f1: (b: B) => C, f2: (a: A) => B) => (a: A) => C) & (<A, B, C, D>(f1: (c: C) => D, f2: (b: B) => C, f3: (a: A) => B) => (a: A) => D) & (<A, B, C, D, E>(f1: (d: D) => E, f2: (c: C) => D, f3: (b: B) => C, f4: (a: A) => B) => (a: A) => E) & ((...funcs: Array<Function>) => Function);
 }
