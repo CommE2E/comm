@@ -29,7 +29,7 @@ declare module '@react-navigation/bottom-tabs' {
    * BottomTabBar
    */
 
-  declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
+  declare export var BottomTabBar: React.ComponentType<BottomTabBarProps>;
 
   /**
    * BottomTabView
@@ -39,6 +39,6 @@ declare module '@react-navigation/bottom-tabs' {
     ...BottomTabNavigationConfig,
     ...BottomTabNavigationBuilderResult,
   |};
-  declare export var BottomTabView: React$ComponentType<BottomTabViewProps>;
+  declare export var BottomTabView: React.ComponentType<BottomTabViewProps>;
 
 }

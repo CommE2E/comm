@@ -2,6 +2,7 @@
 // flow-typed version: <<STUB>>/@expo/react-native-action-sheet_v3.14.0/flow_v0.158.0
 
 declare module '@expo/react-native-action-sheet' {
+  import * as React from 'react';
   // This was taken from the flow typed library definitions of bottom-tabs_v6
   declare type StyleObj =
     | null
@@ -60,5 +61,5 @@ declare module '@expo/react-native-action-sheet' {
   |};
 
   declare export class ActionSheetProvider
-    extends React$Component<ActionSheetProviderProps> {}
+    extends React.Component<ActionSheetProviderProps> {}
 }
