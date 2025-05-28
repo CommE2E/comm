@@ -35,7 +35,7 @@ declare module '@react-navigation/drawer' {
     ...DrawerNavigationConfig,
     ...DrawerNavigationBuilderResult,
   |};
-  declare export var DrawerView: React$ComponentType<DrawerViewProps>;
+  declare export var DrawerView: React.ComponentType<DrawerViewProps>;
 
   /**
    * DrawerItem
@@ -60,13 +60,13 @@ declare module '@react-navigation/drawer' {
     +labelStyle?: TextStyleProp,
     +style?: ViewStyleProp,
   |};
-  declare export var DrawerItem: React$ComponentType<DrawerItemProps>;
+  declare export var DrawerItem: React.ComponentType<DrawerItemProps>;
 
   /**
    * DrawerItemList
    */
 
-  declare export var DrawerItemList: React$ComponentType<
+  declare export var DrawerItemList: React.ComponentType<
     DrawerNavigationBuilderResult,
   >;
 
@@ -74,7 +74,7 @@ declare module '@react-navigation/drawer' {
    * DrawerContent
    */
 
-  declare export var DrawerContent: React$ComponentType<
+  declare export var DrawerContent: React.ComponentType<
     DrawerNavigationBuilderResult,
   >;
 
@@ -82,7 +82,7 @@ declare module '@react-navigation/drawer' {
    * DrawerContentScrollView
    */
 
-  declare export var DrawerContentScrollView: React$ComponentType<{
+  declare export var DrawerContentScrollView: React.ComponentType<{
     +children: React$Node,
     ...
   }>;
@@ -92,7 +92,7 @@ declare module '@react-navigation/drawer' {
    */
 
   declare type GestureHandlerRef = React.ElementRef<
-    React$ComponentType<PanGestureHandlerProps>,
+    React.ComponentType<PanGestureHandlerProps>,
   >;
   declare export var DrawerGestureContext: React$Context<?GestureHandlerRef>;
 

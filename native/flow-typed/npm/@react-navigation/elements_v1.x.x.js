@@ -18,14 +18,14 @@ declare module '@react-navigation/elements' {
    */
 
   declare export type StackHeaderTitleProps = Partial<HeaderTitleInputBase>;
-  declare export var HeaderTitle: React$ComponentType<StackHeaderTitleProps>;
+  declare export var HeaderTitle: React.ComponentType<StackHeaderTitleProps>;
 
   declare export type HeaderBackButtonProps = Partial<{|
     ...StackHeaderLeftButtonProps,
     +disabled: boolean,
     +accessibilityLabel: string,
   |}>;
-  declare export var HeaderBackButton: React$ComponentType<
+  declare export var HeaderBackButton: React.ComponentType<
     HeaderBackButtonProps,
   >;
 
@@ -34,7 +34,7 @@ declare module '@react-navigation/elements' {
     +style: AnimatedViewStyleProp,
     ...
   }>;
-  declare export var HeaderBackground: React$ComponentType<
+  declare export var HeaderBackground: React.ComponentType<
     HeaderBackgroundProps,
   >;
 
