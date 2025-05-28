@@ -45,7 +45,7 @@ declare module "react-hot-loader" {
     onComponentCreate: (type: any, displayName: string) => any,
   |}
 
-  declare export function setConfig(config: $Shape<Config>): void
+  declare export function setConfig(config: Partial<Config>): void
 }
 
 declare module "react-hot-loader/root" {
