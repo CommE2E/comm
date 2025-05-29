@@ -97,9 +97,9 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
   );
 }
 
-const MemoizedLoadableVideo: React.AbstractComponent<Props, HTMLVideoElement> =
-  React.memo<Props, HTMLVideoElement>(
-    React.forwardRef<Props, HTMLVideoElement>(LoadableVideo),
-  );
+const MemoizedLoadableVideo: React.ComponentType<Props> = React.memo<
+  Props,
+  HTMLVideoElement,
+>(React.forwardRef<Props, HTMLVideoElement>(LoadableVideo));
 
 export default MemoizedLoadableVideo;
