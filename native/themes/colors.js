@@ -286,8 +286,7 @@ for (const theme in colors) {
 
 type Styles = { [name: string]: { [field: string]: mixed } };
 
-type ReplaceField = (input: any) => any;
-export type StyleSheetOf<S: Styles> = $ReadOnly<$ObjMap<S, ReplaceField>>;
+export type StyleSheetOf<S: Styles> = $ReadOnly<{ [$Keys<S>]: any }>;
 
 function stylesFromColors<IS: Styles>(
   obj: IS,
