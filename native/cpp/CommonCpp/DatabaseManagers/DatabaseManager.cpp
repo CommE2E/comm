@@ -18,9 +18,6 @@
 
 namespace comm {
 
-const int DatabaseManager::backupDataKeySize = 64;
-const int DatabaseManager::backupLogDataKeySize = 32;
-
 std::shared_ptr<NativeSQLiteConnectionManager>
     DatabaseManager::mainConnectionManager;
 
@@ -167,15 +164,13 @@ void DatabaseManager::indicateQueryExecutorCreation() {
 }
 
 std::string DatabaseManager::generateBackupDataKey() {
-  std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
-      DatabaseManager::backupDataKeySize);
+  std::string backupDataKey = SQLiteBackup::generateRandomBackupDataKey();
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   return backupDataKey;
 }
 
 std::string DatabaseManager::generateBackupLogDataKey() {
-  std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
-      DatabaseManager::backupLogDataKeySize);
+  std::string backupLogDataKey = SQLiteBackup::generateRandomBackupLogDataKey();
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
   return backupLogDataKey;
 }
@@ -237,11 +232,11 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("backupLogDataKey is not set");
   }
 
-  if (backupDataKey.size() != DatabaseManager::backupDataKeySize) {
+  if (backupDataKey.size() != SQLiteBackup::backupDataKeySize) {
     throw std::runtime_error("invalid backupDataKey size");
   }
 
-  if (backupLogDataKey.size() != DatabaseManager::backupLogDataKeySize) {
+  if (backupLogDataKey.size() != SQLiteBackup::backupLogDataKeySize) {
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
