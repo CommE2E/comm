@@ -22,46 +22,30 @@ use std::io::BufRead;
 use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::pin::Pin;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 use tokio::sync::Notify;
 use tokio::task::JoinHandle;
+use tokio_util::sync::CancellationToken;
 
 lazy_static! {
-  pub static ref UPLOAD_HANDLER: Arc<Mutex<Option<JoinHandle<Infallible>>>> =
-    Arc::new(Mutex::new(None));
   static ref TRIGGER_BACKUP_FILE_UPLOAD: Arc<Notify> = Arc::new(Notify::new());
   static ref BACKUP_FOLDER_PATH: PathBuf = PathBuf::from(
     get_backup_directory_path().expect("Getting backup directory path failed")
   );
 }
+static BACKUP_HANDLER: LazyLock<BackupHandler> =
+  LazyLock::new(BackupHandler::new);
 
 pub mod ffi {
   use super::*;
 
   pub fn start_backup_handler() -> Result<(), Box<dyn Error>> {
-    let mut handle = UPLOAD_HANDLER.lock()?;
-
-    if let Some(handle) = &*handle {
-      if !handle.is_finished() {
-        return Ok(()); // Early exit if a running future is detected
-      }
-    }
-
-    // No running future or the existing one is finished
-    *handle = Some(RUNTIME.spawn(super::start()?));
-
+    BACKUP_HANDLER.start_if_not_running(super::start_handler_routine)?;
     Ok(())
   }
 
   pub fn stop_backup_handler() -> Result<(), Box<dyn Error>> {
-    let Some(handler) = UPLOAD_HANDLER.lock()?.take() else {
-      return Ok(());
-    };
-    if handler.is_finished() {
-      return Ok(());
-    }
-
-    handler.abort();
+    BACKUP_HANDLER.stop()?;
     Ok(())
   }
 
@@ -70,13 +54,126 @@ pub mod ffi {
   }
 }
 
-pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
+type TaskResult<'err, T> = Result<T, Box<dyn Error + 'err>>;
+
+struct BackupHandlerTask {
+  handle: JoinHandle<()>,
+  cancel_token: tokio_util::sync::CancellationToken,
+  task_id: u32,
+}
+
+struct BackupHandler {
+  task: Arc<Mutex<Option<BackupHandlerTask>>>,
+}
+
+impl BackupHandlerTask {
+  /// True if task hasn't finished and isn't pending cancelation
+  fn is_active(&self) -> bool {
+    !self.handle.is_finished() && !self.cancel_token.is_cancelled()
+  }
+
+  /// Requests this task routine to gracefully stop
+  fn request_stop(&self) {
+    self.cancel_token.cancel();
+  }
+
+  /// Creates a backup handler task and asynchronously starts it
+  fn start_new<'task, F>(
+    prev_task: Option<BackupHandlerTask>,
+    routine: impl FnOnce(u32, CancellationToken) -> TaskResult<'task, F>,
+  ) -> TaskResult<'task, Self>
+  where
+    F: Future<Output = ()> + Send + 'static,
+  {
+    let cancel_token = CancellationToken::new();
+    let task_id = prev_task.as_ref().map_or(1, |prev| prev.task_id + 1);
+
+    let routine_future = routine(task_id, cancel_token.clone())?;
+    let handle = RUNTIME.spawn(async move {
+      // previous task might still be running, wait for it to complete
+      if let Some(prev_task) = prev_task {
+        if let Err(cancel_reason) = prev_task.handle.await {
+          println!(
+            "Backup handler task {} has just been unexpectedly canceled: {:?}",
+            prev_task.task_id, cancel_reason
+          );
+        }
+      }
+      // start the new task
+      routine_future.await
+    });
+
+    Ok(BackupHandlerTask {
+      handle,
+      task_id,
+      cancel_token,
+    })
+  }
+}
+
+impl<'task> BackupHandler {
+  pub fn new() -> Self {
+    Self {
+      task: Arc::new(Mutex::new(None)),
+    }
+  }
+
+  pub fn start_if_not_running<F>(
+    &'task self,
+    routine: impl FnOnce(u32, CancellationToken) -> TaskResult<'task, F>,
+  ) -> TaskResult<'task, ()>
+  where
+    F: Future<Output = ()> + Send + 'static,
+  {
+    let mut task = self.task.lock()?;
+
+    let prev_task = if let Some(prev_task) = &*task {
+      // There might be situation that task is still running
+      // but is pending cancelation
+      let is_canceled = prev_task.cancel_token.is_cancelled();
+      if !prev_task.handle.is_finished() && !is_canceled {
+        return Ok(());
+      }
+
+      task.take()
+    } else {
+      None
+    };
+
+    let new_task = BackupHandlerTask::start_new(prev_task, routine)?;
+    *task = Some(new_task);
+
+    Ok(())
+  }
+
+  fn stop(&'task self) -> TaskResult<'task, ()> {
+    let Some(task) = &*self.task.lock()? else {
+      return Ok(());
+    };
+    if !task.is_active() {
+      return Ok(());
+    }
+
+    task.request_stop();
+    Ok(())
+  }
+}
+
+pub fn start_handler_routine(
+  task_id: u32,
+  cancel_token: CancellationToken,
+) -> Result<impl Future<Output = ()>, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
   Ok(async move {
-    loop {
-      let (tx, rx) = match backup_client.upload_logs(&user_identity).await {
+    println!("Backup handler task id={task_id} started.");
+    'task_loop: loop {
+      let logs_upload_stream = tokio::select!(
+        result = backup_client.upload_logs(&user_identity) => result,
+        _ = cancel_token.cancelled() => { break 'task_loop; }
+      );
+      let (tx, rx) = match logs_upload_stream {
         Ok(ws) => ws,
         Err(err) => {
           println!(
@@ -96,6 +193,7 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
         let err = tokio::select! {
           Err(err) = watch_and_upload_files(&backup_client, &user_identity, &mut tx, &logs_waiting_for_confirmation) => err,
           Err(err) = delete_confirmed_logs(&mut rx, &logs_waiting_for_confirmation) => err,
+          _ = cancel_token.cancelled() => { break 'task_loop; }
         };
 
         println!("Backup handler error: '{err:?}'");
@@ -109,9 +207,13 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
         }
       }
 
-      tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
+      tokio::select!(
+        _ = tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY) => (),
+        _ = cancel_token.cancelled() => { break 'task_loop; }
+      );
       println!("Retrying backup log upload");
     }
+    println!("Backup handler task id={task_id} stopped.");
   })
 }
 
