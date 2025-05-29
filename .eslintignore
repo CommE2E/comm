@@ -26,5 +26,6 @@ native/codegen/dist
 native/android/app/build
 desktop/out
 desktop/dist
+desktop/flow-typed
 services/electron-update-server/flow-typed
 target
