@@ -18,12 +18,10 @@ function ForwardedTextInput(
   );
 }
 
-const WrappedTextInput: React.AbstractComponent<
+const WrappedTextInput: React.ComponentType<Props> = React.forwardRef<
   Props,
   React.ElementRef<typeof TextInput>,
-> = React.forwardRef<Props, React.ElementRef<typeof TextInput>>(
-  ForwardedTextInput,
-);
+>(ForwardedTextInput);
 WrappedTextInput.displayName = 'CommTextInput';
 
 export default WrappedTextInput;

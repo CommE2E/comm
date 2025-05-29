@@ -78,9 +78,8 @@ declare module '@react-navigation/native' {
    * Navigator utils
    */
 
-  declare export var BaseNavigationContainer: React$AbstractComponent<
-    BaseNavigationContainerProps,
-    BaseNavigationContainerInterface,
+  declare export var BaseNavigationContainer: React.ComponentType<
+    BaseNavigationContainerProps
   >;
 
   declare export var createNavigatorFactory: CreateNavigatorFactory;
