@@ -3,6 +3,7 @@
 #include "GlobalDBSingleton.h"
 #include "Logger.h"
 #include "RustPromiseManager.h"
+#include "SQLiteBackup.h"
 #include "WorkerThread.h"
 #include "lib.rs.h"
 
@@ -76,5 +77,13 @@ void BackupOperationsExecutor::setBackupID(
     }
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
+}
+
+std::string BackupOperationsExecutor::generateBackupDataKey() {
+  return SQLiteBackup::generateRandomBackupDataKey();
+}
+
+std::string BackupOperationsExecutor::generateBackupLogDataKey() {
+  return SQLiteBackup::generateRandomBackupLogDataKey();
 }
 } // namespace comm

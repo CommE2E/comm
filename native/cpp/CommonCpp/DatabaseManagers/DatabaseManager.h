@@ -11,10 +11,6 @@
 namespace comm {
 
 class DatabaseManager {
-  // Constant key sizes
-  static const int backupDataKeySize;
-  static const int backupLogDataKeySize;
-
   // Connection manager instance, should be only one (globally) to each
   // database.
   // DatabaseIdentifier::MAIN connectionManager.

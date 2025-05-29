@@ -1,5 +1,6 @@
 #include "SQLiteBackup.h"
 
+#include "../CryptoTools/Tools.h"
 #include "SQLiteUtils.h"
 #include "entities/EntityQueryHelpers.h"
 
@@ -10,6 +11,9 @@
 #include <vector>
 
 namespace comm {
+
+const int SQLiteBackup::backupDataKeySize = 64;
+const int SQLiteBackup::backupLogDataKeySize = 32;
 
 std::unordered_set<std::string> SQLiteBackup::tablesAllowlist = {
     "drafts",
@@ -94,6 +98,18 @@ std::string SQLiteBackup::restoreFromMainCompaction(
       "Failed to delete main compaction file after successful restore.");
 
   return plaintextBackupPath;
+}
+
+std::string SQLiteBackup::generateRandomBackupDataKey() {
+  std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteBackup::backupDataKeySize);
+  return backupDataKey;
+}
+
+std::string SQLiteBackup::generateRandomBackupLogDataKey() {
+  std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteBackup::backupLogDataKeySize);
+  return backupLogDataKey;
 }
 
 } // namespace comm

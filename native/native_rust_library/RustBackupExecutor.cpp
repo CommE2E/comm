@@ -57,4 +57,12 @@ void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog, size_t futureID) {
       std::move(std::vector<std::uint8_t>(backupLog.begin(), backupLog.end())),
       futureID);
 }
+
+rust::String generateBackupDataKey() {
+  return rust::String(BackupOperationsExecutor::generateBackupDataKey());
+}
+
+rust::String generateBackupLogDataKey() {
+  return rust::String(BackupOperationsExecutor::generateBackupLogDataKey());
+}
 } // namespace comm

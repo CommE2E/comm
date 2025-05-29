@@ -8,6 +8,10 @@
 namespace comm {
 class SQLiteBackup {
 public:
+  // Constant key sizes
+  static const int backupDataKeySize;
+  static const int backupLogDataKeySize;
+
   static std::unordered_set<std::string> tablesAllowlist;
 
   static void cleanupDatabaseExceptAllowlist(sqlite3 *db);
@@ -27,5 +31,10 @@ public:
       std::string mainCompactionEncryptionKey,
       std::optional<std::string> plaintextDatabasePath,
       std::string maxVersion);
+
+  // Generate a random backup key used as a database encryption key.
+  static std::string generateRandomBackupDataKey();
+  // Generate a random key used for encrypt backup logs.
+  static std::string generateRandomBackupLogDataKey();
 };
 } // namespace comm

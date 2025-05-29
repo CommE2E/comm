@@ -13,9 +13,7 @@ mod identity;
 mod utils;
 
 use crate::argon2_tools::compute_backup_key_str;
-use crate::utils::jsi_callbacks::{
-  handle_string_result_as_callback, handle_void_result_as_callback,
-};
+use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -531,6 +529,12 @@ mod ffi {
 
     #[cxx_name = "setBackupID"]
     fn set_backup_id(backup_id: &str, future_id: usize);
+
+    #[cxx_name = "generateBackupDataKey"]
+    fn generate_backup_data_key() -> Result<String>;
+
+    #[cxx_name = "generateBackupLogDataKey"]
+    fn generate_backup_log_data_key() -> Result<String>;
   }
 
   // Future handling from C++
@@ -575,6 +579,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::const_is_empty)]
   fn test_identity_socket_addr_exists() {
     assert!(!IDENTITY_SOCKET_ADDR.is_empty());
     assert!(!BACKUP_SOCKET_ADDR.is_empty());
