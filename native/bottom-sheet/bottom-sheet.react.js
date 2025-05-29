@@ -65,12 +65,10 @@ const unboundStyles = {
   },
 };
 
-const BottomSheet: React.AbstractComponent<
+const BottomSheet: React.ComponentType<Props> = React.forwardRef<
   Props,
   React.ElementRef<typeof GorhomBottomSheet>,
-> = React.forwardRef<Props, React.ElementRef<typeof GorhomBottomSheet>>(
-  ForwardedBottomSheet,
-);
+>(ForwardedBottomSheet);
 BottomSheet.displayName = 'BottomSheet';
 
 const MemoizedBottomSheet: typeof BottomSheet = React.memo<

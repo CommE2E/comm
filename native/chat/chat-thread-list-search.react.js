@@ -156,12 +156,10 @@ const unboundStyles = {
   },
 };
 
-const ChatThreadListSearch: React.AbstractComponent<
+const ChatThreadListSearch: React.ComponentType<Props> = React.forwardRef<
   Props,
   React.ElementRef<typeof BaseTextInput>,
-> = React.forwardRef<Props, React.ElementRef<typeof BaseTextInput>>(
-  ForwardedChatThreadListSearch,
-);
+>(ForwardedChatThreadListSearch);
 ChatThreadListSearch.displayName = 'ChatThreadListSearch';
 
 export default ChatThreadListSearch;

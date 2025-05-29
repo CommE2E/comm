@@ -103,12 +103,10 @@ function ForwardedSearch(
   );
 }
 
-const Search: React.AbstractComponent<
+const Search: React.ComponentType<Props> = React.forwardRef<
   Props,
   React.ElementRef<typeof BaseTextInput>,
-> = React.forwardRef<Props, React.ElementRef<typeof BaseTextInput>>(
-  ForwardedSearch,
-);
+>(ForwardedSearch);
 Search.displayName = 'Search';
 
 const unboundStyles = {
