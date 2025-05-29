@@ -106,9 +106,8 @@ async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
   } catch (e) {}
 }
 
-type TouchableOpacityInstance = React.AbstractComponent<
+type TouchableOpacityInstance = React.ComponentType<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethods,
 >;
 
 type AutoFocusPointOfInterest = ?{

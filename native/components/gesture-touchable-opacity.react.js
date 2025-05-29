@@ -188,12 +188,10 @@ function ForwardedGestureTouchableOpacity(
   );
 }
 
-const GestureTouchableOpacity: React.AbstractComponent<
+const GestureTouchableOpacity: React.ComponentType<Props> = React.forwardRef<
   Props,
   TapGestureHandler,
-> = React.forwardRef<Props, TapGestureHandler>(
-  ForwardedGestureTouchableOpacity,
-);
+>(ForwardedGestureTouchableOpacity);
 GestureTouchableOpacity.displayName = 'GestureTouchableOpacity';
 
 export default GestureTouchableOpacity;

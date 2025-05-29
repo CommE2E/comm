@@ -42,9 +42,8 @@ import type {
 } from '../types/layout-types.js';
 import type { NativeMethods } from '../types/react-native.js';
 
-type TouchableOpacityInstance = React.AbstractComponent<
+type TouchableOpacityInstance = React.ComponentType<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethods,
 >;
 
 type VideoRef = {
