@@ -21,6 +21,10 @@ import {
   networkErrorAlertDetails,
   unknownErrorAlertDetails,
   userNotFoundAlertDetails,
+  passwordLoginErrorAlertDetails,
+  siweLoginErrorAlertDetails,
+  userKeysRestoreErrorAlertDetails,
+  userDataRestoreErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
@@ -58,9 +62,13 @@ function RestoreBackupScreen(props: Props): React.Node {
       }
     });
     void (async () => {
+      let step;
+      const setStep = (newStep: string) => {
+        step = newStep;
+      };
       try {
         if (credentials.type === 'password') {
-          await restore(userIdentifier, credentials.password);
+          await restore(userIdentifier, credentials.password, null, setStep);
           await setNativeCredentials({
             username: userIdentifier,
             password: credentials.password,
@@ -71,6 +79,7 @@ function RestoreBackupScreen(props: Props): React.Node {
             userIdentifier,
             credentials.backup.signature,
             credentials.socialProof,
+            setStep,
           );
         }
       } catch (e) {
@@ -103,7 +112,15 @@ function RestoreBackupScreen(props: Props): React.Node {
                 getMessageForException(err) ?? ''
               }`,
             );
+            alertDetails =
+              credentials.type === 'password'
+                ? passwordLoginErrorAlertDetails
+                : siweLoginErrorAlertDetails;
           }
+        } else if (step === 'user_keys_restore') {
+          alertDetails = userKeysRestoreErrorAlertDetails;
+        } else if (step === 'user_data_restore') {
+          alertDetails = userDataRestoreErrorAlertDetails;
         }
         Alert.alert(
           alertDetails.title,

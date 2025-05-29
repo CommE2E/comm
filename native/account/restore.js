@@ -172,7 +172,8 @@ function useRestoreProtocol(): (
 function useRestore(): (
   userIdentifier: string,
   secret: string,
-  siweSocialProof?: SignedMessage,
+  siweSocialProof?: ?SignedMessage,
+  setStep?: (step: string) => void,
 ) => Promise<IdentityAuthResult> {
   const restoreProtocol = useRestoreProtocol();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -235,11 +236,14 @@ function useRestore(): (
     async (
       userIdentifier: string,
       secret: string,
-      siweSocialProof?: SignedMessage,
+      siweSocialProof?: ?SignedMessage,
+      setStep,
     ) => {
+      setStep?.('user_keys_restore');
       const identityAuthResult = await logIn(
         restoreAuth(userIdentifier, secret, siweSocialProof),
       );
+      setStep?.('user_data_restore');
       await restoreUserData(identityAuthResult);
       return identityAuthResult;
     },
