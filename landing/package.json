@@ -24,7 +24,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "^5.3.0",
     "flow-bin": "^0.262.0",
-    "flow-typed": "^3.2.1",
+    "flow-typed": "^4.1.1",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "webpack-manifest-plugin": "^5.0.0"
