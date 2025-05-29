@@ -26,6 +26,8 @@ import {
   appOutOfDateAlertDetails,
   networkErrorAlertDetails,
   unknownErrorAlertDetails,
+  backupInfoFetchErrorAlertDetails,
+  siweLoginErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import RestoreIcon from '../vectors/restore-icon.react.js';
@@ -51,11 +53,14 @@ function RestorePromptScreen(props: Props): React.Node {
   const performV1Login = useV1Login();
   const onSIWESuccess = React.useCallback(
     async (result: SIWEResult) => {
+      let step;
       try {
+        step = 'fetch_backup_info';
         setAuthInProgress(true);
         const { address, signature, message } = result;
         const backupInfo = await retrieveLatestBackupInfo(address);
         if (!backupInfo) {
+          step = 'v1_login';
           await performV1Login(address, {
             type: 'siwe',
             socialProof: { message, signature },
@@ -101,6 +106,10 @@ function RestorePromptScreen(props: Props): React.Node {
           };
         } else if (messageForException === 'network_error') {
           alertDetails = networkErrorAlertDetails;
+        } else if (step === 'fetch_backup_info') {
+          alertDetails = backupInfoFetchErrorAlertDetails;
+        } else if (step === 'v1_login') {
+          alertDetails = siweLoginErrorAlertDetails;
         }
         Alert.alert(
           alertDetails.title,
