@@ -855,10 +855,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
 // Unfortunately, Required<AuthMetadata>
 // doesn't work for `prop: ?string`
-type RequiredAuthMetadata = $ObjMap<
-  AuthMetadata,
-  <T>(prop: T) => $NonMaybeType<T>,
->;
+type RequiredAuthMetadata = {
+  [K in keyof AuthMetadata]: $NonMaybeType<AuthMetadata[K]>,
+};
 async function rawGetDeviceListsForUsers(
   authMetadata: RequiredAuthMetadata,
   userIDs: $ReadOnlyArray<string>,
