@@ -77,4 +77,12 @@ void BackupOperationsExecutor::setBackupID(
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
 }
+
+std::string BackupOperationsExecutor::generateBackupDataKey() {
+  return DatabaseManager::generateBackupDataKey(false);
+}
+
+std::string BackupOperationsExecutor::generateBackupLogDataKey() {
+  return DatabaseManager::generateBackupLogDataKey(false);
+}
 } // namespace comm
