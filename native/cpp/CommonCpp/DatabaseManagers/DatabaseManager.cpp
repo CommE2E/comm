@@ -166,17 +166,21 @@ void DatabaseManager::indicateQueryExecutorCreation() {
   }
 }
 
-std::string DatabaseManager::generateBackupDataKey() {
+std::string DatabaseManager::generateBackupDataKey(bool updateSecureStore) {
   std::string backupDataKey = comm::crypto::Tools::generateRandomHexString(
       DatabaseManager::backupDataKeySize);
-  CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  if (updateSecureStore) {
+    CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
+  }
   return backupDataKey;
 }
 
-std::string DatabaseManager::generateBackupLogDataKey() {
+std::string DatabaseManager::generateBackupLogDataKey(bool updateSecureStore) {
   std::string backupLogDataKey = comm::crypto::Tools::generateRandomHexString(
       DatabaseManager::backupLogDataKeySize);
-  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  if (updateSecureStore) {
+    CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  }
   return backupLogDataKey;
 }
 

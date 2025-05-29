@@ -37,11 +37,6 @@ class DatabaseManager {
   static void
   initializeSQLiteQueryExecutorProperties(std::string &databasePath);
 
-  // Generate and persist a backup key used as a database encryption key.
-  static std::string generateBackupDataKey();
-  // Generate and persist key used for encrypt backup logs.
-  static std::string generateBackupLogDataKey();
-
   static void setDatabaseStatusAsWorkable();
 
   // Clearing the main database should recreate a new database from scratch and
@@ -77,6 +72,11 @@ public:
       std::string mainCompactionEncryptionKey,
       std::string maxVersion);
   static void copyContentFromBackupDatabase();
+
+  // Generate and persist a backup key used as a database encryption key.
+  static std::string generateBackupDataKey(bool updateSecureStore = true);
+  // Generate and persist key used for encrypt backup logs.
+  static std::string generateBackupLogDataKey(bool updateSecureStore = true);
 };
 
 } // namespace comm
