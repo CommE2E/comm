@@ -519,7 +519,7 @@ declare module 'react-native-reanimated' {
   declare type ToValue = (val: mixed) => ValueImpl;
   declare type Event = <T: { ... }, E: $Event<T> = $Event<T>>(
     defs: $ReadOnlyArray<{
-      +nativeEvent: Partial<$ObjMap<E, ToValue>>,
+      +nativeEvent: Partial<{[K in keyof E]: ValueImpl}>,
       ...
     }>,
   ) => EventResult<T, E>;

@@ -57,7 +57,7 @@ declare module "react-redux" {
     // and provide the StateProps type to the SP type parameter.
     | ((state: S, ownProps: OP) => (state: S, ownProps: OP) => SP);
 
-  declare type Bind<D> = <A, R>((...A) => R) => (...A) => $Call<D, R>;
+  declare type Bind<D> = <A, R>((...A) => R) => (...A) => ReturnType<D>;
 
   declare type MapDispatchToPropsFn<D, OP, DP> =
     | ((dispatch: D, ownProps: OP) => DP)
@@ -123,7 +123,7 @@ declare module "react-redux" {
     mapDispatchToProps: DP,
     mergeProps?: null | void,
     options?: ?Options<S, OP, {||}, MergeOPDP<OP, DP>>,
-  ): Connector<P, OP, MergeOPDP<OP, $ObjMap<DP, Bind<D>>>>;
+  ): Connector<P, OP, MergeOPDP<OP, {[K in keyof DP]: ReturnType<D>}>>;
 
   declare export function connect<P, OP, SP, DP, S, D>(
     // If you get error here try adding return type to your mapStateToProps function
@@ -139,7 +139,7 @@ declare module "react-redux" {
     mapDispatchToProps: DP,
     mergeProps?: null | void,
     options?: ?Options<S, OP, SP, MergeOPSPDP<OP, SP, DP>>,
-  ): Connector<P, OP, MergeOPSPDP<OP, SP, $ObjMap<DP, Bind<D>>>>;
+  ): Connector<P, OP, MergeOPSPDP<OP, SP, {[K in keyof DP]: ReturnType<D>}>>;
 
   // With `mergeProps` argument
 
@@ -180,7 +180,7 @@ declare module "react-redux" {
   declare export function connect<P, OP, SP: {||}, DP, S, D>(
     mapStateToProps: null | void,
     mapDispatchToProps: DP,
-    mergeProps: MergeProps<P, OP, {||}, $ObjMap<DP, Bind<D>>>,
+    mergeProps: MergeProps<P, OP, {||}, {[K in keyof DP]: ReturnType<D>}>,
     options?: ?Options<S, OP, {||}, P>,
   ): Connector<P, OP, P>;
 
@@ -199,7 +199,7 @@ declare module "react-redux" {
   declare export function connect<P, OP, SP, DP, S, D>(
     mapStateToProps: MapStateToProps<S, OP, SP>,
     mapDispatchToProps: DP,
-    mergeProps: MergeProps<P, OP, SP, $ObjMap<DP, Bind<D>>>,
+    mergeProps: MergeProps<P, OP, SP, {[K in keyof DP]: ReturnType<D>}>,
     options?: ?Options<S, OP, SP, P>,
   ): Connector<P, OP, P>;
 
