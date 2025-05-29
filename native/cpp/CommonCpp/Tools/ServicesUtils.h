@@ -9,7 +9,7 @@ public:
   // and apply compaction and logs. App is able to generate and upload
   // compaction and logs.
   // Keep in sync with lib/utils/services-utils.js
-  const static bool fullBackupSupport = false;
+  const static bool fullBackupSupport = true;
 };
 
 } // namespace comm
