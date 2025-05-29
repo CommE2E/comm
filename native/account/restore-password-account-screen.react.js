@@ -24,6 +24,8 @@ import {
   networkErrorAlertDetails,
   unknownErrorAlertDetails,
   userNotFoundAlertDetails,
+  backupInfoFetchErrorAlertDetails,
+  passwordLoginErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
@@ -94,11 +96,14 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
       return;
     }
     setIsProcessing(true);
+    let step;
     try {
+      step = 'fetch_backup_info';
       const latestBackupInfo = await retrieveLatestBackupInfo(
         credentials.username,
       );
       if (!latestBackupInfo) {
+        step = 'v1_login';
         await performV1Login(credentials.username, {
           type: 'password',
           password: credentials.password,
@@ -130,6 +135,10 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
         alertMessage = appOutOfDateAlertDetails;
       } else if (messageForException === 'network_error') {
         alertMessage = networkErrorAlertDetails;
+      } else if (step === 'fetch_backup_info') {
+        alertMessage = backupInfoFetchErrorAlertDetails;
+      } else if (step === 'v1_login') {
+        alertMessage = passwordLoginErrorAlertDetails;
       }
       Alert.alert(
         alertMessage.title,
