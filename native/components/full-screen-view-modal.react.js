@@ -55,9 +55,8 @@ const defaultTimingConfig = {
 
 const decayConfig = { deceleration: 0.99 };
 
-type TouchableOpacityInstance = React.AbstractComponent<
+type TouchableOpacityInstance = React.ComponentType<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethods,
 >;
 
 type ButtonDimensions = {

@@ -43,9 +43,7 @@ function PasswordInput(
   );
 }
 
-const ForwardedPasswordInput: React.AbstractComponent<
-  PasswordInputProps,
-  HTMLInputElement,
-> = React.forwardRef<PasswordInputProps, HTMLInputElement>(PasswordInput);
+const ForwardedPasswordInput: React.ComponentType<PasswordInputProps> =
+  React.forwardRef<PasswordInputProps, HTMLInputElement>(PasswordInput);
 
 export default ForwardedPasswordInput;
