@@ -456,10 +456,7 @@ type BaseConfig<T> = React.Config<
   typeof BaseTagInput.defaultProps,
 >;
 
-function createTagInput<T>(): React.AbstractComponent<
-  BaseConfig<T>,
-  BaseTagInput<T>,
-> {
+function createTagInput<T>(): React.ComponentType<BaseConfig<T>> {
   return React.forwardRef<BaseConfig<T>, BaseTagInput<T>>(
     function ForwardedTagInput(
       props: BaseConfig<T>,
