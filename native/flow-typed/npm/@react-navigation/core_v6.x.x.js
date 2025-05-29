@@ -2296,15 +2296,14 @@ declare module '@react-navigation/core' {
     |},
   |};
 
-  declare export type NavigationContainerType = React$AbstractComponent<
+  declare export type NavigationContainerType = React.ComponentType<
     {|
       ...BaseNavigationContainerProps,
       +theme?: Theme,
       +linking?: LinkingOptions,
       +fallback?: React$Node,
       +onReady?: () => mixed,
-    |},
-    BaseNavigationContainerInterface,
+    |}
   >;
 
   //---------------------------------------------------------------------------
@@ -2345,9 +2344,8 @@ declare module '@react-navigation/core' {
    * Navigator utils
    */
 
-  declare export var BaseNavigationContainer: React$AbstractComponent<
-    BaseNavigationContainerProps,
-    BaseNavigationContainerInterface,
+  declare export var BaseNavigationContainer: React.ComponentType<
+    BaseNavigationContainerProps
   >;
 
   declare export var createNavigatorFactory: CreateNavigatorFactory;

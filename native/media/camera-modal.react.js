@@ -56,7 +56,6 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
-import type { NativeMethods } from '../types/react-native.js';
 import { clamp } from '../utils/animation-utils.js';
 
 Reanimated.addWhitelistedNativeProps({
@@ -95,9 +94,8 @@ async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
   } catch (e) {}
 }
 
-type TouchableOpacityInstance = React.AbstractComponent<
+type TouchableOpacityInstance = React.ComponentType<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethods,
 >;
 
 type Dimensions = {
