@@ -952,10 +952,7 @@ declare module '@react-navigation/core' {
   declare export type ScreenListeners<
     State: NavigationState = NavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
-  > = $ObjMapi<
-    {| [name: $Keys<EventMap>]: empty |},
-    <K: $Keys<EventMap>>(K, empty) => EventListenerCallback<K, State, EventMap>,
-  >;
+  > = {[K in $Keys<EventMap>]: EventListenerCallback<K, State, EventMap>};
   declare type ScreenListenersProp<
     ScreenListenersParam: {...},
     RouteParam,
