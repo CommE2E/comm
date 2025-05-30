@@ -171,7 +171,7 @@ class Day extends React.PureComponent<Props, State> {
     }
   };
 
-  onAddEntry = (event: SyntheticEvent<*>) => {
+  onAddEntry = (event: SyntheticEvent<any>) => {
     event.preventDefault();
     invariant(
       this.props.onScreenThreadInfos.length > 0,
