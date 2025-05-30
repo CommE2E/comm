@@ -43,25 +43,31 @@ void SQLiteBackup::cleanupDatabaseExceptAllowlist(sqlite3 *db) {
   }
 }
 
-std::string SQLiteBackup::restoreFromMainCompaction(
+void SQLiteBackup::validateMainCompaction(
     std::string mainCompactionPath,
-    std::string mainCompactionEncryptionKey,
-    std::optional<std::string> plaintextDatabasePath,
-    std::string maxVersion) {
-
+    std::string mainCompactionEncryptionKey) {
   if (!SQLiteUtils::fileExists(mainCompactionPath)) {
     std::string errorMessage{"Restore attempt but backup file does not exist"};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
 
-  sqlite3 *backupDB;
   if (!SQLiteUtils::isDatabaseQueryable(
-          backupDB, true, mainCompactionPath, mainCompactionEncryptionKey)) {
+          true, mainCompactionPath, mainCompactionEncryptionKey)) {
     std::string errorMessage{"Backup file or encryption key corrupted"};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
+}
+
+std::string SQLiteBackup::restoreFromMainCompaction(
+    std::string mainCompactionPath,
+    std::string mainCompactionEncryptionKey,
+    std::optional<std::string> plaintextDatabasePath,
+    std::string maxVersion) {
+
+  SQLiteBackup::validateMainCompaction(
+      mainCompactionPath, mainCompactionEncryptionKey);
 
   std::string plaintextBackupPath =
       plaintextDatabasePath.value_or(mainCompactionPath + "_plaintext");
@@ -72,6 +78,7 @@ std::string SQLiteBackup::restoreFromMainCompaction(
         "attempt.");
   }
 
+  sqlite3 *backupDB;
   sqlite3_open(mainCompactionPath.c_str(), &backupDB);
   std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +
       mainCompactionEncryptionKey +

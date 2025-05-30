@@ -102,11 +102,11 @@ void SQLiteUtils::attemptRenameFile(
 }
 
 bool SQLiteUtils::isDatabaseQueryable(
-    sqlite3 *db,
     bool useEncryptionKey,
     const std::string &path,
     const std::string &encryptionKey) {
   char *err_msg;
+  sqlite3 *db;
   sqlite3_open(path.c_str(), &db);
   // According to SQLCipher documentation running some SELECT is the only way to
   // check for key validity
@@ -150,16 +150,13 @@ void SQLiteUtils::validateEncryption(
     return;
   }
 
-  sqlite3 *db;
-  if (SQLiteUtils::isDatabaseQueryable(
-          db, true, sqliteFilePath, encryptionKey)) {
+  if (SQLiteUtils::isDatabaseQueryable(true, sqliteFilePath, encryptionKey)) {
     Logger::log(
         "Database exists under default path and it is correctly encrypted.");
     return;
   }
 
-  if (!SQLiteUtils::isDatabaseQueryable(
-          db, false, sqliteFilePath, encryptionKey)) {
+  if (!SQLiteUtils::isDatabaseQueryable(false, sqliteFilePath, encryptionKey)) {
     Logger::log(
         "Database exists but it is encrypted with key that was lost. "
         "Attempting database deletion. New encrypted one will be created.");
@@ -172,6 +169,8 @@ void SQLiteUtils::validateEncryption(
         "Database exists but it is not encrypted. Attempting encryption "
         "process.");
   }
+
+  sqlite3 *db;
   sqlite3_open(sqliteFilePath.c_str(), &db);
 
   std::string createEncryptedCopySQL = "ATTACH DATABASE '" +
