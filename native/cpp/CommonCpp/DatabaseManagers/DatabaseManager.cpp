@@ -21,9 +21,7 @@ namespace comm {
 std::shared_ptr<NativeSQLiteConnectionManager>
     DatabaseManager::mainConnectionManager;
 
-// Backup database after decrypting (at backup level) is not encrypted, so we
-// use an unencrypted connection manager.
-std::shared_ptr<WebSQLiteConnectionManager>
+std::shared_ptr<NativeSQLiteConnectionManager>
     DatabaseManager::restoredConnectionManager;
 
 std::once_flag DatabaseManager::queryExecutorCreationIndicated;
@@ -455,13 +453,13 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string mainCompactionPath,
     std::string mainCompactionEncryptionKey,
     std::string maxVersion) {
-  std::string backupPath = SQLiteBackup::restoreFromMainCompaction(
-      mainCompactionPath,
-      mainCompactionEncryptionKey,
-      std::nullopt,
-      maxVersion);
+  SQLiteBackup::validateMainCompaction(
+      mainCompactionPath, mainCompactionEncryptionKey);
+  // At this point, logs are already applied to the database, and we don't have
+  // access to it, so we use just an empty string.
   DatabaseManager::restoredConnectionManager =
-      std::make_shared<WebSQLiteConnectionManager>(backupPath);
+      std::make_shared<NativeSQLiteConnectionManager>(
+          mainCompactionPath, mainCompactionEncryptionKey, "");
 }
 
 void DatabaseManager::copyContentFromBackupDatabase() {
