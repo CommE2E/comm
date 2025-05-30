@@ -1544,4 +1544,20 @@ int SQLiteQueryExecutor::getDatabaseVersion() const {
   return SQLiteUtils::getDatabaseVersion(this->getConnection());
 }
 
+std::optional<std::string>
+SQLiteQueryExecutor::getSyncedMetadata(const std::string &entryName) const {
+  std::string getMetadataByPrimaryKeySQL =
+      "SELECT * "
+      "FROM synced_metadata "
+      "WHERE name = ?;";
+  std::unique_ptr<SyncedMetadataEntry> entry =
+      getEntityByPrimaryKey<SyncedMetadataEntry>(
+          this->getConnection(), getMetadataByPrimaryKeySQL, entryName);
+
+  if (entry == nullptr) {
+    return std::nullopt;
+  }
+  return entry->data;
+}
+
 } // namespace comm

@@ -379,6 +379,28 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_DATABASE_VERSION,
       databaseVersion: sqliteQueryExecutor.getDatabaseVersion(),
     };
+  } else if (message.type === workerRequestMessageTypes.GET_SYNCED_METADATA) {
+    if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
+      const backupQueryExecutor = getSQLiteQueryExecutor(
+        databaseIdentifier.RESTORED,
+      );
+      if (!backupQueryExecutor) {
+        throw new Error(
+          `Backup not initialized, unable to process request type: ${message.type}`,
+        );
+      }
+      return {
+        type: workerResponseMessageTypes.GET_SYNCED_METADATA,
+        syncedMetadata: backupQueryExecutor.getSyncedMetadata(
+          message.entryName,
+        ),
+      };
+    }
+
+    return {
+      type: workerResponseMessageTypes.GET_SYNCED_METADATA,
+      syncedMetadata: sqliteQueryExecutor.getSyncedMetadata(message.entryName),
+    };
   }
 
   // write operations

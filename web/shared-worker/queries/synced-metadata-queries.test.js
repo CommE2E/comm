@@ -95,4 +95,11 @@ describe('SyncedMetadata Store queries', () => {
 
     expect(syncedMetadataFromDB['test_name_2']).toBeDefined();
   });
+
+  it('should query synced metadata', () => {
+    expect(queryExecutor?.getSyncedMetadata('test_name_1')).toBe('test_data_1');
+    expect(
+      queryExecutor?.getSyncedMetadata('non_existing_test_name'),
+    ).toBeNull();
+  });
 });

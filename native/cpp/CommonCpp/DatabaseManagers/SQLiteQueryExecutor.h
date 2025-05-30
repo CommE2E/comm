@@ -189,6 +189,8 @@ public:
   std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const override;
   int getDatabaseVersion() const override;
+  std::optional<std::string>
+  getSyncedMetadata(const std::string &entryName) const override;
 };
 
 } // namespace comm
