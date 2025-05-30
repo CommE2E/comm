@@ -89,22 +89,6 @@ std::string SQLiteBackup::restoreFromMainCompaction(
   sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
   SQLiteUtils::setDatabaseVersion(backupDB, databaseVersion);
 
-  int version = SQLiteUtils::getSyncedDatabaseVersion(backupDB).value_or(-1);
-  if (version > std::stoi(maxVersion)) {
-    std::stringstream error_message;
-    error_message << "Failed to restore a backup because it was created "
-                  << "with version " << version
-                  << " that is newer than the max supported version "
-                  << maxVersion << std::endl;
-    sqlite3_close(backupDB);
-    Logger::log(error_message.str());
-    throw std::runtime_error(error_message.str());
-  }
-
-  std::vector<std::string> tablesVector(
-      SQLiteBackup::tablesAllowlist.begin(),
-      SQLiteBackup::tablesAllowlist.end());
-
   SQLiteUtils::attemptDeleteFile(
       mainCompactionPath,
       "Failed to delete main compaction file after successful restore.");
