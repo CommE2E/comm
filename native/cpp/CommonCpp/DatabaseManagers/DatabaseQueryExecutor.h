@@ -197,6 +197,8 @@ public:
   virtual std::vector<DMOperation>
   getDMOperationsByType(const std::string &operationType) const = 0;
   virtual int getDatabaseVersion() const = 0;
+  virtual std::optional<std::string>
+  getSyncedMetadata(const std::string &entryName) const = 0;
 
   virtual ~DatabaseQueryExecutor() = default;
 };

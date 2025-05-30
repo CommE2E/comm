@@ -214,6 +214,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabas
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDatabaseVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDatabaseVersion(rt, args[0].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedMetadata(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getSyncedMetadata(rt, args[0].asString(rt), args[1].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->markPrekeysAsPublished(rt);
 }
@@ -306,6 +309,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["resetOutboundP2PMessagesForDevice"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice};
   methodMap_["getSyncedDatabaseVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion};
   methodMap_["getDatabaseVersion"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDatabaseVersion};
+  methodMap_["getSyncedMetadata"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedMetadata};
   methodMap_["markPrekeysAsPublished"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished};
   methodMap_["getRelatedMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessages};
   methodMap_["searchMessages"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages};
