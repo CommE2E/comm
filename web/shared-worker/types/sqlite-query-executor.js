@@ -218,6 +218,7 @@ declare export class SQLiteQueryExecutor {
   ): $ReadOnlyArray<MessageEntity>;
 
   getDatabaseVersion(): number;
+  getSyncedMetadata(entryName: string): ?string;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted

@@ -56,6 +56,7 @@ export const workerRequestMessageTypes = Object.freeze({
   MIGRATE_BACKUP_SCHEMA: 28,
   COPY_CONTENT_FROM_BACKUP_DB: 29,
   GET_DATABASE_VERSION: 30,
+  GET_SYNCED_METADATA: 31,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -259,6 +260,12 @@ export type GetDatabaseVersionRequestMessage = {
   +dbID: DatabaseIdentifier,
 };
 
+export type GetSyncedMetadataRequestMessage = {
+  +type: 31,
+  +entryName: string,
+  +dbID: DatabaseIdentifier,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -290,7 +297,8 @@ export type WorkerRequestMessage =
   | GetDMOperationsByTypeRequestMessage
   | MigrateBackupSchemaRequestMessage
   | CopyContentFromBackupDatabaseRequestMessage
-  | GetDatabaseVersionRequestMessage;
+  | GetDatabaseVersionRequestMessage
+  | GetSyncedMetadataRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -311,6 +319,7 @@ export const workerResponseMessageTypes = Object.freeze({
   RESET_OUTBOUND_P2P_MESSAGES: 9,
   DM_OPERATIONS: 10,
   GET_DATABASE_VERSION: 11,
+  GET_SYNCED_METADATA: 12,
 });
 
 export type PongWorkerResponseMessage = {
@@ -373,6 +382,11 @@ export type GetDatabaseVersionResponseMessage = {
   +databaseVersion: number,
 };
 
+export type GetSyncedMetadataResponseMessage = {
+  +type: 12,
+  +syncedMetadata: ?string,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -385,7 +399,8 @@ export type WorkerResponseMessage =
   | GetMessagesResponse
   | ResetOutboundP2PMessagesResponseMessage
   | DMOperationsResponseMessage
-  | GetDatabaseVersionResponseMessage;
+  | GetDatabaseVersionResponseMessage
+  | GetSyncedMetadataResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,

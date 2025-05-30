@@ -85,6 +85,7 @@ public:
   virtual jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID) = 0;
   virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
   virtual jsi::Value getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) = 0;
+  virtual jsi::Value getSyncedMetadata(jsi::Runtime &rt, jsi::String entryName, jsi::String dbID) = 0;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
   virtual jsi::Value getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) = 0;
   virtual jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) = 0;
@@ -633,6 +634,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getDatabaseVersion, jsInvoker_, instance_, std::move(dbID));
+    }
+    jsi::Value getSyncedMetadata(jsi::Runtime &rt, jsi::String entryName, jsi::String dbID) override {
+      static_assert(
+          bridging::getParameterCount(&T::getSyncedMetadata) == 3,
+          "Expected getSyncedMetadata(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getSyncedMetadata, jsInvoker_, instance_, std::move(entryName), std::move(dbID));
     }
     jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) override {
       static_assert(
