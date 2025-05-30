@@ -181,9 +181,9 @@ std::vector<std::string> NativeSQLiteConnectionManager::getAttachmentsFromLog(
 }
 
 NativeSQLiteConnectionManager::NativeSQLiteConnectionManager(
-    std::string &databasePath,
-    std::string &backupDataKey,
-    std::string &backupLogDataKey)
+    std::string databasePath,
+    std::string backupDataKey,
+    std::string backupLogDataKey)
     : SQLiteConnectionManager(databasePath),
       backupLogsSession(nullptr),
       backupDataKey(backupDataKey),
