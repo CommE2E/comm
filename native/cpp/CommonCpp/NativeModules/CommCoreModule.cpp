@@ -3018,40 +3018,6 @@ jsi::Value CommCoreModule::resetOutboundP2PMessagesForDevice(
       });
 }
 
-jsi::Value CommCoreModule::getSyncedDatabaseVersion(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::vector<SyncedMetadataEntry> syncedMetadataStoreVector;
-          try {
-            syncedMetadataStoreVector =
-                DatabaseManager::getQueryExecutor().getAllSyncedMetadata();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          std::string version;
-          for (auto &entry : syncedMetadataStoreVector) {
-            if (entry.name == "db_version") {
-              version = entry.data;
-            }
-          }
-
-          this->jsInvoker_->invokeAsync([&innerRt, error, promise, version]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            jsi::String jsiVersion =
-                jsi::String::createFromUtf8(innerRt, version);
-            promise->resolve(std::move(jsiVersion));
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
 jsi::Value
 CommCoreModule::getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) {
   DatabaseIdentifier identifier = stringToDatabaseIdentifier(dbID.utf8(rt));

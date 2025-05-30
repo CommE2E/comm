@@ -231,17 +231,4 @@ std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
   return tableNames;
 }
 
-std::optional<int> SQLiteUtils::getSyncedDatabaseVersion(sqlite3 *db) {
-  static std::string getDBVersionSyncedMetadataSQL =
-      "SELECT * "
-      "FROM synced_metadata "
-      "WHERE name=\"db_version\";";
-  std::vector<SyncedMetadataEntry> entries =
-      getAllEntities<SyncedMetadataEntry>(db, getDBVersionSyncedMetadataSQL);
-  for (auto &entry : entries) {
-    return std::stoi(entry.data);
-  }
-  return std::nullopt;
-}
-
 } // namespace comm

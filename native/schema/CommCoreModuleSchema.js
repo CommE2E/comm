@@ -199,7 +199,6 @@ interface Spec extends TurboModule {
   +resetOutboundP2PMessagesForDevice: (
     deviceID: string,
   ) => Promise<Array<string>>;
-  +getSyncedDatabaseVersion: () => Promise<string>;
   // This type should be DatabaseIdentifier
   +getDatabaseVersion: (dbID: string) => Promise<number>;
   // `dbID` type should be DatabaseIdentifier

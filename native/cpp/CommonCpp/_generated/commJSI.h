@@ -83,7 +83,6 @@ public:
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessage(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID) = 0;
-  virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
   virtual jsi::Value getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) = 0;
   virtual jsi::Value getSyncedMetadata(jsi::Runtime &rt, jsi::String entryName, jsi::String dbID) = 0;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
@@ -618,14 +617,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::resetOutboundP2PMessagesForDevice, jsInvoker_, instance_, std::move(deviceID));
-    }
-    jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::getSyncedDatabaseVersion) == 1,
-          "Expected getSyncedDatabaseVersion(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::getSyncedDatabaseVersion, jsInvoker_, instance_);
     }
     jsi::Value getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) override {
       static_assert(
