@@ -42,6 +42,7 @@ import { UserIdentityCacheProvider } from 'lib/components/user-identity-cache.re
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
 import { InitialStateSharingHandler } from 'lib/handlers/initial-state-sharing-handler.react.js';
+import { SyncStoreVersionHandler } from 'lib/handlers/sync-store-version-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -300,6 +301,7 @@ function Root() {
       <DBOpsHandler />
       <UserInfosHandler />
       <TunnelbrokerDeviceTokenHandler />
+      <SyncStoreVersionHandler />
       <HoldersHandler />
     </>
   );

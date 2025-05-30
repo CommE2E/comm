@@ -29,6 +29,7 @@ import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
+import { SyncStoreVersionHandler } from 'lib/handlers/sync-store-version-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -261,6 +262,7 @@ class App extends React.PureComponent<Props> {
                     <LogOutIfMissingCSATHandler />
                     <UserInfosHandler />
                     <TunnelbrokerDeviceTokenHandler />
+                    <SyncStoreVersionHandler />
                     <FarcasterChannelPrefetchHandler />
                     <FarcasterDataHandler />
                     <AutoJoinCommunityHandler />
