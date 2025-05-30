@@ -23,9 +23,9 @@ private:
 
 public:
   NativeSQLiteConnectionManager(
-      std::string &databasePath,
-      std::string &backupDataKey,
-      std::string &backupLogDataKey);
+      std::string databasePath,
+      std::string backupDataKey,
+      std::string backupLogDataKey);
   ~NativeSQLiteConnectionManager();
 
   sqlite3 *getEphemeralConnection() const override;
