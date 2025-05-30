@@ -2,7 +2,10 @@
 
 import localforage from 'localforage';
 
-import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
+import {
+  databaseIdentifier,
+  type DatabaseIdentifier,
+} from 'lib/types/database-identifier-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { restoreBackup } from './backup.js';
@@ -41,6 +44,7 @@ import {
 import { workerIdentityClientRequests } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
 import { webMessageToClientDBMessageInfo } from '../types/entities.js';
+import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
   SQLITE_STAMPED_USER_ID_KEY,
@@ -180,6 +184,19 @@ async function persist() {
   persistInProgress = false;
 }
 
+function getSQLiteQueryExecutorOrThrow(
+  id: DatabaseIdentifier,
+  message: WorkerRequestMessage,
+): SQLiteQueryExecutor {
+  const executor = getSQLiteQueryExecutor(id);
+  if (!executor) {
+    throw new Error(
+      `${id} executor not initialized, unable to process request type: ${message.type}`,
+    );
+  }
+  return executor;
+}
+
 async function processAppRequest(
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
@@ -256,17 +273,13 @@ async function processAppRequest(
   // read-only operations
   if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
     if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
-      const backupQueryExecutor = getSQLiteQueryExecutor(
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
         databaseIdentifier.RESTORED,
+        message,
       );
-      if (!backupQueryExecutor) {
-        throw new Error(
-          `Backup not initialized, unable to process request type: ${message.type}`,
-        );
-      }
       return {
         type: workerResponseMessageTypes.CLIENT_STORE,
-        store: getClientStoreFromQueryExecutor(backupQueryExecutor),
+        store: getClientStoreFromQueryExecutor(restoredQueryExecutor),
       };
     }
 
@@ -361,17 +374,13 @@ async function processAppRequest(
     };
   } else if (message.type === workerRequestMessageTypes.GET_DATABASE_VERSION) {
     if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
-      const backupQueryExecutor = getSQLiteQueryExecutor(
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
         databaseIdentifier.RESTORED,
+        message,
       );
-      if (!backupQueryExecutor) {
-        throw new Error(
-          `Backup not initialized, unable to process request type: ${message.type}`,
-        );
-      }
       return {
         type: workerResponseMessageTypes.GET_DATABASE_VERSION,
-        databaseVersion: backupQueryExecutor.getDatabaseVersion(),
+        databaseVersion: restoredQueryExecutor.getDatabaseVersion(),
       };
     }
 
@@ -381,17 +390,13 @@ async function processAppRequest(
     };
   } else if (message.type === workerRequestMessageTypes.GET_SYNCED_METADATA) {
     if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
-      const backupQueryExecutor = getSQLiteQueryExecutor(
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
         databaseIdentifier.RESTORED,
+        message,
       );
-      if (!backupQueryExecutor) {
-        throw new Error(
-          `Backup not initialized, unable to process request type: ${message.type}`,
-        );
-      }
       return {
         type: workerResponseMessageTypes.GET_SYNCED_METADATA,
-        syncedMetadata: backupQueryExecutor.getSyncedMetadata(
+        syncedMetadata: restoredQueryExecutor.getSyncedMetadata(
           message.entryName,
         ),
       };
@@ -441,16 +446,12 @@ async function processAppRequest(
     message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
   ) {
     if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
-      const backupQueryExecutor = getSQLiteQueryExecutor(
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
         databaseIdentifier.RESTORED,
+        message,
       );
-      if (!backupQueryExecutor) {
-        throw new Error(
-          `Backup not initialized, unable to process request type: ${message.type}`,
-        );
-      }
       processDBStoreOperations(
-        backupQueryExecutor,
+        restoredQueryExecutor,
         message.storeOperations,
         dbModule,
       );
@@ -520,14 +521,10 @@ async function processAppRequest(
       messageIDs,
     };
   } else if (message.type === workerRequestMessageTypes.MIGRATE_BACKUP_SCHEMA) {
-    const restoredQueryExecutor = getSQLiteQueryExecutor(
+    const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
       databaseIdentifier.RESTORED,
+      message,
     );
-    if (!restoredQueryExecutor) {
-      throw new Error(
-        `restoredQueryExecutor not initialized, unable to process request type: ${message.type}`,
-      );
-    }
     restoredQueryExecutor.migrate();
   } else if (
     message.type === workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB
