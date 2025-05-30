@@ -47,6 +47,15 @@ const networkErrorAlertDetails: AlertDetails = {
     'Failed to contact Comm services. Please check your network connection.',
 };
 
+const backupIsNewerThanAppAlertDetails: AlertDetails = {
+  title: 'App out of date',
+  message:
+    `Your app version is pretty old, and restoring your data is not ` +
+    `possible. Please use the ${platformStore} to update, and then ` +
+    `we'll restore all your data. If you don't want to do it now, ` +
+    `you can still use your app.`,
+};
+
 const getFarcasterAccountAlreadyLinkedAlertDetails = (
   commUsername: ?string,
 ): AlertDetails => ({
@@ -63,5 +72,6 @@ export {
   userNotFoundAlertDetails,
   unknownErrorAlertDetails,
   networkErrorAlertDetails,
+  backupIsNewerThanAppAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };

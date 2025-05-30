@@ -21,6 +21,7 @@ import {
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { base64DecodeBuffer, base64EncodeBuffer } from './base64-utils.js';
+import { getBackupIsNewerThanAppError } from './version-utils.js';
 import Alert from '../modals/alert.react.js';
 import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 
@@ -74,6 +75,9 @@ function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
             connection.
           </Alert>,
         );
+      } else if (messageForException === 'backup_is_newer') {
+        const message = getBackupIsNewerThanAppError();
+        pushModal(<Alert title="App out of date">{message}</Alert>);
       } else {
         pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
       }
