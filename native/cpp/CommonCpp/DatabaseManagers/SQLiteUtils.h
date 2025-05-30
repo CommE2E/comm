@@ -21,7 +21,6 @@ public:
       const std::string &newPath,
       const char *errorMessage);
   static bool isDatabaseQueryable(
-      sqlite3 *db,
       bool use_encryption_key,
       const std::string &path,
       const std::string &encryptionKey);
