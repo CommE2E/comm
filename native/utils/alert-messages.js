@@ -82,6 +82,13 @@ const userDataRestoreErrorAlertDetails: AlertDetails = {
     'If the problem keeps reoccurring, please contact Comm staff.',
 };
 
+const backupIsNewerThanAppAlertDetails: AlertDetails = {
+  title: 'App out of date',
+  message:
+    'The backup you’re restoring was made with a newer version ' +
+    'of the app. Please update your app in order to proceed.',
+};
+
 const getFarcasterAccountAlreadyLinkedAlertDetails = (
   commUsername: ?string,
 ): AlertDetails => ({
@@ -103,5 +110,6 @@ export {
   siweLoginErrorAlertDetails,
   userKeysRestoreErrorAlertDetails,
   userDataRestoreErrorAlertDetails,
+  backupIsNewerThanAppAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };

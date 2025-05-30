@@ -15,6 +15,18 @@ function getVersionUnsupportedError(): string {
   );
 }
 
+function getBackupIsNewerThanAppError(): string {
+  const actionRequestMessage = isDesktopPlatform(
+    getConfig().platformDetails.platform,
+  )
+    ? 'Please reload the app'
+    : 'Please refresh the page';
+  return (
+    'The backup you’re restoring was made with a newer version ' +
+    `of the app. ${actionRequestMessage} in order to proceed.`
+  );
+}
+
 function getShortVersionUnsupportedError(): string {
   const actionRequestMessage = isDesktopPlatform(
     getConfig().platformDetails.platform,
@@ -24,4 +36,8 @@ function getShortVersionUnsupportedError(): string {
   return `client version unsupported. ${actionRequestMessage}`;
 }
 
-export { getVersionUnsupportedError, getShortVersionUnsupportedError };
+export {
+  getVersionUnsupportedError,
+  getShortVersionUnsupportedError,
+  getBackupIsNewerThanAppError,
+};

@@ -32,6 +32,8 @@ import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import { rawGetDeviceListsForUsers } from '../identity-service/identity-service-context-provider.react.js';
 import { commCoreModule } from '../native-modules.js';
+import { backupIsNewerThanAppAlertDetails } from '../utils/alert-messages.js';
+import Alert from '../utils/alert.js';
 
 function useRestoreProtocol(): (
   // username or wallet address
@@ -210,11 +212,18 @@ function useRestore(): (
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
         await userDataRestore(backupData, identityAuthResult);
-      } catch (e) {
+      } catch (error) {
+        const messageForException = getMessageForException(error);
         addLog(
           'Error when restoring User Data',
-          getMessageForException(e) ?? 'unknown error',
+          messageForException ?? 'unknown error',
         );
+        if (messageForException === 'backup_is_newer') {
+          Alert.alert(
+            backupIsNewerThanAppAlertDetails.title,
+            backupIsNewerThanAppAlertDetails.message,
+          );
+        }
       }
     },
     [addLog, userDataRestore],

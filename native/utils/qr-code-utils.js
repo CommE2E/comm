@@ -14,6 +14,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import * as AES from './aes-crypto-module.js';
 import {
   appOutOfDateAlertDetails,
+  backupIsNewerThanAppAlertDetails,
   networkErrorAlertDetails,
   unknownErrorAlertDetails,
 } from './alert-messages.js';
@@ -74,6 +75,11 @@ function handleSecondaryDeviceLogInError(error: mixed): void {
     Alert.alert(
       networkErrorAlertDetails.title,
       networkErrorAlertDetails.message,
+    );
+  } else if (messageForException === 'backup_is_newer') {
+    Alert.alert(
+      backupIsNewerThanAppAlertDetails.title,
+      backupIsNewerThanAppAlertDetails.message,
     );
   } else {
     Alert.alert(
