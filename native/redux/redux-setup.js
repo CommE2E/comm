@@ -370,7 +370,7 @@ type FixUnreadActiveThreadResult = {
 
 function fixUnreadActiveThread(
   state: AppState,
-  action: *,
+  action: any,
 ): FixUnreadActiveThreadResult {
   const navContext = getGlobalNavContext();
   const activeThread = activeMessageListSelector(navContext);
@@ -444,7 +444,7 @@ if (reactotron) {
   enhancers = composeFunc(middleware);
 }
 
-const store: Store<AppState, *> = createStore(
+const store: Store<AppState, any> = createStore(
   persistReducer(persistConfig, reducer),
   defaultState,
   enhancers,
