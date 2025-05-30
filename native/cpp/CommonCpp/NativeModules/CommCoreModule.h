@@ -253,8 +253,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value resetOutboundP2PMessagesForDevice(
       jsi::Runtime &rt,
       jsi::String deviceID) override;
-
-  virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) override;
   virtual jsi::Value
   getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) override;
   virtual jsi::Value getSyncedMetadata(
