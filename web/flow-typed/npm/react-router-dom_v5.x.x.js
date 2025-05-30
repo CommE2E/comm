@@ -142,7 +142,7 @@ declare module "react-router-dom" {
   |}>
 
   declare export var Route: React.ComponentType<{|
-    component?: React.ComponentType<*>,
+    component?: React.ComponentType<any>,
     render?: (router: ContextRouter) => React$Node,
     children?: React.ComponentType<ContextRouter> | React$Node,
     path?: string | Array<string>,

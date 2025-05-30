@@ -29,7 +29,7 @@ import {
 } from '../utils/validation-utils.js';
 
 type InnerJSONResponder = {
-  responder: (viewer: Viewer, input: any) => Promise<*>,
+  responder: (viewer: Viewer, input: any) => Promise<any>,
   requiredPolicies: $ReadOnlyArray<PolicyType>,
 };
 

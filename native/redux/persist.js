@@ -1722,7 +1722,7 @@ const persistConfig = {
 // import all the navigation and screen stuff, but some of those screens want to
 // access the persistor to purge its state.
 let storedPersistor = null;
-function setPersistor(persistor: *) {
+function setPersistor(persistor: any) {
   storedPersistor = persistor;
 }
 function getPersistor(): Persistor {

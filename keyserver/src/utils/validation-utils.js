@@ -147,9 +147,9 @@ function sanitizeInput<T>(inputValidator: TType<T>, input: T): T {
 }
 
 function findFirstInputMatchingValidator(
-  wholeInputValidator: *,
-  inputValidatorToMatch: *,
-  input: *,
+  wholeInputValidator: any,
+  inputValidatorToMatch: any,
+  input: any,
 ): any {
   if (!wholeInputValidator || input === null || input === undefined) {
     return null;
