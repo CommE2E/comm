@@ -23,7 +23,7 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{Arc, LazyLock, Mutex};
-use tokio::sync::Notify;
+use tokio::sync::{Mutex as AsyncMutex, Notify};
 use tokio::task::JoinHandle;
 use tokio_util::sync::CancellationToken;
 
@@ -187,7 +187,8 @@ pub fn start_handler_routine(
       let mut tx = Box::pin(tx);
       let mut rx = Box::pin(rx);
 
-      let logs_waiting_for_confirmation = Mutex::new(HashSet::<PathBuf>::new());
+      let logs_waiting_for_confirmation =
+        AsyncMutex::new(HashSet::<PathBuf>::new());
 
       loop {
         let err = tokio::select! {
@@ -221,7 +222,7 @@ async fn watch_and_upload_files(
   backup_client: &BackupClient,
   user_identity: &UserIdentity,
   tx: &mut Pin<Box<impl Sink<UploadLogRequest, Error = BackupError>>>,
-  logs_waiting_for_confirmation: &Mutex<HashSet<PathBuf>>,
+  logs_waiting_for_confirmation: &AsyncMutex<HashSet<PathBuf>>,
 ) -> Result<Infallible, BackupHandlerError> {
   loop {
     let mut file_stream = match tokio::fs::read_dir(&*BACKUP_FOLDER_PATH).await
@@ -266,11 +267,14 @@ async fn watch_and_upload_files(
     }
 
     for (path, backup_id, log_id) in logs {
-      if logs_waiting_for_confirmation.lock()?.contains(&path) {
+      if logs_waiting_for_confirmation.lock().await.contains(&path) {
         continue;
       }
       log::upload_files(tx, backup_id, log_id).await?;
-      logs_waiting_for_confirmation.lock()?.insert(path.clone());
+      logs_waiting_for_confirmation
+        .lock()
+        .await
+        .insert(path.clone());
     }
 
     TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
@@ -281,7 +285,7 @@ async fn delete_confirmed_logs(
   rx: &mut Pin<
     Box<impl Stream<Item = Result<LogUploadConfirmation, BackupError>>>,
   >,
-  logs_waiting_for_confirmation: &Mutex<HashSet<PathBuf>>,
+  logs_waiting_for_confirmation: &AsyncMutex<HashSet<PathBuf>>,
 ) -> Result<Infallible, BackupHandlerError> {
   while let Some(LogUploadConfirmation { backup_id, log_id }) =
     rx.next().await.transpose()?
@@ -289,7 +293,8 @@ async fn delete_confirmed_logs(
     let path =
       get_backup_log_file_path(&backup_id, &log_id.to_string(), false)?;
     logs_waiting_for_confirmation
-      .lock()?
+      .lock()
+      .await
       .remove(&PathBuf::from(path));
 
     tokio::spawn(log::cleanup_files(backup_id, log_id));
