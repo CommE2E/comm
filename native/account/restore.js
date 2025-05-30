@@ -3,11 +3,11 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import {
   restoreUserActionTypes,
   type RestoreUserResult,
 } from 'lib/actions/user-actions.js';
+import { useUserDataRestore } from 'lib/backup/use-user-data-restore.js';
 import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import {
   useLogIn,
@@ -15,7 +15,6 @@ import {
   useWalletLogIn,
 } from 'lib/hooks/login-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import {
   type IdentityAuthResult,
   type SignedDeviceList,
@@ -26,7 +25,7 @@ import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useDispatch, useSelector } from 'lib/utils/redux-utils.js';
+import { useSelector } from 'lib/utils/redux-utils.js';
 import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
@@ -198,31 +197,19 @@ function useRestore(): (
     [dispatchActionPromise, restoreProtocol],
   );
 
-  const dispatch = useDispatch();
   const { addLog } = useDebugLogs();
+  const userDataRestore = useUserDataRestore();
   const restoreUserData = React.useCallback(
     async (identityAuthResult: ?IdentityAuthResult) => {
       if (!fullBackupSupport) {
         return;
       }
       try {
-        const { sqliteAPI } = getConfig();
         if (!identityAuthResult) {
           throw new Error('Missing identityAuthResult');
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
-        await sqliteAPI.restoreUserData(backupData, identityAuthResult);
-        await sqliteAPI.migrateBackupSchema();
-        await sqliteAPI.copyContentFromBackupDatabase();
-
-        const clientDBStore = await sqliteAPI.getClientDBStore(
-          databaseIdentifier.MAIN,
-          identityAuthResult.userID,
-        );
-        dispatch({
-          type: setClientDBStoreActionType,
-          payload: clientDBStore,
-        });
+        await userDataRestore(backupData, identityAuthResult);
       } catch (e) {
         addLog(
           'Error when restoring User Data',
@@ -230,7 +217,7 @@ function useRestore(): (
         );
       }
     },
-    [addLog, dispatch],
+    [addLog, userDataRestore],
   );
 
   const logIn = useLogIn('restore');
