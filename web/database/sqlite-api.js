@@ -142,6 +142,19 @@ const sqliteAPI: SQLiteAPI = {
     return data?.databaseVersion ?? 0;
   },
 
+  async getSyncedMetadata(
+    entryName: string,
+    dbID: DatabaseIdentifier,
+  ): Promise<?string> {
+    const sharedWorker = await getCommSharedWorker();
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_SYNCED_METADATA,
+      entryName,
+      dbID,
+    });
+    return data?.syncedMetadata ?? null;
+  },
+
   // write operations
   async removeInboundP2PMessages(ids: $ReadOnlyArray<string>): Promise<void> {
     const sharedWorker = await getCommSharedWorker();

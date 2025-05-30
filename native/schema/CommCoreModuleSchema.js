@@ -202,6 +202,8 @@ interface Spec extends TurboModule {
   +getSyncedDatabaseVersion: () => Promise<string>;
   // This type should be DatabaseIdentifier
   +getDatabaseVersion: (dbID: string) => Promise<number>;
+  // `dbID` type should be DatabaseIdentifier
+  +getSyncedMetadata: (entryName: string, dbID: string) => Promise<?string>;
   +markPrekeysAsPublished: () => Promise<void>;
   +getRelatedMessages: (
     messageID: string,
