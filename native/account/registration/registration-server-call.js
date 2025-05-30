@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import {
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
@@ -17,7 +16,6 @@ import {
   logInActionSources,
   type LogOutResult,
 } from 'lib/types/account-types.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useSetLocalFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -37,7 +35,6 @@ import {
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
 import { commCoreModule } from '../../native-modules.js';
-import { persistConfig } from '../../redux/persist.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import {
   appOutOfDateAlertDetails,
@@ -427,13 +424,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         }
         await nativeSetUserAvatar(updateUserAvatarRequest);
       } finally {
-        dispatch({
-          type: setSyncedMetadataEntryActionType,
-          payload: {
-            name: syncedMetadataNames.DB_VERSION,
-            data: `${persistConfig.version}`,
-          },
-        });
         dispatch({
           type: setDataLoadedActionType,
           payload: {
