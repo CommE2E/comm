@@ -16,6 +16,11 @@ public:
 
   static void cleanupDatabaseExceptAllowlist(sqlite3 *db);
 
+  // Checks if file exists and if database is queryable
+  static void validateMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey);
+
   // Restores a database from a main compaction file that was previously backed
   // up.
   // This function takes a path to the encrypted main compaction file, decrypts
