@@ -177,8 +177,8 @@ const ignoredArgumentValidator = t.irreducible<mixed>(
 );
 
 type EndpointData = {
-  responder: (viewer: Viewer, input: any) => Promise<*>,
-  inputValidator: TType<*>,
+  responder: (viewer: Viewer, input: any) => Promise<any>,
+  inputValidator: TType<any>,
   policies: $ReadOnlyArray<PolicyType>,
 };
 
