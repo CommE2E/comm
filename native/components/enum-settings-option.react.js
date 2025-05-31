@@ -56,7 +56,7 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
   }, [description, styles.enumInfoDescription]);
 
   const enumInputStyles = React.useMemo(() => {
-    const style = [styles.enumInput];
+    const style: Array<$Values<typeof styles>> = [styles.enumInput];
 
     if (disabled) {
       style.push(styles.disabled);
@@ -67,17 +67,10 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     }
 
     return style;
-  }, [
-    disabled,
-    styles.checkBox,
-    styles.disabled,
-    styles.enumInput,
-    styles.radio,
-    type,
-  ]);
+  }, [disabled, styles, type]);
 
   const enumInputFilledStyles = React.useMemo(() => {
-    const style = [styles.enumInputFill];
+    const style: Array<$Values<typeof styles>> = [styles.enumInputFill];
 
     if (type === 'radio') {
       style.push(styles.radioFill);
@@ -86,7 +79,7 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     }
 
     return style;
-  }, [styles.checkBoxFill, styles.enumInputFill, styles.radioFill, type]);
+  }, [styles, type]);
 
   const enumInputFill = React.useMemo(
     () => (enumValue ? <View style={enumInputFilledStyles} /> : null),
@@ -94,14 +87,14 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
   );
 
   const touchableContainerStyle = React.useMemo(() => {
-    const style = [styles.touchableContainer];
+    const style: Array<$Values<typeof styles>> = [styles.touchableContainer];
 
     if (enumValue) {
       style.push(styles.touchableContainerSelected);
     }
 
     return style;
-  }, [enumValue, styles.touchableContainer, styles.touchableContainerSelected]);
+  }, [enumValue, styles]);
 
   return (
     <View style={styles.container}>
