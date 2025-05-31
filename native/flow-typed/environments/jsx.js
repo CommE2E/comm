@@ -353,7 +353,7 @@ type ReactDOM$HTMLElementJSXIntrinsic = {
   instance: HTMLElement,
   props: {
     +[key: string]: any,
-    +children?: React$Node,
+    +children?: React.Node,
     ...
   },
   ...
@@ -363,7 +363,7 @@ type ReactDOM$SVGElementJSXIntrinsic = {
   instance: Element,
   props: {
     +[key: string]: any,
-    +children?: React$Node,
+    +children?: React.Node,
     ...
   },
   ...
@@ -853,7 +853,7 @@ type ReactDOM$EventHandlers<-E> = $ReadOnly<{|
 
 // Special props provided by React
 type ReactDOM$ReactSpecificProps = {|
-  children?: React$Node,
+  children?: React.Node,
   dangerouslySetInnerHTML?: {|
     __html: ReactDOM$UserVisibleString,
   |},
