@@ -94,18 +94,18 @@ declare module '@react-navigation/native' {
       T: ?NavigationHelpers<ParamList, State, EventMap> = ?NavigationHelpers<ParamList, State, EventMap>,
     >(props: {
       +value: T,
-      +children?: React$Node,
+      +children?: React.Node,
       ...
-    }) => React$Node,
+    }) => React.Node,
     Consumer: <
       ParamList: ParamListBase,
       State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
       EventMap: EventMapBase = EventMapCore<State>,
       T: ?NavigationHelpers<ParamList, State, EventMap> = ?NavigationHelpers<ParamList, State, EventMap>,
     >(props: {
-      +children: (value: T) => ?React$Node,
+      +children: (value: T) => ?React.Node,
       ...
-    }) => React$Node,
+    }) => React.Node,
     displayName?: string,
     ...
   };
@@ -165,7 +165,7 @@ declare module '@react-navigation/native' {
     | { scrollToOffset(options: ScrollToOffsetOptions): void, ... }
     | { scrollResponderScrollTo(options: ScrollToOptions): void, ... };
   declare type ScrollableWrapper =
-    | { getScrollResponder(): React$Node, ... }
+    | { getScrollResponder(): React.Node, ... }
     | { getNode(): ScrollableView, ... }
     | ScrollableView;
   declare export function useScrollToTop(
@@ -181,7 +181,7 @@ declare module '@react-navigation/native' {
   declare export function useTheme(): Theme;
   declare export var ThemeProvider: React$ComponentType<{|
     +value: Theme,
-    +children: React$Node,
+    +children: React.Node,
   |}>;
 
   /**
@@ -199,7 +199,7 @@ declare module '@react-navigation/native' {
     +to: LinkTo<>,
     +action?: GenericNavigationAction,
     +target?: string,
-    +children: React$Node,
+    +children: React.Node,
     ...
   }>;
 

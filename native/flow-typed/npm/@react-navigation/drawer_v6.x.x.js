@@ -44,13 +44,13 @@ declare module '@react-navigation/drawer' {
   declare export type DrawerItemProps = {|
     +label:
       | string
-      | ({| +color: string, +focused: boolean |}) => React$Node,
+      | ({| +color: string, +focused: boolean |}) => React.Node,
     +onPress: () => mixed,
     +icon?: ({|
       +color: string,
       +size: number,
       +focused: boolean,
-    |}) => React$Node,
+    |}) => React.Node,
     +to?: string,
     +focused?: boolean,
     +activeTintColor?: string,
@@ -83,7 +83,7 @@ declare module '@react-navigation/drawer' {
    */
 
   declare export var DrawerContentScrollView: React.ComponentType<{
-    +children: React$Node,
+    +children: React.Node,
     ...
   }>;
 

@@ -30,7 +30,7 @@ declare module '@expo/react-native-action-sheet' {
 
   declare export type ActionSheetOptions = {|
     ...ActionSheetIOSOptions,
-    +icons?: $ReadOnlyArray<React$Node>,
+    +icons?: $ReadOnlyArray<React.Node>,
     +tintIcons?: boolean,
     +textStyle?: TextStyleProp,
     +titleTextStyle?: TextStyleProp,
@@ -55,7 +55,7 @@ declare module '@expo/react-native-action-sheet' {
   declare export function useActionSheet(): ActionSheetProps;
 
   declare export type ActionSheetProviderProps = {|
-    +children: React$Node,
+    +children: React.Node,
     +useNativeDriver?: boolean,
     +useCustomActionSheet?: boolean,
   |};
