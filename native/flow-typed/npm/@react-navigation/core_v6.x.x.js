@@ -276,7 +276,7 @@ declare module '@react-navigation/core' {
     accessibilityValue?: ?AccessibilityValue,
     accessibilityViewIsModal?: ?boolean,
     accessible?: ?boolean,
-    children?: ?React$Node,
+    children?: ?React.Node,
     delayLongPress?: ?number,
     delayPressIn?: ?number,
     delayPressOut?: ?number,
@@ -398,7 +398,7 @@ declare module '@react-navigation/core' {
     shouldCancelWhenOutside?: boolean,
     minPointers?: number,
     hitSlop?: HitSlop,
-    children?: React$Node,
+    children?: React.Node,
   |}>;
 
   declare export type PanGestureHandlerProps = $GestureHandlerProps<
@@ -1035,7 +1035,7 @@ declare module '@react-navigation/core' {
         +children: ({|
           +route: RouteProp<ParamList, RouteName>,
           +navigation: NavProp,
-        |}) => React$Node,
+        |}) => React.Node,
       |};
 
   declare export type ScreenComponent<
@@ -1060,7 +1060,7 @@ declare module '@react-navigation/core' {
     State,
     ScreenOptions,
     EventMap,
-  >) => React$Node;
+  >) => React.Node;
 
   declare type ScreenOptionsProps<
     ScreenOptions: {...},
@@ -1083,7 +1083,7 @@ declare module '@react-navigation/core' {
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
     +id?: string,
-    +children?: React$Node,
+    +children?: React.Node,
     ...
   };
   declare export type NavigatorProps<
@@ -1147,7 +1147,7 @@ declare module '@react-navigation/core' {
     >>>,
     +Group: React.ComponentType<{|
       ...ScreenOptionsProps<ScreenOptions, RouteProp<ParamList>, NavHelpers>,
-      +children: React$Node,
+      +children: React.Node,
       +navigationKey?: string,
     |}>,
   |};
@@ -1181,7 +1181,7 @@ declare module '@react-navigation/core' {
     NavHelpers,
     ScreenOptions: {...} = {...},
   > = {|
-    +render: () => React$Node,
+    +render: () => React.Node,
     +options: $ReadOnly<ScreenOptions>,
     +navigation: NavHelpers,
   |};
@@ -1353,19 +1353,19 @@ declare module '@react-navigation/core' {
     NavHeaderLeftProps,
     NavHeaderRightProps,
   > = $Partial<{|
-    +header: NavHeaderProps => React$Node,
+    +header: NavHeaderProps => React.Node,
     +headerShown: boolean,
-    +headerTitle: string | ( HeaderTitleInputProps => React$Node),
+    +headerTitle: string | ( HeaderTitleInputProps => React.Node),
     +headerTitleAlign: 'left' | 'center',
     +headerTitleStyle: AnimatedTextStyleProp,
     +headerTitleContainerStyle: AnimatedViewStyleProp,
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
-    +headerLeft: null | (NavHeaderLeftProps => React$Node),
+    +headerLeft: null | (NavHeaderLeftProps => React.Node),
     +headerLeftContainerStyle: AnimatedViewStyleProp,
-    +headerRight: NavHeaderRightProps => React$Node,
+    +headerRight: NavHeaderRightProps => React.Node,
     +headerRightContainerStyle: AnimatedViewStyleProp,
-    +headerBackground: ({| style: AnimatedViewStyleProp |}) => React$Node,
+    +headerBackground: ({| style: AnimatedViewStyleProp |}) => React.Node,
     +headerStyle: AnimatedViewStyleProp,
     +headerTransparent: boolean,
     +headerStatusBarHeight: number,
@@ -1398,7 +1398,7 @@ declare module '@react-navigation/core' {
   declare export type StackHeaderLeftButtonProps = $Partial<{|
     ...StackHeaderButtonProps,
     +onPress: (() => void),
-    +backImage: (props: {| tintColor: string |}) => React$Node,
+    +backImage: (props: {| tintColor: string |}) => React.Node,
     +label: string,
     +truncatedLabel: string,
     +labelVisible: boolean,
@@ -1416,7 +1416,7 @@ declare module '@react-navigation/core' {
     +title: string,
     +cardShadowEnabled: boolean,
     +cardOverlayEnabled: boolean,
-    +cardOverlay: {| style: ViewStyleProp |} => React$Node,
+    +cardOverlay: {| style: ViewStyleProp |} => React.Node,
     +cardStyle: ViewStyleProp,
     +animationEnabled: boolean,
     +animationTypeForReplace: 'push' | 'pop',
@@ -1535,7 +1535,7 @@ declare module '@react-navigation/core' {
       {| onPress?: ?(event: PressEvent) => mixed |},
     >,
     +to?: string,
-    +children: React$Node,
+    +children: React.Node,
     +onPress?: (MouseEvent | PressEvent) => void,
   |};
 
@@ -1559,12 +1559,12 @@ declare module '@react-navigation/core' {
     +title: string,
     +tabBarLabel:
       | string
-      | ({| focused: boolean, color: string |}) => React$Node,
+      | ({| focused: boolean, color: string |}) => React.Node,
     +tabBarIcon: ({|
       focused: boolean,
       color: string,
       size: number,
-    |}) => React$Node,
+    |}) => React.Node,
     +tabBarBadge: number | string,
     +tabBarBadgeStyle: TextStyleProp,
     +tabBarAccessibilityLabel: string,
@@ -1573,7 +1573,7 @@ declare module '@react-navigation/core' {
       +show: TabBarVisibilityAnimationConfig,
       +hide: TabBarVisibilityAnimationConfig,
     |}>,
-    +tabBarButton: BottomTabBarButtonProps => React$Node,
+    +tabBarButton: BottomTabBarButtonProps => React.Node,
     +tabBarHideOnKeyboard: boolean,
     +tabBarActiveTintColor: string,
     +tabBarInactiveTintColor: string,
@@ -1658,7 +1658,7 @@ declare module '@react-navigation/core' {
   declare export type BottomTabBarProps = BottomTabNavigationBuilderResult;
 
   declare export type BottomTabNavigationConfig = {|
-    +tabBar?: BottomTabBarProps => React$Node,
+    +tabBar?: BottomTabBarProps => React.Node,
     +safeAreaInsets?: $Partial<EdgeInsets>,
     +detachInactiveScreens?: boolean,
   |};
@@ -1689,7 +1689,7 @@ declare module '@react-navigation/core' {
     +tabBarLabel: string,
     +tabBarIcon:
       | string
-      | ({| +focused: boolean, +color: string |}) => React$Node,
+      | ({| +focused: boolean, +color: string |}) => React.Node,
     +tabBarBadge: boolean | number | string,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
@@ -1798,7 +1798,7 @@ declare module '@react-navigation/core' {
     ...TouchableWithoutFeedbackProps,
     +key: string,
     +route: PaperRoute,
-    +children: React$Node,
+    +children: React.Node,
     +borderless?: boolean,
     +centered?: boolean,
     +rippleColor?: string,
@@ -1807,7 +1807,7 @@ declare module '@react-navigation/core' {
   declare export type MaterialBottomTabNavigationConfig = {|
     +shifting?: boolean,
     +labeled?: boolean,
-    +renderTouchable?: PaperTouchableProps => React$Node,
+    +renderTouchable?: PaperTouchableProps => React.Node,
     +activeColor?: string,
     +inactiveColor?: string,
     +sceneAnimationEnabled?: boolean,
@@ -1842,8 +1842,8 @@ declare module '@react-navigation/core' {
     +title: string,
     +tabBarLabel:
       | string
-      | ({| +focused: boolean, +color: string |}) => React$Node,
-    +tabBarIcon: ({| +focused: boolean, +color: string |}) => React$Node,
+      | ({| +focused: boolean, +color: string |}) => React.Node,
+    +tabBarIcon: ({| +focused: boolean, +color: string |}) => React.Node,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
     +tabBarActiveTintColor: string,
@@ -1862,10 +1862,10 @@ declare module '@react-navigation/core' {
     +tabBarIndicatorContainerStyle: ViewStyleProp,
     +tabBarContentContainerStyle: ViewStyleProp,
     +tabBarStyle: ViewStyleProp,
-    +tabBarBadge: () => React$Node,
-    +tabBarIndicator: MaterialTopTabBarIndicatorProps => React$Node,
+    +tabBarBadge: () => React.Node,
+    +tabBarIndicator: MaterialTopTabBarIndicatorProps => React.Node,
     +lazy: boolean,
-    +lazyPlaceholder: ({| +route: Route<> |}) => React$Node,
+    +lazyPlaceholder: ({| +route: Route<> |}) => React.Node,
   |}>;
 
   /**
@@ -1942,9 +1942,9 @@ declare module '@react-navigation/core' {
       +addListener: (type: 'enter', listener: number => void) => void,
       +removeListener: (type: 'enter', listener: number => void) => void,
       +position: any, // Reanimated.Node<number>
-      +render: React$Node => React$Node,
+      +render: React.Node => React.Node,
       +jumpTo: string => void,
-    |}) => React$Node,
+    |}) => React.Node,
     +gestureHandlerProps: PanGestureHandlerProps,
   |};
 
@@ -1981,15 +1981,15 @@ declare module '@react-navigation/core' {
       +allowFontScaling?: boolean,
       +style?: TextStyleProp,
       ...
-    }) => React$Node,
+    }) => React.Node,
     +icon?: (props: {
       +route: T;
       +focused: boolean,
       +color: string,
       +size: number,
       ...
-    }) => React$Node,
-    +badge?: (props: { +route: T, ... }) => React$Node,
+    }) => React.Node,
+    +badge?: (props: { +route: T, ... }) => React.Node,
   |};
 
   declare export type OpaqueColorValue = Symbol & {| +__TYPE__: 'Color' |};
@@ -2029,7 +2029,7 @@ declare module '@react-navigation/core' {
     +jumpTo: string => void,
     +renderTabBarItem:  (
       props: $ReadOnly<{ ...TabBarItemProps<T>, +key: string, ... }>,
-    ) => React$Node,
+    ) => React.Node,
   |};
 
   declare export type MaterialTopTabNavigationConfig = {|
@@ -2042,8 +2042,8 @@ declare module '@react-navigation/core' {
     +sceneContainerStyle?: ViewStyleProp,
     +style?: ViewStyleProp,
     +gestureHandlerProps?: PanGestureHandlerProps,
-    +pager?: MaterialTopTabPagerProps => React$Node,
-    +tabBar?: MaterialTopTabBarProps<Route<>> => React$Node,
+    +pager?: MaterialTopTabPagerProps => React.Node,
+    +tabBar?: MaterialTopTabBarProps<Route<>> => React.Node,
   |};
 
   declare export type ExtraMaterialTopTabNavigatorProps = {|
@@ -2072,12 +2072,12 @@ declare module '@react-navigation/core' {
     +lazy: boolean,
     +drawerLabel:
       | string
-      | ({| +color: string, +focused: boolean |}) => React$Node,
+      | ({| +color: string, +focused: boolean |}) => React.Node,
     +drawerIcon: ({|
       +color: string,
       +size: number,
       +focused: boolean,
-    |}) => React$Node,
+    |}) => React.Node,
     +drawerActiveTintColor: string,
     +drawerActiveBackgroundColor: string,
     +drawerInactiveTintColor: string,
@@ -2167,7 +2167,7 @@ declare module '@react-navigation/core' {
   |};
 
   declare export type DrawerNavigationConfig = {|
-    +drawerContent?: DrawerNavigationBuilderResult => React$Node,
+    +drawerContent?: DrawerNavigationBuilderResult => React.Node,
     +detachInactiveScreens?: boolean,
     +useLegacyImplementation?: boolean,
   |};
@@ -2193,7 +2193,7 @@ declare module '@react-navigation/core' {
    */
 
   declare export type BaseNavigationContainerProps = {|
-    +children: React$Node,
+    +children: React.Node,
     +initialState?: PossiblyStaleNavigationState,
     +onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
     +independent?: boolean,
@@ -2301,7 +2301,7 @@ declare module '@react-navigation/core' {
       ...BaseNavigationContainerProps,
       +theme?: Theme,
       +linking?: LinkingOptions,
-      +fallback?: React$Node,
+      +fallback?: React.Node,
       +onReady?: () => mixed,
     |}
   >;

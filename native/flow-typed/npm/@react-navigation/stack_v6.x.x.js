@@ -32,7 +32,7 @@ declare module '@react-navigation/stack' {
     +state: StackNavigationState,
     +navigation: Helpers,
     +descriptors: {| +[key: string]: StackDescriptor<Helpers> |},
-  |}): React$Node;
+  |}): React.Node;
 
   /**
    * createStackNavigator

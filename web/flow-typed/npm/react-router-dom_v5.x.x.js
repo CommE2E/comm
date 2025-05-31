@@ -7,21 +7,21 @@ declare module "react-router-dom" {
     forceRefresh?: boolean,
     getUserConfirmation?: GetUserConfirmation,
     keyLength?: number,
-    children?: React$Node
+    children?: React.Node
   |}>
 
   declare export var HashRouter: React.ComponentType<{|
     basename?: string,
     getUserConfirmation?: GetUserConfirmation,
     hashType?: "slash" | "noslash" | "hashbang",
-    children?: React$Node
+    children?: React.Node
   |}>
 
   declare export var Link: React.ComponentType<{
     +className?: string,
     +to: string | LocationShape,
     +replace?: boolean,
-    +children?: React$Node,
+    +children?: React.Node,
     ...
   }>
 
@@ -32,7 +32,7 @@ declare module "react-router-dom" {
     +activeStyle?: { +[string]: mixed, ... },
     +style?: { +[string]: mixed, ... },
     +isActive?: (match: Match, location: Location) => boolean,
-    +children?: React$Node,
+    +children?: React.Node,
     +exact?: boolean,
     +strict?: boolean,
     ...
@@ -112,7 +112,7 @@ declare module "react-router-dom" {
     basename?: string,
     location?: string | Location,
     context: StaticRouterContext,
-    children?: React$Node
+    children?: React.Node
   |}>
 
   declare export var MemoryRouter: React.ComponentType<{|
@@ -120,12 +120,12 @@ declare module "react-router-dom" {
     initialIndex?: number,
     getUserConfirmation?: GetUserConfirmation,
     keyLength?: number,
-    children?: React$Node
+    children?: React.Node
   |}>
 
   declare export var Router: React.ComponentType<{|
     history: RouterHistory,
-    children?: React$Node
+    children?: React.Node
   |}>
 
   declare export var Prompt: React.ComponentType<{|
@@ -143,8 +143,8 @@ declare module "react-router-dom" {
 
   declare export var Route: React.ComponentType<{|
     component?: React.ComponentType<*>,
-    render?: (router: ContextRouter) => React$Node,
-    children?: React.ComponentType<ContextRouter> | React$Node,
+    render?: (router: ContextRouter) => React.Node,
+    children?: React.ComponentType<ContextRouter> | React.Node,
     path?: string | Array<string>,
     exact?: boolean,
     strict?: boolean,
@@ -153,7 +153,7 @@ declare module "react-router-dom" {
   |}>
 
   declare export var Switch: React.ComponentType<{|
-    children?: React$Node,
+    children?: React.Node,
     location?: Location
   |}>
 

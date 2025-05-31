@@ -30,7 +30,7 @@ declare module '@react-navigation/elements' {
   >;
 
   declare export type HeaderBackgroundProps = Partial<{
-    +children: React$Node,
+    +children: React.Node,
     +style: AnimatedViewStyleProp,
     ...
   }>;
