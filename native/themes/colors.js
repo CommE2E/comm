@@ -52,7 +52,116 @@ const designSystemColors = Object.freeze({
   spoilerColor: '#33332c',
 });
 
-const light = Object.freeze({
+export type Colors = $ReadOnly<{
+  blockQuoteBackground: string,
+  blockQuoteBorder: string,
+  codeBackground: string,
+  disabledButton: string,
+  disabledButtonText: string,
+  disconnectedBarBackground: string,
+  editButton: string,
+  floatingButtonBackground: string,
+  floatingButtonLabel: string,
+  headerChevron: string,
+  inlineEngagementBackground: string,
+  inlineEngagementLabel: string,
+  link: string,
+  listBackground: string,
+  listBackgroundLabel: string,
+  listBackgroundSecondaryLabel: string,
+  listBackgroundTernaryLabel: string,
+  listChatBubble: string,
+  listForegroundLabel: string,
+  listForegroundSecondaryLabel: string,
+  listForegroundTertiaryLabel: string,
+  listInputBackground: string,
+  listInputBar: string,
+  listInputButton: string,
+  listIosHighlightUnderlay: string,
+  listSearchBackground: string,
+  listSearchIcon: string,
+  listSeparatorLabel: string,
+  modalBackground: string,
+  modalBackgroundLabel: string,
+  modalBackgroundSecondaryLabel: string,
+  modalButton: string,
+  modalButtonLabel: string,
+  modalContrastBackground: string,
+  modalContrastForegroundLabel: string,
+  modalContrastOpacity: number,
+  modalForeground: string,
+  modalForegroundBorder: string,
+  modalForegroundLabel: string,
+  modalForegroundSecondaryLabel: string,
+  modalForegroundTertiaryLabel: string,
+  modalIosHighlightUnderlay: string,
+  modalSubtext: string,
+  modalSubtextLabel: string,
+  modalInputBackground: string,
+  modalInputForeground: string,
+  modalKnob: string,
+  modalAccentBackground: string,
+  navigationCard: string,
+  navigationChevron: string,
+  panelBackground: string,
+  panelBackgroundLabel: string,
+  panelButton: string,
+  panelForeground: string,
+  panelForegroundBorder: string,
+  panelForegroundLabel: string,
+  panelForegroundIcon: string,
+  panelForegroundSecondaryLabel: string,
+  panelForegroundTertiaryLabel: string,
+  panelInputBackground: string,
+  panelInputSecondaryForeground: string,
+  panelIosHighlightUnderlay: string,
+  panelSecondaryForeground: string,
+  panelSecondaryForegroundBorder: string,
+  panelSeparator: string,
+  purpleLink: string,
+  purpleButton: string,
+  primaryButtonToggled: string,
+  primaryButtonText: string,
+  reactionSelectionPopoverItemBackground: string,
+  redText: string,
+  spoiler: string,
+  tabBarAccent: string,
+  tabBarBackground: string,
+  tabBarActiveTintColor: string,
+  vibrantGreenButton: string,
+  vibrantRedButton: string,
+  whiteText: string,
+  tooltipBackground: string,
+  logInSpacer: string,
+  siweButton: string,
+  siweButtonText: string,
+  drawerExpandButton: string,
+  drawerExpandButtonDisabled: string,
+  drawerItemLabelLevel0: string,
+  drawerItemLabelLevel1: string,
+  drawerItemLabelLevel2: string,
+  drawerOpenCommunityBackground: string,
+  drawerBackground: string,
+  subthreadsModalClose: string,
+  subthreadsModalBackground: string,
+  subthreadsModalSearch: string,
+  typeaheadTooltipBackground: string,
+  typeaheadTooltipBorder: string,
+  typeaheadTooltipText: string,
+  messageLabel: string,
+  modalSeparator: string,
+  secondaryButtonBorder: string,
+  inviteLinkLinkColor: string,
+  inviteLinkButtonBackground: string,
+  greenIndicatorInner: string,
+  greenIndicatorOuter: string,
+  redIndicatorInner: string,
+  redIndicatorOuter: string,
+  deletedMessageText: string,
+  deletedMessageBackground: string,
+}>;
+
+const light: Colors = Object.freeze({
   blockQuoteBackground: designSystemColors.shadesWhite70,
   blockQuoteBorder: designSystemColors.shadesWhite60,
   codeBackground: designSystemColors.shadesWhite70,
@@ -145,6 +254,9 @@ const light = Object.freeze({
   subthreadsModalClose: designSystemColors.shadesBlack50,
   subthreadsModalBackground: designSystemColors.shadesWhite80,
   subthreadsModalSearch: '#00000008',
+  typeaheadTooltipBackground: '#1F1F1f',
+  typeaheadTooltipBorder: designSystemColors.shadesBlack75,
+  typeaheadTooltipText: 'white',
   messageLabel: designSystemColors.shadesBlack95,
   modalSeparator: designSystemColors.shadesWhite60,
   secondaryButtonBorder: designSystemColors.shadesWhite100,
@@ -157,7 +269,6 @@ const light = Object.freeze({
   deletedMessageText: designSystemColors.shadesBlack60,
   deletedMessageBackground: designSystemColors.shadesWhite90,
 });
-export type Colors = $Exact<typeof light>;
 
 const dark: Colors = Object.freeze({
   blockQuoteBackground: '#A9A9A9',
@@ -284,7 +395,7 @@ for (const theme in colors) {
   }
 }
 
-type Styles = { [name: string]: { [field: string]: mixed } };
+type Styles = { [name: string]: { +[field: string]: any } };
 
 export type StyleSheetOf<S: Styles> = $ReadOnly<{ [$Keys<S>]: any }>;
 
@@ -292,7 +403,7 @@ function stylesFromColors<IS: Styles>(
   obj: IS,
   themeColors: Colors,
 ): StyleSheetOf<IS> {
-  const result: Styles = {};
+  const result: IS = { ...obj };
   for (const key in obj) {
     const style = obj[key];
     const filledInStyle = { ...style };
