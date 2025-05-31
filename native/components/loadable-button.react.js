@@ -18,7 +18,7 @@ function LoadableContent(props: LoadableContentProps): React.Node {
   const colors = useColors();
 
   const buttonContentContainerStyles = React.useMemo(() => {
-    const result = [styles.container];
+    const result: Array<$Values<typeof styles>> = [styles.container];
 
     if (isLoading) {
       result.push(styles.containerLoading);

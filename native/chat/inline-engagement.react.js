@@ -325,7 +325,9 @@ function InlineEngagement(props: Props): React.Node {
   ]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
-    const styleResult = [styles.inlineEngagement];
+    const styleResult: Array<$Values<typeof styles>> = [
+      styles.inlineEngagement,
+    ];
     if (isRight) {
       styleResult.push(styles.rightInlineEngagement);
     } else if (isCenter) {

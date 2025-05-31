@@ -28,7 +28,7 @@ function RelationshipButton(props: Props): React.Node {
   const colors = useColors();
 
   const buttonStyle = React.useMemo(() => {
-    const result = [styles.buttonContainer];
+    const result: Array<$Values<typeof styles>> = [styles.buttonContainer];
 
     if (type === 'add' || type === 'accept' || type === 'unblock') {
       result.push(styles.greenButton);
