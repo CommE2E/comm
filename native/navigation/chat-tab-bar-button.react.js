@@ -33,7 +33,7 @@ const unboundStyles = {
 };
 
 type Props = {
-  +tabBarIcon: ({ +color: string, ... }) => React$Node,
+  +tabBarIcon: ({ +color: string, ... }) => React.Node,
   +title: string,
 };
 

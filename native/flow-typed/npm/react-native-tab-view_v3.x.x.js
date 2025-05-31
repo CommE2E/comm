@@ -30,7 +30,7 @@ declare module 'react-native-tab-view' {
     +getLabelText?: () => string,
     +getAccessible?: () => void,
     +getAccessibilityLabel?: () => void,
-    +renderIcon?: ({ color: string, ... }) => React$Node,
+    +renderIcon?: ({ color: string, ... }) => React.Node,
     +getTestID?: () => void,
     +activeColor?: string,
     ...
@@ -38,16 +38,16 @@ declare module 'react-native-tab-view' {
 
   declare export var TabView: React.ComponentType<{
     +navigationState: { +index: number, ... },
-    +renderScene: (props: SceneRendererProps & { +route: Route<>, ... }) => React$Node,
+    +renderScene: (props: SceneRendererProps & { +route: Route<>, ... }) => React.Node,
     +onIndexChange: (number) => void,
     +initialLayout: Partial<Layout>,
-    +renderTabBar: (TabBarProps) => React$Node,
+    +renderTabBar: (TabBarProps) => React.Node,
     ...
   }>;
 
   declare export function SceneMap(scenes: {
-    [key: string]: () => React$Node,
-  }): (props: SceneRendererProps & { +route: Route<>, ... }) => React$Node;
+    [key: string]: () => React.Node,
+  }): (props: SceneRendererProps & { +route: Route<>, ... }) => React.Node;
 
   declare export var TabBar: React.ComponentType<{
     +style: ViewStyle,
