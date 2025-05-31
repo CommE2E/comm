@@ -57,7 +57,7 @@ const unboundStyles = {
     color: 'typeaheadTooltipText',
   },
   buttonLabel: {
-    color: 'white',
+    color: 'typeaheadTooltipText',
     fontSize: 16,
     fontWeight: '400',
     marginLeft: 8,
