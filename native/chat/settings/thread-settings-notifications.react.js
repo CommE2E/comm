@@ -40,7 +40,9 @@ function NotificationDescription(
   const colors = useColors();
 
   const bannerNotifsDescriptionTextStyles = React.useMemo(() => {
-    const style = [styles.notificationOptionDescriptionText];
+    const style: Array<$Values<typeof styles>> = [
+      styles.notificationOptionDescriptionText,
+    ];
 
     if (selected && !bannerNotifsEnabled) {
       style.push(styles.notificationOptionDescriptionTextDisabledSelected);
@@ -49,16 +51,12 @@ function NotificationDescription(
     }
 
     return style;
-  }, [
-    bannerNotifsEnabled,
-    selected,
-    styles.notificationOptionDescriptionText,
-    styles.notificationOptionDescriptionTextDisabled,
-    styles.notificationOptionDescriptionTextDisabledSelected,
-  ]);
+  }, [bannerNotifsEnabled, selected, styles]);
 
   const notifCountDescriptionTextStyles = React.useMemo(() => {
-    const style = [styles.notificationOptionDescriptionText];
+    const style: Array<$Values<typeof styles>> = [
+      styles.notificationOptionDescriptionText,
+    ];
 
     if (selected && !notifCountEnabled) {
       style.push(styles.notificationOptionDescriptionTextDisabledSelected);
@@ -67,13 +65,7 @@ function NotificationDescription(
     }
 
     return style;
-  }, [
-    notifCountEnabled,
-    selected,
-    styles.notificationOptionDescriptionText,
-    styles.notificationOptionDescriptionTextDisabled,
-    styles.notificationOptionDescriptionTextDisabledSelected,
-  ]);
+  }, [notifCountEnabled, selected, styles]);
 
   let bannerNotifsIconColor = colors.panelForegroundSecondaryLabel;
   if (selected && !bannerNotifsEnabled) {
