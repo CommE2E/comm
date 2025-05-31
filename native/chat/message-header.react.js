@@ -41,7 +41,7 @@ function MessageHeader(props: Props): React.Node {
   );
 
   const authorNameStyle = React.useMemo(() => {
-    const style = [styles.authorName];
+    const style: Array<$Values<typeof styles>> = [styles.authorName];
     if (modalDisplay) {
       style.push(styles.modal);
     }
