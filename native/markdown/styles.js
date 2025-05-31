@@ -95,13 +95,13 @@ const unboundStyles = {
   insideListView: {
     flexShrink: 1,
   },
-};
+} as const;
 
 export type MarkdownStyles = typeof unboundStyles;
 
 const getMarkdownStyles: GlobalTheme => MarkdownStyles = _memoize(
   (theme: GlobalTheme) => {
-    return getStylesForTheme(unboundStyles, theme);
+    return getStylesForTheme({ ...unboundStyles }, theme);
   },
 );
 
