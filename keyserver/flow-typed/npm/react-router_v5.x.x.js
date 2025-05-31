@@ -70,7 +70,7 @@ declare module "react-router" {
     basename?: string,
     location?: string | Location,
     context: StaticRouterContext,
-    children?: React$Node,
+    children?: React.Node,
     ...
   }> {}
 
@@ -79,13 +79,13 @@ declare module "react-router" {
     initialIndex?: number,
     getUserConfirmation?: GetUserConfirmation,
     keyLength?: number,
-    children?: React$Node,
+    children?: React.Node,
     ...
   }> {}
 
   declare export class Router extends React.Component<{
     history: RouterHistory,
-    children?: React$Node,
+    children?: React.Node,
     ...
   }> {}
 
@@ -106,8 +106,8 @@ declare module "react-router" {
 
   declare export class Route extends React.Component<{|
     component?: React.ComponentType<any>,
-    render?: (router: ContextRouter) => React$Node,
-    children?: React.ComponentType<ContextRouter> | React$Node,
+    render?: (router: ContextRouter) => React.Node,
+    children?: React$ComponentType<ContextRouter> | React.Node,
     path?: string | Array<string>,
     exact?: boolean,
     strict?: boolean,
@@ -116,7 +116,7 @@ declare module "react-router" {
   |}> {}
 
   declare export class Switch extends React.Component<{|
-    children?: React$Node,
+    children?: React.Node,
     location?: Location
   |}> {}
 

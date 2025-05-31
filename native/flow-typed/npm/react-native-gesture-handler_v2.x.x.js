@@ -27,7 +27,7 @@ declare module 'react-native-gesture-handler/@react-native' {
     accessibilityIgnoresInvertColors?: boolean,
     accessibilityRole?: AccessibilityRole,
     accessibilityStates?: AccessibilityStates,
-    children?: React$Node,
+    children?: React.Node,
     delayLongPress?: number,
     delayPressIn?: number,
     delayPressOut?: number,
@@ -116,7 +116,7 @@ declare module 'react-native-gesture-handler/DrawerLayout' {
   declare export type DrawerKeyboardDismissMode = 'none' | 'on-drag';
 
   declare export type DrawerLayoutProps = $ReadOnly<{
-    renderNavigationView: (progressAnimatedValue: AnimatedValue) => React$Node,
+    renderNavigationView: (progressAnimatedValue: AnimatedValue) => React.Node,
     contentContainerStyle?: ViewStyle,
     drawerBackgroundColor?: string,
     drawerContainerStyle?: ViewStyle,
@@ -199,11 +199,11 @@ declare module 'react-native-gesture-handler/Swipeable' {
     renderLeftActions?: (
       progressAnimatedValue: AnimatedValue,
       dragAnimatedValue: AnimatedValue
-    ) => React$Node,
+    ) => React.Node,
     renderRightActions?: (
       progressAnimatedValue: AnimatedValue,
       dragAnimatedValue: AnimatedValue
-    ) => React$Node,
+    ) => React.Node,
     rightThreshold?: number,
     useNativeAnimations?: boolean,
     ...
@@ -392,7 +392,7 @@ declare module 'react-native-gesture-handler/GestureHandler' {
     shouldCancelWhenOutside?: boolean,
     minPointers?: number,
     hitSlop?: HitSlop,
-    children?: React$Node,
+    children?: React.Node,
   |}>;
 
   /////////////////////////////////////////////////////////////////////////////
@@ -825,7 +825,7 @@ declare type UserSelect = 'none' | 'auto' | 'text';
 interface GestureDetectorProps {
   gesture: ComposedGesture | GestureType;
   userSelect?: UserSelect;
-  children?: React$Node;
+  children?: React.Node;
 }
 
 declare const GestureObject: {|
