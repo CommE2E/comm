@@ -92,10 +92,9 @@ declare module 'react-native-reanimated' {
 
   declare export type Set = (node: ValueImpl, val: NodeParam) => NodeImpl;
 
-  declare type ToNumber = (val: mixed) => number;
   declare export type Call = <N: $ReadOnlyArray<NodeImpl>>(
     nodes: N,
-    callback: (vals: $TupleMap<N, ToNumber>) => mixed,
+    callback: (vals: {[K in keyof N]: number}) => mixed,
   ) => NodeImpl;
 
   declare export type Cond = (
