@@ -298,11 +298,14 @@ void DatabaseManager::createMainCompaction(
     std::string newLogEncryptionKey) {
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false, false);
+  std::string finalBackupVersionInfoPath =
+      PlatformSpecificTools::getBackupFilePath(backupID, false, true);
   std::string finalAttachmentsPath =
       PlatformSpecificTools::getBackupFilePath(backupID, true, false);
 
   std::string tempBackupPath = finalBackupPath + "_tmp";
   std::string tempAttachmentsPath = finalAttachmentsPath + "_tmp";
+  std::string tempVersionPath = finalBackupVersionInfoPath + "_tmp";
 
   if (SQLiteUtils::fileExists(tempBackupPath)) {
     Logger::log(
@@ -325,6 +328,18 @@ void DatabaseManager::createMainCompaction(
         "attempt.");
   }
 
+  if (SQLiteUtils::fileExists(tempVersionPath)) {
+    Logger::log(
+        "Attempting to delete temporary version file from previous "
+        "backup "
+        "attempt.");
+    SQLiteUtils::attemptDeleteFile(
+        tempVersionPath,
+        "Failed to delete temporary version file from previous backup "
+        "attempt.");
+  }
+
+  // handle main compaction
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
   SQLiteUtils::setEncryptionKey(backupDB, mainCompactionEncryptionKey);
@@ -369,6 +384,7 @@ void DatabaseManager::createMainCompaction(
       "Failed to rename complete temporary backup file to final backup "
       "file.");
 
+  // handle attachments
   std::ofstream tempAttachmentsFile(tempAttachmentsPath);
   if (!tempAttachmentsFile.is_open()) {
     std::string errorMessage{
@@ -397,6 +413,26 @@ void DatabaseManager::createMainCompaction(
       "Failed to rename complete temporary attachments file to final "
       "attachments file.");
 
+  // handle db version info
+  std::ofstream tempVersionFile(tempVersionPath);
+  if (!tempVersionFile.is_open()) {
+    std::string errorMessage{
+        "Unable to create version file for backup id: " + backupID};
+    Logger::log(errorMessage);
+    throw std::runtime_error(errorMessage);
+  }
+  int dbVersion = SQLiteUtils::getDatabaseVersion(
+      DatabaseManager::mainConnectionManager->getConnection());
+  tempVersionFile << dbVersion;
+  tempVersionFile.close();
+
+  SQLiteUtils::attemptRenameFile(
+      tempVersionPath,
+      finalBackupVersionInfoPath,
+      "Failed to rename complete temporary version file to final version "
+      "file.");
+
+  // update logs to use new backup
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
