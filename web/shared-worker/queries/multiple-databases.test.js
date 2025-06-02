@@ -71,7 +71,7 @@ describe('Multiple databases', () => {
     );
 
     // should not copy content that is not in `tablesAllowlist`
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
     expect(mainQueryExecutor.getMetadata(METADATA_KEY)).toBe(
       METADATA_DEFAULT_VALUE_MAIN,
     );
@@ -88,7 +88,7 @@ describe('Multiple databases', () => {
     draft = mainQueryExecutor.getAllDrafts().find(d => d.key === draftKey);
     expect(draft).toBeUndefined();
 
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
     // present in backup
     draft = backupQueryExecutor.getAllDrafts().find(d => d.key === draftKey);
     expect(draft?.text).toBe(draftContent);
@@ -104,7 +104,7 @@ describe('Multiple databases', () => {
     mainQueryExecutor.updateDraft(draftKey, mainDraftContent);
     backupQueryExecutor.updateDraft(draftKey, backupDraftContent);
 
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
 
     const mainDraft = mainQueryExecutor
       .getAllDrafts()
