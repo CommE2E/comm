@@ -11,6 +11,7 @@ import { Viewer } from './viewer.js';
 function createBotViewer(userID: string): Viewer {
   let userIDIsBot = false;
   for (const botName in bots) {
+    // $FlowFixMe
     if (bots[botName].userID === userID) {
       userIDIsBot = true;
       break;
