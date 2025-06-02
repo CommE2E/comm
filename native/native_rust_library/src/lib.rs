@@ -514,7 +514,12 @@ mod ffi {
     fn get_siwe_backup_message_path(backup_id: &str) -> Result<String>;
 
     #[cxx_name = "createMainCompaction"]
-    fn create_main_compaction(backup_id: &str, future_id: usize);
+    fn create_main_compaction(
+      backup_id: &str,
+      main_compaction_encryption_key: &str,
+      new_log_encryption_key: &str,
+      future_id: usize,
+    );
 
     #[cxx_name = "restoreFromMainCompaction"]
     fn restore_from_main_compaction(
