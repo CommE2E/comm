@@ -49,7 +49,9 @@ async function createInitialRolesForNewThread(
   for (const name in rolePermissions) {
     const id = ids.shift();
     namesToIDs[name] = id;
+    // $FlowFixMe
     const permissionsBlob = JSON.stringify(rolePermissions[name]);
+    // $FlowFixMe
     const specialRole = defaultSpecialRoles[name] ?? null;
     newRows.push([id, threadID, name, permissionsBlob, time, specialRole]);
   }

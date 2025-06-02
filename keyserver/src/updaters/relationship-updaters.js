@@ -97,6 +97,7 @@ async function updateRelationships(
           if (request.users[userID].createRobotextInThinThread) {
             messageDatas.push({
               type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
+              // $FlowFixMe
               threadID: threadIDPerUser[userID],
               creatorID: viewer.userID,
               targetID: userID,
@@ -110,6 +111,7 @@ async function updateRelationships(
           if (request.users[userID].createRobotextInThinThread) {
             messageDatas.push({
               type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
+              // $FlowFixMe
               threadID: threadIDPerUser[userID],
               creatorID: viewer.userID,
               targetID: userID,
