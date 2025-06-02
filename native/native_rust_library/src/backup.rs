@@ -5,7 +5,8 @@ mod upload_handler;
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
 use crate::ffi::{
-  create_main_compaction, get_backup_directory_path,
+  create_main_compaction, generate_backup_data_key,
+  generate_backup_log_data_key, get_backup_directory_path,
   get_backup_user_keys_file_path, get_siwe_backup_message_path,
   restore_from_backup_log, restore_from_main_compaction, secure_store_get,
   set_backup_id, string_callback, void_callback,
@@ -39,12 +40,22 @@ pub mod ffi {
     pickle_key: String,
     pickled_account: String,
     siwe_backup_msg: String,
-  ) -> Result<(), String> {
+    use_random_keys: bool,
+  ) -> Result<(String, String), String> {
+    let backup_data_key =
+      generate_backup_data_key().map_err(|e| e.to_string())?;
+    let backup_log_data_key =
+      generate_backup_log_data_key().map_err(|e| e.to_string())?;
+
     let result = create_user_keys_compaction(
       backup_id.clone(),
       backup_secret,
       pickle_key,
       pickled_account,
+      Some(&backup_data_key).filter(|_| use_random_keys).cloned(),
+      Some(&backup_log_data_key)
+        .filter(|_| use_random_keys)
+        .cloned(),
     )
     .await
     .map_err(|err| err.to_string());
@@ -63,7 +74,7 @@ pub mod ffi {
       }
     }
 
-    Ok(())
+    Ok((backup_data_key, backup_log_data_key))
   }
 
   pub fn create_backup(
@@ -77,18 +88,19 @@ pub mod ffi {
     compaction_upload_promises::insert(backup_id.clone(), promise_id);
 
     RUNTIME.spawn(async move {
-      if (prepare_user_keys_backup(
-        backup_id.clone(),
-        backup_secret,
-        pickle_key,
-        pickled_account,
-        siwe_backup_msg.clone(),
-      )
-      .await)
-        .is_err()
-      {
+      let Ok((backup_data_key, backup_log_data_key)) =
+        prepare_user_keys_backup(
+          backup_id.clone(),
+          backup_secret,
+          pickle_key,
+          pickled_account,
+          siwe_backup_msg.clone(),
+          false,
+        )
+        .await
+      else {
         return;
-      }
+      };
 
       let (future_id, future) = future_manager::new_future::<()>().await;
       create_main_compaction(&backup_id, future_id);
@@ -119,6 +131,7 @@ pub mod ffi {
         pickle_key,
         pickled_account,
         siwe_backup_msg.clone(),
+        false,
       )
       .await)
         .is_err()
@@ -297,15 +310,23 @@ pub async fn get_encrypted_user_keys(
   backup_secret: String,
   pickle_key: String,
   pickled_account: String,
+  backup_data_key: Option<String>,
+  backup_log_data_key: Option<String>,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
   let mut backup_key =
     compute_backup_key(backup_secret.as_bytes(), backup_id.as_bytes())?;
 
-  let backup_data_key =
-    secure_store_get(secure_store::SECURE_STORE_BACKUP_DATA_KEY_ID)?;
+  let backup_data_key = match backup_data_key {
+    Some(key) => key,
+    None => secure_store_get(secure_store::SECURE_STORE_BACKUP_DATA_KEY_ID)?,
+  };
 
-  let backup_log_data_key =
-    secure_store_get(secure_store::SECURE_STORE_BACKUP_LOG_DATA_KEY_ID)?;
+  let backup_log_data_key = match backup_log_data_key {
+    Some(key) => key,
+    None => {
+      secure_store_get(secure_store::SECURE_STORE_BACKUP_LOG_DATA_KEY_ID)?
+    }
+  };
 
   let user_keys = UserKeys {
     backup_data_key,
@@ -321,12 +342,16 @@ pub async fn create_user_keys_compaction(
   backup_secret: String,
   pickle_key: String,
   pickled_account: String,
+  backup_data_key: Option<String>,
+  backup_log_data_key: Option<String>,
 ) -> Result<(), Box<dyn Error>> {
   let encrypted_user_keys = get_encrypted_user_keys(
     backup_id.clone(),
     backup_secret,
     pickle_key,
     pickled_account,
+    backup_data_key,
+    backup_log_data_key,
   )
   .await?;
 
@@ -347,6 +372,8 @@ pub async fn create_ephemeral_user_keys_compaction(
     backup_secret,
     pickle_key,
     pickled_account,
+    None,
+    None,
   )
   .await?;
 
