@@ -10,9 +10,10 @@ rust::String getBackupDirectoryPath() {
   return rust::String(PlatformSpecificTools::getBackupDirectoryPath());
 }
 
-rust::String getBackupFilePath(rust::Str backupID, bool isAttachments) {
+rust::String
+getBackupFilePath(rust::Str backupID, bool isAttachments, bool isVersion) {
   return rust::String(PlatformSpecificTools::getBackupFilePath(
-      std::string(backupID), isAttachments));
+      std::string(backupID), isAttachments, isVersion));
 }
 
 rust::String

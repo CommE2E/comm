@@ -5,7 +5,8 @@
 namespace comm {
 
 rust::String getBackupDirectoryPath();
-rust::String getBackupFilePath(rust::Str backupID, bool isAttachments);
+rust::String
+getBackupFilePath(rust::Str backupID, bool isAttachments, bool isVersion);
 rust::String
 getBackupLogFilePath(rust::Str backupID, rust::Str logID, bool isAttachments);
 rust::String getBackupUserKeysFilePath(rust::Str backupID);
