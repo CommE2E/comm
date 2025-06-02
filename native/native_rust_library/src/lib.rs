@@ -498,6 +498,7 @@ mod ffi {
     fn get_backup_file_path(
       backup_id: &str,
       is_attachments: bool,
+      is_version: bool,
     ) -> Result<String>;
 
     #[cxx_name = "getBackupLogFilePath"]
