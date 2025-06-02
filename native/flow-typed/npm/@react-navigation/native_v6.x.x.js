@@ -189,8 +189,8 @@ declare module '@react-navigation/native' {
    */
 
   declare export type LinkTo<
-    ParamList: ParamListBase,
-    RouteName: $Keys<ParamList>,
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > =
     | string
     | {| +screen: RouteName, +params?: $ElementType<ParamList, RouteName> |};
