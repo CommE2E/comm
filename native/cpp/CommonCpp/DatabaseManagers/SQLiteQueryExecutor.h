@@ -144,7 +144,9 @@ public:
   std::string getMetadata(std::string entryName) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
-  void copyContentFromDatabase(const std::string databasePath) const override;
+  void copyContentFromDatabase(
+      const std::string databasePath,
+      std::optional<std::string> encryptionKey) const override;
   void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const override;
   std::vector<OutboundP2PMessage> getOutboundP2PMessagesByID(

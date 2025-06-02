@@ -529,7 +529,10 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB
   ) {
-    sqliteQueryExecutor.copyContentFromDatabase(SQLITE_RESTORE_DATABASE_PATH);
+    sqliteQueryExecutor.copyContentFromDatabase(
+      SQLITE_RESTORE_DATABASE_PATH,
+      null,
+    );
   }
 
   persistNeeded = true;
