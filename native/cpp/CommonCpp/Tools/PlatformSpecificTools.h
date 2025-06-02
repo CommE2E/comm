@@ -11,7 +11,7 @@ public:
   static std::string getNotificationsCryptoAccountPath();
   static std::string getBackupDirectoryPath();
   static std::string
-  getBackupFilePath(std::string backupID, bool isAttachments);
+  getBackupFilePath(std::string backupID, bool isAttachments, bool isVersion);
   static std::string getBackupLogFilePath(
       std::string backupID,
       std::string logID,

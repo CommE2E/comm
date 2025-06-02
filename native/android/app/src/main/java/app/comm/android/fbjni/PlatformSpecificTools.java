@@ -55,9 +55,11 @@ public class PlatformSpecificTools {
   }
 
   public static String
-  getBackupFilePath(String backupID, boolean isAttachments) {
+  getBackupFilePath(String backupID, boolean isAttachments, boolean isVersion) {
     if (isAttachments) {
       return getBackupFilePathInternal(backupID, "attachments");
+    } else if (isVersion) {
+      return getBackupFilePathInternal(backupID, "dbVersion");
     }
     return getBackupFilePathInternal(backupID, null);
   }
