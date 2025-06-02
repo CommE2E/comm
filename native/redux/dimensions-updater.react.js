@@ -95,6 +95,7 @@ function DimensionsUpdater(): null {
       };
     }
     for (const key in updates) {
+      // $FlowFixMe
       if (updates[key] === dimensions[key]) {
         continue;
       }
