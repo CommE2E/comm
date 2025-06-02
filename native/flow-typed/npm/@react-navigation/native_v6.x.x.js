@@ -196,7 +196,7 @@ declare module '@react-navigation/native' {
     | {| +screen: RouteName, +params?: $ElementType<ParamList, RouteName> |};
 
   declare export var Link: React$ComponentType<{
-    +to: LinkTo<>,
+    +to: LinkTo<any, any>,
     +action?: GenericNavigationAction,
     +target?: string,
     +children: React.Node,
