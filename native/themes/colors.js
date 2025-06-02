@@ -389,11 +389,11 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
 );
 
 const magicStrings = new Set<string>();
-for (const theme in colors) {
+Object.keys(colors).forEach(theme => {
   for (const magicString in colors[theme]) {
     magicStrings.add(magicString);
   }
-}
+});
 
 type Styles = { [name: string]: { [field: string]: mixed } };
 
