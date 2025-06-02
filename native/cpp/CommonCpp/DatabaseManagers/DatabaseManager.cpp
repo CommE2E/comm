@@ -292,7 +292,10 @@ void DatabaseManager::triggerBackupFileUpload() {
   ::triggerBackupFileUpload();
 }
 
-void DatabaseManager::createMainCompaction(std::string backupID) {
+void DatabaseManager::createMainCompaction(
+    std::string backupID,
+    std::string mainCompactionEncryptionKey,
+    std::string newLogEncryptionKey) {
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
   std::string finalAttachmentsPath =
@@ -324,8 +327,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
-  SQLiteUtils::setEncryptionKey(
-      backupDB, DatabaseManager::mainConnectionManager->getBackupDataKey());
+  SQLiteUtils::setEncryptionKey(backupDB, mainCompactionEncryptionKey);
 
   DatabaseManager::mainConnectionManager->initializeConnection();
   sqlite3_backup *backupObj = sqlite3_backup_init(
@@ -398,6 +400,17 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
+    auto existingDataKey =
+        DatabaseManager::mainConnectionManager->getBackupDataKey();
+
+    if (newLogEncryptionKey.size() != DatabaseManager::backupLogDataKeySize) {
+      throw std::runtime_error("invalid backupLogDataKey size2");
+    }
+
+    CommSecureStore::set(
+        CommSecureStore::backupLogDataKey, newLogEncryptionKey);
+    DatabaseManager::mainConnectionManager->setNewKeys(
+        existingDataKey, newLogEncryptionKey);
     DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
   }
 }

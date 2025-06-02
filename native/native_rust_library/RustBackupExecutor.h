@@ -10,7 +10,11 @@ rust::String
 getBackupLogFilePath(rust::Str backupID, rust::Str logID, bool isAttachments);
 rust::String getBackupUserKeysFilePath(rust::Str backupID);
 rust::String getSIWEBackupMessagePath(rust::Str backupID);
-void createMainCompaction(rust::Str backupID, size_t futureID);
+void createMainCompaction(
+    rust::Str backupID,
+    rust::Str mainCompactionEncryptionKey,
+    rust::Str newLogEncryptionKey,
+    size_t futureID);
 void restoreFromMainCompaction(
     rust::Str mainCompactionPath,
     rust::Str mainCompactionEncryptionKey,

@@ -66,7 +66,10 @@ public:
   // Backup methods
   static void captureBackupLogs();
   static void triggerBackupFileUpload();
-  static void createMainCompaction(std::string backupID);
+  static void createMainCompaction(
+      std::string backupID,
+      std::string mainCompactionEncryptionKey,
+      std::string newLogEncryptionKey);
   static void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,

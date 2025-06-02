@@ -95,7 +95,7 @@ pub mod ffi {
           pickle_key,
           pickled_account,
           siwe_backup_msg.clone(),
-          false,
+          true,
         )
         .await
       else {
@@ -103,7 +103,12 @@ pub mod ffi {
       };
 
       let (future_id, future) = future_manager::new_future::<()>().await;
-      create_main_compaction(&backup_id, future_id);
+      create_main_compaction(
+        &backup_id,
+        &backup_data_key,
+        &backup_log_data_key,
+        future_id,
+      );
       if let Err(err) = future.await {
         handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
