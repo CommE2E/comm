@@ -297,9 +297,9 @@ void DatabaseManager::createMainCompaction(
     std::string mainCompactionEncryptionKey,
     std::string newLogEncryptionKey) {
   std::string finalBackupPath =
-      PlatformSpecificTools::getBackupFilePath(backupID, false);
+      PlatformSpecificTools::getBackupFilePath(backupID, false, false);
   std::string finalAttachmentsPath =
-      PlatformSpecificTools::getBackupFilePath(backupID, true);
+      PlatformSpecificTools::getBackupFilePath(backupID, true, false);
 
   std::string tempBackupPath = finalBackupPath + "_tmp";
   std::string tempAttachmentsPath = finalAttachmentsPath + "_tmp";

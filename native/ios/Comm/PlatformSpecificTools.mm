@@ -90,10 +90,14 @@ std::string PlatformSpecificTools::getBackupDirectoryPath() {
 
 std::string PlatformSpecificTools::getBackupFilePath(
     std::string backupID,
-    bool isAttachments) {
+    bool isAttachments,
+    bool isVersion) {
 
   if (isAttachments) {
     return getBackupFilePathInternal(backupID, @"attachments");
+  }
+  if (isVersion) {
+    return getBackupFilePathInternal(backupID, @"dbVersion");
   }
   return getBackupFilePathInternal(backupID, nil);
 }
