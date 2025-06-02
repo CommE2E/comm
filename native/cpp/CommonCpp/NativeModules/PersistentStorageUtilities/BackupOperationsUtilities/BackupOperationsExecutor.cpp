@@ -10,10 +10,13 @@
 namespace comm {
 void BackupOperationsExecutor::createMainCompaction(
     std::string backupID,
+    std::string mainCompactionEncryptionKey,
+    std::string newLogEncryptionKey,
     size_t futureID) {
-  taskType job = [backupID, futureID]() {
+  taskType job = [=]() {
     try {
-      DatabaseManager::createMainCompaction(backupID);
+      DatabaseManager::createMainCompaction(
+          backupID, mainCompactionEncryptionKey, newLogEncryptionKey);
       ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
       ::rejectFuture(futureID, rust::String(e.what()));

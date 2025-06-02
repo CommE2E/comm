@@ -251,6 +251,27 @@ void DatabaseManager::setUserDataKeys(
       backupDataKey, backupLogDataKey);
 }
 
+void DatabaseManager::setBackupLogDataKey(const std::string &backupLogDataKey) {
+  const auto &connectionManager = DatabaseManager::mainConnectionManager;
+
+  const std::string existingBackupDataKey =
+      connectionManager->getBackupDataKey();
+
+  if (existingBackupDataKey.empty()) {
+    throw std::runtime_error("existing backupDataKey is not set");
+  }
+  if (connectionManager->getBackupLogDataKey().empty()) {
+    throw std::runtime_error("existing backupLogDataKey is not set");
+  }
+
+  if (backupLogDataKey.size() != SQLiteBackup::backupLogDataKeySize) {
+    throw std::runtime_error("invalid backupLogDataKey size");
+  }
+
+  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
+  connectionManager->setNewKeys(existingBackupDataKey, backupLogDataKey);
+}
+
 void DatabaseManager::captureBackupLogs() {
   if (!ServicesUtils::fullBackupSupport) {
     return;
@@ -283,7 +304,10 @@ void DatabaseManager::triggerBackupFileUpload() {
   ::triggerBackupFileUpload();
 }
 
-void DatabaseManager::createMainCompaction(std::string backupID) {
+void DatabaseManager::createMainCompaction(
+    std::string backupID,
+    std::string mainCompactionEncryptionKey,
+    std::string newLogEncryptionKey) {
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
   std::string finalAttachmentsPath =
@@ -315,8 +339,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
 
   sqlite3 *backupDB;
   sqlite3_open(tempBackupPath.c_str(), &backupDB);
-  SQLiteUtils::setEncryptionKey(
-      backupDB, DatabaseManager::mainConnectionManager->getBackupDataKey());
+  SQLiteUtils::setEncryptionKey(backupDB, mainCompactionEncryptionKey);
 
   DatabaseManager::mainConnectionManager->initializeConnection();
   sqlite3_backup *backupObj = sqlite3_backup_init(
@@ -389,6 +412,7 @@ void DatabaseManager::createMainCompaction(std::string backupID) {
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
+    DatabaseManager::setBackupLogDataKey(newLogEncryptionKey);
     DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
   }
 }

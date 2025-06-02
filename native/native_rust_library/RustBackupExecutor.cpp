@@ -31,9 +31,16 @@ rust::String getSIWEBackupMessagePath(rust::Str backupID) {
       PlatformSpecificTools::getSIWEBackupMessagePath(std::string(backupID)));
 }
 
-void createMainCompaction(rust::Str backupID, size_t futureID) {
+void createMainCompaction(
+    rust::Str backupID,
+    rust::Str mainCompactionEncryptionKey,
+    rust::Str newLogEncryptionKey,
+    size_t futureID) {
   BackupOperationsExecutor::createMainCompaction(
-      std::string(backupID), futureID);
+      std::string(backupID),
+      std::string(mainCompactionEncryptionKey),
+      std::string(newLogEncryptionKey),
+      futureID);
 }
 
 void setBackupID(rust::Str backupID, size_t futureID) {
