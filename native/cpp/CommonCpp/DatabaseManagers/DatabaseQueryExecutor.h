@@ -147,8 +147,9 @@ public:
   virtual std::string getMetadata(std::string entryName) const = 0;
   virtual void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
-  virtual void
-  copyContentFromDatabase(const std::string databasePath) const = 0;
+  virtual void copyContentFromDatabase(
+      const std::string databasePath,
+      std::optional<std::string> encryptionKey) const = 0;
   virtual void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const = 0;
   virtual std::vector<OutboundP2PMessage>

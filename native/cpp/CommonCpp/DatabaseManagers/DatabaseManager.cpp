@@ -430,7 +430,8 @@ void DatabaseManager::restoreFromMainCompaction(
 
 void DatabaseManager::copyContentFromBackupDatabase() {
   DatabaseManager::getQueryExecutor().copyContentFromDatabase(
-      DatabaseManager::restoredConnectionManager->getSQLiteFilePath());
+      DatabaseManager::restoredConnectionManager->getSQLiteFilePath(),
+      DatabaseManager::restoredConnectionManager->getBackupDataKey());
 }
 
 } // namespace comm

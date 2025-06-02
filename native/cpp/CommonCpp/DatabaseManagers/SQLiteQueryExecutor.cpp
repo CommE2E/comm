@@ -1512,7 +1512,8 @@ std::vector<DMOperation> SQLiteQueryExecutor::getDMOperationsByType(
 }
 
 void SQLiteQueryExecutor::copyContentFromDatabase(
-    const std::string sourceDatabasePath) const {
+    const std::string sourceDatabasePath,
+    std::optional<std::string> encryptionKey) const {
   std::vector<std::string> tableNames(
       SQLiteBackup::tablesAllowlist.begin(),
       SQLiteBackup::tablesAllowlist.end());
@@ -1525,8 +1526,14 @@ void SQLiteQueryExecutor::copyContentFromDatabase(
     throw std::runtime_error(errorMessage.str());
   }
 
+  std::string keyString = "KEY ''";
+  if (encryptionKey.has_value()) {
+    keyString = "KEY \"x'" + encryptionKey.value() + "'\"";
+  }
+
   std::ostringstream sql;
-  sql << "ATTACH DATABASE '" << sourceDatabasePath << "' AS sourceDB KEY '';";
+  sql << "ATTACH DATABASE '" << sourceDatabasePath << "' AS sourceDB "
+      << keyString << ";";
   for (const auto &tableName : tableNames) {
     sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
         << " FROM sourceDB." << tableName << ";" << std::endl;
