@@ -336,11 +336,17 @@ pub mod compaction {
       Err(err) => return Err(err.into()),
     };
 
+    let db_version_path = get_backup_file_path(&backup_id, false, true)?;
+    let db_version = match tokio::fs::read_to_string(&db_version_path).await {
+      Ok(data) => data.parse::<u16>().ok(),
+      Err(err) if err.kind() == ErrorKind::NotFound => None,
+      Err(err) => return Err(err.into()),
+    };
+
     let version_info = backup_client::BackupVersionInfo {
       code_version: crate::generated::CODE_VERSION as u16,
       state_version: crate::generated::STATE_VERSION as u16,
-      // TODO: Pass DB version value here
-      ..Default::default()
+      db_version: db_version.unwrap_or_default(),
     };
 
     let backup_data = BackupData {
@@ -374,6 +380,7 @@ pub mod compaction {
     let backup_files_cleanup = async {
       let paths_to_remove = vec![
         get_backup_file_path(&backup_id, false, false)?,
+        get_backup_file_path(&backup_id, false, true)?,
         get_backup_user_keys_file_path(&backup_id)?,
         get_backup_file_path(&backup_id, true, false)?,
         get_siwe_backup_message_path(&backup_id)?,
