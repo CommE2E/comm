@@ -40,11 +40,11 @@ public:
   }
 
   static std::string
-  getBackupFilePath(std::string backupID, bool isAttachments) {
+  getBackupFilePath(std::string backupID, bool isAttachments, bool isVersion) {
     static const auto cls = javaClassStatic();
     static auto method =
         cls->getStaticMethod<JString(std::string, bool)>("getBackupFilePath");
-    return method(cls, backupID, isAttachments)->toStdString();
+    return method(cls, backupID, isAttachments, isVersion)->toStdString();
   }
 
   static std::string getBackupLogFilePath(
@@ -111,11 +111,12 @@ std::string PlatformSpecificTools::getBackupDirectoryPath() {
 
 std::string PlatformSpecificTools::getBackupFilePath(
     std::string backupID,
-    bool isAttachments) {
+    bool isAttachments,
+    bool isVersion) {
   std::string path;
   NativeAndroidAccessProvider::runTask([&path, backupID, isAttachments]() {
     path = PlatformSpecificToolsJavaClass::getBackupFilePath(
-        backupID, isAttachments);
+        backupID, isAttachments, isVersion);
   });
   return path;
 }
