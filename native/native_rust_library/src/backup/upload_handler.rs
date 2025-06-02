@@ -306,7 +306,7 @@ pub mod compaction {
     user_identity: &UserIdentity,
     backup_id: String,
   ) -> Result<(), BackupHandlerError> {
-    let user_data_path = get_backup_file_path(&backup_id, false)?;
+    let user_data_path = get_backup_file_path(&backup_id, false, false)?;
     let user_data = match tokio::fs::read(&user_data_path).await {
       Ok(data) => Some(data),
       Err(err) if err.kind() == ErrorKind::NotFound => None,
@@ -319,7 +319,7 @@ pub mod compaction {
       Err(err) => return Err(err.into()),
     };
 
-    let attachments_path = get_backup_file_path(&backup_id, true)?;
+    let attachments_path = get_backup_file_path(&backup_id, true, false)?;
     let attachments = match tokio::fs::read(&attachments_path).await {
       Ok(data) => data.lines().collect::<Result<_, _>>()?,
       Err(err) if err.kind() == ErrorKind::NotFound => Vec::new(),
@@ -373,9 +373,9 @@ pub mod compaction {
   pub async fn cleanup_files(backup_id: String) {
     let backup_files_cleanup = async {
       let paths_to_remove = vec![
-        get_backup_file_path(&backup_id, false)?,
+        get_backup_file_path(&backup_id, false, false)?,
         get_backup_user_keys_file_path(&backup_id)?,
-        get_backup_file_path(&backup_id, true)?,
+        get_backup_file_path(&backup_id, true, false)?,
         get_siwe_backup_message_path(&backup_id)?,
       ];
 
