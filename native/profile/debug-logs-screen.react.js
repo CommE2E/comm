@@ -2,12 +2,15 @@
 
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as React from 'react';
-import { FlatList, View, Text } from 'react-native';
+import { FlatList, View, Text, Switch } from 'react-native';
 
 import {
   useDebugLogs,
   type DebugLog,
+  logTypes,
+  type LogType,
 } from 'lib/components/debug-logs-context.js';
+import { values } from 'lib/utils/objects.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import PrimaryButton from '../components/primary-button.react.js';
@@ -21,7 +24,7 @@ type Props = {
 
 // eslint-disable-next-line no-unused-vars
 function DebugLogsScreen(props: Props): React.Node {
-  const { logs, clearLogs } = useDebugLogs();
+  const { logs, clearLogs, logsFilter, setFilter } = useDebugLogs();
 
   const copyLogs = React.useCallback(() => {
     Clipboard.setString(JSON.stringify(logs, null, 2));
@@ -44,11 +47,41 @@ function DebugLogsScreen(props: Props): React.Node {
     [styles.item, styles.message, styles.timestamp, styles.title],
   );
 
+  const toggleLogsFilter = React.useCallback(
+    (logType: LogType) => {
+      setFilter(logType, !logsFilter.get(logType));
+    },
+    [logsFilter, setFilter],
+  );
+
+  const logTypesList = React.useMemo(
+    () =>
+      values(logTypes).map(logType => (
+        <View style={styles.submenuButton} key={logType}>
+          <Text style={styles.submenuText}>{logType}</Text>
+          <Switch
+            value={!!logsFilter.get(logType)}
+            onValueChange={() => toggleLogsFilter(logType)}
+          />
+        </View>
+      )),
+    [logsFilter, styles.submenuButton, styles.submenuText, toggleLogsFilter],
+  );
+
   return (
     <View style={styles.view}>
+      {logTypesList}
       <FlatList data={logs} renderItem={renderItem} />
-      <PrimaryButton onPress={clearLogs} variant="danger" label="Clear logs" />
-      <PrimaryButton onPress={copyLogs} variant="enabled" label="Copy logs" />
+      <PrimaryButton
+        onPress={clearLogs}
+        variant="danger"
+        label="Clear filtered logs"
+      />
+      <PrimaryButton
+        onPress={copyLogs}
+        variant="enabled"
+        label="Copy filtered logs"
+      />
     </View>
   );
 }
@@ -76,6 +109,17 @@ const unboundStyles = {
   },
   message: {
     color: 'panelForegroundSecondaryLabel',
+  },
+  submenuButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    alignItems: 'center',
+  },
+  submenuText: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontSize: 16,
   },
 };
 
