@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useDebugLogs } from 'lib/components/debug-logs-context.js';
+import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 import { useWaitForConnection } from 'lib/hooks/wait-for-connection.js';
 import {
@@ -192,6 +192,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
             `Error while replacing device ${keyserverDeviceID ?? ''}` +
               ` with ${targetDeviceID}: `,
             getMessageForException(err) ?? 'unknown error',
+            new Set([logTypes.ERROR]),
           );
           if (keyserverHasBeenReplaced) {
             ignorePromiseRejections(
@@ -248,6 +249,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       addLog(
         `Error adding device ${targetDeviceID ?? ''}`,
         getMessageForException(err) ?? 'unknown error',
+        new Set([logTypes.ERROR]),
       );
       if (targetDeviceID && deviceListHasBeenUpdated) {
         ignorePromiseRejections(

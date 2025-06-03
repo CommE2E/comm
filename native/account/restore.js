@@ -8,7 +8,7 @@ import {
   type RestoreUserResult,
 } from 'lib/actions/user-actions.js';
 import { useUserDataRestore } from 'lib/backup/use-user-data-restore.js';
-import { useDebugLogs } from 'lib/components/debug-logs-context.js';
+import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import {
   useLogIn,
   usePasswordLogIn,
@@ -217,6 +217,7 @@ function useRestore(): (
         addLog(
           'Error when restoring User Data',
           messageForException ?? 'unknown error',
+          new Set([logTypes.ERROR, logTypes.BACKUP]),
         );
         if (messageForException === 'backup_is_newer') {
           Alert.alert(
