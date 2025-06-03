@@ -98,12 +98,10 @@ function CommunityPicker(): React.Node {
   }
 
   const staffCanSee = useStaffCanSee();
-  const debugLogs = useDebugLogs();
+  const { errorLogsNumber } = useDebugLogs();
   let logsBadge = null;
-  if (staffCanSee && debugLogs.logs.length > 0) {
-    logsBadge = (
-      <div className={css.settingsBadge}>{debugLogs.logs.length}</div>
-    );
+  if (staffCanSee && errorLogsNumber > 0) {
+    logsBadge = <div className={css.settingsBadge}>{errorLogsNumber}</div>;
   }
 
   return (

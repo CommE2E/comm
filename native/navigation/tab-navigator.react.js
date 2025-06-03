@@ -155,8 +155,8 @@ function TabComponent(props: Props): React.Node {
   const chatBadge = useSelector(unreadCount);
 
   const staffCanSee = useStaffCanSee();
-  const debugLogs = useDebugLogs();
-  const profileBadge = staffCanSee ? debugLogs.logs.length : 0;
+  const { errorLogsNumber } = useDebugLogs();
+  const profileBadge = staffCanSee ? errorLogsNumber : 0;
 
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
 
