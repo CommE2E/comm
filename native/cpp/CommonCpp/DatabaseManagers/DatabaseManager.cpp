@@ -472,6 +472,9 @@ void DatabaseManager::copyContentFromBackupDatabase() {
   DatabaseManager::getQueryExecutor().copyContentFromDatabase(
       DatabaseManager::restoredConnectionManager->getSQLiteFilePath(),
       DatabaseManager::restoredConnectionManager->getBackupDataKey());
+  // Copying is the final step of the restore, we don't need it anymore, so we
+  // should clean all the data.
+  DatabaseManager::clearRestoredDatabaseSensitiveData();
 }
 
 } // namespace comm
