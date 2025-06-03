@@ -17,6 +17,10 @@ public:
   inline static const std::string backupDataKey = "comm.encryptionKey";
   inline static const std::string backupLogDataKey =
       "comm.backupLogsEncryptionKey";
+  inline static const std::string restoredBackupPath =
+      "comm.restoredBackupPath";
+  inline static const std::string restoredBackupDataKey =
+      "comm.restoredBackupDataKey";
 };
 
 } // namespace comm

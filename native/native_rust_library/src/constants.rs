@@ -15,6 +15,9 @@ pub mod secure_store {
   pub const SECURE_STORE_BACKUP_DATA_KEY_ID: &str = "comm.encryptionKey";
   pub const SECURE_STORE_BACKUP_LOG_DATA_KEY_ID: &str =
     "comm.backupLogsEncryptionKey";
+  pub const SECURE_STORE_RESTORED_BACKUP_PATH: &str = "comm.restoredBackupPath";
+  pub const SECURE_STORE_RESTORED_BACKUP_DATA_KEY_ID: &str =
+    "comm.restoredBackupDataKey";
 }
 
 pub const BACKUP_SERVICE_CONNECTION_RETRY_DELAY: Duration =
