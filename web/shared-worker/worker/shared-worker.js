@@ -542,6 +542,21 @@ async function processAppRequest(
       SQLITE_RESTORE_DATABASE_PATH,
       null,
     );
+
+    // Copying is the final step of the restore, we don't need it anymore, so we
+    // should clean all the data.
+    const restoredSQLiteQueryExecutor = getSQLiteQueryExecutor(
+      databaseIdentifier.RESTORED,
+    );
+    if (restoredSQLiteQueryExecutor) {
+      clearSensitiveData(
+        dbModule,
+        SQLITE_RESTORE_DATABASE_PATH,
+        restoredSQLiteQueryExecutor,
+      );
+      setSQLiteQueryExecutor(null, databaseIdentifier.RESTORED);
+    }
+    await localforage.removeItem(RESTORED_SQLITE_CONTENT);
   }
 
   persistNeeded = true;
