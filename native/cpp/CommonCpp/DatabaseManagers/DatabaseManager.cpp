@@ -89,6 +89,9 @@ void DatabaseManager::clearMainDatabaseSensitiveData() {
 }
 
 void DatabaseManager::clearRestoredDatabaseSensitiveData() {
+  CommSecureStore::set(CommSecureStore::restoredBackupPath, "");
+  CommSecureStore::set(CommSecureStore::restoredBackupDataKey, "");
+
   if (!DatabaseManager::restoredConnectionManager) {
     return;
   }
@@ -455,6 +458,9 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string maxVersion) {
   SQLiteBackup::validateMainCompaction(
       mainCompactionPath, mainCompactionEncryptionKey);
+  CommSecureStore::set(CommSecureStore::restoredBackupPath, mainCompactionPath);
+  CommSecureStore::set(
+      CommSecureStore::restoredBackupDataKey, mainCompactionEncryptionKey);
   // At this point, logs are already applied to the database, and we don't have
   // access to it, so we use just an empty string.
   DatabaseManager::restoredConnectionManager =
