@@ -157,29 +157,38 @@ async function persist() {
     encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
   }
 
+  async function persistMainDatabase(key: ?CryptoKey): Promise<void> {
+    if (!dbModule || !key) {
+      return;
+    }
+    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
+    const encryptedData = await encryptData(dbData, key);
+    await localforage.setItem(SQLITE_CONTENT, encryptedData);
+  }
+
+  async function persistRestoredDatabase(key: ?CryptoKey): Promise<void> {
+    if (!dbModule || !restoredQueryExecutor || !key) {
+      return;
+    }
+    const restoredDBData = exportDatabaseContent(
+      dbModule,
+      SQLITE_RESTORE_DATABASE_PATH,
+    );
+    const restoredEncryptedData = await encryptData(restoredDBData, key);
+    await localforage.setItem(RESTORED_SQLITE_CONTENT, restoredEncryptedData);
+  }
+
   while (persistNeeded) {
     persistNeeded = false;
-    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
     if (!encryptionKey) {
       persistInProgress = false;
       throw new Error('Encryption key is missing');
     }
-    const encryptedData = await encryptData(dbData, encryptionKey);
 
-    const promises: Array<Promise<mixed>> = [];
-    promises.push(localforage.setItem(SQLITE_CONTENT, encryptedData));
-
-    if (restoredQueryExecutor) {
-      const restoredDBData = exportDatabaseContent(
-        dbModule,
-        SQLITE_RESTORE_DATABASE_PATH,
-      );
-      promises.push(
-        localforage.setItem(RESTORED_SQLITE_CONTENT, restoredDBData),
-      );
-    }
-
-    await Promise.all(promises);
+    await Promise.all([
+      persistMainDatabase(encryptionKey),
+      persistRestoredDatabase(encryptionKey),
+    ]);
   }
   persistInProgress = false;
 }
