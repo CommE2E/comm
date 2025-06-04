@@ -822,26 +822,16 @@ declare module '@react-navigation/core' {
 
   declare export type Navigate<ParamList> =
     & SimpleNavigate<ParamList>
-    & <DestinationRouteName: $Keys<ParamList>>(
-        route: $If<
-          $IsUndefined<$ElementType<ParamList, DestinationRouteName>>,
+    & (<DestinationRouteName: $Keys<ParamList>>(
+        route: 
           | {| +key: string |}
-          | {| +name: DestinationRouteName, +key?: string |},
-          | {|
-              +key: string,
-              +params?: EitherExactOrPartialWithMergeProperty<
-                $ElementType<ParamList, DestinationRouteName>,
-              >,
-            |}
-          | {|
-              +name: DestinationRouteName,
+          | {| +name: DestinationRouteName, +key?: string |}
+          | {| 
+              +name: DestinationRouteName, 
               +key?: string,
-              +params?: EitherExactOrPartialWithMergeProperty<
-                $ElementType<ParamList, DestinationRouteName>,
-              >,
+              +params?: $ElementType<ParamList, DestinationRouteName>,
             |},
-        >,
-      ) => void;
+      ) => void);
 
   declare type CoreNavigationHelpers<
     ParamList: ParamListBase,
