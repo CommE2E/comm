@@ -188,6 +188,7 @@ function SQLiteDataHandler(): React.Node {
     }
   }, [callClearSensitiveData, currentLoggedInUserID]);
 
+  const isRunning = React.useRef(false);
   React.useEffect(() => {
     if (!rehydrateConcluded) {
       return;
@@ -222,11 +223,19 @@ function SQLiteDataHandler(): React.Node {
       dispatch({ type: setStoreLoadedActionType });
       return;
     }
+    if (isRunning.current) {
+      return;
+    }
+    isRunning.current = true;
     void (async () => {
-      await Promise.all([
-        sensitiveDataHandled,
-        mediaCacheContext?.evictCache(),
-      ]);
+      try {
+        await Promise.all([
+          sensitiveDataHandled,
+          mediaCacheContext?.evictCache(),
+        ]);
+      } finally {
+        isRunning.current = false;
+      }
       try {
         const { sqliteAPI } = getConfig();
         const clientDBStore = await sqliteAPI.getClientDBStore(
@@ -252,6 +261,8 @@ function SQLiteDataHandler(): React.Node {
         await recoverData(
           recoveryFromDataHandlerActionSources.sqliteLoadFailure,
         );
+      } finally {
+        isRunning.current = false;
       }
     })();
   }, [
