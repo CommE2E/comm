@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 // eslint-disable-next-line import/extensions
 import ClearableTextInput from './clearable-text-input.react';
 import type {
@@ -14,7 +12,7 @@ import type { SelectionChangeEvent } from '../types/react-native.js';
 
 const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   props: SelectableTextInputProps,
-  ref: ReactRefSetter<SelectableTextInputRef>,
+  ref: React.RefSetter<SelectableTextInputRef>,
 ): React.Node {
   const {
     clearableTextInputRef,
