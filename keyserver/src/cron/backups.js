@@ -265,6 +265,9 @@ async function deleteOldBackupsIfSpaceExceeded() {
 
   const sortedBackupInfos = await getSortedBackupInfos();
   const mostRecentBackup = sortedBackupInfos.pop();
+  if (!mostRecentBackup) {
+    return;
+  }
   let bytesLeft = maxDirSizeMiB * 1024 * 1024 - mostRecentBackup.bytes;
 
   const deleteBackupPromises = [];
