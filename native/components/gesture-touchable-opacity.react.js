@@ -18,8 +18,6 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import { useSharedValueForBoolean } from '../utils/animation-utils.js';
 
@@ -48,7 +46,7 @@ type Props = {
 };
 function ForwardedGestureTouchableOpacity(
   props: Props,
-  ref: ReactRefSetter<TapGestureHandler>,
+  ref: React.RefSetter<TapGestureHandler>,
 ) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
   const onPress = React.useCallback(() => {
