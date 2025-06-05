@@ -32,7 +32,6 @@ import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
-import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
@@ -383,7 +382,7 @@ export default function ChatComponent(props: Props): React.Node {
   invariant(tipsContext, 'NUXTipsContext should be defined');
   const { registerTipButton } = tipsContext;
 
-  const communityDrawerButtonRegisterRef: ReactRefSetter<
+  const communityDrawerButtonRegisterRef: React.RefSetter<
     React.ElementRef<typeof View>,
   > = React.useCallback(
     element => {
