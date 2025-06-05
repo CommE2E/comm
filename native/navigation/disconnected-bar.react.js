@@ -1,7 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Platform, Animated, Easing } from 'react-native';
+import {
+  Text,
+  Platform,
+  Animated,
+  Easing,
+  type AnimatedValue,
+} from 'react-native';
 
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -21,7 +27,7 @@ type Props = {
 };
 function DisconnectedBar(props: Props): React.Node {
   const networkConnected = useSelector(state => state.connectivity.connected);
-  const showingRef = React.useRef<?Animated.Value>();
+  const showingRef = React.useRef<?AnimatedValue>();
   if (!showingRef.current) {
     showingRef.current = new Animated.Value(networkConnected ? 0 : 1);
   }

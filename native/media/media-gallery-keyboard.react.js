@@ -12,6 +12,7 @@ import {
   Platform,
   Text,
   View,
+  type AnimatedValue,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import { Provider } from 'react-redux';
@@ -127,7 +128,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   fetchingPhotos = false;
   flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
-  queueModeProgress: Animated.Value = new Animated.Value(0);
+  queueModeProgress: AnimatedValue = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   mediaSelected = false;
 
