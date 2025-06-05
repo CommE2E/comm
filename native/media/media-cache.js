@@ -20,6 +20,7 @@ const cacheDirectory = `${temporaryDirectoryPath}media-cache`;
 function basenameFromBlobURI(blobURI: string) {
   // if blobURI is a file URI or path, use the last segment of the path
   const filename = blobURI.split('/').pop();
+  invariant(filename, 'invalid blob URI');
   return filenameWithoutExtension(filename);
 }
 
