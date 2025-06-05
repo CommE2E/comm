@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
   FlatList as ReactNativeFlatList,
+  type AnimatedValue,
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
@@ -74,7 +75,7 @@ class ChatList extends React.PureComponent<Props, State> {
   flatList: ?FlatListElementRef;
   scrollPos = 0;
 
-  newMessagesPillProgress: Animated.Value = new Animated.Value(0);
+  newMessagesPillProgress: AnimatedValue = new Animated.Value(0);
   newMessagesPillStyle: ViewStyle;
 
   constructor(props: Props) {
