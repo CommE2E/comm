@@ -12,8 +12,6 @@ import { View } from 'react-native';
 import type { MeasureOnSuccessCallback } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 import { TabBarItem } from 'react-native-tab-view';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 import {
   nuxTip,
   NUXTipsContext,
@@ -35,7 +33,7 @@ function TabBarButton(props: TabBarItemProps<Route<>>) {
   invariant(tipsContext, 'NUXTipsContext should be defined');
   const { registerTipButton } = tipsContext;
 
-  const registerRef: ReactRefSetter<React.ElementRef<typeof View>> =
+  const registerRef: React.RefSetter<React.ElementRef<typeof View>> =
     React.useCallback(
       element => {
         const tipType = ButtonTitleToTip[props.route.name];
