@@ -81,6 +81,7 @@ function collectDependencyInfo(
     const toResolve = [...presenting];
     while (toResolve.length > 0) {
       const presentee = toResolve.pop();
+      invariant(presentee, 'could not find presentee');
       const dependencyInfo = dependencyMap.get(presentee);
       invariant(dependencyInfo, 'could not find presentee');
       dependencyInfo.status = 'resolved';
