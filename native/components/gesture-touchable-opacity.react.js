@@ -65,8 +65,12 @@ function ForwardedGestureTouchableOpacity(
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
 
-  const longPressState = useSharedValue(-1);
-  const tapState = useSharedValue(-1);
+  const longPressState = useSharedValue<$Values<typeof GestureState>>(
+    GestureState.UNDETERMINED,
+  );
+  const tapState = useSharedValue<$Values<typeof GestureState>>(
+    GestureState.UNDETERMINED,
+  );
   const longPressEvent = useAnimatedGestureHandler<LongPressGestureEvent>(
     {
       onStart: () => {
