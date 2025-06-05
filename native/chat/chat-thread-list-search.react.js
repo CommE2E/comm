@@ -10,8 +10,6 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 import type { SearchStatus } from './chat-thread-list.react.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
@@ -31,7 +29,7 @@ type Props = {
 };
 function ForwardedChatThreadListSearch(
   props: Props,
-  ref: ReactRefSetter<React.ElementRef<typeof BaseTextInput>>,
+  ref: React.RefSetter<React.ElementRef<typeof BaseTextInput>>,
 ): React.Node {
   const {
     searchText,

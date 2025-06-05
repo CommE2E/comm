@@ -5,7 +5,6 @@ import * as React from 'react';
 import SWMansionIcon, {
   type Icon,
 } from 'lib/components/swmansion-icon.react.js';
-import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import css from './password-input.css';
 import Button from '../components/button.react.js';
@@ -15,7 +14,7 @@ type PasswordInputProps = BaseInputProps;
 
 function PasswordInput(
   props: PasswordInputProps,
-  ref: ReactRefSetter<HTMLInputElement>,
+  ref: React.RefSetter<HTMLInputElement>,
 ): React.Node {
   const [htmlInputType, setHtmlInputType] = React.useState<'password' | 'text'>(
     'password',
