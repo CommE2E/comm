@@ -4,8 +4,6 @@ import GorhomBottomSheet from '@gorhom/bottom-sheet';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 import BottomSheetBackdrop from './bottom-sheet-backdrop.react.js';
 import { handleTotalHeight } from './bottom-sheet-constants.js';
 import BottomSheetHandle from './bottom-sheet-handle.react.js';
@@ -19,7 +17,7 @@ type Props = {
 
 function ForwardedBottomSheet(
   props: Props,
-  ref: ReactRefSetter<typeof GorhomBottomSheet>,
+  ref: React.RefSetter<typeof GorhomBottomSheet>,
 ): React.Node {
   const { children, onClosed } = props;
 

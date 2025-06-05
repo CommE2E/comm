@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
-import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import ClearSearchButton from './clear-search-button.react.js';
 import css from './search.css';
@@ -19,7 +18,7 @@ type Props = {
 
 function Search(
   props: Props,
-  ref: ReactRefSetter<HTMLInputElement>,
+  ref: React.RefSetter<HTMLInputElement>,
 ): React.Node {
   const { searchText, onChangeText, placeholder, onClearText, ...rest } = props;
 

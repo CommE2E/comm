@@ -3,8 +3,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { ReactRefSetter } from 'lib/types/react-types.js';
-
 import css from './input.css';
 
 export type BaseInputProps = {
@@ -26,7 +24,7 @@ export type InputProps = {
 
 function Input(
   props: InputProps,
-  ref: ReactRefSetter<HTMLInputElement>,
+  ref: React.RefSetter<HTMLInputElement>,
 ): React.Node {
   const {
     label: labelProp,
