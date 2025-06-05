@@ -211,17 +211,17 @@ function SwipeableMessage(props: Props): React.Node {
   const translateX = useSharedValue(0);
   const swipeEvent = useAnimatedGestureHandler<PanGestureEvent>(
     {
-      onStart: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
+      onStart: (event: Partial<PanGestureEvent>, ctx: { [string]: mixed }) => {
         ctx.translationAtStart = translateX.value;
         cancelAnimation(translateX);
       },
 
-      onActive: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
+      onActive: (event: Partial<PanGestureEvent>, ctx: { [string]: mixed }) => {
         const { translationAtStart } = ctx;
         if (typeof translationAtStart !== 'number') {
           throw new Error('translationAtStart should be number');
         }
-        const translationX = translationAtStart + event.translationX;
+        const translationX = translationAtStart + (event.translationX ?? 0);
         const baseActiveTranslation = isViewer
           ? Math.min(translationX, 0)
           : Math.max(translationX, 0);
@@ -245,7 +245,7 @@ function SwipeableMessage(props: Props): React.Node {
         ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
       },
 
-      onEnd: (event: PanGestureEvent) => {
+      onEnd: (event: Partial<PanGestureEvent>) => {
         const absValue = Math.abs(translateX.value);
         if (absValue >= secondaryThreshold && secondaryActionExists) {
           runOnJS(secondaryAction)();
@@ -253,7 +253,10 @@ function SwipeableMessage(props: Props): React.Node {
           runOnJS(primaryAction)();
         }
 
-        translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
+        translateX.value = withSpring(
+          0,
+          makeSpringConfig(event.velocityX ?? 0),
+        );
       },
     },
     [
