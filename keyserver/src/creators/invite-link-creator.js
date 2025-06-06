@@ -119,6 +119,8 @@ async function createOrUpdatePublicLink(
   if (!blobResult.success) {
     if (blobResult.reason === 'HASH_IN_USE') {
       throw new ServerError('already_in_use');
+    } else if (blobResult.reason === 'OFFENSIVE_WORDS') {
+      throw new ServerError('offensive_words');
     } else {
       throw new ServerError('unknown_error');
     }

@@ -10,7 +10,7 @@ use tracing::{debug, error, trace, warn};
 use crate::constants::error_types;
 use crate::database::errors::{BlobDBError, Error as DBError};
 use crate::s3::Error as S3Error;
-use crate::service::BlobServiceError;
+use crate::service::{BlobServiceError, InviteLinkError};
 
 pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
   trace!("Handling blob service error: {:?}", err);
@@ -77,8 +77,16 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       ErrorBadRequest("bad request")
     }
     BlobServiceError::InviteLinkError(invite_link_error) => {
-      debug!("Received invite link error: {0}", invite_link_error);
-      ErrorBadRequest("bad request")
+      match invite_link_error {
+        InviteLinkError::Offensive => {
+          tracing::info!("Rejected offensive name.");
+          ErrorBadRequest("offensive_words")
+        }
+        _ => {
+          warn!("Received invite link error: {0:?}", invite_link_error);
+          ErrorBadRequest("bad request")
+        }
+      }
     }
     err => {
       error!(
