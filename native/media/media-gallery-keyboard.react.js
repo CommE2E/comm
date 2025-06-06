@@ -33,7 +33,7 @@ import { store } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type {
-  LayoutEvent,
+  LayoutChangeEvent,
   ViewableItemsChange,
 } from '../types/react-native.js';
 import type { ViewStyle } from '../types/styles.js';
@@ -559,7 +559,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.flatList = flatList;
   };
 
-  onContainerLayout = (event: LayoutEvent) => {
+  onContainerLayout = (event: LayoutChangeEvent) => {
     this.guardedSetState({ containerHeight: event.nativeEvent.layout.height });
   };
 
