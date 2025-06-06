@@ -7,20 +7,18 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper.j
 import type { ____ViewStyle_Internal } from 'react-native/Libraries/StyleSheet/StyleSheetTypes.js';
 
 export type {
-  Layout,
-  LayoutEvent,
+  LayoutRectangle,
+  LayoutChangeEvent,
   ScrollEvent,
 } from 'react-native/Libraries/Types/CoreEventTypes.js';
 
 export type {
-  ContentSizeChangeEvent,
-  KeyPressEvent,
-  FocusEvent,
-  BlurEvent,
-  SelectionChangeEvent,
+  TextInputContentSizeChangeEvent,
+  TextInputKeyPressEvent,
+  TextInputFocusEvent,
+  TextInputBlurEvent,
+  TextInputSelectionChangeEvent,
 } from 'react-native/Libraries/Components/TextInput/TextInput.js';
-
-export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes.js';
 
 export type { KeyboardEvent } from 'react-native/Libraries/Components/Keyboard/Keyboard.js';
 

@@ -17,9 +17,9 @@ import TextInput from './text-input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, type Colors } from '../themes/colors.js';
 import type {
-  LayoutEvent,
-  KeyPressEvent,
-  BlurEvent,
+  LayoutChangeEvent,
+  TextInputKeyPressEvent,
+  TextInputBlurEvent,
 } from '../types/react-native.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 
@@ -154,7 +154,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     }
   }
 
-  measureWrapper: (event: LayoutEvent) => void = event => {
+  measureWrapper: (event: LayoutChangeEvent) => void = event => {
     const wrapperWidth = event.nativeEvent.layout.width;
     if (wrapperWidth !== this.state.wrapperWidth) {
       this.setState({ wrapperWidth });
@@ -166,7 +166,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.props.onChangeText(text);
   };
 
-  onBlur: (event: BlurEvent) => void = event => {
+  onBlur: (event: TextInputBlurEvent) => void = event => {
     invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
     const nativeEvent: $ReadOnly<{
       target: number,
@@ -175,7 +175,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.onChangeText(nativeEvent.text);
   };
 
-  onKeyPress: (event: KeyPressEvent) => void = event => {
+  onKeyPress: (event: TextInputKeyPressEvent) => void = event => {
     const { lastChange } = this;
     let { text } = this.props;
     if (
@@ -331,7 +331,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.setState({ contentHeight: h }, callback);
   };
 
-  onScrollViewLayout: (event: LayoutEvent) => void = event => {
+  onScrollViewLayout: (event: LayoutChangeEvent) => void = event => {
     this.scrollViewHeight = event.nativeEvent.layout.height;
     if (this.scrollToBottomAfterNextScrollViewLayout) {
       this.scrollToBottom();
@@ -404,7 +404,7 @@ class Tag extends React.PureComponent<TagProps> {
     this.props.removeIndex(this.props.index);
   };
 
-  onLayoutLastTag = (event: LayoutEvent) => {
+  onLayoutLastTag = (event: LayoutChangeEvent) => {
     const layout = event.nativeEvent.layout;
     this.curPos = layout.width + layout.x;
     if (this.props.isLastTag) {

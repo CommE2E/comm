@@ -81,7 +81,7 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { ThreadPickerModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors, useStyles } from '../themes/colors.js';
-import type { LayoutEvent } from '../types/react-native.js';
+import type { LayoutChangeEvent } from '../types/react-native.js';
 import Alert from '../utils/alert.js';
 import { waitForInteractions } from '../utils/timers.js';
 
@@ -580,7 +580,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   };
 
-  onTextContainerLayout: (event: LayoutEvent) => void = event => {
+  onTextContainerLayout: (event: LayoutChangeEvent) => void = event => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });

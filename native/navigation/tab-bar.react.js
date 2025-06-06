@@ -20,7 +20,7 @@ import {
 } from '../keyboard/keyboard-state.js';
 import { updateDimensionsActiveType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import type { LayoutEvent } from '../types/react-native.js';
+import type { LayoutChangeEvent } from '../types/react-native.js';
 
 const tabBarAnimationDuration = 200;
 
@@ -83,7 +83,7 @@ function TabBar(props: Props) {
   const [tabBarHeight, setTabBarHeight] = React.useState(0);
   const insets = useSafeArea();
   const handleLayout = React.useCallback(
-    (e: LayoutEvent) => {
+    (e: LayoutChangeEvent) => {
       const rawHeight = Math.round(e.nativeEvent.layout.height);
       if (rawHeight > 100 || rawHeight <= 0) {
         return;
