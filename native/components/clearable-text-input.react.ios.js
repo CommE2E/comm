@@ -6,7 +6,7 @@ import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
 import type { ClearableTextInputProps } from './clearable-text-input.js';
 import TextInput from './text-input.react.js';
-import type { KeyPressEvent } from '../types/react-native.js';
+import type { TextInputKeyPressEvent } from '../types/react-native.js';
 
 type State = {
   +textInputKey: number,
@@ -80,7 +80,7 @@ class ClearableTextInput extends React.PureComponent<
     this.props.onChangeText(newValue);
   }
 
-  onOldInputKeyPress: (event: KeyPressEvent) => void = event => {
+  onOldInputKeyPress: (event: TextInputKeyPressEvent) => void = event => {
     const { key } = event.nativeEvent;
     if (this.lastKeyPressed && this.lastKeyPressed.length > key.length) {
       return;
