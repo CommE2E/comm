@@ -8,7 +8,7 @@ import type {
   SelectableTextInputProps,
   SelectableTextInputRef,
 } from './selectable-text-input.js';
-import type { SelectionChangeEvent } from '../types/react-native.js';
+import type { TextInputSelectionChangeEvent } from '../types/react-native.js';
 
 const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   props: SelectableTextInputProps,
@@ -55,7 +55,7 @@ const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   // - To prevent render cycles where the data isn't in sync, we defer text
   //   change events until the corresponding selection event comes in
   const onSelectionChangeOverride = React.useCallback(
-    (event: SelectionChangeEvent) => {
+    (event: TextInputSelectionChangeEvent) => {
       setControlSelection(false);
       onSelectionChange?.(event);
       onUpdateSyncedSelectionData({
