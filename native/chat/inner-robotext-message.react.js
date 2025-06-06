@@ -28,7 +28,7 @@ function dummyNodeForRobotextMessageHeightMeasurement(
   threadID: string,
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
-): React.Element<typeof View> {
+): React.MixedElement {
   return (
     <View>
       <View style={unboundStyles.robotextContainer}>

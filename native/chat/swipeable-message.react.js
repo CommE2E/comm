@@ -1,6 +1,5 @@
 // @flow
 
-import type { IconProps } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -86,17 +85,15 @@ function interpolateTranslateXForNonViewerSecondarySnake(
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
 
-type SwipeSnakeProps<IconGlyphs: string> = {
+type SwipeSnakeProps = {
   +isViewer: boolean,
   +translateX: SharedValue<number>,
   +color: string,
-  +children: React.Element<React.ComponentType<IconProps<IconGlyphs>>>,
+  +children: React.MixedElement,
   +opacityInterpolator?: number => number, // must be worklet
   +translateXInterpolator?: number => number, // must be worklet
 };
-function SwipeSnake<IconGlyphs: string>(
-  props: SwipeSnakeProps<IconGlyphs>,
-): React.Node {
+function SwipeSnake(props: SwipeSnakeProps): React.Node {
   const { translateX, isViewer, opacityInterpolator, translateXInterpolator } =
     props;
   const transformStyle = useAnimatedStyle(() => {
@@ -146,6 +143,7 @@ function SwipeSnake<IconGlyphs: string>(
     : colors.light.listForegroundLabel;
   const coloredIcon = React.useMemo(
     () =>
+      // $FlowFixMe[incompatible-call]
       React.cloneElement(children, {
         color: iconColor,
       }),
