@@ -16,7 +16,7 @@ import {
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
-import type { KeyPressEvent } from '../../types/react-native.js';
+import type { TextInputKeyPressEvent } from '../../types/react-native.js';
 import AuthButtonContainer from '../auth-components/auth-button-container.react.js';
 import AuthContainer from '../auth-components/auth-container.react.js';
 import AuthContentContainer from '../auth-components/auth-content-container.react.js';
@@ -123,7 +123,7 @@ function PasswordSelection(props: Props): React.Node {
   const iosPasswordBeingAutoFilled = React.useRef(false);
   const confirmPasswordEmpty = confirmPassword.length === 0;
   const onPasswordKeyPress = React.useCallback(
-    (event: KeyPressEvent) => {
+    (event: TextInputKeyPressEvent) => {
       const { key } = event.nativeEvent;
       // On iOS, paste doesn't trigger onKeyPress, but password autofill does
       // Password autofill calls onKeyPress with `key` set to the whole password

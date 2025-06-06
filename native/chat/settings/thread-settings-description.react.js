@@ -35,8 +35,8 @@ import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type {
-  ContentSizeChangeEvent,
-  LayoutEvent,
+  TextInputContentSizeChangeEvent,
+  LayoutChangeEvent,
 } from '../../types/react-native.js';
 import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
@@ -216,11 +216,11 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     this.textInput = textInput;
   };
 
-  onLayoutText = (event: LayoutEvent) => {
+  onLayoutText = (event: LayoutChangeEvent) => {
     this.props.setDescriptionTextHeight(event.nativeEvent.layout.height);
   };
 
-  onTextInputContentSizeChange = (event: ContentSizeChangeEvent) => {
+  onTextInputContentSizeChange = (event: TextInputContentSizeChangeEvent) => {
     this.props.setDescriptionTextHeight(event.nativeEvent.contentSize.height);
   };
 
