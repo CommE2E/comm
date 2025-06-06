@@ -36,7 +36,7 @@ import {
   type VerticalBounds,
   type LayoutCoordinates,
 } from '../types/layout-types.js';
-import type { LayoutEvent } from '../types/react-native.js';
+import type { LayoutChangeEvent } from '../types/react-native.js';
 import {
   AnimatedView,
   type ViewStyle,
@@ -387,7 +387,7 @@ function createTooltip<
     }, [styles.icon]);
 
     const onTooltipContainerLayout = React.useCallback(
-      (event: LayoutEvent) => {
+      (event: LayoutChangeEvent) => {
         const { x, width } = params.initialCoordinates;
 
         const extraLeftSpace = x;

@@ -16,8 +16,8 @@ import {
 } from '../keyboard/keyboard-state.js';
 import type { ScreenRect } from '../keyboard/keyboard.js';
 import type {
-  Layout,
-  LayoutEvent,
+  LayoutRectangle,
+  LayoutChangeEvent,
   EventSubscription,
   KeyboardEvent,
 } from '../types/react-native.js';
@@ -50,7 +50,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     bottom: 0,
   };
   subscriptions: EventSubscription[] = [];
-  viewFrame: ?Layout;
+  viewFrame: ?LayoutRectangle;
   keyboardFrame: ?ScreenRect;
   defaultViewFrameHeight = 0;
   waitingForLayout: Array<() => mixed> = [];
@@ -128,7 +128,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     return Math.max(viewFrame.y + viewFrame.height - keyboardFrame.screenY, 0);
   }
 
-  onLayout = (event: LayoutEvent) => {
+  onLayout = (event: LayoutChangeEvent) => {
     this.viewFrame = event.nativeEvent.layout;
 
     const { keyboardState } = this.props;
