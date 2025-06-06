@@ -225,11 +225,13 @@ void DatabaseManager::reportDBOperationsFailure() {
 void DatabaseManager::setUserDataKeys(
     const std::string &backupDataKey,
     const std::string &backupLogDataKey) {
-  if (DatabaseManager::mainConnectionManager->getBackupDataKey().empty()) {
+  const auto &connectionManager = DatabaseManager::mainConnectionManager;
+
+  if (connectionManager->getBackupDataKey().empty()) {
     throw std::runtime_error("backupDataKey is not set");
   }
 
-  if (DatabaseManager::mainConnectionManager->getBackupLogDataKey().empty()) {
+  if (connectionManager->getBackupLogDataKey().empty()) {
     throw std::runtime_error("backupLogDataKey is not set");
   }
 
@@ -241,36 +243,12 @@ void DatabaseManager::setUserDataKeys(
     throw std::runtime_error("invalid backupLogDataKey size");
   }
 
-  DatabaseManager::mainConnectionManager->initializeConnection();
-  SQLiteUtils::rekeyDatabase(
-      DatabaseManager::mainConnectionManager->getConnection(), backupDataKey);
+  connectionManager->initializeConnection();
+  SQLiteUtils::rekeyDatabase(connectionManager->getConnection(), backupDataKey);
 
   CommSecureStore::set(CommSecureStore::backupDataKey, backupDataKey);
   CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
-
-  DatabaseManager::mainConnectionManager->setNewKeys(
-      backupDataKey, backupLogDataKey);
-}
-
-void DatabaseManager::setBackupLogDataKey(const std::string &backupLogDataKey) {
-  const auto &connectionManager = DatabaseManager::mainConnectionManager;
-
-  const std::string existingBackupDataKey =
-      connectionManager->getBackupDataKey();
-
-  if (existingBackupDataKey.empty()) {
-    throw std::runtime_error("existing backupDataKey is not set");
-  }
-  if (connectionManager->getBackupLogDataKey().empty()) {
-    throw std::runtime_error("existing backupLogDataKey is not set");
-  }
-
-  if (backupLogDataKey.size() != SQLiteBackup::backupLogDataKeySize) {
-    throw std::runtime_error("invalid backupLogDataKey size");
-  }
-
-  CommSecureStore::set(CommSecureStore::backupLogDataKey, backupLogDataKey);
-  connectionManager->setNewKeys(existingBackupDataKey, backupLogDataKey);
+  connectionManager->setNewKeys(backupDataKey, backupLogDataKey);
 }
 
 void DatabaseManager::captureBackupLogs() {
@@ -444,10 +422,12 @@ void DatabaseManager::createMainCompaction(
       "file.");
 
   // update logs to use new backup
+  DatabaseManager::mainConnectionManager->setLogsMonitoring(false);
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
-    DatabaseManager::setBackupLogDataKey(newLogEncryptionKey);
+    DatabaseManager::setUserDataKeys(
+        mainCompactionEncryptionKey, newLogEncryptionKey);
     DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
   }
 }

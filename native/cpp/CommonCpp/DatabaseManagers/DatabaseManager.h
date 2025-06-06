@@ -61,7 +61,6 @@ public:
   static void setUserDataKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey);
-  static void setBackupLogDataKey(const std::string &backupLogDataKey);
 
   // Backup methods
   static void captureBackupLogs();
