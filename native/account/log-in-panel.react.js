@@ -24,7 +24,7 @@ import { Panel, PanelButton } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import type { KeyPressEvent } from '../types/react-native.js';
+import type { TextInputKeyPressEvent } from '../types/react-native.js';
 import type { ViewStyle } from '../types/styles.js';
 import {
   appOutOfDateAlertDetails,
@@ -191,7 +191,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
     this.props.logInState.setState({ usernameInputText: text.trim() });
   };
 
-  onUsernameKeyPress: (event: KeyPressEvent) => void = event => {
+  onUsernameKeyPress: (event: TextInputKeyPressEvent) => void = event => {
     const { key } = event.nativeEvent;
     if (
       key.length > 1 &&
