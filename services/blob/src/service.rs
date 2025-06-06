@@ -1,6 +1,6 @@
 #![allow(unused)]
 use comm_lib::blob::types::BlobInfo;
-use regex::RegexSet;
+use regex::{Regex, RegexSet};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 use std::sync::Arc;
@@ -70,7 +70,13 @@ pub struct BlobServiceConfig {
 }
 
 static OFFENSIVE_INVITE_LINKS_REGEX_SET: Lazy<RegexSet> = Lazy::new(|| {
-  RegexSet::new(OFFENSIVE_INVITE_LINKS.iter().collect::<Vec<_>>()).unwrap()
+  RegexSet::new(
+    OFFENSIVE_INVITE_LINKS
+      .iter()
+      .map(|reg| format!("\\b{reg}\\b"))
+      .collect::<Vec<_>>(),
+  )
+  .unwrap()
 });
 
 impl Default for BlobServiceConfig {
@@ -138,7 +144,12 @@ impl BlobService {
   fn validate_invite_link_blob_hash(
     invite_secret: &str,
   ) -> Result<(), BlobServiceError> {
-    let lowercase_secret = invite_secret.to_lowercase();
+    static NON_WORDS_ESCAPE: Lazy<Regex> =
+      Lazy::new(|| Regex::new(r"(\W)").unwrap());
+    let lowercase_secret = NON_WORDS_ESCAPE
+      .replace_all(invite_secret, r"\\$1")
+      .to_lowercase();
+
     if (OFFENSIVE_INVITE_LINKS_REGEX_SET.is_match(&lowercase_secret)) {
       debug!("Offensive invite link");
       return Err(BlobServiceError::InviteLinkError(
@@ -722,6 +733,32 @@ impl BlobDownloadObject {
 
         offset += next_size;
       }
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn skip_non_offensive_words() {
+    let words: &[&str] = &[
+      "its cumbersome",
+      "cucumber_2",
+      "japanese",
+      "screwdriver",
+      "spice",
+      "scraper",
+      "constitution",
+    ];
+
+    for word in words {
+      let result = BlobService::validate_invite_link_blob_hash(word);
+      assert!(
+        result.is_ok(),
+        "Word '{word}' should not be considered offensive.",
+      );
     }
   }
 }
