@@ -20,7 +20,7 @@ function NavigationPanelItem(props: NavigationPanelItemProps): React.Node {
 
 type NavigationPanelContainerProps<T> = {
   +tabSelector: AppState => T,
-  +children: React.ChildrenArray<?React.Element<typeof NavigationPanelItem>>,
+  +children: React.ChildrenArray<?React.Node>,
   +horizontal?: boolean,
 };
 
