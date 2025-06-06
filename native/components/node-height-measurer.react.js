@@ -9,7 +9,10 @@ import {
   addLifecycleListener,
   getCurrentLifecycleState,
 } from '../lifecycle/lifecycle.js';
-import type { LayoutEvent, EventSubscription } from '../types/react-native.js';
+import type {
+  LayoutChangeEvent,
+  EventSubscription,
+} from '../types/react-native.js';
 
 const measureBatchSize = 50;
 
@@ -466,7 +469,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     }
   }
 
-  onContainerLayout: (event: LayoutEvent) => void = event => {
+  onContainerLayout: (event: LayoutChangeEvent) => void = event => {
     const { width, height } = event.nativeEvent.layout;
     if (width > height) {
       // We currently only use NodeHeightMeasurer on interfaces that are
@@ -485,7 +488,11 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     }
   };
 
-  onDummyLayout(measureKey: string, iteration: number, event: LayoutEvent) {
+  onDummyLayout(
+    measureKey: string,
+    iteration: number,
+    event: LayoutChangeEvent,
+  ) {
     if (iteration !== this.state.iteration) {
       return;
     }
@@ -499,7 +506,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
       const { children } = dummy.props;
       const style = [dummy.props.style, styles.dummy];
-      const onLayout = (event: LayoutEvent) =>
+      const onLayout = (event: LayoutChangeEvent) =>
         this.onDummyLayout(measureKey, iteration, event);
       const node = React.cloneElement(dummy, {
         style,
