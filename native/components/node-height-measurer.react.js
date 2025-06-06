@@ -50,7 +50,7 @@ type WritableState<Item, MergedItem> = {
   // These are the dummies currently being rendered
   currentlyMeasuring: $ReadOnlyArray<{
     +measureKey: string,
-    +dummy: React.Element<any>,
+    +dummy: React.MixedElement,
   }>,
   // When certain parameters change we need to remeasure everything. In order to
   // avoid considering any onLayouts that got queued before we issued the
@@ -504,10 +504,11 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   render(): React.Node {
     const { currentlyMeasuring, iteration } = this.state;
     const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
-      const { children } = dummy.props;
-      const style = [dummy.props.style, styles.dummy];
+      const { children } = (dummy as any).props;
+      const style = [(dummy as any).props.style, styles.dummy];
       const onLayout = (event: LayoutChangeEvent) =>
         this.onDummyLayout(measureKey, iteration, event);
+      // $FlowFixMe[incompatible-call]
       const node = React.cloneElement(dummy, {
         style,
         onLayout,
