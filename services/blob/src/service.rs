@@ -760,5 +760,16 @@ mod tests {
         "Word '{word}' should not be considered offensive.",
       );
     }
+
+    let offensive_words: &[&str] =
+      &["fuck_this", "cie chuj", "spierdalaj", "fucking", "shittt"];
+
+    for word in offensive_words {
+      let result = BlobService::validate_invite_link_blob_hash(word);
+      assert!(
+        result.is_err(),
+        "Word '{word}' should be considered offensive.",
+      );
+    }
   }
 }
