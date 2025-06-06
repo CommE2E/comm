@@ -21,7 +21,7 @@ import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type VerticalBounds } from '../types/layout-types.js';
-import type { LayoutEvent } from '../types/react-native.js';
+import type { LayoutChangeEvent } from '../types/react-native.js';
 
 type Props = {
   +item: ChatMessageInfoItemWithHeight,
@@ -64,7 +64,7 @@ function Message(props: Props): React.Node {
   );
 
   const onLayout = React.useCallback(
-    (event: LayoutEvent) => {
+    (event: LayoutChangeEvent) => {
       if (focused) {
         return;
       }
