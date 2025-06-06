@@ -1,6 +1,5 @@
 // @flow
 
-import type { IconProps } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -86,17 +85,16 @@ function interpolateTranslateXForNonViewerSecondarySnake(
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
 
-type SwipeSnakeProps<IconGlyphs: string> = {
+type SwipeSnakeProps = {
   +isViewer: boolean,
   +translateX: SharedValue<number>,
   +color: string,
-  +children: React.Element<React.ComponentType<IconProps<IconGlyphs>>>,
   +opacityInterpolator?: number => number, // must be worklet
   +translateXInterpolator?: number => number, // must be worklet
+  +iconName: string,
+  +iconSize: number,
 };
-function SwipeSnake<IconGlyphs: string>(
-  props: SwipeSnakeProps<IconGlyphs>,
-): React.Node {
+function SwipeSnake(props: SwipeSnakeProps): React.Node {
   const { translateX, isViewer, opacityInterpolator, translateXInterpolator } =
     props;
   const transformStyle = useAnimatedStyle(() => {
@@ -140,16 +138,13 @@ function SwipeSnake<IconGlyphs: string>(
     ];
   }, [iconAlign, screenWidth, color]);
 
-  const { children } = props;
+  const { iconName, iconSize } = props;
   const iconColor = tinycolor(color).isDark()
     ? colors.dark.listForegroundLabel
     : colors.light.listForegroundLabel;
   const coloredIcon = React.useMemo(
-    () =>
-      React.cloneElement(children, {
-        color: iconColor,
-      }),
-    [children, iconColor],
+    () => <CommIcon name={iconName} size={iconSize} color={iconColor} />,
+    [iconName, iconSize, iconColor],
   );
 
   const swipeSnake = React.useMemo(
@@ -286,10 +281,6 @@ function SwipeableMessage(props: Props): React.Node {
   const threadColor = `#${props.threadColor}`;
   const tinyThreadColor = tinycolor(threadColor);
 
-  const replyIcon = React.useMemo(
-    () => <CommIcon name="reply-filled" size={14} />,
-    [],
-  );
   const replySwipeSnake = React.useMemo(
     () => (
       <SwipeSnake
@@ -302,17 +293,13 @@ function SwipeableMessage(props: Props): React.Node {
             : interpolateOpacityForNonViewerPrimarySnake
         }
         key="reply"
-      >
-        {replyIcon}
-      </SwipeSnake>
+        iconName="reply-filled"
+        iconSize={14}
+      />
     ),
-    [isViewer, replyIcon, threadColor, translateX],
+    [isViewer, threadColor, translateX],
   );
 
-  const sidebarIcon = React.useMemo(
-    () => <CommIcon name="sidebar-filled" size={16} />,
-    [],
-  );
   const sidebarSwipeSnakeWithReplySwipeSnake = React.useMemo(
     () => (
       <SwipeSnake
@@ -327,11 +314,11 @@ function SwipeableMessage(props: Props): React.Node {
             : interpolateTranslateXForNonViewerSecondarySnake
         }
         key="sidebar"
-      >
-        {sidebarIcon}
-      </SwipeSnake>
+        iconName="sidebar-filled"
+        iconSize={16}
+      />
     ),
-    [isViewer, sidebarIcon, tinyThreadColor, translateX],
+    [isViewer, tinyThreadColor, translateX],
   );
 
   const sidebarSwipeSnakeWithoutReplySwipeSnake = React.useMemo(
@@ -346,11 +333,11 @@ function SwipeableMessage(props: Props): React.Node {
             : interpolateOpacityForNonViewerPrimarySnake
         }
         key="sidebar"
-      >
-        {sidebarIcon}
-      </SwipeSnake>
+        iconName="sidebar-filled"
+        iconSize={16}
+      />
     ),
-    [isViewer, sidebarIcon, threadColor, translateX],
+    [isViewer, threadColor, translateX],
   );
 
   const panGestureHandler = React.useMemo(

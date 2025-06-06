@@ -32,7 +32,7 @@ function dummyNodeForTextMessageHeightMeasurement(
   sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
   deleted: boolean,
-): React.Element<typeof View> {
+): React.MixedElement {
   return (
     <View>
       <DummyTextNode withoutMarkdown={deleted}>{text}</DummyTextNode>
