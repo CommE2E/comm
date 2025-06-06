@@ -11,7 +11,7 @@ import type {
   SelectableTextInputProps,
   SelectableTextInputRef,
 } from './selectable-text-input.js';
-import type { SelectionChangeEvent } from '../types/react-native.js';
+import type { TextInputSelectionChangeEvent } from '../types/react-native.js';
 
 const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   props: SelectableTextInputProps,
@@ -101,7 +101,7 @@ const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
     [sendPendingSelectionEvent],
   );
   const onSelectionChangeOverride = React.useCallback(
-    (event: SelectionChangeEvent) => {
+    (event: TextInputSelectionChangeEvent) => {
       if (numNextSelectionEventsToIgnoreRef.current <= 1) {
         // If after this tick we will start allowing selection events through,
         // then we will drop control of selection

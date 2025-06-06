@@ -105,7 +105,10 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import type { ImagePasteEvent, LayoutEvent } from '../types/react-native.js';
+import type {
+  ImagePasteEvent,
+  LayoutChangeEvent,
+} from '../types/react-native.js';
 import { AnimatedView, type ViewStyle } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
@@ -249,7 +252,7 @@ const createThreadLoadingStatusSelector =
 
 type ConnectedChatInputBarBaseProps = {
   ...BaseProps,
-  +onInputBarLayout?: (event: LayoutEvent) => mixed,
+  +onInputBarLayout?: (event: LayoutChangeEvent) => mixed,
   +openCamera: () => mixed,
   +navigation?: ChatNavigationProp<'MessageList'>,
 };
@@ -1197,7 +1200,7 @@ const noop = () => {};
 function DummyChatInputBar(props: DummyChatInputBarProps): React.Node {
   const { onHeightMeasured, ...restProps } = props;
   const onInputBarLayout = React.useCallback(
-    (event: LayoutEvent) => {
+    (event: LayoutChangeEvent) => {
       const { height } = event.nativeEvent.layout;
       onHeightMeasured(height);
     },
@@ -1267,7 +1270,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
     invariant(chatContext, 'should be set');
     const { setChatInputBarHeight, deleteChatInputBarHeight } = chatContext;
     const onInputBarLayout = React.useCallback(
-      (event: LayoutEvent) => {
+      (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
         setChatInputBarHeight(threadInfo.id, height);
       },
