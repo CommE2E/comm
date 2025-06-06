@@ -50,7 +50,7 @@ type WritableState<Item, MergedItem> = {
   // These are the dummies currently being rendered
   currentlyMeasuring: $ReadOnlyArray<{
     +measureKey: string,
-    +dummy: React.Element<any>,
+    +dummy: React.MixedElement,
   }>,
   // When certain parameters change we need to remeasure everything. In order to
   // avoid considering any onLayouts that got queued before we issued the

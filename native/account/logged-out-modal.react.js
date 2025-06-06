@@ -435,7 +435,7 @@ function LoggedOutModal(props: Props) {
       return null;
     }
 
-    const signInButtons: Array<React.Element<any>> = [];
+    const signInButtons: Array<React.Node> = [];
     if (!usingRestoreFlow) {
       signInButtons.push(
         <PromptButton
