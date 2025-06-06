@@ -20,7 +20,7 @@ function NavigationPanelItem(props: NavigationPanelItemProps): React.Node {
 
 type NavigationPanelContainerProps<T> = {
   +tabSelector: AppState => T,
-  +children: React.ChildrenArray<?React.Element<typeof NavigationPanelItem>>,
+  +children: React.ChildrenArray<?React.MixedElement>,
   +horizontal?: boolean,
 };
 
@@ -33,7 +33,7 @@ function NavigationPanelContainer<T>(
 
   const items = React.useMemo(
     () =>
-      React.Children.map(children, child => {
+      React.Children.map(children, (child: any) => {
         if (!child) {
           return null;
         }
