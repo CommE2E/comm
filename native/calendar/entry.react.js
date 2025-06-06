@@ -95,7 +95,7 @@ const omitEntryInfo = _omit(['entryInfo']);
 
 function dummyNodeForEntryHeightMeasurement(
   entryText: string,
-): React.Element<typeof View> {
+): React.MixedElement {
   const text = entryText === '' ? ' ' : entryText;
   return (
     <View style={[unboundStyles.entry, unboundStyles.textContainer]}>
