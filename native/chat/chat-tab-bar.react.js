@@ -9,7 +9,7 @@ import { MaterialTopTabBar } from '@react-navigation/material-top-tabs';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
-import type { MeasureOnSuccessCallback } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
+import type { MeasureOnSuccessCallback } from 'react-native/src/private/types/HostInstance.js';
 import { TabBarItem } from 'react-native-tab-view';
 
 import {
