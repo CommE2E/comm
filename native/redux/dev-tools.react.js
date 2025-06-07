@@ -18,6 +18,7 @@ type MonitorAction =
 export type MonitorActionState = $ReadOnly<{
   ...AppState,
   +navState: NavigationState,
+  ...
 }>;
 
 const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {

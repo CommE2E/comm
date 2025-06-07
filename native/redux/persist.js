@@ -180,6 +180,7 @@ const legacyMigrations = {
     messageSentFromRoute: [],
   }),
   [3]: (state: any) => ({
+    ...state,
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,

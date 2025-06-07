@@ -1,0 +1,2650 @@
+yarn run v1.22.19
+$ /Users/angelikaserwa/Projects/comm/node_modules/.bin/flow --show-all-errors
+Error --------------------------------------------------------------- ../lib/permissions/keyserver-permissions.js:261:45
+
+Cannot spread object literal because Flow cannot determine a type for object literal [1]. object literal [1] cannot be
+spread because the indexer string [2] may overwrite properties with explicit keys in a way that Flow cannot track. Try
+spreading object literal [1] first or remove the indexer. [cannot-spread-indexer]
+
+   ../lib/permissions/keyserver-permissions.js:261:45
+                                                    v
+   261|   const baseUniversalCommunityPermissions = {
+   262|     [openChildJoinThread]: true,
+   263|     ...genesisUniversalCommunityPermissions,
+   264|     [threadPermissions.CREATE_SIDEBARS]: true,
+   265|     [threadPermissions.LEAVE_THREAD]: true,
+   266|   };
+          ^ [1]
+
+References:
+   ../lib/permissions/keyserver-permissions.js:249:31
+   249|   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+
+
+Error ---------------------------------------- ../lib/permissions/minimally-encoded-raw-thread-info-validators.js:101:14
+
+Cannot call `tShape` with object literal bound to `spec` because in property `members`: [incompatible-call]
+ - Either property `permissions` is missing in `MemberInfoWithPermissions` [1] but exists in
+   `MemberInfoWithPermissions` [2] in array element of type argument `T` [3].
+ - Or `TUnion` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/permissions/minimally-encoded-raw-thread-info-validators.js:101:14
+                     v--------
+   101|     members: t.union([
+   102|       t.list(memberInfoWithPermissionsValidator),
+   103|       t.list(memberInfoSansPermissionsValidator),
+   104|     ]),
+            -^
+
+References:
+   ../lib/types/minimally-encoded-thread-permissions-types.js:167:28
+   167|   +members: $ReadOnlyArray<MemberInfoSansPermissions>,
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/permissions/minimally-encoded-raw-thread-info-validators.js:72:54
+    72| const memberInfoWithPermissionsValidator: TInterface<MemberInfoWithPermissions> =
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:59:32
+    59|   declare export class TUnion<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:120:63
+   120|     union<T>(types: $ReadOnlyArray<TType<T>>, name?: string): TUnion<T>,
+                                                                      ^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------------------- ../lib/push/crypto.js:197:21
+
+Cannot return object literal because in property `notification` of type argument `R` [1]: [incompatible-return]
+ - Either property `encryptedPayload` is missing in object type [2] but exists in object literal [3].
+ - Or property `encryptionFailed` is missing in `EncryptedAPNsVisualNotification` [4] but exists in object literal [3].
+
+   ../lib/push/crypto.js:197:21
+    197|       notification: unencryptedNotification,
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:24
+   2102| declare class Promise<+R = mixed> {
+                                ^ [1]
+   ../lib/types/notif-types.js:272:15
+                       v
+    272|   | $ReadOnly<{
+    273|       +headers: APNsNotificationHeaders,
+    274|       +id: string,
+    275|       ...
+    276|         | APNsSmallVisualNotificationPayload
+    277|         | APNsLargeVisualNotificationPayload,
+    278|     }>
+             ^ [2]
+   ../lib/push/crypto.js:195:37
+    195|     const unencryptedNotification = { ...notification, encryptionFailed: '1' };
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/notif-types.js:238:47
+                                                       v----------
+    238| export type EncryptedAPNsVisualNotification = $ReadOnly<{
+    239|   ...EncryptedAPNsSilentNotification,
+    240|   +aps: EncryptedAPNsVisualNotificationAps,
+    241|   +id: string,
+    242| }>;
+         -^ [4]
+
+
+Error ------------------------------------------------------------------------------------- ../lib/push/crypto.js:199:36
+
+Cannot call `isNotificationSizeValid` with `unencryptedNotification` bound to the first parameter because:
+[incompatible-call]
+ - Either property `encryptedPayload` is missing in object type [1] but exists in object literal [2].
+ - Or property `encryptionFailed` is missing in `EncryptedAPNsVisualNotification` [3] but exists in object literal [2].
+
+   ../lib/push/crypto.js:199:36
+   199|         ? !isNotificationSizeValid(unencryptedNotification)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/notif-types.js:272:15
+                      v
+   272|   | $ReadOnly<{
+   273|       +headers: APNsNotificationHeaders,
+   274|       +id: string,
+   275|       ...
+   276|         | APNsSmallVisualNotificationPayload
+   277|         | APNsLargeVisualNotificationPayload,
+   278|     }>
+            ^ [1]
+   ../lib/push/crypto.js:195:37
+   195|     const unencryptedNotification = { ...notification, encryptionFailed: '1' };
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/types/notif-types.js:238:47
+                                                      v----------
+   238| export type EncryptedAPNsVisualNotification = $ReadOnly<{
+   239|   ...EncryptedAPNsSilentNotification,
+   240|   +aps: EncryptedAPNsVisualNotificationAps,
+   241|   +id: string,
+   242| }>;
+        -^ [3]
+
+
+Error -------------------------------------------------------------------------------------- ../lib/push/utils.js:135:31
+
+Cannot assign `await getMessageNotifyType(...)` to `messageNotifyType` because `MessageNotifyType` [1] is incompatible
+with string literal `set_unread` [2]. All writes to `messageNotifyType` must be compatible with the type of its
+initializer [3]. Add an annotation to `messageNotifyType` [3] if a different type is desired. [incompatible-type]
+
+   ../lib/push/utils.js:135:31
+                                      v----------------------------------------
+   135|           messageNotifyType = await getMessageNotifyType(messageInfo, {
+   136|             notifTargetUserID: userID,
+   137|             userNotMemberOfSubthreads,
+   138|             fetchMessageInfoByID,
+   139|           });
+                  -^
+
+References:
+   ../lib/shared/messages/message-spec.js:129:16
+   129|   ) => Promise<MessageNotifyType>,
+                       ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/messages/message-spec.js:67:15
+    67|   SET_UNREAD: 'set_unread',
+                      ^^^^^^^^^^^^ [2]
+   ../lib/push/utils.js:133:13
+   133|         let messageNotifyType = messageNotifyTypes.SET_UNREAD;
+                    ^^^^^^^^^^^^^^^^^ [3]
+
+
+Error --------------------------------------------------------------------------- ../lib/reducers/alert-reducer.js:16:37
+
+Cannot spread object literal because string [1] is incompatible with `AlertType` [2]. [incompatible-type]
+
+   ../lib/reducers/alert-reducer.js:16:37
+   16|         [(action.payload.alertType: string)]: {
+                                           ^^^^^^ [1]
+
+References:
+   ../lib/types/alert-types.js:19:14
+   19|   +[alertID: AlertType]: AlertInfo,
+                    ^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------- ../lib/reducers/message-reducer.test.js:305:16
+
+Cannot call `reduceMessageStore` with object literal bound to `newThreadInfos` because in property `88471`:
+[incompatible-call]
+ - Either property `uiName` is missing in `ThinRawThreadInfo` [1] but exists in `ThreadInfo` [2].
+ - Or property `community` is missing in `ThickRawThreadInfo` [3] but exists in `ThreadInfo` [2].
+
+   ../lib/reducers/message-reducer.test.js:305:16
+                       v--------------------
+   305|       [88471]: createPendingThread({
+   306|         viewerID: '',
+   307|         threadType: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+   308|         members: [{ id: '', username: '' }],
+   309|       }),
+              -^
+
+References:
+   ../lib/types/minimally-encoded-thread-permissions-types.js:180:29
+   180| export type RawThreadInfo = ThinRawThreadInfo | ThickRawThreadInfo;
+                                    ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/thread-utils.js:452:62
+   452| function createPendingThread(args: CreatePendingThreadArgs): ThreadInfo {
+                                                                     ^^^^^^^^^^ [2]
+   ../lib/types/minimally-encoded-thread-permissions-types.js:180:49
+   180| export type RawThreadInfo = ThinRawThreadInfo | ThickRawThreadInfo;
+                                                        ^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------- ../lib/reducers/tunnelbroker-device-token-reducer.js:32:24
+
+Cannot compare string [1] with property `payload` of `action` [2] because string [1] is incompatible with `Error` [3].
+[incompatible-type]
+
+   ../lib/reducers/tunnelbroker-device-token-reducer.js:32:24
+     32|     action.payload === 'InvalidDeviceTokenUpload'
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+References:
+   ../lib/reducers/tunnelbroker-device-token-reducer.js:32:5
+     32|     action.payload === 'InvalidDeviceTokenUpload'
+             ^^^^^^ [2]
+   ../lib/types/redux-types.js:1557:19
+   1557|         +payload: Error,
+                           ^^^^^ [3]
+
+
+Error ---------------------------------------------------------------------- ../lib/selectors/socket-selectors.js:169:36
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../lib/selectors/socket-selectors.js:169:36
+   169|             if (!failUnmentioned?.[spec.hashKey] || !innerHashKey) {
+                                           ^^^^^^^^^^^^
+
+References:
+   ../lib/shared/state-sync/state-sync-spec.js:8:13
+     8|   +hashKey: string,
+                    ^^^^^^ [1]
+
+
+Error ----------------------------------------------------------------- ../lib/shared/dm-ops/create-sidebar-spec.js:82:5
+
+Cannot call `rawMessageInfoFromMessageData` with `sidebarSourceMessageData` bound to `messageData` because:
+[incompatible-call]
+ - Either property `targetMessageID` is missing in `RawTextMessageInfo` [1] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateThreadMessageInfo` [3] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawAddMembersMessageInfo` [4] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateSubthreadMessageInfo` [5] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawChangeSettingsMessageInfo` [6] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawRemoveMembersMessageInfo` [7] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawChangeRoleMessageInfo` [8] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawLeaveThreadMessageInfo` [9] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawJoinThreadMessageInfo` [10] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateEntryMessageInfo` [11] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawEditEntryMessageInfo` [12] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawDeleteEntryMessageInfo` [13] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawRestoreEntryMessageInfo` [14] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawImagesMessageInfo` [15] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawMediaMessageInfo` [16] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawLegacyUpdateRelationshipMessageInfo` [17] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateSidebarMessageInfo` [18] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUnsupportedMessageInfo` [19] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [20] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUpdateFarcasterRelationshipMessageInfo` [21] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `sourceMessage` is missing in `TextMessageData` [22] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateThreadMessageData` [24] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `AddMembersMessageData` [25] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateSubthreadMessageData` [26] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ChangeSettingsMessageData` [27] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `RemoveMembersMessageData` [28] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ChangeRoleMessageData` [29] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `LeaveThreadMessageData` [30] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `JoinThreadMessageData` [31] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateEntryMessageData` [32] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `EditEntryMessageData` [33] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `DeleteEntryMessageData` [34] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `RestoreEntryMessageData` [35] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ImagesMessageData` [36] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `MediaMessageData` [37] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `LegacyUpdateRelationshipMessageData` [38] but exists in object
+   literal [23].
+ - Or property `sourceMessage` is missing in `CreateSidebarMessageData` [39] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ReactionMessageData` [40] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `EditMessageData` [41] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `TogglePinMessageData` [42] but exists in object literal [23].
+ - Or object literal [23] is incompatible with `UpdateRelationshipMessageData` [43].
+ - Or property `sourceMessage` is missing in `DeleteMessageData` [44] but exists in object literal [23].
+
+   ../lib/shared/dm-ops/create-sidebar-spec.js:82:5
+    82|     sidebarSourceMessageData,
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/message-types.js:222:5
+   222|   | RawTextMessageInfo
+            ^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/dm-ops/dm-op-spec.js:13:50
+    13|   +fetchMessage: (messageID: string) => Promise<?RawMessageInfo>,
+                                                         ^^^^^^^^^^^^^^ [2]
+   ../lib/types/message-types.js:223:5
+   223|   | RawCreateThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/message-types.js:224:5
+   224|   | RawAddMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/message-types.js:225:5
+   225|   | RawCreateSubthreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/message-types.js:226:5
+   226|   | RawChangeSettingsMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/message-types.js:227:5
+   227|   | RawRemoveMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/message-types.js:228:5
+   228|   | RawChangeRoleMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/message-types.js:229:5
+   229|   | RawLeaveThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/types/message-types.js:230:5
+   230|   | RawJoinThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [10]
+   ../lib/types/message-types.js:231:5
+   231|   | RawCreateEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [11]
+   ../lib/types/message-types.js:232:5
+   232|   | RawEditEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^ [12]
+   ../lib/types/message-types.js:233:5
+   233|   | RawDeleteEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [13]
+   ../lib/types/message-types.js:234:5
+   234|   | RawRestoreEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [14]
+   ../lib/types/message-types.js:235:5
+   235|   | RawImagesMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^ [15]
+   ../lib/types/message-types.js:236:5
+   236|   | RawMediaMessageInfo
+            ^^^^^^^^^^^^^^^^^^^ [16]
+   ../lib/types/message-types.js:237:5
+   237|   | RawLegacyUpdateRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [17]
+   ../lib/types/message-types.js:238:5
+   238|   | RawCreateSidebarMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [18]
+   ../lib/types/message-types.js:239:5
+   239|   | RawUnsupportedMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [19]
+   ../lib/types/messages/update-relationship.js:60:5
+    60|   | RawUpdateTraditionalRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [20]
+   ../lib/types/messages/update-relationship.js:61:5
+    61|   | RawUpdateFarcasterRelationshipMessageInfo;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [21]
+   ../lib/types/message-types.js:251:5
+   251|   | TextMessageData
+            ^^^^^^^^^^^^^^^ [22]
+   ../lib/shared/dm-ops/create-sidebar-spec.js:61:36
+                                           v
+    61|   const sidebarSourceMessageData = {
+    62|     type: messageTypes.SIDEBAR_SOURCE,
+    63|     threadID,
+    64|     creatorID,
+    65|     time,
+    66|     sourceMessage: sourceMessage,
+    67|   };
+          ^ [23]
+   ../lib/types/message-types.js:252:5
+   252|   | CreateThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^ [24]
+   ../lib/types/message-types.js:253:5
+   253|   | AddMembersMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [25]
+   ../lib/types/message-types.js:254:5
+   254|   | CreateSubthreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [26]
+   ../lib/types/message-types.js:255:5
+   255|   | ChangeSettingsMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [27]
+   ../lib/types/message-types.js:256:5
+   256|   | RemoveMembersMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [28]
+   ../lib/types/message-types.js:257:5
+   257|   | ChangeRoleMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [29]
+   ../lib/types/message-types.js:258:5
+   258|   | LeaveThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [30]
+   ../lib/types/message-types.js:259:5
+   259|   | JoinThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [31]
+   ../lib/types/message-types.js:260:5
+   260|   | CreateEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [32]
+   ../lib/types/message-types.js:261:5
+   261|   | EditEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^ [33]
+   ../lib/types/message-types.js:262:5
+   262|   | DeleteEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [34]
+   ../lib/types/message-types.js:263:5
+   263|   | RestoreEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^ [35]
+   ../lib/types/message-types.js:264:5
+   264|   | ImagesMessageData
+            ^^^^^^^^^^^^^^^^^ [36]
+   ../lib/types/message-types.js:265:5
+   265|   | MediaMessageData
+            ^^^^^^^^^^^^^^^^ [37]
+   ../lib/types/message-types.js:266:5
+   266|   | LegacyUpdateRelationshipMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [38]
+   ../lib/types/message-types.js:268:5
+   268|   | CreateSidebarMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [39]
+   ../lib/types/message-types.js:269:5
+   269|   | ReactionMessageData
+            ^^^^^^^^^^^^^^^^^^^ [40]
+   ../lib/types/message-types.js:270:5
+   270|   | EditMessageData
+            ^^^^^^^^^^^^^^^ [41]
+   ../lib/types/message-types.js:271:5
+   271|   | TogglePinMessageData
+            ^^^^^^^^^^^^^^^^^^^^ [42]
+   ../lib/types/message-types.js:272:5
+   272|   | UpdateRelationshipMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [43]
+   ../lib/types/message-types.js:273:5
+   273|   | DeleteMessageData;
+            ^^^^^^^^^^^^^^^^^ [44]
+
+
+Error ---------------------------------------------------------------- ../lib/shared/dm-ops/create-sidebar-spec.js:183:9
+
+Cannot assign `Object.freeze(...)` to `createSidebarSpec` because in property `notificationsCreationData` of type
+argument `R` [1] of the return value of property `processDMOperation`: [incompatible-type-arg]
+ - Either property `targetMessageID` is missing in `RawTextMessageInfo` [2] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawCreateThreadMessageInfo` [4] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawAddMembersMessageInfo` [5] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawCreateSubthreadMessageInfo` [6] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawChangeSettingsMessageInfo` [7] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawRemoveMembersMessageInfo` [8] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawChangeRoleMessageInfo` [9] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawLeaveThreadMessageInfo` [10] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawJoinThreadMessageInfo` [11] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawCreateEntryMessageInfo` [12] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawEditEntryMessageInfo` [13] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawDeleteEntryMessageInfo` [14] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawRestoreEntryMessageInfo` [15] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawImagesMessageInfo` [16] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawMediaMessageInfo` [17] but exists in `$ReadOnly` [3] in property
+   `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawLegacyUpdateRelationshipMessageInfo` [18] but exists in
+   `$ReadOnly` [3] in property `sourceMessage` of property `messageData` of array element of property
+   `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawCreateSidebarMessageInfo` [19] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawUnsupportedMessageInfo` [20] but exists in `$ReadOnly` [3] in
+   property `sourceMessage` of property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [21] but exists in
+   `$ReadOnly` [3] in property `sourceMessage` of property `messageData` of array element of property
+   `messageDatasWithMessageInfos`.
+ - Or property `targetMessageID` is missing in `RawUpdateFarcasterRelationshipMessageInfo` [22] but exists in
+   `$ReadOnly` [3] in property `sourceMessage` of property `messageData` of array element of property
+   `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `TextMessageData` [23] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `CreateThreadMessageData` [25] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `AddMembersMessageData` [26] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `CreateSubthreadMessageData` [27] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `ChangeSettingsMessageData` [28] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `RemoveMembersMessageData` [29] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `ChangeRoleMessageData` [30] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `LeaveThreadMessageData` [31] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `JoinThreadMessageData` [32] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `CreateEntryMessageData` [33] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `EditEntryMessageData` [34] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `DeleteEntryMessageData` [35] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `RestoreEntryMessageData` [36] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `ImagesMessageData` [37] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `MediaMessageData` [38] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `LegacyUpdateRelationshipMessageData` [39] but exists in object
+   literal [24] in property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `CreateSidebarMessageData` [40] but exists in object literal [24] in
+   property `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `ReactionMessageData` [41] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `EditMessageData` [42] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `TogglePinMessageData` [43] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or object literal [24] is incompatible with `UpdateRelationshipMessageData` [44] in property `messageData` of array
+   element of property `messageDatasWithMessageInfos`.
+ - Or property `sourceMessage` is missing in `DeleteMessageData` [45] but exists in object literal [24] in property
+   `messageData` of array element of property `messageDatasWithMessageInfos`.
+ - Or property `messageDatasWithMessageInfos` is missing in object type [46] but exists in object literal [47].
+ - Or property `messageDatasWithMessageInfos` is missing in object type [48] but exists in object literal [47].
+
+   ../lib/shared/dm-ops/create-sidebar-spec.js:183:9
+    183|         notificationsCreationData,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:24
+   2102| declare class Promise<+R = mixed> {
+                                ^ [1]
+   ../lib/types/message-types.js:222:5
+    222|   | RawTextMessageInfo
+             ^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/shared/dm-ops/dm-op-spec.js:13:50
+     13|   +fetchMessage: (messageID: string) => Promise<?RawMessageInfo>,
+                                                          ^^^^^^^^^^^^^^ [3]
+   ../lib/types/message-types.js:223:5
+    223|   | RawCreateThreadMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/message-types.js:224:5
+    224|   | RawAddMembersMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/message-types.js:225:5
+    225|   | RawCreateSubthreadMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/message-types.js:226:5
+    226|   | RawChangeSettingsMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/message-types.js:227:5
+    227|   | RawRemoveMembersMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/message-types.js:228:5
+    228|   | RawChangeRoleMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/types/message-types.js:229:5
+    229|   | RawLeaveThreadMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^ [10]
+   ../lib/types/message-types.js:230:5
+    230|   | RawJoinThreadMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^ [11]
+   ../lib/types/message-types.js:231:5
+    231|   | RawCreateEntryMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^ [12]
+   ../lib/types/message-types.js:232:5
+    232|   | RawEditEntryMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^ [13]
+   ../lib/types/message-types.js:233:5
+    233|   | RawDeleteEntryMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^ [14]
+   ../lib/types/message-types.js:234:5
+    234|   | RawRestoreEntryMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^ [15]
+   ../lib/types/message-types.js:235:5
+    235|   | RawImagesMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^ [16]
+   ../lib/types/message-types.js:236:5
+    236|   | RawMediaMessageInfo
+             ^^^^^^^^^^^^^^^^^^^ [17]
+   ../lib/types/message-types.js:237:5
+    237|   | RawLegacyUpdateRelationshipMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [18]
+   ../lib/types/message-types.js:238:5
+    238|   | RawCreateSidebarMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [19]
+   ../lib/types/message-types.js:239:5
+    239|   | RawUnsupportedMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^ [20]
+   ../lib/types/messages/update-relationship.js:60:5
+     60|   | RawUpdateTraditionalRelationshipMessageInfo
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [21]
+   ../lib/types/messages/update-relationship.js:61:5
+     61|   | RawUpdateFarcasterRelationshipMessageInfo;
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [22]
+   ../lib/types/message-types.js:251:5
+    251|   | TextMessageData
+             ^^^^^^^^^^^^^^^ [23]
+   ../lib/shared/dm-ops/create-sidebar-spec.js:61:36
+                                            v
+     61|   const sidebarSourceMessageData = {
+     62|     type: messageTypes.SIDEBAR_SOURCE,
+     63|     threadID,
+     64|     creatorID,
+     65|     time,
+     66|     sourceMessage: sourceMessage,
+     67|   };
+           ^ [24]
+   ../lib/types/message-types.js:252:5
+    252|   | CreateThreadMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^ [25]
+   ../lib/types/message-types.js:253:5
+    253|   | AddMembersMessageData
+             ^^^^^^^^^^^^^^^^^^^^^ [26]
+   ../lib/types/message-types.js:254:5
+    254|   | CreateSubthreadMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^ [27]
+   ../lib/types/message-types.js:255:5
+    255|   | ChangeSettingsMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^^ [28]
+   ../lib/types/message-types.js:256:5
+    256|   | RemoveMembersMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^ [29]
+   ../lib/types/message-types.js:257:5
+    257|   | ChangeRoleMessageData
+             ^^^^^^^^^^^^^^^^^^^^^ [30]
+   ../lib/types/message-types.js:258:5
+    258|   | LeaveThreadMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^ [31]
+   ../lib/types/message-types.js:259:5
+    259|   | JoinThreadMessageData
+             ^^^^^^^^^^^^^^^^^^^^^ [32]
+   ../lib/types/message-types.js:260:5
+    260|   | CreateEntryMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^ [33]
+   ../lib/types/message-types.js:261:5
+    261|   | EditEntryMessageData
+             ^^^^^^^^^^^^^^^^^^^^ [34]
+   ../lib/types/message-types.js:262:5
+    262|   | DeleteEntryMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^ [35]
+   ../lib/types/message-types.js:263:5
+    263|   | RestoreEntryMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^ [36]
+   ../lib/types/message-types.js:264:5
+    264|   | ImagesMessageData
+             ^^^^^^^^^^^^^^^^^ [37]
+   ../lib/types/message-types.js:265:5
+    265|   | MediaMessageData
+             ^^^^^^^^^^^^^^^^ [38]
+   ../lib/types/message-types.js:266:5
+    266|   | LegacyUpdateRelationshipMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [39]
+   ../lib/types/message-types.js:268:5
+    268|   | CreateSidebarMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^ [40]
+   ../lib/types/message-types.js:269:5
+    269|   | ReactionMessageData
+             ^^^^^^^^^^^^^^^^^^^ [41]
+   ../lib/types/message-types.js:270:5
+    270|   | EditMessageData
+             ^^^^^^^^^^^^^^^ [42]
+   ../lib/types/message-types.js:271:5
+    271|   | TogglePinMessageData
+             ^^^^^^^^^^^^^^^^^^^^ [43]
+   ../lib/types/message-types.js:272:5
+    272|   | UpdateRelationshipMessageData
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [44]
+   ../lib/types/message-types.js:273:5
+    273|   | DeleteMessageData;
+             ^^^^^^^^^^^^^^^^^ [45]
+   ../lib/types/notif-types.js:40:5
+             v
+     40|   | {
+     41|       +rescindData: { +threadID: string },
+     42|     }
+             ^ [46]
+   ../lib/shared/dm-ops/create-sidebar-spec.js:162:41
+                                                 v
+    162|       const notificationsCreationData = {
+    163|         messageDatasWithMessageInfos: [
+    164|           {
+    165|             messageData: sidebarSourceMessageData,
+    166|             rawMessageInfo: sidebarSourceMessageInfo,
+    167|           },
+    168|           {
+    169|             messageData: createSidebarMessageData,
+    170|             rawMessageInfo: createSidebarMessageInfo,
+    171|           },
+    172|         ],
+    173|         thickRawThreadInfos: {
+    174|           [threadID]: rawThreadInfo,
+    175|           [parentThreadID]: utilities.threadInfos[parentThreadID],
+    176|         },
+    177|       };
+               ^ [47]
+   ../lib/types/notif-types.js:43:5
+     43|   | { +badgeUpdateData: { +threadID: string } };
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [48]
+
+
+Error -------------------------------------------------------------------- ../lib/shared/dm-ops/process-dm-ops.js:455:14
+
+Cannot return `React.useCallback(...)` because `MessageNotifyType` [1] is incompatible with string literal
+`set_unread` [2] in the indexer property of type argument `R` [3] of the return value. This property is invariantly
+typed. See https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number.
+[incompatible-return]
+
+   ../lib/shared/dm-ops/process-dm-ops.js:455:14
+    455|       return Object.fromEntries(messageNotifyTypePairs);
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/shared/dm-ops/process-dm-ops.js:426:37
+    426| ) => Promise<{ [messageID: string]: MessageNotifyType }> {
+                                             ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/messages/message-spec.js:67:15
+     67|   SET_UNREAD: 'set_unread',
+                       ^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:24
+   2102| declare class Promise<+R = mixed> {
+                                ^ [3]
+
+
+Error -------------------------------------------------------------------- ../lib/shared/dm-ops/process-dm-ops.js:441:33
+
+Cannot assign `await getMessageNotifyType(...)` to `messageNotifyType` because `MessageNotifyType` [1] is incompatible
+with string literal `set_unread` [2]. All writes to `messageNotifyType` must be compatible with the type of its
+initializer [3]. Add an annotation to `messageNotifyType` [3] if a different type is desired. [incompatible-type]
+
+   ../lib/shared/dm-ops/process-dm-ops.js:441:33
+                                        v-------------------------------------------
+   441|             messageNotifyType = await getMessageNotifyType(rawMessageInfo, {
+   442|               notifTargetUserID: viewerID,
+   443|               userNotMemberOfSubthreads: new Set(),
+   444|               fetchMessageInfoByID: getLatestMessageEdit,
+   445|             });
+                    -^
+
+References:
+   ../lib/shared/messages/message-spec.js:129:16
+   129|   ) => Promise<MessageNotifyType>,
+                       ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/messages/message-spec.js:67:15
+    67|   SET_UNREAD: 'set_unread',
+                      ^^^^^^^^^^^^ [2]
+   ../lib/shared/dm-ops/process-dm-ops.js:439:15
+   439|           let messageNotifyType = messageNotifyTypes.SET_UNREAD;
+                      ^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------- ../lib/shared/messages/sidebar-source-message-spec.js:95:7
+
+Cannot return object literal because in property `sourceMessage`: [incompatible-return]
+ - Either property `action` is missing in `RawTextMessageInfo` [1] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawCreateThreadMessageInfo` [3] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawAddMembersMessageInfo` [4] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawCreateSubthreadMessageInfo` [5] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawChangeSettingsMessageInfo` [6] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawRemoveMembersMessageInfo` [7] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawChangeRoleMessageInfo` [8] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawLeaveThreadMessageInfo` [9] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawJoinThreadMessageInfo` [10] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawCreateEntryMessageInfo` [11] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawEditEntryMessageInfo` [12] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawDeleteEntryMessageInfo` [13] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawRestoreEntryMessageInfo` [14] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawImagesMessageInfo` [15] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawMediaMessageInfo` [16] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawLegacyUpdateRelationshipMessageInfo` [17] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawCreateSidebarMessageInfo` [18] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawUnsupportedMessageInfo` [19] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [20] but exists in `$ReadOnly` [2].
+ - Or property `action` is missing in `RawUpdateFarcasterRelationshipMessageInfo` [21] but exists in `$ReadOnly` [2].
+
+   ../lib/shared/messages/sidebar-source-message-spec.js:95:7
+    95|       sourceMessage,
+              ^^^^^^^^^^^^^
+
+References:
+   ../lib/types/message-types.js:222:5
+   222|   | RawTextMessageInfo
+            ^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/shared/messages/message-spec.js:33:32
+    33|     RawComposableMessageInfo | RawRobotextMessageInfo,
+                                       ^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/types/message-types.js:223:5
+   223|   | RawCreateThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/message-types.js:224:5
+   224|   | RawAddMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/message-types.js:225:5
+   225|   | RawCreateSubthreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/message-types.js:226:5
+   226|   | RawChangeSettingsMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/message-types.js:227:5
+   227|   | RawRemoveMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/message-types.js:228:5
+   228|   | RawChangeRoleMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/message-types.js:229:5
+   229|   | RawLeaveThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/types/message-types.js:230:5
+   230|   | RawJoinThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [10]
+   ../lib/types/message-types.js:231:5
+   231|   | RawCreateEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [11]
+   ../lib/types/message-types.js:232:5
+   232|   | RawEditEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^ [12]
+   ../lib/types/message-types.js:233:5
+   233|   | RawDeleteEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [13]
+   ../lib/types/message-types.js:234:5
+   234|   | RawRestoreEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [14]
+   ../lib/types/message-types.js:235:5
+   235|   | RawImagesMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^ [15]
+   ../lib/types/message-types.js:236:5
+   236|   | RawMediaMessageInfo
+            ^^^^^^^^^^^^^^^^^^^ [16]
+   ../lib/types/message-types.js:237:5
+   237|   | RawLegacyUpdateRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [17]
+   ../lib/types/message-types.js:238:5
+   238|   | RawCreateSidebarMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [18]
+   ../lib/types/message-types.js:239:5
+   239|   | RawUnsupportedMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [19]
+   ../lib/types/messages/update-relationship.js:60:5
+    60|   | RawUpdateTraditionalRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [20]
+   ../lib/types/messages/update-relationship.js:61:5
+    61|   | RawUpdateFarcasterRelationshipMessageInfo;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [21]
+
+
+Error ------------------------------------------------------ ../lib/shared/messages/sidebar-source-message-spec.js:121:7
+
+Cannot return object literal because object type [1] is incompatible with `ValidSidebarSourceMessageInfo` [2] in
+property `sourceMessage`. [incompatible-return]
+
+   ../lib/shared/messages/sidebar-source-message-spec.js:121:7
+   121|       sourceMessage,
+              ^^^^^^^^^^^^^
+
+References:
+   ../lib/shared/messages/message-spec.js:41:60
+    41|   +createMessageInfoFromRaw: (rawInfo: RawMessageInfo) => ?MessageInfo,
+                                                                   ^^^^^^^^^^^ [1]
+   ../lib/types/message-types.js:435:19
+   435|   +sourceMessage: ValidSidebarSourceMessageInfo,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------- ../lib/shared/redux/legacy-update-roles-and-permissions.js:80:50
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../lib/shared/redux/legacy-update-roles-and-permissions.js:80:50
+   80|         permissions: computedRolePermissionBlobs[roles[roleID].name],
+                                                        ^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-types.js:62:10
+   62|   +name: string,
+                ^^^^^^ [1]
+
+
+Error ----------------------------------------------------------------------------- ../lib/shared/thread-utils.js:1074:8
+
+Cannot spread object literal because string [1] is incompatible with `ThreadPermission` [2]. [incompatible-type]
+
+   ../lib/shared/thread-utils.js:1074:8
+   1074|       [permission]: { value: false, source: null },
+                ^^^^^^^^^^
+
+References:
+   ../lib/shared/thread-utils.js:1072:54
+   1072|     (permissions: ThreadPermissionsInfo, permission: string) => ({
+                                                              ^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:529:17
+    529|   +[permission: ThreadPermission]: ThreadPermissionInfo,
+                         ^^^^^^^^^^^^^^^^ [2]
+
+
+Error ----------------------------------------------------------------------------- ../lib/types/message-types.js:167:37
+
+Cannot call `composableMessageTypes.has` with `ourMessageType` bound to `value` because `MessageType` [1] is
+incompatible with `T` [2]. Type `MessageType` [1] includes members `1`, `2`, `3` and 18 more that are not included in
+type `T` [2]. [incompatible-call]
+
+   ../lib/types/message-types.js:167:37
+    167|   return composableMessageTypes.has(ourMessageType);
+                                             ^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/message-types.js:166:57
+    166| export function isComposableMessageType(ourMessageType: MessageType): boolean {
+                                                                 ^^^^^^^^^^^ [1]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2060:19
+   2060| declare class Set<T> extends $ReadOnlySet<T> {
+                           ^ [2]
+
+
+Error ----------------------------------------------------------------------------- ../lib/types/message-types.js:208:32
+
+Cannot call `mediaMessageTypes.has` with `ourMessageType` bound to `value` because `MessageType` [1] is incompatible
+with `T` [2]. Type `MessageType` [1] includes members `0`, `1`, `2` and 19 more that are not included in type `T` [2].
+[incompatible-call]
+
+   ../lib/types/message-types.js:208:32
+    208|   return mediaMessageTypes.has(ourMessageType);
+                                        ^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/message-types.js:207:52
+    207| export function isMediaMessageType(ourMessageType: MessageType): boolean {
+                                                            ^^^^^^^^^^^ [1]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2060:19
+   2060| declare class Set<T> extends $ReadOnlySet<T> {
+                           ^ [2]
+
+
+Error ----------------------------------------------------------------------------- ../lib/types/message-types.js:339:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `sourceMessage`: [incompatible-call]
+ - Either property `action` is missing in `RawTextMessageInfo` [1] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawCreateThreadMessageInfo` [4] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawAddMembersMessageInfo` [5] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawCreateSubthreadMessageInfo` [6] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawChangeSettingsMessageInfo` [7] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawRemoveMembersMessageInfo` [8] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawChangeRoleMessageInfo` [9] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawLeaveThreadMessageInfo` [10] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawJoinThreadMessageInfo` [11] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawCreateEntryMessageInfo` [12] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawEditEntryMessageInfo` [13] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawDeleteEntryMessageInfo` [14] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawRestoreEntryMessageInfo` [15] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawImagesMessageInfo` [16] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawMediaMessageInfo` [17] but exists in `RawTogglePinMessageInfo` [2] in type
+   argument `T` [3].
+ - Or property `action` is missing in `RawLegacyUpdateRelationshipMessageInfo` [18] but exists in
+   `RawTogglePinMessageInfo` [2] in type argument `T` [3].
+ - Or property `action` is missing in `RawCreateSidebarMessageInfo` [19] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawUnsupportedMessageInfo` [20] but exists in `RawTogglePinMessageInfo` [2] in
+   type argument `T` [3].
+ - Or property `action` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [21] but exists in
+   `RawTogglePinMessageInfo` [2] in type argument `T` [3].
+ - Or property `action` is missing in `RawUpdateFarcasterRelationshipMessageInfo` [22] but exists in
+   `RawTogglePinMessageInfo` [2] in type argument `T` [3].
+ - Or `TMaybe` [23] is incompatible with `TIrreducible` [24].
+ - Or `TMaybe` [23] is incompatible with `TList` [25].
+ - Or `TMaybe` [23] is incompatible with `TDict` [26].
+ - Or `TMaybe` [23] is incompatible with `TUnion` [27].
+ - Or `TMaybe` [23] is incompatible with `TEnums` [28].
+ - Or `TMaybe` [23] is incompatible with `TRefinement` [29].
+ - Or `TMaybe` [23] is incompatible with `TInterface` [30].
+
+   ../lib/types/message-types.js:339:20
+                           v-------
+   339|     sourceMessage: t.maybe(
+   340|       t.union([
+   341|         rawComposableMessageInfoValidator,
+   342|         rawRobotextMessageInfoValidator,
+   343|       ]),
+   344|     ),
+            ^
+
+References:
+   ../lib/types/message-types.js:222:5
+   222|   | RawTextMessageInfo
+            ^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/messages/toggle-pin.js:24:59
+    24| export const rawTogglePinMessageInfoValidator: TInterface<RawTogglePinMessageInfo> =
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/types/message-types.js:223:5
+   223|   | RawCreateThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/message-types.js:224:5
+   224|   | RawAddMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/message-types.js:225:5
+   225|   | RawCreateSubthreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/message-types.js:226:5
+   226|   | RawChangeSettingsMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/message-types.js:227:5
+   227|   | RawRemoveMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/message-types.js:228:5
+   228|   | RawChangeRoleMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/types/message-types.js:229:5
+   229|   | RawLeaveThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [10]
+   ../lib/types/message-types.js:230:5
+   230|   | RawJoinThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [11]
+   ../lib/types/message-types.js:231:5
+   231|   | RawCreateEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [12]
+   ../lib/types/message-types.js:232:5
+   232|   | RawEditEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^ [13]
+   ../lib/types/message-types.js:233:5
+   233|   | RawDeleteEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [14]
+   ../lib/types/message-types.js:234:5
+   234|   | RawRestoreEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [15]
+   ../lib/types/message-types.js:235:5
+   235|   | RawImagesMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^ [16]
+   ../lib/types/message-types.js:236:5
+   236|   | RawMediaMessageInfo
+            ^^^^^^^^^^^^^^^^^^^ [17]
+   ../lib/types/message-types.js:237:5
+   237|   | RawLegacyUpdateRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [18]
+   ../lib/types/message-types.js:238:5
+   238|   | RawCreateSidebarMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [19]
+   ../lib/types/message-types.js:239:5
+   239|   | RawUnsupportedMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [20]
+   ../lib/types/messages/update-relationship.js:60:5
+    60|   | RawUpdateTraditionalRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [21]
+   ../lib/types/messages/update-relationship.js:61:5
+    61|   | RawUpdateFarcasterRelationshipMessageInfo;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [22]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [23]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [24]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:15:7
+    15|     | TList<T>
+              ^^^^^^^^ [25]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:16:7
+    16|     | TDict<T>
+              ^^^^^^^^ [26]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:17:7
+    17|     | TUnion<T>
+              ^^^^^^^^^ [27]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:18:7
+    18|     | TEnums
+              ^^^^^^ [28]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:19:7
+    19|     | TRefinement<T>
+              ^^^^^^^^^^^^^^ [29]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:20:7
+    20|     | TInterface<T>;
+              ^^^^^^^^^^^^^ [30]
+
+
+Error ----------------------------------------------------------------------- ../lib/types/messages/unsupported.js:62:29
+
+Cannot call `tShape` with object literal bound to `spec` because in property `unsupportedMessageInfo`:
+[incompatible-call]
+ - Either property `creatorFID` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [1] but exists in
+   `RawUpdateFarcasterRelationshipMessageInfo` [2] in type argument `T` [3].
+ - Or property `operation` is missing in `RawChangeRoleMessageInfo` [4] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or property `operation` is missing in `RawEditMessageInfo` [5] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or property `operation` is missing in `RawMediaMessageInfo` [6] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or property `operation` is missing in `RawReactionMessageInfo` [7] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or property `operation` is missing in `RawTogglePinMessageInfo` [8] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or property `operation` is missing in `RawDeleteMessageInfo` [9] but exists in
+   `RawUpdateTraditionalRelationshipMessageInfo` [1] in type argument `T` [3].
+ - Or `TUnion` [10] is incompatible with `TIrreducible` [11].
+ - Or `TUnion` [10] is incompatible with `TMaybe` [12].
+ - Or `TUnion` [10] is incompatible with `TList` [13].
+ - Or `TUnion` [10] is incompatible with `TDict` [14].
+ - Or `TUnion` [10] is incompatible with `TEnums` [15].
+ - Or `TUnion` [10] is incompatible with `TRefinement` [16].
+ - Or `TUnion` [10] is incompatible with `TInterface` [17].
+
+   ../lib/types/messages/unsupported.js:62:29
+                                    v--------
+    62|     unsupportedMessageInfo: t.union([
+    63|       // We include these validators here to make sure that the keyserver does
+    64|       // ID conversion on unsupportedMessageInfo when it's one of these types
+    65|       rawUpdateFarcasterRelationshipMessageInfoValidator,
+    66|       rawChangeRoleMessageInfoValidator,
+    67|       rawEditMessageInfoValidator,
+    68|       rawMediaMessageInfoValidator,
+    69|       rawReactionMessageInfoValidator,
+    70|       rawTogglePinMessageInfoValidator,
+    71|       rawDeleteMessageInfoValidator,
+    72|       t.Object,
+    73|     ]),
+            -^
+
+References:
+   ../lib/types/messages/update-relationship.js:74:77
+    74| export const rawUpdateFarcasterRelationshipMessageInfoValidator: TInterface<RawUpdateRelationshipMessageInfo> =
+                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/messages/unsupported.js:44:7
+    44|     | RawUpdateFarcasterRelationshipMessageInfo
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:59:32
+    59|   declare export class TUnion<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/types/messages/unsupported.js:45:7
+    45|     | RawChangeRoleMessageInfo
+              ^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/messages/unsupported.js:46:7
+    46|     | RawEditMessageInfo
+              ^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/messages/unsupported.js:47:7
+    47|     | RawMediaMessageInfo
+              ^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/messages/unsupported.js:48:7
+    48|     | RawReactionMessageInfo
+              ^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/messages/unsupported.js:49:7
+    49|     | RawTogglePinMessageInfo
+              ^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/messages/unsupported.js:50:7
+    50|     | RawDeleteMessageInfo,
+              ^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:120:63
+   120|     union<T>(types: $ReadOnlyArray<TType<T>>, name?: string): TUnion<T>,
+                                                                      ^^^^^^^^^ [10]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [11]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:14:7
+    14|     | TMaybe<T>
+              ^^^^^^^^^ [12]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:15:7
+    15|     | TList<T>
+              ^^^^^^^^ [13]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:16:7
+    16|     | TDict<T>
+              ^^^^^^^^ [14]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:18:7
+    18|     | TEnums
+              ^^^^^^ [15]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:19:7
+    19|     | TRefinement<T>
+              ^^^^^^^^^^^^^^ [16]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:20:7
+    20|     | TInterface<T>;
+              ^^^^^^^^^^^^^ [17]
+
+
+Error ------------------------------------------------------------------------ ../lib/types/relationship-types.js:100:32
+
+The utility type `$Partial` is deprecated, use `Partial` instead. [deprecated-utility]
+
+   100|   +users: { +[userID: string]: $Partial<RelationshipRequestUserInfo> },
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Error ----------------------------------------------------------------------------- ../lib/types/request-types.js:168:25
+
+Cannot call `tShape` with object literal bound to `spec` because in property `rawThreadInfos`: [incompatible-call]
+ - Either property `minimallyEncoded` is missing in `LegacyThreadCurrentUserInfo` [1] but exists in
+   `ThreadCurrentUserInfo` [2] in property `currentUser` of array element of type argument `T` [3].
+ - Or property `community` is missing in `ThickRawThreadInfo` [4] but exists in `LegacyThinRawThreadInfo` [5] in array
+   element of type argument `T` [3].
+
+   ../lib/types/request-types.js:168:25
+                                v-------
+   168|         rawThreadInfos: t.maybe(
+   169|           t.union([
+   170|             t.list(legacyThreadInfoValidator),
+   171|             t.list(rawThreadInfoValidator),
+   172|           ]),
+   173|         ),
+                ^
+
+References:
+   ../lib/types/thread-types.js:109:17
+   109|   +currentUser: LegacyThreadCurrentUserInfo,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/minimally-encoded-thread-permissions-types.js:169:17
+   169|   +currentUser: ThreadCurrentUserInfo,
+                        ^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/types/minimally-encoded-thread-permissions-types.js:180:49
+   180| export type RawThreadInfo = ThinRawThreadInfo | ThickRawThreadInfo;
+                                                        ^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/thread-types.js:226:3
+   226|   LegacyThinRawThreadInfo | LegacyThinRawThreadInfo,
+          ^^^^^^^^^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------------ ../lib/types/socket-types.js:533:28
+
+Cannot call `tShape` with object literal bound to `spec` because in property `activeSessionRecovery`:
+[incompatible-call]
+ - Either undefined [1] is incompatible with null [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+ - Or `TMaybe` [4] is incompatible with `TList` [6].
+ - Or `TMaybe` [4] is incompatible with `TDict` [7].
+ - Or `TMaybe` [4] is incompatible with `TUnion` [8].
+ - Or `TMaybe` [4] is incompatible with `TEnums` [9].
+ - Or `TMaybe` [4] is incompatible with `TRefinement` [10].
+ - Or `TMaybe` [4] is incompatible with `TInterface` [11].
+
+   ../lib/types/socket-types.js:533:28
+                                   v-------
+   533|     activeSessionRecovery: t.maybe(
+   534|       t.enums.of(values(recoveryFromReduxActionSources)),
+   535|     ),
+            ^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:53
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                            ^^^^ [1]
+   ../lib/types/socket-types.js:517:27
+   517|   +activeSessionRecovery: null | RecoveryFromReduxActionSource,
+                                  ^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:15:7
+    15|     | TList<T>
+              ^^^^^^^^ [6]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:16:7
+    16|     | TDict<T>
+              ^^^^^^^^ [7]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:17:7
+    17|     | TUnion<T>
+              ^^^^^^^^^ [8]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:18:7
+    18|     | TEnums
+              ^^^^^^ [9]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:19:7
+    19|     | TRefinement<T>
+              ^^^^^^^^^^^^^^ [10]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:20:7
+    20|     | TInterface<T>;
+              ^^^^^^^^^^^^^ [11]
+
+
+Error ------------------------------------------------------------------- ../lib/types/thread-permission-types.js:520:12
+
+Cannot call `tShape` with object literal bound to `spec` because: [incompatible-call]
+ - Either undefined [1] is incompatible with null [2] in type argument `T` [3] of property `source`.
+ - Or undefined [1] is incompatible with string [4] in type argument `T` [3] of property `source`.
+
+   ../lib/types/thread-permission-types.js:520:12
+   520|     tShape({ value: tBool(false), source: t.Nil }),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:107:24
+   107|     +Nil: TIrreducible<void | null>,
+                               ^^^^ [1]
+   ../lib/types/thread-permission-types.js:516:31
+   516|   | { +value: false, +source: null };
+                                      ^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:22:38
+    22|   declare export class TIrreducible<+T> extends TBaseType<T> {
+                                             ^ [3]
+   ../lib/types/thread-permission-types.js:515:30
+   515|   | { +value: true, +source: string }
+                                     ^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------ ../lib/types/thread-types.js:216:14
+
+Cannot call `tShape` with object literal bound to `spec` because in property `members`: [incompatible-call]
+ - Either property `subscription` is missing in `LegacyMemberInfo` [1] but exists in `ThickMemberInfo` [2] in array
+   element of type argument `T` [3].
+ - Or `TList` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/types/thread-types.js:216:14
+   216|     members: t.list(legacyMemberInfoValidator),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-types.js:52:52
+    52| export const legacyMemberInfoValidator: TInterface<LegacyMemberInfo> =
+                                                           ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-types.js:168:28
+   168|   +members: $ReadOnlyArray<ThickMemberInfo>,
+                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:40:31
+    40|   declare export class TList<+T> extends TBaseType<T> {
+                                      ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:114:45
+   114|     list<T>(type: TType<T>, name?: string): TList<Array<T>>,
+                                                    ^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------------- ../lib/types/thread-types.js:227:5
+
+Cannot assign `t.union(...)` to `legacyThreadInfoValidator` because in type argument `T` [1]: [incompatible-type-arg]
+ - Either property `thick` is missing in `LegacyThinRawThreadInfo` [2] but exists in `LegacyThickRawThreadInfo` [3].
+ - Or property `thick` is missing in `LegacyThinRawThreadInfo` [4] but exists in `LegacyThickRawThreadInfo` [3].
+
+   ../lib/types/thread-types.js:227:5
+            v--------
+   227| > = t.union([
+   228|   legacyThinRawThreadInfoValidator,
+   229|   legacyThickRawThreadInfoValidator,
+   230| ]);
+        -^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:59:32
+    59|   declare export class TUnion<+T> extends TBaseType<T> {
+                                       ^ [1]
+   ../lib/types/thread-types.js:226:3
+   226|   LegacyThinRawThreadInfo | LegacyThinRawThreadInfo,
+          ^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/types/thread-types.js:204:60
+   204| export const legacyThickRawThreadInfoValidator: TInterface<LegacyThickRawThreadInfo> =
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/thread-types.js:226:29
+   226|   LegacyThinRawThreadInfo | LegacyThinRawThreadInfo,
+                                    ^^^^^^^^^^^^^^^^^^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------ ../lib/types/thread-types.js:236:18
+
+Cannot resolve name `MutableThickRawThreadInfo`. [cannot-resolve-name]
+
+   236|   +[id: string]: MutableThickRawThreadInfo,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Error ----------------------------------- ../lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js:59:23
+
+Cannot call `tShape` with object literal bound to `spec` because in property `clientMessageIDs`: [incompatible-call]
+ - Either `MessageSentUnauthenticatedStatus` [1] is incompatible with `MessageSentStatus` [2] in array element of type
+   argument `T` [3].
+ - Or `TList` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js:59:23
+    59|     clientMessageIDs: t.list(messageSentStatusValidator),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js:42:10
+    42|   tShape<MessageSentUnauthenticatedStatus>({
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js:53:37
+    53|   +clientMessageIDs: $ReadOnlyArray<MessageSentStatus>,
+                                            ^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:40:31
+    40|   declare export class TList<+T> extends TBaseType<T> {
+                                      ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:114:45
+   114|     list<T>(type: TType<T>, name?: string): TList<Array<T>>,
+                                                    ^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error --------------------------------------------------------------------------- ../lib/types/validation.test.js:341:30
+
+Cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because: [incompatible-type]
+ - Either cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number
+   literal `22` [3] is incompatible with number literal `0` [4].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `1` [5].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `2` [6].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `3` [7].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `4` [8].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `5` [9].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `6` [10].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `7` [11].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `8` [12].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `9` [13].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `10` [14].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `11` [15].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `12` [16].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `13` [17].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `14` [18].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `15` [19].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `16` [20].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `17` [21].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `18` [22].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `19` [23].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `20` [24].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `21` [25].
+ - Or cannot compare `messageTypes.UPDATE_RELATIONSHIP` [1] with property `type` of `message` [2] because number literal
+   `22` [3] is incompatible with number literal `23` [26].
+
+   ../lib/types/validation.test.js:341:30
+   341|             message.type === messageTypes.UPDATE_RELATIONSHIP)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+References:
+   ../lib/types/validation.test.js:325:16
+   325|     for (const message of messages) {
+                       ^^^^^^^ [2]
+   ../lib/types/message-types-enum.js:39:24
+    39|   UPDATE_RELATIONSHIP: 22,
+                               ^^ [3]
+   ../lib/types/message-types-enum.js:8:9
+     8|   TEXT: 0,
+                ^ [4]
+   ../lib/types/message-types-enum.js:10:18
+    10|   CREATE_THREAD: 1,
+                         ^ [5]
+   ../lib/types/message-types-enum.js:11:16
+    11|   ADD_MEMBERS: 2,
+                       ^ [6]
+   ../lib/types/message-types-enum.js:14:22
+    14|   CREATE_SUB_THREAD: 3,
+                             ^ [7]
+   ../lib/types/message-types-enum.js:15:20
+    15|   CHANGE_SETTINGS: 4,
+                           ^ [8]
+   ../lib/types/message-types-enum.js:16:19
+    16|   REMOVE_MEMBERS: 5,
+                          ^ [9]
+   ../lib/types/message-types-enum.js:17:16
+    17|   CHANGE_ROLE: 6,
+                       ^ [10]
+   ../lib/types/message-types-enum.js:18:17
+    18|   LEAVE_THREAD: 7,
+                        ^ [11]
+   ../lib/types/message-types-enum.js:19:16
+    19|   JOIN_THREAD: 8,
+                       ^ [12]
+   ../lib/types/message-types-enum.js:20:17
+    20|   CREATE_ENTRY: 9,
+                        ^ [13]
+   ../lib/types/message-types-enum.js:21:15
+    21|   EDIT_ENTRY: 10,
+                      ^^ [14]
+   ../lib/types/message-types-enum.js:22:17
+    22|   DELETE_ENTRY: 11,
+                        ^^ [15]
+   ../lib/types/message-types-enum.js:23:18
+    23|   RESTORE_ENTRY: 12,
+                         ^^ [16]
+   ../lib/types/message-types-enum.js:29:16
+    29|   UNSUPPORTED: 13,
+                       ^^ [17]
+   ../lib/types/message-types-enum.js:30:11
+    30|   IMAGES: 14,
+                  ^^ [18]
+   ../lib/types/message-types-enum.js:31:15
+    31|   MULTIMEDIA: 15,
+                      ^^ [19]
+   ../lib/types/message-types-enum.js:32:31
+    32|   LEGACY_UPDATE_RELATIONSHIP: 16,
+                                      ^^ [20]
+   ../lib/types/message-types-enum.js:33:19
+    33|   SIDEBAR_SOURCE: 17,
+                          ^^ [21]
+   ../lib/types/message-types-enum.js:35:19
+    35|   CREATE_SIDEBAR: 18,
+                          ^^ [22]
+   ../lib/types/message-types-enum.js:36:13
+    36|   REACTION: 19,
+                    ^^ [23]
+   ../lib/types/message-types-enum.js:37:17
+    37|   EDIT_MESSAGE: 20,
+                        ^^ [24]
+   ../lib/types/message-types-enum.js:38:15
+    38|   TOGGLE_PIN: 21,
+                      ^^ [25]
+   ../lib/types/message-types-enum.js:40:19
+    40|   DELETE_MESSAGE: 23,
+                          ^^ [26]
+
+
+Error ----------------------------------------------------------------- ../lib/types/validators/user-validators.js:63:30
+
+Cannot call `tShape` with object literal bound to `spec` because in property `notAcknowledgedPolicies`:
+[incompatible-call]
+ - Either `TEnums` [1] is incompatible with string literal `TERMS_OF_USE_AND_PRIVACY_POLICY` [2] in array element of
+   type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/types/validators/user-validators.js:63:30
+    63|     notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/validators/user-validators.js:63:45
+    63|     notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
+                                                    ^^^^^^ [1]
+   ../lib/types/account-types.js:180:45
+   180|   +notAcknowledgedPolicies?: $ReadOnlyArray<PolicyType>,
+                                                    ^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------------- ../lib/utils/avatar-utils.js:23:11
+
+Cannot call `tShape` with object literal bound to `spec` because in property `type`: [incompatible-call]
+ - Either string [1] is incompatible with string literal `image` [2] in type argument `T` [3].
+ - Or `TIrreducible` [4] is incompatible with `TMaybe` [5].
+
+   ../lib/utils/avatar-utils.js:23:11
+   23|     type: tString('encrypted_image'),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/avatar-utils.js:23:19
+   23|     type: tString('encrypted_image'),
+                         ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/avatar-types.js:23:10
+   23|   +type: 'image',
+                ^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:22:38
+   22|   declare export class TIrreducible<+T> extends TBaseType<T> {
+                                            ^ [3]
+   ../lib/utils/validation-utils.js:31:40
+   31| function tString<T: string>(value: T): TIrreducible<T> {
+                                              ^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:14:7
+   14|     | TMaybe<T>
+             ^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------- ../lib/utils/user-info-extraction-utils.js:34:17
+
+Cannot call `tShape` with object literal bound to `spec` because in property `cookieChange`: [incompatible-call]
+ - Either undefined [1] is incompatible with `AdditionalCookieChange` [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/utils/user-info-extraction-utils.js:34:17
+                        v-------
+    34|   cookieChange: t.maybe(
+    35|     tShape<AdditionalCookieChange>({
+    36|       threadInfos: t.dict(tID, theRealMixedThreadInfoValidator),
+    37|       userInfos: t.list(userInfoValidator),
+    38|       cookieInvalidated: t.maybe(t.Boolean),
+    39|       sessionID: t.maybe(t.String),
+    40|       cookie: t.maybe(t.String),
+    41|     }),
+    42|   ),
+          ^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:53
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                            ^^^^ [1]
+   ../lib/utils/user-info-extraction-utils.js:27:18
+    27|   +cookieChange: AdditionalCookieChange,
+                         ^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------- ../lib/utils/user-info-extraction-utils.js:45:12
+
+Cannot call `tShape` with object literal bound to `spec` because in property `success`: [incompatible-call]
+ - Either undefined [1] is incompatible with boolean [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   ../lib/utils/user-info-extraction-utils.js:45:12
+    45|   success: t.maybe(t.Boolean),
+                   ^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:53
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                            ^^^^ [1]
+   ../lib/utils/user-info-extraction-utils.js:30:13
+    30|   +success: boolean,
+                    ^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error --------------------------------------------------------------------------- ../lib/utils/validation-utils.js:40:22
+
+Cannot call `t.interface` with `spec` bound to `props` because an index signature declaring the expected key / value
+type is missing in `TStructProps` [1] but exists in `TStructProps` [2]. [incompatible-use]
+
+   ../lib/utils/validation-utils.js:40:22
+    40|   return t.interface(spec, { strict: true });
+                             ^^^^
+
+References:
+   ../lib/utils/validation-utils.js:39:26
+    39| function tShape<T>(spec: TStructProps<T>): TInterface<T> {
+                                 ^^^^^^^^^^^^^^^ [1]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:134:14
+   134|       props: TStructProps<T>,
+                     ^^^^^^^^^^^^^^^ [2]
+
+
+Error ---------------------------------------------------------------------- ../lib/utils/validation-utils.test.js:14:23
+
+Cannot determine type of empty array literal. Please provide an annotation. [missing-empty-array-annot]
+
+   14|       expect(tNumEnum([]).is(1)).toBe(false);
+                             ^^
+
+
+Error ------------------------------------------------------------------------------ chat/chat-input-bar.react.js:682:39
+
+Cannot call `selectableTextInputRef.current?.prepareForSelectionMutation` because property `prepareForSelectionMutation`
+is missing in mixed [1]. [incompatible-use]
+
+   chat/chat-input-bar.react.js:682:39
+   682|       selectableTextInputRef.current?.prepareForSelectionMutation(
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   chat/chat-input-bar.react.js:504:19
+   504|     React.useRef<?React.ElementRef<typeof SelectableTextInput>>();
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error ---------------------------------------------------------------------------------- chat/chat-tab-bar.react.js:65:7
+
+Cannot spread props because Flow cannot determine a type for props [1]. rest of object pattern [2] is inexact, so it may
+contain `kwy` with a type that conflicts with `kwy`'s definition in props [1]. Try making rest of object pattern [2]
+exact. [cannot-spread-inexact]
+
+   chat/chat-tab-bar.react.js:65:7
+   65|       <TabBarButton kwy={key} {...innerProps} />
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+References:
+   chat/chat-tab-bar.react.js:63:10
+   63|       ...innerProps
+                ^^^^^^^^^^ [2]
+
+
+Error -------------------------------------------------------------------------- chat/compose-subchannel.react.js:301:18
+
+Cannot create `TagInput` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `BaseTagInput` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   chat/compose-subchannel.react.js:301:18
+   301|             ref={tagInputRef}
+                         ^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   chat/compose-subchannel.react.js:66:37
+    66|   const tagInputRef = React.useRef<?BaseTagInput<AccountUserInfo>>();
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error -------------------------------------------------------------------- chat/settings/add-users-modal.react.js:245:14
+
+Cannot create `TagInput` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `BaseTagInput` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   chat/settings/add-users-modal.react.js:245:14
+   245|         ref={tagInputRef}
+                     ^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   chat/settings/add-users-modal.react.js:59:37
+    59|   const tagInputRef = React.useRef<?BaseTagInput<AccountUserInfo>>();
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error --------------------------------------------------------- chat/settings/thread-settings-list-action.react.js:115:8
+
+Cannot create `ThreadSettingsListAction` element because property `iconName` is missing in props [1] but exists in
+`ListActionProps` [2]. [prop-missing]
+
+   chat/settings/thread-settings-list-action.react.js:115:8
+   115|       <ThreadSettingsListAction
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   chat/settings/thread-settings-list-action.react.js:115:7
+              v------------------------
+   115|       <ThreadSettingsListAction
+   116|         onPress={props.onPress}
+   117|         text="Add users"
+   118|         iconname="add"
+   119|         iconStyle={styles.addIcon}
+   120|         iconSize={20}
+   121|         buttonStyle={styles.addMemberButton}
+   122|         styles={styles}
+   123|       />
+              -^ [1]
+   chat/settings/thread-settings-list-action.react.js:71:42
+    71| function ThreadSettingsListAction(props: ListActionProps) {
+                                                 ^^^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------- chat/settings/thread-settings-list-action.react.js:115:8
+
+Cannot create `ThreadSettingsListAction` element because property `iconname` is missing in `ListActionProps` [1] but
+exists in props [2]. [prop-missing]
+
+   chat/settings/thread-settings-list-action.react.js:115:8
+   115|       <ThreadSettingsListAction
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   chat/settings/thread-settings-list-action.react.js:71:42
+    71| function ThreadSettingsListAction(props: ListActionProps) {
+                                                 ^^^^^^^^^^^^^^^ [1]
+   chat/settings/thread-settings-list-action.react.js:115:7
+              v------------------------
+   115|       <ThreadSettingsListAction
+   116|         onPress={props.onPress}
+   117|         text="Add users"
+   118|         iconname="add"
+   119|         iconStyle={styles.addIcon}
+   120|         iconSize={20}
+   121|         buttonStyle={styles.addMemberButton}
+   122|         styles={styles}
+   123|       />
+              -^ [2]
+
+
+Error --------------------------------------------------------- chat/settings/thread-settings-list-action.react.js:135:8
+
+Cannot create `ThreadSettingsListAction` element because property `iconName` is missing in props [1] but exists in
+`ListActionProps` [2]. [prop-missing]
+
+   chat/settings/thread-settings-list-action.react.js:135:8
+   135|       <ThreadSettingsListAction
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   chat/settings/thread-settings-list-action.react.js:135:7
+              v------------------------
+   135|       <ThreadSettingsListAction
+   136|         onPress={props.onPress}
+   137|         text="Add subchannel"
+   138|         iconname="add"
+   139|         iconStyle={styles.addIcon}
+   140|         iconSize={20}
+   141|         buttonStyle={styles.addSubchannelButton}
+   142|         styles={styles}
+   143|       />
+              -^ [1]
+   chat/settings/thread-settings-list-action.react.js:71:42
+    71| function ThreadSettingsListAction(props: ListActionProps) {
+                                                 ^^^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------- chat/settings/thread-settings-list-action.react.js:135:8
+
+Cannot create `ThreadSettingsListAction` element because property `iconname` is missing in `ListActionProps` [1] but
+exists in props [2]. [prop-missing]
+
+   chat/settings/thread-settings-list-action.react.js:135:8
+   135|       <ThreadSettingsListAction
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   chat/settings/thread-settings-list-action.react.js:71:42
+    71| function ThreadSettingsListAction(props: ListActionProps) {
+                                                 ^^^^^^^^^^^^^^^ [1]
+   chat/settings/thread-settings-list-action.react.js:135:7
+              v------------------------
+   135|       <ThreadSettingsListAction
+   136|         onPress={props.onPress}
+   137|         text="Add subchannel"
+   138|         iconname="add"
+   139|         iconStyle={styles.addIcon}
+   140|         iconSize={20}
+   141|         buttonStyle={styles.addSubchannelButton}
+   142|         styles={styles}
+   143|       />
+              -^ [2]
+
+
+Error --------------------------------------------------------------------------- chat/swipeable-message.react.js:149:13
+
+Cannot call `React.cloneElement` because: [incompatible-call]
+ - Either `React.ComponentType` [1] is incompatible with string [2] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [4] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [5] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [6] in type argument `ElementType` [3].
+
+   chat/swipeable-message.react.js:149:13
+   149|       React.cloneElement(children, {
+                    ^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:98:49
+    98| declare type React$MixedElement = React$Element<React$ElementType>;
+                                                        ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/flow-typed/environments/jsx.js:173:4
+   173|   [string]: ReactDOM$HTMLElementJSXIntrinsic,
+           ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:67:36
+    67| declare opaque type React$Element<+ElementType: React$ElementType, +P = React$ElementProps<ElementType>>: {...};
+                                           ^^^^^^^^^^^ [3]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:180:17
+   180|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:184:17
+   184|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:189:17
+   189|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+
+
+Error ---------------------------------------------------------------------------- chat/swipeable-message.react.js:295:8
+
+Cannot create `SwipeSnake` element because `IconGlyphs` [1] is underconstrained by `SwipeSnake` element [2]. Either add
+explicit type arguments or cast the expression to your expected type. [underconstrained-implicit-instantiation]
+
+   chat/swipeable-message.react.js:295:8
+   295|       <SwipeSnake
+               ^^^^^^^^^^
+
+References:
+   chat/swipeable-message.react.js:97:21
+    97| function SwipeSnake<IconGlyphs: string>(
+                            ^^^^^^^^^^ [1]
+   chat/swipeable-message.react.js:295:7
+              v----------
+   295|       <SwipeSnake
+   296|         isViewer={isViewer}
+   297|         translateX={translateX}
+   298|         color={threadColor}
+   299|         opacityInterpolator={
+   300|           isViewer
+   301|             ? interpolateOpacityForViewerPrimarySnake
+   302|             : interpolateOpacityForNonViewerPrimarySnake
+   303|         }
+   304|         key="reply"
+   305|       >
+   306|         {replyIcon}
+   307|       </SwipeSnake>
+              ------------^ [2]
+
+
+Error ---------------------------------------------------------------------------- chat/swipeable-message.react.js:318:8
+
+Cannot create `SwipeSnake` element because `IconGlyphs` [1] is underconstrained by `SwipeSnake` element [2]. Either add
+explicit type arguments or cast the expression to your expected type. [underconstrained-implicit-instantiation]
+
+   chat/swipeable-message.react.js:318:8
+   318|       <SwipeSnake
+               ^^^^^^^^^^
+
+References:
+   chat/swipeable-message.react.js:97:21
+    97| function SwipeSnake<IconGlyphs: string>(
+                            ^^^^^^^^^^ [1]
+   chat/swipeable-message.react.js:318:7
+              v----------
+   318|       <SwipeSnake
+   319|         isViewer={isViewer}
+   320|         translateX={translateX}
+   321|         color={tinyThreadColor
+   322|           .darken(tinyThreadColor.isDark() ? 10 : 20)
+   323|           .toString()}
+   324|         translateXInterpolator={
+   325|           isViewer
+   326|             ? interpolateTranslateXForViewerSecondarySnake
+   327|             : interpolateTranslateXForNonViewerSecondarySnake
+   328|         }
+   329|         key="sidebar"
+   330|       >
+   331|         {sidebarIcon}
+   332|       </SwipeSnake>
+              ------------^ [2]
+
+
+Error ---------------------------------------------------------------------------- chat/swipeable-message.react.js:339:8
+
+Cannot create `SwipeSnake` element because `IconGlyphs` [1] is underconstrained by `SwipeSnake` element [2]. Either add
+explicit type arguments or cast the expression to your expected type. [underconstrained-implicit-instantiation]
+
+   chat/swipeable-message.react.js:339:8
+   339|       <SwipeSnake
+               ^^^^^^^^^^
+
+References:
+   chat/swipeable-message.react.js:97:21
+    97| function SwipeSnake<IconGlyphs: string>(
+                            ^^^^^^^^^^ [1]
+   chat/swipeable-message.react.js:339:7
+              v----------
+   339|       <SwipeSnake
+   340|         isViewer={isViewer}
+   341|         translateX={translateX}
+   342|         color={threadColor}
+   343|         opacityInterpolator={
+   344|           isViewer
+   345|             ? interpolateOpacityForViewerPrimarySnake
+   346|             : interpolateOpacityForNonViewerPrimarySnake
+   347|         }
+   348|         key="sidebar"
+   349|       >
+   350|         {sidebarIcon}
+   351|       </SwipeSnake>
+              ------------^ [2]
+
+
+Error ---------------------------------------------------------------------------- comm-initializer-module-spec.js:10:16
+
+Cannot build a typed interface for this module. You should annotate the exports of this module with types. Cannot
+determine the type of this call expression. Please provide an annotation, e.g., by adding a type cast around this
+expression. [signature-verification-failure]
+
+   10| export default TurboModuleRegistry.get<Spec>('CommInitializerModule');
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Error ---------------------------------------------------------- components/directory-prompt-bottom-sheet.react.js:79:25
+
+Cannot create `BottomSheet` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with null [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   components/directory-prompt-bottom-sheet.react.js:79:25
+    79|       <BottomSheet ref={bottomSheetRef} onClosed={onCloseOrPressDecline}>
+                                ^^^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   components/directory-prompt-bottom-sheet.react.js:42:39
+    42|   const bottomSheetRef = React.useRef(null);
+                                              ^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------------------ components/node-height-measurer.react.js:507:34
+
+Cannot get `dummy.props` because property `props` is missing in `React.Element` [1]. [prop-missing]
+
+   components/node-height-measurer.react.js:507:34
+   507|       const { children } = dummy.props;
+                                         ^^^^^
+
+References:
+   components/node-height-measurer.react.js:53:13
+    53|     +dummy: React.MixedElement,
+                    ^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------ components/node-height-measurer.react.js:508:28
+
+Cannot get `dummy.props` because property `props` is missing in `React.Element` [1]. [prop-missing]
+
+   components/node-height-measurer.react.js:508:28
+   508|       const style = [dummy.props.style, styles.dummy];
+                                   ^^^^^
+
+References:
+   components/node-height-measurer.react.js:53:13
+    53|     +dummy: React.MixedElement,
+                    ^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------ components/node-height-measurer.react.js:511:26
+
+Cannot call `React.cloneElement` because: [incompatible-call]
+ - Either `React.ComponentType` [1] is incompatible with string [2] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [4] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [5] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [6] in type argument `ElementType` [3].
+
+   components/node-height-measurer.react.js:511:26
+   511|       const node = React.cloneElement(dummy, {
+                                 ^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:98:49
+    98| declare type React$MixedElement = React$Element<React$ElementType>;
+                                                        ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/flow-typed/environments/jsx.js:173:4
+   173|   [string]: ReactDOM$HTMLElementJSXIntrinsic,
+           ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:67:36
+    67| declare opaque type React$Element<+ElementType: React$ElementType, +P = React$ElementProps<ElementType>>: {...};
+                                           ^^^^^^^^^^^ [3]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:180:17
+   180|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:184:17
+   184|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:189:17
+   189|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+
+
+Error ------------------------------------------------------------------------------- media/camera-modal.react.js:916:16
+
+Cannot create `ReanimatedCamera` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `Camera` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   media/camera-modal.react.js:916:16
+   916|           ref={cameraRef}
+                       ^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   media/camera-modal.react.js:378:37
+   378|     const cameraRef = React.useRef<?Camera>();
+                                            ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error -------------------------------------------------------------------- navigation/chat-tab-bar-button.react.js:98:10
+
+Cannot return `React.memo(...)` because: [incompatible-return]
+ - Either undefined [1] is incompatible with `NUXTipsOverlayProps` [2].
+ - Or undefined [1] is incompatible with props of component [3].
+
+   navigation/chat-tab-bar-button.react.js:98:10
+    98|   return React.memo(ChatTabBarButton);
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   navigation/chat-tab-bar-button.react.js:42:24
+    42| ): React.ComponentType<void | NUXTipsOverlayProps<Route>> {
+                               ^^^^ [1]
+   navigation/chat-tab-bar-button.react.js:42:31
+    42| ): React.ComponentType<void | NUXTipsOverlayProps<Route>> {
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:553:17
+   553|     ): component(ref: React.RefSetter<Instance>, ...Config) renders Renders;
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------------------ navigation/nav-from-redux-handler.react.js:15:7
+
+Cannot call `useSelector` with function bound to `selector` because property `navState` is missing in `AppState` [1] but
+exists in `MonitorActionState` [2] in the first parameter. [prop-missing]
+
+   navigation/nav-from-redux-handler.react.js:15:7
+   15|       (state: MonitorActionState) => state.navState,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   redux/redux-utils.js:8:21
+    8|   selector: (state: AppState) => SS,
+                           ^^^^^^^^ [1]
+   navigation/nav-from-redux-handler.react.js:15:15
+   15|       (state: MonitorActionState) => state.navState,
+                     ^^^^^^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------- navigation/overlay-navigator.react.js:165:69
+
+Cannot call `newReanimatedRoutes.has` with `route.name` bound to `value` because string [1] is incompatible with
+`T` [2]. [incompatible-call]
+
+   navigation/overlay-navigator.react.js:165:69
+    165|           const shouldUseLegacyAnimation = !newReanimatedRoutes.has(route.name);
+                                                                             ^^^^^^^^^^
+
+References:
+   flow-typed/npm/@react-navigation/core_v6.x.x.js:514:49
+    514|   declare export type Route<RouteName: string = string> =
+                                                         ^^^^^^ [1]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2060:19
+   2060| declare class Set<T> extends $ReadOnlySet<T> {
+                           ^ [2]
+
+
+Error --------------------------------------------------------- profile/keyserver-selection-bottom-sheet.react.js:192:23
+
+Cannot create `BottomSheet` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `BottomSheetRef` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   profile/keyserver-selection-bottom-sheet.react.js:192:23
+   192|     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+                              ^^^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   profile/keyserver-selection-bottom-sheet.react.js:52:40
+    52|   const bottomSheetRef = React.useRef<?BottomSheetRef>();
+                                               ^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error -------------------------------------------------------------- profile/linked-devices-bottom-sheet.react.js:181:23
+
+Cannot create `BottomSheet` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `BottomSheetRef` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   profile/linked-devices-bottom-sheet.react.js:181:23
+   181|     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+                              ^^^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   profile/linked-devices-bottom-sheet.react.js:56:40
+    56|   const bottomSheetRef = React.useRef<?BottomSheetRef>();
+                                               ^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------------------------ profile/relationship-list.react.js:429:18
+
+Cannot create `TagInput` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `BaseTagInput` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   profile/relationship-list.react.js:429:18
+   429|             ref={tagInputRef}
+                         ^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   profile/relationship-list.react.js:151:37
+   151|   const tagInputRef = React.useRef<?BaseTagInput<GlobalAccountUserInfo>>();
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error --------------------------------------------------------------------- redux/handle-redux-migration-failure.js:37:5
+
+Cannot call `resetUserSpecificState` with `persistedNonUserSpecificFields` bound to `nonUserSpecificFields` because an
+index signature declaring the expected key / value type is missing in `AppState` [1] in array element. [prop-missing]
+
+   redux/handle-redux-migration-failure.js:37:5
+    37|     persistedNonUserSpecificFields,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   redux/default-state.js:114:4
+   114| }: AppState);
+           ^^^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- redux/handle-redux-migration-failure.js:37:5
+
+Cannot call `resetUserSpecificState` with `persistedNonUserSpecificFields` bound to `nonUserSpecificFields` because an
+index signature declaring the expected key / value type is missing in `AppState` [1] in array element. [prop-missing]
+
+   redux/handle-redux-migration-failure.js:37:5
+   37|     persistedNonUserSpecificFields,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   redux/handle-redux-migration-failure.js:30:48
+   30| function handleReduxMigrationFailure(oldState: AppState): AppState {
+                                                      ^^^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:454:19
+
+Cannot assign object literal to `threadInfos[threadID]` because undefined [1] is incompatible with string [2].
+[incompatible-type]
+
+   redux/persist.js:454:19
+    454|       threadInfos[threadID] = {
+                           ^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1090:18
+   1090|     shift(): T | void;
+                          ^^^^ [1]
+   redux/persist.js:445:8
+    445|       [string]: LegacyThinRawThreadInfo | ThinRawThreadInfo,
+                ^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:462:47
+
+Cannot get `threadParentToChildren[threadID]` because undefined [1] is incompatible with string [2]. [incompatible-type]
+
+   redux/persist.js:462:47
+    462|       const children = threadParentToChildren[threadID];
+                                                       ^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1090:18
+   1090|     shift(): T | void;
+                          ^^^^ [1]
+   redux/persist.js:424:38
+    424|     const threadParentToChildren: { [string]: string[] } = {};
+                                              ^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:845:39
+
+Cannot spread object literal because property `connection` is missing in object literal [1] but exists in
+`KeyserverInfo` [2]. [prop-missing]
+
+   redux/persist.js:845:39
+                                              v
+   845|           [authoritativeKeyserverID]: {
+   846|             ...keyserverRest,
+   847|           },
+                  ^ [1]
+
+References:
+   ../lib/types/keyserver-types.js:50:48
+    50| export type KeyserverInfos = { +[key: string]: KeyserverInfo };
+                                                       ^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:1621:5
+
+Cannot call `createAsyncMigrate` with `legacyMigrations` bound to `legacyMigrations` because in the return value of
+property `29`: [incompatible-call]
+ - Either property `minimallyEncoded` is missing in `LegacyThreadCurrentUserInfo` [1] but exists in
+   `ThreadCurrentUserInfo` [2] in property `currentUser` of the indexer property of property `threadStore.threadInfos`.
+ - Or property `community` is missing in `ThickRawThreadInfo` [3] but exists in `LegacyThinRawThreadInfo` [4] in the
+   indexer property of property `threadStore.threadInfos`.
+
+   redux/persist.js:1621:5
+   1621|     legacyMigrations,
+             ^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-types.js:109:17
+    109|   +currentUser: LegacyThreadCurrentUserInfo,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/minimally-encoded-thread-permissions-types.js:169:17
+    169|   +currentUser: ThreadCurrentUserInfo,
+                         ^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/types/minimally-encoded-thread-permissions-types.js:180:49
+    180| export type RawThreadInfo = ThinRawThreadInfo | ThickRawThreadInfo;
+                                                         ^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/thread-types.js:182:18
+    182|   +[id: string]: LegacyRawThreadInfo,
+                          ^^^^^^^^^^^^^^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:1621:5
+
+Cannot call `createAsyncMigrate` with `legacyMigrations` bound to `legacyMigrations` because in the return value of
+property `46`: [incompatible-call]
+ - Either object type [1] is incompatible with number [2] in the indexer property of property `messageStore.currentAsOf`
+   of type argument `R` [3].
+ - Or `Promise` [4] is not a subtype of `AppState` [5]. Class instances are not subtypes of object types; consider
+   rewriting `AppState` [5] as an interface.
+
+   redux/persist.js:1621:5
+   1621|     legacyMigrations,
+             ^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/message-types.js:489:17
+    489|   +currentAsOf: { +[keyserverID: string]: number },
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/message-types.js:489:43
+    489|   +currentAsOf: { +[keyserverID: string]: number },
+                                                   ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:24
+   2102| declare class Promise<+R = mixed> {
+                                ^ [3]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:15
+   2102| declare class Promise<+R = mixed> {
+                       ^^^^^^^ [4]
+   redux/persist.js:1388:47
+   1388| const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
+                                                       ^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:1621:5
+
+Cannot call `createAsyncMigrate` with `legacyMigrations` bound to `legacyMigrations` because in the return value of
+property `68`: [incompatible-call]
+ - Either property `userStore` is missing in rest of object pattern [1] but exists in `AppState` [2] in type argument
+   `R` [3].
+ - Or `Promise` [4] is not a subtype of `AppState` [2]. Class instances are not subtypes of object types; consider
+   rewriting `AppState` [2] as an interface.
+
+   redux/persist.js:1621:5
+   1621|     legacyMigrations,
+             ^^^^^^^^^^^^^^^^
+
+References:
+   redux/persist.js:1235:27
+   1235|     const { userStore, ...rest } = state;
+                                   ^^^^ [1]
+   redux/persist.js:1388:47
+   1388| const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
+                                                       ^^^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:24
+   2102| declare class Promise<+R = mixed> {
+                                ^ [3]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:2102:15
+   2102| declare class Promise<+R = mixed> {
+                       ^^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:1621:5
+
+Cannot call `createAsyncMigrate` with `legacyMigrations` bound to `legacyMigrations` because in the return value of
+property `7`: [incompatible-call]
+ - Either property `inconsistencyResponses` is missing in `EntryStore` [1] but exists in object literal [2] in property
+   `entryStore`.
+ - Or object literal [3] is incompatible with `Promise` [4].
+
+   redux/persist.js:1621:5
+   1621|     legacyMigrations,
+             ^^^^^^^^^^^^^^^^
+
+References:
+   redux/state-types.js:62:16
+     62|   +entryStore: EntryStore,
+                        ^^^^^^^^^^ [1]
+   redux/persist.js:222:17
+                         v
+    222|     entryStore: {
+    223|       ...state.entryStore,
+    224|       inconsistencyResponses: [],
+    225|     },
+             ^ [2]
+   redux/persist.js:218:30
+                                      v
+    218|   [7]: (state: AppState) => ({
+    219|     ...state,
+    220|     lastUserInteraction: undefined,
+    221|     sessionID: undefined,
+    222|     entryStore: {
+    223|       ...state.entryStore,
+    224|       inconsistencyResponses: [],
+    225|     },
+    226|   }),
+           ^ [3]
+   ../lib/utils/migration-utils.js:178:30
+    178|   +[number | string]: (T) => Promise<T> | T,
+                                      ^^^^^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------------------ redux/persist.js:1621:5
+
+Cannot call `createAsyncMigrate` with `legacyMigrations` bound to `legacyMigrations` because in the return value of
+property `8`: [incompatible-call]
+ - Either property `actualizedCalendarQuery` is missing in `EntryStore` [1] but exists in object literal [2] in property
+   `entryStore`.
+ - Or object literal [3] is incompatible with `Promise` [4].
+
+   redux/persist.js:1621:5
+   1621|     legacyMigrations,
+             ^^^^^^^^^^^^^^^^
+
+References:
+   redux/state-types.js:62:16
+     62|   +entryStore: EntryStore,
+                        ^^^^^^^^^^ [1]
+   redux/persist.js:236:17
+                         v
+    236|     entryStore: {
+    237|       ...state.entryStore,
+    238|       actualizedCalendarQuery: undefined,
+    239|     },
+             ^ [2]
+   redux/persist.js:227:30
+                                      v
+    227|   [8]: (state: AppState) => ({
+    228|     ...state,
+    229|     pingTimestamps: undefined,
+    230|     activeServerRequests: undefined,
+    231|     connection: {
+    232|       ...defaultConnectionInfo,
+    233|       actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
+    234|     },
+    235|     watchedThreadIDs: [],
+    236|     entryStore: {
+    237|       ...state.entryStore,
+    238|       actualizedCalendarQuery: undefined,
+    239|     },
+    240|   }),
+           ^ [3]
+   ../lib/utils/migration-utils.js:178:30
+    178|   +[number | string]: (T) => Promise<T> | T,
+                                      ^^^^^^^^^^ [4]
+
+
+Error --------------------------------------------------------------------------------------- redux/redux-setup.js:289:7
+
+Cannot call `resetUserSpecificState` with `nonUserSpecificFieldsNative` bound to `nonUserSpecificFields` because an
+index signature declaring the expected key / value type is missing in `AppState` [1] in array element. [prop-missing]
+
+   redux/redux-setup.js:289:7
+   289|       nonUserSpecificFieldsNative,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   redux/default-state.js:114:4
+   114| }: AppState);
+           ^^^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------------------- redux/redux-setup.js:289:7
+
+Cannot call `resetUserSpecificState` with `nonUserSpecificFieldsNative` bound to `nonUserSpecificFields` because an
+index signature declaring the expected key / value type is missing in `AppState` [1] in array element. [prop-missing]
+
+   redux/redux-setup.js:289:7
+   289|       nonUserSpecificFieldsNative,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   redux/redux-setup.js:62:25
+    62| function reducer(state: AppState = defaultState, inputAction: Action) {
+                                ^^^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------------------------- redux/redux-setup.js:447:37
+
+Cannot call `createStore` because: [incompatible-call]
+ - Either no more than 2 arguments are expected by function type [1].
+ - Or cannot call `persistReducer` because inexact `AppState` [2] is incompatible with exact object type [3].
+
+   redux/redux-setup.js:447:37
+   447| const store: Store<AppState, any> = createStore(
+                                            ^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/redux_v4.x.x.js:54:38
+                                             v---------
+    54|   declare export function createStore<S, A, D>(
+    55|     reducer: Reducer<S, A>,
+    56|     enhancer?: StoreEnhancer<S, A, D>
+    57|   ): Store<S, A, D>;
+          ----------------^ [1]
+   redux/state-types.js:58:24
+                               v
+    58| export type AppState = {
+    59|   +navInfo: NavInfo,
+    60|   +currentUserInfo: ?CurrentUserInfo,
+    61|   +draftStore: DraftStore,
+    62|   +entryStore: EntryStore,
+    63|   +threadStore: ThreadStore,
+    64|   +userStore: UserStore,
+    65|   +messageStore: MessageStore,
+    66|   +initialStateLoaded: boolean,
+    67|   +loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
+    68|   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
+    69|   +dataLoaded: boolean,
+    70|   +customServer: ?string,
+    71|   +alertStore: AlertStore,
+    72|   +watchedThreadIDs: $ReadOnlyArray<string>,
+      :
+    85|   +inviteLinksStore: InviteLinksStore,
+    86|   +keyserverStore: KeyserverStore,
+    87|   +threadActivityStore: ThreadActivityStore,
+    88|   +localSettings: LocalSettings,
+    89|   +integrityStore: IntegrityStore,
+    90|   +communityStore: CommunityStore,
+    91|   +dbOpsStore: DBOpsStore,
+    92|   +syncedMetadataStore: SyncedMetadataStore,
+    93|   +auxUserStore: AuxUserStore,
+    94|   +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
+    95|   +queuedDMOperations: QueuedDMOperations,
+    96|   +holderStore: HolderStore,
+    97|   +backupStore: BackupStore,
+    98|   ...
+    99| };
+        ^ [2]
+   ../node_modules/redux-persist/lib/persistReducer.js.flow:33:30
+    33| ): (State | void, Action) => { ...State, ...PersistPartial } {
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error --------------------------------------------------------------------------------------------- root.react.js:250:47
+
+Cannot get `navContainer.dispatch` because property `dispatch` is missing in mixed [1]. [incompatible-use]
+
+   root.react.js:250:47
+   250|         navDispatchRef.current = navContainer.dispatch;
+                                                      ^^^^^^^^
+
+References:
+   root.react.js:247:21
+   247|     (navContainer: ?React.ElementRef<typeof NavigationContainer>) => {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------------------------- root.react.js:263:25
+
+Cannot call `navContainer.addListener` because property `addListener` is missing in mixed [1]. [incompatible-use]
+
+   root.react.js:263:25
+   263|     return navContainer.addListener(
+                                ^^^^^^^^^^^
+
+References:
+   root.react.js:245:19
+   245|     React.useRef<?React.ElementRef<typeof NavigationContainer>>();
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------------- utils/android-permissions.js:55:21
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   utils/android-permissions.js:55:21
+   55|       requestResult[permission] === PermissionsAndroid.RESULTS.GRANTED;
+                           ^^^^^^^^^^
+
+References:
+   utils/android-permissions.js:16:22
+   16|   permissions: Array<string>,
+                            ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------ ../node_modules/react-native/index.js:0:1
+
+Invalid trivially recursive definition of exports.  [recursive-definition]
+
+
+
+Found 77 errors
+
+Only showing the most relevant union/intersection branches.
+To see all branches, re-run Flow with --show-all-branches
+error Command failed with exit code 2.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

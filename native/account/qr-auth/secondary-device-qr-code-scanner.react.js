@@ -9,6 +9,7 @@ import {
   Camera,
   useCameraPermission,
   useCameraDevice,
+  type Code,
 } from 'react-native-vision-camera';
 
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
@@ -112,10 +113,12 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   );
 
   const handleBarCodeScanned = React.useCallback(
-    (codes: [Code]) => {
-      setScanned(true);
+    (codes: $ReadOnlyArray<Code>) => {
       const { value } = codes[0];
-      void navigateToNextScreen(value);
+      if (value) {
+        setScanned(true);
+        void navigateToNextScreen(value);
+      }
     },
     [navigateToNextScreen],
   );
@@ -151,16 +154,20 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     );
   }
 
-  return (
-    <View style={styles.scannerContainer}>
+  let camera = null;
+
+  if (device) {
+    camera = (
       <Camera
         style={styles.scanner}
         device={device}
         codeScanner={codeScanner}
         isActive
       />
-    </View>
-  );
+    );
+  }
+
+  return <View style={styles.scannerContainer}>{camera}</View>;
 }
 
 const unboundStyles = {

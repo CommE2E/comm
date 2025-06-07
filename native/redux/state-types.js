@@ -95,6 +95,7 @@ export type AppState = {
   +queuedDMOperations: QueuedDMOperations,
   +holderStore: HolderStore,
   +backupStore: BackupStore,
+  ...
 };
 
 export { nonUserSpecificFieldsNative };
