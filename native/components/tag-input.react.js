@@ -449,7 +449,12 @@ const styles = StyleSheet.create({
   wrapper: {},
 });
 
-type BaseConfig<T> = React.Config<
+type ReactConfigShim<Props, DefaultProps> = $ReadOnly<{
+  ...$Diff<Props, DefaultProps>,
+  ...Partial<DefaultProps>,
+}>;
+
+type BaseConfig<T> = ReactConfigShim<
   TagInputProps<T>,
   typeof BaseTagInput.defaultProps,
 >;
