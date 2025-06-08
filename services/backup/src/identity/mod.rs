@@ -50,6 +50,11 @@ pub async fn find_user_id(
     .map_err(Error::GrpcStatus)?
     .into_inner();
 
+  if response.is_reserved {
+    // when username is reserved, user exists but has no backup
+    return Err(BackupError::NoBackup);
+  }
+
   match response.user_id {
     Some(user_id) => Ok(user_id),
     None => Err(BackupError::NoUserID),
