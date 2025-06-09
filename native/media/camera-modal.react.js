@@ -94,10 +94,6 @@ async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
   } catch (e) {}
 }
 
-type TouchableOpacityInstance = React.ComponentType<
-  React.ElementConfig<typeof TouchableOpacity>,
->;
-
 type Dimensions = {
   +x: number,
   +y: number,
@@ -440,8 +436,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       setPendingPhotoCapture();
     }, []);
 
-    const closeButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const closeButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -449,8 +444,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       height: 0,
     });
 
-    const photoButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const photoButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const photoButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -459,7 +453,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     });
 
     const switchCameraButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+      React.useRef<?React.ElementRef<typeof View>>();
     const switchCameraButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -467,8 +461,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       height: 0,
     });
 
-    const flashButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    const flashButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const flashButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
