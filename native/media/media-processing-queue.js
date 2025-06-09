@@ -51,7 +51,9 @@ class MediaProcessingQueue {
   possiblyRunCommands() {
     let openSlots: { [string]: number } = {};
     for (const type in this.currentCalls) {
+      // $FlowFixMe
       const currentCalls = this.currentCalls[type];
+      // $FlowFixMe
       const maxCalls = maxSimultaneousCalls[type];
       const callsLeft = maxCalls - currentCalls;
       if (!callsLeft) {
