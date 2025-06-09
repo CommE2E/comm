@@ -202,7 +202,10 @@ function InitialReduxStateGate(props: Props): React.Node {
           entryStoreOperations = entries(payload.entryStore.entryInfos).map(
             ([id, entry]) => ({
               type: 'replace_entry',
-              payload: { id, entry },
+              // This code is responsible for migrating keyserver entries to
+              // SQLite, which means this data shouldn't be included in the
+              // backup because it is owned by keyserver.
+              payload: { id, entry, isBackedUp: false },
             }),
           );
         }
