@@ -54,10 +54,18 @@ describe('Entry Store queries', () => {
       throw new Error('SQLiteQueryExecutor is missing');
     }
     queryExecutor?.replaceEntry(
-      convertEntryInfoIntoClientDBEntryInfo({ id: '0', entry: TEST_ENTRY_1 }),
+      convertEntryInfoIntoClientDBEntryInfo({
+        id: '0',
+        entry: TEST_ENTRY_1,
+        isBackedUp: false,
+      }),
     );
     queryExecutor?.replaceEntry(
-      convertEntryInfoIntoClientDBEntryInfo({ id: '1', entry: TEST_ENTRY_2 }),
+      convertEntryInfoIntoClientDBEntryInfo({
+        id: '1',
+        entry: TEST_ENTRY_2,
+        isBackedUp: true,
+      }),
     );
   });
 
@@ -89,6 +97,7 @@ describe('Entry Store queries', () => {
       convertEntryInfoIntoClientDBEntryInfo({
         id: '1',
         entry: updatedTestEntry,
+        isBackedUp: false,
       }),
     );
 
