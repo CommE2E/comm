@@ -156,6 +156,10 @@ function InitialReduxStateGate(props: Props): React.Node {
               payload: {
                 id,
                 threadInfo,
+                // This code is responsible for migrating keyserver threads to
+                // SQLite, which means this data shouldn't be included in the
+                // backup because it is owned by keyserver.
+                isBackedUp: false,
               },
             }),
           );
