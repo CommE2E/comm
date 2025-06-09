@@ -17,6 +17,7 @@ import {
   Camera,
   useCameraPermission,
   useCameraDevice,
+  type CameraProps,
 } from 'react-native-vision-camera';
 import filesystem from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -55,7 +56,6 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors } from '../themes/colors.js';
-import type { NativeMethods } from '../types/react-native.js';
 import { clamp } from '../utils/animation-utils.js';
 
 Reanimated.addWhitelistedNativeProps({
@@ -375,13 +375,13 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       }
     }, [deviceCameraInfo, dispatch, hasCamerasOnBothSides]);
 
-    const cameraRef = React.useRef<?RNCamera>();
+    const cameraRef = React.useRef<?Camera>();
 
     const focusOnPoint = React.useCallback(
       ([inputX, inputY]: [number, number]) => {
         const camera = cameraRef.current;
         invariant(camera, 'camera ref should be set');
-        camera.focus({ x: inputX, y: inputY });
+        void camera.focus({ x: inputX, y: inputY });
       },
       [deviceOrientation, dimensions],
     );
@@ -908,9 +908,9 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
     const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
 
-    return (
-      <Reanimated.View style={containerStyle}>
-        {statusBar}
+    let camera = null;
+    if (device) {
+      camera = (
         <ReanimatedCamera
           style={StyleSheet.absoluteFill}
           ref={cameraRef}
@@ -920,6 +920,13 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
           photo
           torch={flashMode == 'auto' ? 'off' : flashMode}
         />
+      );
+    }
+
+    return (
+      <Reanimated.View style={containerStyle}>
+        {statusBar}
+        {camera}
         <View style={StyleSheet.absoluteFill}>{renderCamera()}</View>
         <Reanimated.View style={overlayStyle} pointerEvents="none" />
       </Reanimated.View>
