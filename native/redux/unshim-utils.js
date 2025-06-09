@@ -1,9 +1,11 @@
 // @flow
 
 import {
+  createReplaceMessageOperation,
   type MessageStoreOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
+import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { messageID } from 'lib/shared/id-utils.js';
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
@@ -24,10 +26,14 @@ function unshimClientDB(
   unshimTypes: $ReadOnlyArray<MessageType>,
   handleMigrationFailure?: AppState => AppState,
 ): MigrationResult<AppState> {
-  // 1. Get messages from SQLite `messages` table.
+  // 1. Get threads and messages from SQLite `threads` and `messages` tables.
+  const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
   const clientDBMessageInfos = commCoreModule.getInitialMessagesSync();
 
-  // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
+  // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s and
+  //    `ClientDBMessageInfo`s to `RawMessageInfo`s.
+  const rawThreadInfos =
+    threadStoreOpsHandlers.translateClientDBData(clientDBThreadInfos);
   const rawMessageInfos = clientDBMessageInfos.map(
     translateClientDBMessageInfoToRawMessageInfo,
   );
@@ -43,10 +49,13 @@ function unshimClientDB(
     {
       type: 'remove_all',
     },
-    ...unshimmedRawMessageInfos.map((message: RawMessageInfo) => ({
-      type: 'replace',
-      payload: { id: messageID(message), messageInfo: message },
-    })),
+    ...unshimmedRawMessageInfos.map((message: RawMessageInfo) =>
+      createReplaceMessageOperation(
+        messageID(message),
+        message,
+        rawThreadInfos,
+      ),
+    ),
   ];
 
   // 5. Try processing `ClientDBMessageStoreOperation`s and log out if

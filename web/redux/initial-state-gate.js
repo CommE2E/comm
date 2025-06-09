@@ -182,7 +182,10 @@ function InitialReduxStateGate(props: Props): React.Node {
           messageStoreOperations = [
             ...entries(messages).map(([id, messageInfo]) => ({
               type: 'replace',
-              payload: { id, messageInfo },
+              // This code is responsible for migrating keyserver messages to
+              // SQLite, which means this data shouldn't be included in the
+              // backup because it is owned by keyserver.
+              payload: { id, messageInfo, isBackedUp: false },
             })),
             {
               type: 'replace_threads',
