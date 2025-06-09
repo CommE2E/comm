@@ -17,6 +17,7 @@ import {
   keyserverStoreOpsHandlers,
 } from 'lib/ops/keyserver-store-ops.js';
 import {
+  createReplaceThreadActivityEntryOperation,
   type ReplaceThreadActivityEntryOperation,
   threadActivityStoreOpsHandlers,
 } from 'lib/ops/thread-activity-store-ops.js';
@@ -496,16 +497,15 @@ function validateStateAndQueueOpsProcessing(
     state.messageStore.threads[activeThread]
   ) {
     const now = Date.now();
-    const replaceOperation: ReplaceThreadActivityEntryOperation = {
-      type: 'replace_thread_activity_entry',
-      payload: {
-        id: activeThread,
-        threadActivityStoreEntry: {
+    const replaceOperation: ReplaceThreadActivityEntryOperation =
+      createReplaceThreadActivityEntryOperation(
+        activeThread,
+        {
           ...state[activeThread],
           lastNavigatedTo: now,
         },
-      },
-    };
+        state.threadStore.threadInfos,
+      );
 
     const threadActivityStore =
       threadActivityStoreOpsHandlers.processStoreOperations(
