@@ -90,7 +90,7 @@ type SwipeSnakeProps<IconGlyphs: string> = {
   +isViewer: boolean,
   +translateX: SharedValue<number>,
   +color: string,
-  +children: React.Element<React.ComponentType<IconProps<IconGlyphs>>>,
+  +children: React.MixedElement,
   +opacityInterpolator?: number => number, // must be worklet
   +translateXInterpolator?: number => number, // must be worklet
 };
