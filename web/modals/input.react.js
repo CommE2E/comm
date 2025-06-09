@@ -59,7 +59,12 @@ function Input(
   );
 }
 
-const ForwardedInput: React.ComponentType<InputProps> = React.forwardRef<
+type ForwardedInputComponentType = component(
+  ref: React.RefSetter<HTMLInputElement>,
+  ...InputProps
+);
+
+const ForwardedInput: ForwardedInputComponentType = React.forwardRef<
   InputProps,
   HTMLInputElement,
 >(Input);
