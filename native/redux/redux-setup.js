@@ -14,6 +14,7 @@ import {
   deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
+import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { reduceBackupStore } from 'lib/reducers/backup-reducer.js';
@@ -392,15 +393,8 @@ function fixUnreadActiveThread(
       unread: false,
     },
   };
-
   const threadStoreOperations = [
-    {
-      type: 'replace',
-      payload: {
-        id: activeThread,
-        threadInfo: updatedActiveThreadInfo,
-      },
-    },
+    createReplaceThreadOperation(activeThread, updatedActiveThreadInfo),
   ];
 
   const updatedThreadStore = threadStoreOpsHandlers.processStoreOperations(

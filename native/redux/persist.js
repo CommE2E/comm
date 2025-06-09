@@ -489,7 +489,11 @@ const legacyMigrations = {
       },
       ...Object.keys(threadInfos).map((id: string) => ({
         type: 'replace',
-        payload: { id, threadInfo: threadInfos[id] },
+        // Adding `isBackedUp` only to support types, when this migration was
+        // implemented, backup was not yet supported, because of that,
+        // this migration should maintain the default behaviour.
+        // Migrating DM threads to be supported by backup is added later.
+        payload: { id, threadInfo: threadInfos[id], isBackedUp: false },
       })),
     ];
     try {
