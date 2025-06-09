@@ -16,7 +16,12 @@ function ForwardedTextInput(
   );
 }
 
-const WrappedTextInput: React.ComponentType<Props> = React.forwardRef<
+type WrappedTextInputComponentType = component(
+  ref: React.RefSetter<React.ElementRef<typeof TextInput>>,
+  ...Props
+);
+
+const WrappedTextInput: WrappedTextInputComponentType = React.forwardRef<
   Props,
   React.ElementRef<typeof TextInput>,
 >(ForwardedTextInput);

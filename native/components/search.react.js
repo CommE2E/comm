@@ -102,10 +102,14 @@ function ForwardedSearch(
   );
 }
 
-const Search: React.ComponentType<Props> = React.forwardRef<
-  Props,
-  React.ElementRef<typeof BaseTextInput>,
->(ForwardedSearch);
+type SearchComponentType = component(
+  ref: React.RefSetter<React.ElementRef<typeof BaseTextInput>>,
+  ...Props
+);
+
+const Search = React.forwardRef<Props, React.ElementRef<typeof BaseTextInput>>(
+  ForwardedSearch,
+);
 Search.displayName = 'Search';
 
 const unboundStyles = {
@@ -138,7 +142,7 @@ const unboundStyles = {
   },
 };
 
-const MemoizedSearch: typeof Search = React.memo<
+const MemoizedSearch: SearchComponentType = React.memo<
   Props,
   React.ElementRef<typeof BaseTextInput>,
 >(Search);
