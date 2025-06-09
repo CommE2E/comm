@@ -86,10 +86,15 @@ const unboundStyles = {
   },
 };
 
-const RegistrationTextInput: React.ComponentType<Props> = React.forwardRef<
-  Props,
-  React.ElementRef<typeof TextInput>,
->(ForwardedRegistrationTextInput);
+type RegistrationTextInputComponentType = component(
+  ref: React.RefSetter<React.ElementRef<typeof TextInput>>,
+  ...Props
+);
+
+const RegistrationTextInput: RegistrationTextInputComponentType =
+  React.forwardRef<Props, React.ElementRef<typeof TextInput>>(
+    ForwardedRegistrationTextInput,
+  );
 RegistrationTextInput.displayName = 'RegistrationTextInput';
 
 const MemoizedRegistrationTextInput: typeof RegistrationTextInput = React.memo<
