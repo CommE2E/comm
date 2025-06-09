@@ -171,37 +171,41 @@ import { defaultURLPrefix } from '../utils/url-utils.js';
 import { codeVersion } from '../version.mjs';
 
 const legacyMigrations = {
-  [1]: (state: AppState) => ({
-    ...state,
-    notifPermissionAlertInfo: defaultAlertInfo,
-  }),
-  [2]: (state: AppState) => ({
-    ...state,
-    messageSentFromRoute: [],
-  }),
-  [3]: (state: any) => ({
-    currentUserInfo: state.currentUserInfo,
-    entryStore: state.entryStore,
-    threadInfos: state.threadInfos,
-    userInfos: state.userInfos,
-    messageStore: {
-      ...state.messageStore,
-      currentAsOf: state.currentAsOf,
-    },
-    updatesCurrentAsOf: state.currentAsOf,
-    cookie: state.cookie,
-    deviceToken: state.deviceToken,
-    urlPrefix: state.urlPrefix,
-    customServer: state.customServer,
-    notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-    messageSentFromRoute: state.messageSentFromRoute,
-    _persist: state._persist,
-  }),
-  [4]: (state: AppState) => ({
-    ...state,
-    pingTimestamps: undefined,
-    activeServerRequests: undefined,
-  }),
+  [1]: (state: AppState) =>
+    ({
+      ...state,
+      notifPermissionAlertInfo: defaultAlertInfo,
+    }) as any,
+  [2]: (state: AppState) =>
+    ({
+      ...state,
+      messageSentFromRoute: [],
+    }) as any,
+  [3]: (state: any) =>
+    ({
+      currentUserInfo: state.currentUserInfo,
+      entryStore: state.entryStore,
+      threadInfos: state.threadInfos,
+      userInfos: state.userInfos,
+      messageStore: {
+        ...state.messageStore,
+        currentAsOf: state.currentAsOf,
+      },
+      updatesCurrentAsOf: state.currentAsOf,
+      cookie: state.cookie,
+      deviceToken: state.deviceToken,
+      urlPrefix: state.urlPrefix,
+      customServer: state.customServer,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      messageSentFromRoute: state.messageSentFromRoute,
+      _persist: state._persist,
+    }) as any,
+  [4]: (state: AppState) =>
+    ({
+      ...state,
+      pingTimestamps: undefined,
+      activeServerRequests: undefined,
+    }) as any,
   [5]: (state: AppState) => ({
     ...state,
     calendarFilters: defaultCalendarFilters,
@@ -214,29 +218,31 @@ const legacyMigrations = {
       inconsistencyResponses: [],
     },
   }),
-  [7]: (state: AppState) => ({
-    ...state,
-    lastUserInteraction: undefined,
-    sessionID: undefined,
-    entryStore: {
-      ...state.entryStore,
-      inconsistencyResponses: [],
-    },
-  }),
-  [8]: (state: AppState) => ({
-    ...state,
-    pingTimestamps: undefined,
-    activeServerRequests: undefined,
-    connection: {
-      ...defaultConnectionInfo,
-      actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
-    },
-    watchedThreadIDs: [],
-    entryStore: {
-      ...state.entryStore,
-      actualizedCalendarQuery: undefined,
-    },
-  }),
+  [7]: (state: AppState) =>
+    ({
+      ...state,
+      lastUserInteraction: undefined,
+      sessionID: undefined,
+      entryStore: {
+        ...state.entryStore,
+        inconsistencyResponses: [],
+      },
+    }) as any,
+  [8]: (state: AppState) =>
+    ({
+      ...state,
+      pingTimestamps: undefined,
+      activeServerRequests: undefined,
+      connection: {
+        ...defaultConnectionInfo,
+        actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
+      },
+      watchedThreadIDs: [],
+      entryStore: {
+        ...state.entryStore,
+        actualizedCalendarQuery: undefined,
+      },
+    }) as any,
   [9]: (state: any) => ({
     ...state,
     connection: {
@@ -317,7 +323,7 @@ const legacyMigrations = {
     userStore: {
       userInfos: state.userStore.userInfos,
       inconsistencyReports: [],
-    },
+    } as any,
   }),
   [19]: (state: any) => {
     const threadInfos: { [string]: LegacyRawThreadInfo } = {};
@@ -371,10 +377,11 @@ const legacyMigrations = {
     ...state,
     enabledApps: defaultEnabledApps,
   }),
-  [25]: (state: AppState) => ({
-    ...state,
-    crashReportsEnabled: __DEV__,
-  }),
+  [25]: (state: AppState) =>
+    ({
+      ...state,
+      crashReportsEnabled: __DEV__,
+    }) as any,
   [26]: (state: any) => {
     const { currentUserInfo } = state;
     if (currentUserInfo.anonymous) {
@@ -477,7 +484,7 @@ const legacyMigrations = {
       ...state,
       threadStore: {
         ...state.threadStore,
-        threadInfos: updatedThreadInfos,
+        threadInfos: updatedThreadInfos as any,
       },
     };
   },
@@ -501,7 +508,7 @@ const legacyMigrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
     return state;
   },
@@ -523,7 +530,7 @@ const legacyMigrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
     return state;
   },
@@ -635,7 +642,7 @@ const legacyMigrations = {
       commCoreModule.processThreadStoreOperationsSync(operations);
     } catch (exception) {
       console.log(exception);
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
 
     return state;
@@ -658,7 +665,7 @@ const legacyMigrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
 
     return state;
@@ -699,7 +706,7 @@ const legacyMigrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
     return state;
   },
@@ -737,7 +744,7 @@ const legacyMigrations = {
       });
     } catch (exception) {
       console.log(exception);
-      return { ...state, cookie: null };
+      return { ...state, cookie: null } as any;
     }
 
     const inviteLinksStore =
@@ -791,7 +798,10 @@ const legacyMigrations = {
       ...state,
       messageStore: {
         ...state.messageStore,
-        currentAsOf: { [authoritativeKeyserverID]: currentAsOf },
+        currentAsOf: {
+          ...state.messageStore.currentAsOf,
+          [authoritativeKeyserverID]: 0,
+        },
       },
     };
   },
@@ -847,7 +857,7 @@ const legacyMigrations = {
         },
       },
       connection,
-    };
+    } as any;
   },
   [50]: async (state: any) => {
     const { connection, ...rest } = state;
@@ -1232,7 +1242,7 @@ const legacyMigrations = {
   },
   [68]: async (state: AppState) => {
     const { userStore, ...rest } = state;
-    return rest;
+    return rest as any;
   },
   [69]: (state: any) => {
     const { notifPermissionAlertInfo, ...rest } = state;
