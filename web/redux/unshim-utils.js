@@ -1,16 +1,19 @@
 // @flow
 
 import {
+  createReplaceMessageOperation,
   type MessageStoreOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
 import { messageID } from 'lib/shared/id-utils.js';
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
 import type {
   RawMessageInfo,
   ClientDBMessageInfo,
 } from 'lib/types/message-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
 import type { MigrationResult } from 'lib/utils/migration-utils.js';
 
@@ -39,12 +42,11 @@ async function unshimClientDB(
   }
 
   // 2. Get existing `stores` from SQLite.
-  const stores = await sharedWorker.schedule({
-    type: workerRequestMessageTypes.GET_CLIENT_STORE,
-  });
+  const clientStore = await getConfig().sqliteAPI.getClientDBStore(
+    databaseIdentifier.MAIN,
+  );
 
-  const messages: ?$ReadOnlyArray<ClientDBMessageInfo> =
-    stores?.store?.messages;
+  const messages: ?$ReadOnlyArray<ClientDBMessageInfo> = clientStore?.messages;
 
   if (messages === null || messages === undefined || messages.length === 0) {
     return {
@@ -69,10 +71,13 @@ async function unshimClientDB(
     {
       type: 'remove_all',
     },
-    ...unshimmedRawMessageInfos.map((message: RawMessageInfo) => ({
-      type: 'replace',
-      payload: { id: messageID(message), messageInfo: message },
-    })),
+    ...unshimmedRawMessageInfos.map((message: RawMessageInfo) =>
+      createReplaceMessageOperation(
+        messageID(message),
+        message,
+        clientStore?.threadStore?.threadInfos ?? {},
+      ),
+    ),
   ];
 
   // 6. Process the constructed `messageStoreOperations`.
