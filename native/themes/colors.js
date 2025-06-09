@@ -414,6 +414,7 @@ function stylesFromColors<IS: Styles>(
         continue;
       }
       if (magicStrings.has(styleValue)) {
+        // $FlowFixMe
         const mapped = themeColors[styleValue];
         if (mapped) {
           filledInStyle[styleKey] = mapped;
