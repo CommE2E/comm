@@ -18,6 +18,7 @@ import {
   type NavigationRoute,
   NUXTipOverlayBackdropRouteName,
 } from '../navigation/route-names.js';
+import type { BottomSheetRef } from '../types/bottom-sheet.js';
 
 export type DirectoryPromptBottomSheetParams = {
   +communities: $ReadOnlyArray<ClientCommunityInfoWithCommunityName>,
@@ -39,7 +40,7 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
   const { goBack, navigate } = navigation;
   const { communities } = route.params;
 
-  const bottomSheetRef = React.useRef(null);
+  const bottomSheetRef = React.useRef<?BottomSheetRef>(null);
 
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');

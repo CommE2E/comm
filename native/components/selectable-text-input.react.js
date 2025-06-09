@@ -76,7 +76,12 @@ const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   );
 });
 
-const MemoizedSelectableTextInput: React.ComponentType<SelectableTextInputProps> =
+type MemoizedSelectableTextInputComponent = component(
+  ref: React.RefSetter<SelectableTextInputRef>,
+  ...SelectableTextInputProps
+);
+
+const MemoizedSelectableTextInput: MemoizedSelectableTextInputComponent =
   React.memo<SelectableTextInputProps, SelectableTextInputRef>(
     SelectableTextInput,
   );
