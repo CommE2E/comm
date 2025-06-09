@@ -625,6 +625,53 @@ declare module 'react-native-reanimated' {
     (currentValue: T, previousValue: T) => mixed,
   ) => void;
 
+  declare type AddWhitelistedNativeProps = (props: Record<string, boolean>) => void;
+
+  declare type DependencyList = Array<mixed> | void;
+
+  declare type AnimatedPropsAdapterFunction = (
+    props: Record<string, mixed>
+  ) => void;
+
+  declare type UseAnimatedProps = <Props>(
+    updater: () => Partial<Props>,
+    dependencies?: DependencyList | null,
+    adapters?:
+      | AnimatedPropsAdapterFunction
+      | Array<AnimatedPropsAdapterFunction>
+      | null,
+    isAnimatedProps?: boolean
+  ) => Partial<Props>;
+
+  declare class AnimatedComponentRef<P> extends React.Component<P> {
+    setNativeProps?: (props: Record<string, mixed>) => void;
+    getScrollableNode?: () => AnimatedComponentRef<P>;
+    getAnimatableRef?: () => AnimatedComponentRef<P>;
+    // Case for SVG components on Web
+    elementRef?: React.RefObject<HTMLElement>;
+  };
+
+  declare type Options<P> = {
+    setNativeProps: (ref: AnimatedComponentRef<P>, props: P) => void;
+  };
+
+  declare type AnimatedProps<Props> = Props & {
+    animatedProps?: Partial<Props>;
+    ...
+  };
+
+  declare type AnimateProps<Props> = AnimatedProps<Props>;
+
+  declare type CreateAnimatedComponent = <Props, Instance : React.ComponentType<Props>>(
+    component: Instance,
+    options?: Options<Props>
+  ) => React.ComponentType<{
+    ...Props,
+    animatedProps?: Partial<Props>,
+    ref?: React.RefSetter<Instance>,
+    ...
+  }>;
+
   declare export var Node: typeof NodeImpl;
   declare export var Value: typeof ValueImpl;
   declare export var Clock: typeof ClockImpl;
@@ -684,6 +731,9 @@ declare module 'react-native-reanimated' {
   declare export var cancelAnimation: CancelAnimation;
   declare export var useAnimatedKeyboard: UseAnimatedKeyboard;
   declare export var useAnimatedReaction: UseAnimatedReaction;
+  declare export var addWhitelistedNativeProps: AddWhitelistedNativeProps;
+  declare export var useAnimatedProps: UseAnimatedProps;
+  declare export var createAnimatedComponent: CreateAnimatedComponent;
 
   declare export default {
     +Node: typeof NodeImpl,
@@ -741,6 +791,9 @@ declare module 'react-native-reanimated' {
     +withTiming: WithTiming,
     +runOnJS: RunOnJS,
     +cancelAnimation: CancelAnimation,
+    +addWhitelistedNativeProps: AddWhitelistedNativeProps,
+    +useAnimatedProps: UseAnimatedProps,
+    +createAnimatedComponent: CreateAnimatedComponent,
     ...
   };
 
