@@ -11,6 +11,7 @@ import {
   keyserverAuthActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
+import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
 import {
   type ReplaceKeyserverOperation,
   keyserverStoreOpsHandlers,
@@ -476,19 +477,16 @@ function validateStateAndQueueOpsProcessing(
   ) {
     // Makes sure a currently focused thread is never unread
     const activeThreadInfo = state.threadStore.threadInfos[activeThread];
-    updateActiveThreadOps.push({
-      type: 'replace',
-      payload: {
-        id: activeThread,
-        threadInfo: {
-          ...activeThreadInfo,
-          currentUser: {
-            ...activeThreadInfo.currentUser,
-            unread: false,
-          },
-        },
+    const updatedActiveThreadInfo = {
+      ...activeThreadInfo,
+      currentUser: {
+        ...activeThreadInfo.currentUser,
+        unread: false,
       },
-    });
+    };
+    updateActiveThreadOps.push(
+      createReplaceThreadOperation(activeThread, updatedActiveThreadInfo),
+    );
   }
 
   const oldActiveThread = activeThreadSelector(oldState);

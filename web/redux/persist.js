@@ -6,6 +6,7 @@ import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
 import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
@@ -713,10 +714,9 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     // 5. Construct `ThreadStoreOperation`s.
     const threadOperations: ThreadStoreOperation[] = [{ type: 'remove_all' }];
     for (const rawThreadInfo of updatedKeyedRawThreadInfosArray) {
-      threadOperations.push({
-        type: 'replace',
-        payload: { id: rawThreadInfo.id, threadInfo: rawThreadInfo },
-      });
+      threadOperations.push(
+        createReplaceThreadOperation(rawThreadInfo.id, rawThreadInfo),
+      );
     }
 
     const operations: StoreOperations = {
