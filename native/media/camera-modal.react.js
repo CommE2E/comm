@@ -13,6 +13,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import type { LegacyHostInstanceMethods } from 'react-native/src/private/types/HostInstance';
 import filesystem from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
@@ -93,10 +94,6 @@ async function cleanUpPendingPhotoCapture(pendingPhotoCapture: PhotoCapture) {
     await filesystem.unlink(path);
   } catch (e) {}
 }
-
-type TouchableOpacityInstance = React.ComponentType<
-  React.ElementConfig<typeof TouchableOpacity>,
->;
 
 type Dimensions = {
   +x: number,
@@ -441,7 +438,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     }, []);
 
     const closeButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
     const closeButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -450,7 +447,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     });
 
     const photoButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
     const photoButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -459,7 +456,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     });
 
     const switchCameraButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
     const switchCameraButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -468,7 +465,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
     });
 
     const flashButtonRef =
-      React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
     const flashButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -480,25 +477,29 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       if (!closeButtonRef.current) {
         return;
       }
-      closeButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
-      });
+      ((closeButtonRef.current: any): LegacyHostInstanceMethods).measure(
+        (x, y, width, height, pageX, pageY) => {
+          closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
+        },
+      );
     }, [closeButtonDimensions]);
 
     const onPhotoButtonLayout = React.useCallback(() => {
       if (!photoButtonRef.current) {
         return;
       }
-      photoButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        photoButtonDimensions.value = { x: pageX, y: pageY, width, height };
-      });
+      ((photoButtonRef.current: any): LegacyHostInstanceMethods).measure(
+        (x, y, width, height, pageX, pageY) => {
+          photoButtonDimensions.value = { x: pageX, y: pageY, width, height };
+        },
+      );
     }, [photoButtonDimensions]);
 
     const onSwitchCameraButtonLayout = React.useCallback(() => {
       if (!switchCameraButtonRef.current) {
         return;
       }
-      switchCameraButtonRef.current.measure(
+      ((switchCameraButtonRef.current: any): LegacyHostInstanceMethods).measure(
         (x, y, width, height, pageX, pageY) => {
           switchCameraButtonDimensions.value = {
             x: pageX,
@@ -525,9 +526,11 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       if (!flashButtonRef.current) {
         return;
       }
-      flashButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        flashButtonDimensions.value = { x: pageX, y: pageY, width, height };
-      });
+      ((flashButtonRef.current: any): LegacyHostInstanceMethods).measure(
+        (x, y, width, height, pageX, pageY) => {
+          flashButtonDimensions.value = { x: pageX, y: pageY, width, height };
+        },
+      );
     }, [flashButtonDimensions]);
 
     const insets = useSafeAreaInsets();

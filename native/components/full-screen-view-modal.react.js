@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import type { LegacyHostInstanceMethods } from 'react-native/src/private/types/HostInstance';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -44,7 +45,6 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
-import type { NativeMethods } from '../types/react-native.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import { clamp } from '../utils/animation-utils.js';
 
@@ -54,10 +54,6 @@ const defaultTimingConfig = {
 };
 
 const decayConfig = { deceleration: 0.99 };
-
-type TouchableOpacityInstance = React.ComponentType<
-  React.ElementConfig<typeof TouchableOpacity>,
->;
 
 type ButtonDimensions = {
   +x: number,
@@ -129,7 +125,7 @@ function FullScreenViewModal(props: Props) {
   );
 
   const closeButtonRef =
-    React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+    React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
   const mediaIconsRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const closeButtonDimensions = useSharedValue({
@@ -154,9 +150,11 @@ function FullScreenViewModal(props: Props) {
     if (!closeButton) {
       return;
     }
-    closeButton.measure((x, y, width, height, pageX, pageY) => {
-      closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
-    });
+    ((closeButton: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
+        closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      },
+    );
   }, [closeButtonDimensions]);
 
   const onMediaIconsLayout = React.useCallback(() => {
@@ -165,9 +163,11 @@ function FullScreenViewModal(props: Props) {
       return;
     }
 
-    mediaIconsContainer.measure((x, y, width, height, pageX, pageY) => {
-      mediaIconsDimensions.value = { x: pageX, y: pageY, width, height };
-    });
+    ((mediaIconsContainer: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
+        mediaIconsDimensions.value = { x: pageX, y: pageY, width, height };
+      },
+    );
   }, [mediaIconsDimensions]);
 
   const insets = useSafeAreaInsets();
