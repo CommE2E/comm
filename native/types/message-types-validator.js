@@ -9,7 +9,7 @@ import Alert from '../utils/alert.js';
 if (__DEV__) {
   const messageTypesCpp = new Set(commConstants.NATIVE_MESSAGE_TYPES);
   const missingMessageTypesCpp = [];
-  for (const messageName in messageTypes) {
+  Object.keys(messageTypes).forEach(messageName => {
     const messageType = messageTypes[messageName];
     if (
       messageSpecs[messageType]?.getMessageNotifyType &&
@@ -17,7 +17,7 @@ if (__DEV__) {
     ) {
       missingMessageTypesCpp.push(messageName);
     }
-  }
+  });
 
   if (missingMessageTypesCpp.length !== 0) {
     Alert.alert(
