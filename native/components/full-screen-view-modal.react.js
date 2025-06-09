@@ -44,7 +44,6 @@ import { OverlayContext } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
-import type { NativeMethods } from '../types/react-native.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import { clamp } from '../utils/animation-utils.js';
 
@@ -54,10 +53,6 @@ const defaultTimingConfig = {
 };
 
 const decayConfig = { deceleration: 0.99 };
-
-type TouchableOpacityInstance = React.ComponentType<
-  React.ElementConfig<typeof TouchableOpacity>,
->;
 
 type ButtonDimensions = {
   +x: number,
@@ -128,8 +123,7 @@ function FullScreenViewModal(props: Props) {
     [actionLinksEnabled],
   );
 
-  const closeButtonRef =
-    React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+  const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
   const mediaIconsRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const closeButtonDimensions = useSharedValue({
