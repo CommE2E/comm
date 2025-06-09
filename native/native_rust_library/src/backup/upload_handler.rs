@@ -52,6 +52,10 @@ pub mod ffi {
   pub fn trigger_backup_file_upload() {
     TRIGGER_BACKUP_FILE_UPLOAD.notify_one();
   }
+
+  pub fn cleanup_all_backup_files() -> Result<(), Box<dyn Error>> {
+    super::cleanup_all_backup_files().map_err(|err| err.into())
+  }
 }
 
 type TaskResult<'err, T> = Result<T, Box<dyn Error + 'err>>;
@@ -460,6 +464,29 @@ mod log {
       println!("{err:?}");
     }
   }
+}
+
+fn cleanup_all_backup_files() -> Result<(), std::io::Error> {
+  let dir = std::fs::read_dir(&*BACKUP_FOLDER_PATH)?;
+  for entry in dir {
+    let file = entry?;
+    match file.file_type()? {
+      file_type if file_type.is_file() => {
+        std::fs::remove_file(file.path())?;
+      }
+      other_type => {
+        println!(
+          "WARN: Unexpected file type found in backup directory:\
+          \n\tPath: {}\
+          \n\tType: {:?}",
+          file.path().to_string_lossy(),
+          other_type
+        );
+      }
+    }
+  }
+
+  Ok(())
 }
 
 #[derive(

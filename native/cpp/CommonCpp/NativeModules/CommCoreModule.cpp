@@ -591,8 +591,9 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                     sessionsDataItem.session_data.end());
                 crypto::SessionPersist sessionPersist{
                     sessionDataBuffer, sessionsDataItem.version};
-                contentPersist.sessions.insert(std::make_pair(
-                    sessionsDataItem.target_device_id, sessionPersist));
+                contentPersist.sessions.insert(
+                    std::make_pair(
+                        sessionsDataItem.target_device_id, sessionPersist));
               }
             }
 
@@ -1174,9 +1175,10 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
               promise->reject(error);
               return;
             }
-            promise->resolve(jsi::String::createFromUtf8(
-                innerRt,
-                std::string{result.message.begin(), result.message.end()}));
+            promise->resolve(
+                jsi::String::createFromUtf8(
+                    innerRt,
+                    std::string{result.message.begin(), result.message.end()}));
           });
         };
         this->cryptoThread->scheduleTask(job);
@@ -2173,6 +2175,7 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
           try {
             this->innerClearCommServicesAuthMetadata();
             DatabaseManager::clearSensitiveData();
+            ::cleanupAllBackupFiles();
           } catch (const std::exception &e) {
             error = e.what();
           }

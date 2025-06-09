@@ -432,6 +432,9 @@ mod ffi {
     #[cxx_name = "triggerBackupFileUpload"]
     fn trigger_backup_file_upload();
 
+    #[cxx_name = "cleanupAllBackupFiles"]
+    fn cleanup_all_backup_files() -> Result<()>;
+
     #[cxx_name = "createBackup"]
     fn create_backup(
       backup_id: String,
