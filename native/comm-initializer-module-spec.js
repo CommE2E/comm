@@ -7,4 +7,4 @@ interface Spec extends TurboModule {
   initializeComm: () => boolean;
 }
 
-export default TurboModuleRegistry.get<Spec>('CommInitializerModule');
+export default (TurboModuleRegistry.get<Spec>('CommInitializerModule'): Spec);
