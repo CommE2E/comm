@@ -1418,6 +1418,11 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
         payload: {
           id,
           localMessageInfo: message,
+          // Adding this only to support types, when this migration was
+          // implemented, backup was not yet supported, because of that,
+          // this migration should maintain the default behaviour.
+          // Migrating DM entries to be supported by backup is added later.
+          isBackedUp: false,
         },
       }));
 
