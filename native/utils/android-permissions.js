@@ -1,6 +1,10 @@
 // @flow
 
 import { PermissionsAndroid } from 'react-native';
+import type {
+  Permission,
+  PermissionStatus,
+} from 'react-native/Libraries/PermissionsAndroid/PermissionsAndroid.js';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -13,7 +17,7 @@ type PermissionsResult = { +[permission: string]: boolean };
 const emptyObj: PermissionsResult = {};
 
 async function getAndroidPermissions(
-  permissions: Array<string>,
+  permissions: Array<Permission>,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
@@ -39,7 +43,7 @@ async function getAndroidPermissions(
     return await promiseAll(result);
   }
 
-  let requestResult = {};
+  let requestResult: { [permission: Permission]: PermissionStatus } = {};
   try {
     requestResult = await PermissionsAndroid.requestMultiple(permissions);
   } catch (e) {
@@ -64,21 +68,21 @@ function printException(e: mixed, caller: string) {
 }
 
 function requestAndroidPermissions(
-  permissions: Array<string>,
+  permissions: Array<Permission>,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'request', throwExceptions);
 }
 
 function checkAndroidPermissions(
-  permissions: Array<string>,
+  permissions: Array<Permission>,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'check', throwExceptions);
 }
 
 async function getAndroidPermission(
-  permission: string,
+  permission: Permission,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<boolean> {
@@ -91,14 +95,14 @@ async function getAndroidPermission(
 }
 
 function requestAndroidPermission(
-  permission: string,
+  permission: Permission,
   throwExceptions?: ThrowExceptions,
 ): Promise<boolean> {
   return getAndroidPermission(permission, 'request', throwExceptions);
 }
 
 function checkAndroidPermission(
-  permission: string,
+  permission: Permission,
   throwExceptions?: ThrowExceptions,
 ): Promise<boolean> {
   return getAndroidPermission(permission, 'check', throwExceptions);
