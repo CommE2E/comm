@@ -1,6 +1,7 @@
 // @flow
 
 import crypto from 'crypto';
+import invariant from 'invariant';
 
 import type {
   MediaType,
@@ -46,6 +47,7 @@ async function createUploads(
   const ids = await createIDs('uploads', uploadInfos.length);
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
+    invariant(id !== undefined, 'no role id created');
     const secret = crypto.randomBytes(8).toString('hex');
     const { content, dimensions, mediaType, loop, encryptionKey, thumbHash } =
       uploadInfo;
