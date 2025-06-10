@@ -462,6 +462,9 @@ const legacyMigrations = {
     const stack = [...rootIDs];
     while (stack.length > 0) {
       const threadID = stack.shift();
+      if (!threadID) {
+        break;
+      }
       const threadInfo = state.threadStore.threadInfos[threadID];
       const parentThreadInfo = threadInfo.parentThreadID
         ? threadInfos[threadInfo.parentThreadID]
