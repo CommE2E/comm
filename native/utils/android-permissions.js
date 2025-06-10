@@ -1,6 +1,6 @@
 // @flow
 
-import { PermissionsAndroid } from 'react-native';
+import { PermissionsAndroid, type Permission } from 'react-native';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -13,7 +13,7 @@ type PermissionsResult = { +[permission: string]: boolean };
 const emptyObj: PermissionsResult = {};
 
 async function getAndroidPermissions(
-  permissions: Array<string>,
+  permissions: Array<Permission>,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
