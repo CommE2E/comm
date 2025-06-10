@@ -855,7 +855,7 @@ const legacyMigrations = {
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
           [authoritativeKeyserverID]: {
-            ...keyserverRest,
+            ...(keyserverRest as any),
           },
         },
       },
