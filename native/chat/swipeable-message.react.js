@@ -86,7 +86,7 @@ function interpolateTranslateXForNonViewerSecondarySnake(
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
 
-type SwipeSnakeProps<IconGlyphs: string> = {
+type SwipeSnakeProps = {
   +isViewer: boolean,
   +translateX: SharedValue<number>,
   +color: string,
@@ -94,9 +94,7 @@ type SwipeSnakeProps<IconGlyphs: string> = {
   +opacityInterpolator?: number => number, // must be worklet
   +translateXInterpolator?: number => number, // must be worklet
 };
-function SwipeSnake<IconGlyphs: string>(
-  props: SwipeSnakeProps<IconGlyphs>,
-): React.Node {
+function SwipeSnake(props: SwipeSnakeProps): React.Node {
   const { translateX, isViewer, opacityInterpolator, translateXInterpolator } =
     props;
   const transformStyle = useAnimatedStyle(() => {
