@@ -193,7 +193,10 @@ function InitialReduxStateGate(props: Props): React.Node {
             })),
             {
               type: 'replace_threads',
-              payload: { threads },
+              // This code is responsible for migrating keyserver message
+              // threads to SQLite, which means this data shouldn't be
+              // included in the backup because it is owned by keyserver.
+              payload: { threads, isBackedUp: false },
             },
           ];
         }
