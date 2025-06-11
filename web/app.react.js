@@ -125,7 +125,7 @@ registerConfig({
   calendarRangeInactivityLimit: null,
   platformDetails: {
     platform: electron?.platform ?? 'web',
-    codeVersion: 171,
+    codeVersion: 172,
     stateVersion: persistConfig.version,
     ...desktopDetails,
   },
