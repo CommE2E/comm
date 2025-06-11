@@ -24,6 +24,18 @@ use siwe::Message;
 use std::error::Error;
 use std::path::PathBuf;
 
+/// Wrapper for calling async C++ ffi functions. Returns awaitable future.
+/// The C++ defined function should accept `future_id` as the last argument.
+macro_rules! async_cpp_call {
+  ($func:ident($($args:expr),*)) => {
+    {
+      let (future_id, future) = future_manager::new_future::<()>().await;
+      $func($($args,)* future_id);
+      future
+    }
+  };
+}
+
 pub mod ffi {
   use super::*;
 
@@ -102,13 +114,11 @@ pub mod ffi {
         return;
       };
 
-      let (future_id, future) = future_manager::new_future::<()>().await;
-      create_main_compaction(
+      let future = async_cpp_call!(create_main_compaction(
         &backup_id,
         &backup_data_key,
-        &backup_log_data_key,
-        future_id,
-      );
+        &backup_log_data_key
+      ));
       if let Err(err) = future.await {
         handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
@@ -144,8 +154,7 @@ pub mod ffi {
         return;
       }
 
-      let (future_id, future) = future_manager::new_future::<()>().await;
-      set_backup_id(&backup_id, future_id);
+      let future = async_cpp_call!(set_backup_id(&backup_id));
       if let Err(err) = future.await {
         handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
@@ -382,9 +391,7 @@ pub async fn create_ephemeral_user_keys_compaction(
   )
   .await?;
 
-  let (future_id, future) = future_manager::new_future::<()>().await;
-  set_backup_id(&backup_id, future_id);
-  future.await?;
+  async_cpp_call!(set_backup_id(&backup_id)).await?;
 
   Ok(encrypted_user_keys)
 }
@@ -482,9 +489,7 @@ async fn download_and_apply_logs(
       log.content.as_mut_slice(),
     )?;
 
-    let (future_id, future) = future_manager::new_future::<()>().await;
-    restore_from_backup_log(data, future_id);
-    future.await?;
+    async_cpp_call!(restore_from_backup_log(data)).await?;
   }
 
   Ok(())
