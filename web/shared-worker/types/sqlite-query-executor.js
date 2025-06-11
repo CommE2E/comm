@@ -139,6 +139,7 @@ declare export class SQLiteQueryExecutor {
   removeAuxUserInfos(ids: $ReadOnlyArray<string>): void;
   removeAllAuxUserInfos(): void;
   getAllAuxUserInfos(): ClientDBAuxUserInfo[];
+  getSingleAuxUserInfo(userID: string): ?ClientDBAuxUserInfo;
 
   replaceThreadActivityEntry(
     threadActivityEntry: ClientDBThreadActivityEntry,

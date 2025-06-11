@@ -239,6 +239,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "removeAllAuxUserInfos", &SQLiteQueryExecutor::removeAllAuxUserInfos)
       .function("getAllAuxUserInfos", &SQLiteQueryExecutor::getAllAuxUserInfos)
       .function(
+          "getSingleAuxUserInfo", &SQLiteQueryExecutor::getSingleAuxUserInfo)
+      .function(
           "replaceThreadActivityEntry",
           &SQLiteQueryExecutor::replaceThreadActivityEntry)
       .function(

@@ -107,6 +107,8 @@ public:
   void removeAuxUserInfos(const std::vector<std::string> &ids) const override;
   void removeAllAuxUserInfos() const override;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const override;
+  std::optional<AuxUserInfo>
+  getSingleAuxUserInfo(const std::string &userID) const override;
   void replaceThreadActivityEntry(
       const ThreadActivityEntry &threadActivityEntry) const override;
   void removeThreadActivityEntries(
