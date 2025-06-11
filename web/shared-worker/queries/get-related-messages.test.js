@@ -533,7 +533,7 @@ describe('getRelatedMessages queries', () => {
     });
   };
 
-  const runAllTests = () => {
+  describe('Run all tests', () => {
     describe('Basic functionality', runBasicFunctionalityTests);
     describe('Reaction message relations', runReactionRelationTests);
     describe('Edit message relations', runEditRelationTests);
@@ -543,9 +543,5 @@ describe('getRelatedMessages queries', () => {
     describe('Complex relationship scenarios', runComplexScenarioTests);
     describe('Message ordering', runOrderingTests);
     describe('All message types coverage', runAllMessageTypesTests);
-  };
-
-  describe('Run all tests', () => {
-    runAllTests();
   });
 });

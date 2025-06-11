@@ -778,6 +778,49 @@ bool create_dm_operations_table(sqlite3 *db) {
   return SQLiteSchema::createTable(db, query, "dm_operations");
 }
 
+bool convert_target_message_to_standard_column(sqlite3 *db) {
+  int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
+  std::string sidebarSourceType = std::to_string(sidebarSourceTypeInt);
+
+  std::string query =
+      "DROP INDEX IF EXISTS messages_idx_target_message_type_time;"
+      "ALTER TABLE messages DROP COLUMN target_message;"
+      "ALTER TABLE messages ADD COLUMN target_message TEXT;"
+      "UPDATE messages SET target_message = ("
+      "  IIF("
+      "    JSON_VALID(content),"
+      "    COALESCE("
+      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      IIF("
+      "        type = " +
+      sidebarSourceType +
+      ","
+      "        JSON_EXTRACT(content, '$.id'),"
+      "        NULL"
+      "      )"
+      "    ),"
+      "    NULL"
+      "  )"
+      ");"
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time "
+      "  ON messages (target_message, type, time);";
+
+  char *error;
+  sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error converting target_message to standard column: "
+               << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -822,6 +865,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {51, {update_messages_idx_target_message_type_time, true}},
      {52, {recreate_inbound_p2p_messages_table, true}},
      {53, {add_timestamps_column_to_threads_table, true}},
-     {54, {create_dm_operations_table, true}}}};
+     {54, {create_dm_operations_table, true}},
+     {55, {convert_target_message_to_standard_column, true}}}};
 
 } // namespace comm
