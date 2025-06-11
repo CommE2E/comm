@@ -1248,6 +1248,7 @@ dependencies = [
  "argon2",
  "backup_client",
  "base64",
+ "comm-lib",
  "comm-opaque2",
  "cxx",
  "cxx-build",
