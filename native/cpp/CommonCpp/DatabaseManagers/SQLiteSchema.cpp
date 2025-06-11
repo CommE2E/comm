@@ -1,6 +1,5 @@
 #include "SQLiteSchema.h"
 
-#include "../NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageTypeEnum.h"
 #include "Logger.h"
 #include "SQLiteUtils.h"
 
@@ -13,10 +12,7 @@
 namespace comm {
 
 bool SQLiteSchema::createSchema(sqlite3 *db) {
-  char *error;
-  int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
-  std::string sidebarSourceType = std::to_string(sidebarSourceTypeInt);
-  auto query =
+  std::string query =
       "CREATE TABLE IF NOT EXISTS drafts ("
       "  key TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  text TEXT NOT NULL"
@@ -31,21 +27,7 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  future_type INTEGER,"
       "  content TEXT,"
       "  time INTEGER NOT NULL,"
-      "  target_message TEXT AS ("
-      "    IIF("
-      "      JSON_VALID(content),"
-      "      COALESCE("
-      "        JSON_EXTRACT(content, '$.targetMessageID'),"
-      "        IIF("
-      "          type = " +
-      sidebarSourceType +
-      "          , JSON_EXTRACT(content, '$.id'),"
-      "          NULL"
-      "        )"
-      "      ),"
-      "      NULL"
-      "    )"
-      "  )"
+      "  target_message TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS olm_persist_account ("
@@ -207,6 +189,7 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "CREATE INDEX IF NOT EXISTS dm_operations_idx_type"
       "  ON dm_operations (type);";
 
+  char *error;
   sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 
   if (!error) {

@@ -301,10 +301,31 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
 }
 
 void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
+  int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
+  std::string sidebarSourceType = std::to_string(sidebarSourceTypeInt);
+
   static std::string replaceMessageSQL =
-      "REPLACE INTO messages "
-      "(id, local_id, thread, user, type, future_type, content, time) "
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+      "REPLACE INTO messages ("
+      "  id, local_id, thread, user, type, future_type, content, time, "
+      "  target_message"
+      ")"
+      "VALUES ( "
+      "  :id, :local_id, :thread, :user, :type, :future_type, :content, :time,"
+      "  IIF("
+      "    JSON_VALID(:content),"
+      "    COALESCE("
+      "      JSON_EXTRACT(:content, '$.targetMessageID'),"
+      "      IIF("
+      "        :type = " +
+      sidebarSourceType +
+      ","
+      "        JSON_EXTRACT(:content, '$.id'),"
+      "        NULL"
+      "      )"
+      "    ),"
+      "    NULL"
+      "  )"
+      ");";
 
   replaceEntity<Message>(this->getConnection(), replaceMessageSQL, message);
 }
