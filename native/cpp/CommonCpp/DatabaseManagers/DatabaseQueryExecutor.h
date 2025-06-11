@@ -109,6 +109,8 @@ public:
   removeAuxUserInfos(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllAuxUserInfos() const = 0;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const = 0;
+  virtual std::optional<AuxUserInfo>
+  getSingleAuxUserInfo(const std::string &userID) const = 0;
   virtual void replaceThreadActivityEntry(
       const ThreadActivityEntry &threadActivityEntry,
       bool backupItem) const = 0;
