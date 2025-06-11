@@ -198,39 +198,19 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let result = download_backup_data(backup_id.clone())
-        .await
-        .map_err(|err| err.to_string());
-
-      let result = match result {
-        Ok(result) => result,
-        Err(error) => {
-          void_callback(error, promise_id);
-          return;
-        }
+      let err_string = match restore_backup_data_helper(
+        backup_id,
+        backup_data_key,
+        backup_log_data_key,
+        max_version,
+      )
+      .await
+      {
+        Ok(()) => "".to_string(),
+        Err(error) => error.to_string(),
       };
 
-      let (future_id, future) = future_manager::new_future::<()>().await;
-      restore_from_main_compaction(
-        &result.backup_restoration_path.to_string_lossy(),
-        &backup_data_key,
-        &max_version,
-        future_id,
-      );
-
-      if let Err(error) = future.await {
-        void_callback(error, promise_id);
-        return;
-      }
-
-      if let Err(error) =
-        download_and_apply_logs(&backup_id, backup_log_data_key).await
-      {
-        void_callback(error.to_string(), promise_id);
-        return;
-      }
-
-      void_callback(String::new(), promise_id);
+      void_callback(err_string, promise_id);
     });
   }
 
@@ -448,7 +428,8 @@ async fn download_backup_keys(
 
 async fn download_backup_data(
   backup_id: String,
-) -> Result<CompactionDownloadResult, Box<dyn Error>> {
+  backup_restoration_path: &PathBuf,
+) -> Result<(), Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
@@ -461,14 +442,9 @@ async fn download_backup_data(
     .download_backup_data(&backup_data_descriptor, RequestedData::UserData)
     .await?;
 
-  let backup_restoration_path =
-    PathBuf::from(get_backup_directory_path()?).join("restore_compaction");
+  tokio::fs::write(backup_restoration_path, encrypted_user_data).await?;
 
-  tokio::fs::write(&backup_restoration_path, encrypted_user_data).await?;
-
-  Ok(CompactionDownloadResult {
-    backup_restoration_path,
-  })
+  Ok(())
 }
 
 async fn download_and_apply_logs(
@@ -492,6 +468,35 @@ async fn download_and_apply_logs(
     async_cpp_call!(restore_from_backup_log(data)).await?;
   }
 
+  Ok(())
+}
+
+async fn restore_backup_data_helper(
+  backup_id: String,
+  backup_data_key: String,
+  backup_log_data_key: String,
+  max_version: String,
+) -> Result<(), Box<dyn Error>> {
+  let backup_restoration_path =
+    PathBuf::from(get_backup_directory_path()?).join("restore_compaction");
+
+  download_backup_data(backup_id.clone(), &backup_restoration_path).await?;
+
+  // downloaded compaction will be removed when this gets out of scope
+  let failure_cleanup = comm_lib::tools::Defer::new(|| {
+    crate::utils::schedule_remove_file(&backup_restoration_path)
+  });
+
+  async_cpp_call!(restore_from_main_compaction(
+    &backup_restoration_path.to_string_lossy(),
+    &backup_data_key,
+    &max_version
+  ))
+  .await?;
+
+  download_and_apply_logs(&backup_id, backup_log_data_key).await?;
+
+  failure_cleanup.cancel();
   Ok(())
 }
 
@@ -533,10 +538,6 @@ struct LatestBackupInfo {
   pub creation_timestamp: String,
   pub total_backup_size: u64,
   pub version_info: BackupVersionInfo,
-}
-
-struct CompactionDownloadResult {
-  backup_restoration_path: PathBuf,
 }
 
 /// Stores the Olm account in `pickled_account`. However, Olm account

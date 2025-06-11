@@ -5,6 +5,7 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [dependencies]
+comm-lib = { path = "../../shared/comm-lib" }
 cxx = "1.0"
 tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 tokio-util = "0.7.15"
