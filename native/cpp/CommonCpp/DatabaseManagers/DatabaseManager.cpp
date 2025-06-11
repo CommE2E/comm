@@ -13,8 +13,11 @@
 #include "../Tools/ServicesUtils.h"
 #include "lib.rs.h"
 
+#include <folly/dynamic.h>
+#include <folly/json.h>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 namespace comm {
 
@@ -255,6 +258,9 @@ void DatabaseManager::captureBackupLogs() {
   if (!ServicesUtils::fullBackupSupport) {
     return;
   }
+  if (!DatabaseManager::isPrimaryDevice()) {
+    return;
+  }
   std::string backupID =
       DatabaseManager::getQueryExecutor().getMetadata("backupID");
   if (!backupID.size()) {
@@ -455,6 +461,60 @@ void DatabaseManager::copyContentFromBackupDatabase() {
   // Copying is the final step of the restore, we don't need it anymore, so we
   // should clean all the data.
   DatabaseManager::clearRestoredDatabaseSensitiveData();
+}
+
+bool DatabaseManager::isPrimaryDevice() {
+  const auto userID = CommSecureStore::get(CommSecureStore::userID);
+  if (!userID.hasValue()) {
+    return false;
+  }
+
+  const auto currentUserDBInfo =
+      DatabaseManager::getQueryExecutor(DatabaseIdentifier::MAIN)
+          .getSingleAuxUserInfo(userID.value());
+  if (!currentUserDBInfo.has_value()) {
+    return false;
+  }
+
+  return DatabaseManager::isPrimaryDevice(currentUserDBInfo.value());
+}
+
+bool DatabaseManager::isPrimaryDevice(const AuxUserInfo &currentUserDBInfo) {
+  const auto currentDeviceID = CommSecureStore::get(CommSecureStore::deviceID);
+  if (!currentDeviceID.hasValue()) {
+    return false;
+  }
+
+  folly::dynamic auxUserInfoJSON;
+  try {
+    auxUserInfoJSON = folly::parseJson(currentUserDBInfo.aux_user_info);
+  } catch (const folly::json::parse_error &e) {
+    throw std::runtime_error(
+        "Current user AuxUserInfo JSON deserialization failed with "
+        "reason: " +
+        std::string(e.what()));
+  }
+  try {
+    folly::dynamic deviceListObject = auxUserInfoJSON["deviceList"];
+    if (!deviceListObject.isObject()) {
+      throw std::runtime_error(
+          "Current user AuxUserInfo.deviceList is not set");
+    }
+    folly::dynamic deviceList = deviceListObject["devices"];
+    if (!deviceList.isArray() || !deviceList.size()) {
+      throw std::runtime_error(
+          "Device list object is missing the 'devices' property "
+          "or the device list is empty.");
+    }
+
+    const std::string primaryDeviceID = deviceList.begin()->asString();
+    return currentDeviceID.value() == primaryDeviceID;
+  } catch (std::exception &e) {
+    Logger::log(
+        "Failed to determine if current device is primary: " +
+        std::string(e.what()));
+    return false;
+  }
 }
 
 } // namespace comm
