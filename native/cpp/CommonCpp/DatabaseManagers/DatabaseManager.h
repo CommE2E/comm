@@ -45,6 +45,8 @@ class DatabaseManager {
   // `connectionManager`.
   static void clearRestoredDatabaseSensitiveData();
 
+  static bool isPrimaryDevice();
+
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static const DatabaseQueryExecutor &getQueryExecutor(DatabaseIdentifier id);
