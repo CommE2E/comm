@@ -861,6 +861,20 @@ std::vector<AuxUserInfo> SQLiteQueryExecutor::getAllAuxUserInfos() const {
       this->getConnection(), getAllAuxUserInfosSQL);
 }
 
+std::optional<AuxUserInfo>
+SQLiteQueryExecutor::getSingleAuxUserInfo(const std::string &userID) const {
+  static std::string getAuxUserInfoSQL =
+      "SELECT * "
+      "FROM aux_users "
+      "WHERE id = ?";
+  std::unique_ptr<AuxUserInfo> result = getEntityByPrimaryKey<AuxUserInfo>(
+      this->getConnection(), getAuxUserInfoSQL, userID);
+  if (result == nullptr) {
+    return std::nullopt;
+  }
+  return *result;
+}
+
 void SQLiteQueryExecutor::replaceThreadActivityEntry(
     const ThreadActivityEntry &threadActivityEntry) const {
   static std::string replaceThreadActivityEntrySQL =
