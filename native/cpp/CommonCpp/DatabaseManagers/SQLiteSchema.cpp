@@ -30,6 +30,18 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  target_message TEXT"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS backup_messages ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_id TEXT,"
+      "  thread TEXT NOT NULL,"
+      "  user TEXT NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  future_type INTEGER,"
+      "  content TEXT,"
+      "  time INTEGER NOT NULL,"
+      "  target_message TEXT"
+      ");"
+
       "CREATE TABLE IF NOT EXISTS olm_persist_account ("
       "  id INTEGER UNIQUE PRIMARY KEY NOT NULL,"
       "  account_data TEXT NOT NULL"
@@ -42,6 +54,15 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       ");"
 
       "CREATE TABLE IF NOT EXISTS media ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  container TEXT NOT NULL,"
+      "  thread TEXT NOT NULL,"
+      "  uri TEXT NOT NULL,"
+      "  type TEXT NOT NULL,"
+      "  extras TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_media ("
       "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  container TEXT NOT NULL,"
       "  thread TEXT NOT NULL,"
@@ -70,12 +91,37 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  timestamps TEXT"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS backup_threads ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  name TEXT,"
+      "  description TEXT,"
+      "  color TEXT NOT NULL,"
+      "  creation_time BIGINT NOT NULL,"
+      "  parent_thread_id TEXT,"
+      "  containing_thread_id TEXT,"
+      "  community TEXT,"
+      "  members TEXT NOT NULL,"
+      "  roles TEXT NOT NULL,"
+      "  current_user TEXT NOT NULL,"
+      "  source_message_id TEXT,"
+      "  replies_count INTEGER NOT NULL,"
+      "  avatar TEXT,"
+      "  pinned_count INTEGER NOT NULL DEFAULT 0,"
+      "  timestamps TEXT"
+      ");"
+
       "CREATE TABLE IF NOT EXISTS metadata ("
       "  name TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  data TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS message_store_threads ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  start_reached INTEGER NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_message_store_threads ("
       "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  start_reached INTEGER NOT NULL"
       ");"
@@ -142,6 +188,11 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  thread_activity_store_entry TEXT NOT NULL"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS backup_thread_activity ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  thread_activity_store_entry TEXT NOT NULL"
+      ");"
+
       "CREATE TABLE IF NOT EXISTS inbound_p2p_messages ("
       "  id INTEGER PRIMARY KEY,"
       "  message_id TEXT NOT NULL,"
@@ -156,7 +207,17 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  entry TEXT NOT NULL"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS backup_entries ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  entry TEXT NOT NULL"
+      ");"
+
       "CREATE TABLE IF NOT EXISTS message_store_local ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_message_info TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_message_store_local ("
       "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  local_message_info TEXT NOT NULL"
       ");"
@@ -177,11 +238,20 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "CREATE INDEX IF NOT EXISTS media_idx_container"
       "  ON media (container);"
 
+      "CREATE INDEX IF NOT EXISTS backup_media_idx_container"
+      "  ON backup_media (container);"
+
       "CREATE INDEX IF NOT EXISTS messages_idx_thread_time"
       "  ON messages (thread, time);"
 
+      "CREATE INDEX IF NOT EXISTS backup_messages_idx_thread_time"
+      "  ON backup_messages (thread, time);"
+
       "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time"
       "  ON messages (target_message, type, time);"
+
+      "CREATE INDEX IF NOT EXISTS backup_messages_idx_target_message_type_time"
+      "  ON backup_messages (target_message, type, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
       "  ON outbound_p2p_messages (device_id, timestamp);"

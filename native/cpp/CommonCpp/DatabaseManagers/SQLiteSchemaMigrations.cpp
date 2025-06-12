@@ -821,6 +821,91 @@ bool convert_target_message_to_standard_column(sqlite3 *db) {
   return false;
 }
 
+bool create_backup_tables(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS backup_messages ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_id TEXT,"
+      "  thread TEXT NOT NULL,"
+      "  user TEXT NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  future_type INTEGER,"
+      "  content TEXT,"
+      "  time INTEGER NOT NULL,"
+      "  target_message TEXT"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_media ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  container TEXT NOT NULL,"
+      "  thread TEXT NOT NULL,"
+      "  uri TEXT NOT NULL,"
+      "  type TEXT NOT NULL,"
+      "  extras TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_threads ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  name TEXT,"
+      "  description TEXT,"
+      "  color TEXT NOT NULL,"
+      "  creation_time BIGINT NOT NULL,"
+      "  parent_thread_id TEXT,"
+      "  containing_thread_id TEXT,"
+      "  community TEXT,"
+      "  members TEXT NOT NULL,"
+      "  roles TEXT NOT NULL,"
+      "  current_user TEXT NOT NULL,"
+      "  source_message_id TEXT,"
+      "  replies_count INTEGER NOT NULL,"
+      "  avatar TEXT,"
+      "  pinned_count INTEGER NOT NULL DEFAULT 0,"
+      "  timestamps TEXT"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_message_store_threads ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  start_reached INTEGER NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_thread_activity ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  thread_activity_store_entry TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_entries ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  entry TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS backup_message_store_local ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_message_info TEXT NOT NULL"
+      ");"
+
+      "CREATE INDEX IF NOT EXISTS backup_media_idx_container"
+      "  ON backup_media (container);"
+      "CREATE INDEX IF NOT EXISTS backup_messages_idx_thread_time"
+      "  ON backup_messages (thread, time);"
+      "CREATE INDEX IF NOT EXISTS backup_messages_idx_target_message_type_time"
+      "  ON backup_messages (target_message, type, time);";
+
+  char *error;
+  sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating backup tables: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -866,6 +951,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {52, {recreate_inbound_p2p_messages_table, true}},
      {53, {add_timestamps_column_to_threads_table, true}},
      {54, {create_dm_operations_table, true}},
-     {55, {convert_target_message_to_standard_column, true}}}};
+     {55, {convert_target_message_to_standard_column, true}},
+     {56, {create_backup_tables, true}}}};
 
 } // namespace comm
