@@ -52,10 +52,11 @@ public:
   void removeMessages(const std::vector<std::string> &ids) const override;
   void removeMessagesForThreads(
       const std::vector<std::string> &threadIDs) const override;
-  void replaceMessage(const Message &message) const override;
+  void replaceMessage(const Message &message, bool backupItem) const override;
   void rekeyMessage(std::string from, std::string to) const override;
   void replaceMessageStoreThreads(
-      const std::vector<MessageStoreThread> &threads) const override;
+      const std::vector<MessageStoreThread> &threads,
+      bool backupItem) const override;
   void
   removeMessageStoreThreads(const std::vector<std::string> &ids) const override;
   void removeAllMessageStoreThreads() const override;
@@ -66,11 +67,11 @@ public:
   void removeMediaForMessage(std::string msgID) const override;
   void removeMediaForThreads(
       const std::vector<std::string> &threadIDs) const override;
-  void replaceMedia(const Media &media) const override;
+  void replaceMedia(const Media &media, bool backupItem) const override;
   void rekeyMediaContainers(std::string from, std::string to) const override;
   std::vector<Thread> getAllThreads() const override;
   void removeThreads(std::vector<std::string> ids) const override;
-  void replaceThread(const Thread &thread) const override;
+  void replaceThread(const Thread &thread, bool backupItem) const override;
   void removeAllThreads() const override;
   void replaceReport(const Report &report) const override;
   void removeReports(const std::vector<std::string> &ids) const override;
@@ -108,17 +109,19 @@ public:
   void removeAllAuxUserInfos() const override;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const override;
   void replaceThreadActivityEntry(
-      const ThreadActivityEntry &threadActivityEntry) const override;
+      const ThreadActivityEntry &threadActivityEntry,
+      bool backupItem) const override;
   void removeThreadActivityEntries(
       const std::vector<std::string> &ids) const override;
   void removeAllThreadActivityEntries() const override;
   std::vector<ThreadActivityEntry> getAllThreadActivityEntries() const override;
-  void replaceEntry(const EntryInfo &entryInfo) const override;
+  void replaceEntry(const EntryInfo &entryInfo, bool backupItem) const override;
   void removeEntries(const std::vector<std::string> &ids) const override;
   void removeAllEntries() const override;
   std::vector<EntryInfo> getAllEntries() const override;
   void replaceMessageStoreLocalMessageInfo(
-      const LocalMessageInfo &localMessageInfo) const override;
+      const LocalMessageInfo &localMessageInfo,
+      bool backupItem) const override;
   void removeMessageStoreLocalMessageInfos(
       const std::vector<std::string> &ids) const override;
   void removeAllMessageStoreLocalMessageInfos() const override;

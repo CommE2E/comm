@@ -21,22 +21,34 @@ describe('Message store local queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor.replaceMessageStoreLocalMessageInfo({
-      id: '1',
-      localMessageInfo: JSON.stringify({}),
-    });
-    queryExecutor.replaceMessageStoreLocalMessageInfo({
-      id: '2',
-      localMessageInfo: JSON.stringify({ sendFailed: '1' }),
-    });
-    queryExecutor.replaceMessageStoreLocalMessageInfo({
-      id: '3',
-      localMessageInfo: JSON.stringify({ sendFailed: '0' }),
-    });
-    queryExecutor.replaceMessageStoreLocalMessageInfo({
-      id: '4',
-      localMessageInfo: JSON.stringify({ sendFailed: '1' }),
-    });
+    queryExecutor.replaceMessageStoreLocalMessageInfo(
+      {
+        id: '1',
+        localMessageInfo: JSON.stringify({}),
+      },
+      false,
+    );
+    queryExecutor.replaceMessageStoreLocalMessageInfo(
+      {
+        id: '2',
+        localMessageInfo: JSON.stringify({ sendFailed: '1' }),
+      },
+      false,
+    );
+    queryExecutor.replaceMessageStoreLocalMessageInfo(
+      {
+        id: '3',
+        localMessageInfo: JSON.stringify({ sendFailed: '0' }),
+      },
+      false,
+    );
+    queryExecutor.replaceMessageStoreLocalMessageInfo(
+      {
+        id: '4',
+        localMessageInfo: JSON.stringify({ sendFailed: '1' }),
+      },
+      false,
+    );
   });
 
   afterEach(() => {

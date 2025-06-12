@@ -23,106 +23,133 @@ describe('Message and media store queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor.replaceMessage({
-      id: '1',
-      localID: null,
-      thread: '1',
-      user: '1',
-      type: 0,
-      futureType: null,
-      content: null,
-      time: BigInt(0),
-    });
-    queryExecutor.replaceMessage({
-      id: '2',
-      localID: null,
-      thread: '1',
-      user: '1',
-      type: 0,
-      futureType: null,
-      content: null,
-      time: BigInt(0),
-    });
-    queryExecutor.replaceMessage({
-      id: '3',
-      localID: null,
-      thread: '2',
-      user: '1',
-      type: 0,
-      futureType: 5,
-      content: null,
-      time: BigInt(0),
-    });
-    queryExecutor.replaceMedia({
-      id: '1',
-      container: '1',
-      thread: '1',
-      uri: '1',
-      type: 'photo',
-      extras: '1',
-    });
-    queryExecutor.replaceMedia({
-      id: '2',
-      container: '1',
-      thread: '1',
-      uri: '1',
-      type: 'photo',
-      extras: '1',
-    });
-    queryExecutor.replaceMedia({
-      id: '3',
-      container: '3',
-      thread: '2',
-      uri: '1',
-      type: 'photo',
-      extras: '1',
-    });
-    queryExecutor.replaceMedia({
-      id: '4',
-      container: '3',
-      thread: '2',
-      uri: '1',
-      type: 'photo',
-      extras: '1',
-    });
-    queryExecutor.replaceThread({
-      id: '1',
-      type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-      name: null,
-      avatar: null,
-      description: null,
-      color: 'ffffff',
-      creationTime: BigInt(1),
-      parentThreadID: null,
-      containingThreadID: null,
-      community: null,
-      members: '1',
-      roles: '1',
-      currentUser: '{}',
-      sourceMessageID: null,
-      repliesCount: 0,
-      pinnedCount: 0,
-      timestamps: null,
-    });
-    queryExecutor.replaceThread({
-      id: '2',
-      type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-      name: null,
-      avatar: null,
-      description: null,
-      color: 'ffffff',
-      creationTime: BigInt(1),
-      parentThreadID: null,
-      containingThreadID: null,
-      community: null,
-      members: '1',
-      roles: '1',
-      currentUser: '{}',
-      sourceMessageID: null,
-      repliesCount: 0,
-      pinnedCount: 0,
-      timestamps: null,
-    });
+    queryExecutor.replaceMessage(
+      {
+        id: '1',
+        localID: null,
+        thread: '1',
+        user: '1',
+        type: 0,
+        futureType: null,
+        content: null,
+        time: BigInt(0),
+      },
+      false,
+    );
+    queryExecutor.replaceMessage(
+      {
+        id: '2',
+        localID: null,
+        thread: '1',
+        user: '1',
+        type: 0,
+        futureType: null,
+        content: null,
+        time: BigInt(0),
+      },
+      false,
+    );
+    queryExecutor.replaceMessage(
+      {
+        id: '3',
+        localID: null,
+        thread: '2',
+        user: '1',
+        type: 0,
+        futureType: 5,
+        content: null,
+        time: BigInt(0),
+      },
+      false,
+    );
+    queryExecutor.replaceMedia(
+      {
+        id: '1',
+        container: '1',
+        thread: '1',
+        uri: '1',
+        type: 'photo',
+        extras: '1',
+      },
+      false,
+    );
+    queryExecutor.replaceMedia(
+      {
+        id: '2',
+        container: '1',
+        thread: '1',
+        uri: '1',
+        type: 'photo',
+        extras: '1',
+      },
+      false,
+    );
+    queryExecutor.replaceMedia(
+      {
+        id: '3',
+        container: '3',
+        thread: '2',
+        uri: '1',
+        type: 'photo',
+        extras: '1',
+      },
+      false,
+    );
+    queryExecutor.replaceMedia(
+      {
+        id: '4',
+        container: '3',
+        thread: '2',
+        uri: '1',
+        type: 'photo',
+        extras: '1',
+      },
+      false,
+    );
+    queryExecutor.replaceThread(
+      {
+        id: '1',
+        type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+        name: null,
+        avatar: null,
+        description: null,
+        color: 'ffffff',
+        creationTime: BigInt(1),
+        parentThreadID: null,
+        containingThreadID: null,
+        community: null,
+        members: '1',
+        roles: '1',
+        currentUser: '{}',
+        sourceMessageID: null,
+        repliesCount: 0,
+        pinnedCount: 0,
+        timestamps: null,
+      },
+      false,
+    );
+    queryExecutor.replaceThread(
+      {
+        id: '2',
+        type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+        name: null,
+        avatar: null,
+        description: null,
+        color: 'ffffff',
+        creationTime: BigInt(1),
+        parentThreadID: null,
+        containingThreadID: null,
+        community: null,
+        members: '1',
+        roles: '1',
+        currentUser: '{}',
+        sourceMessageID: null,
+        repliesCount: 0,
+        pinnedCount: 0,
+        timestamps: null,
+      },
+      false,
+    );
   });
 
   afterEach(() => {
