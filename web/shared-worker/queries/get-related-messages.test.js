@@ -74,16 +74,19 @@ describe('getRelatedMessages queries', () => {
       });
     }
 
-    return queryExecutor.replaceMessage({
-      id,
-      localID: null,
-      thread: '1',
-      user: '1',
-      type,
-      futureType: null,
-      content: messageContent,
-      time: BigInt(time),
-    });
+    return queryExecutor.replaceMessage(
+      {
+        id,
+        localID: null,
+        thread: '1',
+        user: '1',
+        type,
+        futureType: null,
+        content: messageContent,
+        time: BigInt(time),
+      },
+      false,
+    );
   };
 
   it('should handle non-existent message ID', () => {
@@ -101,16 +104,19 @@ describe('getRelatedMessages queries', () => {
   });
 
   it('should handle malformed JSON content gracefully', () => {
-    queryExecutor.replaceMessage({
-      id: 'malformed',
-      localID: null,
-      thread: '1',
-      user: '1',
-      type: messageTypes.REACTION,
-      futureType: null,
-      content: 'invalid json{',
-      time: BigInt(1000),
-    });
+    queryExecutor.replaceMessage(
+      {
+        id: 'malformed',
+        localID: null,
+        thread: '1',
+        user: '1',
+        type: messageTypes.REACTION,
+        futureType: null,
+        content: 'invalid json{',
+        time: BigInt(1000),
+      },
+      false,
+    );
 
     const results = queryExecutor.getRelatedMessages('malformed');
     expect(results.length).toBe(1);
@@ -331,16 +337,19 @@ describe('getRelatedMessages queries', () => {
       content: 'Source message for sidebar',
     });
 
-    queryExecutor.replaceMessage({
-      id: 'sidebar1',
-      localID: null,
-      thread: '1',
-      user: '1',
-      type: messageTypes.SIDEBAR_SOURCE,
-      futureType: null,
-      content: sidebarContent,
-      time: BigInt(1000),
-    });
+    queryExecutor.replaceMessage(
+      {
+        id: 'sidebar1',
+        localID: null,
+        thread: '1',
+        user: '1',
+        type: messageTypes.SIDEBAR_SOURCE,
+        futureType: null,
+        content: sidebarContent,
+        time: BigInt(1000),
+      },
+      false,
+    );
 
     const results = queryExecutor.getRelatedMessages('source_msg_id');
     expect(results.length).toBe(1);

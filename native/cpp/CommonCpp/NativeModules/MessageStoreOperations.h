@@ -114,9 +114,11 @@ public:
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor().removeMediaForMessage(msg->id);
     for (auto &&media : this->media_vector) {
-      DatabaseManager::getQueryExecutor().replaceMedia(std::move(*media));
+      DatabaseManager::getQueryExecutor().replaceMedia(
+          std::move(*media), false);
     }
-    DatabaseManager::getQueryExecutor().replaceMessage(std::move(*this->msg));
+    DatabaseManager::getQueryExecutor().replaceMessage(
+        std::move(*this->msg), false);
   }
 
 private:
@@ -169,7 +171,7 @@ public:
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceMessageStoreThreads(
-        this->msg_threads);
+        this->msg_threads, false);
   }
 
 private:
@@ -242,7 +244,7 @@ public:
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceMessageStoreLocalMessageInfo(
-        this->localMessageInfo);
+        this->localMessageInfo, false);
   }
 
 private:

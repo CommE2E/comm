@@ -35,6 +35,6 @@ void ThreadOperations::updateSQLiteUnreadStatus(
     return;
   }
 
-  DatabaseManager::getQueryExecutor().replaceThread(*thread);
+  DatabaseManager::getQueryExecutor().replaceThread(*thread, false);
 }
 } // namespace comm

@@ -30,7 +30,7 @@ public:
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceThreadActivityEntry(
-        this->threadActivityEntry);
+        this->threadActivityEntry, false);
   }
 
 private:
