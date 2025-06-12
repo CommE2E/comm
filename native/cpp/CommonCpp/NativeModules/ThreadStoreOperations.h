@@ -27,7 +27,7 @@ public:
   }
 
   virtual void execute(DatabaseIdentifier id) override {
-    DatabaseManager::getQueryExecutor(id).replaceThread(this->thread);
+    DatabaseManager::getQueryExecutor(id).replaceThread(this->thread, false);
   }
 
 private:

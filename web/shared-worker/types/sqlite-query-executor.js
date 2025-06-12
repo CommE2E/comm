@@ -70,17 +70,18 @@ declare export class SQLiteQueryExecutor {
   removeAllMessages(): void;
   removeMessages(ids: $ReadOnlyArray<string>): void;
   removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
-  replaceMessage(message: WebMessage): void;
+  replaceMessage(message: WebMessage, backupItem: boolean): void;
   rekeyMessage(from: string, to: string): void;
   removeAllMedia(): void;
   removeMediaForThreads(threadIDs: $ReadOnlyArray<string>): void;
   removeMediaForMessages(msgIDs: $ReadOnlyArray<string>): void;
   removeMediaForMessage(msgID: string): void;
-  replaceMedia(media: Media): void;
+  replaceMedia(media: Media, backupItem: boolean): void;
   rekeyMediaContainers(from: string, to: string): void;
 
   replaceMessageStoreThreads(
     threads: $ReadOnlyArray<{ +id: string, +startReached: number }>,
+    backupItem: boolean,
   ): void;
   removeMessageStoreThreads($ReadOnlyArray<string>): void;
   getAllMessageStoreThreads(): $ReadOnlyArray<{
@@ -107,7 +108,7 @@ declare export class SQLiteQueryExecutor {
   removeAllUsers(): void;
   getAllUsers(): ClientDBUserInfo[];
 
-  replaceThread(thread: WebClientDBThreadInfo): void;
+  replaceThread(thread: WebClientDBThreadInfo, backupItem: boolean): void;
   removeThreads(ids: $ReadOnlyArray<string>): void;
   removeAllThreads(): void;
   getAllThreads(): WebClientDBThreadInfo[];
@@ -142,18 +143,20 @@ declare export class SQLiteQueryExecutor {
 
   replaceThreadActivityEntry(
     threadActivityEntry: ClientDBThreadActivityEntry,
+    backupItem: boolean,
   ): void;
   removeThreadActivityEntries(ids: $ReadOnlyArray<string>): void;
   removeAllThreadActivityEntries(): void;
   getAllThreadActivityEntries(): ClientDBThreadActivityEntry[];
 
-  replaceEntry(entryInfo: ClientDBEntryInfo): void;
+  replaceEntry(entryInfo: ClientDBEntryInfo, backupItem: boolean): void;
   removeEntries(ids: $ReadOnlyArray<string>): void;
   removeAllEntries(): void;
   getAllEntries(): $ReadOnlyArray<ClientDBEntryInfo>;
 
   replaceMessageStoreLocalMessageInfo(
     localMessageInfo: ClientDBLocalMessageInfo,
+    backupItem: boolean,
   ): void;
   removeMessageStoreLocalMessageInfos(ids: $ReadOnlyArray<string>): void;
   removeAllMessageStoreLocalMessageInfos(): void;
