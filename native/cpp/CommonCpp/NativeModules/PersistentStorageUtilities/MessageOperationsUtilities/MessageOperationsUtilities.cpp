@@ -116,9 +116,9 @@ void MessageOperationsUtilities::storeMessageInfos(
       translateStringToClientDBMessageInfos(rawMessageInfosString);
   for (const auto &clientDBMessageInfo : clientDBMessageInfos) {
     DatabaseManager::getQueryExecutor().replaceMessage(
-        clientDBMessageInfo.message);
+        clientDBMessageInfo.message, false);
     for (const auto &mediaInfo : clientDBMessageInfo.medias) {
-      DatabaseManager::getQueryExecutor().replaceMedia(mediaInfo);
+      DatabaseManager::getQueryExecutor().replaceMedia(mediaInfo, false);
     }
   }
 }

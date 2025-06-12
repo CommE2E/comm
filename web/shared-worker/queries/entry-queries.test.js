@@ -59,6 +59,7 @@ describe('Entry Store queries', () => {
         entry: TEST_ENTRY_1,
         isBackedUp: false,
       }),
+      false,
     );
     queryExecutor?.replaceEntry(
       convertEntryInfoIntoClientDBEntryInfo({
@@ -66,6 +67,7 @@ describe('Entry Store queries', () => {
         entry: TEST_ENTRY_2,
         isBackedUp: true,
       }),
+      false,
     );
   });
 
@@ -99,6 +101,7 @@ describe('Entry Store queries', () => {
         entry: updatedTestEntry,
         isBackedUp: false,
       }),
+      false,
     );
 
     const dbEntries = queryExecutor?.getAllEntries();

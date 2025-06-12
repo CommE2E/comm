@@ -49,11 +49,13 @@ public:
   virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(const std::vector<std::string> &threadIDs) const = 0;
-  virtual void replaceMessage(const Message &message) const = 0;
+  virtual void
+  replaceMessage(const Message &message, bool backupItem) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual void removeAllMedia() const = 0;
   virtual void replaceMessageStoreThreads(
-      const std::vector<MessageStoreThread> &threads) const = 0;
+      const std::vector<MessageStoreThread> &threads,
+      bool backupItem) const = 0;
   virtual void
   removeMessageStoreThreads(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessageStoreThreads() const = 0;
@@ -63,11 +65,11 @@ public:
   virtual void removeMediaForMessage(std::string msgID) const = 0;
   virtual void
   removeMediaForThreads(const std::vector<std::string> &threadIDs) const = 0;
-  virtual void replaceMedia(const Media &media) const = 0;
+  virtual void replaceMedia(const Media &media, bool backupItem) const = 0;
   virtual void rekeyMediaContainers(std::string from, std::string to) const = 0;
   virtual std::vector<Thread> getAllThreads() const = 0;
   virtual void removeThreads(std::vector<std::string> ids) const = 0;
-  virtual void replaceThread(const Thread &thread) const = 0;
+  virtual void replaceThread(const Thread &thread, bool backupItem) const = 0;
   virtual void removeAllThreads() const = 0;
   virtual void replaceReport(const Report &report) const = 0;
   virtual void removeReports(const std::vector<std::string> &ids) const = 0;
@@ -108,18 +110,21 @@ public:
   virtual void removeAllAuxUserInfos() const = 0;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const = 0;
   virtual void replaceThreadActivityEntry(
-      const ThreadActivityEntry &threadActivityEntry) const = 0;
+      const ThreadActivityEntry &threadActivityEntry,
+      bool backupItem) const = 0;
   virtual void
   removeThreadActivityEntries(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllThreadActivityEntries() const = 0;
   virtual std::vector<ThreadActivityEntry>
   getAllThreadActivityEntries() const = 0;
-  virtual void replaceEntry(const EntryInfo &entryInfo) const = 0;
+  virtual void
+  replaceEntry(const EntryInfo &entryInfo, bool backupItem) const = 0;
   virtual void removeEntries(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllEntries() const = 0;
   virtual std::vector<EntryInfo> getAllEntries() const = 0;
   virtual void replaceMessageStoreLocalMessageInfo(
-      const LocalMessageInfo &localMessageInfo) const = 0;
+      const LocalMessageInfo &localMessageInfo,
+      bool backupItem) const = 0;
   virtual void removeMessageStoreLocalMessageInfos(
       const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessageStoreLocalMessageInfos() const = 0;
