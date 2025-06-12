@@ -63,10 +63,22 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
   std::call_once(DatabaseManager::queryExecutorCreationIndicated, []() {
     DatabaseManager::indicateQueryExecutorCreation();
     std::string currentBackupID = mainQueryExecutor.getMetadata("backupID");
-    if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
+    const auto userID = CommSecureStore::get(CommSecureStore::userID);
+    if (!ServicesUtils::fullBackupSupport || !currentBackupID.size() ||
+        !userID.hasValue()) {
       return;
     }
-    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
+
+    // We should enable logs only for primary device
+    const auto currentUserDBInfo =
+        mainQueryExecutor.getSingleAuxUserInfo(userID.value());
+    if (!currentUserDBInfo.has_value()) {
+      return;
+    }
+    bool shouldEnableLogs =
+        DatabaseManager::isPrimaryDevice(currentUserDBInfo.value());
+    DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(
+        shouldEnableLogs);
   });
   return mainQueryExecutor;
 }
@@ -75,6 +87,7 @@ void DatabaseManager::clearMainDatabaseSensitiveData() {
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
+  DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(false);
   DatabaseManager::mainConnectionManager->closeConnection();
   std::string sqliteFilePath =
       DatabaseManager::mainConnectionManager->getSQLiteFilePath();
@@ -258,9 +271,6 @@ void DatabaseManager::captureBackupLogForLastOperation() {
   if (!ServicesUtils::fullBackupSupport) {
     return;
   }
-  if (!DatabaseManager::isPrimaryDevice()) {
-    return;
-  }
   std::string backupID =
       DatabaseManager::getQueryExecutor().getMetadata("backupID");
   if (!backupID.size()) {
@@ -428,13 +438,13 @@ void DatabaseManager::createMainCompaction(
       "file.");
 
   // update logs to use new backup
-  DatabaseManager::mainConnectionManager->setLogsMonitoring(false);
+  DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(false);
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
     DatabaseManager::setUserDataKeys(
         mainCompactionEncryptionKey, newLogEncryptionKey);
-    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
+    DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(true);
   }
 }
 
@@ -463,22 +473,15 @@ void DatabaseManager::copyContentFromBackupDatabase() {
   DatabaseManager::clearRestoredDatabaseSensitiveData();
 }
 
-bool DatabaseManager::isPrimaryDevice() {
-  const auto userID = CommSecureStore::get(CommSecureStore::userID);
-  const auto deviceID = CommSecureStore::get(CommSecureStore::deviceID);
-  if (!userID.hasValue() || !deviceID.hasValue()) {
-    return false;
-  }
-
-  const auto currentUser =
-      DatabaseManager::getQueryExecutor().getSingleAuxUserInfo(userID.value());
-  if (!currentUser.has_value()) {
+bool DatabaseManager::isPrimaryDevice(const AuxUserInfo &currentUserDBInfo) {
+  const auto currentDeviceID = CommSecureStore::get(CommSecureStore::deviceID);
+  if (!currentDeviceID.hasValue()) {
     return false;
   }
 
   folly::dynamic auxUserInfoJSON;
   try {
-    auxUserInfoJSON = folly::parseJson(currentUser.value().aux_user_info);
+    auxUserInfoJSON = folly::parseJson(currentUserDBInfo.aux_user_info);
   } catch (const folly::json::parse_error &e) {
     throw std::runtime_error(
         "Current user AuxUserInfo JSON deserialization failed with "
@@ -499,7 +502,7 @@ bool DatabaseManager::isPrimaryDevice() {
     }
 
     const std::string primaryDeviceID = deviceList.begin()->asString();
-    return deviceID.value() == primaryDeviceID;
+    return currentDeviceID.value() == primaryDeviceID;
   } catch (std::exception &e) {
     Logger::log(
         "Failed to determine if current device is primary:\n\t" +
