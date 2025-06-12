@@ -233,7 +233,7 @@ NativeSQLiteConnectionManager::~NativeSQLiteConnectionManager() {
   detachSession();
 }
 
-bool NativeSQLiteConnectionManager::captureLogs(
+bool NativeSQLiteConnectionManager::captureNextLog(
     std::string backupID,
     std::string logID) {
   int patchsetSize;
