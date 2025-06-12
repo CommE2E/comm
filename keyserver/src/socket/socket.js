@@ -265,7 +265,10 @@ class Socket {
         await this.sendMessage(errorMessage);
         return;
       }
-      invariant(responseTo, 'should be set');
+      invariant(
+        responseTo !== null && responseTo !== undefined,
+        'should be set',
+      );
       if (error.message === 'socket_deauthorized') {
         invariant(this.viewer, 'should be set');
         const authErrorMessage: AuthErrorServerSocketMessage = {
