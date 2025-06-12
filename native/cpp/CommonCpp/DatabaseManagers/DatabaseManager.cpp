@@ -66,7 +66,9 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
     if (!ServicesUtils::fullBackupSupport || !currentBackupID.size()) {
       return;
     }
-    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
+    bool shouldEnableLogs = DatabaseManager::isPrimaryDevice();
+    DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(
+        shouldEnableLogs);
   });
   return mainQueryExecutor;
 }
@@ -75,6 +77,7 @@ void DatabaseManager::clearMainDatabaseSensitiveData() {
   std::string backupDataKey = DatabaseManager::generateBackupDataKey();
   std::string backupLogDataKey = DatabaseManager::generateBackupLogDataKey();
 
+  DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(false);
   DatabaseManager::mainConnectionManager->closeConnection();
   std::string sqliteFilePath =
       DatabaseManager::mainConnectionManager->getSQLiteFilePath();
@@ -258,9 +261,6 @@ void DatabaseManager::captureBackupLogForLastOperation() {
   if (!ServicesUtils::fullBackupSupport) {
     return;
   }
-  if (!DatabaseManager::isPrimaryDevice()) {
-    return;
-  }
   std::string backupID =
       DatabaseManager::getQueryExecutor().getMetadata("backupID");
   if (!backupID.size()) {
@@ -428,13 +428,13 @@ void DatabaseManager::createMainCompaction(
       "file.");
 
   // update logs to use new backup
-  DatabaseManager::mainConnectionManager->setLogsMonitoring(false);
+  DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(false);
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
   if (ServicesUtils::fullBackupSupport) {
     DatabaseManager::setUserDataKeys(
         mainCompactionEncryptionKey, newLogEncryptionKey);
-    DatabaseManager::mainConnectionManager->setLogsMonitoring(true);
+    DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(true);
   }
 }
 
