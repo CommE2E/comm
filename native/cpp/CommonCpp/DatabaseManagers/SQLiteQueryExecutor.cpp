@@ -175,6 +175,10 @@ void SQLiteQueryExecutor::removeDrafts(
 void SQLiteQueryExecutor::removeAllMessages() const {
   static std::string removeAllMessagesSQL = "DELETE FROM messages;";
   removeAllEntities(this->getConnection(), removeAllMessagesSQL);
+
+  static std::string removeAllBackupMessagesSQL =
+      "DELETE FROM backup_messages;";
+  removeAllEntities(this->getConnection(), removeAllBackupMessagesSQL);
 }
 
 std::string SQLiteQueryExecutor::getThickThreadTypesList() const {
@@ -282,6 +286,14 @@ void SQLiteQueryExecutor::removeMessages(
                                 << getSQLStatementArray(ids.size()) << ";";
   removeEntitiesByKeys(
       this->getConnection(), removeMessagesByKeysSQLStream.str(), ids);
+
+  std::stringstream removeBackupMessagesByKeysSQLStream;
+  removeBackupMessagesByKeysSQLStream << "DELETE FROM backup_messages "
+                                         "WHERE id IN "
+                                      << getSQLStatementArray(ids.size())
+                                      << ";";
+  removeEntitiesByKeys(
+      this->getConnection(), removeBackupMessagesByKeysSQLStream.str(), ids);
 }
 
 void SQLiteQueryExecutor::removeMessagesForThreads(
@@ -298,6 +310,17 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
 
   removeEntitiesByKeys(
       this->getConnection(), removeMessagesByKeysSQLStream.str(), threadIDs);
+
+  std::stringstream removeBackupMessagesByKeysSQLStream;
+  removeBackupMessagesByKeysSQLStream << "DELETE FROM backup_messages "
+                                         "WHERE thread IN "
+                                      << getSQLStatementArray(threadIDs.size())
+                                      << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(),
+      removeBackupMessagesByKeysSQLStream.str(),
+      threadIDs);
 }
 
 void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
@@ -400,6 +423,9 @@ void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
 void SQLiteQueryExecutor::removeAllMedia() const {
   static std::string removeAllMediaSQL = "DELETE FROM media;";
   removeAllEntities(this->getConnection(), removeAllMediaSQL);
+
+  static std::string removeAllBackupMediaSQL = "DELETE FROM backup_media;";
+  removeAllEntities(this->getConnection(), removeAllBackupMediaSQL);
 }
 
 void SQLiteQueryExecutor::removeMediaForMessages(
@@ -415,6 +441,15 @@ void SQLiteQueryExecutor::removeMediaForMessages(
 
   removeEntitiesByKeys(
       this->getConnection(), removeMediaByKeysSQLStream.str(), msgIDs);
+
+  std::stringstream removeBackupMediaByKeysSQLStream;
+  removeBackupMediaByKeysSQLStream << "DELETE FROM backup_media "
+                                      "WHERE container IN "
+                                   << getSQLStatementArray(msgIDs.size())
+                                   << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(), removeBackupMediaByKeysSQLStream.str(), msgIDs);
 }
 
 void SQLiteQueryExecutor::removeMediaForMessage(std::string msgID) const {
@@ -423,6 +458,11 @@ void SQLiteQueryExecutor::removeMediaForMessage(std::string msgID) const {
       "WHERE container IN (?);";
   std::vector<std::string> keys = {msgID};
   removeEntitiesByKeys(this->getConnection(), removeMediaByKeySQL, keys);
+
+  static std::string removeBackupMediaByKeySQL =
+      "DELETE FROM backup_media "
+      "WHERE container IN (?);";
+  removeEntitiesByKeys(this->getConnection(), removeBackupMediaByKeySQL, keys);
 }
 
 void SQLiteQueryExecutor::removeMediaForThreads(
@@ -438,6 +478,15 @@ void SQLiteQueryExecutor::removeMediaForThreads(
 
   removeEntitiesByKeys(
       this->getConnection(), removeMediaByKeysSQLStream.str(), threadIDs);
+
+  std::stringstream removeBackupMediaByKeysSQLStream;
+  removeBackupMediaByKeysSQLStream << "DELETE FROM backup_media "
+                                      "WHERE thread IN "
+                                   << getSQLStatementArray(threadIDs.size())
+                                   << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(), removeBackupMediaByKeysSQLStream.str(), threadIDs);
 }
 
 void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
@@ -472,6 +521,11 @@ void SQLiteQueryExecutor::removeAllMessageStoreThreads() const {
   static std::string removeAllMessageStoreThreadsSQL =
       "DELETE FROM message_store_threads;";
   removeAllEntities(this->getConnection(), removeAllMessageStoreThreadsSQL);
+
+  static std::string removeAllBackupMessageStoreThreadsSQL =
+      "DELETE FROM backup_message_store_threads;";
+  removeAllEntities(
+      this->getConnection(), removeAllBackupMessageStoreThreadsSQL);
 }
 
 void SQLiteQueryExecutor::removeMessageStoreThreads(
@@ -489,6 +543,17 @@ void SQLiteQueryExecutor::removeMessageStoreThreads(
   removeEntitiesByKeys(
       this->getConnection(),
       removeMessageStoreThreadsByKeysSQLStream.str(),
+      ids);
+
+  std::stringstream removeBackupMessageStoreThreadsByKeysSQLStream;
+  removeBackupMessageStoreThreadsByKeysSQLStream
+      << "DELETE FROM backup_message_store_threads "
+         "WHERE id IN "
+      << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(),
+      removeBackupMessageStoreThreadsByKeysSQLStream.str(),
       ids);
 }
 
@@ -520,6 +585,14 @@ void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
 
   removeEntitiesByKeys(
       this->getConnection(), removeThreadsByKeysSQLStream.str(), ids);
+
+  std::stringstream removeBackupThreadsByKeysSQLStream;
+  removeBackupThreadsByKeysSQLStream << "DELETE FROM backup_threads "
+                                        "WHERE id IN "
+                                     << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(), removeBackupThreadsByKeysSQLStream.str(), ids);
 };
 
 void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
@@ -536,6 +609,9 @@ void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
 void SQLiteQueryExecutor::removeAllThreads() const {
   static std::string removeAllThreadsSQL = "DELETE FROM threads;";
   removeAllEntities(this->getConnection(), removeAllThreadsSQL);
+
+  static std::string removeAllBackupThreadsSQL = "DELETE FROM backup_threads;";
+  removeAllEntities(this->getConnection(), removeAllBackupThreadsSQL);
 };
 
 void SQLiteQueryExecutor::replaceReport(const Report &report) const {
@@ -876,6 +952,11 @@ void SQLiteQueryExecutor::removeAllThreadActivityEntries() const {
   static std::string removeAllThreadActivityEntriesSQL =
       "DELETE FROM thread_activity;";
   removeAllEntities(this->getConnection(), removeAllThreadActivityEntriesSQL);
+
+  static std::string removeAllBackupThreadActivityEntriesSQL =
+      "DELETE FROM backup_thread_activity;";
+  removeAllEntities(
+      this->getConnection(), removeAllBackupThreadActivityEntriesSQL);
 }
 
 void SQLiteQueryExecutor::removeThreadActivityEntries(
@@ -893,6 +974,17 @@ void SQLiteQueryExecutor::removeThreadActivityEntries(
   removeEntitiesByKeys(
       this->getConnection(),
       removeThreadActivityEntriesByKeysSQLStream.str(),
+      ids);
+
+  std::stringstream removeBackupThreadActivityEntriesByKeysSQLStream;
+  removeBackupThreadActivityEntriesByKeysSQLStream
+      << "DELETE FROM backup_thread_activity "
+         "WHERE id IN "
+      << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(),
+      removeBackupThreadActivityEntriesByKeysSQLStream.str(),
       ids);
 }
 
@@ -915,6 +1007,9 @@ void SQLiteQueryExecutor::replaceEntry(const EntryInfo &entryInfo) const {
 void SQLiteQueryExecutor::removeAllEntries() const {
   static std::string removeAllEntriesSQL = "DELETE FROM entries;";
   removeAllEntities(this->getConnection(), removeAllEntriesSQL);
+
+  static std::string removeAllBackupEntriesSQL = "DELETE FROM backup_entries;";
+  removeAllEntities(this->getConnection(), removeAllBackupEntriesSQL);
 }
 
 void SQLiteQueryExecutor::removeEntries(
@@ -929,6 +1024,13 @@ void SQLiteQueryExecutor::removeEntries(
                                << getSQLStatementArray(ids.size()) << ";";
   removeEntitiesByKeys(
       this->getConnection(), removeEntriesByKeysSQLStream.str(), ids);
+
+  std::stringstream removeBackupEntriesByKeysSQLStream;
+  removeBackupEntriesByKeysSQLStream << "DELETE FROM backup_entries "
+                                        "WHERE id IN "
+                                     << getSQLStatementArray(ids.size()) << ";";
+  removeEntitiesByKeys(
+      this->getConnection(), removeBackupEntriesByKeysSQLStream.str(), ids);
 }
 
 std::vector<EntryInfo> SQLiteQueryExecutor::getAllEntries() const {
@@ -961,12 +1063,27 @@ void SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos(
 
   removeEntitiesByKeys(
       this->getConnection(), removeLocalMessageInfosByKeysSQLStream.str(), ids);
+
+  std::stringstream removeBackupLocalMessageInfosByKeysSQLStream;
+  removeBackupLocalMessageInfosByKeysSQLStream
+      << "DELETE FROM backup_message_store_local "
+         "WHERE id IN "
+      << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      this->getConnection(),
+      removeBackupLocalMessageInfosByKeysSQLStream.str(),
+      ids);
 }
 
 void SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos() const {
   static std::string removeAllLocalMessageInfosSQL =
       "DELETE FROM message_store_local;";
   removeAllEntities(this->getConnection(), removeAllLocalMessageInfosSQL);
+
+  static std::string removeAllBackupLocalMessageInfosSQL =
+      "DELETE FROM backup_message_store_local;";
+  removeAllEntities(this->getConnection(), removeAllBackupLocalMessageInfosSQL);
 }
 
 std::vector<LocalMessageInfo>
