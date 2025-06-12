@@ -8,6 +8,8 @@ private:
   sqlite3_session *backupLogsSession;
   std::string backupDataKey;
   std::string backupLogDataKey;
+  // cache the value between connection resets
+  bool backupLogsEnabledOnInit;
 
   void attachSession();
   void detachSession();
@@ -38,8 +40,8 @@ public:
   void setNewKeys(
       const std::string &backupDataKey,
       const std::string &backupLogDataKey);
-  void setLogsMonitoring(bool enabled);
-  bool getLogsMonitoring();
+  void setLogsMonitoringEnabled(bool enabled);
+  bool getLogsMonitoringEnabled();
   bool captureNextLog(std::string backupID, std::string logID);
   void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) override;
