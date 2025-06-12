@@ -254,7 +254,7 @@ void DatabaseManager::setUserDataKeys(
   connectionManager->setNewKeys(backupDataKey, backupLogDataKey);
 }
 
-void DatabaseManager::captureBackupLogs() {
+void DatabaseManager::captureBackupLogForLastOperation() {
   if (!ServicesUtils::fullBackupSupport) {
     return;
   }
@@ -273,7 +273,7 @@ void DatabaseManager::captureBackupLogs() {
   }
 
   bool newLogCreated =
-      DatabaseManager::mainConnectionManager->captureLogs(backupID, logID);
+      DatabaseManager::mainConnectionManager->captureNextLog(backupID, logID);
   if (!newLogCreated) {
     return;
   }
