@@ -399,11 +399,14 @@ void SQLiteQueryExecutor::deleteMessageFromSearchIndex(
 }
 
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
-  static std::string rekeyMessageSQL =
-      "UPDATE OR REPLACE messages "
-      "SET id = ? "
-      "WHERE id = ?";
-  rekeyAllEntities(this->getConnection(), rekeyMessageSQL, from, to);
+  constexpr std::string_view tables[] = {"messages", "backup_messages"};
+  for (const auto &table : tables) {
+    std::string rekeyMessageSQL = "UPDATE OR REPLACE " + std::string(table) +
+        " "
+        "SET id = ? "
+        "WHERE id = ?";
+    rekeyAllEntities(this->getConnection(), rekeyMessageSQL, from, to);
+  }
 }
 
 void SQLiteQueryExecutor::removeAllMedia() const {
@@ -470,9 +473,12 @@ void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
 
 void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
     const {
-  static std::string rekeyMediaContainersSQL =
-      "UPDATE media SET container = ? WHERE container = ?;";
-  rekeyAllEntities(this->getConnection(), rekeyMediaContainersSQL, from, to);
+  constexpr std::string_view tables[] = {"media", "backup_media"};
+  for (const auto &table : tables) {
+    std::string rekeyMediaContainersSQL = "UPDATE " + std::string(table) +
+        " SET container = ? WHERE container = ?;";
+    rekeyAllEntities(this->getConnection(), rekeyMediaContainersSQL, from, to);
+  }
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
