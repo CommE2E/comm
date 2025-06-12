@@ -478,7 +478,7 @@ jsi::Value CommCoreModule::processDBStoreOperations(
                 DatabaseManager::getQueryExecutor().addOutboundP2PMessages(
                     messages);
               }
-              DatabaseManager::captureBackupLogs();
+              DatabaseManager::captureBackupLogForLastOperation();
               DatabaseManager::getQueryExecutor().commitTransaction();
             } catch (std::system_error &e) {
               error = e.what();

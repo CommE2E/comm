@@ -66,7 +66,7 @@ public:
       const std::string &backupLogDataKey);
 
   // Backup methods
-  static void captureBackupLogs();
+  static void captureBackupLogForLastOperation();
   static void triggerBackupFileUpload();
   static void createMainCompaction(
       std::string backupID,
