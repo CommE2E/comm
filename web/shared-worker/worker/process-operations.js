@@ -118,6 +118,7 @@ function processThreadStoreOperations(
       } else if (operation.type === 'replace') {
         sqliteQueryExecutor.replaceThread(
           clientDBThreadInfoToWebThread(operation.payload),
+          false,
         );
       } else {
         throw new Error('Unsupported thread operation');
@@ -280,9 +281,9 @@ function processMessageStoreOperations(
         const { message, medias } = clientDBMessageInfoToWebMessage(
           operation.payload,
         );
-        sqliteQueryExecutor.replaceMessage(message);
+        sqliteQueryExecutor.replaceMessage(message, false);
         for (const media of medias) {
-          sqliteQueryExecutor.replaceMedia(media);
+          sqliteQueryExecutor.replaceMedia(media, false);
         }
       } else if (operation.type === 'remove_all') {
         sqliteQueryExecutor.removeAllMessages();
@@ -298,6 +299,7 @@ function processMessageStoreOperations(
             id,
             startReached: Number(start_reached),
           })),
+          false,
         );
       } else if (operation.type === 'remove_all_threads') {
         sqliteQueryExecutor.removeAllMessageStoreThreads();
@@ -306,10 +308,13 @@ function processMessageStoreOperations(
         sqliteQueryExecutor.removeMessagesForThreads(threadIDs);
       } else if (operation.type === 'replace_local_message_info') {
         const { id, localMessageInfo } = operation.payload;
-        sqliteQueryExecutor.replaceMessageStoreLocalMessageInfo({
-          id,
-          localMessageInfo,
-        });
+        sqliteQueryExecutor.replaceMessageStoreLocalMessageInfo(
+          {
+            id,
+            localMessageInfo,
+          },
+          false,
+        );
       } else if (operation.type === 'remove_local_message_infos') {
         const { ids } = operation.payload;
         sqliteQueryExecutor.removeMessageStoreLocalMessageInfos(ids);
@@ -547,10 +552,13 @@ function processThreadActivityStoreOperations(
         sqliteQueryExecutor.removeThreadActivityEntries(ids);
       } else if (operation.type === 'replace_thread_activity_entry') {
         const { id, threadActivityStoreEntry } = operation.payload;
-        sqliteQueryExecutor.replaceThreadActivityEntry({
-          id,
-          threadActivityStoreEntry,
-        });
+        sqliteQueryExecutor.replaceThreadActivityEntry(
+          {
+            id,
+            threadActivityStoreEntry,
+          },
+          false,
+        );
       } else {
         throw new Error('Unsupported thread activity operation');
       }
@@ -581,7 +589,7 @@ function processEntryStoreOperations(
         sqliteQueryExecutor.removeEntries(ids);
       } else if (operation.type === 'replace_entry') {
         const { id, entry } = operation.payload;
-        sqliteQueryExecutor.replaceEntry({ id, entry });
+        sqliteQueryExecutor.replaceEntry({ id, entry }, false);
       } else {
         throw new Error('Unsupported entry store operation');
       }

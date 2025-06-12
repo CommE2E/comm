@@ -25,27 +25,36 @@ describe('ThreadActivity Store queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor?.replaceThreadActivityEntry({
-      id: 'test_id_1',
-      threadActivityStoreEntry: JSON.stringify({
-        lastNavigatedTo: 1,
-        lastPruned: 2,
-      }),
-    });
-    queryExecutor?.replaceThreadActivityEntry({
-      id: 'test_id_2',
-      threadActivityStoreEntry: JSON.stringify({
-        lastNavigatedTo: 3,
-        lastPruned: 4,
-      }),
-    });
-    queryExecutor?.replaceThreadActivityEntry({
-      id: 'test_id_3',
-      threadActivityStoreEntry: JSON.stringify({
-        lastNavigatedTo: 5,
-        lastPruned: 6,
-      }),
-    });
+    queryExecutor?.replaceThreadActivityEntry(
+      {
+        id: 'test_id_1',
+        threadActivityStoreEntry: JSON.stringify({
+          lastNavigatedTo: 1,
+          lastPruned: 2,
+        }),
+      },
+      false,
+    );
+    queryExecutor?.replaceThreadActivityEntry(
+      {
+        id: 'test_id_2',
+        threadActivityStoreEntry: JSON.stringify({
+          lastNavigatedTo: 3,
+          lastPruned: 4,
+        }),
+      },
+      false,
+    );
+    queryExecutor?.replaceThreadActivityEntry(
+      {
+        id: 'test_id_3',
+        threadActivityStoreEntry: JSON.stringify({
+          lastNavigatedTo: 5,
+          lastPruned: 6,
+        }),
+      },
+      false,
+    );
   });
 
   afterEach(() => {
@@ -70,13 +79,16 @@ describe('ThreadActivity Store queries', () => {
   });
 
   it('should update thread activity entry test_id_2', () => {
-    queryExecutor?.replaceThreadActivityEntry({
-      id: 'test_id_2',
-      threadActivityStoreEntry: JSON.stringify({
-        lastNavigatedTo: 7,
-        lastPruned: 8,
-      }),
-    });
+    queryExecutor?.replaceThreadActivityEntry(
+      {
+        id: 'test_id_2',
+        threadActivityStoreEntry: JSON.stringify({
+          lastNavigatedTo: 7,
+          lastPruned: 8,
+        }),
+      },
+      false,
+    );
 
     const threadActivityEntries = queryExecutor?.getAllThreadActivityEntries();
     if (!threadActivityEntries) {

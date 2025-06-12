@@ -39,7 +39,7 @@ describe('Fetch messages queries', () => {
         content: `text-${i}`,
         time: BigInt(i),
       };
-      queryExecutor.replaceMessage(message);
+      queryExecutor.replaceMessage(message, false);
     }
   });
 

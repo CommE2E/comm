@@ -323,12 +323,15 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
       threadIDs);
 }
 
-void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
+void SQLiteQueryExecutor::replaceMessage(
+    const Message &message,
+    bool backupItem) const {
   int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
   std::string sidebarSourceType = std::to_string(sidebarSourceTypeInt);
 
-  static std::string replaceMessageSQL =
-      "REPLACE INTO messages ("
+  std::string tableName = backupItem ? "backup_messages" : "messages";
+  std::string replaceMessageSQL = "REPLACE INTO " + tableName +
+      "("
       "  id, local_id, thread, user, type, future_type, content, time, "
       "  target_message"
       ")"
@@ -495,9 +498,10 @@ void SQLiteQueryExecutor::removeMediaForThreads(
       this->getConnection(), removeBackupMediaByKeysSQLStream.str(), threadIDs);
 }
 
-void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
-  static std::string replaceMediaSQL =
-      "REPLACE INTO media "
+void SQLiteQueryExecutor::replaceMedia(const Media &media, bool backupItem)
+    const {
+  std::string tableName = backupItem ? "backup_media" : "media";
+  std::string replaceMediaSQL = "REPLACE INTO " + tableName +
       "(id, container, thread, uri, type, extras) "
       "VALUES (?, ?, ?, ?, ?, ?)";
   replaceEntity<Media>(this->getConnection(), replaceMediaSQL, media);
@@ -516,9 +520,11 @@ void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
-    const std::vector<MessageStoreThread> &threads) const {
-  static std::string replaceMessageStoreThreadSQL =
-      "REPLACE INTO message_store_threads "
+    const std::vector<MessageStoreThread> &threads,
+    bool backupItem) const {
+  std::string tableName =
+      backupItem ? "backup_message_store_threads" : "message_store_threads";
+  std::string replaceMessageStoreThreadSQL = "REPLACE INTO " + tableName +
       "(id, start_reached) "
       "VALUES (?, ?);";
 
@@ -608,9 +614,11 @@ void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
       this->getConnection(), removeBackupThreadsByKeysSQLStream.str(), ids);
 };
 
-void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
-  static std::string replaceThreadSQL =
-      "REPLACE INTO threads ("
+void SQLiteQueryExecutor::replaceThread(const Thread &thread, bool backupItem)
+    const {
+  std::string tableName = backupItem ? "backup_threads" : "threads";
+  std::string replaceThreadSQL = "REPLACE INTO " + tableName +
+      "("
       " id, type, name, description, color, creation_time, parent_thread_id,"
       " containing_thread_id, community, members, roles, current_user,"
       " source_message_id, replies_count, avatar, pinned_count, timestamps) "
@@ -951,9 +959,12 @@ std::vector<AuxUserInfo> SQLiteQueryExecutor::getAllAuxUserInfos() const {
 }
 
 void SQLiteQueryExecutor::replaceThreadActivityEntry(
-    const ThreadActivityEntry &threadActivityEntry) const {
-  static std::string replaceThreadActivityEntrySQL =
-      "REPLACE INTO thread_activity (id, thread_activity_store_entry) "
+    const ThreadActivityEntry &threadActivityEntry,
+    bool backupItem) const {
+  std::string tableName =
+      backupItem ? "backup_thread_activity" : "thread_activity";
+  std::string replaceThreadActivityEntrySQL = "REPLACE INTO " + tableName +
+      "(id, thread_activity_store_entry) "
       "VALUES (?, ?);";
   replaceEntity<ThreadActivityEntry>(
       this->getConnection(),
@@ -1011,9 +1022,12 @@ SQLiteQueryExecutor::getAllThreadActivityEntries() const {
       this->getConnection(), getAllThreadActivityEntriesSQL);
 }
 
-void SQLiteQueryExecutor::replaceEntry(const EntryInfo &entryInfo) const {
-  static std::string replaceEntrySQL =
-      "REPLACE INTO entries (id, entry) "
+void SQLiteQueryExecutor::replaceEntry(
+    const EntryInfo &entryInfo,
+    bool backupItem) const {
+  std::string tableName = backupItem ? "backup_entries" : "entries";
+  std::string replaceEntrySQL = "REPLACE INTO " + tableName +
+      "(id, entry) "
       "VALUES (?, ?);";
   replaceEntity<EntryInfo>(this->getConnection(), replaceEntrySQL, entryInfo);
 }
@@ -1056,9 +1070,12 @@ std::vector<EntryInfo> SQLiteQueryExecutor::getAllEntries() const {
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo(
-    const LocalMessageInfo &localMessageInfo) const {
-  static std::string replaceLocalMessageInfoSQL =
-      "REPLACE INTO message_store_local (id, local_message_info) "
+    const LocalMessageInfo &localMessageInfo,
+    bool backupItem) const {
+  std::string tableName =
+      backupItem ? "backup_message_store_local" : "message_store_local";
+  std::string replaceLocalMessageInfoSQL = "REPLACE INTO " + tableName +
+      "(id, local_message_info) "
       "VALUES (?, ?);";
   replaceEntity<LocalMessageInfo>(
       this->getConnection(), replaceLocalMessageInfoSQL, localMessageInfo);

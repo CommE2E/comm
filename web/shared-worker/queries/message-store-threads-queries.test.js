@@ -21,12 +21,15 @@ describe('Message store threads queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor.replaceMessageStoreThreads([
-      { id: '1', startReached: 0 },
-      { id: '2', startReached: 0 },
-      { id: '3', startReached: 0 },
-      { id: '4', startReached: 0 },
-    ]);
+    queryExecutor.replaceMessageStoreThreads(
+      [
+        { id: '1', startReached: 0 },
+        { id: '2', startReached: 0 },
+        { id: '3', startReached: 0 },
+        { id: '4', startReached: 0 },
+      ],
+      false,
+    );
   });
 
   afterEach(() => {
