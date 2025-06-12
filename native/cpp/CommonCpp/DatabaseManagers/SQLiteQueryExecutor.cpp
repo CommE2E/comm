@@ -418,6 +418,12 @@ void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
       "SET id = ? "
       "WHERE id = ?";
   rekeyAllEntities(this->getConnection(), rekeyMessageSQL, from, to);
+
+  static std::string rekeyBackupMessageSQL =
+      "UPDATE OR REPLACE backup_messages "
+      "SET id = ? "
+      "WHERE id = ?";
+  rekeyAllEntities(this->getConnection(), rekeyBackupMessageSQL, from, to);
 }
 
 void SQLiteQueryExecutor::removeAllMedia() const {
@@ -502,6 +508,11 @@ void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
   static std::string rekeyMediaContainersSQL =
       "UPDATE media SET container = ? WHERE container = ?;";
   rekeyAllEntities(this->getConnection(), rekeyMediaContainersSQL, from, to);
+
+  static std::string rekeyBackupMediaContainersSQL =
+      "UPDATE backup_media SET container = ? WHERE container = ?;";
+  rekeyAllEntities(
+      this->getConnection(), rekeyBackupMediaContainersSQL, from, to);
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
