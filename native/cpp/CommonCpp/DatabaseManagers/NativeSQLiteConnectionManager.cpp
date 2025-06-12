@@ -187,17 +187,19 @@ NativeSQLiteConnectionManager::NativeSQLiteConnectionManager(
     : SQLiteConnectionManager(databasePath),
       backupLogsSession(nullptr),
       backupDataKey(backupDataKey),
-      backupLogDataKey(backupLogDataKey) {
+      backupLogDataKey(backupLogDataKey),
+      backupLogsEnabledOnInit(false) {
 }
 
-void NativeSQLiteConnectionManager::setLogsMonitoring(bool enabled) {
+void NativeSQLiteConnectionManager::setLogsMonitoringEnabled(bool enabled) {
   if (!backupLogsSession) {
     return;
   }
   sqlite3session_enable(backupLogsSession, enabled);
+  this->backupLogsEnabledOnInit = enabled;
 }
 
-bool NativeSQLiteConnectionManager::getLogsMonitoring() {
+bool NativeSQLiteConnectionManager::getLogsMonitoringEnabled() {
   if (!backupLogsSession) {
     return false;
   }
@@ -221,7 +223,7 @@ void NativeSQLiteConnectionManager::initializeConnection() {
   this->dbConnection = this->createConnection();
   onDatabaseOpen(getConnection());
   attachSession();
-  setLogsMonitoring(false);
+  this->setLogsMonitoringEnabled(this->backupLogsEnabledOnInit);
 }
 
 void NativeSQLiteConnectionManager::closeConnection() {
@@ -266,10 +268,10 @@ bool NativeSQLiteConnectionManager::captureNextLog(
 
 void NativeSQLiteConnectionManager::restoreFromBackupLog(
     const std::vector<std::uint8_t> &backupLog) {
-  bool initialEnabledValue = getLogsMonitoring();
-  setLogsMonitoring(false);
+  bool initialEnabledValue = this->getLogsMonitoringEnabled();
+  this->setLogsMonitoringEnabled(false);
   SQLiteConnectionManager::restoreFromBackupLog(backupLog);
-  setLogsMonitoring(initialEnabledValue);
+  this->setLogsMonitoringEnabled(initialEnabledValue);
 }
 
 void NativeSQLiteConnectionManager::setNewKeys(
