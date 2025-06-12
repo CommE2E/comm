@@ -571,16 +571,18 @@ void SQLiteQueryExecutor::removeMessageStoreThreads(
 std::vector<MessageStoreThread>
 SQLiteQueryExecutor::getAllMessageStoreThreads() const {
   static std::string getAllMessageStoreThreadsSQL =
-      "SELECT * "
-      "FROM message_store_threads;";
+      "SELECT * FROM message_store_threads "
+      "UNION "
+      "SELECT * FROM backup_message_store_threads;";
   return getAllEntities<MessageStoreThread>(
       this->getConnection(), getAllMessageStoreThreadsSQL);
 }
 
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
   static std::string getAllThreadsSQL =
-      "SELECT * "
-      "FROM threads;";
+      "SELECT * FROM threads "
+      "UNION "
+      "SELECT * FROM backup_threads;";
   return getAllEntities<Thread>(this->getConnection(), getAllThreadsSQL);
 };
 
@@ -1002,8 +1004,9 @@ void SQLiteQueryExecutor::removeThreadActivityEntries(
 std::vector<ThreadActivityEntry>
 SQLiteQueryExecutor::getAllThreadActivityEntries() const {
   static std::string getAllThreadActivityEntriesSQL =
-      "SELECT * "
-      "FROM thread_activity;";
+      "SELECT * FROM thread_activity "
+      "UNION "
+      "SELECT * FROM backup_thread_activity;";
   return getAllEntities<ThreadActivityEntry>(
       this->getConnection(), getAllThreadActivityEntriesSQL);
 }
@@ -1046,8 +1049,9 @@ void SQLiteQueryExecutor::removeEntries(
 
 std::vector<EntryInfo> SQLiteQueryExecutor::getAllEntries() const {
   static std::string getAllEntriesSQL =
-      "SELECT * "
-      "FROM entries;";
+      "SELECT * FROM entries "
+      "UNION "
+      "SELECT * FROM backup_entries;";
   return getAllEntities<EntryInfo>(this->getConnection(), getAllEntriesSQL);
 }
 
@@ -1100,8 +1104,9 @@ void SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos() const {
 std::vector<LocalMessageInfo>
 SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos() const {
   static std::string getAllLocalMessageInfosSQL =
-      "SELECT * "
-      "FROM message_store_local;";
+      "SELECT * FROM message_store_local "
+      "UNION "
+      "SELECT * FROM backup_message_store_local;";
   return getAllEntities<LocalMessageInfo>(
       this->getConnection(), getAllLocalMessageInfosSQL);
 }
