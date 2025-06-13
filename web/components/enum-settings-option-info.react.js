@@ -20,9 +20,9 @@ function EnumSettingsOptionInfo(props: Props): React.Node {
 
   const optionInfoClasses = classnames({
     [css.optionInfo]: true,
-    [css.optionInfoInvalid]: styleStatementBasedOnValidity && !valid,
+    [css.optionInfoInvalid]: !!styleStatementBasedOnValidity && !valid,
     [css.optionInfoInvalidSelected]:
-      styleStatementBasedOnValidity && !valid && optionSelected,
+      !!styleStatementBasedOnValidity && !valid && optionSelected,
   });
 
   const icon = React.useMemo(() => {
