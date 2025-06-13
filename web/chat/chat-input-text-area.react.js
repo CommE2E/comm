@@ -99,7 +99,7 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
     return (
       <div className={css.inputBarTextInput}>
         <textarea
-          rows="1"
+          rows={1}
           placeholder="Type your message"
           value={currentText}
           onChange={onChangeMessageText}
