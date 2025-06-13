@@ -3,6 +3,7 @@
 
 // @flow
 declare module "react-hot-loader" {
+  import * as React from 'react';
   declare type Module = { id: string, ... };
 
   declare type ErrorReporterProps = {|
