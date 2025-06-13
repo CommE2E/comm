@@ -311,12 +311,12 @@ class App extends React.PureComponent<Props> {
 
     const headerClasses = classnames({
       [css.header]: true,
-      [css['electron-draggable']]: electron,
+      [css['electron-draggable']]: !!electron,
     });
 
     const wordmarkClasses = classnames({
       [css.wordmark]: true,
-      [css['electron-non-draggable']]: electron,
+      [css['electron-non-draggable']]: !!electron,
       [css['wordmark-macos']]: electron?.platform === 'macos',
     });
 

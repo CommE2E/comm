@@ -206,7 +206,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       () =>
         classNames({
           [css.messageBoxContainer]: true,
-          [css.fixedWidthMessageBoxContainer]: props.fixedWidth,
+          [css.fixedWidthMessageBoxContainer]: !!props.fixedWidth,
         }),
       [props.fixedWidth],
     );
@@ -214,7 +214,7 @@ const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       () =>
         classNames({
           [css.messageBox]: true,
-          [css.fixedWidthMessageBox]: props.fixedWidth,
+          [css.fixedWidthMessageBox]: !!props.fixedWidth,
         }),
       [props.fixedWidth],
     );
