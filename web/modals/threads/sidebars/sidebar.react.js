@@ -41,7 +41,7 @@ function Sidebar(props: Props): React.Node {
 
   const sidebarInfoClassName = classNames({
     [css.sidebarInfo]: true,
-    [css.unread]: unread,
+    [css.unread]: !!unread,
   });
 
   const previewTextClassName = classNames([
