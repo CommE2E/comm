@@ -29,7 +29,7 @@ function Subchannel(props: Props): React.Node {
 
   const subchannelTitleClassName = classNames({
     [css.subchannelInfo]: true,
-    [css.unread]: unread,
+    [css.unread]: !!unread,
   });
 
   const { popModal } = useModalContext();
