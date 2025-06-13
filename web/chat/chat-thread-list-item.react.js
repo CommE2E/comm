@@ -71,11 +71,11 @@ function ChatThreadListItem(props: Props): React.Node {
   const { unread } = currentUser;
   const titleClassName = classNames({
     [css.title]: true,
-    [css.unread]: unread,
+    [css.unread]: !!unread,
   });
   const lastActivityClassName = classNames({
     [css.lastActivity]: true,
-    [css.unread]: unread,
+    [css.unread]: !!unread,
     [css.dark]: !unread,
   });
 

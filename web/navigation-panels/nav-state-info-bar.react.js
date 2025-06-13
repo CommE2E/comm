@@ -59,7 +59,7 @@ function PossiblyEmptyNavStateInfoBar(
 
   const classes = classnames(css.topBarContainer, {
     [css.hide]: !threadInfoInput,
-    [css.show]: threadInfoInput,
+    [css.show]: !!threadInfoInput,
   });
   return <div className={classes}>{content}</div>;
 }
