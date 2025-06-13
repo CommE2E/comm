@@ -36,13 +36,13 @@ function InvestorProfile(props: Props): React.Node {
 
   const profileContainerClassName = classNames({
     [css.profile]: true,
-    [css.profileModal]: isModalActive,
+    [css.profileModal]: !!isModalActive,
   });
   const nameClassName = classNames([typography.heading3, css.name]);
   const descriptionClassName = classNames({
     [typography.paragraph1]: true,
     [css.description]: true,
-    [css.descriptionModal]: isModalActive,
+    [css.descriptionModal]: !!isModalActive,
   });
   const involvementClassName = classNames([
     typography.paragraph3,
