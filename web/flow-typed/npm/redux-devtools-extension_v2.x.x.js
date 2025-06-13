@@ -7,7 +7,7 @@ declare module 'redux-devtools-extension' {
 
   declare export type DevToolsOptions = {
     name?: string,
-    actionCreators?: Array<ActionCreator<any>> | { [string]: ActionCreator<any> },
+    actionCreators?: Array<ActionCreator<any, any>> | { [string]: ActionCreator<any, any> },
     latency?: number,
     maxAge?: number,
     serialize?: boolean | {
