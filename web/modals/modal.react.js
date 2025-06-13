@@ -117,7 +117,7 @@ function Modal(props: ModalProps): React.Node {
     const className = classNames({
       [css.buttonContainer]: true,
       [css.primaryButtonContainer]: !secondaryButton,
-      [css.primarySecondaryContainer]: secondaryButton,
+      [css.primarySecondaryContainer]: !!secondaryButton,
     });
 
     return (
