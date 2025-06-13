@@ -216,7 +216,7 @@ class Entry extends React.PureComponent<Props, State> {
         onMouseDown={this.onMouseDown}
       >
         <textarea
-          rows="1"
+          rows={1}
           className={css.entryText}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
