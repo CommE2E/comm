@@ -330,7 +330,7 @@ class ChatInputBar extends React.PureComponent<Props> {
           </a>
           <div className={css.inputBarTextInput}>
             <textarea
-              rows="1"
+              rows={1}
               placeholder="Type your message"
               value={this.props.inputState.draft}
               onChange={this.onChangeMessageText}
