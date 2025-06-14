@@ -77,12 +77,12 @@ declare module "mysql" {
 
   declare class Connection extends events$EventEmitter {
     threadId: number;
-    connect(callback?: (error: ?Error) => *): void;
+    connect(callback?: (error: ?Error) => any): void;
 
     release(): void;
     destroy(): void;
 
-    end(callback?: (error: ?Error) => *): void;
+    end(callback?: (error: ?Error) => any): void;
 
     query(
       sql: QueryOptions,
@@ -99,7 +99,7 @@ declare module "mysql" {
         database?: string,
         ...
       },
-      callback: (error: ?Error) => *
+      callback: (error: ?Error) => any
     ): void;
 
     beginTransaction(options: QueryOptions, callback: QueryCallback): void;
@@ -119,9 +119,9 @@ declare module "mysql" {
 
   declare class Pool extends events$EventEmitter {
     getConnection(
-      callback: (error: ?Error, connection?: Connection) => *
+      callback: (error: ?Error, connection?: Connection) => any
     ): void;
-    end(callback?: (error: ?Error) => *): void;
+    end(callback?: (error: ?Error) => any): void;
     query(
       sql: QueryOptions,
       values?: Array<mixed>,
@@ -155,7 +155,7 @@ declare module "mysql" {
     error: ?Error,
     results: QueryResults,
     fields?: Array<QueryField>
-  ) => *;
+  ) => any;
 
   declare class PoolCluster extends events$EventEmitter {
     add(config: PoolOptions | string): void;
@@ -165,20 +165,20 @@ declare module "mysql" {
     getConnection(
       pattern: string | RegExp,
       selector: PoolClusterSelector,
-      callback: (error: ?Error, connection?: Connection) => *
+      callback: (error: ?Error, connection?: Connection) => any
     ): void;
     getConnection(
       pattern: string | RegExp,
-      callback: (error: ?Error, connection?: Connection) => *
+      callback: (error: ?Error, connection?: Connection) => any
     ): void;
     getConnection(
-      callback: (error: ?Error, connection?: Connection) => *
+      callback: (error: ?Error, connection?: Connection) => any
     ): void;
 
     // Truth to be told, of returns not a Pool, but PoolNamespace instance but it is the same for the most part
     of(pattern: string | RegExp, selector?: PoolClusterSelector): Pool;
 
-    end(callback?: (error: ?Error) => *): void;
+    end(callback?: (error: ?Error) => any): void;
   }
 
   declare function escapeId(val: mixed, forbidQualified?: boolean): string;
