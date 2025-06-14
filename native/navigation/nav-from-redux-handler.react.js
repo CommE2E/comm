@@ -6,6 +6,7 @@ import { setNavStateActionType } from './action-types.js';
 import { NavContext } from './navigation-context.js';
 import type { MonitorActionState } from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import type { AppState } from '../redux/state-types.js';
 
 const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavFromReduxHandler() {

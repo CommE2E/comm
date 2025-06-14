@@ -1,0 +1,1903 @@
+yarn run v1.22.19
+$ /Users/angelikaserwa/Projects/comm/node_modules/.bin/flow --show-all-errors
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 113/767 (14.7%))
+Please wait. Server is rechecking (checked files 214/767 (27.9%))
+Please wait. Server is rechecking (checked files 235/767 (30.6%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 261/767 (34.0%))
+Please wait. Server is rechecking (checked files 285/767 (37.2%))
+Please wait. Server is rechecking (checked files 319/767 (41.6%))
+Please wait. Server is rechecking (checked files 341/767 (44.5%))
+Please wait. Server is rechecking (checked files 401/767 (52.3%))
+Please wait. Server is rechecking (checked files 401/767 (52.3%))
+Please wait. Server is rechecking (checked files 401/767 (52.3%))
+Please wait. Server is rechecking (checked files 401/767 (52.3%))
+Please wait. Server is rechecking (checked files 423/767 (55.1%))
+Please wait. Server is rechecking (checked files 461/767 (60.1%))
+Please wait. Server is rechecking (checked files 550/767 (71.7%))
+Please wait. Server is rechecking (checked files 620/767 (80.8%))
+Please wait. Server is rechecking (checked files 682/767 (88.9%))
+Please wait. Server is rechecking (checked files 764/767 (99.6%))
+Please wait. Server is rechecking (collating errors)
+Error ------------------------------------------------------------------------------- src/creators/role-creator.js:51:24
+
+Cannot assign `id` to `namesToIDs[name]` because undefined [1] is incompatible with string [2]. [incompatible-type]
+
+   src/creators/role-creator.js:51:24
+     51|     namesToIDs[name] = id;
+                                ^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1090:18
+   1090|     shift(): T | void;
+                          ^^^^ [1]
+   src/creators/role-creator.js:48:33
+     48|   const namesToIDs: { [string]: string } = {};
+                                         ^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------- src/creators/role-creator.js:52:60
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/creators/role-creator.js:52:60
+   52|     const permissionsBlob = JSON.stringify(rolePermissions[name]);
+                                                                  ^^^^
+
+References:
+   src/creators/role-creator.js:49:14
+   49|   for (const name in rolePermissions) {
+                    ^^^^ [1]
+
+
+Error ------------------------------------------------------------------------------- src/creators/role-creator.js:53:45
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/creators/role-creator.js:53:45
+   53|     const specialRole = defaultSpecialRoles[name] ?? null;
+                                                   ^^^^
+
+References:
+   src/creators/role-creator.js:49:14
+   49|   for (const name in rolePermissions) {
+                    ^^^^ [1]
+
+
+Error ----------------------------------------------------------------------------- src/creators/thread-creator.js:462:7
+
+Cannot call `messageDatas.push` because in array element: [incompatible-call]
+ - Either property `targetMessageID` is missing in `RawTextMessageInfo` [1] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateThreadMessageInfo` [3] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawAddMembersMessageInfo` [4] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateSubthreadMessageInfo` [5] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawChangeSettingsMessageInfo` [6] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawRemoveMembersMessageInfo` [7] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawChangeRoleMessageInfo` [8] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawLeaveThreadMessageInfo` [9] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawJoinThreadMessageInfo` [10] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateEntryMessageInfo` [11] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawEditEntryMessageInfo` [12] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawDeleteEntryMessageInfo` [13] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawRestoreEntryMessageInfo` [14] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawImagesMessageInfo` [15] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawMediaMessageInfo` [16] but exists in `$ReadOnly` [2] in property
+   `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawLegacyUpdateRelationshipMessageInfo` [17] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawCreateSidebarMessageInfo` [18] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUnsupportedMessageInfo` [19] but exists in `$ReadOnly` [2] in
+   property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUpdateTraditionalRelationshipMessageInfo` [20] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `targetMessageID` is missing in `RawUpdateFarcasterRelationshipMessageInfo` [21] but exists in
+   `$ReadOnly` [2] in property `sourceMessage`.
+ - Or property `sourceMessage` is missing in `TextMessageData` [22] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateThreadMessageData` [24] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `AddMembersMessageData` [25] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateSubthreadMessageData` [26] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ChangeSettingsMessageData` [27] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `RemoveMembersMessageData` [28] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ChangeRoleMessageData` [29] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `LeaveThreadMessageData` [30] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `JoinThreadMessageData` [31] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `CreateEntryMessageData` [32] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `EditEntryMessageData` [33] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `DeleteEntryMessageData` [34] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `RestoreEntryMessageData` [35] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ImagesMessageData` [36] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `MediaMessageData` [37] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `LegacyUpdateRelationshipMessageData` [38] but exists in object
+   literal [23].
+ - Or property `sourceMessage` is missing in `CreateSidebarMessageData` [39] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `ReactionMessageData` [40] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `EditMessageData` [41] but exists in object literal [23].
+ - Or property `sourceMessage` is missing in `TogglePinMessageData` [42] but exists in object literal [23].
+ - Or object literal [23] is incompatible with `UpdateRelationshipMessageData` [43].
+ - Or property `sourceMessage` is missing in `DeleteMessageData` [44] but exists in object literal [23].
+
+   src/creators/thread-creator.js:462:7
+              v
+   462|       {
+   463|         type: messageTypes.SIDEBAR_SOURCE,
+   464|         threadID: id,
+   465|         creatorID: viewer.userID,
+   466|         time,
+   467|         sourceMessage: editedSourceMessage,
+   468|       },
+              ^ [23]
+
+References:
+   ../lib/types/message-types.js:222:5
+   222|   | RawTextMessageInfo
+            ^^^^^^^^^^^^^^^^^^ [1]
+   src/creators/thread-creator.js:192:40
+   192|   const sourceMessagePromise: Promise<?RawMessageInfo> = sourceMessageID
+                                               ^^^^^^^^^^^^^^ [2]
+   ../lib/types/message-types.js:223:5
+   223|   | RawCreateThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [3]
+   ../lib/types/message-types.js:224:5
+   224|   | RawAddMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/types/message-types.js:225:5
+   225|   | RawCreateSubthreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   ../lib/types/message-types.js:226:5
+   226|   | RawChangeSettingsMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+   ../lib/types/message-types.js:227:5
+   227|   | RawRemoveMembersMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [7]
+   ../lib/types/message-types.js:228:5
+   228|   | RawChangeRoleMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [8]
+   ../lib/types/message-types.js:229:5
+   229|   | RawLeaveThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [9]
+   ../lib/types/message-types.js:230:5
+   230|   | RawJoinThreadMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [10]
+   ../lib/types/message-types.js:231:5
+   231|   | RawCreateEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [11]
+   ../lib/types/message-types.js:232:5
+   232|   | RawEditEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^ [12]
+   ../lib/types/message-types.js:233:5
+   233|   | RawDeleteEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [13]
+   ../lib/types/message-types.js:234:5
+   234|   | RawRestoreEntryMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [14]
+   ../lib/types/message-types.js:235:5
+   235|   | RawImagesMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^ [15]
+   ../lib/types/message-types.js:236:5
+   236|   | RawMediaMessageInfo
+            ^^^^^^^^^^^^^^^^^^^ [16]
+   ../lib/types/message-types.js:237:5
+   237|   | RawLegacyUpdateRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [17]
+   ../lib/types/message-types.js:238:5
+   238|   | RawCreateSidebarMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [18]
+   ../lib/types/message-types.js:239:5
+   239|   | RawUnsupportedMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [19]
+   ../lib/types/messages/update-relationship.js:60:5
+    60|   | RawUpdateTraditionalRelationshipMessageInfo
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [20]
+   ../lib/types/messages/update-relationship.js:61:5
+    61|   | RawUpdateFarcasterRelationshipMessageInfo;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [21]
+   ../lib/types/message-types.js:251:5
+   251|   | TextMessageData
+            ^^^^^^^^^^^^^^^ [22]
+   ../lib/types/message-types.js:252:5
+   252|   | CreateThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^ [24]
+   ../lib/types/message-types.js:253:5
+   253|   | AddMembersMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [25]
+   ../lib/types/message-types.js:254:5
+   254|   | CreateSubthreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^ [26]
+   ../lib/types/message-types.js:255:5
+   255|   | ChangeSettingsMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^ [27]
+   ../lib/types/message-types.js:256:5
+   256|   | RemoveMembersMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [28]
+   ../lib/types/message-types.js:257:5
+   257|   | ChangeRoleMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [29]
+   ../lib/types/message-types.js:258:5
+   258|   | LeaveThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [30]
+   ../lib/types/message-types.js:259:5
+   259|   | JoinThreadMessageData
+            ^^^^^^^^^^^^^^^^^^^^^ [31]
+   ../lib/types/message-types.js:260:5
+   260|   | CreateEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [32]
+   ../lib/types/message-types.js:261:5
+   261|   | EditEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^ [33]
+   ../lib/types/message-types.js:262:5
+   262|   | DeleteEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^ [34]
+   ../lib/types/message-types.js:263:5
+   263|   | RestoreEntryMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^ [35]
+   ../lib/types/message-types.js:264:5
+   264|   | ImagesMessageData
+            ^^^^^^^^^^^^^^^^^ [36]
+   ../lib/types/message-types.js:265:5
+   265|   | MediaMessageData
+            ^^^^^^^^^^^^^^^^ [37]
+   ../lib/types/message-types.js:266:5
+   266|   | LegacyUpdateRelationshipMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [38]
+   ../lib/types/message-types.js:268:5
+   268|   | CreateSidebarMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^ [39]
+   ../lib/types/message-types.js:269:5
+   269|   | ReactionMessageData
+            ^^^^^^^^^^^^^^^^^^^ [40]
+   ../lib/types/message-types.js:270:5
+   270|   | EditMessageData
+            ^^^^^^^^^^^^^^^ [41]
+   ../lib/types/message-types.js:271:5
+   271|   | TogglePinMessageData
+            ^^^^^^^^^^^^^^^^^^^^ [42]
+   ../lib/types/message-types.js:272:5
+   272|   | UpdateRelationshipMessageData
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [43]
+   ../lib/types/message-types.js:273:5
+   273|   | DeleteMessageData;
+            ^^^^^^^^^^^^^^^^^ [44]
+
+
+Error ----------------------------------------------------------------------------- src/creators/upload-creator.js:61:41
+
+Cannot call `makeUploadURI` with `id` bound to `id` because undefined [1] is incompatible with string [2].
+[incompatible-call]
+
+   src/creators/upload-creator.js:61:41
+     61|     const uri = makeUploadURI(blobHash, id, secret);
+                                                 ^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1090:18
+   1090|     shift(): T | void;
+                          ^^^^ [1]
+   src/fetchers/upload-fetchers.js:117:47
+    117| function makeUploadURI(blobHash: ?string, id: string, secret: string): string {
+                                                       ^^^^^^ [2]
+
+
+Error ----------------------------------------------------------------------------- src/creators/upload-creator.js:99:47
+
+Cannot call `uploadRows.map` with function bound to `callbackfn` because undefined [1] is incompatible with string [2]
+in property `id` of the return value. [incompatible-call]
+
+   src/creators/upload-creator.js:99:47
+     99|   return uploadRows.map(({ uploadResult }) => uploadResult);
+                                                       ^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1090:18
+   1090|     shift(): T | void;
+                          ^^^^ [1]
+   ../lib/types/media-types.js:64:8
+     64|   +id: string,
+                ^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------------------------- src/cron/backups.js:268:66
+
+Cannot get `mostRecentBackup.bytes` because property `bytes` is missing in undefined [1]. [incompatible-use]
+
+   src/cron/backups.js:268:66
+    268|   let bytesLeft = maxDirSizeMiB * 1024 * 1024 - mostRecentBackup.bytes;
+                                                                          ^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/core.js:1045:16
+   1045|     pop(): T | void;
+                        ^^^^ [1]
+
+
+Error --------------------------------------------------------------------------- src/fetchers/message-fetchers.js:547:7
+
+The following definitions recursively depend on each other, and Flow cannot compute their types:
+ - `currentThreadID` [1] depends on other definition [2]
+Please add type annotations to these definitions [3] [definition-cycle]
+
+   src/fetchers/message-fetchers.js:547:7
+   547|       currentThreadID = threadID;
+              ^^^^^^^^^^^^^^^ [1]
+
+References:
+   src/fetchers/message-fetchers.js:546:22
+   546|     if (threadID !== currentThreadID) {
+                             ^^^^^^^^^^^^^^^ [2]
+   src/fetchers/message-fetchers.js:541:7
+   541|   let currentThreadID = null;
+              ^^^^^^^^^^^^^^^ [3]
+
+
+Error ---------------------------------------------------------------------- src/fetchers/relationship-fetchers.js:86:14
+
+Cannot assign array literal to `errors.user_blocked` because property `user_blocked` is not writable. [cannot-write]
+
+   86|       errors.user_blocked = [...user_blocked, userID];
+                    ^^^^^^^^^^^^
+
+
+Error ---------------------------------------------------------------------- src/fetchers/relationship-fetchers.js:89:14
+
+Cannot assign array literal to `errors.already_friends` because property `already_friends` is not writable.
+[cannot-write]
+
+   89|       errors.already_friends = [...already_friends, userID];
+                    ^^^^^^^^^^^^^^^
+
+
+Error ---------------------------------------------------------------- src/fetchers/thread-permission-fetchers.js:473:53
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/fetchers/thread-permission-fetchers.js:473:53
+   473|     const permissionsFromParent = parentPermissions[memberID];
+                                                            ^^^^^^^^
+
+References:
+   src/fetchers/thread-permission-fetchers.js:388:36
+   388|   const allCandidatesSet = new Set<string>();
+                                           ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------------------- src/push/rescind.js:237:57
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/push/rescind.js:237:57
+   237|       const { userID, threadID, messageID } = notifInfo[rescindedID];
+                                                                ^^^^^^^^^^^
+
+References:
+   src/push/rescind.js:227:16
+   227|     for (const rescindedID in deliveryResults) {
+                       ^^^^^^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------- src/responders/entry-responders.js:77:13
+
+Cannot call `filters.push` because string literal `threads` [1] is incompatible with string literal `not_deleted` [2] in
+property `type` of array element. [incompatible-call]
+
+   src/responders/entry-responders.js:77:13
+   77|       type: calendarThreadFilterTypes.THREAD_LIST,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/filter-types.js:9:16
+    9|   THREAD_LIST: 'threads',
+                      ^^^^^^^^^ [1]
+   ../lib/types/filter-types.js:10:16
+   10|   NOT_DELETED: 'not_deleted',
+                      ^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------ src/responders/entry-responders.js:131:16
+
+Cannot call `tShape` with object literal bound to `spec` because in property `sessionID`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/entry-responders.js:131:16
+   131|     sessionID: t.maybe(t.String),
+                       ^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:27
+   110|     +String: TIrreducible<string>,
+                                  ^^^^^^ [1]
+   ../lib/types/entry-types.js:181:16
+   181|   +sessionID?: empty,
+                       ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------ src/responders/entry-responders.js:151:16
+
+Cannot call `tShape` with object literal bound to `spec` because in property `sessionID`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/entry-responders.js:151:16
+   151|     sessionID: t.maybe(t.String),
+                       ^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:27
+   110|     +String: TIrreducible<string>,
+                                  ^^^^^^ [1]
+   ../lib/types/entry-types.js:146:16
+   146|   +sessionID?: empty,
+                       ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------ src/responders/entry-responders.js:167:16
+
+Cannot call `tShape` with object literal bound to `spec` because in property `sessionID`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/entry-responders.js:167:16
+   167|     sessionID: t.maybe(t.String),
+                       ^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:27
+   110|     +String: TIrreducible<string>,
+                                  ^^^^^^ [1]
+   ../lib/types/entry-types.js:202:16
+   202|   +sessionID?: empty,
+                       ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------ src/responders/entry-responders.js:182:16
+
+Cannot call `tShape` with object literal bound to `spec` because in property `sessionID`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/entry-responders.js:182:16
+   182|     sessionID: t.maybe(t.String),
+                       ^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:27
+   110|     +String: TIrreducible<string>,
+                                  ^^^^^^ [1]
+   ../lib/types/entry-types.js:215:16
+   215|   +sessionID?: empty,
+                       ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------ src/responders/redux-state-responders.js:273:40
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/responders/redux-state-responders.js:273:40
+   273|             const userInfo = userInfos[id];
+                                               ^^
+
+References:
+   ../lib/shared/thread-utils.js:407:30
+   407|   +memberIDs: $ReadOnlyArray<string>,
+                                     ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------ src/responders/redux-state-responders.js:273:40
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/responders/redux-state-responders.js:273:40
+   273|             const userInfo = userInfos[id];
+                                               ^^
+
+References:
+   ../lib/types/user-types.js:78:8
+    78|   +id: string,
+               ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------ src/responders/relationship-responders.js:87:39
+
+Cannot call `tShape` with object literal bound to `spec` because in property `createRobotextInThinThread`:
+[incompatible-call]
+ - Either undefined [1] is incompatible with boolean [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/relationship-responders.js:87:39
+    87|           createRobotextInThinThread: t.maybe(t.Boolean),
+                                              ^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:53
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                            ^^^^ [1]
+   ../lib/types/relationship-types.js:92:32
+    92|   +createRobotextInThinThread: boolean,
+                                       ^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------ src/responders/thread-responders.js:63:22
+
+Cannot call `tShape` with object literal bound to `spec` because in property `accountPassword`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/thread-responders.js:63:22
+    63|     accountPassword: t.maybe(tPassword),
+                             ^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:80:30
+    80| const tPassword: TRefinement<string> = t.refinement(
+                                     ^^^^^^ [1]
+   ../lib/types/thread-types.js:313:22
+   313|   +accountPassword?: empty,
+                             ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------------- src/responders/thread-responders.js:130:22
+
+Cannot call `tShape` with object literal bound to `spec` because in property `accountPassword`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/thread-responders.js:130:22
+   130|     accountPassword: t.maybe(tPassword),
+                             ^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:80:30
+    80| const tPassword: TRefinement<string> = t.refinement(
+                                     ^^^^^^ [1]
+   ../lib/types/thread-types.js:370:22
+   370|   +accountPassword?: empty,
+                             ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------------- src/responders/thread-responders.js:122:13
+
+Cannot call `tShape` with object literal bound to `spec` because in property `type`: [incompatible-call]
+ - Either `T` [1] is incompatible with `ThinThreadType` [2] in type argument `T` [3]. Type `T` [1] includes members
+   `13`, `14`, `15` and 1 more that are not included in type `ThinThreadType` [2].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/thread-responders.js:122:13
+   122|       type: t.maybe(tNumEnum(values(threadTypes))),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:11
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                  ^ [1]
+   ../lib/types/thread-types.js:358:11
+   358|   +type?: ThinThreadType,
+                  ^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------------- src/responders/thread-responders.js:150:12
+
+Cannot call `tShape` with object literal bound to `spec` because: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3] of property `calendarQuery`.
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5] in property `calendarQuery`.
+
+   src/responders/thread-responders.js:150:12
+                   v
+   150|     tShape({
+   151|       type: tNumEnum([threadTypes.SIDEBAR]),
+   152|       sourceMessageID: tID,
+   153|       ...threadRequestValidationShape,
+   154|     }),
+            ^
+
+References:
+   ../lib/types/thread-types.js:400:21
+   400|   +calendarQuery?: ?CalendarQuery,
+                            ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------------- src/responders/thread-responders.js:155:12
+
+Cannot call `tShape` with object literal bound to `spec` because: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3] of property `calendarQuery`.
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5] in property `calendarQuery`.
+
+   src/responders/thread-responders.js:155:12
+                   v
+   155|     tShape({
+   156|       type: tNumEnum([
+   157|         threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+   158|         threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+   159|         threadTypes.GENESIS_PERSONAL,
+   160|         threadTypes.COMMUNITY_ROOT,
+   161|         threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+   162|         threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
+   163|         threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD,
+   164|       ]),
+   165|       ...threadRequestValidationShape,
+   166|     }),
+            ^
+
+References:
+   ../lib/types/thread-types.js:400:21
+   400|   +calendarQuery?: ?CalendarQuery,
+                            ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ----------------------------------------------------------------------- src/responders/thread-responders.js:181:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `calendarQuery`: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/thread-responders.js:181:20
+   181|     calendarQuery: t.maybe(entryQueryInputValidator),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-types.js:434:21
+   434|   +calendarQuery?: ?CalendarQuery,
+                            ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:163:14
+
+Cannot call `tShape` with object literal bound to `spec` because in property `email`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:163:14
+   163|       email: t.maybe(tEmail),
+                     ^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:43:34
+    43| export type TRegex = TRefinement<string>;
+                                         ^^^^^^ [1]
+   ../lib/types/user-types.js:106:14
+   106|     +email?: empty,
+                     ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:231:12
+
+Cannot call `tShape` with object literal bound to `spec` because in property `email`: [incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:231:12
+   231|     email: t.maybe(tEmail),
+                   ^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:43:34
+    43| export type TRegex = TRefinement<string>;
+                                         ^^^^^^ [1]
+   ../lib/types/account-types.js:64:12
+    64|   +email?: empty,
+                   ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:234:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `deviceTokenUpdateRequest`:
+[incompatible-call]
+ - Either property `deviceType` is missing in `DeviceTokenUpdateRequest` [1] but exists in
+   `OldDeviceTokenUpdateRequest` [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:234:31
+   234|     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:67:32
+    67|   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   src/responders/user-responders.js:223:10
+   223|   tShape<OldDeviceTokenUpdateRequest>({
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:238:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `primaryIdentityPublicKey`:
+[incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:238:31
+   238|     primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:43:34
+    43| export type TRegex = TRefinement<string>;
+                                         ^^^^^^ [1]
+   ../lib/types/account-types.js:69:31
+    69|   +primaryIdentityPublicKey?: empty,
+                                      ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:498:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `calendarQuery`: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:498:20
+   498|     calendarQuery: t.maybe(entryQueryInputValidator),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:159:21
+   159|   +calendarQuery?: ?CalendarQuery,
+                            ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:499:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `deviceTokenUpdateRequest`:
+[incompatible-call]
+ - Either property `deviceType` is missing in `DeviceTokenUpdateRequest` [1] but exists in
+   `OldDeviceTokenUpdateRequest` [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:499:31
+   499|     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:160:32
+   160|   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   src/responders/user-responders.js:223:10
+   223|   tShape<OldDeviceTokenUpdateRequest>({
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:504:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `primaryIdentityPublicKey`:
+[incompatible-call]
+ - Either string [1] is incompatible with empty [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:504:31
+   504|     primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/utils/validation-utils.js:43:34
+    43| export type TRegex = TRefinement<string>;
+                                         ^^^^^^ [1]
+   ../lib/types/account-types.js:164:31
+   164|   +primaryIdentityPublicKey?: empty,
+                                      ^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:595:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `calendarQuery`: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3].
+ - Or `TInterface` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:595:20
+   595|     calendarQuery: entryQueryInputValidator,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/siwe-types.js:17:19
+    17|   +calendarQuery: CalendarQuery,
+                          ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:96:36
+    96|   declare export class TInterface<+T> extends TBaseType<T> {
+                                           ^ [3]
+   src/responders/entry-responders.js:54:33
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:596:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `deviceTokenUpdateRequest`:
+[incompatible-call]
+ - Either null or undefined [1] is incompatible with `DeviceType` [2] in property `deviceType` of type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:596:31
+   596|     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   src/responders/user-responders.js:219:17
+   219|   +deviceType?: ?DeviceType,
+                        ^^^^^^^^^^^ [1]
+   ../lib/types/device-types.js:38:17
+    38|   +deviceType?: DeviceType,
+                        ^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:764:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `calendarQuery`: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3].
+ - Or `TInterface` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:764:20
+   764|     calendarQuery: entryQueryInputValidator,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:235:19
+   235|   +calendarQuery: CalendarQuery,
+                          ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:96:36
+    96|   declare export class TInterface<+T> extends TBaseType<T> {
+                                           ^ [3]
+   src/responders/entry-responders.js:54:33
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:765:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `deviceTokenUpdateRequest`:
+[incompatible-call]
+ - Either property `deviceType` is missing in `DeviceTokenUpdateRequest` [1] but exists in
+   `OldDeviceTokenUpdateRequest` [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:765:31
+   765|     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:236:32
+   236|   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   src/responders/user-responders.js:223:10
+   223|   tShape<OldDeviceTokenUpdateRequest>({
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:898:20
+
+Cannot call `tShape` with object literal bound to `spec` because in property `calendarQuery`: [incompatible-call]
+ - Either property `includeDeleted` is missing in `CalendarQuery` [1] but exists in `EntryQueryInput` [2] in type
+   argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:898:20
+   898|     calendarQuery: t.maybe(entryQueryInputValidator),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:250:20
+   250|   calendarQuery?: ?CalendarQuery,
+                           ^^^^^^^^^^^^^ [1]
+   src/responders/entry-responders.js:54:44
+    54| const entryQueryInputValidator: TInterface<EntryQueryInput> =
+                                                   ^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:899:31
+
+Cannot call `tShape` with object literal bound to `spec` because in property `deviceTokenUpdateRequest`:
+[incompatible-call]
+ - Either property `deviceType` is missing in `DeviceTokenUpdateRequest` [1] but exists in
+   `OldDeviceTokenUpdateRequest` [2] in type argument `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:899:31
+   899|     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/account-types.js:251:31
+   251|   deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   src/responders/user-responders.js:223:10
+   223|   tShape<OldDeviceTokenUpdateRequest>({
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ------------------------------------------------------------------------- src/responders/user-responders.js:931:13
+
+Cannot call `tShape` with object literal bound to `spec` because in property `policy`: [incompatible-call]
+ - Either undefined [1] is incompatible with string literal `TERMS_OF_USE_AND_PRIVACY_POLICY` [2] in type argument
+   `T` [3].
+ - Or `TMaybe` [4] is incompatible with `TIrreducible` [5].
+
+   src/responders/user-responders.js:931:13
+   931|     policy: t.maybe(t.enums.of(policies)),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:53
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                            ^^^^ [1]
+   ../lib/types/account-types.js:257:12
+   257|   +policy: PolicyType,
+                   ^^^^^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:31:32
+    31|   declare export class TMaybe<+T> extends TBaseType<T> {
+                                       ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:113:46
+   113|     maybe<T>(type: TType<T>, name?: string): TMaybe<void | T>,
+                                                     ^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:13:7
+    13|     | TIrreducible<T>
+              ^^^^^^^^^^^^^^^ [5]
+
+
+Error ---------------------------------------------------------------------------------------- src/session/bots.js:14:14
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/session/bots.js:14:14
+   14|     if (bots[botName].userID === userID) {
+                    ^^^^^^^
+
+References:
+   src/session/bots.js:13:14
+   13|   for (const botName in bots) {
+                    ^^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------------------------- src/socket/socket.js:129:17
+
+Cannot call `tShape` with object literal bound to `spec` because in property `endpoint`: [incompatible-call]
+ - Either string literal `upload_multimedia` [1] is incompatible with string [2] in type argument `T` [3].
+ - Or `TIrreducible` [4] is incompatible with `TMaybe` [5].
+ - Or `TIrreducible` [4] is incompatible with `TList` [6].
+ - Or `TIrreducible` [4] is incompatible with `TDict` [7].
+ - Or `TIrreducible` [4] is incompatible with `TUnion` [8].
+ - Or `TIrreducible` [4] is incompatible with `TEnums` [9].
+ - Or `TIrreducible` [4] is incompatible with `TRefinement` [10].
+ - Or `TIrreducible` [4] is incompatible with `TInterface` [11].
+
+   src/socket/socket.js:129:17
+   129|       endpoint: t.String,
+                        ^^^^^^^^
+
+References:
+   ../lib/types/endpoints.js:50:5
+    50|   | UploadEndpoint
+            ^^^^^^^^^^^^^^ [1]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:27
+   110|     +String: TIrreducible<string>,
+                                  ^^^^^^ [2]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:22:38
+    22|   declare export class TIrreducible<+T> extends TBaseType<T> {
+                                             ^ [3]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:110:14
+   110|     +String: TIrreducible<string>,
+                     ^^^^^^^^^^^^^^^^^^^^ [4]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:14:7
+    14|     | TMaybe<T>
+              ^^^^^^^^^ [5]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:15:7
+    15|     | TList<T>
+              ^^^^^^^^ [6]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:16:7
+    16|     | TDict<T>
+              ^^^^^^^^ [7]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:17:7
+    17|     | TUnion<T>
+              ^^^^^^^^^ [8]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:18:7
+    18|     | TEnums
+              ^^^^^^ [9]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:19:7
+    19|     | TRefinement<T>
+              ^^^^^^^^^^^^^^ [10]
+   ../lib/flow-typed/npm/tcomb_v3.x.x.js:20:7
+    20|     | TInterface<T>;
+              ^^^^^^^^^^^^^ [11]
+
+
+Error ---------------------------------------------------------------------- src/updaters/relationship-updaters.js:49:14
+
+Cannot assign array literal to `errors.invalid_user` because property `invalid_user` is not writable. [cannot-write]
+
+   49|       errors.invalid_user = [...acc, userID];
+                    ^^^^^^^^^^^^
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:100:41
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/updaters/relationship-updaters.js:100:41
+   100|               threadID: threadIDPerUser[userID],
+                                                ^^^^^^
+
+References:
+   src/updaters/relationship-updaters.js:82:16
+    82|     for (const userID in userRelationshipOperations) {
+                       ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:113:41
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/updaters/relationship-updaters.js:113:41
+   113|               threadID: threadIDPerUser[userID],
+                                                ^^^^^^
+
+References:
+   src/updaters/relationship-updaters.js:82:16
+    82|     for (const userID in userRelationshipOperations) {
+                       ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:131:37
+
+Cannot call `updateUndirectedRelationships` with `undirectedInsertRows` bound to `changeset` because in array element:
+[incompatible-call]
+ - Either `UndirectedStatus` [1] is incompatible with number literal `2` [2] in property `status`. This property is
+   invariantly typed. See
+   https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number.
+ - Or `UndirectedStatus` [1] is incompatible with number literal `0` [3] in property `status`. This property is
+   invariantly typed. See
+   https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number.
+
+Arrays are invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+
+   src/updaters/relationship-updaters.js:131:37
+   131|       updateUndirectedRelationships(undirectedInsertRows),
+                                            ^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:17:11
+    17|   FRIEND: 2,
+                  ^ [2]
+   ../lib/types/relationship-types.js:16:12
+    16|   KNOW_OF: 0,
+                   ^ [3]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:173:37
+
+Cannot call `updateUndirectedRelationships` with `updateRows` bound to `changeset` because `UndirectedStatus` [1] is
+incompatible with number literal `0` [2] in property `status` of array element. This property is invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number. Arrays are invariantly
+typed. See https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+[incompatible-call]
+
+   src/updaters/relationship-updaters.js:173:37
+   173|       updateUndirectedRelationships(updateRows, false),
+                                            ^^^^^^^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:16:12
+    16|   KNOW_OF: 0,
+                   ^ [2]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:201:37
+
+Cannot call `updateUndirectedRelationships` with `undirectedRows` bound to `changeset` because `UndirectedStatus` [1] is
+incompatible with number literal `0` [2] in property `status` of array element. This property is invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number. Arrays are invariantly
+typed. See https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+[incompatible-call]
+
+   src/updaters/relationship-updaters.js:201:37
+   201|       updateUndirectedRelationships(undirectedRows, false),
+                                            ^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:16:12
+    16|   KNOW_OF: 0,
+                   ^ [2]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:256:68
+
+Cannot call `updateChangedUndirectedRelationships` with `insertRows` bound to `changeset` because `UndirectedStatus` [1]
+is incompatible with number literal `2` [2] in property `status` of array element. This property is invariantly typed.
+See https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number. Arrays are
+invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+[incompatible-call]
+
+   src/updaters/relationship-updaters.js:256:68
+   256|     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
+                                                                           ^^^^^^^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:17:11
+    17|   FRIEND: 2,
+                  ^ [2]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:263:35
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   src/updaters/relationship-updaters.js:263:35
+   263|         threadID: threadIDPerUser[otherUserID],
+                                          ^^^^^^^^^^^
+
+References:
+   src/updaters/relationship-updaters.js:224:35
+   224|     const userIDsToFIDs = new Map<string, string>();
+                                          ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- src/updaters/relationship-updaters.js:281:68
+
+Cannot call `updateChangedUndirectedRelationships` with `insertRows` bound to `changeset` because `UndirectedStatus` [1]
+is incompatible with number literal `0` [2] in property `status` of array element. This property is invariantly typed.
+See https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number. Arrays are
+invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+[incompatible-call]
+
+   src/updaters/relationship-updaters.js:281:68
+   281|     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
+                                                                           ^^^^^^^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:16:12
+    16|   KNOW_OF: 0,
+                   ^ [2]
+
+
+Error --------------------------------------------------------------------------- src/updaters/thread-updaters.js:433:21
+
+Cannot call `checks.push` because string literal `edit_thread_description` [1] is incompatible with string literal
+`edit_thread` [2] in property `permission` of array element. [incompatible-call]
+
+   src/updaters/thread-updaters.js:433:21
+   433|         permission: threadPermissions.EDIT_THREAD_DESCRIPTION,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-permission-types.js:13:28
+    13|   EDIT_THREAD_DESCRIPTION: 'edit_thread_description',
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:12:21
+    12|   EDIT_THREAD_NAME: 'edit_thread',
+                            ^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------------- src/updaters/thread-updaters.js:439:21
+
+Cannot call `checks.push` because string literal `edit_thread_color` [1] is incompatible with string literal
+`edit_thread` [2] in property `permission` of array element. [incompatible-call]
+
+   src/updaters/thread-updaters.js:439:21
+   439|         permission: threadPermissions.EDIT_THREAD_COLOR,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-permission-types.js:14:22
+    14|   EDIT_THREAD_COLOR: 'edit_thread_color',
+                             ^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:12:21
+    12|   EDIT_THREAD_NAME: 'edit_thread',
+                            ^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------------- src/updaters/thread-updaters.js:445:21
+
+Cannot call `checks.push` because string literal `edit_thread_avatar` [1] is incompatible with string literal
+`edit_thread` [2] in property `permission` of array element. [incompatible-call]
+
+   src/updaters/thread-updaters.js:445:21
+   445|         permission: threadPermissions.EDIT_THREAD_AVATAR,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-permission-types.js:15:23
+    15|   EDIT_THREAD_AVATAR: 'edit_thread_avatar',
+                              ^^^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:12:21
+    12|   EDIT_THREAD_NAME: 'edit_thread',
+                            ^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------------- src/updaters/thread-updaters.js:451:21
+
+Cannot call `checks.push` because string literal `edit_permissions` [1] is incompatible with string literal
+`edit_thread` [2] in property `permission` of array element. [incompatible-call]
+
+   src/updaters/thread-updaters.js:451:21
+   451|         permission: threadPermissions.EDIT_PERMISSIONS,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-permission-types.js:19:21
+    19|   EDIT_PERMISSIONS: 'edit_permissions',
+                            ^^^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:12:21
+    12|   EDIT_THREAD_NAME: 'edit_thread',
+                            ^^^^^^^^^^^^^ [2]
+
+
+Error --------------------------------------------------------------------------- src/updaters/thread-updaters.js:457:21
+
+Cannot call `checks.push` because string literal `add_members` [1] is incompatible with string literal `edit_thread` [2]
+in property `permission` of array element. [incompatible-call]
+
+   src/updaters/thread-updaters.js:457:21
+   457|         permission: threadPermissions.ADD_MEMBERS,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../lib/types/thread-permission-types.js:20:16
+    20|   ADD_MEMBERS: 'add_members',
+                       ^^^^^^^^^^^^^ [1]
+   ../lib/types/thread-permission-types.js:12:21
+    12|   EDIT_THREAD_NAME: 'edit_thread',
+                            ^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------ src/utils/relationship-changeset.js:87:12
+
+Cannot return `rows` because `UndirectedStatus` [1] is incompatible with number literal `0` [2] in property `status` of
+array element. This property is invariantly typed. See
+https://flow.org/en/docs/faq/#why-cant-i-pass-a-string-to-a-function-that-takes-a-string-number. Arrays are invariantly
+typed. See https://flow.org/en/docs/faq/#why-cant-i-pass-an-arraystring-to-a-function-that-takes-an-arraystring-number.
+[incompatible-return]
+
+   src/utils/relationship-changeset.js:87:12
+    87|     return rows;
+                   ^^^^
+
+References:
+   ../lib/types/relationship-types.js:122:11
+   122|   status: UndirectedStatus,
+                  ^^^^^^^^^^^^^^^^ [1]
+   ../lib/types/relationship-types.js:16:12
+    16|   KNOW_OF: 0,
+                   ^ [2]
+
+
+Error ------------------------------------------------------------------------ ../landing/investor-profile.react.js:39:6
+
+Cannot add computed property because undefined [1] is incompatible with boolean [2]. [incompatible-type]
+
+   ../landing/investor-profile.react.js:39:6
+   39|     [css.profileModal]: isModalActive,
+            ^^^^^^^^^^^^^^^^
+
+References:
+   ../landing/investor-profile.react.js:18:20
+   18|   +isModalActive?: boolean,
+                          ^^^^^^^ [1]
+   ../landing/investor-profile.react.js:38:20
+   38|     [css.profile]: true,
+                          ^^^^ [2]
+
+
+Error ------------------------------------------------------------------------ ../landing/investor-profile.react.js:45:6
+
+Cannot add computed property because undefined [1] is incompatible with boolean [2]. [incompatible-type]
+
+   ../landing/investor-profile.react.js:45:6
+   45|     [css.descriptionModal]: isModalActive,
+            ^^^^^^^^^^^^^^^^^^^^
+
+References:
+   ../landing/investor-profile.react.js:18:20
+   18|   +isModalActive?: boolean,
+                          ^^^^^^^ [1]
+   ../landing/investor-profile.react.js:43:30
+   43|     [typography.paragraph1]: true,
+                                    ^^^^ [2]
+
+
+Error --------------------------------------------------------------------- ../landing/subscription-form.react.js:119:54
+
+Cannot create `button` element because `SyntheticMouseEvent` [1] is incompatible with `Event` [2] in the first parameter
+of property `onClick`. [incompatible-type]
+
+   ../landing/subscription-form.react.js:119:54
+   119|         <button className={buttonClassName} onClick={onEmailSubmitted}>
+                                                             ^^^^^^^^^^^^^^^^
+
+References:
+   ../web/flow-typed/environments/jsx.js:760:15
+   760|   onClick?: ?(SyntheticMouseEvent<E>) => mixed,
+                      ^^^^^^^^^^^^^^^^^^^^^^ [1]
+   ../landing/subscription-form.react.js:24:15
+    24|     async (e: Event) => {
+                      ^^^^^ [2]
+
+
+Error --------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:9:34
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:9:34
+   9|   const key = await commonCrypto.subtle.generateKey(algorithm, true, [
+                                       ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:7:48
+   7| async function generateKeyCommon(commonCrypto: Crypto): Promise<Uint8Array> {
+                                                     ^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:13:38
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:13:38
+   13|   const keyData = await commonCrypto.subtle.exportKey('raw', key);
+                                            ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:7:48
+    7| async function generateKeyCommon(commonCrypto: Crypto): Promise<Uint8Array> {
+                                                      ^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:34:34
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:34:34
+   34|   const key = await commonCrypto.subtle.importKey(
+                                        ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:18:17
+   18|   commonCrypto: Crypto,
+                       ^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:41:48
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:41:48
+   41|   const ciphertextWithTag = await commonCrypto.subtle.encrypt(
+                                                      ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:18:17
+   18|   commonCrypto: Crypto,
+                       ^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:68:34
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:68:34
+   68|   const key = await commonCrypto.subtle.importKey(
+                                        ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:53:17
+   53|   commonCrypto: Crypto,
+                       ^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------- ../lib/media/aes-crypto-utils-common.js:76:46
+
+Cannot get `commonCrypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../lib/media/aes-crypto-utils-common.js:76:46
+   76|   const plaintextBuffer = await commonCrypto.subtle.decrypt(
+                                                    ^^^^^^
+
+References:
+   ../lib/media/aes-crypto-utils-common.js:53:17
+   53|   commonCrypto: Crypto,
+                       ^^^^^^ [1]
+
+
+Error ------------------------------------------------------- ../lib/shared/dm-ops/change-thread-settings-spec.js:172:25
+
+Cannot assign object literal to `threadInfoToUpdate` because indexed object literal [1] is incompatible with exact
+`ThreadTimestamps` [2] in property `timestamps`. All writes to `threadInfoToUpdate` must be compatible with the type of
+its initializer [3]. Add an annotation to `threadInfoToUpdate` [3] if a different type is desired.
+[incompatible-indexer]
+
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:172:25
+                                v
+   172|             timestamps: {
+   173|               ...threadInfoToUpdate.timestamps,
+   174|               [fieldName]: time,
+   175|             },
+                    ^ [1]
+
+References:
+   ../lib/types/thread-types.js:174:16
+   174|   +timestamps: ThreadTimestamps,
+                       ^^^^^^^^^^^^^^^^ [2]
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:165:11
+   165|       let threadInfoToUpdate = { ...threadInfo };
+                  ^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ----------------------------------------------------------------------- ../web/chat/chat-input-bar.react.js:465:15
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../web/chat/chat-input-bar.react.js:465:15
+   465|       actions[event.key]
+                      ^^^^^^^^^
+
+References:
+   ../web/flow-typed/environments/jsx.js:88:8
+    88|   key: string;
+               ^^^^^^ [1]
+
+
+Error ----------------------------------------------------------------------- ../web/chat/chat-input-bar.react.js:468:15
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../web/chat/chat-input-bar.react.js:468:15
+   468|       actions[event.key]();
+                      ^^^^^^^^^
+
+References:
+   ../web/flow-typed/environments/jsx.js:88:8
+    88|   key: string;
+               ^^^^^^ [1]
+
+
+Error ---------------------------------------------------------------------- ../web/crypto/aes-gcm-crypto-utils.js:73:17
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/crypto/aes-gcm-crypto-utils.js:73:17
+   73|   return crypto.subtle.generateKey(
+                       ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+    3| declare var crypto: Crypto;
+                           ^^^^^^ [1]
+
+
+Error ---------------------------------------------------------------------- ../web/crypto/aes-gcm-crypto-utils.js:92:35
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/crypto/aes-gcm-crypto-utils.js:92:35
+   92|   const ciphertext = await crypto.subtle.encrypt(
+                                         ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+    3| declare var crypto: Crypto;
+                           ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- ../web/crypto/aes-gcm-crypto-utils.js:111:34
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/crypto/aes-gcm-crypto-utils.js:111:34
+   111|   const decrypted = await crypto.subtle.decrypt(
+                                         ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+     3| declare var crypto: Crypto;
+                            ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- ../web/crypto/aes-gcm-crypto-utils.js:125:23
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/crypto/aes-gcm-crypto-utils.js:125:23
+   125|   return await crypto.subtle.exportKey('jwk', key);
+                              ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+     3| declare var crypto: Crypto;
+                            ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------- ../web/crypto/aes-gcm-crypto-utils.js:131:23
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/crypto/aes-gcm-crypto-utils.js:131:23
+   131|   return await crypto.subtle.importKey(
+                              ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+     3| declare var crypto: Crypto;
+                            ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------- ../web/media/encryption-utils.js:76:36
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/media/encryption-utils.js:76:36
+   76|     const hashBytes = await crypto.subtle.digest('SHA-256', encryptedData);
+                                          ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+    3| declare var crypto: Crypto;
+                           ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------------- ../web/media/file-utils.js:21:56
+
+Cannot call `Buffer.from` because: [incompatible-call]
+ - Either `ArrayBuffer` [1] is incompatible with `Buffer` [2].
+ - Or property `@@iterator` is missing in `ArrayBuffer` [1] but exists in `$Iterable` [3].
+
+   ../web/media/file-utils.js:21:56
+    21|   const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+                                                               ^^^^
+
+References:
+   ../web/media/file-utils.js:16:46
+    16| function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {
+                                                     ^^^^^^^^^^^ [1]
+   ../web/flow-typed/environments/node.js:113:22
+   113|   static from(value: Buffer): Buffer;
+                             ^^^^^^ [2]
+   ../web/flow-typed/environments/node.js:116:22
+   116|   static from(value: Iterable<number>): this;
+                             ^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------------- ../web/push-notif/encrypted-notif-utils-api.js:37:36
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/push-notif/encrypted-notif-utils-api.js:37:36
+   37|     const hashBytes = await crypto.subtle.digest('SHA-256', notificationBytes);
+                                          ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+    3| declare var crypto: Crypto;
+                           ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------- ../web/push-notif/encrypted-notif-utils-api.js:41:36
+
+Cannot get `crypto.subtle` because property `subtle` is missing in `Crypto` [1]. [prop-missing]
+
+   ../web/push-notif/encrypted-notif-utils-api.js:41:36
+   41|     const hashBytes = await crypto.subtle.digest('SHA-256', blob.buffer);
+                                          ^^^^^^
+
+References:
+   ../web/flow-typed/web-crypto.js:3:21
+    3| declare var crypto: Crypto;
+                           ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------- ../web/push-notif/notif-crypto-utils.js:446:26
+
+Cannot call `updateNotifsUnreadCountStorage` with object literal bound to `perKeyserverUnreadCount` because
+undefined [1] is incompatible with number [2] in the indexer property. [incompatible-call]
+
+   ../web/push-notif/notif-crypto-utils.js:446:26
+    446|           [keyserverID]: unreadCount,
+                                  ^^^^^^^^^^^
+
+References:
+   ../lib/types/notif-types.js:60:18
+     60|   +unreadCount?: number,
+                          ^^^^^^ [1]
+   ../web/push-notif/notif-crypto-utils.js:1278:27
+   1278|   +[keyserverID: string]: number,
+                                   ^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------- ../web/redux/redux-setup.js:506:20
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../web/redux/redux-setup.js:506:20
+   506|           ...state[activeThread],
+                           ^^^^^^^^^^^^
+
+References:
+   ../web/selectors/nav-selectors.js:86:50
+    86| function activeThreadSelector(state: AppState): ?string {
+                                                         ^^^^^^ [1]
+
+
+Error --------------------------------------------------------------------------------------- ../web/url-utils.js:140:50
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../web/url-utils.js:140:50
+   140|       ?.map(id => selectedUsers[id] ?? userInfos[id])
+                                                         ^^
+
+References:
+   ../lib/utils/url-utils.js:28:37
+    28|   selectedUserList?: $ReadOnlyArray<string>,
+                                            ^^^^^^ [1]
+
+
+
+Found 81 errors
+
+Only showing the most relevant union/intersection branches.
+To see all branches, re-run Flow with --show-all-branches
+error Command failed with exit code 2.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

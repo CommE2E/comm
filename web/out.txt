@@ -1,0 +1,143 @@
+yarn run v1.22.19
+$ /Users/angelikaserwa/Projects/comm/node_modules/.bin/flow --show-all-errors
+Error ------------------------------------------------------- ../lib/shared/dm-ops/change-thread-settings-spec.js:171:25
+
+Cannot assign object literal to `threadInfoToUpdate` because indexed object literal [1] is incompatible with exact
+`ThreadTimestamps` [2] in property `timestamps`. All writes to `threadInfoToUpdate` must be compatible with the type of
+its initializer [3]. Add an annotation to `threadInfoToUpdate` [3] if a different type is desired.
+[incompatible-indexer]
+
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:171:25
+                                v
+   171|             timestamps: {
+   172|               ...threadInfoToUpdate.timestamps,
+   173|               [fieldName]: time,
+   174|             },
+                    ^ [1]
+
+References:
+   ../lib/types/thread-types.js:174:16
+   174|   +timestamps: ThreadTimestamps,
+                       ^^^^^^^^^^^^^^^^ [2]
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:164:11
+   164|       let threadInfoToUpdate = { ...threadInfo };
+                  ^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------- ../lib/shared/redux/legacy-update-roles-and-permissions.js:82:52
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   ../lib/shared/redux/legacy-update-roles-and-permissions.js:82:52
+   82|           permissions: computedRolePermissionBlobs[name],
+                                                          ^^^^
+
+References:
+   ../lib/types/thread-types.js:62:10
+   62|   +name: string,
+                ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------------ chat/chat-input-bar.react.js:465:15
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   chat/chat-input-bar.react.js:465:15
+   465|       actions[event.key]
+                      ^^^^^^^^^
+
+References:
+   ../lib/flow-typed/environments/jsx.js:88:8
+    88|   key: string;
+               ^^^^^^ [1]
+
+
+Error ------------------------------------------------------------------------------ chat/chat-input-bar.react.js:468:15
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   chat/chat-input-bar.react.js:468:15
+   468|       actions[event.key]();
+                      ^^^^^^^^^
+
+References:
+   ../lib/flow-typed/environments/jsx.js:88:8
+    88|   key: string;
+               ^^^^^^ [1]
+
+
+Error ---------------------------------------------------------------------------------------- media/file-utils.js:21:56
+
+Cannot call `Buffer.from` because: [incompatible-call]
+ - Either `ArrayBuffer` [1] is incompatible with `Buffer` [2].
+ - Or property `@@iterator` is missing in `ArrayBuffer` [1] but exists in `$Iterable` [3].
+
+   media/file-utils.js:21:56
+    21|   const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+                                                               ^^^^
+
+References:
+   media/file-utils.js:16:46
+    16| function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {
+                                                     ^^^^^^^^^^^ [1]
+   ../lib/flow-typed/environments/node.js:113:22
+   113|   static from(value: Buffer): Buffer;
+                             ^^^^^^ [2]
+   ../lib/flow-typed/environments/node.js:116:22
+   116|   static from(value: Iterable<number>): this;
+                             ^^^^^^^^^^^^^^^^ [3]
+
+
+Error -------------------------------------------------------------------------- push-notif/notif-crypto-utils.js:446:26
+
+Cannot call `updateNotifsUnreadCountStorage` with object literal bound to `perKeyserverUnreadCount` because
+undefined [1] is incompatible with number [2] in the indexer property. [incompatible-call]
+
+   push-notif/notif-crypto-utils.js:446:26
+    446|           [keyserverID]: unreadCount,
+                                  ^^^^^^^^^^^
+
+References:
+   ../lib/types/notif-types.js:60:18
+     60|   +unreadCount?: number,
+                          ^^^^^^ [1]
+   push-notif/notif-crypto-utils.js:1278:27
+   1278|   +[keyserverID: string]: number,
+                                   ^^^^^^ [2]
+
+
+Error -------------------------------------------------------------------------------------- redux/redux-setup.js:506:20
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   redux/redux-setup.js:506:20
+   506|           ...state[activeThread],
+                           ^^^^^^^^^^^^
+
+References:
+   selectors/nav-selectors.js:86:50
+    86| function activeThreadSelector(state: AppState): ?string {
+                                                         ^^^^^^ [1]
+
+
+Error ---------------------------------------------------------------------------------------------- url-utils.js:140:50
+
+Cannot access object with computed property using string [1]. [invalid-computed-prop]
+
+   url-utils.js:140:50
+   140|       ?.map(id => selectedUsers[id] ?? userInfos[id])
+                                                         ^^
+
+References:
+   ../lib/utils/url-utils.js:28:37
+    28|   selectedUserList?: $ReadOnlyArray<string>,
+                                            ^^^^^^ [1]
+
+
+
+Found 8 errors
+
+Only showing the most relevant union/intersection branches.
+To see all branches, re-run Flow with --show-all-branches
+error Command failed with exit code 2.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

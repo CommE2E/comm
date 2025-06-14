@@ -25,7 +25,7 @@ function CommunityPicker(): React.Node {
   const modalContext = useModalContext();
 
   const openAccountSettings = React.useCallback(
-    (event: SyntheticEvent<HTMLButtonElement>) => {
+    (event: SyntheticEvent<HTMLAnchorElement | HTMLDivElement>) => {
       event.preventDefault();
       dispatch({
         type: updateNavInfoActionType,

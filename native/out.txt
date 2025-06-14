@@ -1,0 +1,94 @@
+yarn run v1.22.22
+$ /Users/angelikaserwa/Projects/comm/node_modules/.bin/flow
+Error ------------------------------------------------------- ../lib/shared/dm-ops/change-thread-settings-spec.js:172:25
+
+Cannot assign object literal to `threadInfoToUpdate` because indexed object literal [1] is incompatible with exact
+`ThreadTimestamps` [2] in property `timestamps`. All writes to `threadInfoToUpdate` must be compatible with the type of
+its initializer [3]. Add an annotation to `threadInfoToUpdate` [3] if a different type is desired.
+[incompatible-indexer]
+
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:172:25
+                                v
+   172|             timestamps: {
+   173|               ...threadInfoToUpdate.timestamps,
+   174|               [fieldName]: time,
+   175|             },
+                    ^ [1]
+
+References:
+   ../lib/types/thread-types.js:174:16
+   174|   +timestamps: ThreadTimestamps,
+                       ^^^^^^^^^^^^^^^^ [2]
+   ../lib/shared/dm-ops/change-thread-settings-spec.js:165:11
+   165|       let threadInfoToUpdate = { ...threadInfo };
+                  ^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error --------------------------------------------------------------------------- chat/swipeable-message.react.js:147:13
+
+Cannot call `React.cloneElement` because: [incompatible-call]
+ - Either `React.ComponentType` [1] is incompatible with string [2] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [4] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [5] in type argument `ElementType` [3].
+ - Or string [1] is incompatible with `React.ComponentType` [6] in type argument `ElementType` [3].
+
+   chat/swipeable-message.react.js:147:13
+   147|       React.cloneElement(children, {
+                    ^^^^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:98:49
+    98| declare type React$MixedElement = React$Element<React$ElementType>;
+                                                        ^^^^^^^^^^^^^^^^^ [1]
+   ../lib/flow-typed/environments/jsx.js:173:4
+   173|   [string]: ReactDOM$HTMLElementJSXIntrinsic,
+           ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:67:36
+    67| declare opaque type React$Element<+ElementType: React$ElementType, +P = React$ElementProps<ElementType>>: {...};
+                                           ^^^^^^^^^^^ [3]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:180:17
+   180|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [4]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:184:17
+   184|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [5]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:189:17
+   189|   & (<Props, C: React$ComponentType<empty>, E: React$Element<C, Props>>(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ [6]
+
+
+Error ------------------------------------------------------------------------------- media/camera-modal.react.js:916:16
+
+Cannot create `ReanimatedCamera` element because in property `ref`: [incompatible-type]
+ - Either `React.RefObject` [1] is incompatible with `Camera` [2] in property `current`.
+ - Or `React.RefObject` [1] is incompatible with function type [3]. Non-callable objects are not compatible with
+   functions.
+
+   media/camera-modal.react.js:916:16
+   916|           ref={cameraRef}
+                       ^^^^^^^^^
+
+References:
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:844:46
+   844|     declare hook useRef<T>(initialValue: T): RefObject<T>;
+                                                     ^^^^^^^^^^^^ [1]
+   media/camera-modal.react.js:378:37
+   378|     const cameraRef = React.useRef<?Camera>();
+                                            ^^^^^^ [2]
+   /private/tmp/flow/flowlib_4e1a4480a2f498fd_501/react.js:114:6
+   114|   | ((T | null) => mixed)
+             ^^^^^^^^^^^^^^^^^^^ [3]
+
+
+Error ------------------------------------------------------------------------ ../node_modules/react-native/index.js:0:1
+
+Invalid trivially recursive definition of exports.  [recursive-definition]
+
+
+
+Found 4 errors
+
+Only showing the most relevant union/intersection branches.
+To see all branches, re-run Flow with --show-all-branches
+error Command failed with exit code 2.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

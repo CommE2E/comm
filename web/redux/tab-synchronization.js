@@ -1,13 +1,13 @@
 // @flow
 
-import type { Middleware, Store } from 'redux';
+import type { Middleware, Store, Dispatch } from 'redux';
 
 import type { Action, AppState } from './redux-setup.js';
 
 const WEB_REDUX_CHANNEL = new BroadcastChannel('shared-redux');
 
 const tabSynchronizationMiddleware: Middleware<AppState, Action> =
-  () => next => action => {
+  () => (next: Dispatch<Action>) => (action: Action) => {
     const result = next(action);
     // For now the `dispatchSource` field is not included in any of the
     // redux actions and this causes flow to throw an error.
