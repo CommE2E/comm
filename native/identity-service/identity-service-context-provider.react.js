@@ -54,6 +54,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   if (!userIDPromiseRef.current) {
     userIDPromiseRef.current = (async () => {
       const { userID } = await commCoreModule.getCommServicesAuthMetadata();
+      console.log('[Promise] Got userID:', userID);
       return userID;
     })();
   }
@@ -63,6 +64,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
       (authMetadata: UserAuthMetadata) => {
+        console.log('UserAuthMetadata changed:', authMetadata);
         userIDPromiseRef.current = Promise.resolve(authMetadata.userID);
       },
     );
@@ -81,6 +83,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const deviceID = await getContentSigningKey();
     const userID = await userIDPromiseRef.current;
     if (!deviceID || !userID || !accessToken) {
+      console.log('No auth metadata', { userID, deviceID, accessToken });
       throw new Error('Identity AuthMetadata is missing');
     }
     return { deviceID, userID, accessToken };
@@ -99,6 +102,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       identityAuthResultValidator,
     );
 
+    console.log('Set auth metadata', validatedResult.userID);
     await commCoreModule.setCommServicesAuthMetadata(
       validatedResult.userID,
       deviceID,

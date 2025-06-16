@@ -224,6 +224,7 @@ class Socket {
         `socket message type ${clientSocketMessageWithClientIDs.type}`,
       );
 
+      // throw new ServerError('socket_deauthorized');
       const serverResponses =
         await this.handleClientSocketMessage(clientSocketMessage);
       if (!this.redis) {
@@ -236,7 +237,7 @@ class Socket {
         // This indicates that something has caused the session to change, which
         // shouldn't happen from inside a WebSocket since we can't handle cookie
         // invalidation.
-        throw new ServerError('session_mutated_from_socket');
+        throw new ServerError('socket_deauthorized');
       }
       if (clientSocketMessage.type !== clientSocketMessageTypes.PING) {
         ignorePromiseRejections(updateCookie(viewer));
@@ -252,7 +253,7 @@ class Socket {
         this.onSuccessfulConnection();
       }
     } catch (error) {
-      console.warn(error);
+      console.warn('Caught', error);
       if (!(error instanceof ServerError)) {
         const errorMessage: ErrorServerSocketMessage = {
           type: serverSocketMessageTypes.ERROR,
@@ -282,6 +283,7 @@ class Socket {
             },
           },
         };
+        console.log('Found socket_deuathorized', { authErrorMessage });
 
         await this.sendMessage(authErrorMessage);
         this.ws.close(4100, error.message);
@@ -580,6 +582,9 @@ class Socket {
     const responder = jsonEndpoints[message.payload.endpoint];
     await policiesValidator(viewer, responder.requiredPolicies);
     const response = await responder.responder(viewer, message.payload.input);
+    if (message.payload.endpoint === 'keyserver_auth') {
+      // throw new Error('socket_deauthorized');
+    }
     return [
       {
         type: serverSocketMessageTypes.API_RESPONSE,

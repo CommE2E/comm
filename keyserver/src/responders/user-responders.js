@@ -510,6 +510,7 @@ async function logInResponder(
   viewer: Viewer,
   request: LogInRequest,
 ): Promise<ServerLogInResponse> {
+  console.log('Legacy logInResponder', { viewer, request });
   let identityKeys: ?IdentityKeysBlob;
   const { signedIdentityKeysBlob, initialNotificationsEncryptedMessage } =
     request;
@@ -567,6 +568,7 @@ async function logInResponder(
   const userRow = userResult[0];
 
   if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
+    console.log('Throwing invalid credentials');
     throw new ServerError('invalid_credentials');
   }
 
@@ -581,6 +583,7 @@ async function logInResponder(
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
   });
+  console.log('Successful login', processSuccessfulLoginResult);
   return await handleSuccessfulLoginResult(processSuccessfulLoginResult, {
     viewer,
     watchedIDs: request.watchedIDs,
@@ -790,6 +793,7 @@ async function keyserverAuthResponder(
   ) {
     const data = { userID, source };
     console.log(`Session recovery attempted ${JSON.stringify(data)}`);
+    throw new Error('socket_deauthorized');
   }
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 

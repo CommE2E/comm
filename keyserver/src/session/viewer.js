@@ -117,6 +117,7 @@ class Viewer {
       }
     }
 
+    console.log('Viewer.setNewCookie', data);
     this.data = data;
     this.sessionChanged = true;
     // If the request explicitly sets a new cookie, there's no point in telling
@@ -136,6 +137,7 @@ class Viewer {
       // This is a separate condition because of Flow
       this.data = { ...this.data, sessionID };
     }
+    console.log('Viewer.setSessionID', this.data);
   }
 
   setSessionInfo(sessionInfo: SessionInfo) {

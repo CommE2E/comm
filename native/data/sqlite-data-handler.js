@@ -83,6 +83,10 @@ function SQLiteDataHandler(): React.Node {
   );
   const recoverDataFromAuthoritativeKeyserver = React.useCallback(
     async (source: RecoveryFromDataHandlerActionSource) => {
+      console.log(
+        'recoverDataFromAuthoritativeKeyserver inside sqlite-data-handler',
+        { source },
+      );
       const innerRecoverDataFromAuthoritativeKeyserver = (
         callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
         callKeyserverEndpoint: CallKeyserverEndpoint,
@@ -166,6 +170,10 @@ function SQLiteDataHandler(): React.Node {
         errorGettingStampedUserID ||
         shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
       ) {
+        console.log('Calling clear sensitive data', {
+          sqliteStampedUserID,
+          currentLoggedInUserID,
+        });
         await callClearSensitiveData('change in logged-in user credentials');
       }
       if (

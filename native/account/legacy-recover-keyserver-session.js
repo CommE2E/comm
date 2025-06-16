@@ -28,8 +28,13 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   ) => Promise<string>,
   hasBeenCancelled: () => boolean,
 ) {
+  console.log(
+    'Called resolveKeyserverSessionInvalidationUsingNativeCredentials',
+    { recoveryActionSource },
+  );
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials || hasBeenCancelled()) {
+    console.log('No credentials or canceled');
     return;
   }
 
@@ -41,6 +46,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
       }),
     ]);
   if (hasBeenCancelled()) {
+    console.log('Canceled err');
     throw new Error(CANCELLED_ERROR);
   }
   const extraInfo = { ...baseExtraInfo, initialNotificationsEncryptedMessage };
@@ -50,6 +56,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
     calendarQuery,
     authActionSource: recoveryActionSource,
   };
+  console.log('Dispatching legacyLogin', { startingPayload });
   await dispatchActionPromise(
     legacyLogInActionTypes,
     legacyLogInRawAction(callKeyserverEndpoint)({

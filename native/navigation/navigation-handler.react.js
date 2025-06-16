@@ -69,8 +69,10 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
     }
     prevLoggedInRef.current = loggedIn;
     if (loggedIn && !navLoggedIn) {
+      console.log('Exiting logged out modal');
       dispatch({ type: (logInActionType: 'LOG_IN') });
     } else if (!loggedIn && navLoggedIn) {
+      console.log('Entering logged out modal');
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
     }
   }, [navLoggedIn, loggedIn, dispatch]);
