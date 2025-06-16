@@ -246,15 +246,28 @@ std::vector<MessageEntity> SQLiteQueryExecutor::fetchMessages(
       "FROM messages AS m "
       "LEFT JOIN media "
       "  ON m.id = media.container "
-      "WHERE m.thread = ? "
+      "WHERE m.thread = :thread "
+      "UNION "
+      "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, backup_media.id, backup_media.container, "
+      "  backup_media.thread, backup_media.uri, backup_media.type, "
+      "  backup_media.extras "
+      "FROM backup_messages AS m "
+      "LEFT JOIN backup_media "
+      "  ON m.id = backup_media.container "
+      "WHERE m.thread = :thread "
       "ORDER BY m.time DESC, m.id DESC "
-      "LIMIT ? OFFSET ?;";
+      "LIMIT :limit OFFSET :offset;";
   SQLiteStatementWrapper preparedSQL(
       this->getConnection(), query, "Failed to fetch messages.");
 
-  bindStringToSQL(threadID.c_str(), preparedSQL, 1);
-  bindIntToSQL(limit, preparedSQL, 2);
-  bindIntToSQL(offset, preparedSQL, 3);
+  int thread_index = sqlite3_bind_parameter_index(preparedSQL, ":thread");
+  bindStringToSQL(threadID.c_str(), preparedSQL, thread_index);
+  int limit_index = sqlite3_bind_parameter_index(preparedSQL, ":limit");
+  bindIntToSQL(limit, preparedSQL, limit_index);
+  int offset_index = sqlite3_bind_parameter_index(preparedSQL, ":offset");
+  bindIntToSQL(offset, preparedSQL, offset_index);
 
   return this->processMessagesResults(preparedSQL);
 }
