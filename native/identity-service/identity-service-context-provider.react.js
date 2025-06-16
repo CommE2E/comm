@@ -149,22 +149,31 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commRustModule.deletePasswordUser(userID, deviceID, token, password),
         );
       },
-      logOut: async () => {
-        const {
-          deviceID,
-          userID,
-          accessToken: token,
-        } = await getAuthMetadata();
+      logOut: async (preRequestAuthMetadata?: AuthMetadata) => {
+        let authMetadata = preRequestAuthMetadata;
+        if (!authMetadata) {
+          authMetadata = await getAuthMetadata();
+        }
+        const { deviceID, userID, accessToken: token } = authMetadata;
+        if (!userID || !deviceID || !token) {
+          throw new Error('Auth metadata is partial or missing');
+        }
         return authVerifiedEndpoint(
           commRustModule.logOut(userID, deviceID, token),
         );
       },
-      logOutPrimaryDevice: async (keyserverDeviceID: ?string) => {
-        const {
-          deviceID,
-          userID,
-          accessToken: token,
-        } = await getAuthMetadata();
+      logOutPrimaryDevice: async (
+        keyserverDeviceID: ?string,
+        preRequestAuthMetadata?: AuthMetadata,
+      ) => {
+        let authMetadata = preRequestAuthMetadata;
+        if (!authMetadata) {
+          authMetadata = await getAuthMetadata();
+        }
+        const { deviceID, userID, accessToken: token } = authMetadata;
+        if (!userID || !deviceID || !token) {
+          throw new Error('Auth metadata is partial or missing');
+        }
         const signedDeviceList = await createAndSignSingletonDeviceList(
           deviceID,
           keyserverDeviceID,
@@ -178,12 +187,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           ),
         );
       },
-      logOutSecondaryDevice: async () => {
-        const {
-          deviceID,
-          userID,
-          accessToken: token,
-        } = await getAuthMetadata();
+      logOutSecondaryDevice: async (preRequestAuthMetadata?: AuthMetadata) => {
+        let authMetadata = preRequestAuthMetadata;
+        if (!authMetadata) {
+          authMetadata = await getAuthMetadata();
+        }
+        const { deviceID, userID, accessToken: token } = authMetadata;
+        if (!userID || !deviceID || !token) {
+          throw new Error('Auth metadata is partial or missing');
+        }
         return authVerifiedEndpoint(
           commRustModule.logOutSecondaryDevice(userID, deviceID, token),
         );
