@@ -1,7 +1,9 @@
 // @flow
 
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import { getDatabaseModule } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
@@ -32,7 +34,7 @@ describe('getInitialMessages queries', () => {
 
   const createThread = (
     id: string,
-    type: number,
+    type: ThreadType,
     creationTime: number = 1000,
   ): void => {
     queryExecutor.replaceThread(
@@ -55,7 +57,7 @@ describe('getInitialMessages queries', () => {
         pinnedCount: 0,
         timestamps: null,
       },
-      false,
+      threadSpecs[type].protocol.dataIsBackedUp,
     );
   };
 
@@ -65,20 +67,20 @@ describe('getInitialMessages queries', () => {
     type: number = messageTypes.TEXT,
     content: ?string = null,
     time: number = 1000,
-    userID: string = '1',
+    threadType: ThreadType,
   ): void => {
     queryExecutor.replaceMessage(
       {
         id,
         localID: null,
         thread: threadID,
-        user: userID,
+        user: '1',
         type,
         futureType: null,
         content,
         time: BigInt(time),
       },
-      false,
+      threadSpecs[threadType].protocol.dataIsBackedUp,
     );
   };
 
@@ -88,6 +90,7 @@ describe('getInitialMessages queries', () => {
     threadID: string,
     type: 'photo' | 'video' = 'photo',
     uri: string = 'test_uri',
+    threadType: ThreadType,
   ): void => {
     queryExecutor.replaceMedia(
       {
@@ -98,7 +101,7 @@ describe('getInitialMessages queries', () => {
         type,
         extras: '{}',
       },
-      false,
+      threadSpecs[threadType].protocol.dataIsBackedUp,
     );
   };
 
@@ -109,9 +112,30 @@ describe('getInitialMessages queries', () => {
 
   it('should return messages with their media', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
-    createMessage('msg1', 'thread1', messageTypes.TEXT, 'Hello world', 1000);
-    createMedia('media1', 'msg1', 'thread1', 'photo');
-    createMedia('media2', 'msg1', 'thread1', 'video');
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      'Hello world',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMedia(
+      'media1',
+      'msg1',
+      'thread1',
+      'photo',
+      'test_uri',
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMedia(
+      'media2',
+      'msg1',
+      'thread1',
+      'video',
+      'test_uri',
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(1);
@@ -124,7 +148,14 @@ describe('getInitialMessages queries', () => {
 
   it('should return messages without media', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
-    createMessage('msg1', 'thread1', messageTypes.TEXT, 'Hello world', 1000);
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      'Hello world',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(1);
@@ -134,9 +165,30 @@ describe('getInitialMessages queries', () => {
 
   it('should handle different message types', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
-    createMessage('msg1', 'thread1', messageTypes.TEXT, 'Text message', 1000);
-    createMessage('msg2', 'thread1', messageTypes.IMAGES, null, 1100);
-    createMessage('msg3', 'thread1', messageTypes.MULTIMEDIA, null, 1200);
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      'Text message',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg2',
+      'thread1',
+      messageTypes.IMAGES,
+      null,
+      1100,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg3',
+      'thread1',
+      messageTypes.MULTIMEDIA,
+      null,
+      1200,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(3);
@@ -158,6 +210,7 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Message ${i}`,
         1000 + i,
+        threadTypes.PERSONAL,
       );
     }
 
@@ -183,6 +236,7 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Message ${i}`,
         1000 + i,
+        threadTypes.COMMUNITY_OPEN_SUBTHREAD,
       );
     }
 
@@ -200,6 +254,7 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Thick ${i}`,
         1000 + i,
+        threadTypes.PERSONAL,
       );
     }
 
@@ -212,6 +267,7 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Thin ${i}`,
         2000 + i,
+        threadTypes.COMMUNITY_OPEN_SUBTHREAD,
       );
     }
 
@@ -234,12 +290,40 @@ describe('getInitialMessages queries', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
 
     // Create messages with different times
-    createMessage('msg1', 'thread1', messageTypes.TEXT, 'First', 1000);
-    createMessage('msg2', 'thread1', messageTypes.TEXT, 'Second', 1500);
-    createMessage('msg3', 'thread1', messageTypes.TEXT, 'Third', 1200);
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      'First',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg2',
+      'thread1',
+      messageTypes.TEXT,
+      'Second',
+      1500,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg3',
+      'thread1',
+      messageTypes.TEXT,
+      'Third',
+      1200,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     // Messages with same time should be ordered by ID
-    createMessage('msg4', 'thread1', messageTypes.TEXT, 'Fourth', 1500);
+    createMessage(
+      'msg4',
+      'thread1',
+      messageTypes.TEXT,
+      'Fourth',
+      1500,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(4);
@@ -256,10 +340,38 @@ describe('getInitialMessages queries', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
     createThread('thread2', threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT);
 
-    createMessage('msg_a', 'thread1', messageTypes.TEXT, 'A', 1000);
-    createMessage('msg_b', 'thread2', messageTypes.TEXT, 'B', 1100);
-    createMessage('msg_c', 'thread1', messageTypes.TEXT, 'C', 1050);
-    createMessage('msg_d', 'thread2', messageTypes.TEXT, 'D', 1200);
+    createMessage(
+      'msg_a',
+      'thread1',
+      messageTypes.TEXT,
+      'A',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg_b',
+      'thread2',
+      messageTypes.TEXT,
+      'B',
+      1100,
+      threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+    );
+    createMessage(
+      'msg_c',
+      'thread1',
+      messageTypes.TEXT,
+      'C',
+      1050,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg_d',
+      'thread2',
+      messageTypes.TEXT,
+      'D',
+      1200,
+      threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+    );
 
     const results = queryExecutor.getInitialMessages();
     const times = results.map(r => Number(r.message.time));
@@ -271,9 +383,30 @@ describe('getInitialMessages queries', () => {
 
   it('should handle null and empty content correctly', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
-    createMessage('msg1', 'thread1', messageTypes.TEXT, null, 1000);
-    createMessage('msg2', 'thread1', messageTypes.TEXT, '', 1100);
-    createMessage('msg3', 'thread1', messageTypes.TEXT, 'Valid content', 1200);
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      null,
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg2',
+      'thread1',
+      messageTypes.TEXT,
+      '',
+      1100,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
+    createMessage(
+      'msg3',
+      'thread1',
+      messageTypes.TEXT,
+      'Valid content',
+      1200,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(3);
@@ -284,13 +417,21 @@ describe('getInitialMessages queries', () => {
 
   it('should handle very large time values correctly', () => {
     createThread('thread1', threadTypes.COMMUNITY_OPEN_SUBTHREAD);
-    createMessage('msg1', 'thread1', messageTypes.TEXT, 'Old', 1000);
+    createMessage(
+      'msg1',
+      'thread1',
+      messageTypes.TEXT,
+      'Old',
+      1000,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+    );
     createMessage(
       'msg2',
       'thread1',
       messageTypes.TEXT,
       'Future',
       9999999999999,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
     );
 
     const results = queryExecutor.getInitialMessages();
@@ -317,6 +458,7 @@ describe('getInitialMessages queries', () => {
           messageTypes.TEXT,
           `Thread ${threadNum} Message ${msgNum}`,
           1000 + threadNum * 100 + msgNum,
+          threadType,
         );
       }
     }
@@ -344,11 +486,19 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Thick message ${i}`,
         1000 + i,
+        threadTypes.PERSONAL,
       );
       // Add media to the most recent messages (26-30) since thick
       // threads only return 20 most recent
       if (i >= 26) {
-        createMedia(`thick_media${i}`, `thick_msg${i}`, 'thick_thread');
+        createMedia(
+          `thick_media${i}`,
+          `thick_msg${i}`,
+          'thick_thread',
+          'photo',
+          'test_uri',
+          threadTypes.PERSONAL,
+        );
       }
     }
 
@@ -361,9 +511,17 @@ describe('getInitialMessages queries', () => {
         messageTypes.TEXT,
         `Thin message ${i}`,
         2000 + i,
+        threadTypes.COMMUNITY_OPEN_SUBTHREAD,
       );
       if (i <= 3) {
-        createMedia(`thin_media${i}`, `thin_msg${i}`, 'thin_thread');
+        createMedia(
+          `thin_media${i}`,
+          `thin_msg${i}`,
+          'thin_thread',
+          'photo',
+          'test_uri',
+          threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+        );
       }
     }
 
