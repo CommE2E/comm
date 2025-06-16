@@ -105,6 +105,10 @@ const defaultWebState: AppState = Object.freeze({
     storedHolders: {},
   },
   clientDBStateLoaded: false,
+  restoreBackupState: {
+    status: 'no_backup',
+    payload: {},
+  },
 });
 
 export { defaultWebState };

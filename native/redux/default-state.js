@@ -111,6 +111,10 @@ const defaultState = ({
   backupStore: {
     latestBackupInfo: null,
   },
+  restoreBackupState: {
+    status: 'no_backup',
+    payload: {},
+  },
 }: AppState);
 
 export { defaultState };
