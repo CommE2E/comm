@@ -1,6 +1,9 @@
 // @flow
 
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import { getDatabaseModule } from '../db-module.js';
 import type {
@@ -14,8 +17,11 @@ const FILE_PATH = 'test.sqlite';
 describe('Fetch messages queries', () => {
   let queryExecutor;
   let dbModule;
-  const threadID = '123';
   const userID = '124';
+  const threadID = '123';
+  const threadType: ThreadType = threadTypes.COMMUNITY_OPEN_SUBTHREAD;
+  const thickThreadID = 'thick-thread-123';
+  const thickThreadType: ThreadType = threadTypes.PERSONAL;
 
   beforeAll(async () => {
     dbModule = getDatabaseModule();
@@ -28,6 +34,31 @@ describe('Fetch messages queries', () => {
       throw new Error('SQLiteQueryExecutor is missing');
     }
 
+    // Create the regular thread
+    queryExecutor.replaceThread(
+      {
+        id: threadID,
+        type: threadType,
+        name: null,
+        avatar: null,
+        description: null,
+        color: 'ffffff',
+        creationTime: BigInt(1000),
+        parentThreadID: null,
+        containingThreadID: null,
+        community: null,
+        members: '1',
+        roles: '1',
+        currentUser: '{}',
+        sourceMessageID: null,
+        repliesCount: 0,
+        pinnedCount: 0,
+        timestamps: null,
+      },
+      threadSpecs[threadType].protocol.dataIsBackedUp,
+    );
+
+    // Create 50 messages using the appropriate backup flag
     for (let i = 0; i < 50; i++) {
       const message: WebMessage = {
         id: i.toString(),
@@ -39,7 +70,52 @@ describe('Fetch messages queries', () => {
         content: `text-${i}`,
         time: BigInt(i),
       };
-      queryExecutor.replaceMessage(message, false);
+      queryExecutor.replaceMessage(
+        message,
+        threadSpecs[threadType].protocol.dataIsBackedUp,
+      );
+    }
+
+    // Create a thick thread that uses backup tables
+    queryExecutor.replaceThread(
+      {
+        id: thickThreadID,
+        type: thickThreadType,
+        name: null,
+        avatar: null,
+        description: null,
+        color: 'ffffff',
+        creationTime: BigInt(2000),
+        parentThreadID: null,
+        containingThreadID: null,
+        community: null,
+        members: '1',
+        roles: '1',
+        currentUser: '{}',
+        sourceMessageID: null,
+        repliesCount: 0,
+        pinnedCount: 0,
+        timestamps: null,
+      },
+      threadSpecs[thickThreadType].protocol.dataIsBackedUp,
+    );
+
+    // Add 10 messages to the thick thread (which will go to backup tables)
+    for (let i = 0; i < 10; i++) {
+      const message: WebMessage = {
+        id: `thick-${i}`,
+        localID: null,
+        thread: thickThreadID,
+        user: userID,
+        type: messageTypes.TEXT,
+        futureType: null,
+        content: `thick-text-${i}`,
+        time: BigInt(1000 + i),
+      };
+      queryExecutor.replaceMessage(
+        message,
+        threadSpecs[thickThreadType].protocol.dataIsBackedUp,
+      );
     }
   });
 
@@ -103,6 +179,27 @@ describe('Fetch messages queries', () => {
     expect(result.length).toBe(50);
     for (let i = 0; i < 50; i++) {
       assertMessageEqual(result[i], 49 - i);
+    }
+  });
+
+  it('should fetch messages from both normal and backup tables', () => {
+    // Fetch messages from thick thread - should get all
+    // 10 since they're in backup tables
+    const thickResult = queryExecutor.fetchMessages(thickThreadID, 20, 0);
+    expect(thickResult.length).toBe(10);
+
+    // Verify the messages are correctly fetched (ordered by time DESC)
+    for (let i = 0; i < 10; i++) {
+      expect(thickResult[i].message.id).toBe(`thick-${9 - i}`);
+      expect(thickResult[i].message.content).toBe(`thick-text-${9 - i}`);
+      expect(thickResult[i].message.thread).toBe(thickThreadID);
+    }
+
+    // Fetch messages from original thin thread - should still work
+    const thinResult = queryExecutor.fetchMessages(threadID, 5, 0);
+    expect(thinResult.length).toBe(5);
+    for (let i = 0; i < 5; i++) {
+      assertMessageEqual(thinResult[i], 49 - i);
     }
   });
 });
