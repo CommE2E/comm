@@ -198,25 +198,35 @@ std::string SQLiteQueryExecutor::getThickThreadTypesList() const {
 std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
   static std::string getInitialMessagesSQL =
       "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, media.id, media.container, media.thread, "
+      "  media.uri, media.type, media.extras "
+      "FROM messages AS m "
+      "LEFT JOIN media "
+      "  ON m.id = media.container "
+      "INNER JOIN threads AS t "
+      "  ON m.thread = t.id "
+      "UNION "
+      "SELECT "
       "  s.id, s.local_id, s.thread, s.user, s.type, s.future_type, "
-      "  s.content, s.time, m.id, m.container, m.thread, m.uri, m.type, "
-      "  m.extras "
+      "  s.content, s.time, backup_media.id, backup_media.container, "
+      "  backup_media.thread, backup_media.uri, backup_media.type, "
+      "  backup_media.extras "
       "FROM ( "
       "  SELECT "
       "    m.*, "
       "    ROW_NUMBER() OVER ( "
       "      PARTITION BY thread ORDER BY m.time DESC, m.id DESC "
       "    ) AS r "
-      "  FROM messages AS m "
+      "  FROM backup_messages AS m "
       ") AS s "
-      "LEFT JOIN media AS m "
-      "  ON s.id = m.container "
-      "INNER JOIN threads AS t "
+      "LEFT JOIN backup_media "
+      "  ON s.id = backup_media.container "
+      "INNER JOIN backup_threads AS t "
       "  ON s.thread = t.id "
-      "WHERE s.r <= 20 OR t.type NOT IN ( " +
-      this->getThickThreadTypesList() +
-      ") "
+      "WHERE s.r <= 20 "
       "ORDER BY s.time, s.id;";
+
   SQLiteStatementWrapper preparedSQL(
       this->getConnection(),
       getInitialMessagesSQL,
