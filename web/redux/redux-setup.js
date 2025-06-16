@@ -40,6 +40,7 @@ import {
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
+import type { RestoreBackupState } from 'lib/types/backup-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { QueuedDMOperations } from 'lib/types/dm-ops.js';
@@ -145,6 +146,7 @@ export type AppState = {
   +queuedDMOperations: QueuedDMOperations,
   +holderStore: HolderStore,
   +clientDBStateLoaded: boolean,
+  +restoreBackupState: RestoreBackupState,
 };
 
 export type Action = $ReadOnly<
