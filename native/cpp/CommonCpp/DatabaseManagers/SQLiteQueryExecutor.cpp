@@ -1480,14 +1480,27 @@ SQLiteQueryExecutor::getRelatedMessages(const std::string &messageID) const {
       "FROM messages AS m "
       "LEFT JOIN media "
       "  ON m.id = media.container "
-      "WHERE m.id = ? OR m.target_message = ? "
+      "WHERE m.id = :messageID OR m.target_message = :messageID "
+      "UNION "
+      "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, backup_media.id, backup_media.container, "
+      "  backup_media.thread, backup_media.uri, backup_media.type, "
+      "  backup_media.extras "
+      "FROM backup_messages AS m "
+      "LEFT JOIN backup_media "
+      "  ON m.id = backup_media.container "
+      "WHERE m.id = :messageID OR m.target_message = :messageID "
       "ORDER BY m.time DESC";
+
   comm::SQLiteStatementWrapper preparedSQL(
       this->getConnection(),
       getMessageSQL,
       "Failed to get latest message edit");
-  bindStringToSQL(messageID.c_str(), preparedSQL, 1);
-  bindStringToSQL(messageID.c_str(), preparedSQL, 2);
+
+  int message_id_index =
+      sqlite3_bind_parameter_index(preparedSQL, ":messageID");
+  bindStringToSQL(messageID.c_str(), preparedSQL, message_id_index);
   return this->processMessagesResults(preparedSQL);
 }
 
