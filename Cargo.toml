@@ -25,6 +25,7 @@ exclude = [
   "web/backup-client-wasm",
   "web/opaque-ke-wasm",
   "native/native_rust_library",
+  "services/.idea",
 ]
 
 [workspace.package]
