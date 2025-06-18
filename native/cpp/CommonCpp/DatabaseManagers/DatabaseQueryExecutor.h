@@ -194,7 +194,8 @@ public:
       std::optional<std::string> timestampCursor,
       std::optional<std::string> messageIDCursor) const = 0;
   virtual std::vector<MessageEntity> getRelatedMessagesForSearch(
-      const std::vector<std::string> &messageIDs) const = 0;
+      const std::vector<std::string> &messageIDs,
+      bool backupItem) const = 0;
   virtual void replaceDMOperation(const DMOperation &operation) const = 0;
   virtual void removeAllDMOperations() const = 0;
   virtual void
