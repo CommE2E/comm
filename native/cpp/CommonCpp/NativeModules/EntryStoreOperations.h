@@ -21,15 +21,18 @@ private:
 
 class ReplaceEntryOperation : public DBOperationBase {
 public:
-  ReplaceEntryOperation(EntryInfo &&entry) : entry{std::move(entry)} {
+  ReplaceEntryOperation(EntryInfo &&entry, bool backupItem)
+      : entry{std::move(entry)}, backupItem(backupItem) {
   }
 
   virtual void execute(DatabaseIdentifier id) override {
-    DatabaseManager::getQueryExecutor(id).replaceEntry(this->entry, false);
+    DatabaseManager::getQueryExecutor(id).replaceEntry(
+        this->entry, this->backupItem);
   }
 
 private:
   EntryInfo entry;
+  bool backupItem;
 };
 
 class RemoveAllEntriesOperation : public DBOperationBase {
