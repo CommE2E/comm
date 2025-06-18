@@ -115,9 +115,14 @@ std::string SQLiteQueryExecutor::getDraft(std::string key) const {
 
 std::unique_ptr<Thread>
 SQLiteQueryExecutor::getThread(std::string threadID) const {
-  static std::string getThreadByPrimaryKeySQL =
+  bool backupItem = !threadIDMatchesKeyserverProtocol(threadID);
+  std::string threadsTable = backupItem ? "backup_threads" : "threads";
+
+  std::string getThreadByPrimaryKeySQL =
       "SELECT * "
-      "FROM threads "
+      "FROM " +
+      threadsTable +
+      " "
       "WHERE id = ?;";
   return getEntityByPrimaryKey<Thread>(
       this->getConnection(), getThreadByPrimaryKeySQL, threadID);

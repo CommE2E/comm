@@ -1,6 +1,7 @@
 #include "ThreadOperations.h"
 #include "../../../DatabaseManagers/DatabaseManager.h"
 #include "Logger.h"
+#include "ThreadTypeEnum.h"
 #include <folly/String.h>
 #include <folly/json.h>
 #include <stdexcept>
@@ -35,6 +36,7 @@ void ThreadOperations::updateSQLiteUnreadStatus(
     return;
   }
 
-  DatabaseManager::getQueryExecutor().replaceThread(*thread, false);
+  bool dataIsBackedUp = !threadIDMatchesKeyserverProtocol(threadID);
+  DatabaseManager::getQueryExecutor().replaceThread(*thread, dataIsBackedUp);
 }
 } // namespace comm
