@@ -186,7 +186,8 @@ public:
       std::optional<std::string> timestampCursor,
       std::optional<std::string> messageIDCursor) const override;
   std::vector<MessageEntity> getRelatedMessagesForSearch(
-      const std::vector<std::string> &messageIDs) const override;
+      const std::vector<std::string> &messageIDs,
+      bool isRegularTable) const override;
   void replaceDMOperation(const DMOperation &operation) const override;
   void removeAllDMOperations() const override;
   void removeDMOperations(const std::vector<std::string> &ids) const override;
