@@ -1576,18 +1576,28 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
     std::string threadID,
     std::optional<std::string> timestampCursor,
     std::optional<std::string> messageIDCursor) const {
+  bool isRegularTable = threadIDMatchesKeyserverProtocol(threadID);
+  std::string messagesTable = isRegularTable ? "messages" : "backup_messages";
+  std::string mediaTable = isRegularTable ? "media" : "backup_media";
+
   std::stringstream searchMessagesSQL;
   searchMessagesSQL
       << "SELECT "
          "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
-         "  m.content, m.time, media.id, media.container, media.thread, "
-         "  media.uri, media.type, media.extras "
+         "  m.content, m.time, md.id, md.container, md.thread, "
+         "  md.uri, md.type, md.extras "
          "FROM message_search AS s "
-         "LEFT JOIN messages AS m "
+         "LEFT JOIN "
+      << messagesTable
+      << " AS m "
          "  ON m.id = s.original_message_id "
-         "LEFT JOIN media "
-         "  ON m.id = media.container "
-         "LEFT JOIN messages AS m2 "
+         "LEFT JOIN "
+      << mediaTable
+      << " AS md "
+         "  ON m.id = md.container "
+         "LEFT JOIN "
+      << messagesTable
+      << " AS m2 "
          "  ON m2.target_message = m.id "
          "  AND m2.type = ? AND m2.thread = ? "
          "WHERE s.processed_content MATCH ? "
@@ -1627,7 +1637,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
     messageIDs.push_back(message.message.id);
   }
   std::vector<MessageEntity> relatedMessages =
-      this->getRelatedMessagesForSearch(messageIDs);
+      this->getRelatedMessagesForSearch(messageIDs, isRegularTable);
 
   for (auto &entity : relatedMessages) {
     messages.push_back(std::move(entity));
@@ -1636,17 +1646,24 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
 }
 
 std::vector<MessageEntity> SQLiteQueryExecutor::getRelatedMessagesForSearch(
-    const std::vector<std::string> &messageIDs) const {
+    const std::vector<std::string> &messageIDs,
+    bool isRegularTable) const {
+  std::string messagesTable = isRegularTable ? "messages" : "backup_messages";
+  std::string mediaTable = isRegularTable ? "media" : "backup_media";
   std::stringstream selectRelatedMessagesSQLStream;
   selectRelatedMessagesSQLStream << "SELECT "
                                     "  m.id, m.local_id, m.thread, m.user, "
                                     "  m.type, m.future_type, m.content, "
-                                    "  m.time, media.id, media.container, "
-                                    "  media.thread, media.uri, media.type, "
-                                    "  media.extras "
-                                    "FROM messages AS m "
-                                    "LEFT JOIN media "
-                                    "  ON m.id = media.container "
+                                    "  m.time, md.id, md.container, "
+                                    "  md.thread, md.uri, md.type, "
+                                    "  md.extras "
+                                    "FROM "
+                                 << messagesTable
+                                 << " AS m "
+                                    "LEFT JOIN "
+                                 << mediaTable
+                                 << " AS md "
+                                    "  ON m.id = md.container "
                                     "WHERE m.target_message IN "
                                  << getSQLStatementArray(messageIDs.size())
                                  << "ORDER BY m.time DESC";
