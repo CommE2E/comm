@@ -181,6 +181,8 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
       std::optional<std::string> timestamps = maybeTimestamps.isString()
           ? std::optional<std::string>(maybeTimestamps.asString(rt).utf8(rt))
           : std::nullopt;
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
+
       Thread thread{
           threadID,
           type,
@@ -200,8 +202,8 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
           pinnedCount,
           timestamps};
 
-      threadStoreOps.push_back(
-          std::make_unique<ReplaceThreadOperation>(std::move(thread)));
+      threadStoreOps.push_back(std::make_unique<ReplaceThreadOperation>(
+          std::move(thread), isBackedUp));
     } else {
       throw std::runtime_error("unsupported operation: " + opType);
     }
