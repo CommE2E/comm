@@ -55,11 +55,12 @@ std::vector<std::unique_ptr<DBOperationBase>> EntryStore::createOperations(
       std::string id = entryObj.getProperty(rt, "id").asString(rt).utf8(rt);
       std::string entry_info =
           entryObj.getProperty(rt, "entry").asString(rt).utf8(rt);
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
 
       EntryInfo entry{id, entry_info};
 
-      entryStoreOps.push_back(
-          std::make_unique<ReplaceEntryOperation>(std::move(entry)));
+      entryStoreOps.push_back(std::make_unique<ReplaceEntryOperation>(
+          std::move(entry), isBackedUp));
     } else {
       throw std::runtime_error("unsupported operation: " + opType);
     }

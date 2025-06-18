@@ -113,22 +113,26 @@ std::vector<std::unique_ptr<DBOperationBase>> MessageStore::createOperations(
       messageStoreOps.push_back(
           std::make_unique<RemoveMessagesForThreadsOperation>(rt, payload_obj));
     } else if (op_type == REPLACE_OPERATION) {
-      messageStoreOps.push_back(
-          std::make_unique<ReplaceMessageOperation>(rt, payload_obj));
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
+      messageStoreOps.push_back(std::make_unique<ReplaceMessageOperation>(
+          rt, payload_obj, isBackedUp));
     } else if (op_type == REKEY_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RekeyMessageOperation>(rt, payload_obj));
     } else if (op_type == REPLACE_MESSAGE_THREADS_OPERATION) {
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
       messageStoreOps.push_back(
-          std::make_unique<ReplaceMessageThreadsOperation>(rt, payload_obj));
+          std::make_unique<ReplaceMessageThreadsOperation>(
+              rt, payload_obj, isBackedUp));
     } else if (op_type == REMOVE_MESSAGE_THREADS_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RemoveMessageStoreThreadsOperation>(
               rt, payload_obj));
     } else if (op_type == REPLACE_MESSAGE_STORE_LOCAL_MESSAGE_INFO_OPERATION) {
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
       messageStoreOps.push_back(
           std::make_unique<ReplaceMessageStoreLocalMessageInfoOperation>(
-              rt, payload_obj));
+              rt, payload_obj, isBackedUp));
     } else if (op_type == REMOVE_MESSAGE_STORE_LOCAL_MESSAGE_INFOS_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RemoveMessageStoreLocalMessageInfosOperation>(
