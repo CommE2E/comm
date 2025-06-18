@@ -72,12 +72,13 @@ ThreadActivityStore::createOperations(
           payloadObj.getProperty(rt, "threadActivityStoreEntry")
               .asString(rt)
               .utf8(rt);
+      bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
 
       ThreadActivityEntry threadActivityEntry{id, thread_activity_store_entry};
 
       threadActivityStoreOps.push_back(
           std::make_unique<ReplaceThreadActivityEntryOperation>(
-              std::move(threadActivityEntry)));
+              std::move(threadActivityEntry), isBackedUp));
     } else {
       throw std::runtime_error("unsupported operation: " + opType);
     }

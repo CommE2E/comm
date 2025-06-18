@@ -24,17 +24,21 @@ private:
 
 class ReplaceThreadActivityEntryOperation : public DBOperationBase {
 public:
-  ReplaceThreadActivityEntryOperation(ThreadActivityEntry &&threadActivityEntry)
-      : threadActivityEntry{std::move(threadActivityEntry)} {
+  ReplaceThreadActivityEntryOperation(
+      ThreadActivityEntry &&threadActivityEntry,
+      bool backupItem)
+      : threadActivityEntry{std::move(threadActivityEntry)},
+        backupItem(backupItem) {
   }
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceThreadActivityEntry(
-        this->threadActivityEntry, false);
+        this->threadActivityEntry, this->backupItem);
   }
 
 private:
   ThreadActivityEntry threadActivityEntry;
+  bool backupItem;
 };
 
 class RemoveAllThreadActivityEntriesOperation : public DBOperationBase {

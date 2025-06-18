@@ -58,8 +58,11 @@ private:
 
 class ReplaceMessageOperation : public DBOperationBase {
 public:
-  ReplaceMessageOperation(jsi::Runtime &rt, const jsi::Object &payload)
-      : media_vector{} {
+  ReplaceMessageOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload,
+      bool backupItem)
+      : media_vector{}, backupItem(backupItem) {
 
     auto msg_id = payload.getProperty(rt, "id").asString(rt).utf8(rt);
 
@@ -115,15 +118,16 @@ public:
     DatabaseManager::getQueryExecutor().removeMediaForMessage(msg->id);
     for (auto &&media : this->media_vector) {
       DatabaseManager::getQueryExecutor().replaceMedia(
-          std::move(*media), false);
+          std::move(*media), this->backupItem);
     }
     DatabaseManager::getQueryExecutor().replaceMessage(
-        std::move(*this->msg), false);
+        std::move(*this->msg), this->backupItem);
   }
 
 private:
   std::unique_ptr<Message> msg;
   std::vector<std::unique_ptr<Media>> media_vector;
+  bool backupItem;
 };
 
 class RekeyMessageOperation : public DBOperationBase {
@@ -154,8 +158,11 @@ public:
 
 class ReplaceMessageThreadsOperation : public DBOperationBase {
 public:
-  ReplaceMessageThreadsOperation(jsi::Runtime &rt, const jsi::Object &payload)
-      : msg_threads{} {
+  ReplaceMessageThreadsOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload,
+      bool backupItem)
+      : msg_threads{}, backupItem(backupItem) {
     auto threads = payload.getProperty(rt, "threads").asObject(rt).asArray(rt);
     for (size_t idx = 0; idx < threads.size(rt); idx++) {
       auto thread = threads.getValueAtIndex(rt, idx).asObject(rt);
@@ -171,11 +178,12 @@ public:
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceMessageStoreThreads(
-        this->msg_threads, false);
+        this->msg_threads, this->backupItem);
   }
 
 private:
   std::vector<MessageStoreThread> msg_threads;
+  bool backupItem;
 };
 
 class RemoveAllMessageStoreThreadsOperation : public DBOperationBase {
@@ -233,8 +241,9 @@ class ReplaceMessageStoreLocalMessageInfoOperation : public DBOperationBase {
 public:
   ReplaceMessageStoreLocalMessageInfoOperation(
       jsi::Runtime &rt,
-      const jsi::Object &payload)
-      : localMessageInfo{} {
+      const jsi::Object &payload,
+      bool backupItem)
+      : localMessageInfo{}, backupItem(backupItem) {
     std::string id = payload.getProperty(rt, "id").asString(rt).utf8(rt);
     std::string local_message_info =
         payload.getProperty(rt, "localMessageInfo").asString(rt).utf8(rt);
@@ -244,11 +253,12 @@ public:
 
   virtual void execute(DatabaseIdentifier id) override {
     DatabaseManager::getQueryExecutor(id).replaceMessageStoreLocalMessageInfo(
-        this->localMessageInfo, false);
+        this->localMessageInfo, this->backupItem);
   }
 
 private:
   LocalMessageInfo localMessageInfo;
+  bool backupItem;
 };
 
 class RemoveAllMessageStoreLocalMessageInfosOperation : public DBOperationBase {
