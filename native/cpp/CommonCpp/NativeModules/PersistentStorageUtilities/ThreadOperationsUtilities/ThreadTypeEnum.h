@@ -1,5 +1,7 @@
 #pragma once
 
+#import <regex>
+#import <string>
 #import <vector>
 
 namespace comm {
@@ -27,5 +29,28 @@ const std::vector<ThreadType> THICK_THREAD_TYPES{
     ThreadType::PERSONAL,
     ThreadType::PRIVATE,
     ThreadType::THICK_SIDEBAR};
+
+// Regex patterns - should be in sync with lib/utils/validation-utils.js
+const std::string UUID_REGEX_STRING =
+    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{"
+    "12}";
+const std::string ID_SCHEMA_REGEX_STRING = "(?:(?:[0-9]+|" + UUID_REGEX_STRING +
+    ")\\|)?(?:[0-9]+|" + UUID_REGEX_STRING + ")";
+
+const std::regex IS_SCHEMA_REGEX("^" + ID_SCHEMA_REGEX_STRING + "$");
+const std::regex THICK_ID_REGEX("^" + UUID_REGEX_STRING + "$");
+
+// Helper functions for regex testing
+inline bool isSchemaID(const std::string &threadID) {
+  return std::regex_match(threadID, IS_SCHEMA_REGEX);
+}
+
+inline bool isThickID(const std::string &threadID) {
+  return std::regex_match(threadID, THICK_ID_REGEX);
+}
+
+inline bool threadIDMatchesKeyserverProtocol(const std::string &threadID) {
+  return isSchemaID(threadID) && !isThickID(threadID);
+}
 
 } // namespace comm
