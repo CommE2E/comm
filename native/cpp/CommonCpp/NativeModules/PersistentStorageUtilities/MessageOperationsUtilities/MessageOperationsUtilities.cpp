@@ -1,4 +1,5 @@
 #include "MessageOperationsUtilities.h"
+#include "../ThreadOperationsUtilities/ThreadTypeEnum.h"
 #include "Logger.h"
 #include "MessageSpecs.h"
 
@@ -115,10 +116,13 @@ void MessageOperationsUtilities::storeMessageInfos(
   std::vector<ClientDBMessageInfo> clientDBMessageInfos =
       translateStringToClientDBMessageInfos(rawMessageInfosString);
   for (const auto &clientDBMessageInfo : clientDBMessageInfos) {
+    bool dataIsBackedUp =
+        !threadIDMatchesKeyserverProtocol(clientDBMessageInfo.message.thread);
     DatabaseManager::getQueryExecutor().replaceMessage(
-        clientDBMessageInfo.message, false);
+        clientDBMessageInfo.message, dataIsBackedUp);
     for (const auto &mediaInfo : clientDBMessageInfo.medias) {
-      DatabaseManager::getQueryExecutor().replaceMedia(mediaInfo, false);
+      DatabaseManager::getQueryExecutor().replaceMedia(
+          mediaInfo, dataIsBackedUp);
     }
   }
 }
