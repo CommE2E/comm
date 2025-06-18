@@ -46,7 +46,7 @@ function updateClientDBThreadStoreThreadInfos(
   return state;
 }
 
-function createUpdateDBOpsForMessageStoreMessages(
+function deprecatedCreateUpdateDBOpsForMessageStoreMessages(
   clientDBMessageInfos: $ReadOnlyArray<ClientDBMessageInfo>,
   migrationFunc: (
     $ReadOnlyArray<RawMessageInfo>,
@@ -62,6 +62,7 @@ function createUpdateDBOpsForMessageStoreMessages(
     convertedRawMessageInfos.map(messageInfo => ({
       type: 'replace',
       payload: translateRawMessageInfoToClientDBMessageInfo(messageInfo),
+      isBackedUp: false,
     }));
 
   return [
@@ -72,7 +73,7 @@ function createUpdateDBOpsForMessageStoreMessages(
   ];
 }
 
-function createUpdateDBOpsForMessageStoreThreads(
+function deprecatedCreateUpdateDBOpsForMessageStoreThreads(
   messageStoreThreads: $ReadOnlyArray<ClientDBThreadMessageInfo>,
   migrationFunc: TranslatedThreadMessageInfos => TranslatedThreadMessageInfos,
 ): $ReadOnlyArray<ClientDBMessageStoreOperation> {
@@ -95,6 +96,7 @@ function createUpdateDBOpsForMessageStoreThreads(
             translateThreadMessageInfoToClientDBThreadMessageInfo(id, thread),
         ),
       },
+      isBackedUp: false,
     },
   ];
 }
@@ -102,6 +104,6 @@ function createUpdateDBOpsForMessageStoreThreads(
 export {
   updateClientDBThreadStoreThreadInfos,
   createUpdateDBOpsForThreadStoreThreadInfos,
-  createUpdateDBOpsForMessageStoreMessages,
-  createUpdateDBOpsForMessageStoreThreads,
+  deprecatedCreateUpdateDBOpsForMessageStoreMessages,
+  deprecatedCreateUpdateDBOpsForMessageStoreThreads,
 };
