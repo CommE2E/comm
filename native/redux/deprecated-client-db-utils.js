@@ -86,6 +86,7 @@ function deprecatedCreateUpdateDBOpsForThreadStoreThreadInfos(
     ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
       type: 'replace',
       payload: thread,
+      isBackedUp: false,
     })),
   ];
 }

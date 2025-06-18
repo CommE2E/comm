@@ -481,6 +481,7 @@ const legacyMigrations = {
       threadStoreOperations.push({
         type: 'replace',
         payload: clientDBThreadInfo,
+        isBackedUp: false,
       });
     }
 
