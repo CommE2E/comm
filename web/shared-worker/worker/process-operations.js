@@ -118,7 +118,7 @@ function processThreadStoreOperations(
       } else if (operation.type === 'replace') {
         sqliteQueryExecutor.replaceThread(
           clientDBThreadInfoToWebThread(operation.payload),
-          false,
+          operation.isBackedUp,
         );
       } else {
         throw new Error('Unsupported thread operation');
@@ -281,9 +281,9 @@ function processMessageStoreOperations(
         const { message, medias } = clientDBMessageInfoToWebMessage(
           operation.payload,
         );
-        sqliteQueryExecutor.replaceMessage(message, false);
+        sqliteQueryExecutor.replaceMessage(message, operation.isBackedUp);
         for (const media of medias) {
-          sqliteQueryExecutor.replaceMedia(media, false);
+          sqliteQueryExecutor.replaceMedia(media, operation.isBackedUp);
         }
       } else if (operation.type === 'remove_all') {
         sqliteQueryExecutor.removeAllMessages();
@@ -299,7 +299,7 @@ function processMessageStoreOperations(
             id,
             startReached: Number(start_reached),
           })),
-          false,
+          operation.isBackedUp,
         );
       } else if (operation.type === 'remove_all_threads') {
         sqliteQueryExecutor.removeAllMessageStoreThreads();
@@ -313,7 +313,7 @@ function processMessageStoreOperations(
             id,
             localMessageInfo,
           },
-          false,
+          operation.isBackedUp,
         );
       } else if (operation.type === 'remove_local_message_infos') {
         const { ids } = operation.payload;
@@ -557,7 +557,7 @@ function processThreadActivityStoreOperations(
             id,
             threadActivityStoreEntry,
           },
-          false,
+          operation.isBackedUp,
         );
       } else {
         throw new Error('Unsupported thread activity operation');
@@ -589,7 +589,7 @@ function processEntryStoreOperations(
         sqliteQueryExecutor.removeEntries(ids);
       } else if (operation.type === 'replace_entry') {
         const { id, entry } = operation.payload;
-        sqliteQueryExecutor.replaceEntry({ id, entry }, false);
+        sqliteQueryExecutor.replaceEntry({ id, entry }, operation.isBackedUp);
       } else {
         throw new Error('Unsupported entry store operation');
       }

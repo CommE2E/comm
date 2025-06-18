@@ -23,15 +23,18 @@ private:
 
 class ReplaceThreadOperation : public DBOperationBase {
 public:
-  ReplaceThreadOperation(Thread &&thread) : thread{std::move(thread)} {
+  ReplaceThreadOperation(Thread &&thread, bool backupItem)
+      : thread{std::move(thread)}, backupItem(backupItem) {
   }
 
   virtual void execute(DatabaseIdentifier id) override {
-    DatabaseManager::getQueryExecutor(id).replaceThread(this->thread, false);
+    DatabaseManager::getQueryExecutor(id).replaceThread(
+        this->thread, this->backupItem);
   }
 
 private:
   Thread thread;
+  bool backupItem;
 };
 
 class RemoveAllThreadsOperation : public DBOperationBase {
