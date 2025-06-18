@@ -143,8 +143,8 @@ import {
 import { getUUID } from 'lib/utils/uuid.js';
 
 import {
-  createUpdateDBOpsForMessageStoreMessages,
-  createUpdateDBOpsForMessageStoreThreads,
+  deprecatedCreateUpdateDBOpsForMessageStoreMessages,
+  deprecatedCreateUpdateDBOpsForMessageStoreThreads,
   updateClientDBThreadStoreThreadInfos,
 } from './client-db-utils.js';
 import { defaultState } from './default-state.js';
@@ -518,6 +518,7 @@ const legacyMigrations = {
       ...Object.keys(messages).map((id: string) => ({
         type: 'replace',
         payload: translateRawMessageInfoToClientDBMessageInfo(messages[id]),
+        isBackedUp: false,
       })),
     ];
     try {
@@ -630,6 +631,7 @@ const legacyMigrations = {
       ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
         type: 'replace',
         payload: thread,
+        isBackedUp: false,
       })),
     ];
 
@@ -716,14 +718,15 @@ const legacyMigrations = {
       await commCoreModule.getClientDBStore();
 
     const messageStoreThreadsOperations =
-      createUpdateDBOpsForMessageStoreThreads(
+      deprecatedCreateUpdateDBOpsForMessageStoreThreads(
         messageStoreThreads,
         convertMessageStoreThreadsToNewIDSchema,
       );
 
     const messageStoreMessagesOperations =
-      createUpdateDBOpsForMessageStoreMessages(messages, messageInfos =>
-        messageInfos.map(convertRawMessageInfoToNewIDSchema),
+      deprecatedCreateUpdateDBOpsForMessageStoreMessages(
+        messages,
+        messageInfos => messageInfos.map(convertRawMessageInfoToNewIDSchema),
       );
 
     const threadOperations =
@@ -1051,6 +1054,7 @@ const legacyMigrations = {
       ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
         type: 'replace',
         payload: thread,
+        isBackedUp: false,
       })),
     ];
 
