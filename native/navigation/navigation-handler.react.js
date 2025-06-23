@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
@@ -59,21 +60,23 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
   const { dispatch } = props;
 
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
+  const userDataReady = useIsUserDataReady();
+  const appLoggedIn = loggedIn && userDataReady;
 
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef<?boolean>();
 
   React.useEffect(() => {
-    if (loggedIn === prevLoggedInRef.current) {
+    if (appLoggedIn === prevLoggedInRef.current) {
       return;
     }
-    prevLoggedInRef.current = loggedIn;
-    if (loggedIn && !navLoggedIn) {
+    prevLoggedInRef.current = appLoggedIn;
+    if (appLoggedIn && !navLoggedIn) {
       dispatch({ type: (logInActionType: 'LOG_IN') });
-    } else if (!loggedIn && navLoggedIn) {
+    } else if (!appLoggedIn && navLoggedIn) {
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
     }
-  }, [navLoggedIn, loggedIn, dispatch]);
+  }, [navLoggedIn, appLoggedIn, dispatch]);
 
   return null;
 });
