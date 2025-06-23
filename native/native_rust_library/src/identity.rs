@@ -169,6 +169,15 @@ pub struct IdentityAuthResult {
   username: String,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RestoreUserResult {
+  #[serde(flatten)]
+  auth_result: IdentityAuthResult,
+  #[serde(rename = "backupID")]
+  backup_id: String,
+}
+
 impl From<AuthResponse> for IdentityAuthResult {
   fn from(value: AuthResponse) -> Self {
     let AuthResponse {
