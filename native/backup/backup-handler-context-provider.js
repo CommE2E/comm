@@ -240,6 +240,11 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         return;
       }
 
+      console.log('Computed contidions:', {
+        shouldDoMigration,
+        shouldUploadUserKeys,
+        shouldUploadUserData,
+      });
       // Migration or backup upload are not needed.
       if (
         !shouldDoMigration &&
