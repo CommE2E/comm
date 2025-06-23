@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { createUserKeysBackupActionTypes } from 'lib/actions/backup-actions.js';
 import {
   restoreUserActionTypes,
   type RestoreUserResult,
@@ -25,7 +26,7 @@ import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useSelector } from 'lib/utils/redux-utils.js';
+import { useSelector, useDispatch } from 'lib/utils/redux-utils.js';
 import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
@@ -55,6 +56,7 @@ function useRestoreProtocol(): (
 
   const preRequestUserState = useSelector(state => state.currentUserInfo);
   const { retrieveLatestBackupInfo, getBackupUserKeys } = useClientBackup();
+  const dispatch = useDispatch();
 
   return React.useCallback(
     async (
@@ -126,7 +128,7 @@ function useRestoreProtocol(): (
       // - send device list to Comm
       // - create User Keys backup
       // - get new CSAT
-      const result = await restoreUser(
+      const { backupID: newBackupID, ...authResult } = await restoreUser(
         userID,
         signedDeviceList,
         siweSocialProof,
@@ -147,16 +149,24 @@ function useRestoreProtocol(): (
       const authMetadata = {
         userID,
         deviceID: primaryDeviceID,
-        accessToken: result.accessToken,
+        accessToken: authResult.accessToken,
       };
       const { usersDevicesPlatformDetails } = await rawGetDeviceListsForUsers(
         authMetadata,
         [userID],
       );
 
+      dispatch({
+        type: createUserKeysBackupActionTypes.success,
+        payload: {
+          backupID: newBackupID,
+          timestamp: Date.now(),
+        },
+      });
+
       //8. Return the result
       return {
-        ...result,
+        ...authResult,
         preRequestUserState,
         deviceLists: { [userID]: initialDeviceList },
         usersPlatformDetails: {
@@ -165,6 +175,7 @@ function useRestoreProtocol(): (
       };
     },
     [
+      dispatch,
       getBackupUserKeys,
       preRequestUserState,
       restoreUser,
