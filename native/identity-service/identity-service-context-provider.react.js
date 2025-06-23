@@ -19,6 +19,7 @@ import {
   deviceOlmOutboundKeysValidator,
   farcasterUsersValidator,
   identityAuthResultValidator,
+  restoreUserResultValidator,
   type IdentityServiceClient,
   ONE_TIME_KEYS_NUMBER,
   type SignedDeviceList,
@@ -613,10 +614,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           backupSecret,
         );
 
-        return await processAuthResult(
+        const { backupID } = assertWithValidator(
+          JSON.parse(restoreResult),
+          restoreUserResultValidator,
+        );
+        const authResult = await processAuthResult(
           restoreResult,
           primaryIdentityPublicKeys.ed25519,
         );
+        return { backupID, ...authResult };
       },
       uploadKeysForRegisteredDeviceAndLogIn: async (
         userID: string,

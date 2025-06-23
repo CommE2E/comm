@@ -11,7 +11,7 @@ use tracing::instrument;
 
 use super::{
   IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo,
-  RestoreUserInfo, PLATFORM_METADATA,
+  RestoreUserInfo, RestoreUserResult, PLATFORM_METADATA,
 };
 use crate::backup::create_ephemeral_user_keys_compaction;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
@@ -294,13 +294,14 @@ async fn restore_user_helper(
     Some(user_info.siwe_backup_msg)
   };
 
+  let backup_id = user_info.backup_id;
   let restore_request = RestoreUserRequest {
     user_id: user_info.user_id,
     siwe_message: user_info.siwe_social_proof_message,
     siwe_signature: user_info.siwe_social_proof_signature,
     device_list: user_info.device_list,
     device_key_upload: Some(user_info.device_keys.into()),
-    new_backup_id: user_info.backup_id,
+    new_backup_id: backup_id.clone(),
     encrypted_user_keys: user_keys,
     siwe_backup_msg,
   };
@@ -315,7 +316,11 @@ async fn restore_user_helper(
     .into_inner();
 
   let auth_result = IdentityAuthResult::from(auth_response);
-  Ok(serde_json::to_string(&auth_result)?)
+  let result = RestoreUserResult {
+    auth_result,
+    backup_id,
+  };
+  Ok(serde_json::to_string(&result)?)
 }
 
 async fn upload_secondary_device_keys_and_log_in_helper(
