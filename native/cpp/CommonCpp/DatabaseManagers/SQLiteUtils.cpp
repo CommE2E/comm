@@ -214,7 +214,7 @@ std::vector<std::string> SQLiteUtils::getAllTableNames(sqlite3 *db) {
 
   std::string getAllTablesQuery =
       "SELECT name "
-      "FROM sqlite_master"
+      "FROM sqlite_master "
       "WHERE type='table';";
 
   sqlite3_stmt *stmt;
