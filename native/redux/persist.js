@@ -123,6 +123,7 @@ import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
+import { migrateStoreToBackupTables } from 'lib/utils/migrate-backup-data.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertMessageStoreThreadsToNewIDSchema,
@@ -1629,6 +1630,13 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     },
     ops: {},
   }): MigrationFunction<NavInfo, AppState>),
+  [92]: (async (state: AppState) => {
+    const ops = await migrateStoreToBackupTables();
+    return {
+      state,
+      ops,
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {

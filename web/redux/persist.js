@@ -50,6 +50,7 @@ import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
+import { migrateStoreToBackupTables } from 'lib/utils/migrate-backup-data.js';
 import {
   convertDraftStoreToNewIDSchema,
   createAsyncMigrate,
@@ -843,6 +844,13 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     },
     ops: {},
   }): MigrationFunction<WebNavInfo, AppState>),
+  [92]: (async (state: AppState) => {
+    const ops = await migrateStoreToBackupTables();
+    return {
+      state,
+      ops,
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
