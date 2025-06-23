@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
+import { useSelector } from 'lib/utils/redux-utils.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -59,23 +61,37 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
   const { dispatch } = props;
 
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
+  const restoreBackupState = useSelector(state => state.restoreBackupState);
+  const restorationHasFinished = React.useMemo(() => {
+    if (!fullBackupSupport) {
+      return true;
+    }
+    // TODO: Handle this better,
+    // distinguish "logged in" and "logged out" backup states
+    return (
+      restoreBackupState.status === 'user_data_restore_completed' ||
+      restoreBackupState.status.indexOf('user_data_backup_') !== -1
+    );
+  }, [restoreBackupState]);
+
+  const appLoggedIn = loggedIn && restorationHasFinished;
 
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef<?boolean>();
 
   React.useEffect(() => {
-    if (loggedIn === prevLoggedInRef.current) {
+    if (appLoggedIn === prevLoggedInRef.current) {
       return;
     }
-    prevLoggedInRef.current = loggedIn;
-    if (loggedIn && !navLoggedIn) {
+    prevLoggedInRef.current = appLoggedIn;
+    if (appLoggedIn && !navLoggedIn) {
       console.log('Exiting logged out modal');
       dispatch({ type: (logInActionType: 'LOG_IN') });
-    } else if (!loggedIn && navLoggedIn) {
+    } else if (!appLoggedIn && navLoggedIn) {
       console.log('Entering logged out modal');
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
     }
-  }, [navLoggedIn, loggedIn, dispatch]);
+  }, [navLoggedIn, appLoggedIn, dispatch]);
 
   return null;
 });
