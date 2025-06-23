@@ -161,7 +161,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createUserKeysBa
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->createUserKeysBackup(rt, args[0].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createFullBackup(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->createFullBackup(rt, args[0].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->createFullBackup(rt, args[0].asString(rt), args[1].asObject(rt).asFunction(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->restoreBackupData(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
@@ -288,7 +288,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["startBackupHandler"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_startBackupHandler};
   methodMap_["stopBackupHandler"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_stopBackupHandler};
   methodMap_["createUserKeysBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createUserKeysBackup};
-  methodMap_["createFullBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createFullBackup};
+  methodMap_["createFullBackup"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_createFullBackup};
   methodMap_["restoreBackupData"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData};
   methodMap_["getQRAuthBackupData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getQRAuthBackupData};
   methodMap_["retrieveLatestBackupInfo"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestBackupInfo};

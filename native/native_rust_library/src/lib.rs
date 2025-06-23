@@ -439,7 +439,8 @@ mod ffi {
       pickle_key: String,
       pickled_account: String,
       siwe_backup_msg: String,
-      promise_id: u32,
+      compaction_promise_id: u32,
+      upload_promise_id: u32,
     );
 
     #[cxx_name = "createUserKeysBackup"]
