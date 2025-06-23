@@ -99,7 +99,12 @@ function useClientBackup(): ClientBackup {
     }
 
     const backupSecret = await getBackupSecret();
-    return authVerifiedEndpoint(commCoreModule.createFullBackup(backupSecret));
+    const callback = (backupID: string) => {
+      console.log('Compaction created. Starting upload. backupID:', backupID);
+    };
+    return authVerifiedEndpoint(
+      commCoreModule.createFullBackup(backupSecret, callback),
+    );
   }, [loggedIn, currentUserID, getBackupSecret, authVerifiedEndpoint]);
 
   const createUserKeysBackup = React.useCallback(async () => {
