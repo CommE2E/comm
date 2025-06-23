@@ -67,7 +67,7 @@ public:
   virtual void startBackupHandler(jsi::Runtime &rt) = 0;
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createUserKeysBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
-  virtual jsi::Value createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value createFullBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::Function compactionCreationCallback) = 0;
   virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey, jsi::String maxVersion) = 0;
   virtual jsi::Value getQRAuthBackupData(jsi::Runtime &rt) = 0;
   virtual jsi::Value retrieveLatestBackupInfo(jsi::Runtime &rt, jsi::String userIdentifier) = 0;
@@ -490,13 +490,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::createUserKeysBackup, jsInvoker_, instance_, std::move(backupSecret));
     }
-    jsi::Value createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) override {
+    jsi::Value createFullBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::Function compactionCreationCallback) override {
       static_assert(
-          bridging::getParameterCount(&T::createFullBackup) == 2,
-          "Expected createFullBackup(...) to have 2 parameters");
+          bridging::getParameterCount(&T::createFullBackup) == 3,
+          "Expected createFullBackup(...) to have 3 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::createFullBackup, jsInvoker_, instance_, std::move(backupSecret));
+          rt, &T::createFullBackup, jsInvoker_, instance_, std::move(backupSecret), std::move(compactionCreationCallback));
     }
     jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey, jsi::String maxVersion) override {
       static_assert(

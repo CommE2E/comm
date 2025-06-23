@@ -37,6 +37,8 @@ macro_rules! async_cpp_call {
 }
 
 pub mod ffi {
+  use std::convert::Infallible;
+
   use super::*;
 
   pub use upload_handler::ffi::*;
@@ -95,9 +97,10 @@ pub mod ffi {
     pickle_key: String,
     pickled_account: String,
     siwe_backup_msg: String,
-    promise_id: u32,
+    compaction_promise_id: u32,
+    upload_promise_id: u32,
   ) {
-    compaction_upload_promises::insert(backup_id.clone(), promise_id);
+    compaction_upload_promises::insert(backup_id.clone(), upload_promise_id);
 
     RUNTIME.spawn(async move {
       let Ok((backup_data_key, backup_log_data_key)) =
@@ -120,9 +123,19 @@ pub mod ffi {
         &backup_log_data_key
       ));
       if let Err(err) = future.await {
+        handle_string_result_as_callback(
+          Err::<String, _>(err.to_string()),
+          compaction_promise_id,
+        );
         handle_backup_creation_error(backup_id.clone(), err.to_string());
         return;
       }
+
+      // resolve compaction creation promise
+      handle_string_result_as_callback(
+        Ok::<_, Infallible>(backup_id),
+        compaction_promise_id,
+      );
 
       trigger_backup_file_upload();
       // The promise will be resolved when the backup is uploaded
