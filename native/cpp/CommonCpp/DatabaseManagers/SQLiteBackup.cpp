@@ -17,12 +17,17 @@ const int SQLiteBackup::backupLogDataKeySize = 32;
 
 std::unordered_set<std::string> SQLiteBackup::tablesAllowlist = {
     "drafts",
-    "threads",
-    "message_store_threads",
+    "backup_messages",
+    "backup_media",
+    "backup_threads",
+    "backup_message_store_threads",
     "users",
+    "keyservers_synced",
     "synced_metadata",
     "aux_users",
-    "entries",
+    "backup_thread_activity",
+    "backup_entries",
+    "backup_message_store_local",
 };
 
 void SQLiteBackup::cleanupDatabaseExceptAllowlist(sqlite3 *db) {
