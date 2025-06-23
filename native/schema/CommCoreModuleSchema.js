@@ -159,7 +159,10 @@ interface Spec extends TurboModule {
   +startBackupHandler: () => void;
   +stopBackupHandler: () => void;
   +createUserKeysBackup: (backupSecret: string) => Promise<string>;
-  +createFullBackup: (backupSecret: string) => Promise<string>;
+  +createFullBackup: (
+    backupSecret: string,
+    compactionCreationCallback: (backupID: string) => void,
+  ) => Promise<string>;
   +restoreBackupData: (
     backupID: string,
     backupDataKey: string,

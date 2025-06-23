@@ -2366,9 +2366,23 @@ std::string getSIWEBackupMessage() {
   return backupSIWEMessageFuture.get();
 }
 
-jsi::Value
-CommCoreModule::createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) {
+jsi::Value CommCoreModule::createFullBackup(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::Function compactionCreationCallback) {
   std::string backupSecretStr = backupSecret.utf8(rt);
+
+  auto dummyReject = jsi::Function::createFromHostFunction(
+      rt,
+      jsi::PropNameID::forAscii(rt, "_reject"),
+      0,
+      [](jsi::Runtime &rt,
+         const jsi::Value &thisVal,
+         const jsi::Value *args,
+         size_t count) { return jsi::Value::undefined(); });
+  auto compactionCreationPromise = std::make_shared<Promise>(
+      rt, std::move(compactionCreationCallback), std::move(dummyReject));
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string backupMessage;
@@ -2402,6 +2416,9 @@ CommCoreModule::createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) {
           }
 
           if (!error.size()) {
+
+            auto compactionCreationID = RustPromiseManager::instance.addPromise(
+                {compactionCreationPromise, this->jsInvoker_, innerRt});
             auto currentID = RustPromiseManager::instance.addPromise(
                 {promise, this->jsInvoker_, innerRt});
             ::createBackup(
@@ -2410,6 +2427,7 @@ CommCoreModule::createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) {
                 rust::string(pickleKey),
                 rust::string(pickledAccount),
                 rust::string(backupMessage),
+                compactionCreationID,
                 currentID);
           } else {
             this->jsInvoker_->invokeAsync(
