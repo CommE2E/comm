@@ -81,6 +81,16 @@ function BackupHandlerContextProvider(props: Props): React.Node {
   );
   const canPerformBackupOperation = loggedIn && !isBackground;
 
+  const restoreBackupState = useSelector(state => state.restoreBackupState);
+  const userDataCompactionPossible = React.useMemo(() => {
+    // allow compaction only when UserData restoration is possible
+    // or after the previous compaction has finished uploading.
+    return (
+      restoreBackupState.status === 'user_data_restore_completed' ||
+      restoreBackupState.status === 'user_data_backup_success'
+    );
+  }, [restoreBackupState]);
+
   // State to force re-render.
   const [renderCount, setRenderCount] = React.useState(0);
   const completionRef = React.useRef({ running: false, required: false });
@@ -221,6 +231,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       const shouldUploadUserKeys = isPrimary && !latestBackupInfo;
       const shouldUploadUserData =
         isPrimary &&
+        userDataCompactionPossible &&
         (checkIfCompactionNeeded(latestBackupInfo) || databaseSchemaChanged);
 
       // Tunnelbroker connection is required to broadcast
@@ -279,6 +290,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     showAlertToStaff,
     socketState.isAuthorized,
     startBackupHandler,
+    userDataCompactionPossible,
     usingRestoreFlow,
   ]);
 
