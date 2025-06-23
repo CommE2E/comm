@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import {
   restoreUserActionTypes,
-  type RestoreUserResult,
+  type RestoreProtocolResult,
 } from 'lib/actions/user-actions.js';
 import { useUserDataRestore } from 'lib/backup/use-user-data-restore.js';
 import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
@@ -42,7 +42,7 @@ function useRestoreProtocol(): (
   secret: string,
   // social proof for SIWE restore
   siweSocialProof?: SignedMessage,
-) => Promise<RestoreUserResult> {
+) => Promise<RestoreProtocolResult> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
   const { identityClient } = identityContext;
@@ -61,7 +61,7 @@ function useRestoreProtocol(): (
       userIdentifier: string,
       secret: string,
       siweSocialProof?: SignedMessage,
-    ): Promise<RestoreUserResult> => {
+    ): Promise<RestoreProtocolResult> => {
       //1. Runs Key Generation
       const { olmAPI } = getConfig();
       await olmAPI.initializeCryptoAccount();
@@ -124,7 +124,7 @@ function useRestoreProtocol(): (
       // - send device list to Comm
       // - create User Keys backup
       // - get new CSAT
-      const result = await restoreUser(
+      const { backupID: newBackupID, ...authResult } = await restoreUser(
         userID,
         signedDeviceList,
         siweSocialProof,
@@ -145,15 +145,18 @@ function useRestoreProtocol(): (
       const authMetadata = {
         userID,
         deviceID: primaryDeviceID,
-        accessToken: result.accessToken,
+        accessToken: authResult.accessToken,
       };
       const { usersDevicesPlatformDetails } = await rawGetDeviceListsForUsers(
         authMetadata,
         [userID],
       );
+      const newBackupInfo = {
+        backupID: newBackupID,
+        timestamp: Date.now(),
+      };
 
       //8. Return the result
-      const { backupID: _, ...authResult } = result;
       return {
         ...authResult,
         preRequestUserState,
@@ -161,6 +164,7 @@ function useRestoreProtocol(): (
         usersPlatformDetails: {
           [userID]: usersDevicesPlatformDetails[userID],
         },
+        latestBackupInfo: newBackupInfo,
       };
     },
     [
