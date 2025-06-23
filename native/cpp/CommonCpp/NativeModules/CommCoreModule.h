@@ -207,8 +207,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void innerClearCommServicesAuthMetadata();
   virtual void startBackupHandler(jsi::Runtime &rt) override;
   virtual void stopBackupHandler(jsi::Runtime &rt) override;
-  virtual jsi::Value
-  createFullBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
+  virtual jsi::Value createFullBackup(
+      jsi::Runtime &rt,
+      jsi::String backupSecret,
+      jsi::Function compactionCreationCallback) override;
   virtual jsi::Value
   createUserKeysBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
   virtual jsi::Value restoreBackupData(
