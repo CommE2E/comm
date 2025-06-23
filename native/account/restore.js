@@ -153,8 +153,9 @@ function useRestoreProtocol(): (
       );
 
       //8. Return the result
+      const { backupID: _, ...authResult } = result;
       return {
-        ...result,
+        ...authResult,
         preRequestUserState,
         deviceLists: { [userID]: initialDeviceList },
         usersPlatformDetails: {
