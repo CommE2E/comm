@@ -37,6 +37,7 @@ declare interface Crypto {
     T: Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | BigInt64Array | BigUint64Array
   >(typedArray: T) => T;
   randomUUID: () => string;
+  +subtle: SubtleCrypto;
 }
 declare var crypto: Crypto;
 
