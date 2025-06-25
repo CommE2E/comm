@@ -21,7 +21,7 @@ function SubscriptionForm(): React.Node {
     React.useState<SubscriptionFormStatus>({ status: 'pending' });
 
   const onEmailSubmitted = React.useCallback(
-    async (e: Event) => {
+    async (e: SyntheticEvent<HTMLButtonElement>) => {
       e.preventDefault();
 
       if (
