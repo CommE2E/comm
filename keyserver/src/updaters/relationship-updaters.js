@@ -46,7 +46,7 @@ async function updateRelationships(
   for (const userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
       const acc = errors.invalid_user || [];
-      errors.invalid_user = [...acc, userID];
+      errors = { ...errors, invalid_user: [...acc, userID] };
     } else {
       userIDs.push(userID);
     }
