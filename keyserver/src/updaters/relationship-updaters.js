@@ -319,7 +319,7 @@ function updateDatasForUserPairs(
 }
 
 async function updateUndirectedRelationships(
-  changeset: UndirectedRelationshipRow[],
+  changeset: $ReadOnlyArray<UndirectedRelationshipRow>,
   greatest: boolean = true,
 ) {
   if (!changeset.length) {
@@ -342,7 +342,7 @@ async function updateUndirectedRelationships(
 }
 
 async function updateChangedUndirectedRelationships(
-  changeset: UndirectedRelationshipRow[],
+  changeset: $ReadOnlyArray<UndirectedRelationshipRow>,
 ): Promise<UpdateData[]> {
   if (changeset.length === 0) {
     return [];
