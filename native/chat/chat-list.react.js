@@ -250,13 +250,15 @@ class ChatList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+    data: ?$ArrayLike<ChatMessageItemWithHeight>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
-    const offset = ChatList.heightOfItems(data.filter((_, i) => i < index));
+    const offset = ChatList.heightOfItems(
+      Array.from(data).filter((_, i) => i < index),
+    );
     const item = data[index];
     const length = item ? chatMessageItemHeight(item) : 0;
     return { length, offset, index };
