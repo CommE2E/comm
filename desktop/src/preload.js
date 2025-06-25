@@ -25,7 +25,11 @@ const bridge: ElectronBridge = {
       ipcRenderer.removeListener('on-new-version-available', withEvent);
   },
   updateToNewVersion: () => ipcRenderer.send('update-to-new-version'),
-  platform: { win32: 'windows', darwin: 'macos' }[process.platform],
+  platform: (
+    { win32: 'windows', darwin: 'macos' } as Partial<
+      Record<typeof process.platform, 'windows' | 'macos'>,
+    >
+  )[process.platform],
   onDeviceTokenRegistered: callback => {
     const withEvent = (event: IpcRendererEvent, ...args: $ReadOnlyArray<any>) =>
       callback(...args);
