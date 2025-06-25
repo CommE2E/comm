@@ -51,7 +51,7 @@ const nonUserSpecificFieldsNative = [
   'keyserverStore',
   '_persist',
   'commServicesAccessToken',
-];
+] as const;
 
 // Before making changes here, make sure to consider how the added property
 // should be stored. Think about redux-persist or SQLite as storage,
