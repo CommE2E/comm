@@ -108,7 +108,7 @@ const marginVertical: number = 20;
 const marginHorizontal: number = 10;
 
 function createNUXTipsOverlay<Route: NUXTipRouteNames>(
-  ButtonComponent: ?React.ComponentType<void | NUXTipsOverlayProps<Route>>,
+  ButtonComponent: ?React.ComponentType<NUXTipsOverlayProps<Route>>,
   tipText: string,
 ): React.ComponentType<NUXTipsOverlayProps<Route>> {
   function NUXTipsOverlay(props: NUXTipsOverlayProps<Route>) {
