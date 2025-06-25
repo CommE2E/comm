@@ -2286,15 +2286,14 @@ declare module '@react-navigation/core' {
     |},
   |};
 
-  declare export type NavigationContainerType = React.ComponentType<
-    {|
+  declare export type NavigationContainerType = component(
+      theme?: Theme,
+      linking?: LinkingOptions,
+      fallback?: React.Node,
+      onReady?: () => mixed,
+      ref: React.RefSetter<BaseNavigationContainerInterface>,
       ...BaseNavigationContainerProps,
-      +theme?: Theme,
-      +linking?: LinkingOptions,
-      +fallback?: React.Node,
-      +onReady?: () => mixed,
-    |}
-  >;
+  );
 
   //---------------------------------------------------------------------------
   // SECTION 2: EXPORTED MODULE
