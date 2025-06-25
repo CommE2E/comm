@@ -36,7 +36,7 @@ function TabBarButton(props: TabBarItemProps<Route<>>) {
   const registerRef: React.RefSetter<React.ElementRef<typeof View>> =
     React.useCallback(
       element => {
-        const tipType = ButtonTitleToTip[props.route.name];
+        const tipType = ButtonTitleToTip[(props.route.name: any)];
         if (!tipType) {
           return;
         }
