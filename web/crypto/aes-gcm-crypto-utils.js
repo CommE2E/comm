@@ -24,8 +24,19 @@ export const encryptedAESDataValidator: TInterface<EncryptedData> =
 export const cryptoKeyValidator: TInterface<CryptoKey> = tShape<CryptoKey>({
   algorithm: t.Object,
   extractable: t.Boolean,
-  type: t.String,
-  usages: t.list(t.String),
+  type: t.enums.of(['secret', 'public', 'private']),
+  usages: t.list(
+    t.enums.of([
+      'encrypt',
+      'decrypt',
+      'sign',
+      'verify',
+      'deriveKey',
+      'deriveBits',
+      'wrapKey',
+      'unwrapKey',
+    ]),
+  ),
 });
 
 export const subtleCrypto$JsonWebKeyValidator: TInterface<SubtleCrypto$JsonWebKey> =
