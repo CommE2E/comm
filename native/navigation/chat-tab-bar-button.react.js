@@ -39,7 +39,7 @@ type Props = {
 
 function createChatTabBarButton<Route: NUXTipRouteNames>(
   props: Props,
-): React.ComponentType<void | NUXTipsOverlayProps<Route>> {
+): React.ComponentType<NUXTipsOverlayProps<Route>> {
   function ChatTabBarButton(): React.Node {
     const { title, tabBarIcon: Icon } = props;
 
