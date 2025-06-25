@@ -395,7 +395,7 @@ Object.keys(colors).forEach(theme => {
   }
 });
 
-type Styles = { [name: string]: { [field: string]: mixed } };
+type Styles = { [name: string]: { +[field: string]: any } };
 
 type ReplaceField = (input: any) => any;
 export type StyleSheetOf<S: Styles> = $ReadOnly<{ [K in keyof S]: any }>;
@@ -404,7 +404,7 @@ function stylesFromColors<IS: Styles>(
   obj: IS,
   themeColors: Colors,
 ): StyleSheetOf<IS> {
-  const result: Styles = {};
+  const result: IS = { ...obj };
   for (const key in obj) {
     const style = obj[key];
     const filledInStyle = { ...style };
