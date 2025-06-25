@@ -11,6 +11,7 @@ import {
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { UserSurfacedPermission } from 'lib/types/thread-permission-types';
 
 import RolePanelEntry from './role-panel-entry.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -89,7 +90,7 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
         threadInfo,
         action: 'create_role',
         roleName: 'New role',
-        rolePermissions: new Set(),
+        rolePermissions: new Set<UserSurfacedPermission>(),
       }),
     [threadInfo, props.navigation],
   );

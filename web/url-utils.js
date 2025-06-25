@@ -135,7 +135,8 @@ function navInfoFromURL(
 
   if (urlInfo.selectedUserList) {
     const selectedUsers = _keyBy('id')(navInfo?.selectedUserList ?? []);
-    const userInfos = backupInfo.userInfos ?? {};
+    const userInfos: { +[id: string]: AccountUserInfo } =
+      backupInfo.userInfos ?? {};
     newNavInfo.selectedUserList = urlInfo.selectedUserList
       ?.map(id => selectedUsers[id] ?? userInfos[id])
       ?.filter(Boolean);
