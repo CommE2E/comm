@@ -54,7 +54,7 @@ import {
 } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
-const newReanimatedRoutes = new Set([
+const newReanimatedRoutes = new Set<string>([
   IntroTipRouteName,
   CommunityDrawerTipRouteName,
   HomeTabTipRouteName,
