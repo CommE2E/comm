@@ -28,7 +28,7 @@ const cancelButtonColor: ButtonColor = {
 };
 
 const bottomRowStyle = { height: editBoxBottomRowHeight };
-const buttonClassNames = [css.saveButton, css.smallButton];
+const buttonClassNames = classNames([css.saveButton, css.smallButton]);
 
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
