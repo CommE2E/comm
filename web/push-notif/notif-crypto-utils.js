@@ -443,7 +443,7 @@ async function decryptWebNotification(
           synchronizationValue,
         }),
         updateNotifsUnreadCountStorage({
-          [keyserverID]: unreadCount,
+          [keyserverID]: unreadCount ?? 0,
         }),
       ]);
 
