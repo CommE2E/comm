@@ -50,13 +50,15 @@ function heightOfItems(data: $ReadOnlyArray<Item>): number {
 }
 
 function getItemLayout(
-  data: ?$ReadOnlyArray<Item>,
+  data: ?$ArrayLike<Item>,
   index: number,
 ): { length: number, offset: number, index: number } {
   if (!data) {
     return { length: 0, offset: 0, index };
   }
-  const offset = heightOfItems(data.filter((_, i): boolean => i < index));
+  const offset = heightOfItems(
+    Array.from(data).filter((_, i): boolean => i < index),
+  );
   const item = data[index];
   const length = item ? itemHeight(item) : 0;
   return { length, offset, index };
