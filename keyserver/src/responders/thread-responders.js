@@ -34,7 +34,6 @@ import {
   tShape,
   tNumEnum,
   tColor,
-  tPassword,
   tID,
   tUserID,
 } from 'lib/utils/validation-utils.js';
@@ -58,7 +57,6 @@ import {
 export const threadDeletionRequestInputValidator: TInterface<ThreadDeletionRequest> =
   tShape<ThreadDeletionRequest>({
     threadID: tID,
-    accountPassword: t.maybe(tPassword),
   });
 
 async function threadDeletionResponder(
@@ -125,7 +123,6 @@ export const updateThreadRequestInputValidator: TInterface<UpdateThreadRequest> 
       newMemberIDs: t.maybe(t.list(tUserID)),
       avatar: t.maybe(updateUserAvatarRequestValidator),
     }),
-    accountPassword: t.maybe(tPassword),
   });
 
 async function threadUpdateResponder(
