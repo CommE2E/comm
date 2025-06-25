@@ -399,7 +399,7 @@ async function createPersonalThreads(
   viewer: Viewer,
   request: RelationshipRequest,
   userIDs: $ReadOnlyArray<string>,
-) {
+): Promise<{ [string]: string }> {
   // If you add another RelationshipAction to the supported list below, you'll
   // probably want to add it to the FRIEND / FARCASTER_MUTUAL special cases in
   // useUpdateRelationships as well
