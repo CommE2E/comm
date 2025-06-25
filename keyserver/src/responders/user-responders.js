@@ -91,7 +91,6 @@ import {
 } from 'lib/utils/validation-utils.js';
 
 import {
-  entryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
@@ -495,7 +494,7 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
     usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
     password: tPassword,
     watchedIDs: t.list(tID),
-    calendarQuery: t.maybe(entryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
     source: t.maybe(t.enums.of(values(authActionSources))),
@@ -592,7 +591,7 @@ export const siweAuthRequestInputValidator: TInterface<SIWEAuthRequest> =
   tShape<SIWEAuthRequest>({
     signature: t.String,
     message: t.String,
-    calendarQuery: entryQueryInputValidator,
+    calendarQuery: calendarQueryValidator,
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
     watchedIDs: t.list(tID),
@@ -761,7 +760,7 @@ export const keyserverAuthRequestInputValidator: TInterface<ServerKeyserverAuthR
   tShape<ServerKeyserverAuthRequest>({
     userID: tUserID,
     deviceID: t.String,
-    calendarQuery: entryQueryInputValidator,
+    calendarQuery: calendarQueryValidator,
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
     watchedIDs: t.list(tID),
@@ -895,7 +894,7 @@ export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordReque
     code: t.String,
     password: tPassword,
     watchedIDs: t.list(tID),
-    calendarQuery: t.maybe(entryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
   });

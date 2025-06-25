@@ -3,6 +3,7 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
+import { calendarQueryValidator } from 'lib/types/entry-types.js';
 import { threadSubscriptionValidator } from 'lib/types/subscription-types.js';
 import { userSurfacedPermissionValidator } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -38,10 +39,7 @@ import {
   tUserID,
 } from 'lib/utils/validation-utils.js';
 
-import {
-  entryQueryInputValidator,
-  verifyCalendarQueryThreadIDs,
-} from './entry-responders.js';
+import { verifyCalendarQueryThreadIDs } from './entry-responders.js';
 import { modifyRole } from '../creators/role-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { deleteRole } from '../deleters/role-deleters.js';
@@ -143,7 +141,7 @@ const threadRequestValidationShape = {
   color: t.maybe(tColor),
   parentThreadID: t.maybe(tID),
   initialMemberIDs: t.maybe(t.list(tUserID)),
-  calendarQuery: t.maybe(entryQueryInputValidator),
+  calendarQuery: t.maybe(calendarQueryValidator),
 };
 const newThreadRequestInputValidator: TUnion<ServerNewThinThreadRequest> =
   t.union([
@@ -178,7 +176,7 @@ async function threadCreationResponder(
 export const joinThreadRequestInputValidator: TInterface<ServerThreadJoinRequest> =
   tShape<ServerThreadJoinRequest>({
     threadID: tID,
-    calendarQuery: t.maybe(entryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
     inviteLinkSecret: t.maybe(t.String),
     defaultSubscription: t.maybe(threadSubscriptionValidator),
   });
