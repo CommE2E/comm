@@ -51,14 +51,16 @@ class UserList extends React.PureComponent<Props> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<UserListItem>,
+    data: ?$ArrayLike<UserListItem>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
     const offset = _sum(
-      data.filter((_, i) => i < index).map(getUserListItemHeight),
+      Array.from(data)
+        .filter((_, i) => i < index)
+        .map(getUserListItemHeight),
     );
     const item = data[index];
     const length = item ? getUserListItemHeight(item) : 0;

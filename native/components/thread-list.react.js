@@ -116,7 +116,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<ThreadInfo>,
+    data: ?$ArrayLike<ThreadInfo>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };
