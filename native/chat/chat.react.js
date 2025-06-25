@@ -25,7 +25,7 @@ import { StackView } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View, useWindowDimensions } from 'react-native';
-import type { MeasureOnSuccessCallback } from 'react-native';
+import type { MeasureOnSuccessCallback } from 'react-native/src/private/types/HostInstance.js';
 
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
