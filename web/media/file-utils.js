@@ -18,7 +18,11 @@ function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {
   if (result.mime !== 'application/xml') {
     return result;
   }
-  const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+  const buffer = Buffer.isBuffer(data)
+    ? data
+    : data instanceof ArrayBuffer
+      ? Buffer.from(data, 0)
+      : Buffer.from(data);
   if (!isSvg(buffer)) {
     return result;
   }
