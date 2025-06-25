@@ -2,6 +2,7 @@
 // flow-typed version: 5f4b3cb313/react-router_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router" {
+  import * as React from 'react';
   // NOTE: many of these are re-exported by react-router-dom and
   // react-router-native, so when making changes, please be sure to update those
   // as well.

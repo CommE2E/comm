@@ -2,6 +2,7 @@
 // flow-typed version: 5f4b3cb313/react-router_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router" {
+  import * as React from 'react';
   // NOTE: many of these are re-exported by react-router-dom and
   // react-router-native, so when making changes, please be sure to update those
   // as well.
@@ -65,7 +66,7 @@ declare module "react-router" {
 
   declare type StaticRouterContext = { url?: string, ... };
 
-  declare export class StaticRouter extends React$Component<{
+  declare export class StaticRouter extends React.Component<{
     basename?: string,
     location?: string | Location,
     context: StaticRouterContext,
@@ -73,7 +74,7 @@ declare module "react-router" {
     ...
   }> {}
 
-  declare export class MemoryRouter extends React$Component<{
+  declare export class MemoryRouter extends React.Component<{
     initialEntries?: Array<LocationShape | string>,
     initialIndex?: number,
     getUserConfirmation?: GetUserConfirmation,
@@ -82,19 +83,19 @@ declare module "react-router" {
     ...
   }> {}
 
-  declare export class Router extends React$Component<{
+  declare export class Router extends React.Component<{
     history: RouterHistory,
     children?: React$Node,
     ...
   }> {}
 
-  declare export class Prompt extends React$Component<{
+  declare export class Prompt extends React.Component<{
     message: string | ((location: Location) => string | true),
     when?: boolean,
     ...
   }> {}
 
-  declare export class Redirect extends React$Component<{|
+  declare export class Redirect extends React.Component<{|
     to: string | LocationShape,
     push?: boolean,
     from?: string,
@@ -103,10 +104,10 @@ declare module "react-router" {
   |}> {}
 
 
-  declare export class Route extends React$Component<{|
-    component?: React$ComponentType<any>,
+  declare export class Route extends React.Component<{|
+    component?: React.ComponentType<any>,
     render?: (router: ContextRouter) => React$Node,
-    children?: React$ComponentType<ContextRouter> | React$Node,
+    children?: React.ComponentType<ContextRouter> | React$Node,
     path?: string | Array<string>,
     exact?: boolean,
     strict?: boolean,
@@ -114,14 +115,14 @@ declare module "react-router" {
     sensitive?: boolean
   |}> {}
 
-  declare export class Switch extends React$Component<{|
+  declare export class Switch extends React.Component<{|
     children?: React$Node,
     location?: Location
   |}> {}
 
   declare export function withRouter<P>(
-    Component: React$ComponentType<{| ...ContextRouter, ...P |}>
-  ): React$ComponentType<P>;
+    Component: React.ComponentType<{| ...ContextRouter, ...P |}>
+  ): React.ComponentType<P>;
 
   declare type MatchPathOptions = {
     path?: string | string[],
