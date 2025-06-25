@@ -42,6 +42,7 @@ import {
   type MembershipChangeset,
   type MembershipRow,
 } from './thread-permission-updaters.js';
+import { type Check } from '../fetchers/thread-permission-fetchers.js';
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -420,7 +421,7 @@ async function updateThread(
     if (ignorePermissions) {
       return;
     }
-    const checks = [];
+    const checks: Array<Check> = [];
     if (sqlUpdate.name !== undefined) {
       checks.push({
         check: 'permission',
