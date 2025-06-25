@@ -118,7 +118,7 @@ async function viewerHasPositiveRole(
   return positiveRoles.length > 0;
 }
 
-type Check =
+export type Check =
   | { +check: 'is_member' }
   | { +check: 'permission', +permission: ThreadPermission };
 
@@ -400,7 +400,7 @@ async function validateCandidateMembers(
   const fetchMembersPromise = fetchKnownUserInfos(viewer, allCandidates);
 
   const parentPermissionsPromise = (async () => {
-    const parentPermissions = {};
+    const parentPermissions: { [string]: ThreadPermissionsBlob } = {};
     if (!params.parentThreadID || allCandidates.length === 0) {
       return parentPermissions;
     }

@@ -538,7 +538,7 @@ async function fetchMessageInfosSince(
   const messages = parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
-  let currentThreadID = null;
+  let currentThreadID: ?string = null;
   let numMessagesForCurrentThreadID = 0;
   for (const message of messages) {
     const { rawMessageInfo } = message;
