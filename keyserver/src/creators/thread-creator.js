@@ -8,7 +8,7 @@ import {
   generatePendingThreadColor,
   generateRandomColor,
 } from 'lib/shared/color-utils.js';
-import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
+import { isValidRawSidebarSourceMessageInfo } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import { threadTypeIsCommunityRoot } from 'lib/shared/threads/thread-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -203,7 +203,7 @@ async function createThread(
     confirmParentPermission: confirmParentPermissionPromise,
   });
 
-  if (sourceMessage && isInvalidSidebarSource(sourceMessage)) {
+  if (sourceMessage && !isValidRawSidebarSourceMessageInfo(sourceMessage)) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -438,13 +438,6 @@ async function createThread(
     if (!sourceMessage) {
       throw new ServerError('invalid_parameters');
     }
-    invariant(
-      sourceMessage.type !== messageTypes.REACTION &&
-        sourceMessage.type !== messageTypes.EDIT_MESSAGE &&
-        sourceMessage.type !== messageTypes.SIDEBAR_SOURCE &&
-        sourceMessage.type !== messageTypes.TOGGLE_PIN,
-      'Invalid sidebar source type',
-    );
 
     let editedSourceMessage = sourceMessage;
     if (sourceMessageID && sourceMessage.type === messageTypes.TEXT) {
