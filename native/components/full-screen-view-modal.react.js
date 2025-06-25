@@ -123,8 +123,8 @@ function FullScreenViewModal(props: Props) {
     [actionLinksEnabled],
   );
 
-  const closeButtonRef = React.useRef<?TouchableOpacity>();
-  const mediaIconsRef = React.useRef<?View>();
+  const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
+  const mediaIconsRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const closeButtonDimensions = useSharedValue({
     x: -1,

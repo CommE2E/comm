@@ -58,7 +58,9 @@ function Search(
   );
 }
 
-const ForwardedSearch: React.ComponentType<Props> = React.forwardRef<
+type ForwardedSearchComponentType = component(ref: React.RefSetter<HTMLInputElement>, ...Props) 
+
+const ForwardedSearch: ForwardedSearchComponentType = React.forwardRef<
   Props,
   HTMLInputElement,
 >(Search);

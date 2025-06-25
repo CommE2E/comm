@@ -467,7 +467,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       setPendingPhotoCapture();
     }, []);
 
-    const closeButtonRef = React.useRef<?TouchableOpacity>();
+    const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const closeButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -475,7 +475,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       height: 0,
     });
 
-    const photoButtonRef = React.useRef<?TouchableOpacity>();
+    const photoButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const photoButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -483,7 +483,8 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       height: 0,
     });
 
-    const switchCameraButtonRef = React.useRef<?TouchableOpacity>();
+    const switchCameraButtonRef =
+      React.useRef<?React.ElementRef<typeof View>>();
     const switchCameraButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
@@ -491,7 +492,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props>(
       height: 0,
     });
 
-    const flashButtonRef = React.useRef<?TouchableOpacity>();
+    const flashButtonRef = React.useRef<?React.ElementRef<typeof View>>();
     const flashButtonDimensions = useSharedValue({
       x: -1,
       y: -1,
