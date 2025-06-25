@@ -6,7 +6,7 @@ import type { TInterface, TUnion } from 'tcomb';
 import { calendarQueryValidator } from 'lib/types/entry-types.js';
 import { threadSubscriptionValidator } from 'lib/types/subscription-types.js';
 import { userSurfacedPermissionValidator } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadTypes, thinThreadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -115,7 +115,7 @@ export const updateThreadRequestInputValidator: TInterface<UpdateThreadRequest> 
   tShape<UpdateThreadRequest>({
     threadID: tID,
     changes: tShape({
-      type: t.maybe(tNumEnum(values(threadTypes))),
+      type: t.maybe(tNumEnum(values(thinThreadTypes))),
       name: t.maybe(t.String),
       description: t.maybe(t.String),
       color: t.maybe(tColor),
