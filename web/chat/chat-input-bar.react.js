@@ -460,13 +460,18 @@ class ChatInputBar extends React.PureComponent<Props> {
       Escape: close,
     };
 
-    if (
-      this.props.inputState.typeaheadState.canBeVisible &&
-      actions[event.key]
-    ) {
+    const eventKey = event.key;
+
+    if (!Object.keys(actions).includes(eventKey)) {
+      return;
+    }
+
+    const action = actions[eventKey];
+
+    if (this.props.inputState.typeaheadState.canBeVisible && action) {
       event.preventDefault();
-      actions[event.key]();
-    } else if (event.key === 'Enter' && !event.shiftKey) {
+      action();
+    } else if (eventKey === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.send();
     }
