@@ -503,7 +503,7 @@ function validateStateAndQueueOpsProcessing(
       createReplaceThreadActivityEntryOperation(
         activeThread,
         {
-          ...state[activeThread],
+          ...state.threadActivityStore[activeThread],
           lastNavigatedTo: now,
         },
         state.threadStore.threadInfos,
