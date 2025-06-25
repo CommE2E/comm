@@ -77,7 +77,6 @@ import {
   getPublicKeyFromSIWEStatement,
   isValidSIWEMessage,
   isValidSIWEStatementWithPublicKey,
-  primaryIdentityPublicKeyRegex,
 } from 'lib/utils/siwe-utils.js';
 import {
   tShape,
@@ -85,7 +84,6 @@ import {
   tPassword,
   tEmail,
   tOldValidUsername,
-  tRegex,
   tID,
   tUserID,
 } from 'lib/utils/validation-utils.js';
@@ -159,7 +157,6 @@ async function userSubscriptionUpdateResponder(
 export const accountUpdateInputValidator: TInterface<PasswordUpdate> =
   tShape<PasswordUpdate>({
     updatedFields: tShape({
-      email: t.maybe(tEmail),
       password: t.maybe(tPassword),
     }),
     currentPassword: tPassword,
@@ -217,14 +214,10 @@ async function accountDeletionResponder(
 export const registerRequestInputValidator: TInterface<RegisterRequest> =
   tShape<RegisterRequest>({
     username: t.String,
-    email: t.maybe(tEmail),
     password: tPassword,
     calendarQuery: t.maybe(calendarQueryValidator),
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
-    // We include `primaryIdentityPublicKey` to avoid breaking
-    // old clients, but we no longer do anything with it.
-    primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
     signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
     initialNotificationsEncryptedMessage: t.maybe(t.String),
   });
@@ -488,9 +481,6 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
     source: t.maybe(t.enums.of(values(authActionSources))),
-    // We include `primaryIdentityPublicKey` to avoid breaking
-    // old clients, but we no longer do anything with it.
-    primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
     signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
     initialNotificationsEncryptedMessage: t.maybe(t.String),
   });
