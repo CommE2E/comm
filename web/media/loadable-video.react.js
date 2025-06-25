@@ -23,7 +23,7 @@ type Props = {
   +multimediaClassName?: string,
 };
 
-function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
+function LoadableVideo(props: Props, ref: React.RefSetter<HTMLVideoElement>): React.Node {
   const {
     uri,
     thumbHashDataURL,
@@ -90,14 +90,16 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
       poster={poster}
       className={multimediaClassName}
       style={elementStyle}
-      ref={videoRef}
+      ref={ref}
     >
       {videoSource}
     </video>
   );
 }
 
-const MemoizedLoadableVideo: React.ComponentType<Props> = React.memo<
+type MemoizedLoadableVideoComponentType = component(ref: React.RefSetter<HTMLVideoElement>, ...Props)
+
+const MemoizedLoadableVideo: MemoizedLoadableVideoComponentType = React.memo<
   Props,
   HTMLVideoElement,
 >(React.forwardRef<Props, HTMLVideoElement>(LoadableVideo));

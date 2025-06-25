@@ -12,6 +12,7 @@ import { type NUXTip, nuxTip } from './nux-tips-context.react.js';
 import PrimaryButton from './primary-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
+import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import { CommunityJoinerModalRouteName } from '../navigation/route-names.js';
 import {
@@ -39,7 +40,7 @@ function DirectoryPromptBottomSheet(props: Props): React.Node {
   const { goBack, navigate } = navigation;
   const { communities } = route.params;
 
-  const bottomSheetRef = React.useRef(null);
+  const bottomSheetRef = React.useRef<?BottomSheetRef>(null);
 
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');

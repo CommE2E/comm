@@ -459,7 +459,9 @@ type BaseConfig<T> = ReactConfigShim<
   typeof BaseTagInput.defaultProps,
 >;
 
-function createTagInput<T>(): React.ComponentType<BaseConfig<T>> {
+type TagInputComponentType<T> = component(ref: React.RefSetter<BaseTagInput<T>>, ...BaseConfig<T>);
+
+function createTagInput<T>(): TagInputComponentType<T> {
   return React.forwardRef<BaseConfig<T>, BaseTagInput<T>>(
     function ForwardedTagInput(
       props: BaseConfig<T>,

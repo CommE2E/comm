@@ -82,6 +82,7 @@ import ClearableTextInput from '../components/clearable-text-input.react';
 import type { SyncedSelectionData } from '../components/selectable-text-input.js';
 // eslint-disable-next-line import/extensions
 import SelectableTextInput from '../components/selectable-text-input.react';
+import type { SelectableTextInputRef } from '../components/selectable-text-input.js';
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
@@ -500,8 +501,7 @@ function ConnectedChatInputBarBase({
 
   const textInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
   const clearableTextInputRef = React.useRef<?ClearableTextInput>();
-  const selectableTextInputRef =
-    React.useRef<?React.ElementRef<typeof SelectableTextInput>>();
+  const selectableTextInputRef = React.useRef<?SelectableTextInputRef>();
   const setTextInputRef = React.useCallback(
     (ref: ?React.ElementRef<typeof TextInput>) => {
       textInputRef.current = ref;

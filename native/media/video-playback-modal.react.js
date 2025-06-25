@@ -129,7 +129,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   const closeButtonY = useSharedValue(-1);
   const closeButtonWidth = useSharedValue(-1);
   const closeButtonHeight = useSharedValue(-1);
-  const closeButtonRef = React.useRef<?TouchableOpacity>();
+  const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
   const closeButton = closeButtonRef.current;
   const onCloseButtonLayoutCalledRef = React.useRef(false);
   const onCloseButtonLayout = React.useCallback(() => {
@@ -159,7 +159,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   const footerY = useSharedValue(-1);
   const footerWidth = useSharedValue(-1);
   const footerHeight = useSharedValue(-1);
-  const footerRef = React.useRef<?View>();
+  const footerRef = React.useRef<?React.ElementRef<typeof View>>();
   const footer = footerRef.current;
   const onFooterLayoutCalledRef = React.useRef(false);
   const onFooterLayout = React.useCallback(() => {

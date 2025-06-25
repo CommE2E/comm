@@ -9,6 +9,7 @@ import { handleTotalHeight } from './bottom-sheet-constants.js';
 import BottomSheetHandle from './bottom-sheet-handle.react.js';
 import { BottomSheetContext } from './bottom-sheet-provider.react.js';
 import { useStyles } from '../themes/colors.js';
+import type { BottomSheetRef } from '../types/bottom-sheet.js';
 
 type Props = {
   +children: React.Node,
@@ -63,7 +64,9 @@ const unboundStyles = {
   },
 };
 
-const BottomSheet: React.ComponentType<Props> = React.forwardRef<
+type BottomSheetComponentType = component(ref: React.RefSetter<?BottomSheetRef>, ...Props);
+
+const BottomSheet: BottomSheetComponentType = React.forwardRef<
   Props,
   React.ElementRef<typeof GorhomBottomSheet>,
 >(ForwardedBottomSheet);
