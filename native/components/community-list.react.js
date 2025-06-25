@@ -34,7 +34,7 @@ const keyExtractor = (item: ThreadInfoAndFarcasterChannelID): string =>
   item.threadInfo.id;
 
 const getItemLayout = (
-  data: ?$ReadOnlyArray<ThreadInfoAndFarcasterChannelID>,
+  data: ?$ArrayLike<ThreadInfoAndFarcasterChannelID>,
   index: number,
 ): { length: number, offset: number, index: number } => {
   return { length: 24, offset: 24 * index, index };
