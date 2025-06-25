@@ -128,7 +128,6 @@ async function entryRevisionFetchResponder(
 export const createEntryRequestInputValidator: TInterface<CreateEntryRequest> =
   tShape<CreateEntryRequest>({
     text: t.String,
-    sessionID: t.maybe(t.String),
     timestamp: t.Number,
     date: tDate,
     threadID: tID,
@@ -148,7 +147,6 @@ export const saveEntryRequestInputValidator: TInterface<SaveEntryRequest> =
     entryID: tID,
     text: t.String,
     prevText: t.String,
-    sessionID: t.maybe(t.String),
     timestamp: t.Number,
     calendarQuery: t.maybe(calendarQueryValidator),
   });
@@ -164,7 +162,6 @@ export const deleteEntryRequestInputValidator: TInterface<DeleteEntryRequest> =
   tShape<DeleteEntryRequest>({
     entryID: tID,
     prevText: t.String,
-    sessionID: t.maybe(t.String),
     timestamp: t.Number,
     calendarQuery: t.maybe(calendarQueryValidator),
   });
@@ -179,7 +176,6 @@ async function entryDeletionResponder(
 export const restoreEntryRequestInputValidator: TInterface<RestoreEntryRequest> =
   tShape<RestoreEntryRequest>({
     entryID: tID,
-    sessionID: t.maybe(t.String),
     timestamp: t.Number,
     calendarQuery: t.maybe(calendarQueryValidator),
   });
