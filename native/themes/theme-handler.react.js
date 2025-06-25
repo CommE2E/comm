@@ -30,7 +30,8 @@ function ThemeHandler(): null {
 
   React.useEffect(
     () => {
-      updateSystemTheme(Appearance.getColorScheme());
+      const colorScheme = Appearance.getColorScheme();
+      updateSystemTheme(colorScheme === 'unspecified' ? null : colorScheme);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
