@@ -101,7 +101,7 @@ const nonUserSpecificFieldsWeb = [
   '_persist',
   'customServer',
   'clientDBStateLoaded',
-];
+] as const;
 
 // Before making changes here, make sure to consider how the added property
 // should be stored. Think about redux-persist or SQLite as storage,
