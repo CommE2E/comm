@@ -48,7 +48,7 @@ async function fetchFriendRequestRelationshipOperations(
     result,
   );
 
-  const errors: RelationshipErrors = {};
+  let errors: RelationshipErrors = {};
   const userRelationshipOperations: UserRelationshipOperations = {};
   for (const userID in relationshipsByUserId) {
     const relationships = relationshipsByUserId[userID];
@@ -83,10 +83,10 @@ async function fetchFriendRequestRelationshipOperations(
         operations.push('delete_directed');
       }
       const user_blocked = errors.user_blocked || [];
-      errors.user_blocked = [...user_blocked, userID];
+      errors = { ...errors, user_blocked: [...user_blocked, userID] };
     } else if (friendshipExists) {
       const already_friends = errors.already_friends || [];
-      errors.already_friends = [...already_friends, userID];
+      errors = { ...errors, already_friends: [...already_friends, userID] };
     } else if (targetRequestedViewerFriendship) {
       operations.push('friend', 'delete_directed');
     } else if (!viewerRequestedTargetFriendship) {
