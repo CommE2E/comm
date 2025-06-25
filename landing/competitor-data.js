@@ -27,7 +27,7 @@ export type Competitor = {
   +featureComparison: $ReadOnlyArray<FeatureComparison>,
 };
 
-const competitorData: { [key: string]: Competitor } = Object.freeze({
+const competitorData: { +[key: string]: Competitor } = Object.freeze({
   general: {
     id: 'general',
     name: 'General',
