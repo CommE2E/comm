@@ -122,7 +122,9 @@ async function rescindPushNotifs(
   const deliveryPromises: {
     [string]: Promise<APNPushResult> | Promise<FCMPushResult>,
   } = {};
-  const notifInfo = {};
+  const notifInfo: {
+    [string]: { userID: string, threadID: string, messageID: string },
+  } = {};
   const rescindedIDs = [];
 
   for (const row of fetchResult) {
