@@ -10,7 +10,7 @@ export type ServerStateSyncSpec<
   FullSocketSyncPayload,
   Info,
   Inconsistencies,
-> = {
+> = $ReadOnly<{
   +fetch: (viewer: Viewer, ids?: $ReadOnlySet<string>) => Promise<Infos>,
   +fetchFullSocketSyncPayload: (
     viewer: Viewer,
@@ -23,4 +23,4 @@ export type ServerStateSyncSpec<
   +getServerInfosHash: (infos: Infos) => Promise<number>,
   +getServerInfoHash: (info: Info) => Promise<number>,
   ...StateSyncSpec<Infos, Info, Inconsistencies>,
-};
+}>;
