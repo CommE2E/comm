@@ -927,7 +927,7 @@ async function updateUserSettingsResponder(
 
 export const policyAcknowledgmentRequestInputValidator: TInterface<PolicyAcknowledgmentRequest> =
   tShape<PolicyAcknowledgmentRequest>({
-    policy: t.maybe(t.enums.of(policies)),
+    policy: t.enums.of(policies),
   });
 
 async function policyAcknowledgmentResponder(
