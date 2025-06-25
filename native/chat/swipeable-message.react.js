@@ -144,6 +144,7 @@ function SwipeSnake(props: SwipeSnakeProps): React.Node {
     : colors.light.listForegroundLabel;
   const coloredIcon = React.useMemo(
     () =>
+      // $FlowFixMe[incompatible-call]
       React.cloneElement(children, {
         color: iconColor,
       }),

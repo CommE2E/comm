@@ -508,7 +508,8 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       const style = [(dummy as any).props.style, styles.dummy];
       const onLayout = (event: LayoutChangeEvent) =>
         this.onDummyLayout(measureKey, iteration, event);
-      const node = React.cloneElement(dummy as any, {
+      // $FlowFixMe[incompatible-call]
+      const node = React.cloneElement(dummy, {
         style,
         onLayout,
         children,
