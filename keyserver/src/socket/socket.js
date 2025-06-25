@@ -15,7 +15,7 @@ import {
 } from 'lib/shared/timeouts.js';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
+import { endpointIsSocketSafe, endpoints } from 'lib/types/endpoints.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import {
   serverRequestTypes,
@@ -126,7 +126,7 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
     ),
     id: t.Number,
     payload: tShape({
-      endpoint: t.String,
+      endpoint: t.enums.of(endpoints),
       input: t.maybe(t.Object),
     }),
   }),
