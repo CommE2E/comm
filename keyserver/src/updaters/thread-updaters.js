@@ -56,6 +56,7 @@ import {
   rawThreadInfosFromServerThreadInfos,
   determineThreadAncestryForPossibleMemberResolution,
 } from '../fetchers/thread-fetchers.js';
+import { type Check } from '../fetchers/thread-permission-fetchers.js';
 import {
   checkThreadPermission,
   viewerHasPositiveRole,
@@ -420,7 +421,7 @@ async function updateThread(
     if (ignorePermissions) {
       return;
     }
-    const checks = [];
+    const checks: Array<Check> = [];
     if (sqlUpdate.name !== undefined) {
       checks.push({
         check: 'permission',

@@ -51,7 +51,8 @@ async function verifyInviteLink(
     threadID,
     threadRole,
   } = result[0];
-  const communityStatus = communityRole > 0 ? 'already_joined' : 'valid';
+  const communityStatus: 'already_joined' | 'valid' =
+    communityRole > 0 ? 'already_joined' : 'valid';
   const communityResult = {
     status: communityStatus,
     community: {
