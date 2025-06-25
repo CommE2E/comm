@@ -531,9 +531,7 @@ declare module 'electron/main' {
 }
 
 declare module 'electron/renderer' {
-  declare export {
-    IpcRendererEvent,
-    contextBridge,
-    ipcRenderer,
-  } from 'electron';
+  import type { IpcRendererEvent as ElectronIpcRendererEvent } from 'electron';
+  declare export type IpcRendererEvent = ElectronIpcRendererEvent;
+  declare export { contextBridge, ipcRenderer } from 'electron';
 }
