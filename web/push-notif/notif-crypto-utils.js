@@ -1275,14 +1275,18 @@ function getKeyserverUnreadCountKey(keyserverID: string) {
 }
 
 async function updateNotifsUnreadCountStorage(perKeyserverUnreadCount: {
-  +[keyserverID: string]: number,
+  +[keyserverID: string]: number | void,
 }) {
-  const unreadCountUpdatePromises: Array<Promise<number>> = Object.entries(
-    perKeyserverUnreadCount,
-  ).map(([keyserverID, unreadCount]) => {
-    const keyserverUnreadCountKey = getKeyserverUnreadCountKey(keyserverID);
-    return localforage.setItem<number>(keyserverUnreadCountKey, unreadCount);
-  });
+  const unreadCountUpdatePromises: Array<Promise<number | void>> =
+    Object.entries(perKeyserverUnreadCount).map(
+      ([keyserverID, unreadCount]) => {
+        const keyserverUnreadCountKey = getKeyserverUnreadCountKey(keyserverID);
+        return localforage.setItem<number | void>(
+          keyserverUnreadCountKey,
+          unreadCount,
+        );
+      },
+    );
 
   await Promise.all(unreadCountUpdatePromises);
 }
