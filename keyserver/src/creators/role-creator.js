@@ -1,5 +1,7 @@
 // @flow
 
+import invariant from 'invariant';
+
 import { getThreadPermissionBlobFromUserSurfacedPermissions } from 'lib/permissions/keyserver-permissions.js';
 import {
   defaultSpecialRoles,
@@ -48,8 +50,11 @@ async function createInitialRolesForNewThread(
   const namesToIDs: { [string]: string } = {};
   for (const name in rolePermissions) {
     const id = ids.shift();
+    invariant(id !== undefined, 'no role id created');
     namesToIDs[name] = id;
+    // $FlowFixMe
     const permissionsBlob = JSON.stringify(rolePermissions[name]);
+    // $FlowFixMe
     const specialRole = defaultSpecialRoles[name] ?? null;
     newRows.push([id, threadID, name, permissionsBlob, time, specialRole]);
   }
