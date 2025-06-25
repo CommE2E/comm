@@ -75,7 +75,7 @@ class RelationshipChangeset {
     }
   }
 
-  _getRows(): UndirectedRelationshipRow[] {
+  _getRows(): $ReadOnlyArray<UndirectedRelationshipRow> {
     const rows = [];
     for (const [key, status] of this.relationships) {
       if (status === 'existing') {
@@ -87,7 +87,7 @@ class RelationshipChangeset {
     return rows;
   }
 
-  getRows(): UndirectedRelationshipRow[] {
+  getRows(): $ReadOnlyArray<UndirectedRelationshipRow> {
     this.finalized = true;
     return this._getRows();
   }
