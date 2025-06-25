@@ -32,7 +32,7 @@ type ChatItem = {
 function keyExtractor(sidebarInfo: ChatItem) {
   return sidebarInfo.threadInfo.id;
 }
-function getItemLayout(data: ?$ReadOnlyArray<ChatItem>, index: number) {
+function getItemLayout(data: ?$ArrayLike<ChatItem>, index: number) {
   return { length: 24, offset: 24 * index, index };
 }
 
