@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import type { MeasureOnSuccessCallback } from 'react-native';
+import type { MeasureOnSuccessCallback } from 'react-native/src/private/types/HostInstance.js';
 
 import { values } from 'lib/utils/objects.js';
 
