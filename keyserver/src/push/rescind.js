@@ -234,6 +234,7 @@ async function rescindPushNotifs(
         delivery.errors = errors;
       }
       const dbID = dbIDs.shift();
+      // $FlowFixMe
       const { userID, threadID, messageID } = notifInfo[rescindedID];
       newNotifRows.push([
         dbID,
