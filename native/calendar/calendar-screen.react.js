@@ -568,14 +568,14 @@ class CalendarScreen extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<CalendarItemWithHeight>,
+    data: ?$ArrayLike<CalendarItemWithHeight>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
     const offset = CalendarScreen.heightOfItems(
-      data.filter((_, i) => i < index),
+      Array.from(data).filter((_, i) => i < index),
     );
     const item = data[index];
     const length = item ? CalendarScreen.itemHeight(item) : 0;
