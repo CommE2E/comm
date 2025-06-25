@@ -662,15 +662,10 @@ declare module 'react-native-reanimated' {
 
   declare type AnimateProps<Props> = AnimatedProps<Props>;
 
-  declare type CreateAnimatedComponent = <Props, Instance : React.ComponentType<Props>>(
-    component: Instance,
+  declare type CreateAnimatedComponent = <Props: {...}>(
+    component: React.ComponentType<Props>,
     options?: Options<Props>
-  ) => React.ComponentType<{
-    ...Props,
-    animatedProps?: Partial<Props>,
-    ref?: React.RefSetter<Instance>,
-    ...
-  }>;
+  ) => component(animatedProps?: Partial<Props>, ...Props);
 
   declare export var Node: typeof NodeImpl;
   declare export var Value: typeof ValueImpl;
