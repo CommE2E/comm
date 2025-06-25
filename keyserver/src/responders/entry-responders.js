@@ -68,7 +68,7 @@ function normalizeCalendarQuery(input: any): CalendarQuery {
       filters: input.filters,
     };
   }
-  const filters = [];
+  const filters: Array<CalendarFilter> = [];
   if (!input.includeDeleted) {
     filters.push({ type: calendarThreadFilterTypes.NOT_DELETED });
   }

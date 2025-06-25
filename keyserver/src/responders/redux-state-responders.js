@@ -25,7 +25,10 @@ import {
 import type { ServerWebInitialReduxStateResponse } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type GlobalAccountUserInfo } from 'lib/types/user-types.js';
+import {
+  type GlobalAccountUserInfo,
+  type UserInfos,
+} from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -221,7 +224,7 @@ async function getInitialReduxStateResponder(
     }
     return await entryStorePromise;
   })();
-  const userInfosPromise = (async () => {
+  const userInfosPromise = (async (): Promise<UserInfos> => {
     const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
       userInfoPromise,
       hasNotAcknowledgedPoliciesPromise,
