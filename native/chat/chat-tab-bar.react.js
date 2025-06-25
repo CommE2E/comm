@@ -62,7 +62,7 @@ export default function TabBarTop(
       key,
       ...innerProps
     }: $ReadOnly<{ ...TabBarItemProps<Route<>>, +key: string, ... }>) => (
-      <TabBarButton kwy={key} {...innerProps} />
+      <TabBarButton {...innerProps} key={key} />
     ),
     [],
   );
