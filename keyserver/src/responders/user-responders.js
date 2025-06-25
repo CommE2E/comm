@@ -33,6 +33,7 @@ import {
   authActionSources,
   recoveryFromDataHandlerActionSources,
   recoveryFromReduxActionSources,
+  deviceTokenUpdateRequestInputValidator,
 } from 'lib/types/account-types.js';
 import {
   type ClientAvatar,
@@ -45,7 +46,6 @@ import type {
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
 import type {
-  DeviceType,
   DeviceTokenUpdateRequest,
   PlatformDetails,
 } from 'lib/types/device-types';
@@ -213,16 +213,6 @@ async function accountDeletionResponder(
   invariant(result, 'deleteAccount should return result if handed request');
   return result;
 }
-
-type OldDeviceTokenUpdateRequest = {
-  +deviceType?: ?DeviceType,
-  +deviceToken: string,
-};
-const deviceTokenUpdateRequestInputValidator =
-  tShape<OldDeviceTokenUpdateRequest>({
-    deviceType: t.maybe(t.enums.of(['ios', 'android'])),
-    deviceToken: t.String,
-  });
 
 export const registerRequestInputValidator: TInterface<RegisterRequest> =
   tShape<RegisterRequest>({
