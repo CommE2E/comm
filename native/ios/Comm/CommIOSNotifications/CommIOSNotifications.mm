@@ -306,6 +306,11 @@ RCT_EXPORT_MODULE()
 + (NSDictionary *)parseNotificationToJSReadableObject:
                       (NSDictionary *)notification
                                 withRequestIdentifier:(NSString *)identifier {
+  // In case of badge-only notifs it is expected to have empty NSDictionary
+  if ([notification count] == 0) {
+    return nil;
+  }
+
   NSMutableDictionary *jsReadableNotification =
       [[NSMutableDictionary alloc] init];
 
