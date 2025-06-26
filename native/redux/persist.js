@@ -44,6 +44,8 @@ import {
   convertReportsToReplaceReportOps,
   reportStoreOpsHandlers,
 } from 'lib/ops/report-store-ops.js';
+import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops';
+import { createReplaceSyncedMetadataOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import {
   type ClientDBThreadActivityStoreOperation,
   threadActivityStoreOpsHandlers,
@@ -106,6 +108,7 @@ import type {
   ClientReportCreationRequest,
 } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import {
   userSurfacedPermissions,
@@ -1635,6 +1638,32 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     return {
       state,
       ops,
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [93]: (async (state: AppState) => {
+    const { enabledApps, globalThemeInfo, alertStore } = state;
+
+    const syncedMetadataStoreOperations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation> =
+      [
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.ENABLED_APPS,
+          JSON.stringify(enabledApps),
+        ),
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.GLOBAL_THEME_INFO,
+          JSON.stringify(globalThemeInfo),
+        ),
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.ALERT_STORE,
+          JSON.stringify(alertStore),
+        ),
+      ];
+
+    return {
+      state,
+      ops: {
+        syncedMetadataStoreOperations,
+      },
     };
   }: MigrationFunction<NavInfo, AppState>),
 });
