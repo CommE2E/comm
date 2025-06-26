@@ -18,6 +18,8 @@ import {
   messageStoreOpsHandlers,
   type ReplaceMessageStoreLocalMessageInfoOperation,
 } from 'lib/ops/message-store-ops.js';
+import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
+import { createReplaceSyncedMetadataOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import type {
   ClientDBThreadStoreOperation,
   ThreadStoreOperation,
@@ -39,6 +41,7 @@ import type { WebNavInfo } from 'lib/types/nav-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
 import { userSurfacedPermissions } from 'lib/types/thread-permission-types.js';
@@ -849,6 +852,32 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     return {
       state,
       ops,
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [93]: (async (state: AppState) => {
+    const { enabledApps, globalThemeInfo, alertStore } = state;
+
+    const syncedMetadataStoreOperations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation> =
+      [
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.ENABLED_APPS,
+          JSON.stringify(enabledApps),
+        ),
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.GLOBAL_THEME_INFO,
+          JSON.stringify(globalThemeInfo),
+        ),
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.ALERT_STORE,
+          JSON.stringify(alertStore),
+        ),
+      ];
+
+    return {
+      state,
+      ops: {
+        syncedMetadataStoreOperations,
+      },
     };
   }: MigrationFunction<WebNavInfo, AppState>),
 };

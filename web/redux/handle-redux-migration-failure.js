@@ -7,10 +7,7 @@ import { defaultWebState } from './default-state.js';
 import { nonUserSpecificFieldsWeb, type AppState } from './redux-setup.js';
 
 const persistWhitelist = [
-  'enabledApps',
-  'alertStore',
   'commServicesAccessToken',
-  'globalThemeInfo',
   'customServer',
   'messageStore',
   'tunnelbrokerDeviceToken',
