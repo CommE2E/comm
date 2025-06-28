@@ -14,7 +14,7 @@ import { MessageListRouteName } from '../navigation/route-names.js';
 import { useColors } from '../themes/colors.js';
 
 type Props = {
-  +navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,
+  +navigate: ChatNavigationProp<'ChatThreadList'>['navigate'],
 };
 function ComposeThreadButton(props: Props) {
   const { navigate } = props;
