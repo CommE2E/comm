@@ -193,7 +193,7 @@ declare module '@react-navigation/native' {
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > =
     | string
-    | {| +screen: RouteName, +params?: $ElementType<ParamList, RouteName> |};
+    | {| +screen: RouteName, +params?: ParamList[RouteName] |};
 
   declare export var Link: React$ComponentType<{
     +to: LinkTo<any, any>,
