@@ -12,13 +12,13 @@ import Animated, {
 import type { ViewStyleObj } from './react-native.js';
 
 type ViewProps = React.ElementConfig<typeof View>;
-export type ViewStyle = $PropertyType<ViewProps, 'style'>;
+export type ViewStyle = ViewProps['style'];
 
 type TextProps = React.ElementConfig<typeof Text>;
-export type TextStyle = $PropertyType<TextProps, 'style'>;
+export type TextStyle = TextProps['style'];
 
 type ImageProps = React.ElementConfig<typeof Image>;
-export type ImageStyle = $PropertyType<ImageProps, 'style'>;
+export type ImageStyle = ImageProps['style'];
 
 type Value = ?number | Animated.Node | SharedValue<number>;
 

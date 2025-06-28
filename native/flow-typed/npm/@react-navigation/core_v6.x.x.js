@@ -179,7 +179,7 @@ declare module '@react-navigation/core' {
   |}>;
   declare export type PressEvent = ResponderSyntheticEvent<
     $ReadOnly<{|
-      changedTouches: $ReadOnlyArray<$PropertyType<PressEvent, 'nativeEvent'>>,
+      changedTouches: $ReadOnlyArray<PressEvent['nativeEvent']>,
       force: number,
       identifier: number,
       locationX: number,
@@ -188,7 +188,7 @@ declare module '@react-navigation/core' {
       pageY: number,
       target: ?number,
       timestamp: number,
-      touches: $ReadOnlyArray<$PropertyType<PressEvent, 'nativeEvent'>>,
+      touches: $ReadOnlyArray<PressEvent['nativeEvent']>,
     |}>,
   >;
 
@@ -590,7 +590,7 @@ declare module '@react-navigation/core' {
     State: NavigationState,
     Action: GenericNavigationAction,
   > = {|
-    +type: $PropertyType<State, 'type'>,
+    +type: State['type'],
     +getInitialState: (options: RouterConfigOptions) => State,
     +getRehydratedState: (
       partialState: PossiblyStaleNavigationState,
@@ -782,20 +782,14 @@ declare module '@react-navigation/core' {
     EventMap: EventMapBase = EventMapCore<State>,
   > = (e: EventArg<
     EventName,
-    $PropertyType<
       $ElementType<
         {| ...EventMap, ...EventMapCore<State> |},
         EventName,
-      >,
-      'canPreventDefault',
-    >,
-    $PropertyType<
+      >['canPreventDefault'],
       $ElementType<
         {| ...EventMap, ...EventMapCore<State> |},
         EventName,
-      >,
-      'data',
-    >,
+      >['data'],
   >) => mixed;
 
   /**
@@ -1438,7 +1432,7 @@ declare module '@react-navigation/core' {
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,
-    +headerBackImage: $PropertyType<StackHeaderLeftButtonProps, 'backImage'>,
+    +headerBackImage: StackHeaderLeftButtonProps['backImage'],
     +headerBackAccessibilityLabel: string,
   |}>;
 
