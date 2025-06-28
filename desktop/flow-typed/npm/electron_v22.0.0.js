@@ -35,11 +35,11 @@ declare module 'electron' {
     name: string,
     on: <T: $Keys<AppEvents>>(
       event: T,
-      listener: $ElementType<AppEvents, T>,
+      listener: AppEvents[T],
     ) => void,
     removeListener: <T: $Keys<AppEvents>>(
       event: T,
-      listener: $ElementType<AppEvents, T>,
+      listener: AppEvents[T],
     ) => void,
   };
   declare type AppEvents = {
@@ -178,11 +178,11 @@ declare module 'electron' {
 
     on<T: $Keys<BrowserWindowEvents>>(
       event: T,
-      listener: $ElementType<BrowserWindowEvents, T>,
+      listener: BrowserWindowEvents[T],
     ): void;
     removeListener<T: $Keys<BrowserWindowEvents>>(
       event: T,
-      listener: $ElementType<BrowserWindowEvents, T>,
+      listener: BrowserWindowEvents[T],
     ): void;
   }
 
@@ -213,11 +213,11 @@ declare module 'electron' {
 
     on<T: $Keys<AutoUpdaterEvents>>(
       event: T,
-      listener: $ElementType<AutoUpdaterEvents, T>,
+      listener: AutoUpdaterEvents[T],
     ): void;
     removeListener<T: $Keys<AutoUpdaterEvents>>(
       event: T,
-      listener: $ElementType<AutoUpdaterEvents, T>,
+      listener: AutoUpdaterEvents[T],
     ): void;
   }
 
@@ -344,11 +344,11 @@ declare module 'electron' {
 
     on<T: $Keys<PushNotificationsEvents>>(
       event: T,
-      listener: $ElementType<PushNotificationsEvents, T>,
+      listener: PushNotificationsEvents[T],
     ): void;
     removeListener<T: $Keys<PushNotificationsEvents>>(
       event: T,
-      listener: $ElementType<PushNotificationsEvents, T>,
+      listener: PushNotificationsEvents[T],
     ): void;
   }
   declare type PushNotificationsEvents = {
@@ -391,11 +391,11 @@ declare module 'electron' {
 
     on<T: $Keys<NotificationEvents>>(
       event: T,
-      listener: $ElementType<NotificationEvents, T>,
+      listener: NotificationEvents[T],
     ): void;
     removeListener<T: $Keys<NotificationEvents>>(
       event: T,
-      listener: $ElementType<NotificationEvents, T>,
+      listener: NotificationEvents[T],
     ): void;
   }
   declare type NotificationEvents = {
@@ -420,7 +420,7 @@ declare module 'electron' {
     getUserDefault<Type: $Keys<UserDefaultTypes>>(
       key: string,
       type: Type,
-    ): $ElementType<UserDefaultTypes, Type>,
+    ): UserDefaultTypes[Type],
   };
 
   declare export var dialog: Dialog;
@@ -481,11 +481,11 @@ declare module 'electron' {
 
     on<T: $Keys<WebContentsEvents>>(
       event: T,
-      listener: $ElementType<WebContentsEvents, T>,
+      listener: WebContentsEvents[T],
     ): void;
     removeListener: <T: $Keys<WebContentsEvents>>(
       event: T,
-      listener: $ElementType<WebContentsEvents, T>,
+      listener: WebContentsEvents[T],
     ) => void;
     inspectSharedWorker(): void;
   }
