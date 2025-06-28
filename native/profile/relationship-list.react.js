@@ -43,10 +43,9 @@ import Alert from '../utils/alert.js';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
 
-export type RelationshipListNavigate = $PropertyType<
-  ProfileNavigationProp<'FriendList' | 'BlockList'>,
-  'navigate',
->;
+export type RelationshipListNavigate = ProfileNavigationProp<
+  'FriendList' | 'BlockList',
+>['navigate'];
 
 const tagInputProps = {
   placeholder: 'username',

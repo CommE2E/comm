@@ -1668,8 +1668,8 @@ declare module "react-native-vision-camera" {
    * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
    */
   declare export function createFrameProcessor(
-    frameProcessor: $PropertyType<FrameProcessor, "frameProcessor">,
-    type: $PropertyType<FrameProcessor, "type">
+    frameProcessor: FrameProcessor["frameProcessor"],
+    type: FrameProcessor["type"]
   ): FrameProcessor;
 
   /**

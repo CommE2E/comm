@@ -123,10 +123,8 @@ export type ThreadSettingsParams = {
   +threadInfo: ThreadInfo,
 };
 
-export type ThreadSettingsNavigate = $PropertyType<
-  ChatNavigationProp<'ThreadSettings'>,
-  'navigate',
->;
+export type ThreadSettingsNavigate =
+  ChatNavigationProp<'ThreadSettings'>['navigate'];
 
 type ChatSettingsItem =
   | {
