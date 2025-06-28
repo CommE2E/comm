@@ -1157,7 +1157,7 @@ type NotificationInfo =
     };
 
 type APNsDelivery = {
-  +source: $PropertyType<NotificationInfo, 'source'>,
+  +source: NotificationInfo['source'],
   +deviceType: 'ios' | 'macos',
   +iosID: string,
   +deviceTokens: $ReadOnlyArray<string>,
@@ -1236,7 +1236,7 @@ async function sendAPNsNotification(
 type PushResult = AndroidResult | APNsResult | WebResult | WNSResult;
 type PushDelivery = AndroidDelivery | APNsDelivery | WebDelivery | WNSDelivery;
 type AndroidDelivery = {
-  source: $PropertyType<NotificationInfo, 'source'>,
+  source: NotificationInfo['source'],
   deviceType: 'android',
   androidIDs: $ReadOnlyArray<string>,
   deviceTokens: $ReadOnlyArray<string>,
@@ -1288,7 +1288,7 @@ async function sendAndroidNotification(
 }
 
 type WebDelivery = {
-  +source: $PropertyType<NotificationInfo, 'source'>,
+  +source: NotificationInfo['source'],
   +deviceType: 'web',
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion?: number,
@@ -1328,7 +1328,7 @@ async function sendWebNotifications(
 }
 
 type WNSDelivery = {
-  +source: $PropertyType<NotificationInfo, 'source'>,
+  +source: NotificationInfo['source'],
   +deviceType: 'windows',
   +wnsIDs: $ReadOnlyArray<string>,
   +deviceTokens: $ReadOnlyArray<string>,

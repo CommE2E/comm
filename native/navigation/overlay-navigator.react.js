@@ -94,14 +94,14 @@ type Scene = {
 type SceneData = $ReadOnly<{
   ...Scene,
   +context: $ReadOnly<{
-    ...$PropertyType<Scene, 'context'>,
+    ...Scene['context'],
     +visibleOverlays: $ReadOnlyArray<VisibleOverlay>,
     +scrollBlockingModalStatus: ScrollBlockingModalStatus,
     +setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
     +resetScrollBlockingModalStatus: () => void,
   }>,
   +ordering: $ReadOnly<{
-    ...$PropertyType<Scene, 'ordering'>,
+    ...Scene['ordering'],
     +creationTime: number,
   }>,
 }>;
