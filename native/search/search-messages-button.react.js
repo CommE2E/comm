@@ -12,7 +12,7 @@ import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
+  +navigate: ChatNavigationProp<'MessageList'>['navigate'],
 };
 
 function SearchMessagesButton(props: Props): React.Node {
