@@ -19,7 +19,7 @@ const unboundStyles = {
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
-  +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
+  +navigate: ChatNavigationProp<'MessageList'>['navigate'],
 };
 type Props = {
   ...BaseProps,
