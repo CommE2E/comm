@@ -782,14 +782,8 @@ declare module '@react-navigation/core' {
     EventMap: EventMapBase = EventMapCore<State>,
   > = (e: EventArg<
     EventName,
-      $ElementType<
-        {| ...EventMap, ...EventMapCore<State> |},
-        EventName,
-      >['canPreventDefault'],
-      $ElementType<
-        {| ...EventMap, ...EventMapCore<State> |},
-        EventName,
-      >['data'],
+        {| ...EventMap, ...EventMapCore<State> |}[EventName]['canPreventDefault'],
+        {| ...EventMap, ...EventMapCore<State> |}[EventName]['data'],
   >) => mixed;
 
   /**
@@ -810,7 +804,7 @@ declare module '@react-navigation/core' {
     <DestinationRouteName: $Keys<ParamList>>(
       routeName: DestinationRouteName,
       params: EitherExactOrPartialWithMergeProperty<
-        $ElementType<ParamList, DestinationRouteName>,
+        ParamList[DestinationRouteName],
       >,
     ) => void;
 
@@ -823,14 +817,14 @@ declare module '@react-navigation/core' {
           | {|
               +key: string,
               +params?: EitherExactOrPartialWithMergeProperty<
-                $ElementType<ParamList, DestinationRouteName>,
+                ParamList[DestinationRouteName],
               >,
             |}
           | {|
               +name: DestinationRouteName,
               +key?: string,
               +params?: EitherExactOrPartialWithMergeProperty<
-                $ElementType<ParamList, DestinationRouteName>,
+                ParamList[DestinationRouteName],
               >,
             |},
       ) => void;
@@ -899,9 +893,9 @@ declare module '@react-navigation/core' {
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > = $If<
-    $IsUndefined<$ElementType<ParamList, RouteName>>,
+    $IsUndefined<ParamList[RouteName]>,
     empty,
-    $Partial<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
+    $Partial<$NonMaybeType<ParamList[RouteName]>>,
   >;
 
   declare export type NavigationProp<
@@ -930,7 +924,7 @@ declare module '@react-navigation/core' {
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > = {|
     ...LeafRoute<RouteName>,
-    +params: $ElementType<ParamList, RouteName>,
+    +params: ParamList[RouteName],
     +path?: string,
   |};
 
@@ -972,9 +966,9 @@ declare module '@react-navigation/core' {
       RouteProp<ParamList, RouteName>,
       NavProp,
     >,
-    +initialParams?: $Partial<$ElementType<ParamList, RouteName>>,
+    +initialParams?: $Partial<ParamList[RouteName]>,
     +getId?: ({
-      +params: $ElementType<ParamList, RouteName>,
+      +params: ParamList[RouteName],
     }) => string | void,
     +navigationKey?: string,
   |};
