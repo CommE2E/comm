@@ -91,8 +91,12 @@ void (async () => {
 
   let keyserverCorsOptions = null;
   if (webAppCorsConfig) {
+    const origin =
+      typeof webAppCorsConfig.domain === 'string'
+        ? webAppCorsConfig.domain
+        : [...webAppCorsConfig.domain];
     keyserverCorsOptions = {
-      origin: webAppCorsConfig.domain,
+      origin,
       methods: ['GET', 'POST'],
     };
   }
