@@ -84,7 +84,7 @@ function getAndAssertLandingURLFacts(): AppURLFacts {
   return urlFacts;
 }
 
-export type WebAppCorsConfig = { +domain: string };
+export type WebAppCorsConfig = { +domain: string | $ReadOnlyArray<string> };
 async function getWebAppCorsConfig(): Promise<?WebAppCorsConfig> {
   const config = await getCommConfig<WebAppCorsConfig>({
     folder: 'facts',
