@@ -384,78 +384,78 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedChatMessageList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedChatMessageList(
-    props: BaseProps,
-  ): React.Node {
-    const { threadInfo } = props;
-    const messageListData = useMessageListData({
-      threadInfo,
-      searching: false,
-      userInfoInputArray: [],
-    });
-
-    const startReached = !!useSelector(state => {
-      const activeID = threadInfo.id;
-      if (!activeID) {
-        return null;
-      }
-
-      if (threadIsPending(activeID)) {
-        return true;
-      }
-
-      const threadMessageInfo = state.messageStore.threads[activeID];
-      if (!threadMessageInfo) {
-        return null;
-      }
-      return threadMessageInfo.startReached;
-    });
-
-    const fetchMessages = useFetchMessages(threadInfo);
-
-    const inputState = React.useContext(InputStateContext);
-
-    const { clearTooltip } = useTooltipContext();
-
-    const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
-    const getTextMessageMarkdownRules = useTextMessageRulesFunc(
-      threadInfo,
-      chatMentionCandidates,
-    );
-    const messageListContext = React.useMemo(() => {
-      if (!getTextMessageMarkdownRules) {
-        return undefined;
-      }
-      return { getTextMessageMarkdownRules };
-    }, [getTextMessageMarkdownRules]);
-
-    const {
-      editState,
-      addScrollToMessageListener,
-      removeScrollToMessageListener,
-    } = useEditModalContext();
-    const isEditState = editState !== null;
-
-    const viewerID = useSelector(state => state.currentUserInfo?.id);
-
-    return (
-      <MessageListContext.Provider value={messageListContext}>
-        <ChatMessageList
-          activeChatThreadID={threadInfo.id}
-          threadInfo={threadInfo}
-          messageListData={messageListData}
-          startReached={startReached}
-          inputState={inputState}
-          clearTooltip={clearTooltip}
-          isEditState={isEditState}
-          addScrollToMessageListener={addScrollToMessageListener}
-          removeScrollToMessageListener={removeScrollToMessageListener}
-          viewerID={viewerID}
-          fetchMessages={fetchMessages}
-        />
-      </MessageListContext.Provider>
-    );
+const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedChatMessageList(props: BaseProps): React.Node {
+  const { threadInfo } = props;
+  const messageListData = useMessageListData({
+    threadInfo,
+    searching: false,
+    userInfoInputArray: [],
   });
+
+  const startReached = !!useSelector(state => {
+    const activeID = threadInfo.id;
+    if (!activeID) {
+      return null;
+    }
+
+    if (threadIsPending(activeID)) {
+      return true;
+    }
+
+    const threadMessageInfo = state.messageStore.threads[activeID];
+    if (!threadMessageInfo) {
+      return null;
+    }
+    return threadMessageInfo.startReached;
+  });
+
+  const fetchMessages = useFetchMessages(threadInfo);
+
+  const inputState = React.useContext(InputStateContext);
+
+  const { clearTooltip } = useTooltipContext();
+
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(
+    threadInfo,
+    chatMentionCandidates,
+  );
+  const messageListContext = React.useMemo(() => {
+    if (!getTextMessageMarkdownRules) {
+      return undefined;
+    }
+    return { getTextMessageMarkdownRules };
+  }, [getTextMessageMarkdownRules]);
+
+  const {
+    editState,
+    addScrollToMessageListener,
+    removeScrollToMessageListener,
+  } = useEditModalContext();
+  const isEditState = editState !== null;
+
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
+
+  return (
+    <MessageListContext.Provider value={messageListContext}>
+      <ChatMessageList
+        activeChatThreadID={threadInfo.id}
+        threadInfo={threadInfo}
+        messageListData={messageListData}
+        startReached={startReached}
+        inputState={inputState}
+        clearTooltip={clearTooltip}
+        isEditState={isEditState}
+        addScrollToMessageListener={addScrollToMessageListener}
+        removeScrollToMessageListener={removeScrollToMessageListener}
+        viewerID={viewerID}
+        fetchMessages={fetchMessages}
+      />
+    </MessageListContext.Provider>
+  );
+});
 
 export default ConnectedChatMessageList;

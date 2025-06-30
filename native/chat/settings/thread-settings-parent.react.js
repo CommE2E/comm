@@ -110,6 +110,6 @@ const unboundStyles = {
 };
 
 const ConnectedThreadSettingsParent: React.ComponentType<ThreadSettingsParentProps> =
-  React.memo<ThreadSettingsParentProps>(ThreadSettingsParent);
+  React.memo<ThreadSettingsParentProps, void>(ThreadSettingsParent);
 
 export default ConnectedThreadSettingsParent;

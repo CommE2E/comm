@@ -118,23 +118,25 @@ class CustomServerModal extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedCustomServerModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedCustomServerModal(props: BaseProps) {
-    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
-    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
-    const customServer = useSelector(state => state.customServer);
-    const styles = useStyles(unboundStyles);
-    const dispatch = useDispatch();
+const ConnectedCustomServerModal: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedCustomServerModal(props: BaseProps) {
+  const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
+  invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
+  const customServer = useSelector(state => state.customServer);
+  const styles = useStyles(unboundStyles);
+  const dispatch = useDispatch();
 
-    return (
-      <CustomServerModal
-        {...props}
-        urlPrefix={urlPrefix}
-        customServer={customServer}
-        styles={styles}
-        dispatch={dispatch}
-      />
-    );
-  });
+  return (
+    <CustomServerModal
+      {...props}
+      urlPrefix={urlPrefix}
+      customServer={customServer}
+      styles={styles}
+      dispatch={dispatch}
+    />
+  );
+});
 
 export default ConnectedCustomServerModal;

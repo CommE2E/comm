@@ -74,6 +74,6 @@ function MessageEditingContextProvider(props: Props): React.Node {
 }
 
 const MemoizedMessageEditingContextProvider: React.ComponentType<Props> =
-  React.memo<Props>(MessageEditingContextProvider);
+  React.memo<Props, void>(MessageEditingContextProvider);
 
 export default MemoizedMessageEditingContextProvider;

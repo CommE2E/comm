@@ -138,7 +138,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
 }
 
 const ConnectedComposeSubchannelModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedComposeSubchannelModal(
+  React.memo<BaseProps, void>(function ConnectedComposeSubchannelModal(
     props: BaseProps,
   ) {
     const styles = useStyles(unboundStyles);

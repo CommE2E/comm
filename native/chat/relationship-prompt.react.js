@@ -19,7 +19,7 @@ type Props = {
   +threadInfo: ThreadInfo,
 };
 
-const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
+const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props, void>(
   function RelationshipPrompt({
     pendingPersonalThreadUserInfo,
     threadInfo,

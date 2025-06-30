@@ -242,7 +242,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsMember(
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsMember(
     props: BaseProps,
   ) {
     const memberID = props.memberInfo.id;

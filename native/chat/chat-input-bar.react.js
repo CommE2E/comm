@@ -1225,7 +1225,7 @@ type ChatInputBarProps = {
   +route: NavigationRoute<'MessageList'>,
 };
 const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
-  React.memo<ChatInputBarProps>(function ConnectedChatInputBar(
+  React.memo<ChatInputBarProps, void>(function ConnectedChatInputBar(
     props: ChatInputBarProps,
   ) {
     const { navigation, route, ...restProps } = props;

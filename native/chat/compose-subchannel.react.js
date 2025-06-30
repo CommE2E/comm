@@ -368,7 +368,9 @@ const unboundStyles = {
   },
 };
 
-const MemoizedComposeSubchannel: React.ComponentType<Props> =
-  React.memo<Props>(ComposeSubchannel);
+const MemoizedComposeSubchannel: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(ComposeSubchannel);
 
 export default MemoizedComposeSubchannel;

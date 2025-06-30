@@ -49,11 +49,13 @@ class LinkButton extends React.PureComponent<Props> {
   }
 }
 
-const ConnectedLinkButton: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedLinkButton(props: BaseProps) {
-    const styles = useStyles(unboundStyles);
+const ConnectedLinkButton: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedLinkButton(props: BaseProps) {
+  const styles = useStyles(unboundStyles);
 
-    return <LinkButton {...props} styles={styles} />;
-  });
+  return <LinkButton {...props} styles={styles} />;
+});
 
 export default ConnectedLinkButton;
