@@ -20,7 +20,7 @@ export type MonitorActionState = $ReadOnly<{
   +navState: NavigationState,
 }>;
 
-const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
+const DevTools: React.ComponentType<{}> = React.memo(function DevTools() {
   const devToolsRef = React.useRef();
   if (
     global.__REDUX_DEVTOOLS_EXTENSION__ &&
@@ -63,12 +63,12 @@ const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
           action.type === setReduxStateActionType) &&
         action.payload.hideFromMonitor
       ) {
-        // Triggered by handleActionFromMonitor below when somebody is stepping
-        // through actions in the Comm monitor in Redux dev tools
+        // Triggered by handleActionFromMonitor below when somebody is
+        // stepping through actions in the Comm monitor in Redux dev tools
         return;
       } else if (action.type === setNavStateActionType) {
-        // Triggered by NavFromReduxHandler when somebody imports state into the
-        // Redux monitor in Redux dev tools
+        // Triggered by NavFromReduxHandler when somebody imports state into
+        // the Redux monitor in Redux dev tools
         devTools.init(state);
       } else {
         devTools.send(action, state);

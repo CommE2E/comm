@@ -48,7 +48,7 @@ type Props = {
   +children: React.Node,
 };
 
-const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
+const ConnectedComposedMessage: React.ComponentType<Props> = React.memo(
   function ConnectedComposedMessage(props: Props) {
     const composedMessageMaxWidth = useComposedMessageMaxWidth();
     const colors = useColors();

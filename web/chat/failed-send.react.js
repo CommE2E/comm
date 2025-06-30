@@ -129,8 +129,8 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedFailedSend: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedFailedSend(props) {
+const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedFailedSend(props) {
     const { messageInfo } = props.item;
     assertComposableMessageType(messageInfo.type);
     const id = messageID(messageInfo);
@@ -158,6 +158,7 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
         parentThreadInfo={parentThreadInfo}
       />
     );
-  });
+  },
+);
 
 export default ConnectedFailedSend;

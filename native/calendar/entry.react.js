@@ -809,7 +809,7 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const Entry: React.ComponentType<BaseProps> = React.memo(
   function ConnectedEntry(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const threadPickerActive = activeThreadPickerSelector(navContext);

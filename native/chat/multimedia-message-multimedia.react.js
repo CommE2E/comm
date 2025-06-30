@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const MultimediaMessageMultimedia: React.ComponentType<Props> =
-  React.memo<Props>(function MultimediaMessageMultimedia(props: Props) {
+const MultimediaMessageMultimedia: React.ComponentType<Props> = React.memo(
+  function MultimediaMessageMultimedia(props: Props) {
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
     invariant(
@@ -167,6 +167,7 @@ const MultimediaMessageMultimedia: React.ComponentType<Props> =
         </View>
       </AnimatedView>
     );
-  });
+  },
+);
 
 export default MultimediaMessageMultimedia;

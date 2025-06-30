@@ -24,7 +24,7 @@ import { MissingRegistrationDataHandler } from '../account/registration/missing-
 import DevTools from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
+const NavigationHandler: React.ComponentType<{}> = React.memo(
   function NavigationHandler() {
     const navContext = React.useContext(NavContext);
     const persistedStateLoaded = usePersistedStateLoaded();
@@ -62,7 +62,7 @@ NavigationHandler.displayName = 'NavigationHandler';
 type LogInHandlerProps = {
   +dispatch: (action: NavAction) => void,
 };
-const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
+const LogInHandler = React.memo(function LogInHandler(
   props: LogInHandlerProps,
 ) {
   const { dispatch } = props;

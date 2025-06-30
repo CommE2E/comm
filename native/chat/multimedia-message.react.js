@@ -241,8 +241,8 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMultimediaMessage(props: BaseProps) {
+const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedMultimediaMessage(props: BaseProps) {
     const navigation = useNavigation();
     const route = useRoute();
     const overlayContext = React.useContext(OverlayContext);
@@ -272,6 +272,7 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
         canDeleteMessage={canDeleteMessage}
       />
     );
-  });
+  },
+);
 
 export default ConnectedMultimediaMessage;
