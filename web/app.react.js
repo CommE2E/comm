@@ -524,95 +524,93 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 
-const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedApp(props) {
-    const activeChatThreadID = useSelector(
-      state => state.navInfo.activeChatThreadID,
-    );
-    const navInfo = useSelector(state => state.navInfo);
+const ConnectedApp: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedApp(props) {
+  const activeChatThreadID = useSelector(
+    state => state.navInfo.activeChatThreadID,
+  );
+  const navInfo = useSelector(state => state.navInfo);
 
-    const fetchEntriesLoadingStatus = useSelector(
-      fetchEntriesLoadingStatusSelector,
-    );
-    const updateCalendarQueryLoadingStatus = useSelector(
-      updateCalendarQueryLoadingStatusSelector,
-    );
-    const entriesLoadingStatus = combineLoadingStatuses(
-      fetchEntriesLoadingStatus,
-      updateCalendarQueryLoadingStatus,
-    );
+  const fetchEntriesLoadingStatus = useSelector(
+    fetchEntriesLoadingStatusSelector,
+  );
+  const updateCalendarQueryLoadingStatus = useSelector(
+    updateCalendarQueryLoadingStatusSelector,
+  );
+  const entriesLoadingStatus = combineLoadingStatuses(
+    fetchEntriesLoadingStatus,
+    updateCalendarQueryLoadingStatus,
+  );
 
-    const baseLoggedIn = useSelector(isLoggedIn);
-    const restorationHasFinished = useIsUserDataReady();
-    const loggedIn = baseLoggedIn && restorationHasFinished;
+  const baseLoggedIn = useSelector(isLoggedIn);
+  const restorationHasFinished = useIsUserDataReady();
+  const loggedIn = baseLoggedIn && restorationHasFinished;
 
-    const activeThreadCurrentlyUnread = useSelector(
-      state =>
-        !activeChatThreadID ||
-        !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
-    );
+  const activeThreadCurrentlyUnread = useSelector(
+    state =>
+      !activeChatThreadID ||
+      !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
+  );
 
-    const dispatch = useDispatch();
-    const modalContext = useModalContext();
-    const modals = React.useMemo(
-      () =>
-        modalContext.modals.map(([modal, key]) => (
-          <React.Fragment key={key}>{modal}</React.Fragment>
-        )),
-      [modalContext.modals],
-    );
+  const dispatch = useDispatch();
+  const modalContext = useModalContext();
+  const modals = React.useMemo(
+    () =>
+      modalContext.modals.map(([modal, key]) => (
+        <React.Fragment key={key}>{modal}</React.Fragment>
+      )),
+    [modalContext.modals],
+  );
 
-    const { lockStatus, releaseLockOrAbortRequest } = useWebLock(
-      TUNNELBROKER_LOCK_NAME,
-    );
+  const { lockStatus, releaseLockOrAbortRequest } = useWebLock(
+    TUNNELBROKER_LOCK_NAME,
+  );
 
-    const secondaryTunnelbrokerConnection: SecondaryTunnelbrokerConnection =
-      useOtherTabsTunnelbrokerConnection();
+  const secondaryTunnelbrokerConnection: SecondaryTunnelbrokerConnection =
+    useOtherTabsTunnelbrokerConnection();
 
-    const handleSecondaryDeviceLogInError =
-      useHandleSecondaryDeviceLogInError();
+  const handleSecondaryDeviceLogInError = useHandleSecondaryDeviceLogInError();
 
-    return (
-      <AppThemeWrapper>
-        <AlchemyENSCacheProvider>
-          <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
-            <TunnelbrokerProvider
-              shouldBeClosed={lockStatus !== 'acquired'}
-              onClose={releaseLockOrAbortRequest}
-              secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
-            >
-              <BadgeHandler />
-              <IdentitySearchProvider>
-                <SecondaryDeviceQRAuthContextProvider
-                  parseTunnelbrokerQRAuthMessage={
-                    parseTunnelbrokerQRAuthMessage
-                  }
-                  composeTunnelbrokerQRAuthMessage={
-                    composeTunnelbrokerQRAuthMessage
-                  }
-                  generateAESKey={generateQRAuthAESKey}
-                  onLogInError={handleSecondaryDeviceLogInError}
-                >
-                  <App
-                    {...props}
-                    navInfo={navInfo}
-                    entriesLoadingStatus={entriesLoadingStatus}
-                    loggedIn={loggedIn}
-                    activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-                    dispatch={dispatch}
-                    modals={modals}
-                  />
-                </SecondaryDeviceQRAuthContextProvider>
-                <DBOpsHandler />
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-              </IdentitySearchProvider>
-            </TunnelbrokerProvider>
-          </NeynarClientProvider>
-        </AlchemyENSCacheProvider>
-      </AppThemeWrapper>
-    );
-  },
-);
+  return (
+    <AppThemeWrapper>
+      <AlchemyENSCacheProvider>
+        <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
+          <TunnelbrokerProvider
+            shouldBeClosed={lockStatus !== 'acquired'}
+            onClose={releaseLockOrAbortRequest}
+            secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
+          >
+            <BadgeHandler />
+            <IdentitySearchProvider>
+              <SecondaryDeviceQRAuthContextProvider
+                parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
+                composeTunnelbrokerQRAuthMessage={
+                  composeTunnelbrokerQRAuthMessage
+                }
+                generateAESKey={generateQRAuthAESKey}
+                onLogInError={handleSecondaryDeviceLogInError}
+              >
+                <App
+                  {...props}
+                  navInfo={navInfo}
+                  entriesLoadingStatus={entriesLoadingStatus}
+                  loggedIn={loggedIn}
+                  activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                  dispatch={dispatch}
+                  modals={modals}
+                />
+              </SecondaryDeviceQRAuthContextProvider>
+              <DBOpsHandler />
+              <KeyserverConnectionsHandler socketComponent={Socket} />
+            </IdentitySearchProvider>
+          </TunnelbrokerProvider>
+        </NeynarClientProvider>
+      </AlchemyENSCacheProvider>
+    </AppThemeWrapper>
+  );
+});
 
 function AppWithProvider(props: BaseProps): React.Node {
   return (

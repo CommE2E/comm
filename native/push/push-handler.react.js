@@ -805,54 +805,56 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedPushHandler: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
-    const navContext = React.useContext(NavContext);
-    const activeThread = activeMessageListSelector(navContext);
-    const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
-    const unreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
-    const connection = useSelector(allConnectionInfosSelector);
-    const deviceTokens = useSelector(deviceTokensSelector);
-    const threadInfos = useSelector(threadInfoSelector);
-    const notifPermissionAlertInfo = useSelector(
-      state => state.alertStore.alertInfos[alertTypes.NOTIF_PERMISSION],
-    );
-    const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
-    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
-    const loggedIn = useSelector(isLoggedIn);
-    const localToken = useSelector(
-      state => state.tunnelbrokerDeviceToken.localToken,
-    );
-    const navigateToThread = useNavigateToThread();
-    const dispatch = useDispatch();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callSetDeviceToken = useSetDeviceToken();
-    const callSetDeviceTokenFanout = useSetDeviceTokenFanout();
-    const rootContext = React.useContext(RootContext);
-    const { socketState: tunnelbrokerSocketState } = useTunnelbroker();
-    return (
-      <PushHandler
-        {...props}
-        activeThread={activeThread}
-        thinThreadsUnreadCount={thinThreadsUnreadCount}
-        unreadThickThreadIDs={unreadThickThreadIDs}
-        connection={connection}
-        deviceTokens={deviceTokens}
-        threadInfos={threadInfos}
-        notifPermissionAlertInfo={notifPermissionAlertInfo}
-        allUpdatesCurrentAsOf={allUpdatesCurrentAsOf}
-        activeTheme={activeTheme}
-        loggedIn={loggedIn}
-        navigateToThread={navigateToThread}
-        dispatch={dispatch}
-        dispatchActionPromise={dispatchActionPromise}
-        setDeviceToken={callSetDeviceToken}
-        setDeviceTokenFanout={callSetDeviceTokenFanout}
-        rootContext={rootContext}
-        localToken={localToken}
-        tunnelbrokerSocketState={tunnelbrokerSocketState}
-      />
-    );
-  });
+const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedPushHandler(props: BaseProps) {
+  const navContext = React.useContext(NavContext);
+  const activeThread = activeMessageListSelector(navContext);
+  const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
+  const unreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
+  const connection = useSelector(allConnectionInfosSelector);
+  const deviceTokens = useSelector(deviceTokensSelector);
+  const threadInfos = useSelector(threadInfoSelector);
+  const notifPermissionAlertInfo = useSelector(
+    state => state.alertStore.alertInfos[alertTypes.NOTIF_PERMISSION],
+  );
+  const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const loggedIn = useSelector(isLoggedIn);
+  const localToken = useSelector(
+    state => state.tunnelbrokerDeviceToken.localToken,
+  );
+  const navigateToThread = useNavigateToThread();
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSetDeviceToken = useSetDeviceToken();
+  const callSetDeviceTokenFanout = useSetDeviceTokenFanout();
+  const rootContext = React.useContext(RootContext);
+  const { socketState: tunnelbrokerSocketState } = useTunnelbroker();
+  return (
+    <PushHandler
+      {...props}
+      activeThread={activeThread}
+      thinThreadsUnreadCount={thinThreadsUnreadCount}
+      unreadThickThreadIDs={unreadThickThreadIDs}
+      connection={connection}
+      deviceTokens={deviceTokens}
+      threadInfos={threadInfos}
+      notifPermissionAlertInfo={notifPermissionAlertInfo}
+      allUpdatesCurrentAsOf={allUpdatesCurrentAsOf}
+      activeTheme={activeTheme}
+      loggedIn={loggedIn}
+      navigateToThread={navigateToThread}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      setDeviceToken={callSetDeviceToken}
+      setDeviceTokenFanout={callSetDeviceTokenFanout}
+      rootContext={rootContext}
+      localToken={localToken}
+      tunnelbrokerSocketState={tunnelbrokerSocketState}
+    />
+  );
+});
 
 export default ConnectedPushHandler;

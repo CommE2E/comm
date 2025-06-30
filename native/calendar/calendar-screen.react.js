@@ -1077,44 +1077,46 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const ConnectedCalendarScreen: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedCalendarScreen(props: BaseProps) {
-    const navContext = React.useContext(NavContext);
-    const calendarActive =
-      activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
+const ConnectedCalendarScreen: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedCalendarScreen(props: BaseProps) {
+  const navContext = React.useContext(NavContext);
+  const calendarActive =
+    activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
 
-    const listData = useSelector(calendarListData);
-    const startDate = useSelector(state => state.navInfo.startDate);
-    const endDate = useSelector(state => state.navInfo.endDate);
-    const calendarFilters = useSelector(state => state.calendarFilters);
-    const dimensions = useSelector(derivedDimensionsInfoSelector);
-    const loadingStatus = useSelector(loadingStatusSelector);
-    const connected = useSelector(state => state.connectivity.connected);
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
-    const indicatorStyle = useIndicatorStyle();
+  const listData = useSelector(calendarListData);
+  const startDate = useSelector(state => state.navInfo.startDate);
+  const endDate = useSelector(state => state.navInfo.endDate);
+  const calendarFilters = useSelector(state => state.calendarFilters);
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const connected = useSelector(state => state.connectivity.connected);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callUpdateCalendarQuery = useUpdateCalendarQuery();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callUpdateCalendarQuery = useUpdateCalendarQuery();
 
-    return (
-      <CalendarScreen
-        {...props}
-        calendarActive={calendarActive}
-        listData={listData}
-        startDate={startDate}
-        endDate={endDate}
-        calendarFilters={calendarFilters}
-        dimensions={dimensions}
-        loadingStatus={loadingStatus}
-        connected={connected}
-        colors={colors}
-        styles={styles}
-        indicatorStyle={indicatorStyle}
-        dispatchActionPromise={dispatchActionPromise}
-        updateCalendarQuery={callUpdateCalendarQuery}
-      />
-    );
-  });
+  return (
+    <CalendarScreen
+      {...props}
+      calendarActive={calendarActive}
+      listData={listData}
+      startDate={startDate}
+      endDate={endDate}
+      calendarFilters={calendarFilters}
+      dimensions={dimensions}
+      loadingStatus={loadingStatus}
+      connected={connected}
+      colors={colors}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      dispatchActionPromise={dispatchActionPromise}
+      updateCalendarQuery={callUpdateCalendarQuery}
+    />
+  );
+});
 
 export default ConnectedCalendarScreen;

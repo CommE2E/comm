@@ -34,6 +34,6 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
 }
 
 const MemoizedMarkdownSpoiler: React.ComponentType<MarkdownSpoilerProps> =
-  React.memo<MarkdownSpoilerProps>(MarkdownSpoiler);
+  React.memo<MarkdownSpoilerProps, void>(MarkdownSpoiler);
 
 export default MemoizedMarkdownSpoiler;

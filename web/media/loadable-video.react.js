@@ -107,7 +107,7 @@ type MemoizedLoadableVideoComponentType = component(
 
 const MemoizedLoadableVideo: MemoizedLoadableVideoComponentType = React.memo<
   Props,
-  HTMLVideoElement,
+  React.RefSetter<HTMLVideoElement>,
 >(React.forwardRef<Props, HTMLVideoElement>(LoadableVideo));
 
 export default MemoizedLoadableVideo;

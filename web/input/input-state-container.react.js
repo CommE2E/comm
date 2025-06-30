@@ -1648,75 +1648,74 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedInputStateContainer(props) {
-    const activeChatThreadID = useSelector(
-      state => state.navInfo.activeChatThreadID,
-    );
-    const drafts = useSelector(state => state.draftStore.drafts);
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const messageStoreMessages = useSelector(
-      state => state.messageStore.messages,
-    );
-    const pendingToRealizedThreadIDs = useSelector(state =>
-      pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
-    );
-    const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const callBlobServiceUpload = useBlobServiceUpload();
-    const callDeleteUpload = useDeleteUpload();
-    const callSendMultimediaMessage =
-      useInputStateContainerSendMultimediaMessage();
-    const callSendTextMessage = useInputStateContainerSendTextMessage();
-    const callNewThinThread = useNewThinThread();
-    const callNewThickThread = useNewThickThread();
-    const dispatch = useDispatch();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const modalContext = useModalContext();
-    const identityContext = React.useContext(IdentityClientContext);
-    const callInvalidTokenLogOut = useInvalidCSATLogOut();
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedInputStateContainer(props) {
+  const activeChatThreadID = useSelector(
+    state => state.navInfo.activeChatThreadID,
+  );
+  const drafts = useSelector(state => state.draftStore.drafts);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const messageStoreMessages = useSelector(
+    state => state.messageStore.messages,
+  );
+  const pendingToRealizedThreadIDs = useSelector(state =>
+    pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
+  );
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
+  const callBlobServiceUpload = useBlobServiceUpload();
+  const callDeleteUpload = useDeleteUpload();
+  const callSendMultimediaMessage =
+    useInputStateContainerSendMultimediaMessage();
+  const callSendTextMessage = useInputStateContainerSendTextMessage();
+  const callNewThinThread = useNewThinThread();
+  const callNewThickThread = useNewThickThread();
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const modalContext = useModalContext();
+  const identityContext = React.useContext(IdentityClientContext);
+  const callInvalidTokenLogOut = useInvalidCSATLogOut();
 
-    const [sendCallbacks, setSendCallbacks] = React.useState<
-      $ReadOnlyArray<() => mixed>,
-    >([]);
-    const registerSendCallback = React.useCallback((callback: () => mixed) => {
-      setSendCallbacks(prevCallbacks => [...prevCallbacks, callback]);
-    }, []);
-    const unregisterSendCallback = React.useCallback(
-      (callback: () => mixed) => {
-        setSendCallbacks(prevCallbacks =>
-          prevCallbacks.filter(candidate => candidate !== callback),
-        );
-      },
-      [],
+  const [sendCallbacks, setSendCallbacks] = React.useState<
+    $ReadOnlyArray<() => mixed>,
+  >([]);
+  const registerSendCallback = React.useCallback((callback: () => mixed) => {
+    setSendCallbacks(prevCallbacks => [...prevCallbacks, callback]);
+  }, []);
+  const unregisterSendCallback = React.useCallback((callback: () => mixed) => {
+    setSendCallbacks(prevCallbacks =>
+      prevCallbacks.filter(candidate => candidate !== callback),
     );
+  }, []);
 
-    return (
-      <InputStateContainer
-        {...props}
-        activeChatThreadID={activeChatThreadID}
-        drafts={drafts}
-        viewerID={viewerID}
-        messageStoreMessages={messageStoreMessages}
-        pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
-        calendarQuery={calendarQuery}
-        blobServiceUpload={callBlobServiceUpload}
-        deleteUpload={callDeleteUpload}
-        sendMultimediaMessage={callSendMultimediaMessage}
-        sendTextMessage={callSendTextMessage}
-        newThinThread={callNewThinThread}
-        newThickThread={callNewThickThread}
-        dispatch={dispatch}
-        dispatchActionPromise={dispatchActionPromise}
-        pushModal={modalContext.pushModal}
-        sendCallbacks={sendCallbacks}
-        registerSendCallback={registerSendCallback}
-        unregisterSendCallback={unregisterSendCallback}
-        identityContext={identityContext}
-        invalidTokenLogOut={callInvalidTokenLogOut}
-      />
-    );
-  });
+  return (
+    <InputStateContainer
+      {...props}
+      activeChatThreadID={activeChatThreadID}
+      drafts={drafts}
+      viewerID={viewerID}
+      messageStoreMessages={messageStoreMessages}
+      pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
+      calendarQuery={calendarQuery}
+      blobServiceUpload={callBlobServiceUpload}
+      deleteUpload={callDeleteUpload}
+      sendMultimediaMessage={callSendMultimediaMessage}
+      sendTextMessage={callSendTextMessage}
+      newThinThread={callNewThinThread}
+      newThickThread={callNewThickThread}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      pushModal={modalContext.pushModal}
+      sendCallbacks={sendCallbacks}
+      registerSendCallback={registerSendCallback}
+      unregisterSendCallback={unregisterSendCallback}
+      identityContext={identityContext}
+      invalidTokenLogOut={callInvalidTokenLogOut}
+    />
+  );
+});
 
 export default ConnectedInputStateContainer;

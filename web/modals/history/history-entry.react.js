@@ -146,43 +146,45 @@ class HistoryEntry extends React.PureComponent<Props> {
   }
 }
 
-const ConnectedHistoryEntry: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedHistoryEntry(props) {
-    const entryID = props.entryInfo.id;
-    invariant(entryID, 'entryInfo.id (serverID) should be set');
-    const unresolvedThreadInfo = useSelector(
-      state => threadInfoSelector(state)[props.entryInfo.threadID],
-    );
-    const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
-    const loggedIn = useSelector(
-      state =>
-        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-    );
-    const restoreLoadingStatus = useSelector(
-      createLoadingStatusSelector(
-        restoreEntryActionTypes,
-        `${restoreEntryActionTypes.started}:${entryID}`,
-      ),
-    );
-    const calenderQuery = useSelector(nonThreadCalendarQuery);
-    const callRestoreEntry = useRestoreEntry();
-    const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedHistoryEntry(props) {
+  const entryID = props.entryInfo.id;
+  invariant(entryID, 'entryInfo.id (serverID) should be set');
+  const unresolvedThreadInfo = useSelector(
+    state => threadInfoSelector(state)[props.entryInfo.threadID],
+  );
+  const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
+  const loggedIn = useSelector(
+    state =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const restoreLoadingStatus = useSelector(
+    createLoadingStatusSelector(
+      restoreEntryActionTypes,
+      `${restoreEntryActionTypes.started}:${entryID}`,
+    ),
+  );
+  const calenderQuery = useSelector(nonThreadCalendarQuery);
+  const callRestoreEntry = useRestoreEntry();
+  const dispatchActionPromise = useDispatchActionPromise();
 
-    const { creator } = props.entryInfo;
-    const [creatorWithENSName] = useENSNames([creator]);
+  const { creator } = props.entryInfo;
+  const [creatorWithENSName] = useENSNames([creator]);
 
-    return (
-      <HistoryEntry
-        {...props}
-        threadInfo={threadInfo}
-        loggedIn={loggedIn}
-        restoreLoadingStatus={restoreLoadingStatus}
-        calendarQuery={calenderQuery}
-        dispatchActionPromise={dispatchActionPromise}
-        restoreEntry={callRestoreEntry}
-        creator={creatorWithENSName}
-      />
-    );
-  });
+  return (
+    <HistoryEntry
+      {...props}
+      threadInfo={threadInfo}
+      loggedIn={loggedIn}
+      restoreLoadingStatus={restoreLoadingStatus}
+      calendarQuery={calenderQuery}
+      dispatchActionPromise={dispatchActionPromise}
+      restoreEntry={callRestoreEntry}
+      creator={creatorWithENSName}
+    />
+  );
+});
 
 export default ConnectedHistoryEntry;

@@ -495,8 +495,10 @@ const unboundStyles = {
 
 registerFetchKey(updateRelationshipsActionTypes);
 
-const MemoizedRelationshipList: React.ComponentType<Props> =
-  React.memo<Props>(RelationshipList);
+const MemoizedRelationshipList: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(RelationshipList);
 MemoizedRelationshipList.displayName = 'RelationshipList';
 
 export default MemoizedRelationshipList;

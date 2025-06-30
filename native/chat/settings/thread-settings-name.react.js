@@ -215,32 +215,34 @@ class ThreadSettingsName extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsName(props: BaseProps) {
-    const styles = useStyles(unboundStyles);
-    const colors = useColors();
+const ConnectedThreadSettingsName: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedThreadSettingsName(props: BaseProps) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
 
-    const threadID = props.threadInfo.id;
-    const loadingStatus = useSelector(
-      createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
-      ),
-    );
+  const threadID = props.threadInfo.id;
+  const loadingStatus = useSelector(
+    createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
+    ),
+  );
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useChangeThreadSettings();
 
-    return (
-      <ThreadSettingsName
-        {...props}
-        styles={styles}
-        colors={colors}
-        loadingStatus={loadingStatus}
-        dispatchActionPromise={dispatchActionPromise}
-        changeThreadSettings={callChangeThreadSettings}
-      />
-    );
-  });
+  return (
+    <ThreadSettingsName
+      {...props}
+      styles={styles}
+      colors={colors}
+      loadingStatus={loadingStatus}
+      dispatchActionPromise={dispatchActionPromise}
+      changeThreadSettings={callChangeThreadSettings}
+    />
+  );
+});
 
 export default ConnectedThreadSettingsName;

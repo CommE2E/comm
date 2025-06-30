@@ -232,53 +232,55 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-const ConnectedDeleteThread: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedDeleteThread(props: BaseProps) {
-    const threadID = props.route.params.threadInfo.id;
-    const reduxThreadInfo = useSelector(
-      state => threadInfoSelector(state)[threadID],
-    );
-    const reduxContainedThreadInfos = useSelector(
-      state => containedThreadInfos(state)[threadID],
-    );
+const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedDeleteThread(props: BaseProps) {
+  const threadID = props.route.params.threadInfo.id;
+  const reduxThreadInfo = useSelector(
+    state => threadInfoSelector(state)[threadID],
+  );
+  const reduxContainedThreadInfos = useSelector(
+    state => containedThreadInfos(state)[threadID],
+  );
 
-    const { setParams } = props.navigation;
-    React.useEffect(() => {
-      if (reduxThreadInfo) {
-        setParams({ threadInfo: reduxThreadInfo });
-      }
-    }, [reduxThreadInfo, setParams]);
-    const threadInfo = reduxThreadInfo ?? props.route.params.threadInfo;
-    const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
+  const { setParams } = props.navigation;
+  React.useEffect(() => {
+    if (reduxThreadInfo) {
+      setParams({ threadInfo: reduxThreadInfo });
+    }
+  }, [reduxThreadInfo, setParams]);
+  const threadInfo = reduxThreadInfo ?? props.route.params.threadInfo;
+  const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
-    const loadingStatus = useSelector(loadingStatusSelector);
+  const loadingStatus = useSelector(loadingStatusSelector);
 
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteThread = useDeleteThread();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callDeleteThread = useDeleteThread();
 
-    const navContext = React.useContext(NavContext);
-    invariant(navContext, 'NavContext should be set in DeleteThread');
-    const navDispatch = navContext.dispatch;
+  const navContext = React.useContext(NavContext);
+  invariant(navContext, 'NavContext should be set in DeleteThread');
+  const navDispatch = navContext.dispatch;
 
-    const shouldUseDeleteConfirmationAlert =
-      reduxContainedThreadInfos && reduxContainedThreadInfos.length > 0;
+  const shouldUseDeleteConfirmationAlert =
+    reduxContainedThreadInfos && reduxContainedThreadInfos.length > 0;
 
-    return (
-      <DeleteThread
-        {...props}
-        threadInfo={resolvedThreadInfo}
-        shouldUseDeleteConfirmationAlert={shouldUseDeleteConfirmationAlert}
-        loadingStatus={loadingStatus}
-        colors={colors}
-        styles={styles}
-        dispatchActionPromise={dispatchActionPromise}
-        deleteThread={callDeleteThread}
-        navDispatch={navDispatch}
-      />
-    );
-  });
+  return (
+    <DeleteThread
+      {...props}
+      threadInfo={resolvedThreadInfo}
+      shouldUseDeleteConfirmationAlert={shouldUseDeleteConfirmationAlert}
+      loadingStatus={loadingStatus}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      deleteThread={callDeleteThread}
+      navDispatch={navDispatch}
+    />
+  );
+});
 
 export default ConnectedDeleteThread;

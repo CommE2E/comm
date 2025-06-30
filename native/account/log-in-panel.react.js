@@ -348,21 +348,23 @@ const styles = StyleSheet.create({
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
-const ConnectedLogInPanel: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
-    const loadingStatus = useSelector(
-      olmSessionInitializationDataLoadingStatusSelector,
-    );
+const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedLogInPanel(props: BaseProps) {
+  const loadingStatus = useSelector(
+    olmSessionInitializationDataLoadingStatusSelector,
+  );
 
-    const callIdentityPasswordLogIn = usePasswordLogIn();
+  const callIdentityPasswordLogIn = usePasswordLogIn();
 
-    return (
-      <LogInPanel
-        {...props}
-        loadingStatus={loadingStatus}
-        identityPasswordLogIn={callIdentityPasswordLogIn}
-      />
-    );
-  });
+  return (
+    <LogInPanel
+      {...props}
+      loadingStatus={loadingStatus}
+      identityPasswordLogIn={callIdentityPasswordLogIn}
+    />
+  );
+});
 
 export default ConnectedLogInPanel;

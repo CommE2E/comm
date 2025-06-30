@@ -1150,202 +1150,204 @@ const threadMembersChangeIsSaving = (
   return false;
 };
 
-const ConnectedThreadSettings: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettings(props: BaseProps) {
-    const userInfos = useSelector(state => state.userStore.userInfos);
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
+const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedThreadSettings(props: BaseProps) {
+  const userInfos = useSelector(state => state.userStore.userInfos);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const threadID = props.route.params.threadInfo.id;
+
+  const reduxThreadInfo: ?ThreadInfo = useSelector(
+    state => threadInfoSelector(state)[threadID],
+  );
+  React.useEffect(() => {
+    invariant(
+      reduxThreadInfo,
+      'ReduxThreadInfo should exist when ThreadSettings is opened',
     );
-    const threadID = props.route.params.threadInfo.id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const reduxThreadInfo: ?ThreadInfo = useSelector(
-      state => threadInfoSelector(state)[threadID],
+  const { setParams } = props.navigation;
+  React.useEffect(() => {
+    if (reduxThreadInfo) {
+      setParams({ threadInfo: reduxThreadInfo });
+    }
+  }, [reduxThreadInfo, setParams]);
+  const threadInfo: ThreadInfo =
+    reduxThreadInfo ?? props.route.params.threadInfo;
+  const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
+
+  const isThreadInChatList = useIsThreadInChatList(threadInfo);
+  React.useEffect(() => {
+    if (isThreadInChatList) {
+      return undefined;
+    }
+    threadWatcher.watchID(threadInfo.id);
+    return () => {
+      threadWatcher.removeID(threadInfo.id);
+    };
+  }, [isThreadInChatList, threadInfo.id]);
+
+  const parentThreadID = threadInfo.parentThreadID;
+  const parentThreadInfo: ?ThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const resolvedParentThreadInfo =
+    useResolvedOptionalThreadInfo(parentThreadInfo);
+  const threadMembers = threadInfo.members;
+  const boundChildThreadInfos = useSelector(
+    state => childThreadInfos(state)[threadID],
+  );
+  const resolvedChildThreadInfos = useResolvedOptionalThreadInfos(
+    boundChildThreadInfos,
+  );
+
+  const somethingIsSaving = useSelector(state => {
+    const editNameLoadingStatus = createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
+    )(state);
+
+    const editColorLoadingStatus = createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${threadID}:color`,
+    )(state);
+
+    const editDescriptionLoadingStatus = createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${threadID}:description`,
+    )(state);
+
+    const leaveThreadLoadingStatus = createLoadingStatusSelector(
+      leaveThreadActionTypes,
+      `${leaveThreadActionTypes.started}:${threadID}`,
+    )(state);
+
+    const boundThreadMembersChangeIsSaving = threadMembersChangeIsSaving(
+      state,
+      threadMembers,
     );
-    React.useEffect(() => {
-      invariant(
-        reduxThreadInfo,
-        'ReduxThreadInfo should exist when ThreadSettings is opened',
-      );
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const { setParams } = props.navigation;
-    React.useEffect(() => {
-      if (reduxThreadInfo) {
-        setParams({ threadInfo: reduxThreadInfo });
-      }
-    }, [reduxThreadInfo, setParams]);
-    const threadInfo: ThreadInfo =
-      reduxThreadInfo ?? props.route.params.threadInfo;
-    const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
-
-    const isThreadInChatList = useIsThreadInChatList(threadInfo);
-    React.useEffect(() => {
-      if (isThreadInChatList) {
-        return undefined;
-      }
-      threadWatcher.watchID(threadInfo.id);
-      return () => {
-        threadWatcher.removeID(threadInfo.id);
-      };
-    }, [isThreadInChatList, threadInfo.id]);
-
-    const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
-    const resolvedParentThreadInfo =
-      useResolvedOptionalThreadInfo(parentThreadInfo);
-    const threadMembers = threadInfo.members;
-    const boundChildThreadInfos = useSelector(
-      state => childThreadInfos(state)[threadID],
-    );
-    const resolvedChildThreadInfos = useResolvedOptionalThreadInfos(
-      boundChildThreadInfos,
-    );
-
-    const somethingIsSaving = useSelector(state => {
-      const editNameLoadingStatus = createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
-      )(state);
-
-      const editColorLoadingStatus = createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:${threadID}:color`,
-      )(state);
-
-      const editDescriptionLoadingStatus = createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:${threadID}:description`,
-      )(state);
-
-      const leaveThreadLoadingStatus = createLoadingStatusSelector(
-        leaveThreadActionTypes,
-        `${leaveThreadActionTypes.started}:${threadID}`,
-      )(state);
-
-      const boundThreadMembersChangeIsSaving = threadMembersChangeIsSaving(
-        state,
-        threadMembers,
-      );
-
-      return (
-        boundThreadMembersChangeIsSaving ||
-        editNameLoadingStatus === 'loading' ||
-        editColorLoadingStatus === 'loading' ||
-        editDescriptionLoadingStatus === 'loading' ||
-        leaveThreadLoadingStatus === 'loading'
-      );
-    });
-
-    const { navigation } = props;
-    React.useEffect(() => {
-      const tabNavigation = navigation.getParent<
-        ScreenParamList,
-        'Chat',
-        TabNavigationState,
-        BottomTabOptions,
-        BottomTabNavigationEventMap,
-        TabNavigationProp<'Chat'>,
-      >();
-      invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-
-      const onTabPress = () => {
-        if (navigation.isFocused() && !somethingIsSaving) {
-          navigation.popToTop();
-        }
-      };
-
-      tabNavigation.addListener('tabPress', onTabPress);
-      return () => tabNavigation.removeListener('tabPress', onTabPress);
-    }, [navigation, somethingIsSaving]);
-
-    const styles = useStyles(unboundStyles);
-    const indicatorStyle = useIndicatorStyle();
-    const overlayContext = React.useContext(OverlayContext);
-    const keyboardState = React.useContext(KeyboardContext);
-    const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
-
-    const canEditThreadAvatar = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_THREAD_AVATAR,
-    );
-
-    const canEditThreadName = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_THREAD_NAME,
-    );
-
-    const canEditThreadDescription = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_THREAD_DESCRIPTION,
-    );
-
-    const canEditThreadColor = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_THREAD_COLOR,
-    );
-
-    const canCreateSubchannels = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.CREATE_SUBCHANNELS,
-    );
-
-    const canLeaveThread = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.LEAVE_THREAD,
-    );
-
-    const canDeleteThread = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.DELETE_THREAD,
-    );
-
-    const { inviteLink, canManageLinks, canAddMembers, isCommunityRoot } =
-      useAddUsersPermissions(threadInfo);
-
-    const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
-    const dispatchActionPromise = useDispatchActionPromise();
-    // Because we don't support updates and persistance for invite links,
-    // we have to fetch them whenever we want to display them.
-    // Here we need invite links for the "Add users" button in ThreadSettings
-    React.useEffect(() => {
-      if (!isCommunityRoot) {
-        return;
-      }
-      void dispatchActionPromise(
-        fetchPrimaryInviteLinkActionTypes,
-        callFetchPrimaryLinks(),
-      );
-    }, [callFetchPrimaryLinks, dispatchActionPromise, isCommunityRoot]);
 
     return (
-      <ThreadSettings
-        {...props}
-        userInfos={userInfos}
-        viewerID={viewerID}
-        threadInfo={resolvedThreadInfo}
-        parentThreadInfo={resolvedParentThreadInfo}
-        childThreadInfos={resolvedChildThreadInfos}
-        somethingIsSaving={somethingIsSaving}
-        styles={styles}
-        indicatorStyle={indicatorStyle}
-        overlayContext={overlayContext}
-        keyboardState={keyboardState}
-        canPromoteSidebar={canPromoteSidebar}
-        canEditThreadAvatar={canEditThreadAvatar}
-        canEditThreadName={canEditThreadName}
-        canEditThreadDescription={canEditThreadDescription}
-        canEditThreadColor={canEditThreadColor}
-        canCreateSubchannels={canCreateSubchannels}
-        canAddMembers={canAddMembers}
-        canLeaveThread={canLeaveThread}
-        canDeleteThread={canDeleteThread}
-        canManageInviteLinks={canManageLinks}
-        inviteLinkExists={!!inviteLink}
-      />
+      boundThreadMembersChangeIsSaving ||
+      editNameLoadingStatus === 'loading' ||
+      editColorLoadingStatus === 'loading' ||
+      editDescriptionLoadingStatus === 'loading' ||
+      leaveThreadLoadingStatus === 'loading'
     );
   });
+
+  const { navigation } = props;
+  React.useEffect(() => {
+    const tabNavigation = navigation.getParent<
+      ScreenParamList,
+      'Chat',
+      TabNavigationState,
+      BottomTabOptions,
+      BottomTabNavigationEventMap,
+      TabNavigationProp<'Chat'>,
+    >();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+
+    const onTabPress = () => {
+      if (navigation.isFocused() && !somethingIsSaving) {
+        navigation.popToTop();
+      }
+    };
+
+    tabNavigation.addListener('tabPress', onTabPress);
+    return () => tabNavigation.removeListener('tabPress', onTabPress);
+  }, [navigation, somethingIsSaving]);
+
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+  const overlayContext = React.useContext(OverlayContext);
+  const keyboardState = React.useContext(KeyboardContext);
+  const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
+
+  const canEditThreadAvatar = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_THREAD_AVATAR,
+  );
+
+  const canEditThreadName = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_THREAD_NAME,
+  );
+
+  const canEditThreadDescription = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_THREAD_DESCRIPTION,
+  );
+
+  const canEditThreadColor = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_THREAD_COLOR,
+  );
+
+  const canCreateSubchannels = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.CREATE_SUBCHANNELS,
+  );
+
+  const canLeaveThread = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.LEAVE_THREAD,
+  );
+
+  const canDeleteThread = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.DELETE_THREAD,
+  );
+
+  const { inviteLink, canManageLinks, canAddMembers, isCommunityRoot } =
+    useAddUsersPermissions(threadInfo);
+
+  const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
+  const dispatchActionPromise = useDispatchActionPromise();
+  // Because we don't support updates and persistance for invite links,
+  // we have to fetch them whenever we want to display them.
+  // Here we need invite links for the "Add users" button in ThreadSettings
+  React.useEffect(() => {
+    if (!isCommunityRoot) {
+      return;
+    }
+    void dispatchActionPromise(
+      fetchPrimaryInviteLinkActionTypes,
+      callFetchPrimaryLinks(),
+    );
+  }, [callFetchPrimaryLinks, dispatchActionPromise, isCommunityRoot]);
+
+  return (
+    <ThreadSettings
+      {...props}
+      userInfos={userInfos}
+      viewerID={viewerID}
+      threadInfo={resolvedThreadInfo}
+      parentThreadInfo={resolvedParentThreadInfo}
+      childThreadInfos={resolvedChildThreadInfos}
+      somethingIsSaving={somethingIsSaving}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      overlayContext={overlayContext}
+      keyboardState={keyboardState}
+      canPromoteSidebar={canPromoteSidebar}
+      canEditThreadAvatar={canEditThreadAvatar}
+      canEditThreadName={canEditThreadName}
+      canEditThreadDescription={canEditThreadDescription}
+      canEditThreadColor={canEditThreadColor}
+      canCreateSubchannels={canCreateSubchannels}
+      canAddMembers={canAddMembers}
+      canLeaveThread={canLeaveThread}
+      canDeleteThread={canDeleteThread}
+      canManageInviteLinks={canManageLinks}
+      inviteLinkExists={!!inviteLink}
+    />
+  );
+});
 
 export default ConnectedThreadSettings;
