@@ -10,6 +10,7 @@ import { olmAPI } from './crypto/olm-api.js';
 import { sqliteAPI } from './database/sqlite-api.js';
 import encryptedNotifUtilsAPI from './push/encrypted-notif-utils-api.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
+import { isStaffRelease } from './utils/staff-utils.js';
 
 registerConfig({
   resolveKeyserverSessionInvalidationUsingNativeCredentials,
@@ -25,4 +26,5 @@ registerConfig({
   sqliteAPI,
   encryptedNotifUtilsAPI,
   showAlert: (title: string, message: string) => Alert.alert(title, message),
+  isStaffRelease: __DEV__ || isStaffRelease,
 });
