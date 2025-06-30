@@ -21,7 +21,7 @@ declare module "react-hot-loader" {
 
   declare export function hot(module: Module): <T: React.ComponentType<any>>(
     Component: T,
-    props?: $Diff<ContainerProps, { children: React$Element<any>, ... }>
+    props?: Omit<ContainerProps, 'children'>
   ) => T
 
   declare export function cold<T: React.ComponentType<any>>(component: T): T
@@ -54,6 +54,6 @@ declare module "react-hot-loader/root" {
 
   declare export function hot<T: React.ComponentType<any>>(
     Component: T,
-    props?: $Diff<ContainerProps, { children: React$Element<any>, ... }>
+    props?: Omit<ContainerProps, 'children'>
   ): T;
 }
