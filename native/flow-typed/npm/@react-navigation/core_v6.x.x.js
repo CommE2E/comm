@@ -1214,16 +1214,16 @@ declare module '@react-navigation/core' {
   declare export type TransitionSpec =
     | {|
         animation: 'spring',
-        config: $Diff<
+        config: Omit<
           SpringAnimationConfigSingle,
-          { toValue: number | AnimatedValue, ... },
+          'toValue',
         >,
       |}
     | {|
         animation: 'timing',
-        config: $Diff<
+        config: Omit<
           TimingAnimationConfigSingle,
-          { toValue: number | AnimatedValue, ... },
+          'toValue',
         >,
       |};
 
@@ -1516,9 +1516,9 @@ declare module '@react-navigation/core' {
    */
 
   declare export type BottomTabBarButtonProps = {|
-    ...$Diff<
+    ...Omit<
       TouchableWithoutFeedbackProps,
-      {| onPress?: ?(event: PressEvent) => mixed |},
+      'onPress',
     >,
     +to?: string,
     +children: React.Node,
@@ -1528,16 +1528,16 @@ declare module '@react-navigation/core' {
   declare export type TabBarVisibilityAnimationConfig =
     | {|
         +animation: 'spring',
-        +config?: $Diff<
+        +config?: Omit<
           SpringAnimationConfigSingle,
-          { toValue: number | AnimatedValue, useNativeDriver: boolean, ... },
+          'toValue' | 'useNativeDriver',
         >,
       |}
     | {|
         +animation: 'timing',
-        +config?: $Diff<
+        +config?: Omit<
           TimingAnimationConfigSingle,
-          { toValue: number | AnimatedValue, useNativeDriver: boolean, ... },
+          'toValue' | 'useNativeDriver',
         >,
       |};
 
