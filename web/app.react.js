@@ -47,6 +47,7 @@ import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
 import { getConfig, registerConfig } from 'lib/utils/config.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { AlchemyENSCacheProvider } from 'lib/utils/wagmi-utils.js';
@@ -135,6 +136,7 @@ registerConfig({
   encryptedNotifUtilsAPI,
   showAlert: (title: string, message: string) =>
     window.alert(`${title}: ${message}`),
+  isStaffRelease: isDev,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
