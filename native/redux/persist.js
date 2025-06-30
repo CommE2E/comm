@@ -1398,10 +1398,7 @@ const legacyMigrations = {
   },
 };
 
-type PersistedReportStore = $Diff<
-  ReportStore,
-  { +queuedReports: $ReadOnlyArray<ClientReportCreationRequest> },
->;
+type PersistedReportStore = Omit<ReportStore, 'queuedReports'>;
 const reportStoreTransform: Transform = createTransform(
   (state: ReportStore): PersistedReportStore => {
     return { enabledReports: state.enabledReports };
