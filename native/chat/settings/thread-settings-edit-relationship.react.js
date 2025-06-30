@@ -32,8 +32,8 @@ type Props = {
   +relationshipButton: RelationshipButton,
 };
 
-const ThreadSettingsEditRelationship: React.ComponentType<Props> =
-  React.memo<Props>(function ThreadSettingsEditRelationship(props: Props) {
+const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo(
+  function ThreadSettingsEditRelationship(props: Props) {
     const otherUserInfoFromRedux = useSelector(state => {
       const currentUserID = state.currentUserInfo?.id;
       const otherUserID = getSingleOtherUser(props.threadInfo, currentUserID);
@@ -109,7 +109,8 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
         </Button>
       </View>
     );
-  });
+  },
+);
 
 const unboundStyles = {
   button: {

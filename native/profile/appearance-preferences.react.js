@@ -140,9 +140,7 @@ type BaseProps = {
   +route: NavigationRoute<'AppearancePreferences'>,
 };
 const ConnectedAppearancePreferences: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedAppearancePreferences(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedAppearancePreferences(props: BaseProps) {
     const globalThemeInfo = useSelector(state => state.globalThemeInfo);
     const updateThemePreference = useUpdateThemePreference();
 

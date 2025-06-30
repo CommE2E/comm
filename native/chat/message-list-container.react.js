@@ -247,9 +247,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 }
 
 const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMessageListContainer(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedMessageListContainer(props: BaseProps) {
     const [usernameInputText, setUsernameInputText] = React.useState('');
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
       $ReadOnlyArray<AccountUserInfo>,

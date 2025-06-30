@@ -805,8 +805,8 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedPushHandler: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
+const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedPushHandler(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
     const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
@@ -853,6 +853,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         tunnelbrokerSocketState={tunnelbrokerSocketState}
       />
     );
-  });
+  },
+);
 
 export default ConnectedPushHandler;

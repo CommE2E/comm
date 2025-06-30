@@ -291,9 +291,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsDescription(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedThreadSettingsDescription(props: BaseProps) {
     const threadID = props.threadInfo.id;
     const loadingStatus = useSelector(
       createLoadingStatusSelector(

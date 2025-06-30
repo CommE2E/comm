@@ -47,7 +47,7 @@ class OrientationHandler extends React.PureComponent<Props> {
   }
 }
 
-const ConnectedOrientationHandler: React.ComponentType<{}> = React.memo<{}>(
+const ConnectedOrientationHandler: React.ComponentType<{}> = React.memo(
   function ConnectedOrientationHandler() {
     const deviceOrientation = useSelector(state => state.deviceOrientation);
     const dispatch = useDispatch();

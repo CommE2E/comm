@@ -113,7 +113,7 @@ type Props = $Exact<
     OverlayNavigationHelpers<>,
   >,
 >;
-const OverlayNavigator = React.memo<Props>(
+const OverlayNavigator = React.memo(
   ({ initialRouteName, children, screenOptions, screenListeners }: Props) => {
     const { state, descriptors, navigation } = useNavigationBuilder<
       StackNavigationState,

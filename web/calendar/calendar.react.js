@@ -262,7 +262,7 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo(
   function ConnectedCalendar(props) {
     const year = useSelector(yearAssertingSelector);
     const month = useSelector(monthAssertingSelector);
