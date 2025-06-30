@@ -262,7 +262,8 @@ function ChatItemHeightMeasurer(props: Props) {
   );
 }
 
-const MemoizedChatItemHeightMeasurer: React.ComponentType<Props> =
-  React.memo<Props>(ChatItemHeightMeasurer);
+const MemoizedChatItemHeightMeasurer: React.ComponentType<Props> = React.memo(
+  ChatItemHeightMeasurer,
+);
 
 export default MemoizedChatItemHeightMeasurer;

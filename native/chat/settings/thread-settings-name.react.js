@@ -215,8 +215,8 @@ class ThreadSettingsName extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsName(props: BaseProps) {
+const ConnectedThreadSettingsName: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedThreadSettingsName(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
 
@@ -241,6 +241,7 @@ const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
         changeThreadSettings={callChangeThreadSettings}
       />
     );
-  });
+  },
+);
 
 export default ConnectedThreadSettingsName;

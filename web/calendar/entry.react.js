@@ -484,7 +484,7 @@ class Entry extends React.PureComponent<Props, State> {
 
 export type InnerEntry = Entry;
 
-const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedEntry: React.ComponentType<BaseProps> = React.memo(
   function ConnectedEntry(props) {
     const { threadID } = props.entryInfo;
     const unresolvedThreadInfo = useSelector(

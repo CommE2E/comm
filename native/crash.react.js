@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedCrash: React.ComponentType<BaseProps> = React.memo(
   function ConnectedCrash(props: BaseProps) {
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useLogOut();

@@ -1648,8 +1648,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedInputStateContainer(props) {
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedInputStateContainer(props) {
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
     );
@@ -1717,6 +1717,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         invalidTokenLogOut={callInvalidTokenLogOut}
       />
     );
-  });
+  },
+);
 
 export default ConnectedInputStateContainer;

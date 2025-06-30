@@ -108,10 +108,7 @@ import type {
   RawThreadInfo,
   ThinRawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  ReportStore,
-  ClientReportCreationRequest,
-} from 'lib/types/report-types.js';
+import type { ReportStore } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';

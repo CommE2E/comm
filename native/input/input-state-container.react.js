@@ -1656,10 +1656,8 @@ const textCreationLoadingStatusSelector = createLoadingStatusSelector(
   sendTextMessageActionTypes,
 );
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedInputStateContainer(
-    props: BaseProps,
-  ) {
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedInputStateContainer(props: BaseProps) {
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
@@ -1707,6 +1705,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         invalidTokenLogOut={callInvalidTokenLogOut}
       />
     );
-  });
+  },
+);
 
 export default ConnectedInputStateContainer;
