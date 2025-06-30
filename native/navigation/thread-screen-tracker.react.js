@@ -7,7 +7,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { useActiveMessageList } from './nav-selectors.js';
 
-const ThreadScreenTracker: React.ComponentType<{}> = React.memo<{}>(
+const ThreadScreenTracker: React.ComponentType<{}> = React.memo(
   function ThreadScreenTracker() {
     const activeThread = useActiveMessageList();
     const reduxDispatch = useDispatch();

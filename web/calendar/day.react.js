@@ -222,7 +222,7 @@ class Day extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedDay: React.ComponentType<BaseProps> = React.memo(
   function ConnectedDay(props) {
     const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
     const viewerID = useSelector(state => state.currentUserInfo?.id);

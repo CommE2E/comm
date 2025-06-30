@@ -1225,9 +1225,7 @@ type ChatInputBarProps = {
   +route: NavigationRoute<'MessageList'>,
 };
 const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
-  React.memo<ChatInputBarProps>(function ConnectedChatInputBar(
-    props: ChatInputBarProps,
-  ) {
+  React.memo(function ConnectedChatInputBar(props: ChatInputBarProps) {
     const { navigation, route, ...restProps } = props;
     const keyboardState = React.useContext(KeyboardContext);
 

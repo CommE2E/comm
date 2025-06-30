@@ -235,7 +235,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo(
   function ConnectedDevTools(props: BaseProps) {
     const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");

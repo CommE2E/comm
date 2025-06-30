@@ -7,7 +7,7 @@ import { NavContext } from './navigation-context.js';
 import type { MonitorActionState } from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
+const NavFromReduxHandler: React.ComponentType<{}> = React.memo(
   function NavFromReduxHandler() {
     const navContext = React.useContext(NavContext);
 

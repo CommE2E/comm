@@ -89,7 +89,7 @@ type TabNavigatorProps = BottomTabNavigatorProps<
   CustomBottomTabNavigationHelpers<>,
 >;
 
-const TabNavigator = React.memo<TabNavigatorProps>(function TabNavigator({
+const TabNavigator = React.memo(function TabNavigator({
   id,
   initialRouteName,
   backBehavior,

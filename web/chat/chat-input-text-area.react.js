@@ -16,7 +16,7 @@ type Props = {
   +maxHeight?: number,
 };
 
-const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
+const ChatInputTextArea: React.ComponentType<Props> = React.memo(
   function ChatInputTextArea(props: Props) {
     const {
       currentText,
