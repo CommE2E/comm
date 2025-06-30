@@ -29,13 +29,13 @@ type BaseProps = {
   +behavior: 'height' | 'position' | 'padding',
   +contentContainerStyle?: ?ViewStyle,
 };
-const KeyboardAvoidingView: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function KeyboardAvoidingView(props: BaseProps) {
-    const keyboardState = React.useContext(KeyboardContext);
-    return (
-      <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
-    );
-  });
+const KeyboardAvoidingView: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function KeyboardAvoidingView(props: BaseProps) {
+  const keyboardState = React.useContext(KeyboardContext);
+  return <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />;
+});
 
 type Props = {
   ...BaseProps,

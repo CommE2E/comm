@@ -95,7 +95,7 @@ const onError = () => {
 };
 
 const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsPromoteSidebar(
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsPromoteSidebar(
     props: BaseProps,
   ) {
     const { threadInfo } = props;

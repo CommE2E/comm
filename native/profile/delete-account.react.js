@@ -36,7 +36,7 @@ type Props = {
   +navigation: ProfileNavigationProp<'DeleteAccount'>,
   +route: NavigationRoute<'DeleteAccount'>,
 };
-const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
+const DeleteAccount: React.ComponentType<Props> = React.memo<Props, void>(
   function DeleteAccount() {
     const deleteAccountLoadingStatus = useSelector(
       deleteAccountLoadingStatusSelector,

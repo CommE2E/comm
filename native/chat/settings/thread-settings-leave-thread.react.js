@@ -135,7 +135,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsLeaveThread(
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsLeaveThread(
     props: BaseProps,
   ) {
     const threadID = props.threadInfo.id;

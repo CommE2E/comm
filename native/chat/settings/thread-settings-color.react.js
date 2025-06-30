@@ -99,27 +99,27 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedThreadSettingsColor: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsColor(
-    props: BaseProps,
-  ) {
-    const threadID = props.threadInfo.id;
-    const loadingStatus = useSelector(
-      createLoadingStatusSelector(
-        changeThreadSettingsActionTypes,
-        `${changeThreadSettingsActionTypes.started}:${threadID}:color`,
-      ),
-    );
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
-    return (
-      <ThreadSettingsColor
-        {...props}
-        loadingStatus={loadingStatus}
-        colors={colors}
-        styles={styles}
-      />
-    );
-  });
+const ConnectedThreadSettingsColor: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedThreadSettingsColor(props: BaseProps) {
+  const threadID = props.threadInfo.id;
+  const loadingStatus = useSelector(
+    createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${threadID}:color`,
+    ),
+  );
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  return (
+    <ThreadSettingsColor
+      {...props}
+      loadingStatus={loadingStatus}
+      colors={colors}
+      styles={styles}
+    />
+  );
+});
 
 export default ConnectedThreadSettingsColor;

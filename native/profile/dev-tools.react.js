@@ -235,26 +235,27 @@ class DevTools extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedDevTools(props: BaseProps) {
-    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
-    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
-    const customServer = useSelector(state => state.customServer);
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
-    const dispatch = useDispatch();
+const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedDevTools(props: BaseProps) {
+  const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
+  invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
+  const customServer = useSelector(state => state.customServer);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const dispatch = useDispatch();
 
-    return (
-      <DevTools
-        {...props}
-        urlPrefix={urlPrefix}
-        customServer={customServer}
-        colors={colors}
-        styles={styles}
-        dispatch={dispatch}
-      />
-    );
-  },
-);
+  return (
+    <DevTools
+      {...props}
+      urlPrefix={urlPrefix}
+      customServer={customServer}
+      colors={colors}
+      styles={styles}
+      dispatch={dispatch}
+    />
+  );
+});
 
 export default ConnectedDevTools;

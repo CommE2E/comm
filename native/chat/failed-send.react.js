@@ -152,29 +152,31 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedFailedSend: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedFailedSend(props: BaseProps) {
-    const id = messageID(props.item.messageInfo);
-    const rawMessageInfo = useSelector(state => {
-      const message = state.messageStore.messages[id];
-      return message ? assertComposableRawMessage(message) : null;
-    });
-    const styles = useStyles(unboundStyles);
-    const inputState = React.useContext(InputStateContext);
-    const { parentThreadID } = props.item.threadInfo;
-    const parentThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
-
-    return (
-      <FailedSend
-        {...props}
-        rawMessageInfo={rawMessageInfo}
-        styles={styles}
-        inputState={inputState}
-        parentThreadInfo={parentThreadInfo}
-      />
-    );
+const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedFailedSend(props: BaseProps) {
+  const id = messageID(props.item.messageInfo);
+  const rawMessageInfo = useSelector(state => {
+    const message = state.messageStore.messages[id];
+    return message ? assertComposableRawMessage(message) : null;
   });
+  const styles = useStyles(unboundStyles);
+  const inputState = React.useContext(InputStateContext);
+  const { parentThreadID } = props.item.threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+
+  return (
+    <FailedSend
+      {...props}
+      rawMessageInfo={rawMessageInfo}
+      styles={styles}
+      inputState={inputState}
+      parentThreadInfo={parentThreadInfo}
+    />
+  );
+});
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };

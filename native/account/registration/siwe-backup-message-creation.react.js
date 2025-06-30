@@ -39,7 +39,7 @@ type CreateSIWEBackupMessageBaseProps = {
 };
 
 const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBaseProps> =
-  React.memo<CreateSIWEBackupMessageBaseProps>(
+  React.memo<CreateSIWEBackupMessageBaseProps, void>(
     function CreateSIWEBackupMessageBase(
       props: CreateSIWEBackupMessageBaseProps,
     ): React.Node {

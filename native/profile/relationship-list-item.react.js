@@ -322,7 +322,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
 }
 
 const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedRelationshipListItem(
+  React.memo<BaseProps, void>(function ConnectedRelationshipListItem(
     props: BaseProps,
   ) {
     const removeUserLoadingStatus = useSelector(state =>

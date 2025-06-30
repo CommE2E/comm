@@ -55,7 +55,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const MemoizedComposeThreadButton: React.ComponentType<Props> =
-  React.memo<Props>(ComposeThreadButton);
+const MemoizedComposeThreadButton: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(ComposeThreadButton);
 
 export default MemoizedComposeThreadButton;

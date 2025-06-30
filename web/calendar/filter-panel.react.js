@@ -395,7 +395,7 @@ type ConnectedFilterPanelProps = {
 };
 
 const ConnectedFilterPanel: React.ComponentType<ConnectedFilterPanelProps> =
-  React.memo<ConnectedFilterPanelProps>(function ConnectedFilterPanel(
+  React.memo<ConnectedFilterPanelProps, void>(function ConnectedFilterPanel(
     props: ConnectedFilterPanelProps,
   ): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);

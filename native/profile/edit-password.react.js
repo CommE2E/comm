@@ -348,32 +348,34 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeIdentityUserPasswordActionTypes,
 );
 
-const ConnectedEditPassword: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedEditPassword(props: BaseProps) {
-    const loadingStatus = useSelector(loadingStatusSelector);
-    const username = useSelector(state => {
-      if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
-        return state.currentUserInfo.username;
-      }
-      return undefined;
-    });
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
-
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeIdentityUserPassword = useChangeIdentityUserPassword();
-
-    return (
-      <EditPassword
-        {...props}
-        loadingStatus={loadingStatus}
-        username={username}
-        colors={colors}
-        styles={styles}
-        dispatchActionPromise={dispatchActionPromise}
-        changeIdentityUserPassword={callChangeIdentityUserPassword}
-      />
-    );
+const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedEditPassword(props: BaseProps) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const username = useSelector(state => {
+    if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
+      return state.currentUserInfo.username;
+    }
+    return undefined;
   });
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeIdentityUserPassword = useChangeIdentityUserPassword();
+
+  return (
+    <EditPassword
+      {...props}
+      loadingStatus={loadingStatus}
+      username={username}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      changeIdentityUserPassword={callChangeIdentityUserPassword}
+    />
+  );
+});
 
 export default ConnectedEditPassword;

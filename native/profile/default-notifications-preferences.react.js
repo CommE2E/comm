@@ -181,7 +181,7 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
 
 registerFetchKey(setUserSettingsActionTypes);
 const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedDefaultNotificationPreferences(
+  React.memo<BaseProps, void>(function ConnectedDefaultNotificationPreferences(
     props: BaseProps,
   ) {
     const styles = useStyles(unboundStyles);

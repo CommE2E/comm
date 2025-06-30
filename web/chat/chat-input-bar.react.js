@@ -556,150 +556,150 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
 const createThreadLoadingStatusSelector =
   createLoadingStatusSelector(newThreadActionTypes);
 
-const ConnectedChatInputBar: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedChatInputBar(props) {
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const isThreadActive = useSelector(
-      state => props.threadInfo.id === state.navInfo.activeChatThreadID,
-    );
-    const userInfos = useSelector(state => state.userStore.userInfos);
-    const joinThreadLoadingStatus = useSelector(
-      joinThreadLoadingStatusSelector,
-    );
-    const createThreadLoadingStatus = useSelector(
-      createThreadLoadingStatusSelector,
-    );
-    const threadCreationInProgress = createThreadLoadingStatus === 'loading';
-    const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const dispatchActionPromise = useDispatchActionPromise();
-    const rawThreadInfo = useSelector(
-      state => state.threadStore.threadInfos[props.threadInfo.id],
-    );
-    const callJoinThread = useJoinThread();
-    const { getChatMentionSearchIndex } = useChatMentionContext();
-    const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
+const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedChatInputBar(props) {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const isThreadActive = useSelector(
+    state => props.threadInfo.id === state.navInfo.activeChatThreadID,
+  );
+  const userInfos = useSelector(state => state.userStore.userInfos);
+  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+  const createThreadLoadingStatus = useSelector(
+    createThreadLoadingStatusSelector,
+  );
+  const threadCreationInProgress = createThreadLoadingStatus === 'loading';
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const rawThreadInfo = useSelector(
+    state => state.threadStore.threadInfos[props.threadInfo.id],
+  );
+  const callJoinThread = useJoinThread();
+  const { getChatMentionSearchIndex } = useChatMentionContext();
+  const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
-    const { parentThreadID, community } = props.threadInfo;
-    const parentThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
+  const { parentThreadID, community } = props.threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
 
-    const communityThreadInfo = useSelector(state =>
-      community ? threadInfoSelector(state)[community] : null,
-    );
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
 
-    const threadFrozen = useThreadFrozenDueToViewerBlock(
-      props.threadInfo,
-      communityThreadInfo,
-      viewerID,
-      userInfos,
-    );
+  const threadFrozen = useThreadFrozenDueToViewerBlock(
+    props.threadInfo,
+    communityThreadInfo,
+    viewerID,
+    userInfos,
+  );
 
-    const currentUserIsVoiced = useThreadHasPermission(
-      props.threadInfo,
-      threadPermissions.VOICED,
-    );
+  const currentUserIsVoiced = useThreadHasPermission(
+    props.threadInfo,
+    threadPermissions.VOICED,
+  );
 
-    const currentUserCanJoinThread = useThreadHasPermission(
-      props.threadInfo,
-      threadPermissions.JOIN_THREAD,
-    );
+  const currentUserCanJoinThread = useThreadHasPermission(
+    props.threadInfo,
+    threadPermissions.JOIN_THREAD,
+  );
 
-    const userMentionsCandidates = useUserMentionsCandidates(
-      props.threadInfo,
-      parentThreadInfo,
-    );
+  const userMentionsCandidates = useUserMentionsCandidates(
+    props.threadInfo,
+    parentThreadInfo,
+  );
 
-    const chatMentionCandidates = useThreadChatMentionCandidates(
-      props.threadInfo,
-    );
+  const chatMentionCandidates = useThreadChatMentionCandidates(
+    props.threadInfo,
+  );
 
-    const typeaheadRegexMatches = React.useMemo(
-      () =>
-        getTypeaheadRegexMatches(
-          props.inputState.draft,
-          {
-            start: props.inputState.textCursorPosition,
-            end: props.inputState.textCursorPosition,
-          },
-          webMentionTypeaheadRegex,
-        ),
-      [props.inputState.textCursorPosition, props.inputState.draft],
-    );
+  const typeaheadRegexMatches = React.useMemo(
+    () =>
+      getTypeaheadRegexMatches(
+        props.inputState.draft,
+        {
+          start: props.inputState.textCursorPosition,
+          end: props.inputState.textCursorPosition,
+        },
+        webMentionTypeaheadRegex,
+      ),
+    [props.inputState.textCursorPosition, props.inputState.draft],
+  );
 
-    const typeaheadMatchedStrings: ?TypeaheadMatchedStrings =
-      React.useMemo(() => {
-        if (typeaheadRegexMatches === null) {
-          return null;
-        }
-        return {
-          textBeforeAtSymbol: typeaheadRegexMatches.groups?.textPrefix ?? '',
-          query: typeaheadRegexMatches.groups?.mentionText ?? '',
-        };
-      }, [typeaheadRegexMatches]);
-
-    React.useEffect(() => {
-      if (props.inputState.typeaheadState.keepUpdatingThreadMembers) {
-        const setter = props.inputState.setTypeaheadState;
-        setter({
-          frozenUserMentionsCandidates: userMentionsCandidates,
-          frozenChatMentionsCandidates: chatMentionCandidates,
-        });
+  const typeaheadMatchedStrings: ?TypeaheadMatchedStrings =
+    React.useMemo(() => {
+      if (typeaheadRegexMatches === null) {
+        return null;
       }
-    }, [
-      userMentionsCandidates,
-      props.inputState.setTypeaheadState,
-      props.inputState.typeaheadState.keepUpdatingThreadMembers,
-      chatMentionCandidates,
-    ]);
+      return {
+        textBeforeAtSymbol: typeaheadRegexMatches.groups?.textPrefix ?? '',
+        query: typeaheadRegexMatches.groups?.mentionText ?? '',
+      };
+    }, [typeaheadRegexMatches]);
 
-    const suggestedUsers = useMentionTypeaheadUserSuggestions(
-      props.inputState.typeaheadState.frozenUserMentionsCandidates,
-      typeaheadMatchedStrings,
+  React.useEffect(() => {
+    if (props.inputState.typeaheadState.keepUpdatingThreadMembers) {
+      const setter = props.inputState.setTypeaheadState;
+      setter({
+        frozenUserMentionsCandidates: userMentionsCandidates,
+        frozenChatMentionsCandidates: chatMentionCandidates,
+      });
+    }
+  }, [
+    userMentionsCandidates,
+    props.inputState.setTypeaheadState,
+    props.inputState.typeaheadState.keepUpdatingThreadMembers,
+    chatMentionCandidates,
+  ]);
+
+  const suggestedUsers = useMentionTypeaheadUserSuggestions(
+    props.inputState.typeaheadState.frozenUserMentionsCandidates,
+    typeaheadMatchedStrings,
+  );
+
+  const suggestedChats = useMentionTypeaheadChatSuggestions(
+    chatMentionSearchIndex,
+    props.inputState.typeaheadState.frozenChatMentionsCandidates,
+    typeaheadMatchedStrings,
+  );
+
+  const suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem> =
+    React.useMemo(
+      () => [...suggestedUsers, ...suggestedChats],
+      [suggestedUsers, suggestedChats],
     );
 
-    const suggestedChats = useMentionTypeaheadChatSuggestions(
-      chatMentionSearchIndex,
-      props.inputState.typeaheadState.frozenChatMentionsCandidates,
-      typeaheadMatchedStrings,
-    );
+  const baseCancelPendingUpload = props.inputState.cancelPendingUpload;
+  const cancelPendingUpload = React.useCallback(
+    (uploadID: string) => {
+      baseCancelPendingUpload(props.threadInfo, uploadID);
+    },
+    [baseCancelPendingUpload, props.threadInfo],
+  );
 
-    const suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem> =
-      React.useMemo(
-        () => [...suggestedUsers, ...suggestedChats],
-        [suggestedUsers, suggestedChats],
-      );
-
-    const baseCancelPendingUpload = props.inputState.cancelPendingUpload;
-    const cancelPendingUpload = React.useCallback(
-      (uploadID: string) => {
-        baseCancelPendingUpload(props.threadInfo, uploadID);
-      },
-      [baseCancelPendingUpload, props.threadInfo],
-    );
-
-    return (
-      <ChatInputBar
-        {...props}
-        viewerID={viewerID}
-        rawThreadInfo={rawThreadInfo}
-        joinThreadLoadingStatus={joinThreadLoadingStatus}
-        threadCreationInProgress={threadCreationInProgress}
-        calendarQuery={calendarQuery}
-        isThreadActive={isThreadActive}
-        dispatchActionPromise={dispatchActionPromise}
-        joinThread={callJoinThread}
-        typeaheadMatchedStrings={typeaheadMatchedStrings}
-        suggestions={suggestions}
-        parentThreadInfo={parentThreadInfo}
-        currentUserIsVoiced={currentUserIsVoiced}
-        currentUserCanJoinThread={currentUserCanJoinThread}
-        threadFrozen={threadFrozen}
-        cancelPendingUpload={cancelPendingUpload}
-      />
-    );
-  });
+  return (
+    <ChatInputBar
+      {...props}
+      viewerID={viewerID}
+      rawThreadInfo={rawThreadInfo}
+      joinThreadLoadingStatus={joinThreadLoadingStatus}
+      threadCreationInProgress={threadCreationInProgress}
+      calendarQuery={calendarQuery}
+      isThreadActive={isThreadActive}
+      dispatchActionPromise={dispatchActionPromise}
+      joinThread={callJoinThread}
+      typeaheadMatchedStrings={typeaheadMatchedStrings}
+      suggestions={suggestions}
+      parentThreadInfo={parentThreadInfo}
+      currentUserIsVoiced={currentUserIsVoiced}
+      currentUserCanJoinThread={currentUserCanJoinThread}
+      threadFrozen={threadFrozen}
+      cancelPendingUpload={cancelPendingUpload}
+    />
+  );
+});
 
 export default ConnectedChatInputBar;
