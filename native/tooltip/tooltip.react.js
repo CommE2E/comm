@@ -528,7 +528,7 @@ function createTooltip<
       </TooltipContextProvider>
     );
   }
-  return React.memo<TooltipPropsType>(MemoizedTooltip);
+  return React.memo(MemoizedTooltip);
 }
 
 function getTooltipHeight(numEntries: number): number {

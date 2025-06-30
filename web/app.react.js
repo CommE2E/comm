@@ -532,7 +532,7 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 
-const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedApp: React.ComponentType<BaseProps> = React.memo(
   function ConnectedApp(props) {
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,

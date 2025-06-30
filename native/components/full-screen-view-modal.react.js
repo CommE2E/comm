@@ -877,6 +877,6 @@ const styles = StyleSheet.create({
 });
 
 const MemoizedFullScreenViewModal: React.ComponentType<Props> =
-  React.memo<Props>(FullScreenViewModal);
+  React.memo(FullScreenViewModal);
 
 export default MemoizedFullScreenViewModal;

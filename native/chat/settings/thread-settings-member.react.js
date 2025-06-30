@@ -242,9 +242,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsMember(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedThreadSettingsMember(props: BaseProps) {
     const memberID = props.memberInfo.id;
     const removeUserLoadingStatus = useSelector(state =>
       createLoadingStatusSelector(

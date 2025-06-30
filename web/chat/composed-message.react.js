@@ -57,7 +57,7 @@ type Props = {
   +fixedWidth?: boolean,
   +borderRadius?: number,
 };
-const ComposedMessage: React.ComponentType<Props> = React.memo<Props>(
+const ComposedMessage: React.ComponentType<Props> = React.memo(
   function ComposedMessage(props) {
     const { item, threadInfo } = props;
     const { messageInfo } = item;

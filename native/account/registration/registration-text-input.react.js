@@ -99,7 +99,7 @@ RegistrationTextInput.displayName = 'RegistrationTextInput';
 
 const MemoizedRegistrationTextInput: typeof RegistrationTextInput = React.memo<
   Props,
-  React.ElementRef<typeof TextInput>,
+  React.RefSetter<React.ElementRef<typeof TextInput>>,
 >(RegistrationTextInput);
 
 export default MemoizedRegistrationTextInput;

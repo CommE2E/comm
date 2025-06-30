@@ -39,99 +39,97 @@ type CreateSIWEBackupMessageBaseProps = {
 };
 
 const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBaseProps> =
-  React.memo<CreateSIWEBackupMessageBaseProps>(
-    function CreateSIWEBackupMessageBase(
-      props: CreateSIWEBackupMessageBaseProps,
-    ): React.Node {
-      const styles = useStyles(unboundStyles);
-      const { onSuccessfulWalletSignature, onExistingWalletSignature, onSkip } =
-        props;
+  React.memo(function CreateSIWEBackupMessageBase(
+    props: CreateSIWEBackupMessageBaseProps,
+  ): React.Node {
+    const styles = useStyles(unboundStyles);
+    const { onSuccessfulWalletSignature, onExistingWalletSignature, onSkip } =
+      props;
 
-      const {
-        panelState,
-        onPanelClosed,
-        onPanelClosing,
-        openPanel,
-        siwePanelSetLoading,
-      } = useSIWEPanelState();
+    const {
+      panelState,
+      onPanelClosed,
+      onPanelClosing,
+      openPanel,
+      siwePanelSetLoading,
+    } = useSIWEPanelState();
 
-      let siwePanel;
-      if (panelState !== 'closed') {
-        siwePanel = (
-          <SIWEPanel
-            onClosing={onPanelClosing}
-            onClosed={onPanelClosed}
-            closing={panelState === 'closing'}
-            onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-            siweSignatureRequestData={siweBackupSignatureRequestData}
-            setLoading={siwePanelSetLoading}
-          />
-        );
-      }
-
-      const newSignatureButtonText = onExistingWalletSignature
-        ? 'Encrypt with new signature'
-        : 'Encrypt with Ethereum signature';
-      const defaultNewSignatureButtonVariant = onExistingWalletSignature
-        ? 'outline'
-        : 'enabled';
-      const newSignatureButtonVariant =
-        panelState === 'opening' ? 'loading' : defaultNewSignatureButtonVariant;
-
-      let useExistingSignatureButton;
-      if (onExistingWalletSignature) {
-        useExistingSignatureButton = (
-          <PrimaryButton
-            onPress={onExistingWalletSignature}
-            label="Encrypt with existing signature"
-            variant="enabled"
-          />
-        );
-      }
-
-      let onSkipButton;
-      if (onSkip) {
-        onSkipButton = (
-          <PrimaryButton onPress={onSkip} label="Skip" variant="outline" />
-        );
-      }
-
-      return (
-        <>
-          <AuthContainer>
-            <AuthContentContainer style={styles.scrollViewContentContainer}>
-              <Text style={styles.header}>Encrypting your Comm backup</Text>
-              <Text style={styles.body}>
-                To make sure we can’t see your data, Comm encrypts your backup
-                using a signature from your wallet.
-              </Text>
-              <Text style={styles.body}>
-                This signature is private and never leaves your device, unlike
-                the prior signature, which is public.
-              </Text>
-              <Text style={styles.body}>
-                This signature ensures that you can always recover your data as
-                long as you still control your wallet.
-              </Text>
-              <View style={styles.siweBackupIconContainer}>
-                <Icon name="backup" size={200} style={styles.siweBackupIcon} />
-              </View>
-            </AuthContentContainer>
-            <AuthButtonContainer>
-              {useExistingSignatureButton}
-              <PrimaryButton
-                onPress={openPanel}
-                label={newSignatureButtonText}
-                variant={newSignatureButtonVariant}
-              />
-              {onSkipButton}
-            </AuthButtonContainer>
-          </AuthContainer>
-          {siwePanel}
-        </>
+    let siwePanel;
+    if (panelState !== 'closed') {
+      siwePanel = (
+        <SIWEPanel
+          onClosing={onPanelClosing}
+          onClosed={onPanelClosed}
+          closing={panelState === 'closing'}
+          onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+          siweSignatureRequestData={siweBackupSignatureRequestData}
+          setLoading={siwePanelSetLoading}
+        />
       );
-    },
-  );
+    }
+
+    const newSignatureButtonText = onExistingWalletSignature
+      ? 'Encrypt with new signature'
+      : 'Encrypt with Ethereum signature';
+    const defaultNewSignatureButtonVariant = onExistingWalletSignature
+      ? 'outline'
+      : 'enabled';
+    const newSignatureButtonVariant =
+      panelState === 'opening' ? 'loading' : defaultNewSignatureButtonVariant;
+
+    let useExistingSignatureButton;
+    if (onExistingWalletSignature) {
+      useExistingSignatureButton = (
+        <PrimaryButton
+          onPress={onExistingWalletSignature}
+          label="Encrypt with existing signature"
+          variant="enabled"
+        />
+      );
+    }
+
+    let onSkipButton;
+    if (onSkip) {
+      onSkipButton = (
+        <PrimaryButton onPress={onSkip} label="Skip" variant="outline" />
+      );
+    }
+
+    return (
+      <>
+        <AuthContainer>
+          <AuthContentContainer style={styles.scrollViewContentContainer}>
+            <Text style={styles.header}>Encrypting your Comm backup</Text>
+            <Text style={styles.body}>
+              To make sure we can’t see your data, Comm encrypts your backup
+              using a signature from your wallet.
+            </Text>
+            <Text style={styles.body}>
+              This signature is private and never leaves your device, unlike the
+              prior signature, which is public.
+            </Text>
+            <Text style={styles.body}>
+              This signature ensures that you can always recover your data as
+              long as you still control your wallet.
+            </Text>
+            <View style={styles.siweBackupIconContainer}>
+              <Icon name="backup" size={200} style={styles.siweBackupIcon} />
+            </View>
+          </AuthContentContainer>
+          <AuthButtonContainer>
+            {useExistingSignatureButton}
+            <PrimaryButton
+              onPress={openPanel}
+              label={newSignatureButtonText}
+              variant={newSignatureButtonVariant}
+            />
+            {onSkipButton}
+          </AuthButtonContainer>
+        </AuthContainer>
+        {siwePanel}
+      </>
+    );
+  });
 
 export type CreateSIWEBackupMessageParams = {
   +userSelections: {

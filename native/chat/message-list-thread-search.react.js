@@ -29,7 +29,7 @@ const inputProps = {
   returnKeyType: 'go',
 };
 
-const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
+const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
   function MessageListThreadSearch({
     usernameInputText,
     updateUsernameInput,

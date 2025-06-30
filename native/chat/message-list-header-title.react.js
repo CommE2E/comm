@@ -88,9 +88,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 }
 
 const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMessageListHeaderTitle(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedMessageListHeaderTitle(props: BaseProps) {
     const styles = useStyles(unboundStyles);
 
     const { uiName } = useResolvedThreadInfo(props.threadInfo);

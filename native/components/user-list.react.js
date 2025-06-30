@@ -68,7 +68,7 @@ class UserList extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedUserList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedUserList: React.ComponentType<BaseProps> = React.memo(
   function ConnectedUserList(props: BaseProps) {
     const indicatorStyle = useIndicatorStyle();
     return <UserList {...props} indicatorStyle={indicatorStyle} />;
