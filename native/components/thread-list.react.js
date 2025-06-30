@@ -144,14 +144,16 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedThreadList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadList(props: BaseProps) {
-    const styles = useStyles(unboundStyles);
-    const indicatorStyle = useIndicatorStyle();
+const ConnectedThreadList: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedThreadList(props: BaseProps) {
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
 
-    return (
-      <ThreadList {...props} styles={styles} indicatorStyle={indicatorStyle} />
-    );
-  });
+  return (
+    <ThreadList {...props} styles={styles} indicatorStyle={indicatorStyle} />
+  );
+});
 
 export default ConnectedThreadList;

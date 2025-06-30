@@ -183,19 +183,20 @@ function EditTextMessage(props: Props): React.Node {
   );
 }
 
-const ComposedEditTextMessage: React.ComponentType<Props> = React.memo<Props>(
-  function ComposedEditTextMessage(props) {
-    const { background, ...restProps } = props;
-    return (
-      <ComposedMessage
-        {...restProps}
-        sendFailed={false}
-        shouldDisplayPinIndicator={false}
-      >
-        <EditTextMessage {...props} />
-      </ComposedMessage>
-    );
-  },
-);
+const ComposedEditTextMessage: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(function ComposedEditTextMessage(props) {
+  const { background, ...restProps } = props;
+  return (
+    <ComposedMessage
+      {...restProps}
+      sendFailed={false}
+      shouldDisplayPinIndicator={false}
+    >
+      <EditTextMessage {...props} />
+    </ComposedMessage>
+  );
+});
 
 export { EditTextMessage, ComposedEditTextMessage };

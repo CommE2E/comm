@@ -167,7 +167,9 @@ function ChatContextProvider(props: Props): React.Node {
   );
 }
 
-const MemoizedChatContextProvider: React.ComponentType<Props> =
-  React.memo<Props>(ChatContextProvider);
+const MemoizedChatContextProvider: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(ChatContextProvider);
 
 export default MemoizedChatContextProvider;

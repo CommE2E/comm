@@ -552,91 +552,92 @@ class ProfileScreen extends React.PureComponent<Props> {
 const logOutLoadingStatusSelector =
   createLoadingStatusSelector(logOutActionTypes);
 
-const ConnectedProfileScreen: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
-    const currentUserInfo = useSelector(state => state.currentUserInfo);
-    const logOutLoading =
-      useSelector(logOutLoadingStatusSelector) === 'loading';
-    const colors = useColors();
-    const styles = useStyles(unboundStyles);
-    const callPrimaryDeviceLogOut = usePrimaryDeviceLogOut();
-    const callSecondaryDeviceLogOut = useSecondaryDeviceLogOut();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const staffCanSee = useStaffCanSee();
-    const stringForUser = useStringForUser(currentUserInfo);
-    const isAccountWithPassword = useSelector(state =>
-      accountHasPassword(state.currentUserInfo),
-    );
-    const currentUserID = useCurrentUserFID();
-    const [isPrimaryDevice, setIsPrimaryDevice] = React.useState(false);
-    const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
+const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedProfileScreen(props: BaseProps) {
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const logOutLoading = useSelector(logOutLoadingStatusSelector) === 'loading';
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const callPrimaryDeviceLogOut = usePrimaryDeviceLogOut();
+  const callSecondaryDeviceLogOut = useSecondaryDeviceLogOut();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const staffCanSee = useStaffCanSee();
+  const stringForUser = useStringForUser(currentUserInfo);
+  const isAccountWithPassword = useSelector(state =>
+    accountHasPassword(state.currentUserInfo),
+  );
+  const currentUserID = useCurrentUserFID();
+  const [isPrimaryDevice, setIsPrimaryDevice] = React.useState(false);
+  const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
 
-    const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
-    const legacyLogOutOptions = React.useMemo(
-      () => ({
-        logOutType: 'legacy',
-        handleUseNewFlowResponse: showVersionUnsupportedAlert,
-      }),
-      [showVersionUnsupportedAlert],
-    );
-    const callLegayLogOut = useBaseLogOut(legacyLogOutOptions);
+  const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
+  const legacyLogOutOptions = React.useMemo(
+    () => ({
+      logOutType: 'legacy',
+      handleUseNewFlowResponse: showVersionUnsupportedAlert,
+    }),
+    [showVersionUnsupportedAlert],
+  );
+  const callLegayLogOut = useBaseLogOut(legacyLogOutOptions);
 
-    const userID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const processAndSendDMOperation = useProcessAndSendDMOperation();
+  const userID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const processAndSendDMOperation = useProcessAndSendDMOperation();
 
-    const onCreateDMThread = React.useCallback(async () => {
-      invariant(userID, 'userID should be set');
-      const op: DMCreateThreadOperation = {
-        type: 'create_thread',
-        threadID: uuid.v4(),
-        creatorID: userID,
-        time: Date.now(),
-        threadType: thickThreadTypes.LOCAL,
-        memberIDs: [],
-        roleID: uuid.v4(),
-        newMessageID: uuid.v4(),
-      };
-      const specification: OutboundDMOperationSpecification = {
-        type: dmOperationSpecificationTypes.OUTBOUND,
-        op,
-        recipients: {
-          type: 'self_devices',
-        },
-      };
-      await processAndSendDMOperation(specification);
-    }, [processAndSendDMOperation, userID]);
+  const onCreateDMThread = React.useCallback(async () => {
+    invariant(userID, 'userID should be set');
+    const op: DMCreateThreadOperation = {
+      type: 'create_thread',
+      threadID: uuid.v4(),
+      creatorID: userID,
+      time: Date.now(),
+      threadType: thickThreadTypes.LOCAL,
+      memberIDs: [],
+      roleID: uuid.v4(),
+      newMessageID: uuid.v4(),
+    };
+    const specification: OutboundDMOperationSpecification = {
+      type: dmOperationSpecificationTypes.OUTBOUND,
+      op,
+      recipients: {
+        type: 'self_devices',
+      },
+    };
+    await processAndSendDMOperation(specification);
+  }, [processAndSendDMOperation, userID]);
 
-    React.useEffect(() => {
-      void (async () => {
-        const checkIfPrimaryDeviceResult = await checkIfPrimaryDevice();
-        setIsPrimaryDevice(checkIfPrimaryDeviceResult);
-      })();
-    }, [checkIfPrimaryDevice]);
+  React.useEffect(() => {
+    void (async () => {
+      const checkIfPrimaryDeviceResult = await checkIfPrimaryDevice();
+      setIsPrimaryDevice(checkIfPrimaryDeviceResult);
+    })();
+  }, [checkIfPrimaryDevice]);
 
-    const usingRestoreFlow = useIsRestoreFlowEnabled();
+  const usingRestoreFlow = useIsRestoreFlowEnabled();
 
-    return (
-      <ProfileScreen
-        {...props}
-        currentUserInfo={currentUserInfo}
-        isPrimaryDevice={isPrimaryDevice}
-        logOutLoading={logOutLoading}
-        colors={colors}
-        styles={styles}
-        logOut={callLegayLogOut}
-        logOutPrimaryDevice={callPrimaryDeviceLogOut}
-        logOutSecondaryDevice={callSecondaryDeviceLogOut}
-        dispatchActionPromise={dispatchActionPromise}
-        staffCanSee={staffCanSee}
-        stringForUser={stringForUser}
-        isAccountWithPassword={isAccountWithPassword}
-        onCreateDMThread={onCreateDMThread}
-        currentUserFID={currentUserID}
-        usingRestoreFlow={usingRestoreFlow}
-      />
-    );
-  });
+  return (
+    <ProfileScreen
+      {...props}
+      currentUserInfo={currentUserInfo}
+      isPrimaryDevice={isPrimaryDevice}
+      logOutLoading={logOutLoading}
+      colors={colors}
+      styles={styles}
+      logOut={callLegayLogOut}
+      logOutPrimaryDevice={callPrimaryDeviceLogOut}
+      logOutSecondaryDevice={callSecondaryDeviceLogOut}
+      dispatchActionPromise={dispatchActionPromise}
+      staffCanSee={staffCanSee}
+      stringForUser={stringForUser}
+      isAccountWithPassword={isAccountWithPassword}
+      onCreateDMThread={onCreateDMThread}
+      currentUserFID={currentUserID}
+      usingRestoreFlow={usingRestoreFlow}
+    />
+  );
+});
 
 export default ConnectedProfileScreen;

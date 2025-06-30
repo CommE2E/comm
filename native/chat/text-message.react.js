@@ -257,67 +257,69 @@ class TextMessage extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedTextMessage: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedTextMessage(props: BaseProps) {
-    const overlayContext = React.useContext(OverlayContext);
-    const chatContext = React.useContext(ChatContext);
-    const markdownContext = React.useContext(MarkdownContext);
-    invariant(markdownContext, 'markdownContext should be set');
+const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedTextMessage(props: BaseProps) {
+  const overlayContext = React.useContext(OverlayContext);
+  const chatContext = React.useContext(ChatContext);
+  const markdownContext = React.useContext(MarkdownContext);
+  invariant(markdownContext, 'markdownContext should be set');
 
-    const {
-      linkModalActive,
-      userProfileBottomSheetActive,
-      clearMarkdownContextData,
-    } = markdownContext;
+  const {
+    linkModalActive,
+    userProfileBottomSheetActive,
+    clearMarkdownContextData,
+  } = markdownContext;
 
-    const key = messageKey(props.item.messageInfo);
+  const key = messageKey(props.item.messageInfo);
 
-    // We check if there is an key in the object - if not, we
-    // default to false. The likely situation where the former statement
-    // evaluates to null is when the thread is opened for the first time.
-    const isLinkModalActive = linkModalActive[key] ?? false;
-    const isUserProfileBottomSheetActive =
-      userProfileBottomSheetActive[key] ?? false;
+  // We check if there is an key in the object - if not, we
+  // default to false. The likely situation where the former statement
+  // evaluates to null is when the thread is opened for the first time.
+  const isLinkModalActive = linkModalActive[key] ?? false;
+  const isUserProfileBottomSheetActive =
+    userProfileBottomSheetActive[key] ?? false;
 
-    const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
+  const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
+    props.item.threadInfo,
+    props.item.messageInfo,
+  );
 
-    const messageEditingContext = React.useContext(MessageEditingContext);
-    const editMessageID = messageEditingContext?.editState.editedMessage?.id;
-    const isThisMessageEdited = editMessageID === props.item.messageInfo.id;
+  const messageEditingContext = React.useContext(MessageEditingContext);
+  const editMessageID = messageEditingContext?.editState.editedMessage?.id;
+  const isThisMessageEdited = editMessageID === props.item.messageInfo.id;
 
-    const canEditMessage =
-      useCanEditMessageNative(props.item.threadInfo, props.item.messageInfo) &&
-      !isThisMessageEdited;
+  const canEditMessage =
+    useCanEditMessageNative(props.item.threadInfo, props.item.messageInfo) &&
+    !isThisMessageEdited;
 
-    React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
+  React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
-    const currentUserCanReply = useThreadHasPermission(
-      props.item.threadInfo,
-      threadPermissions.VOICED,
-    );
+  const currentUserCanReply = useThreadHasPermission(
+    props.item.threadInfo,
+    threadPermissions.VOICED,
+  );
 
-    const canDeleteMessage = useCanDeleteMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-      !!props.item.threadCreatedFromMessage,
-    );
+  const canDeleteMessage = useCanDeleteMessage(
+    props.item.threadInfo,
+    props.item.messageInfo,
+    !!props.item.threadCreatedFromMessage,
+  );
 
-    return (
-      <TextMessage
-        {...props}
-        canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-        overlayContext={overlayContext}
-        chatContext={chatContext}
-        isLinkModalActive={isLinkModalActive}
-        isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
-        canEditMessage={canEditMessage}
-        currentUserIsVoiced={currentUserCanReply}
-        canDeleteMessage={canDeleteMessage}
-      />
-    );
-  });
+  return (
+    <TextMessage
+      {...props}
+      canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+      overlayContext={overlayContext}
+      chatContext={chatContext}
+      isLinkModalActive={isLinkModalActive}
+      isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
+      canEditMessage={canEditMessage}
+      currentUserIsVoiced={currentUserCanReply}
+      canDeleteMessage={canDeleteMessage}
+    />
+  );
+});
 
 export { ConnectedTextMessage as TextMessage };

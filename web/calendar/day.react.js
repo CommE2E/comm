@@ -222,29 +222,30 @@ class Day extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedDay(props) {
-    const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
-    const viewerID = useSelector(state => state.currentUserInfo?.id);
-    const loggedIn = useSelector(
-      state =>
-        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-    );
-    const dispatch = useDispatch();
-    const { pushModal, popModal } = useModalContext();
+const ConnectedDay: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedDay(props) {
+  const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
+  const loggedIn = useSelector(
+    state =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const dispatch = useDispatch();
+  const { pushModal, popModal } = useModalContext();
 
-    return (
-      <Day
-        {...props}
-        onScreenThreadInfos={onScreenThreadInfos}
-        viewerID={viewerID}
-        loggedIn={loggedIn}
-        dispatch={dispatch}
-        pushModal={pushModal}
-        popModal={popModal}
-      />
-    );
-  },
-);
+  return (
+    <Day
+      {...props}
+      onScreenThreadInfos={onScreenThreadInfos}
+      viewerID={viewerID}
+      loggedIn={loggedIn}
+      dispatch={dispatch}
+      pushModal={pushModal}
+      popModal={popModal}
+    />
+  );
+});
 
 export default ConnectedDay;
