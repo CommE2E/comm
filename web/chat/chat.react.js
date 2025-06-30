@@ -52,6 +52,6 @@ function Chat(): React.Node {
   );
 }
 
-const MemoizedChat: React.ComponentType<{}> = React.memo<{}>(Chat);
+const MemoizedChat: React.ComponentType<{}> = React.memo<{}, void>(Chat);
 
 export default MemoizedChat;

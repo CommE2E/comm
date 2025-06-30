@@ -46,6 +46,6 @@ function Topbar(): React.Node {
   );
 }
 
-const MemoizedTopbar: React.ComponentType<{}> = React.memo<{}>(Topbar);
+const MemoizedTopbar: React.ComponentType<{}> = React.memo<{}, void>(Topbar);
 
 export default MemoizedTopbar;

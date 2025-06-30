@@ -241,37 +241,39 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMultimediaMessage(props: BaseProps) {
-    const navigation = useNavigation();
-    const route = useRoute();
-    const overlayContext = React.useContext(OverlayContext);
-    const chatContext = React.useContext(ChatContext);
-    const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
-    const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
-    const canDeleteMessage = useCanDeleteMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-      !!props.item.threadCreatedFromMessage,
-    );
-    return (
-      <MultimediaMessage
-        {...props}
-        navigation={navigation}
-        route={route}
-        overlayContext={overlayContext}
-        chatContext={chatContext}
-        canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-        canCreateReactionFromMessage={canCreateReactionFromMessage}
-        canDeleteMessage={canDeleteMessage}
-      />
-    );
-  });
+const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedMultimediaMessage(props: BaseProps) {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const overlayContext = React.useContext(OverlayContext);
+  const chatContext = React.useContext(ChatContext);
+  const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
+    props.item.threadInfo,
+    props.item.messageInfo,
+  );
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    props.item.threadInfo,
+    props.item.messageInfo,
+  );
+  const canDeleteMessage = useCanDeleteMessage(
+    props.item.threadInfo,
+    props.item.messageInfo,
+    !!props.item.threadCreatedFromMessage,
+  );
+  return (
+    <MultimediaMessage
+      {...props}
+      navigation={navigation}
+      route={route}
+      overlayContext={overlayContext}
+      chatContext={chatContext}
+      canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+      canCreateReactionFromMessage={canCreateReactionFromMessage}
+      canDeleteMessage={canDeleteMessage}
+    />
+  );
+});
 
 export default ConnectedMultimediaMessage;

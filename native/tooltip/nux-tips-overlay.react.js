@@ -468,7 +468,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     return shouldRenderScreenContent ? <NUXTipsOverlay {...props} /> : null;
   }
 
-  return React.memo<NUXTipsOverlayProps<Route>>(NUXTipsOverlayWrapper);
+  return React.memo<NUXTipsOverlayProps<Route>, void>(NUXTipsOverlayWrapper);
 }
 
 export { createNUXTipsOverlay, animationDuration };

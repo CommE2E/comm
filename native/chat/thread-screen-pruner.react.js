@@ -22,7 +22,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import type { AppState } from '../redux/state-types.js';
 import Alert from '../utils/alert.js';
 
-const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
+const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}, void>(
   function ThreadScreenPruner() {
     const rawThreadInfos = useSelector(
       (state: AppState) => state.threadStore.threadInfos,

@@ -172,25 +172,27 @@ function ColorSelectorModal(props: Props): React.Node {
   );
 }
 
-const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedColorSelectorModal(props: BaseProps) {
-    const styles = useStyles(unboundStyles);
-    const colors = useColors();
-    const windowWidth = useSelector(state => state.dimensions.width);
+const ConnectedColorSelectorModal: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedColorSelectorModal(props: BaseProps) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const windowWidth = useSelector(state => state.dimensions.width);
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useChangeThreadSettings();
 
-    return (
-      <ColorSelectorModal
-        {...props}
-        styles={styles}
-        colors={colors}
-        windowWidth={windowWidth}
-        dispatchActionPromise={dispatchActionPromise}
-        changeThreadSettings={callChangeThreadSettings}
-      />
-    );
-  });
+  return (
+    <ColorSelectorModal
+      {...props}
+      styles={styles}
+      colors={colors}
+      windowWidth={windowWidth}
+      dispatchActionPromise={dispatchActionPromise}
+      changeThreadSettings={callChangeThreadSettings}
+    />
+  );
+});
 
 export default ConnectedColorSelectorModal;

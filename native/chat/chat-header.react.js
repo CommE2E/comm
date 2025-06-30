@@ -10,11 +10,13 @@ import { ChatRouteName } from '../navigation/route-names.js';
 
 const activeTabSelector = createActiveTabSelector(ChatRouteName);
 
-const ChatHeader: React.ComponentType<StackHeaderProps> =
-  React.memo<StackHeaderProps>(function ChatHeader(props: StackHeaderProps) {
-    const navContext = React.useContext(NavContext);
-    const activeTab = activeTabSelector(navContext);
-    return <Header {...props} activeTab={activeTab} />;
-  });
+const ChatHeader: React.ComponentType<StackHeaderProps> = React.memo<
+  StackHeaderProps,
+  void,
+>(function ChatHeader(props: StackHeaderProps) {
+  const navContext = React.useContext(NavContext);
+  const activeTab = activeTabSelector(navContext);
+  return <Header {...props} activeTab={activeTab} />;
+});
 
 export default ChatHeader;

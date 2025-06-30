@@ -264,36 +264,36 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
   fetchRevisionsForEntryActionTypes,
 );
 
-const ConnectedHistoryModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedHistoryModal(props) {
-    const entryInfos = useSelector(
-      state => allDaysToEntries(state)[props.dayString],
-    );
-    const threadInfos = useSelector(state => state.threadStore.threadInfos);
-    const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
-    const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
-    const calendarFilters = useSelector(
-      nonExcludeDeletedCalendarFiltersSelector,
-    );
-    const callFetchEntries = useFetchEntries();
-    const callFetchRevisionsForEntry = useFetchRevisionsForEntry();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const modalContext = useModalContext();
+const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedHistoryModal(props) {
+  const entryInfos = useSelector(
+    state => allDaysToEntries(state)[props.dayString],
+  );
+  const threadInfos = useSelector(state => state.threadStore.threadInfos);
+  const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
+  const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
+  const calendarFilters = useSelector(nonExcludeDeletedCalendarFiltersSelector);
+  const callFetchEntries = useFetchEntries();
+  const callFetchRevisionsForEntry = useFetchRevisionsForEntry();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const modalContext = useModalContext();
 
-    return (
-      <HistoryModal
-        {...props}
-        entryInfos={entryInfos}
-        threadInfos={threadInfos}
-        dayLoadingStatus={dayLoadingStatus}
-        entryLoadingStatus={entryLoadingStatus}
-        calendarFilters={calendarFilters}
-        fetchEntries={callFetchEntries}
-        fetchRevisionsForEntry={callFetchRevisionsForEntry}
-        dispatchActionPromise={dispatchActionPromise}
-        onClose={modalContext.popModal}
-      />
-    );
-  });
+  return (
+    <HistoryModal
+      {...props}
+      entryInfos={entryInfos}
+      threadInfos={threadInfos}
+      dayLoadingStatus={dayLoadingStatus}
+      entryLoadingStatus={entryLoadingStatus}
+      calendarFilters={calendarFilters}
+      fetchEntries={callFetchEntries}
+      fetchRevisionsForEntry={callFetchRevisionsForEntry}
+      dispatchActionPromise={dispatchActionPromise}
+      onClose={modalContext.popModal}
+    />
+  );
+});
 
 export default ConnectedHistoryModal;
