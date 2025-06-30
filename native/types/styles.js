@@ -49,7 +49,7 @@ export type AnimatedViewStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<ViewStyle | AnimatedStyleObj>;
 const AnimatedView: React.ComponentType<{
-  ...$Diff<ViewProps, { style: ViewStyle }>,
+  ...Omit<ViewProps, 'style'>,
   +style: AnimatedViewStyle,
   +entering?: ReanimatedAnimationBuilder | EntryAnimationFunction | Keyframe,
   +exiting?: ReanimatedAnimationBuilder | ExitAnimationFunction | Keyframe,
@@ -59,7 +59,7 @@ export type AnimatedTextStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<TextStyle | AnimatedStyleObj>;
 const AnimatedText: React.ComponentType<{
-  ...$Diff<TextProps, { style: TextStyle }>,
+  ...Omit<TextProps, 'style'>,
   +style: AnimatedTextStyle,
 }> = Animated.Text;
 
@@ -67,7 +67,7 @@ export type AnimatedImageStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<ImageStyle | AnimatedStyleObj>;
 const AnimatedImage: React.ComponentType<{
-  ...$Diff<ImageProps, { style: ImageStyle }>,
+  ...Omit<ImageProps, 'style'>,
   +style: AnimatedImageStyle,
 }> = Animated.Image;
 

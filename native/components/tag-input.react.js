@@ -449,15 +449,10 @@ const styles = StyleSheet.create({
   wrapper: {},
 });
 
-type ReactConfigShim<Props, DefaultProps> = $ReadOnly<{
-  ...$Diff<Props, DefaultProps>,
+type BaseConfig<T> = $ReadOnly<{
+  ...Omit<TagInputProps<T>, $Keys<typeof BaseTagInput.defaultProps>>,
   ...Partial<DefaultProps>,
 }>;
-
-type BaseConfig<T> = ReactConfigShim<
-  TagInputProps<T>,
-  typeof BaseTagInput.defaultProps,
->;
 
 type TagInputComponentType<T> = component(ref: React.RefSetter<BaseTagInput<T>>, ...BaseConfig<T>);
 
