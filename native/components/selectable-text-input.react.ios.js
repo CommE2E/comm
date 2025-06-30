@@ -137,7 +137,7 @@ type MemoizedSelectableTextInputComponent = component(
 );
 
 const MemoizedSelectableTextInput: MemoizedSelectableTextInputComponent =
-  React.memo<SelectableTextInputProps, SelectableTextInputRef>(
+  React.memo<SelectableTextInputProps, React.RefSetter<SelectableTextInputRef>>(
     SelectableTextInput,
   );
 

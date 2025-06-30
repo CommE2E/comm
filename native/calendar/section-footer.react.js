@@ -71,12 +71,13 @@ class SectionFooter extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedSectionFooter: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedSectionFooter(props: BaseProps) {
+const ConnectedSectionFooter: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedSectionFooter(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
 
     return <SectionFooter {...props} styles={styles} colors={colors} />;
-  });
+  },
+);
 
 export default ConnectedSectionFooter;

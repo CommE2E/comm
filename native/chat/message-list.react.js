@@ -289,8 +289,8 @@ class MessageList extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedMessageList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMessageList(props: BaseProps) {
+const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedMessageList(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
 
@@ -321,6 +321,7 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
         fetchMessages={fetchMessages}
       />
     );
-  });
+  },
+);
 
 export default ConnectedMessageList;
