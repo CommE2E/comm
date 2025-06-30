@@ -100,8 +100,8 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedKeyboardInputHost: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedKeyboardInputHost(props: BaseProps) {
+const ConnectedKeyboardInputHost: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedKeyboardInputHost(props: BaseProps) {
     const inputState = React.useContext(InputStateContext);
     const keyboardState = React.useContext(KeyboardContext);
     invariant(keyboardState, 'keyboardState should be initialized');
@@ -118,6 +118,7 @@ const ConnectedKeyboardInputHost: React.ComponentType<BaseProps> =
         inputState={inputState}
       />
     );
-  });
+  },
+);
 
 export default ConnectedKeyboardInputHost;

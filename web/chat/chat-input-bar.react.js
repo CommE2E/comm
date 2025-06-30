@@ -556,8 +556,8 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
 const createThreadLoadingStatusSelector =
   createLoadingStatusSelector(newThreadActionTypes);
 
-const ConnectedChatInputBar: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedChatInputBar(props) {
+const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedChatInputBar(props) {
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
@@ -700,6 +700,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         cancelPendingUpload={cancelPendingUpload}
       />
     );
-  });
+  },
+);
 
 export default ConnectedChatInputBar;

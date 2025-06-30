@@ -1150,8 +1150,8 @@ const threadMembersChangeIsSaving = (
   return false;
 };
 
-const ConnectedThreadSettings: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettings(props: BaseProps) {
+const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedThreadSettings(props: BaseProps) {
     const userInfos = useSelector(state => state.userStore.userInfos);
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -1346,6 +1346,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         inviteLinkExists={!!inviteLink}
       />
     );
-  });
+  },
+);
 
 export default ConnectedThreadSettings;

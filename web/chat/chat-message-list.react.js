@@ -384,10 +384,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedChatMessageList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedChatMessageList(
-    props: BaseProps,
-  ): React.Node {
+const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedChatMessageList(props: BaseProps): React.Node {
     const { threadInfo } = props;
     const messageListData = useMessageListData({
       threadInfo,
@@ -456,6 +454,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
         />
       </MessageListContext.Provider>
     );
-  });
+  },
+);
 
 export default ConnectedChatMessageList;

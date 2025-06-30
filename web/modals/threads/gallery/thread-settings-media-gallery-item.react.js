@@ -65,7 +65,6 @@ function MediaGalleryItem(props: Props) {
   );
 }
 
-const MemoizedItem: React.ComponentType<Props> =
-  React.memo<Props>(MediaGalleryItem);
+const MemoizedItem: React.ComponentType<Props> = React.memo(MediaGalleryItem);
 
 export default MemoizedItem;

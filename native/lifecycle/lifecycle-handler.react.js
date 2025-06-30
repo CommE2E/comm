@@ -10,7 +10,7 @@ import { addLifecycleListener } from './lifecycle.js';
 import { appBecameInactive } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const LifecycleHandler: React.ComponentType<{}> = React.memo<{}>(
+const LifecycleHandler: React.ComponentType<{}> = React.memo(
   function LifecycleHandler() {
     const dispatch = useDispatch();
 

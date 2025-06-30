@@ -260,671 +260,665 @@ const styles = StyleSheet.create({
   },
 });
 
-const CameraModal: React.ComponentType<Props> = React.memo<Props>(
-  function CameraModal(props: Props) {
-    const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
-    const deviceOrientation = useSelector(state => state.deviceOrientation);
-    const foreground = useIsAppForegrounded();
-    const overlayContext = React.useContext(OverlayContext);
-    const dispatch = useDispatch();
+const CameraModal: React.ComponentType<Props> = React.memo(function CameraModal(
+  props: Props,
+) {
+  const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
+  const deviceOrientation = useSelector(state => state.deviceOrientation);
+  const foreground = useIsAppForegrounded();
+  const overlayContext = React.useContext(OverlayContext);
+  const dispatch = useDispatch();
 
-    const { navigation, handlePhotoCapture } = props;
+  const { navigation, handlePhotoCapture } = props;
 
-    const isActive = !overlayContext || !overlayContext.isDismissing;
+  const isActive = !overlayContext || !overlayContext.isDismissing;
 
-    React.useEffect(() => {
-      if (isActive) {
-        Orientation.unlockAllOrientations();
-      } else {
-        Orientation.lockToPortrait();
+  React.useEffect(() => {
+    if (isActive) {
+      Orientation.unlockAllOrientations();
+    } else {
+      Orientation.lockToPortrait();
+    }
+  }, [isActive]);
+
+  React.useEffect(() => {
+    return () => {
+      Orientation.lockToPortrait();
+    };
+  }, []);
+
+  const [flashMode, setFlashMode] = React.useState('off');
+
+  const changeFlashMode = React.useCallback(() => {
+    setFlashMode(prevFlashMode => {
+      if (prevFlashMode === 'on') {
+        return 'off';
+      } else if (prevFlashMode === 'off') {
+        return 'auto';
       }
-    }, [isActive]);
+      return 'on';
+    });
+  }, []);
 
-    React.useEffect(() => {
-      return () => {
-        Orientation.lockToPortrait();
-      };
-    }, []);
+  const [useFrontCamera, setUseFrontCamera] = React.useState(
+    deviceCameraInfo.defaultUseFrontCamera,
+  );
 
-    const [flashMode, setFlashMode] = React.useState('off');
+  const switchCamera = React.useCallback(() => {
+    setUseFrontCamera(prevUseFrontCamera => !prevUseFrontCamera);
+  }, []);
 
-    const changeFlashMode = React.useCallback(() => {
-      setFlashMode(prevFlashMode => {
-        if (prevFlashMode === 'on') {
-          return 'off';
-        } else if (prevFlashMode === 'off') {
-          return 'auto';
-        }
-        return 'on';
+  const [hasCamerasOnBothSides, setHasCamerasOnBothSides] = React.useState(
+    deviceCameraInfo.hasCamerasOnBothSides,
+  );
+
+  const cameraIDsFetched = React.useRef(false);
+
+  const fetchCameraIDs = React.useCallback(async () => {
+    if (cameraIDsFetched.current) {
+      return;
+    }
+    cameraIDsFetched.current = true;
+
+    const deviceCameras = Camera.getAvailableCameraDevices();
+
+    let hasFront = false,
+      hasBack = false,
+      i = 0;
+    while ((!hasFront || !hasBack) && i < deviceCameras.length) {
+      const deviceCamera = deviceCameras[i];
+      if (deviceCamera.position === 'front') {
+        hasFront = true;
+      } else if (deviceCamera.position === 'back') {
+        hasBack = true;
+      }
+      i++;
+    }
+
+    const nextHasCamerasOnBothSides = hasFront && hasBack;
+    const defaultUseFrontCamera = !hasBack && hasFront;
+    if (nextHasCamerasOnBothSides !== hasCamerasOnBothSides) {
+      setHasCamerasOnBothSides(nextHasCamerasOnBothSides);
+    }
+    const {
+      hasCamerasOnBothSides: oldHasCamerasOnBothSides,
+      defaultUseFrontCamera: oldDefaultUseFrontCamera,
+    } = deviceCameraInfo;
+    if (
+      nextHasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
+      defaultUseFrontCamera !== oldDefaultUseFrontCamera
+    ) {
+      dispatch({
+        type: updateDeviceCameraInfoActionType,
+        payload: {
+          hasCamerasOnBothSides: nextHasCamerasOnBothSides,
+          defaultUseFrontCamera,
+        },
       });
-    }, []);
+    }
+  }, [deviceCameraInfo, dispatch, hasCamerasOnBothSides]);
 
-    const [useFrontCamera, setUseFrontCamera] = React.useState(
-      deviceCameraInfo.defaultUseFrontCamera,
-    );
+  const cameraRef = React.useRef<?Camera>();
 
-    const switchCamera = React.useCallback(() => {
-      setUseFrontCamera(prevUseFrontCamera => !prevUseFrontCamera);
-    }, []);
-
-    const [hasCamerasOnBothSides, setHasCamerasOnBothSides] = React.useState(
-      deviceCameraInfo.hasCamerasOnBothSides,
-    );
-
-    const cameraIDsFetched = React.useRef(false);
-
-    const fetchCameraIDs = React.useCallback(async () => {
-      if (cameraIDsFetched.current) {
-        return;
-      }
-      cameraIDsFetched.current = true;
-
-      const deviceCameras = Camera.getAvailableCameraDevices();
-
-      let hasFront = false,
-        hasBack = false,
-        i = 0;
-      while ((!hasFront || !hasBack) && i < deviceCameras.length) {
-        const deviceCamera = deviceCameras[i];
-        if (deviceCamera.position === 'front') {
-          hasFront = true;
-        } else if (deviceCamera.position === 'back') {
-          hasBack = true;
-        }
-        i++;
-      }
-
-      const nextHasCamerasOnBothSides = hasFront && hasBack;
-      const defaultUseFrontCamera = !hasBack && hasFront;
-      if (nextHasCamerasOnBothSides !== hasCamerasOnBothSides) {
-        setHasCamerasOnBothSides(nextHasCamerasOnBothSides);
-      }
-      const {
-        hasCamerasOnBothSides: oldHasCamerasOnBothSides,
-        defaultUseFrontCamera: oldDefaultUseFrontCamera,
-      } = deviceCameraInfo;
-      if (
-        nextHasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
-        defaultUseFrontCamera !== oldDefaultUseFrontCamera
-      ) {
-        dispatch({
-          type: updateDeviceCameraInfoActionType,
-          payload: {
-            hasCamerasOnBothSides: nextHasCamerasOnBothSides,
-            defaultUseFrontCamera,
-          },
-        });
-      }
-    }, [deviceCameraInfo, dispatch, hasCamerasOnBothSides]);
-
-    const cameraRef = React.useRef<?Camera>();
-
-    const focusOnPoint = React.useCallback(
-      ([inputX, inputY]: [number, number]) => {
-        const camera = cameraRef.current;
-        invariant(camera, 'camera ref should be set');
-        void camera.focus({ x: inputX, y: inputY });
-      },
-      [],
-    );
-
-    const [stagingMode, setStagingMode] = React.useState(false);
-    const [pendingPhotoCapture, setPendingPhotoCapture] =
-      React.useState<?PhotoCapture>();
-
-    const takePhoto = React.useCallback(async () => {
+  const focusOnPoint = React.useCallback(
+    ([inputX, inputY]: [number, number]) => {
       const camera = cameraRef.current;
       invariant(camera, 'camera ref should be set');
-      setStagingMode(true);
+      void camera.focus({ x: inputX, y: inputY });
+    },
+    [],
+  );
 
-      const startTime = Date.now();
-      const photoPromise = camera.takePhoto({
-        flash: flashMode,
-      });
+  const [stagingMode, setStagingMode] = React.useState(false);
+  const [pendingPhotoCapture, setPendingPhotoCapture] =
+    React.useState<?PhotoCapture>();
 
-      const { path: uri, width, height } = await photoPromise;
+  const takePhoto = React.useCallback(async () => {
+    const camera = cameraRef.current;
+    invariant(camera, 'camera ref should be set');
+    setStagingMode(true);
 
-      const filename = filenameFromPathOrURI(uri);
-      invariant(
-        filename,
-        `unable to parse filename out of react-native-vision-camera URI ${uri}`,
-      );
-
-      const now = Date.now();
-      const nextPendingPhotoCapture = {
-        step: 'photo_capture',
-        // If you want to consume this file (e.g. for displaying it in an <Image> component), you might have to add the file:// prefix.
-        // https://react-native-vision-camera.com/docs/api/interfaces/PhotoFile#path
-        uri: uri.startsWith('file://') ? uri : 'file://' + uri,
-        dimensions: { width, height },
-        filename,
-        time: now - startTime,
-        captureTime: now,
-        selectTime: 0,
-        sendTime: 0,
-        retries: 0,
-      };
-      setPendingPhotoCapture(nextPendingPhotoCapture);
-    }, [flashMode]);
-
-    const close = React.useCallback(() => {
-      if (overlayContext && navigation.goBackOnce) {
-        navigation.goBackOnce();
-      } else {
-        navigation.goBack();
-      }
-    }, [navigation, overlayContext]);
-
-    const sendPhoto = React.useCallback(async () => {
-      if (!pendingPhotoCapture) {
-        return;
-      }
-
-      const now = Date.now();
-      const capture = {
-        ...pendingPhotoCapture,
-        selectTime: now,
-        sendTime: now,
-      };
-
-      close();
-      handlePhotoCapture(capture);
-    }, [close, handlePhotoCapture, pendingPhotoCapture]);
-
-    const clearPendingImage = React.useCallback(() => {
-      invariant(cameraRef.current, 'camera ref should be set');
-      setStagingMode(false);
-      setPendingPhotoCapture();
-    }, []);
-
-    const closeButtonRef =
-      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
-    const closeButtonDimensions = useSharedValue({
-      x: -1,
-      y: -1,
-      width: 0,
-      height: 0,
+    const startTime = Date.now();
+    const photoPromise = camera.takePhoto({
+      flash: flashMode,
     });
 
-    const photoButtonRef =
-      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
-    const photoButtonDimensions = useSharedValue({
-      x: -1,
-      y: -1,
-      width: 0,
-      height: 0,
-    });
+    const { path: uri, width, height } = await photoPromise;
 
-    const switchCameraButtonRef =
-      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
-    const switchCameraButtonDimensions = useSharedValue({
-      x: -1,
-      y: -1,
-      width: 0,
-      height: 0,
-    });
+    const filename = filenameFromPathOrURI(uri);
+    invariant(
+      filename,
+      `unable to parse filename out of react-native-vision-camera URI ${uri}`,
+    );
 
-    const flashButtonRef =
-      React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
-    const flashButtonDimensions = useSharedValue({
-      x: -1,
-      y: -1,
-      width: 0,
-      height: 0,
-    });
+    const now = Date.now();
+    const nextPendingPhotoCapture = {
+      step: 'photo_capture',
+      // If you want to consume this file (e.g. for displaying it in an <Image> component), you might have to add the file:// prefix.
+      // https://react-native-vision-camera.com/docs/api/interfaces/PhotoFile#path
+      uri: uri.startsWith('file://') ? uri : 'file://' + uri,
+      dimensions: { width, height },
+      filename,
+      time: now - startTime,
+      captureTime: now,
+      selectTime: 0,
+      sendTime: 0,
+      retries: 0,
+    };
+    setPendingPhotoCapture(nextPendingPhotoCapture);
+  }, [flashMode]);
 
-    const onCloseButtonLayout = React.useCallback(() => {
-      if (!closeButtonRef.current) {
-        return;
-      }
-      ((closeButtonRef.current: any): LegacyHostInstanceMethods).measure(
-        (x, y, width, height, pageX, pageY) => {
-          closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
-        },
-      );
-    }, [closeButtonDimensions]);
+  const close = React.useCallback(() => {
+    if (overlayContext && navigation.goBackOnce) {
+      navigation.goBackOnce();
+    } else {
+      navigation.goBack();
+    }
+  }, [navigation, overlayContext]);
 
-    const onPhotoButtonLayout = React.useCallback(() => {
-      if (!photoButtonRef.current) {
-        return;
-      }
-      ((photoButtonRef.current: any): LegacyHostInstanceMethods).measure(
-        (x, y, width, height, pageX, pageY) => {
-          photoButtonDimensions.value = { x: pageX, y: pageY, width, height };
-        },
-      );
-    }, [photoButtonDimensions]);
+  const sendPhoto = React.useCallback(async () => {
+    if (!pendingPhotoCapture) {
+      return;
+    }
 
-    const onSwitchCameraButtonLayout = React.useCallback(() => {
-      if (!switchCameraButtonRef.current) {
-        return;
-      }
-      ((switchCameraButtonRef.current: any): LegacyHostInstanceMethods).measure(
-        (x, y, width, height, pageX, pageY) => {
-          switchCameraButtonDimensions.value = {
-            x: pageX,
-            y: pageY,
-            width,
-            height,
-          };
-        },
-      );
-    }, [switchCameraButtonDimensions]);
+    const now = Date.now();
+    const capture = {
+      ...pendingPhotoCapture,
+      selectTime: now,
+      sendTime: now,
+    };
 
-    React.useEffect(() => {
-      if (!hasCamerasOnBothSides) {
+    close();
+    handlePhotoCapture(capture);
+  }, [close, handlePhotoCapture, pendingPhotoCapture]);
+
+  const clearPendingImage = React.useCallback(() => {
+    invariant(cameraRef.current, 'camera ref should be set');
+    setStagingMode(false);
+    setPendingPhotoCapture();
+  }, []);
+
+  const closeButtonRef =
+    React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
+  const closeButtonDimensions = useSharedValue({
+    x: -1,
+    y: -1,
+    width: 0,
+    height: 0,
+  });
+
+  const photoButtonRef =
+    React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
+  const photoButtonDimensions = useSharedValue({
+    x: -1,
+    y: -1,
+    width: 0,
+    height: 0,
+  });
+
+  const switchCameraButtonRef =
+    React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
+  const switchCameraButtonDimensions = useSharedValue({
+    x: -1,
+    y: -1,
+    width: 0,
+    height: 0,
+  });
+
+  const flashButtonRef =
+    React.useRef<?React.ElementRef<typeof TouchableOpacity>>();
+  const flashButtonDimensions = useSharedValue({
+    x: -1,
+    y: -1,
+    width: 0,
+    height: 0,
+  });
+
+  const onCloseButtonLayout = React.useCallback(() => {
+    if (!closeButtonRef.current) {
+      return;
+    }
+    ((closeButtonRef.current: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
+        closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      },
+    );
+  }, [closeButtonDimensions]);
+
+  const onPhotoButtonLayout = React.useCallback(() => {
+    if (!photoButtonRef.current) {
+      return;
+    }
+    ((photoButtonRef.current: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
+        photoButtonDimensions.value = { x: pageX, y: pageY, width, height };
+      },
+    );
+  }, [photoButtonDimensions]);
+
+  const onSwitchCameraButtonLayout = React.useCallback(() => {
+    if (!switchCameraButtonRef.current) {
+      return;
+    }
+    ((switchCameraButtonRef.current: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
         switchCameraButtonDimensions.value = {
-          x: -1,
-          y: -1,
-          width: 0,
-          height: 0,
+          x: pageX,
+          y: pageY,
+          width,
+          height,
         };
-      }
-    }, [hasCamerasOnBothSides, switchCameraButtonDimensions]);
-
-    const onFlashButtonLayout = React.useCallback(() => {
-      if (!flashButtonRef.current) {
-        return;
-      }
-      ((flashButtonRef.current: any): LegacyHostInstanceMethods).measure(
-        (x, y, width, height, pageX, pageY) => {
-          flashButtonDimensions.value = { x: pageX, y: pageY, width, height };
-        },
-      );
-    }, [flashButtonDimensions]);
-
-    const insets = useSafeAreaInsets();
-
-    const outsideButtons = React.useCallback(
-      (x: number, y: number) => {
-        'worklet';
-        const isOutsideButton = (dim: Dimensions) => {
-          return (
-            x < dim.x ||
-            x > dim.x + dim.width ||
-            y + insets.top < dim.y ||
-            y + insets.top > dim.y + dim.height
-          );
-        };
-        const isOutsideCloseButton = isOutsideButton(
-          closeButtonDimensions.value,
-        );
-        const isOutsidePhotoButton = isOutsideButton(
-          photoButtonDimensions.value,
-        );
-        const isOutsideSwitchCameraButton = isOutsideButton(
-          switchCameraButtonDimensions.value,
-        );
-        const isOutsideFlashButton = isOutsideButton(
-          flashButtonDimensions.value,
-        );
-
-        return (
-          isOutsideCloseButton &&
-          isOutsidePhotoButton &&
-          isOutsideSwitchCameraButton &&
-          isOutsideFlashButton
-        );
-      },
-      [
-        closeButtonDimensions.value,
-        flashButtonDimensions.value,
-        insets.top,
-        photoButtonDimensions.value,
-        switchCameraButtonDimensions.value,
-      ],
-    );
-
-    const focusIndicatorScale = useSharedValue(0.75);
-    const focusIndicatorPosition = useSharedValue({ x: 0, y: 0 });
-    const focusIndicatorOpacity = useSharedValue(0);
-    const numScaleLoops = useSharedValue(0);
-
-    const startFocusAnimation = React.useCallback(
-      (x: number, y: number) => {
-        'worklet';
-        focusIndicatorPosition.value = { x, y };
-        focusIndicatorOpacity.value = 1;
-        numScaleLoops.value = 0;
-        focusIndicatorScale.value = 0.75;
-        focusIndicatorScale.value = withSpring(1, indicatorSpringConfig);
-      },
-      [
-        focusIndicatorOpacity,
-        focusIndicatorPosition,
-        focusIndicatorScale,
-        numScaleLoops,
-      ],
-    );
-
-    useAnimatedReaction(
-      () => focusIndicatorScale.value,
-      (prevScale, currScale) => {
-        if (prevScale <= 1.2 && currScale > 1.2) {
-          numScaleLoops.value++;
-        }
-        if (numScaleLoops.value > 1) {
-          numScaleLoops.value = 0;
-          focusIndicatorScale.value = withDelay(
-            400,
-            withTiming(0, indicatorTimingConfig),
-          );
-          focusIndicatorOpacity.value = withDelay(
-            400,
-            withTiming(0, indicatorTimingConfig),
-          );
-        }
       },
     );
+  }, [switchCameraButtonDimensions]);
 
-    const cancelFocusAnimation = React.useCallback(() => {
-      cancelAnimation(focusIndicatorScale);
-      cancelAnimation(focusIndicatorOpacity);
-      focusIndicatorOpacity.value = 0;
-    }, [focusIndicatorOpacity, focusIndicatorScale]);
+  React.useEffect(() => {
+    if (!hasCamerasOnBothSides) {
+      switchCameraButtonDimensions.value = {
+        x: -1,
+        y: -1,
+        width: 0,
+        height: 0,
+      };
+    }
+  }, [hasCamerasOnBothSides, switchCameraButtonDimensions]);
 
-    const focusIndicatorAnimatedStyle = useAnimatedStyle(
-      () => ({
-        opacity: focusIndicatorOpacity.value,
-        transform: [
-          { translateX: focusIndicatorPosition.value.x },
-          { translateY: focusIndicatorPosition.value.y },
-          { scale: focusIndicatorScale.value },
-        ],
-      }),
-      [],
-    );
-
-    const focusIndicatorStyle = React.useMemo(
-      () => [styles.focusIndicator, focusIndicatorAnimatedStyle],
-      [focusIndicatorAnimatedStyle],
-    );
-
-    const zoomBase = useSharedValue(1);
-    const currentZoom = useSharedValue(1);
-
-    const animatedProps = useAnimatedProps<CameraProps>(
-      () => ({ zoom: currentZoom.value }),
-      [currentZoom],
-    );
-
-    const onPinchUpdate = React.useCallback(
-      (pinchScale: number) => {
-        'worklet';
-        currentZoom.value = clamp(zoomBase.value * pinchScale, 1, 8);
+  const onFlashButtonLayout = React.useCallback(() => {
+    if (!flashButtonRef.current) {
+      return;
+    }
+    ((flashButtonRef.current: any): LegacyHostInstanceMethods).measure(
+      (x, y, width, height, pageX, pageY) => {
+        flashButtonDimensions.value = { x: pageX, y: pageY, width, height };
       },
-      [currentZoom, zoomBase.value],
     );
+  }, [flashButtonDimensions]);
 
-    const onPinchEnd = React.useCallback(() => {
+  const insets = useSafeAreaInsets();
+
+  const outsideButtons = React.useCallback(
+    (x: number, y: number) => {
       'worklet';
-      zoomBase.value = currentZoom.value;
-    }, [currentZoom, zoomBase]);
-
-    const gesture = React.useMemo(() => {
-      const pinchGesture = Gesture.Pinch()
-        .onUpdate(({ scale }) => onPinchUpdate(scale))
-        .onEnd(() => onPinchEnd());
-      const tapGesture = Gesture.Tap().onStart(({ x, y }) => {
-        if (outsideButtons(x, y)) {
-          runOnJS(focusOnPoint)([x, y]);
-          startFocusAnimation(x, y);
-        }
-      });
-      return Gesture.Exclusive(pinchGesture, tapGesture);
-    }, [
-      focusOnPoint,
-      onPinchEnd,
-      onPinchUpdate,
-      outsideButtons,
-      startFocusAnimation,
-    ]);
-
-    const stagingModeProgress = useSharedValue(0);
-
-    const overlayAnimatedStyle = useAnimatedStyle(() => {
-      const overlayOpacity = interpolate(
-        stagingModeProgress.value,
-        [0, 0.01, 1],
-        [0, 0.5, 0],
-        Extrapolate.CLAMP,
+      const isOutsideButton = (dim: Dimensions) => {
+        return (
+          x < dim.x ||
+          x > dim.x + dim.width ||
+          y + insets.top < dim.y ||
+          y + insets.top > dim.y + dim.height
+        );
+      };
+      const isOutsideCloseButton = isOutsideButton(closeButtonDimensions.value);
+      const isOutsidePhotoButton = isOutsideButton(photoButtonDimensions.value);
+      const isOutsideSwitchCameraButton = isOutsideButton(
+        switchCameraButtonDimensions.value,
       );
-      return {
-        opacity: overlayOpacity,
-      };
-    });
-
-    const overlayStyle = React.useMemo(
-      () => [styles.overlay, overlayAnimatedStyle],
-      [overlayAnimatedStyle],
-    );
-
-    const sendButtonProgress = React.useRef(new Animated.Value(0));
-
-    const sendButtonStyle = React.useMemo(() => {
-      const sendButtonScale = sendButtonProgress.current.interpolate({
-        inputRange: [0, 1],
-        outputRange: ([1.1, 1]: number[]), // Flow...
-      });
-      return {
-        opacity: sendButtonProgress.current,
-        transform: [{ scale: sendButtonScale }],
-      };
-    }, []);
-
-    const prevDeviceOrientation = React.useRef<?Orientations>();
-    React.useEffect(() => {
-      if (deviceOrientation !== prevDeviceOrientation.current) {
-        cancelFocusAnimation();
-      }
-      prevDeviceOrientation.current = deviceOrientation;
-    }, [cancelFocusAnimation, deviceOrientation]);
-
-    const prevStagingMode = React.useRef(false);
-    React.useEffect(() => {
-      if (stagingMode && !prevStagingMode.current) {
-        cancelFocusAnimation();
-        stagingModeProgress.value = withTiming(1, stagingModeAnimationConfig);
-      } else if (!stagingMode && prevStagingMode.current) {
-        stagingModeProgress.value = 0;
-      }
-      prevStagingMode.current = stagingMode;
-    }, [cancelFocusAnimation, stagingMode, stagingModeProgress]);
-
-    const prevPendingPhotoCapture = React.useRef<?PhotoCapture>();
-    React.useEffect(() => {
-      if (pendingPhotoCapture && !prevPendingPhotoCapture.current) {
-        Animated.timing(sendButtonProgress.current, {
-          ...sendButtonAnimationConfig,
-          toValue: 1,
-        }).start();
-      } else if (!pendingPhotoCapture && prevPendingPhotoCapture.current) {
-        void cleanUpPendingPhotoCapture(prevPendingPhotoCapture.current);
-        sendButtonProgress.current.setValue(0);
-      }
-      prevPendingPhotoCapture.current = pendingPhotoCapture;
-    }, [pendingPhotoCapture]);
-
-    const containerAnimatedStyle = useAnimatedStyle(
-      () => ({
-        opacity: overlayContext?.position?.value,
-      }),
-      [overlayContext],
-    );
-
-    const containerStyle = React.useMemo(() => {
-      if (!overlayContext) {
-        return styles.container;
-      }
-      return [styles.container, containerAnimatedStyle];
-    }, [containerAnimatedStyle, overlayContext]);
-
-    const { hasPermission, requestPermission } = useCameraPermission();
-
-    React.useEffect(() => {
-      if (foreground && !hasPermission) {
-        void requestPermission();
-      }
-    }, [foreground, hasPermission, requestPermission]);
-
-    const renderCamera = (): React.Node => {
-      if (cameraRef.current) {
-        void fetchCameraIDs();
-      }
-      if (stagingMode) {
-        return renderStagingView();
-      }
+      const isOutsideFlashButton = isOutsideButton(flashButtonDimensions.value);
 
       return (
-        <SafeAreaView style={styles.fill}>
+        isOutsideCloseButton &&
+        isOutsidePhotoButton &&
+        isOutsideSwitchCameraButton &&
+        isOutsideFlashButton
+      );
+    },
+    [
+      closeButtonDimensions.value,
+      flashButtonDimensions.value,
+      insets.top,
+      photoButtonDimensions.value,
+      switchCameraButtonDimensions.value,
+    ],
+  );
+
+  const focusIndicatorScale = useSharedValue(0.75);
+  const focusIndicatorPosition = useSharedValue({ x: 0, y: 0 });
+  const focusIndicatorOpacity = useSharedValue(0);
+  const numScaleLoops = useSharedValue(0);
+
+  const startFocusAnimation = React.useCallback(
+    (x: number, y: number) => {
+      'worklet';
+      focusIndicatorPosition.value = { x, y };
+      focusIndicatorOpacity.value = 1;
+      numScaleLoops.value = 0;
+      focusIndicatorScale.value = 0.75;
+      focusIndicatorScale.value = withSpring(1, indicatorSpringConfig);
+    },
+    [
+      focusIndicatorOpacity,
+      focusIndicatorPosition,
+      focusIndicatorScale,
+      numScaleLoops,
+    ],
+  );
+
+  useAnimatedReaction(
+    () => focusIndicatorScale.value,
+    (prevScale, currScale) => {
+      if (prevScale <= 1.2 && currScale > 1.2) {
+        numScaleLoops.value++;
+      }
+      if (numScaleLoops.value > 1) {
+        numScaleLoops.value = 0;
+        focusIndicatorScale.value = withDelay(
+          400,
+          withTiming(0, indicatorTimingConfig),
+        );
+        focusIndicatorOpacity.value = withDelay(
+          400,
+          withTiming(0, indicatorTimingConfig),
+        );
+      }
+    },
+  );
+
+  const cancelFocusAnimation = React.useCallback(() => {
+    cancelAnimation(focusIndicatorScale);
+    cancelAnimation(focusIndicatorOpacity);
+    focusIndicatorOpacity.value = 0;
+  }, [focusIndicatorOpacity, focusIndicatorScale]);
+
+  const focusIndicatorAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: focusIndicatorOpacity.value,
+      transform: [
+        { translateX: focusIndicatorPosition.value.x },
+        { translateY: focusIndicatorPosition.value.y },
+        { scale: focusIndicatorScale.value },
+      ],
+    }),
+    [],
+  );
+
+  const focusIndicatorStyle = React.useMemo(
+    () => [styles.focusIndicator, focusIndicatorAnimatedStyle],
+    [focusIndicatorAnimatedStyle],
+  );
+
+  const zoomBase = useSharedValue(1);
+  const currentZoom = useSharedValue(1);
+
+  const animatedProps = useAnimatedProps<CameraProps>(
+    () => ({ zoom: currentZoom.value }),
+    [currentZoom],
+  );
+
+  const onPinchUpdate = React.useCallback(
+    (pinchScale: number) => {
+      'worklet';
+      currentZoom.value = clamp(zoomBase.value * pinchScale, 1, 8);
+    },
+    [currentZoom, zoomBase.value],
+  );
+
+  const onPinchEnd = React.useCallback(() => {
+    'worklet';
+    zoomBase.value = currentZoom.value;
+  }, [currentZoom, zoomBase]);
+
+  const gesture = React.useMemo(() => {
+    const pinchGesture = Gesture.Pinch()
+      .onUpdate(({ scale }) => onPinchUpdate(scale))
+      .onEnd(() => onPinchEnd());
+    const tapGesture = Gesture.Tap().onStart(({ x, y }) => {
+      if (outsideButtons(x, y)) {
+        runOnJS(focusOnPoint)([x, y]);
+        startFocusAnimation(x, y);
+      }
+    });
+    return Gesture.Exclusive(pinchGesture, tapGesture);
+  }, [
+    focusOnPoint,
+    onPinchEnd,
+    onPinchUpdate,
+    outsideButtons,
+    startFocusAnimation,
+  ]);
+
+  const stagingModeProgress = useSharedValue(0);
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => {
+    const overlayOpacity = interpolate(
+      stagingModeProgress.value,
+      [0, 0.01, 1],
+      [0, 0.5, 0],
+      Extrapolate.CLAMP,
+    );
+    return {
+      opacity: overlayOpacity,
+    };
+  });
+
+  const overlayStyle = React.useMemo(
+    () => [styles.overlay, overlayAnimatedStyle],
+    [overlayAnimatedStyle],
+  );
+
+  const sendButtonProgress = React.useRef(new Animated.Value(0));
+
+  const sendButtonStyle = React.useMemo(() => {
+    const sendButtonScale = sendButtonProgress.current.interpolate({
+      inputRange: [0, 1],
+      outputRange: ([1.1, 1]: number[]), // Flow...
+    });
+    return {
+      opacity: sendButtonProgress.current,
+      transform: [{ scale: sendButtonScale }],
+    };
+  }, []);
+
+  const prevDeviceOrientation = React.useRef<?Orientations>();
+  React.useEffect(() => {
+    if (deviceOrientation !== prevDeviceOrientation.current) {
+      cancelFocusAnimation();
+    }
+    prevDeviceOrientation.current = deviceOrientation;
+  }, [cancelFocusAnimation, deviceOrientation]);
+
+  const prevStagingMode = React.useRef(false);
+  React.useEffect(() => {
+    if (stagingMode && !prevStagingMode.current) {
+      cancelFocusAnimation();
+      stagingModeProgress.value = withTiming(1, stagingModeAnimationConfig);
+    } else if (!stagingMode && prevStagingMode.current) {
+      stagingModeProgress.value = 0;
+    }
+    prevStagingMode.current = stagingMode;
+  }, [cancelFocusAnimation, stagingMode, stagingModeProgress]);
+
+  const prevPendingPhotoCapture = React.useRef<?PhotoCapture>();
+  React.useEffect(() => {
+    if (pendingPhotoCapture && !prevPendingPhotoCapture.current) {
+      Animated.timing(sendButtonProgress.current, {
+        ...sendButtonAnimationConfig,
+        toValue: 1,
+      }).start();
+    } else if (!pendingPhotoCapture && prevPendingPhotoCapture.current) {
+      void cleanUpPendingPhotoCapture(prevPendingPhotoCapture.current);
+      sendButtonProgress.current.setValue(0);
+    }
+    prevPendingPhotoCapture.current = pendingPhotoCapture;
+  }, [pendingPhotoCapture]);
+
+  const containerAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: overlayContext?.position?.value,
+    }),
+    [overlayContext],
+  );
+
+  const containerStyle = React.useMemo(() => {
+    if (!overlayContext) {
+      return styles.container;
+    }
+    return [styles.container, containerAnimatedStyle];
+  }, [containerAnimatedStyle, overlayContext]);
+
+  const { hasPermission, requestPermission } = useCameraPermission();
+
+  React.useEffect(() => {
+    if (foreground && !hasPermission) {
+      void requestPermission();
+    }
+  }, [foreground, hasPermission, requestPermission]);
+
+  const renderCamera = (): React.Node => {
+    if (cameraRef.current) {
+      void fetchCameraIDs();
+    }
+    if (stagingMode) {
+      return renderStagingView();
+    }
+
+    return (
+      <SafeAreaView style={styles.fill}>
+        <View style={styles.fill}>
+          {renderCameraContent()}
+          <TouchableOpacity
+            onPress={close}
+            onLayout={onCloseButtonLayout}
+            style={styles.closeButton}
+            ref={closeButtonRef}
+          >
+            <Text style={styles.closeIcon}>×</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  };
+
+  const renderStagingView = (): React.Node => {
+    let image = null;
+    if (pendingPhotoCapture) {
+      const imageSource = { uri: pendingPhotoCapture.uri };
+      image = <Image source={imageSource} style={styles.stagingImage} />;
+    } else {
+      image = <ContentLoading fillType="flex" colors={colors.dark} />;
+    }
+
+    return (
+      <>
+        {image}
+        <SafeAreaView style={styles.stagingViewOverlay}>
           <View style={styles.fill}>
-            {renderCameraContent()}
             <TouchableOpacity
-              onPress={close}
-              onLayout={onCloseButtonLayout}
-              style={styles.closeButton}
-              ref={closeButtonRef}
+              onPress={clearPendingImage}
+              style={styles.retakeButton}
             >
-              <Text style={styles.closeIcon}>×</Text>
+              <Icon name="arrow-back" style={styles.retakeIcon} />
             </TouchableOpacity>
+            <SendMediaButton
+              onPress={sendPhoto}
+              pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
+              containerStyle={styles.sendButtonContainer}
+              style={sendButtonStyle}
+            />
           </View>
         </SafeAreaView>
-      );
-    };
+      </>
+    );
+  };
 
-    const renderStagingView = (): React.Node => {
-      let image = null;
-      if (pendingPhotoCapture) {
-        const imageSource = { uri: pendingPhotoCapture.uri };
-        image = <Image source={imageSource} style={styles.stagingImage} />;
-      } else {
-        image = <ContentLoading fillType="flex" colors={colors.dark} />;
-      }
-
-      return (
-        <>
-          {image}
-          <SafeAreaView style={styles.stagingViewOverlay}>
-            <View style={styles.fill}>
-              <TouchableOpacity
-                onPress={clearPendingImage}
-                style={styles.retakeButton}
-              >
-                <Icon name="arrow-back" style={styles.retakeIcon} />
-              </TouchableOpacity>
-              <SendMediaButton
-                onPress={sendPhoto}
-                pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
-                containerStyle={styles.sendButtonContainer}
-                style={sendButtonStyle}
-              />
-            </View>
-          </SafeAreaView>
-        </>
-      );
-    };
-
-    const renderCameraContent = (): React.Node => {
-      if (!hasPermission) {
-        return (
-          <View style={styles.authorizationDeniedContainer}>
-            <Text style={styles.authorizationDeniedText}>
-              {'don’t have permission :('}
-            </Text>
-          </View>
-        );
-      }
-
-      let switchCameraButton = null;
-      if (hasCamerasOnBothSides) {
-        switchCameraButton = (
-          <TouchableOpacity
-            onPress={switchCamera}
-            onLayout={onSwitchCameraButtonLayout}
-            style={styles.switchCameraButton}
-            ref={switchCameraButtonRef}
-          >
-            <Icon name="camera-reverse" style={styles.switchCameraIcon} />
-          </TouchableOpacity>
-        );
-      }
-
-      let flashIcon;
-      if (flashMode === 'on') {
-        flashIcon = <Icon name="flash" style={styles.flashIcon} />;
-      } else if (flashMode === 'off') {
-        flashIcon = <Icon name="flash-off" style={styles.flashIcon} />;
-      } else {
-        flashIcon = (
-          <>
-            <Icon name="flash" style={styles.flashIcon} />
-            <Text style={styles.flashIconAutoText}>A</Text>
-          </>
-        );
-      }
-
-      return (
-        <GestureDetector gesture={gesture}>
-          <Reanimated.View style={styles.fill}>
-            <Reanimated.View style={focusIndicatorStyle} />
-            <TouchableOpacity
-              onPress={changeFlashMode}
-              onLayout={onFlashButtonLayout}
-              style={styles.flashButton}
-              ref={flashButtonRef}
-            >
-              {flashIcon}
-            </TouchableOpacity>
-            <View style={styles.bottomButtonsContainer}>
-              <TouchableOpacity
-                onPress={takePhoto}
-                onLayout={onPhotoButtonLayout}
-                style={styles.saveButton}
-                ref={photoButtonRef}
-              >
-                <View style={styles.saveButtonInner} />
-              </TouchableOpacity>
-              {switchCameraButton}
-            </View>
-          </Reanimated.View>
-        </GestureDetector>
-      );
-    };
-
-    const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
-    const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
-    if (!device) {
+  const renderCameraContent = (): React.Node => {
+    if (!hasPermission) {
       return (
         <View style={styles.authorizationDeniedContainer}>
           <Text style={styles.authorizationDeniedText}>
-            No camera is available on your device
+            {'don’t have permission :('}
           </Text>
         </View>
       );
     }
 
-    const camera = hasPermission ? (
-      <ReanimatedCamera
-        style={StyleSheet.absoluteFill}
-        ref={cameraRef}
-        device={device}
-        isActive
-        animatedProps={animatedProps}
-        photo
-        torch={flashMode === 'auto' ? 'off' : flashMode}
-        maxZoom={maxZoom}
-      />
-    ) : null;
+    let switchCameraButton = null;
+    if (hasCamerasOnBothSides) {
+      switchCameraButton = (
+        <TouchableOpacity
+          onPress={switchCamera}
+          onLayout={onSwitchCameraButtonLayout}
+          style={styles.switchCameraButton}
+          ref={switchCameraButtonRef}
+        >
+          <Icon name="camera-reverse" style={styles.switchCameraIcon} />
+        </TouchableOpacity>
+      );
+    }
+
+    let flashIcon;
+    if (flashMode === 'on') {
+      flashIcon = <Icon name="flash" style={styles.flashIcon} />;
+    } else if (flashMode === 'off') {
+      flashIcon = <Icon name="flash-off" style={styles.flashIcon} />;
+    } else {
+      flashIcon = (
+        <>
+          <Icon name="flash" style={styles.flashIcon} />
+          <Text style={styles.flashIconAutoText}>A</Text>
+        </>
+      );
+    }
 
     return (
-      <Reanimated.View style={containerStyle}>
-        {statusBar}
-        {camera}
-        <View style={StyleSheet.absoluteFill}>{renderCamera()}</View>
-        <Reanimated.View style={overlayStyle} pointerEvents="none" />
-      </Reanimated.View>
+      <GestureDetector gesture={gesture}>
+        <Reanimated.View style={styles.fill}>
+          <Reanimated.View style={focusIndicatorStyle} />
+          <TouchableOpacity
+            onPress={changeFlashMode}
+            onLayout={onFlashButtonLayout}
+            style={styles.flashButton}
+            ref={flashButtonRef}
+          >
+            {flashIcon}
+          </TouchableOpacity>
+          <View style={styles.bottomButtonsContainer}>
+            <TouchableOpacity
+              onPress={takePhoto}
+              onLayout={onPhotoButtonLayout}
+              style={styles.saveButton}
+              ref={photoButtonRef}
+            >
+              <View style={styles.saveButtonInner} />
+            </TouchableOpacity>
+            {switchCameraButton}
+          </View>
+        </Reanimated.View>
+      </GestureDetector>
     );
-  },
-);
+  };
+
+  const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+  const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
+  if (!device) {
+    return (
+      <View style={styles.authorizationDeniedContainer}>
+        <Text style={styles.authorizationDeniedText}>
+          No camera is available on your device
+        </Text>
+      </View>
+    );
+  }
+
+  const camera = hasPermission ? (
+    <ReanimatedCamera
+      style={StyleSheet.absoluteFill}
+      ref={cameraRef}
+      device={device}
+      isActive
+      animatedProps={animatedProps}
+      photo
+      torch={flashMode === 'auto' ? 'off' : flashMode}
+      maxZoom={maxZoom}
+    />
+  ) : null;
+
+  return (
+    <Reanimated.View style={containerStyle}>
+      {statusBar}
+      {camera}
+      <View style={StyleSheet.absoluteFill}>{renderCamera()}</View>
+      <Reanimated.View style={overlayStyle} pointerEvents="none" />
+    </Reanimated.View>
+  );
+});
 
 export default CameraModal;

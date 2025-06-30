@@ -230,10 +230,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedMultimedia: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMultimedia(props: BaseProps) {
+const ConnectedMultimedia: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedMultimedia(props: BaseProps) {
     const inputState = React.useContext(InputStateContext);
     return <Multimedia {...props} inputState={inputState} />;
-  });
+  },
+);
 
 export default ConnectedMultimedia;

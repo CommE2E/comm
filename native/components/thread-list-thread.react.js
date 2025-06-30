@@ -69,8 +69,8 @@ class ThreadListThread extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedThreadListThread: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadListThread(props: BaseProps) {
+const ConnectedThreadListThread: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedThreadListThread(props: BaseProps) {
     const { threadInfo, ...rest } = props;
     const styles = useStyles(unboundStyles);
     const colors = useColors();
@@ -84,6 +84,7 @@ const ConnectedThreadListThread: React.ComponentType<BaseProps> =
         colors={colors}
       />
     );
-  });
+  },
+);
 
 export default ConnectedThreadListThread;

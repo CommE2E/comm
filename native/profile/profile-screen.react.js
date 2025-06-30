@@ -552,8 +552,8 @@ class ProfileScreen extends React.PureComponent<Props> {
 const logOutLoadingStatusSelector =
   createLoadingStatusSelector(logOutActionTypes);
 
-const ConnectedProfileScreen: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
+const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedProfileScreen(props: BaseProps) {
     const currentUserInfo = useSelector(state => state.currentUserInfo);
     const logOutLoading =
       useSelector(logOutLoadingStatusSelector) === 'loading';
@@ -637,6 +637,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         usingRestoreFlow={usingRestoreFlow}
       />
     );
-  });
+  },
+);
 
 export default ConnectedProfileScreen;

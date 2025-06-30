@@ -152,8 +152,8 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedFailedSend: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedFailedSend(props: BaseProps) {
+const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedFailedSend(props: BaseProps) {
     const id = messageID(props.item.messageInfo);
     const rawMessageInfo = useSelector(state => {
       const message = state.messageStore.messages[id];
@@ -175,6 +175,7 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
         parentThreadInfo={parentThreadInfo}
       />
     );
-  });
+  },
+);
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };
