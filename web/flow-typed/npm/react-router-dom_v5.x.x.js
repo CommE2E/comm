@@ -159,7 +159,7 @@ declare module "react-router-dom" {
 
   declare export function withRouter<Props: {...}, Component: React.ComponentType<Props>>(
     WrappedComponent: Component
-  ): React.ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
+  ): React.ComponentType<Omit<React$ElementConfig<Component>, $Keys<ContextRouterVoid>>>;
 
   declare type MatchPathOptions = {
     path?: string | string[],

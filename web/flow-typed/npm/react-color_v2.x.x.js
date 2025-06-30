@@ -171,7 +171,7 @@ declare module "react-color" {
     Comp: ComponentType<Props>,
   >(
     Component: Comp
-  ): ComponentType<$Diff<React$ElementConfig<Comp>, InjectedColorProps>>;
+  ): ComponentType<Omit<React$ElementConfig<Comp>, $Keys<InjectedColorProps>>>;
 }
 
 declare module "react-color/lib/components/common" {
