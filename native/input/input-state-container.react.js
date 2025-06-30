@@ -1656,57 +1656,57 @@ const textCreationLoadingStatusSelector = createLoadingStatusSelector(
   sendTextMessageActionTypes,
 );
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedInputStateContainer(
-    props: BaseProps,
-  ) {
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const messageStoreMessages = useSelector(
-      state => state.messageStore.messages,
-    );
-    const ongoingMessageCreation = useSelector(
-      state =>
-        combineLoadingStatuses(
-          mediaCreationLoadingStatusSelector(state),
-          textCreationLoadingStatusSelector(state),
-        ) === 'loading',
-    );
-    const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
-    const calendarQuery = useCalendarQuery();
-    const callBlobServiceUpload = useBlobServiceUpload();
-    const callSendMultimediaMessage =
-      useInputStateContainerSendMultimediaMessage();
-    const callSendTextMessage = useInputStateContainerSendTextMessage();
-    const callNewThinThread = useNewThinThread();
-    const callNewThickThread = useNewThickThread();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const dispatch = useDispatch();
-    const mediaReportsEnabled = useIsReportEnabled('mediaReports');
-    const staffCanSee = useStaffCanSee();
-    const callInvalidTokenLogOut = useInvalidCSATLogOut();
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedInputStateContainer(props: BaseProps) {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const messageStoreMessages = useSelector(
+    state => state.messageStore.messages,
+  );
+  const ongoingMessageCreation = useSelector(
+    state =>
+      combineLoadingStatuses(
+        mediaCreationLoadingStatusSelector(state),
+        textCreationLoadingStatusSelector(state),
+      ) === 'loading',
+  );
+  const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
+  const calendarQuery = useCalendarQuery();
+  const callBlobServiceUpload = useBlobServiceUpload();
+  const callSendMultimediaMessage =
+    useInputStateContainerSendMultimediaMessage();
+  const callSendTextMessage = useInputStateContainerSendTextMessage();
+  const callNewThinThread = useNewThinThread();
+  const callNewThickThread = useNewThickThread();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
+  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+  const staffCanSee = useStaffCanSee();
+  const callInvalidTokenLogOut = useInvalidCSATLogOut();
 
-    return (
-      <InputStateContainer
-        {...props}
-        viewerID={viewerID}
-        messageStoreMessages={messageStoreMessages}
-        ongoingMessageCreation={ongoingMessageCreation}
-        hasWiFi={hasWiFi}
-        mediaReportsEnabled={mediaReportsEnabled}
-        calendarQuery={calendarQuery}
-        blobServiceUpload={callBlobServiceUpload}
-        sendMultimediaMessage={callSendMultimediaMessage}
-        sendTextMessage={callSendTextMessage}
-        newThinThread={callNewThinThread}
-        newThickThread={callNewThickThread}
-        dispatchActionPromise={dispatchActionPromise}
-        dispatch={dispatch}
-        staffCanSee={staffCanSee}
-        invalidTokenLogOut={callInvalidTokenLogOut}
-      />
-    );
-  });
+  return (
+    <InputStateContainer
+      {...props}
+      viewerID={viewerID}
+      messageStoreMessages={messageStoreMessages}
+      ongoingMessageCreation={ongoingMessageCreation}
+      hasWiFi={hasWiFi}
+      mediaReportsEnabled={mediaReportsEnabled}
+      calendarQuery={calendarQuery}
+      blobServiceUpload={callBlobServiceUpload}
+      sendMultimediaMessage={callSendMultimediaMessage}
+      sendTextMessage={callSendTextMessage}
+      newThinThread={callNewThinThread}
+      newThickThread={callNewThickThread}
+      dispatchActionPromise={dispatchActionPromise}
+      dispatch={dispatch}
+      staffCanSee={staffCanSee}
+      invalidTokenLogOut={callInvalidTokenLogOut}
+    />
+  );
+});
 
 export default ConnectedInputStateContainer;

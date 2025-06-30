@@ -289,38 +289,40 @@ class MessageList extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedMessageList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedMessageList(props: BaseProps) {
-    const keyboardState = React.useContext(KeyboardContext);
-    const overlayContext = React.useContext(OverlayContext);
+const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedMessageList(props: BaseProps) {
+  const keyboardState = React.useContext(KeyboardContext);
+  const overlayContext = React.useContext(OverlayContext);
 
-    const threadID = props.threadInfo.id;
-    const startReached = useSelector(
-      state =>
-        !!(
-          state.messageStore.threads[threadID] &&
-          state.messageStore.threads[threadID].startReached
-        ),
-    );
+  const threadID = props.threadInfo.id;
+  const startReached = useSelector(
+    state =>
+      !!(
+        state.messageStore.threads[threadID] &&
+        state.messageStore.threads[threadID].startReached
+      ),
+  );
 
-    const styles = useStyles(unboundStyles);
-    const indicatorStyle = useIndicatorStyle();
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
 
-    const fetchMessages = useFetchMessages(props.threadInfo);
+  const fetchMessages = useFetchMessages(props.threadInfo);
 
-    useWatchThread(props.threadInfo);
+  useWatchThread(props.threadInfo);
 
-    return (
-      <MessageList
-        {...props}
-        startReached={startReached}
-        styles={styles}
-        indicatorStyle={indicatorStyle}
-        overlayContext={overlayContext}
-        keyboardState={keyboardState}
-        fetchMessages={fetchMessages}
-      />
-    );
-  });
+  return (
+    <MessageList
+      {...props}
+      startReached={startReached}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      overlayContext={overlayContext}
+      keyboardState={keyboardState}
+      fetchMessages={fetchMessages}
+    />
+  );
+});
 
 export default ConnectedMessageList;

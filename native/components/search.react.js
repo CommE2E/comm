@@ -142,7 +142,7 @@ const unboundStyles = {
 
 const MemoizedSearch: SearchComponentType = React.memo<
   Props,
-  React.ElementRef<typeof BaseTextInput>,
+  React.RefSetter<React.ElementRef<typeof BaseTextInput>>,
 >(Search);
 
 export default MemoizedSearch;

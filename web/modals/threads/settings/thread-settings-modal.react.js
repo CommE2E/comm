@@ -48,7 +48,7 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsModal(props) {
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsModal(props) {
     const changeInProgress = useSelector(
       state =>
         deleteThreadLoadingStatusSelector(state) === 'loading' ||

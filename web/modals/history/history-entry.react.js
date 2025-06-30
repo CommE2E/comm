@@ -147,7 +147,7 @@ class HistoryEntry extends React.PureComponent<Props> {
 }
 
 const ConnectedHistoryEntry: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedHistoryEntry(props) {
+  React.memo<BaseProps, void>(function ConnectedHistoryEntry(props) {
     const entryID = props.entryInfo.id;
     invariant(entryID, 'entryInfo.id (serverID) should be set');
     const unresolvedThreadInfo = useSelector(

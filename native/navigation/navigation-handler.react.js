@@ -15,7 +15,7 @@ import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import { MissingRegistrationDataHandler } from '../account/registration/missing-registration-data/missing-registration-data-handler.react.js';
 import DevTools from '../redux/dev-tools.react.js';
 
-const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
+const NavigationHandler: React.ComponentType<{}> = React.memo<{}, void>(
   function NavigationHandler() {
     const navContext = React.useContext(NavContext);
     const persistedStateLoaded = usePersistedStateLoaded();
@@ -53,7 +53,7 @@ NavigationHandler.displayName = 'NavigationHandler';
 type LogInHandlerProps = {
   +dispatch: (action: NavAction) => void,
 };
-const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
+const LogInHandler = React.memo<LogInHandlerProps, void>(function LogInHandler(
   props: LogInHandlerProps,
 ) {
   const { dispatch } = props;

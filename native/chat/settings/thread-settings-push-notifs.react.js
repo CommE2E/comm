@@ -140,7 +140,7 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsPushNotifs(
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsPushNotifs(
     props: BaseProps,
   ) {
     const keyserverID = extractKeyserverIDFromIDOptional(props.threadInfo.id);

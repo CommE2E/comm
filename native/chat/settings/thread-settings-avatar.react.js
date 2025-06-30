@@ -33,7 +33,9 @@ const unboundStyles = {
   },
 };
 
-const MemoizedThreadSettingsAvatar: React.ComponentType<Props> =
-  React.memo<Props>(ThreadSettingsAvatar);
+const MemoizedThreadSettingsAvatar: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(ThreadSettingsAvatar);
 
 export default MemoizedThreadSettingsAvatar;

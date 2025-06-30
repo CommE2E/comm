@@ -48,331 +48,312 @@ type Props = {
   +children: React.Node,
 };
 
-const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
-  function ConnectedComposedMessage(props: Props) {
-    const composedMessageMaxWidth = useComposedMessageMaxWidth();
-    const colors = useColors();
-    const inputState = React.useContext(InputStateContext);
-    const navigateToSidebar = useNavigateToSidebar(props.item);
-    const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
-    const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
+const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<
+  Props,
+  void,
+>(function ConnectedComposedMessage(props: Props) {
+  const composedMessageMaxWidth = useComposedMessageMaxWidth();
+  const colors = useColors();
+  const inputState = React.useContext(InputStateContext);
+  const navigateToSidebar = useNavigateToSidebar(props.item);
+  const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
+  const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
 
-    const messageEditingContext = React.useContext(MessageEditingContext);
-    const progress = useDerivedValue(() => {
-      const isThisThread =
-        messageEditingContext?.editState.editedMessage?.threadID ===
-        props.item.threadInfo.id;
-      const isHighlighted =
-        messageEditingContext?.editState.editedMessage?.id ===
-          props.item.messageInfo.id && isThisThread;
-      return withTiming(isHighlighted ? 1 : 0);
-    });
+  const messageEditingContext = React.useContext(MessageEditingContext);
+  const progress = useDerivedValue(() => {
+    const isThisThread =
+      messageEditingContext?.editState.editedMessage?.threadID ===
+      props.item.threadInfo.id;
+    const isHighlighted =
+      messageEditingContext?.editState.editedMessage?.id ===
+        props.item.messageInfo.id && isThisThread;
+    return withTiming(isHighlighted ? 1 : 0);
+  });
 
-    const editedMessageStyle = useAnimatedStyle(() => {
-      const backgroundColor = interpolateColor(
-        progress.value,
-        [0, 1],
-        ['transparent', `#${props.item.threadInfo.color}40`],
-      );
-      return {
-        backgroundColor,
-      };
-    });
-
-    assertComposableMessageType(props.item.messageInfo.type);
-    const {
-      item,
-      sendFailed,
-      swipeOptions,
-      shouldDisplayPinIndicator,
-      children,
-      focused,
-      ...viewProps
-    } = props;
-
-    const { hasBeenEdited, isPinned } = item;
-    const { id, creator } = item.messageInfo;
-
-    const { isViewer } = creator;
-    const alignStyle = isViewer
-      ? styles.rightChatBubble
-      : styles.leftChatBubble;
-
-    const containerStyle = React.useMemo(() => {
-      let containerMarginBottom = 5;
-      if (item.endsCluster) {
-        containerMarginBottom += clusterEndHeight;
-      }
-      return { marginBottom: containerMarginBottom };
-    }, [item.endsCluster]);
-
-    const messageBoxContainerStyle = React.useMemo(
-      () => [
-        styles.messageBoxContainer,
-        isViewer ? styles.rightChatContainer : styles.leftChatContainer,
-      ],
-      [isViewer],
+  const editedMessageStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      ['transparent', `#${props.item.threadInfo.color}40`],
     );
+    return {
+      backgroundColor,
+    };
+  });
 
-    const deliveryIconAnimatedStyle = useAnimatedStyle(() => ({
-      opacity: deliveryIconOpacity.value,
-    }));
+  assertComposableMessageType(props.item.messageInfo.type);
+  const {
+    item,
+    sendFailed,
+    swipeOptions,
+    shouldDisplayPinIndicator,
+    children,
+    focused,
+    ...viewProps
+  } = props;
 
-    const deliveryIcon = React.useMemo(() => {
-      if (!isViewer) {
-        return undefined;
-      }
+  const { hasBeenEdited, isPinned } = item;
+  const { id, creator } = item.messageInfo;
 
-      let deliveryIconName;
-      let deliveryIconColor = `#${item.threadInfo.color}`;
+  const { isViewer } = creator;
+  const alignStyle = isViewer ? styles.rightChatBubble : styles.leftChatBubble;
 
-      const notDeliveredP2PMessages =
-        item?.localMessageInfo?.outboundP2PMessageIDs ?? [];
-      if (
-        id !== null &&
-        id !== undefined &&
-        notDeliveredP2PMessages.length === 0
-      ) {
-        deliveryIconName = 'check-circle';
-      } else if (sendFailed) {
-        deliveryIconName = 'x-circle';
-        deliveryIconColor = colors.redText;
-      } else {
-        deliveryIconName = 'circle';
-      }
+  const containerStyle = React.useMemo(() => {
+    let containerMarginBottom = 5;
+    if (item.endsCluster) {
+      containerMarginBottom += clusterEndHeight;
+    }
+    return { marginBottom: containerMarginBottom };
+  }, [item.endsCluster]);
 
-      return (
-        <AnimatedView style={[styles.iconContainer, deliveryIconAnimatedStyle]}>
-          <Icon
-            name={deliveryIconName}
-            style={[styles.icon, { color: deliveryIconColor }]}
-          />
-        </AnimatedView>
-      );
-    }, [
-      colors.redText,
-      deliveryIconAnimatedStyle,
-      id,
-      isViewer,
-      item?.localMessageInfo?.outboundP2PMessageIDs,
-      item.threadInfo.color,
-      sendFailed,
-    ]);
+  const messageBoxContainerStyle = React.useMemo(
+    () => [
+      styles.messageBoxContainer,
+      isViewer ? styles.rightChatContainer : styles.leftChatContainer,
+    ],
+    [isViewer],
+  );
 
-    const editInputMessage = inputState?.editInputMessage;
-    const reply = React.useCallback(() => {
-      invariant(editInputMessage, 'editInputMessage should be set in reply');
-      invariant(item.messageInfo.text, 'text should be set in reply');
-      editInputMessage({
-        message: createMessageReply(item.messageInfo.text),
-        mode: 'prepend',
-      });
-    }, [editInputMessage, item.messageInfo.text]);
+  const deliveryIconAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: deliveryIconOpacity.value,
+  }));
 
-    const triggerReply =
-      swipeOptions === 'reply' || swipeOptions === 'both' ? reply : undefined;
+  const deliveryIcon = React.useMemo(() => {
+    if (!isViewer) {
+      return undefined;
+    }
 
-    const triggerSidebar =
-      swipeOptions === 'sidebar' || swipeOptions === 'both'
-        ? navigateToSidebar
-        : undefined;
+    let deliveryIconName;
+    let deliveryIconColor = `#${item.threadInfo.color}`;
 
-    const navigateToUserProfileBottomSheet =
-      useNavigateToUserProfileBottomSheet();
+    const notDeliveredP2PMessages =
+      item?.localMessageInfo?.outboundP2PMessageIDs ?? [];
+    if (
+      id !== null &&
+      id !== undefined &&
+      notDeliveredP2PMessages.length === 0
+    ) {
+      deliveryIconName = 'check-circle';
+    } else if (sendFailed) {
+      deliveryIconName = 'x-circle';
+      deliveryIconColor = colors.redText;
+    } else {
+      deliveryIconName = 'circle';
+    }
 
-    const onPressAvatar = React.useCallback(
-      () => navigateToUserProfileBottomSheet(item.messageInfo.creator.id),
-      [item.messageInfo.creator.id, navigateToUserProfileBottomSheet],
-    );
-
-    const avatar = React.useMemo(() => {
-      if (!isViewer && item.endsCluster) {
-        return (
-          <TouchableOpacity
-            onPress={onPressAvatar}
-            style={styles.avatarContainer}
-          >
-            <UserAvatar size="S" userID={item.messageInfo.creator.id} />
-          </TouchableOpacity>
-        );
-      } else if (!isViewer) {
-        return <View style={styles.avatarOffset} />;
-      } else {
-        return undefined;
-      }
-    }, [
-      isViewer,
-      item.endsCluster,
-      item.messageInfo.creator.id,
-      onPressAvatar,
-    ]);
-
-    const pinIconPositioning = isViewer ? 'left' : 'right';
-    const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
-    const messageBoxTopLevelContainerStyle =
-      pinIconPositioning === 'left'
-        ? styles.rightMessageBoxTopLevelContainerStyle
-        : styles.leftMessageBoxTopLevelContainerStyle;
-
-    const pinIcon = React.useMemo(() => {
-      if (!isPinned || !shouldDisplayPinIndicator) {
-        return undefined;
-      }
-      return (
-        <View style={styles.pinIconContainer}>
-          <CommIcon
-            name={pinIconName}
-            size={12}
-            style={{ color: `#${item.threadInfo.color}` }}
-          />
-        </View>
-      );
-    }, [
-      isPinned,
-      item.threadInfo.color,
-      pinIconName,
-      shouldDisplayPinIndicator,
-    ]);
-
-    const messageBoxStyle = useAnimatedStyle(
-      () => ({
-        opacity: contentAndHeaderOpacity.value,
-        maxWidth: composedMessageMaxWidth,
-      }),
-      [composedMessageMaxWidth],
-    );
-
-    const messageBox = React.useMemo(
-      () => (
-        <View style={messageBoxTopLevelContainerStyle}>
-          {pinIcon}
-          <View style={messageBoxContainerStyle}>
-            <SwipeableMessage
-              triggerReply={triggerReply}
-              triggerSidebar={triggerSidebar}
-              isViewer={isViewer}
-              contentStyle={styles.swipeableContainer}
-              threadColor={item.threadInfo.color}
-            >
-              {avatar}
-              <AnimatedView style={messageBoxStyle}>{children}</AnimatedView>
-            </SwipeableMessage>
-          </View>
-        </View>
-      ),
-      [
-        avatar,
-        children,
-        isViewer,
-        item.threadInfo.color,
-        messageBoxContainerStyle,
-        messageBoxStyle,
-        messageBoxTopLevelContainerStyle,
-        pinIcon,
-        triggerReply,
-        triggerSidebar,
-      ],
-    );
-
-    const label = getMessageLabel(hasBeenEdited, item.threadInfo.id);
-    const inlineEngagement = React.useMemo(() => {
-      if (!chatMessageItemHasEngagement(item, item.threadInfo.id)) {
-        return undefined;
-      }
-      const positioning = isViewer ? 'right' : 'left';
-      return (
-        <InlineEngagement
-          messageInfo={item.messageInfo}
-          threadInfo={item.threadInfo}
-          sidebarThreadInfo={item.threadCreatedFromMessage}
-          reactions={item.reactions}
-          positioning={positioning}
-          label={label}
-          deleted={item.deleted}
+    return (
+      <AnimatedView style={[styles.iconContainer, deliveryIconAnimatedStyle]}>
+        <Icon
+          name={deliveryIconName}
+          style={[styles.icon, { color: deliveryIconColor }]}
         />
-      );
-    }, [label, isViewer, item]);
-
-    const viewStyle = React.useMemo(() => {
-      const baseStyle: Array<ViewStyle> = [styles.alignment];
-      if (__DEV__) {
-        // We don't force view height in dev mode because we
-        // want to measure it in Message to see if it's correct
-        return baseStyle;
-      }
-      if (item.messageShapeType === 'text') {
-        baseStyle.push({ height: item.contentHeight });
-      } else if (item.messageShapeType === 'multimedia') {
-        const height = item.inlineEngagementHeight
-          ? item.contentHeight + item.inlineEngagementHeight
-          : item.contentHeight;
-        baseStyle.push({ height });
-      }
-      return baseStyle;
-    }, [
-      item.contentHeight,
-      item.inlineEngagementHeight,
-      item.messageShapeType,
-    ]);
-
-    const messageHeaderStyle = useAnimatedStyle(() => ({
-      opacity: contentAndHeaderOpacity.value,
-    }));
-
-    const animatedContainerStyle = React.useMemo(
-      () => [containerStyle, editedMessageStyle],
-      [containerStyle, editedMessageStyle],
+      </AnimatedView>
     );
+  }, [
+    colors.redText,
+    deliveryIconAnimatedStyle,
+    id,
+    isViewer,
+    item?.localMessageInfo?.outboundP2PMessageIDs,
+    item.threadInfo.color,
+    sendFailed,
+  ]);
 
-    const contentStyle = React.useMemo(
-      () => [styles.content, alignStyle],
-      [alignStyle],
-    );
+  const editInputMessage = inputState?.editInputMessage;
+  const reply = React.useCallback(() => {
+    invariant(editInputMessage, 'editInputMessage should be set in reply');
+    invariant(item.messageInfo.text, 'text should be set in reply');
+    editInputMessage({
+      message: createMessageReply(item.messageInfo.text),
+      mode: 'prepend',
+    });
+  }, [editInputMessage, item.messageInfo.text]);
 
-    const failedSend = React.useMemo(
-      () => (sendFailed ? <FailedSend item={item} /> : undefined),
-      [item, sendFailed],
-    );
+  const triggerReply =
+    swipeOptions === 'reply' || swipeOptions === 'both' ? reply : undefined;
 
-    const composedMessage = React.useMemo(() => {
+  const triggerSidebar =
+    swipeOptions === 'sidebar' || swipeOptions === 'both'
+      ? navigateToSidebar
+      : undefined;
+
+  const navigateToUserProfileBottomSheet =
+    useNavigateToUserProfileBottomSheet();
+
+  const onPressAvatar = React.useCallback(
+    () => navigateToUserProfileBottomSheet(item.messageInfo.creator.id),
+    [item.messageInfo.creator.id, navigateToUserProfileBottomSheet],
+  );
+
+  const avatar = React.useMemo(() => {
+    if (!isViewer && item.endsCluster) {
       return (
-        <View {...viewProps}>
-          <AnimatedView style={messageHeaderStyle}>
-            <MessageHeader
-              item={item}
-              focused={focused}
-              display="lowContrast"
-            />
-          </AnimatedView>
-          <AnimatedView style={animatedContainerStyle}>
-            <View style={viewStyle}>
-              <View style={contentStyle}>
-                {deliveryIcon}
-                {messageBox}
-              </View>
-              {inlineEngagement}
-            </View>
-            {failedSend}
-          </AnimatedView>
-        </View>
+        <TouchableOpacity
+          onPress={onPressAvatar}
+          style={styles.avatarContainer}
+        >
+          <UserAvatar size="S" userID={item.messageInfo.creator.id} />
+        </TouchableOpacity>
       );
-    }, [
-      animatedContainerStyle,
-      contentStyle,
-      deliveryIcon,
-      failedSend,
-      focused,
-      inlineEngagement,
-      item,
-      messageBox,
-      messageHeaderStyle,
-      viewProps,
-      viewStyle,
-    ]);
+    } else if (!isViewer) {
+      return <View style={styles.avatarOffset} />;
+    } else {
+      return undefined;
+    }
+  }, [isViewer, item.endsCluster, item.messageInfo.creator.id, onPressAvatar]);
 
-    return composedMessage;
-  },
-);
+  const pinIconPositioning = isViewer ? 'left' : 'right';
+  const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
+  const messageBoxTopLevelContainerStyle =
+    pinIconPositioning === 'left'
+      ? styles.rightMessageBoxTopLevelContainerStyle
+      : styles.leftMessageBoxTopLevelContainerStyle;
+
+  const pinIcon = React.useMemo(() => {
+    if (!isPinned || !shouldDisplayPinIndicator) {
+      return undefined;
+    }
+    return (
+      <View style={styles.pinIconContainer}>
+        <CommIcon
+          name={pinIconName}
+          size={12}
+          style={{ color: `#${item.threadInfo.color}` }}
+        />
+      </View>
+    );
+  }, [isPinned, item.threadInfo.color, pinIconName, shouldDisplayPinIndicator]);
+
+  const messageBoxStyle = useAnimatedStyle(
+    () => ({
+      opacity: contentAndHeaderOpacity.value,
+      maxWidth: composedMessageMaxWidth,
+    }),
+    [composedMessageMaxWidth],
+  );
+
+  const messageBox = React.useMemo(
+    () => (
+      <View style={messageBoxTopLevelContainerStyle}>
+        {pinIcon}
+        <View style={messageBoxContainerStyle}>
+          <SwipeableMessage
+            triggerReply={triggerReply}
+            triggerSidebar={triggerSidebar}
+            isViewer={isViewer}
+            contentStyle={styles.swipeableContainer}
+            threadColor={item.threadInfo.color}
+          >
+            {avatar}
+            <AnimatedView style={messageBoxStyle}>{children}</AnimatedView>
+          </SwipeableMessage>
+        </View>
+      </View>
+    ),
+    [
+      avatar,
+      children,
+      isViewer,
+      item.threadInfo.color,
+      messageBoxContainerStyle,
+      messageBoxStyle,
+      messageBoxTopLevelContainerStyle,
+      pinIcon,
+      triggerReply,
+      triggerSidebar,
+    ],
+  );
+
+  const label = getMessageLabel(hasBeenEdited, item.threadInfo.id);
+  const inlineEngagement = React.useMemo(() => {
+    if (!chatMessageItemHasEngagement(item, item.threadInfo.id)) {
+      return undefined;
+    }
+    const positioning = isViewer ? 'right' : 'left';
+    return (
+      <InlineEngagement
+        messageInfo={item.messageInfo}
+        threadInfo={item.threadInfo}
+        sidebarThreadInfo={item.threadCreatedFromMessage}
+        reactions={item.reactions}
+        positioning={positioning}
+        label={label}
+        deleted={item.deleted}
+      />
+    );
+  }, [label, isViewer, item]);
+
+  const viewStyle = React.useMemo(() => {
+    const baseStyle: Array<ViewStyle> = [styles.alignment];
+    if (__DEV__) {
+      // We don't force view height in dev mode because we
+      // want to measure it in Message to see if it's correct
+      return baseStyle;
+    }
+    if (item.messageShapeType === 'text') {
+      baseStyle.push({ height: item.contentHeight });
+    } else if (item.messageShapeType === 'multimedia') {
+      const height = item.inlineEngagementHeight
+        ? item.contentHeight + item.inlineEngagementHeight
+        : item.contentHeight;
+      baseStyle.push({ height });
+    }
+    return baseStyle;
+  }, [item.contentHeight, item.inlineEngagementHeight, item.messageShapeType]);
+
+  const messageHeaderStyle = useAnimatedStyle(() => ({
+    opacity: contentAndHeaderOpacity.value,
+  }));
+
+  const animatedContainerStyle = React.useMemo(
+    () => [containerStyle, editedMessageStyle],
+    [containerStyle, editedMessageStyle],
+  );
+
+  const contentStyle = React.useMemo(
+    () => [styles.content, alignStyle],
+    [alignStyle],
+  );
+
+  const failedSend = React.useMemo(
+    () => (sendFailed ? <FailedSend item={item} /> : undefined),
+    [item, sendFailed],
+  );
+
+  const composedMessage = React.useMemo(() => {
+    return (
+      <View {...viewProps}>
+        <AnimatedView style={messageHeaderStyle}>
+          <MessageHeader item={item} focused={focused} display="lowContrast" />
+        </AnimatedView>
+        <AnimatedView style={animatedContainerStyle}>
+          <View style={viewStyle}>
+            <View style={contentStyle}>
+              {deliveryIcon}
+              {messageBox}
+            </View>
+            {inlineEngagement}
+          </View>
+          {failedSend}
+        </AnimatedView>
+      </View>
+    );
+  }, [
+    animatedContainerStyle,
+    contentStyle,
+    deliveryIcon,
+    failedSend,
+    focused,
+    inlineEngagement,
+    item,
+    messageBox,
+    messageHeaderStyle,
+    viewProps,
+    viewStyle,
+  ]);
+
+  return composedMessage;
+});
 
 const styles = StyleSheet.create({
   alignment: {

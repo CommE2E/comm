@@ -129,7 +129,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     });
   };
 }
-const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
+const ThreadEntity = React.memo<BaseInnerThreadEntityProps, void>(
   function ConnectedInnerThreadEntity(props: BaseInnerThreadEntityProps) {
     const { id } = props;
     const threadInfo = useSelector(state => threadInfoSelector(state)[id]);
@@ -164,6 +164,6 @@ function ColorEntity(props: { color: string }) {
 }
 
 const MemoizedRobotextMessage: React.ComponentType<Props> =
-  React.memo<Props>(RobotextMessage);
+  React.memo<Props, void>(RobotextMessage);
 
 export default MemoizedRobotextMessage;

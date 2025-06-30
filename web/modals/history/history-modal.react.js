@@ -265,7 +265,7 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 const ConnectedHistoryModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedHistoryModal(props) {
+  React.memo<BaseProps, void>(function ConnectedHistoryModal(props) {
     const entryInfos = useSelector(
       state => allDaysToEntries(state)[props.dayString],
     );

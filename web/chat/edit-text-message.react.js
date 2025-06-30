@@ -183,7 +183,7 @@ function EditTextMessage(props: Props): React.Node {
   );
 }
 
-const ComposedEditTextMessage: React.ComponentType<Props> = React.memo<Props>(
+const ComposedEditTextMessage: React.ComponentType<Props> = React.memo<Props, void>(
   function ComposedEditTextMessage(props) {
     const { background, ...restProps } = props;
     return (

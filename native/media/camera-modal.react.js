@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const CameraModal: React.ComponentType<Props> = React.memo<Props>(
+const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
   function CameraModal(props: Props) {
     const dimensions = useSelector(state => state.dimensions);
     const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);

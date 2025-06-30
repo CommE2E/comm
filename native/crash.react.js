@@ -281,20 +281,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedCrash(props: BaseProps) {
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useLogOut();
-    const crashReportingEnabled = useIsReportEnabled('crashReports');
-    return (
-      <Crash
-        {...props}
-        dispatchActionPromise={dispatchActionPromise}
-        logOut={callLogOut}
-        crashReportingEnabled={crashReportingEnabled}
-      />
-    );
-  },
-);
+const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedCrash(props: BaseProps) {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callLogOut = useLogOut();
+  const crashReportingEnabled = useIsReportEnabled('crashReports');
+  return (
+    <Crash
+      {...props}
+      dispatchActionPromise={dispatchActionPromise}
+      logOut={callLogOut}
+      crashReportingEnabled={crashReportingEnabled}
+    />
+  );
+});
 
 export default ConnectedCrash;
