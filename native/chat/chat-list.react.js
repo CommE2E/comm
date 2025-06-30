@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+const ConnectedChatList: React.ComponentType<BaseProps> = React.memo(
   function ConnectedChatList(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
     const inputState = React.useContext(InputStateContext);

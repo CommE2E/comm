@@ -226,7 +226,6 @@ function Multimedia(props: Props): React.Node {
   );
 }
 
-const MemoizedMultimedia: React.ComponentType<Props> =
-  React.memo<Props>(Multimedia);
+const MemoizedMultimedia: React.ComponentType<Props> = React.memo(Multimedia);
 
 export default MemoizedMultimedia;

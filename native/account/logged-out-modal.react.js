@@ -605,6 +605,6 @@ function LoggedOutModal(props: Props) {
 }
 
 const MemoizedLoggedOutModal: React.ComponentType<Props> =
-  React.memo<Props>(LoggedOutModal);
+  React.memo(LoggedOutModal);
 
 export default MemoizedLoggedOutModal;

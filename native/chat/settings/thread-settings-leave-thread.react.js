@@ -135,9 +135,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsLeaveThread(
-    props: BaseProps,
-  ) {
+  React.memo(function ConnectedThreadSettingsLeaveThread(props: BaseProps) {
     const threadID = props.threadInfo.id;
     const loadingStatus = useSelector(
       createLoadingStatusSelector(

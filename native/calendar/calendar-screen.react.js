@@ -1077,8 +1077,8 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const ConnectedCalendarScreen: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedCalendarScreen(props: BaseProps) {
+const ConnectedCalendarScreen: React.ComponentType<BaseProps> = React.memo(
+  function ConnectedCalendarScreen(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const calendarActive =
       activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
@@ -1115,6 +1115,7 @@ const ConnectedCalendarScreen: React.ComponentType<BaseProps> =
         updateCalendarQuery={callUpdateCalendarQuery}
       />
     );
-  });
+  },
+);
 
 export default ConnectedCalendarScreen;

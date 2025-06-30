@@ -129,21 +129,17 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     });
   };
 }
-const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
-  function ConnectedInnerThreadEntity(props: BaseInnerThreadEntityProps) {
-    const { id } = props;
-    const threadInfo = useSelector(state => threadInfoSelector(state)[id]);
-    const dispatch = useDispatch();
+const ThreadEntity = React.memo(function ConnectedInnerThreadEntity(
+  props: BaseInnerThreadEntityProps,
+) {
+  const { id } = props;
+  const threadInfo = useSelector(state => threadInfoSelector(state)[id]);
+  const dispatch = useDispatch();
 
-    return (
-      <InnerThreadEntity
-        {...props}
-        threadInfo={threadInfo}
-        dispatch={dispatch}
-      />
-    );
-  },
-);
+  return (
+    <InnerThreadEntity {...props} threadInfo={threadInfo} dispatch={dispatch} />
+  );
+});
 
 type UserEntityProps = {
   +userID: string,
@@ -164,6 +160,6 @@ function ColorEntity(props: { color: string }) {
 }
 
 const MemoizedRobotextMessage: React.ComponentType<Props> =
-  React.memo<Props>(RobotextMessage);
+  React.memo(RobotextMessage);
 
 export default MemoizedRobotextMessage;

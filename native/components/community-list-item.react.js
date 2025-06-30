@@ -191,7 +191,7 @@ function CommunityListItem(props: Props): React.Node {
 }
 
 const MemoizedCommunityListItem: React.ComponentType<Props> =
-  React.memo<Props>(CommunityListItem);
+  React.memo(CommunityListItem);
 
 const unboundStyles = {
   activityIndicatorContainer: {
