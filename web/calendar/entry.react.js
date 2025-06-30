@@ -484,62 +484,63 @@ class Entry extends React.PureComponent<Props, State> {
 
 export type InnerEntry = Entry;
 
-const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedEntry(props) {
-    const { threadID } = props.entryInfo;
-    const unresolvedThreadInfo = useSelector(
-      state => threadInfoSelector(state)[threadID],
-    );
-    const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
-    const loggedIn = useSelector(
-      state =>
-        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-    );
-    const currentUserCanEditEntry = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_ENTRIES,
-    );
-    const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const { socketState } = useTunnelbroker();
+const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedEntry(props) {
+  const { threadID } = props.entryInfo;
+  const unresolvedThreadInfo = useSelector(
+    state => threadInfoSelector(state)[threadID],
+  );
+  const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
+  const loggedIn = useSelector(
+    state =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const currentUserCanEditEntry = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_ENTRIES,
+  );
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
+  const { socketState } = useTunnelbroker();
 
-    const keyserverID = extractKeyserverIDFromIDOptional(threadID);
-    const isKeyserverConnected = useSelector(state => {
-      if (!keyserverID) {
-        return true;
-      }
-      return connectionSelector(keyserverID)(state)?.status === 'connected';
-    });
+  const keyserverID = extractKeyserverIDFromIDOptional(threadID);
+  const isKeyserverConnected = useSelector(state => {
+    if (!keyserverID) {
+      return true;
+    }
+    return connectionSelector(keyserverID)(state)?.status === 'connected';
+  });
 
-    const online = threadSpecs[threadInfo.type]
-      .protocol()
-      .calendarIsOnline(socketState, isKeyserverConnected);
+  const online = threadSpecs[threadInfo.type]
+    .protocol()
+    .calendarIsOnline(socketState, isKeyserverConnected);
 
-    const callCreateEntry = useCreateEntry();
-    const callSaveEntry = useSaveEntry();
-    const callDeleteEntry = useDeleteEntry();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const dispatch = useDispatch();
+  const callCreateEntry = useCreateEntry();
+  const callSaveEntry = useSaveEntry();
+  const callDeleteEntry = useDeleteEntry();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
 
-    const modalContext = useModalContext();
+  const modalContext = useModalContext();
 
-    return (
-      <Entry
-        {...props}
-        threadInfo={threadInfo}
-        loggedIn={loggedIn}
-        currentUserCanEditEntry={currentUserCanEditEntry}
-        calendarQuery={calendarQuery}
-        online={online}
-        createEntry={callCreateEntry}
-        saveEntry={callSaveEntry}
-        deleteEntry={callDeleteEntry}
-        dispatchActionPromise={dispatchActionPromise}
-        dispatch={dispatch}
-        pushModal={modalContext.pushModal}
-        popModal={modalContext.popModal}
-      />
-    );
-  },
-);
+  return (
+    <Entry
+      {...props}
+      threadInfo={threadInfo}
+      loggedIn={loggedIn}
+      currentUserCanEditEntry={currentUserCanEditEntry}
+      calendarQuery={calendarQuery}
+      online={online}
+      createEntry={callCreateEntry}
+      saveEntry={callSaveEntry}
+      deleteEntry={callDeleteEntry}
+      dispatchActionPromise={dispatchActionPromise}
+      dispatch={dispatch}
+      pushModal={modalContext.pushModal}
+      popModal={modalContext.popModal}
+    />
+  );
+});
 
 export default ConnectedEntry;

@@ -334,22 +334,23 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatList(props: BaseProps) {
-    const keyboardState = React.useContext(KeyboardContext);
-    const inputState = React.useContext(InputStateContext);
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    return (
-      <ChatList
-        {...props}
-        keyboardState={keyboardState}
-        viewerID={viewerID}
-        inputState={inputState}
-      />
-    );
-  },
-);
+const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<
+  BaseProps,
+  void,
+>(function ConnectedChatList(props: BaseProps) {
+  const keyboardState = React.useContext(KeyboardContext);
+  const inputState = React.useContext(InputStateContext);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  return (
+    <ChatList
+      {...props}
+      keyboardState={keyboardState}
+      viewerID={viewerID}
+      inputState={inputState}
+    />
+  );
+});
 
 export default ConnectedChatList;

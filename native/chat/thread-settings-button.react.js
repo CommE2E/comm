@@ -50,7 +50,7 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
 }
 
 const ConnectedThreadSettingsButton: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedThreadSettingsButton(
+  React.memo<BaseProps, void>(function ConnectedThreadSettingsButton(
     props: BaseProps,
   ) {
     const styles = useStyles(unboundStyles);

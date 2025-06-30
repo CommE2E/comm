@@ -30,97 +30,99 @@ import {
 } from './selectors/socket-selectors.js';
 import { decompressMessage } from './utils/decompress.js';
 
-const NativeSocket: React.ComponentType<BaseSocketProps> =
-  React.memo<BaseSocketProps>(function NativeSocket(props: BaseSocketProps) {
-    const navContext = React.useContext(NavContext);
+const NativeSocket: React.ComponentType<BaseSocketProps> = React.memo<
+  BaseSocketProps,
+  void,
+>(function NativeSocket(props: BaseSocketProps) {
+  const navContext = React.useContext(NavContext);
 
-    const { keyserverID } = props;
+  const { keyserverID } = props;
 
-    const cookie = useSelector(cookieSelector(keyserverID));
-    const connection = useSelector(connectionSelector(keyserverID));
-    invariant(connection, 'keyserver missing from keyserverStore');
-    const frozen = useSelector(state => state.frozen);
-    const active = useSelector(
-      state => isLoggedIn(state) && state.lifecycleState !== 'background',
-    );
+  const cookie = useSelector(cookieSelector(keyserverID));
+  const connection = useSelector(connectionSelector(keyserverID));
+  invariant(connection, 'keyserver missing from keyserverStore');
+  const frozen = useSelector(state => state.frozen);
+  const active = useSelector(
+    state => isLoggedIn(state) && state.lifecycleState !== 'background',
+  );
 
-    const openSocket = useSelector(openSocketSelector(keyserverID));
-    invariant(openSocket, 'openSocket failed to be created');
-    const sessionIdentification = useSelector(
-      sessionIdentificationSelector(keyserverID),
-    );
-    const preRequestUserState = useSelector(
-      preRequestUserStateForSingleKeyserverSelector(keyserverID),
-    );
+  const openSocket = useSelector(openSocketSelector(keyserverID));
+  invariant(openSocket, 'openSocket failed to be created');
+  const sessionIdentification = useSelector(
+    sessionIdentificationSelector(keyserverID),
+  );
+  const preRequestUserState = useSelector(
+    preRequestUserStateForSingleKeyserverSelector(keyserverID),
+  );
 
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(keyserverID);
+  const getInitialNotificationsEncryptedMessage =
+    useInitialNotificationsEncryptedMessage(keyserverID);
 
-    const getClientResponses = useSelector(state =>
-      nativeGetClientResponsesSelector({
-        redux: state,
-        navContext,
-        getInitialNotificationsEncryptedMessage,
-        keyserverID,
-      }),
-    );
-    const sessionStateFunc = useSelector(state =>
-      nativeSessionStateFuncSelector(keyserverID)({
-        redux: state,
-        navContext,
-      }),
-    );
-    const currentCalendarQuery = useSelector(state =>
-      nativeCalendarQuery({
-        redux: state,
-        navContext,
-      }),
-    );
+  const getClientResponses = useSelector(state =>
+    nativeGetClientResponsesSelector({
+      redux: state,
+      navContext,
+      getInitialNotificationsEncryptedMessage,
+      keyserverID,
+    }),
+  );
+  const sessionStateFunc = useSelector(state =>
+    nativeSessionStateFuncSelector(keyserverID)({
+      redux: state,
+      navContext,
+    }),
+  );
+  const currentCalendarQuery = useSelector(state =>
+    nativeCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
 
-    const activeThread = useForegroundActiveThread();
+  const activeThread = useForegroundActiveThread();
 
-    const lastCommunicatedPlatformDetails = useSelector(
-      lastCommunicatedPlatformDetailsSelector(keyserverID),
-    );
+  const lastCommunicatedPlatformDetails = useSelector(
+    lastCommunicatedPlatformDetailsSelector(keyserverID),
+  );
 
-    const dispatch = useDispatch();
-    const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
 
-    const activeSessionRecovery = useSelector(
-      state =>
-        state.keyserverStore.keyserverInfos[keyserverID]?.connection
-          .activeSessionRecovery,
-    );
+  const activeSessionRecovery = useSelector(
+    state =>
+      state.keyserverStore.keyserverInfos[keyserverID]?.connection
+        .activeSessionRecovery,
+  );
 
-    const fetchPendingUpdates = useFetchPendingUpdates();
+  const fetchPendingUpdates = useFetchPendingUpdates();
 
-    const isConnectedToInternet = useSelector(
-      state => state.connectivity.connected,
-    );
+  const isConnectedToInternet = useSelector(
+    state => state.connectivity.connected,
+  );
 
-    return (
-      <Socket
-        {...props}
-        active={active}
-        openSocket={openSocket}
-        getClientResponses={getClientResponses}
-        activeThread={activeThread}
-        sessionStateFunc={sessionStateFunc}
-        sessionIdentification={sessionIdentification}
-        cookie={cookie}
-        connection={connection}
-        currentCalendarQuery={currentCalendarQuery}
-        frozen={frozen}
-        preRequestUserState={preRequestUserState}
-        dispatch={dispatch}
-        dispatchActionPromise={dispatchActionPromise}
-        lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
-        decompressSocketMessage={decompressMessage}
-        activeSessionRecovery={activeSessionRecovery}
-        fetchPendingUpdates={fetchPendingUpdates}
-        isConnectedToInternet={isConnectedToInternet}
-      />
-    );
-  });
+  return (
+    <Socket
+      {...props}
+      active={active}
+      openSocket={openSocket}
+      getClientResponses={getClientResponses}
+      activeThread={activeThread}
+      sessionStateFunc={sessionStateFunc}
+      sessionIdentification={sessionIdentification}
+      cookie={cookie}
+      connection={connection}
+      currentCalendarQuery={currentCalendarQuery}
+      frozen={frozen}
+      preRequestUserState={preRequestUserState}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
+      decompressSocketMessage={decompressMessage}
+      activeSessionRecovery={activeSessionRecovery}
+      fetchPendingUpdates={fetchPendingUpdates}
+      isConnectedToInternet={isConnectedToInternet}
+    />
+  );
+});
 
 export default NativeSocket;
