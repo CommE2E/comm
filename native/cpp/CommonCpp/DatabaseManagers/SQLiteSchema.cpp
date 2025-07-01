@@ -235,6 +235,12 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  operation TEXT NOT NULL"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS holders ("
+      "  hash TEXT PRIMARY KEY,"
+      "  holder TEXT NOT NULL,"
+      "  status TEXT NOT NULL"
+      ");"
+
       "CREATE INDEX IF NOT EXISTS media_idx_container"
       "  ON media (container);"
 

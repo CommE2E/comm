@@ -906,6 +906,17 @@ bool create_backup_tables(sqlite3 *db) {
   return false;
 }
 
+bool create_holders_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS holders ("
+      "  hash TEXT PRIMARY KEY,"
+      "  holder TEXT NOT NULL,"
+      "  status TEXT NOT NULL"
+      ");";
+
+  return SQLiteSchema::createTable(db, query, "holders");
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -952,6 +963,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {53, {add_timestamps_column_to_threads_table, true}},
      {54, {create_dm_operations_table, true}},
      {55, {convert_target_message_to_standard_column, true}},
-     {56, {create_backup_tables, true}}}};
+     {56, {create_backup_tables, true}},
+     {57, {create_holders_table, true}}}};
 
 } // namespace comm
