@@ -128,7 +128,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
   queueModeProgress: Animated.Value = new Animated.Value(0);
-  sendButtonStyle: ViewStyle;
+  sendButtonStyle: Animated.WithAnimatedValue<ViewStyle>;
   mediaSelected = false;
 
   constructor(props: Props) {

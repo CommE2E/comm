@@ -75,7 +75,7 @@ class ChatList extends React.PureComponent<Props, State> {
   scrollPos = 0;
 
   newMessagesPillProgress: Animated.Value = new Animated.Value(0);
-  newMessagesPillStyle: ViewStyle;
+  newMessagesPillStyle: Animated.WithAnimatedValue<ViewStyle>;
 
   constructor(props: Props) {
     super(props);
