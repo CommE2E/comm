@@ -152,7 +152,7 @@ type Props = {
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
   +identityContext: ?IdentityClientContextType,
-  +invalidTokenLogOut: () => Promise<void>,
+  +invalidTokenLogOut: (source: string) => Promise<void>,
 };
 type WritableState = {
   pendingUploads: {
@@ -558,7 +558,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       const exceptionMessage = getMessageForException(e) ?? '';
       if (exceptionMessage === 'invalid_csat') {
-        void this.props.invalidTokenLogOut();
+        void this.props.invalidTokenLogOut('send_multimedia_message');
       }
       throw new SendMessageError(
         `Exception while sending multimedia message: ${exceptionMessage}`,
@@ -939,7 +939,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
       if (uploadExceptionMessage === 'invalid_csat') {
-        void this.props.invalidTokenLogOut();
+        void this.props.invalidTokenLogOut('blob_input_upload');
         return;
       }
       this.handleUploadFailure(threadID, localID);
@@ -1234,7 +1234,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 defaultHeaders,
               );
               if (!result.success && result.reason === 'INVALID_CSAT') {
-                void invalidTokenLogOut();
+                void invalidTokenLogOut('blob_input_removal');
               }
             })();
           }

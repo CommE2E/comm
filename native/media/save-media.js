@@ -86,7 +86,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       if (result.success) {
         message = 'saved!';
       } else if (result.reason === 'invalid_csat') {
-        void invalidTokenLogOut();
+        void invalidTokenLogOut('save_media');
         return;
       } else if (result.reason === 'save_unsupported') {
         const os: string = Platform.select({

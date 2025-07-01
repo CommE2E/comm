@@ -61,7 +61,7 @@ function InviteLinkHandler(): null {
         setKeyserverOverride(newKeyserverOverride);
       } catch (e) {
         if (errorMessageIsInvalidCSAT(e)) {
-          void invalidTokenLogOut();
+          void invalidTokenLogOut('invite_link_download');
           return;
         }
         console.error('Error while downloading an invite link blob', e);

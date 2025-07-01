@@ -152,7 +152,7 @@ type Props = {
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
-  +invalidTokenLogOut: () => Promise<void>,
+  +invalidTokenLogOut: (source: string) => Promise<void>,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -391,7 +391,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       const exceptionMessage = getMessageForException(e) ?? '';
       if (exceptionMessage === 'invalid_csat') {
-        void this.props.invalidTokenLogOut();
+        void this.props.invalidTokenLogOut('send_multimedia_message');
       }
       throw new SendMessageError(
         `Exception when sending multimedia message: ${exceptionMessage}`,
@@ -912,7 +912,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
       if (uploadExceptionMessage === 'invalid_csat') {
-        void this.props.invalidTokenLogOut();
+        void this.props.invalidTokenLogOut('blob_input_upload');
         return undefined;
       }
       onUploadFailed('upload failed');
