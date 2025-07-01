@@ -12911,10 +12911,10 @@ flora-colossus@^1.0.0:
     debug "^4.1.1"
     fs-extra "^7.0.0"
 
-flow-bin@^0.262.0:
-  version "0.262.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.262.0.tgz#612f7cb96c51d9fe7e6819ab9d582f19e5674554"
-  integrity sha512-B7l0NcpQ3uZuaWs07aQCjG+8fcxF/awbEmuf1p/6a/ZnQjPBB5uIzWmTuxdnrQns5/2orCpC37k9FJuRP7Aj3g==
+flow-bin@^0.269.1:
+  version "0.269.1"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.269.1.tgz#35396a95b769171e56d493b3a0cca9ade9944011"
+  integrity sha512-k5Ja91KVNVtGxyGuEm21lqf2TeVWXriiwlVHU95k8ArJwEZQ+KVza9ZSvJYgwMnpp7/Q9nuSdWJ9MJdEbvl2QQ==
 
 flow-enums-runtime@^0.0.6:
   version "0.0.6"
