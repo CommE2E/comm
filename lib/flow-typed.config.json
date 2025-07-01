@@ -9,6 +9,7 @@
     "serviceworkers",
     "webassembly",
     "jsx",
-    "html"
+    "html",
+    "streams"
   ]
 }
