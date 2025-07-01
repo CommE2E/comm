@@ -263,7 +263,7 @@ declare module '@react-navigation/core' {
   // Copied from
   // react-native/Libraries/Components/Touchable/TouchableWithoutFeedback.js
   declare type Stringish = string;
-  declare type EdgeInsetsProp = $ReadOnly<$Partial<EdgeInsets>>;
+  declare type EdgeInsetsProp = $ReadOnly<Partial<EdgeInsets>>;
   declare type TouchableWithoutFeedbackProps = $ReadOnly<{|
     accessibilityActions?: ?$ReadOnlyArray<AccessibilityActionInfo>,
     accessibilityElementsHidden?: ?boolean,
@@ -438,8 +438,6 @@ declare module '@react-navigation/core' {
   
   declare type $IsA<X, Y> = X extends Y ? true : false;
   declare type $IsUndefined<X> = $IsA<X, void>;
-
-  declare type $Partial<T> = $ReadOnly<$Rest<T, {...}>>;
 
   // If { ...T, ... } counts as a T, then we're inexact
   declare type $IsExact<T> = { ...T, ... } extends T ? false : true;
@@ -792,8 +790,8 @@ declare module '@react-navigation/core' {
 
   declare type PartialWithMergeProperty<ParamsType> = $If<
     $IsExact<ParamsType>,
-    { ...$Partial<ParamsType>, +merge: true },
-    { ...$Partial<ParamsType>, +merge: true, ... },
+    { ...Partial<ParamsType>, +merge: true },
+    { ...Partial<ParamsType>, +merge: true, ... },
   >;
 
   declare type EitherExactOrPartialWithMergeProperty<ParamsType> =
@@ -895,7 +893,7 @@ declare module '@react-navigation/core' {
   > = $If<
     $IsUndefined<ParamList[RouteName]>,
     empty,
-    $Partial<$NonMaybeType<ParamList[RouteName]>>,
+    Partial<$NonMaybeType<ParamList[RouteName]>>,
   >;
 
   declare export type NavigationProp<
@@ -910,7 +908,7 @@ declare module '@react-navigation/core' {
       State,
       EventMap,
     >>,
-    +setOptions: (options: $Partial<ScreenOptions>) => void,
+    +setOptions: (options: Partial<ScreenOptions>) => void,
     +setParams: (params: SetParamsInput<ParamList, RouteName>) => void,
     ...
   };
@@ -966,7 +964,7 @@ declare module '@react-navigation/core' {
       RouteProp<ParamList, RouteName>,
       NavProp,
     >,
-    +initialParams?: $Partial<ParamList[RouteName]>,
+    +initialParams?: Partial<ParamList[RouteName]>,
     +getId?: ({
       +params: ParamList[RouteName],
     }) => string | void,
@@ -1311,13 +1309,13 @@ declare module '@react-navigation/core' {
     +layout: {| +width: number, +height: number |},
   |};
 
-  declare export type HeaderButtonProps = $Partial<{|
+  declare export type HeaderButtonProps = Partial<{|
     +tintColor: string,
     +pressColor: string,
     +pressOpacity: number,
   |}>;
 
-  declare export type HeaderLeftButtonProps = $Partial<{|
+  declare export type HeaderLeftButtonProps = Partial<{|
     ...HeaderButtonProps,
     +labelVisible: boolean,
   |}>;
@@ -1338,7 +1336,7 @@ declare module '@react-navigation/core' {
     NavHeaderProps,
     NavHeaderLeftProps,
     NavHeaderRightProps,
-  > = $Partial<{|
+  > = Partial<{|
     +header: NavHeaderProps => React.Node,
     +headerShown: boolean,
     +headerTitle: string | ( HeaderTitleInputProps => React.Node),
@@ -1376,12 +1374,12 @@ declare module '@react-navigation/core' {
     +styleInterpolator: StackHeaderStyleInterpolator,
   |};
 
-  declare export type StackHeaderButtonProps = $Partial<{|
+  declare export type StackHeaderButtonProps = Partial<{|
     ...HeaderButtonProps,
     +canGoBack: boolean,
   |}>;
 
-  declare export type StackHeaderLeftButtonProps = $Partial<{|
+  declare export type StackHeaderLeftButtonProps = Partial<{|
     ...StackHeaderButtonProps,
     +onPress: (() => void),
     +backImage: (props: {| tintColor: string |}) => React.Node,
@@ -1398,7 +1396,7 @@ declare module '@react-navigation/core' {
     +style: ViewStyleProp,
   |}>;
 
-  declare export type StackOptions = $Partial<{|
+  declare export type StackOptions = Partial<{|
     +title: string,
     +cardShadowEnabled: boolean,
     +cardOverlayEnabled: boolean,
@@ -1409,7 +1407,7 @@ declare module '@react-navigation/core' {
     +gestureEnabled: boolean,
     +gestureResponseDistance: number,
     +gestureVelocityImpact: number,
-    +safeAreaInsets: $Partial<EdgeInsets>,
+    +safeAreaInsets: Partial<EdgeInsets>,
     +keyboardHandlingEnabled: boolean,
     +presentation: 'card' | 'modal' | 'transparentModal',
     // Transition
@@ -1541,7 +1539,7 @@ declare module '@react-navigation/core' {
         >,
       |};
 
-  declare export type BottomTabOptions = $Partial<{|
+  declare export type BottomTabOptions = Partial<{|
     +title: string,
     +tabBarLabel:
       | string
@@ -1555,7 +1553,7 @@ declare module '@react-navigation/core' {
     +tabBarBadgeStyle: TextStyleProp,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
-    +tabBarVisibilityAnimationConfig: $Partial<{|
+    +tabBarVisibilityAnimationConfig: Partial<{|
       +show: TabBarVisibilityAnimationConfig,
       +hide: TabBarVisibilityAnimationConfig,
     |}>,
@@ -1645,7 +1643,7 @@ declare module '@react-navigation/core' {
 
   declare export type BottomTabNavigationConfig = {|
     +tabBar?: BottomTabBarProps => React.Node,
-    +safeAreaInsets?: $Partial<EdgeInsets>,
+    +safeAreaInsets?: Partial<EdgeInsets>,
     +detachInactiveScreens?: boolean,
   |};
 
@@ -1669,7 +1667,7 @@ declare module '@react-navigation/core' {
    * Material bottom tab options
    */
 
-  declare export type MaterialBottomTabOptions = $Partial<{|
+  declare export type MaterialBottomTabOptions = Partial<{|
     +title: string,
     +tabBarColor: string,
     +tabBarLabel: string,
@@ -1824,7 +1822,7 @@ declare module '@react-navigation/core' {
    * Material top tab options
    */
 
-  declare export type MaterialTopTabOptions = $Partial<{|
+  declare export type MaterialTopTabOptions = Partial<{|
     +title: string,
     +tabBarLabel:
       | string
@@ -1904,14 +1902,14 @@ declare module '@react-navigation/core' {
     +swipeEnabled: boolean,
     +swipeVelocityImpact?: number,
     +springVelocityScale?: number,
-    +springConfig: $Partial<{|
+    +springConfig: Partial<{|
       +damping: number,
       +mass: number,
       +stiffness: number,
       +restSpeedThreshold: number,
       +restDisplacementThreshold: number,
     |}>,
-    +timingConfig: $Partial<{|
+    +timingConfig: Partial<{|
       +duration: number,
     |}>,
   |};
@@ -2019,10 +2017,10 @@ declare module '@react-navigation/core' {
   |};
 
   declare export type MaterialTopTabNavigationConfig = {|
-    ...$Partial<MaterialTopTabPagerCommonProps>,
+    ...Partial<MaterialTopTabPagerCommonProps>,
     +position?: any, // Reanimated.Value<number>
     +tabBarPosition?: 'top' | 'bottom',
-    +initialLayout?: $Partial<{| +width: number, +height: number |}>,
+    +initialLayout?: Partial<{| +width: number, +height: number |}>,
     +lazyPreloadDistance?: number,
     +removeClippedSubviews?: boolean,
     +sceneContainerStyle?: ViewStyleProp,
@@ -2053,7 +2051,7 @@ declare module '@react-navigation/core' {
    * Drawer options
    */
 
-  declare export type DrawerOptions = $Partial<{|
+  declare export type DrawerOptions = Partial<{|
     +title: string,
     +lazy: boolean,
     +drawerLabel:
