@@ -143,6 +143,10 @@ function SQLiteDataHandler(): React.Node {
   const callClearSensitiveData = React.useCallback(
     async (triggeredBy: string) => {
       await clearSensitiveData();
+      const { showAlert, isStaffRelease } = getConfig();
+      if (isStaffRelease) {
+        showAlert('SQLite database deletion', `triggered by ${triggeredBy}`);
+      }
       console.log(`SQLite database deletion was triggered by ${triggeredBy}`);
     },
     [],
