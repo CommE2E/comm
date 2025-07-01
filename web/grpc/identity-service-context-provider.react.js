@@ -102,7 +102,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } catch (e) {
           const message = getMessageForException(e);
           if (message === 'bad_credentials') {
-            void invalidTokenLogOut();
+            void invalidTokenLogOut(
+              `identity_client_${method}_bad_credentials`,
+            );
           } else if (
             // These come from grpc-web:
             // - http status code: 0 is added when XmlHttpRequest request fails
