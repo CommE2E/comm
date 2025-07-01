@@ -11,7 +11,7 @@ type Props = {
   +onPress: () => mixed,
   +newMessageCount: number,
   +containerStyle?: ViewStyle,
-  +style?: ViewStyle,
+  +style?: Animated.WithAnimatedValue<ViewStyle>,
   ...React.ElementConfig<typeof View>,
 };
 function NewMessagesPill(props: Props): React.Node {
