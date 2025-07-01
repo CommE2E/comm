@@ -6,10 +6,14 @@
 
 [options]
 enums=true
+casting_syntax=both
 
 exact_by_default=true
 
 format.bracket_spacing=false
+
+ban_spread_key_props=true
+react.runtime=automatic
 
 [lints]
 sketchy-null-number=warn

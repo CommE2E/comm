@@ -9,11 +9,15 @@
 
 [options]
 module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
+react.runtime=automatic
 
 enums=true
+casting_syntax=both
 exact_by_default=true
 
 format.bracket_spacing=false
+
+ban_spread_key_props=true
 
 [lints]
 sketchy-null-number=warn
