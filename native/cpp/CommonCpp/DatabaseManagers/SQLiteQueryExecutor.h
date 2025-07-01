@@ -7,6 +7,7 @@
 #include "entities/CommunityInfo.h"
 #include "entities/DMOperation.h"
 #include "entities/Draft.h"
+#include "entities/Holder.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/LocalMessageInfo.h"
@@ -199,6 +200,9 @@ public:
   int getDatabaseVersion() const override;
   std::optional<std::string>
   getSyncedMetadata(const std::string &entryName) const override;
+  void replaceHolder(const Holder &holder) const override;
+  void removeHolders(const std::vector<std::string> &hashes) const override;
+  std::vector<Holder> getHolders() const override;
 };
 
 } // namespace comm

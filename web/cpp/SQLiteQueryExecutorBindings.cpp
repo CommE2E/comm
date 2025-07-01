@@ -140,6 +140,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("plaintext", &InboundP2PMessage::plaintext)
       .field("status", &InboundP2PMessage::status);
 
+  value_object<Holder>("Holder")
+      .field("hash", &Holder::hash)
+      .field("holder", &Holder::holder)
+      .field("status", &Holder::status);
+
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string, bool>()
       .function("migrate", &SQLiteQueryExecutor::migrate)
@@ -344,7 +349,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("searchMessages", &SQLiteQueryExecutor::searchMessages)
       .function("fetchMessages", &SQLiteQueryExecutor::fetchMessages)
       .function("getDatabaseVersion", &SQLiteQueryExecutor::getDatabaseVersion)
-      .function("getSyncedMetadata", &SQLiteQueryExecutor::getSyncedMetadata);
+      .function("getSyncedMetadata", &SQLiteQueryExecutor::getSyncedMetadata)
+      .function("replaceHolder", &SQLiteQueryExecutor::replaceHolder)
+      .function("removeHolders", &SQLiteQueryExecutor::removeHolders)
+      .function("getHolders", &SQLiteQueryExecutor::getHolders);
 
   class_<SQLiteBackup>("SQLiteBackup")
       .class_function(

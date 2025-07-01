@@ -11,6 +11,7 @@ import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-
 import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
+import type { ClientDBHolderItem } from 'lib/types/holder-types.js';
 import type { ClientDBLocalMessageInfo } from 'lib/types/message-types.js';
 import type {
   OutboundP2PMessage,
@@ -223,6 +224,10 @@ declare export class SQLiteQueryExecutor {
 
   getDatabaseVersion(): number;
   getSyncedMetadata(entryName: string): ?string;
+
+  replaceHolder(holder: ClientDBHolderItem): void;
+  removeHolders(hashes: $ReadOnlyArray<string>): void;
+  getHolders(): $ReadOnlyArray<ClientDBHolderItem>;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
