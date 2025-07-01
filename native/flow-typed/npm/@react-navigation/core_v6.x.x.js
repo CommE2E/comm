@@ -439,7 +439,7 @@ declare module '@react-navigation/core' {
   declare type $IsA<X, Y> = X extends Y ? true : false;
   declare type $IsUndefined<X> = $IsA<X, void>;
 
-  declare type $Partial<T> = $ReadOnly<$Rest<T, {...}>>;
+  declare type $Partial<T> = Partial<T>;
 
   // If { ...T, ... } counts as a T, then we're inexact
   declare type $IsExact<T> = { ...T, ... } extends T ? false : true;
