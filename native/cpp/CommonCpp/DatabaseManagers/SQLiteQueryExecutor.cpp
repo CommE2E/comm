@@ -1743,4 +1743,31 @@ SQLiteQueryExecutor::getSyncedMetadata(const std::string &entryName) const {
   return entry->data;
 }
 
+void SQLiteQueryExecutor::replaceHolder(const Holder &holder) const {
+  static std::string query =
+      "REPLACE INTO holders (hash, holder, status) "
+      "VALUES (:hash, :holder, :status);";
+  replaceEntity<Holder>(this->getConnection(), query, holder);
+}
+
+void SQLiteQueryExecutor::removeHolders(
+    const std::vector<std::string> &hashes) const {
+  if (!hashes.size()) {
+    return;
+  }
+
+  std::stringstream queryStream;
+  queryStream << "DELETE FROM holders "
+                 "WHERE hash IN "
+              << getSQLStatementArray(hashes.size()) << ";";
+  removeEntitiesByKeys(this->getConnection(), queryStream.str(), hashes);
+}
+
+std::vector<Holder> SQLiteQueryExecutor::getHolders() const {
+  static std::string query =
+      "SELECT hash, holder, status "
+      "FROM holders;";
+  return getAllEntities<Holder>(this->getConnection(), query);
+}
+
 } // namespace comm
