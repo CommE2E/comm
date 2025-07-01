@@ -152,7 +152,11 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           'deletePasswordUser',
         );
       },
-      logOut: async (preRequestAuthMetadata?: AuthMetadata) => {
+      logOut: async (source: string, preRequestAuthMetadata?: AuthMetadata) => {
+        const { showAlert, isStaffRelease } = getConfig();
+        if (isStaffRelease) {
+          showAlert('logOut', source);
+        }
         let authMetadata = preRequestAuthMetadata;
         if (!authMetadata) {
           authMetadata = await getAuthMetadata();
@@ -167,9 +171,14 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         );
       },
       logOutPrimaryDevice: async (
+        source: string,
         keyserverDeviceID: ?string,
         preRequestAuthMetadata?: AuthMetadata,
       ) => {
+        const { showAlert, isStaffRelease } = getConfig();
+        if (isStaffRelease) {
+          showAlert('logOutPrimaryDevice', source);
+        }
         let authMetadata = preRequestAuthMetadata;
         if (!authMetadata) {
           authMetadata = await getAuthMetadata();
