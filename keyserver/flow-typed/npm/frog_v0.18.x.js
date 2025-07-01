@@ -13,7 +13,7 @@ declare module 'frog' {
   };
 
   declare export var Button: {
-    Link: React$ComponentType<{
+    Link: React.ComponentType<{
       +children: React$Node,
       +href: string,
       ...
