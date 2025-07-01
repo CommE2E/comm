@@ -18,7 +18,7 @@ type Props = {
   +onPress: () => mixed,
   +queueCount?: number,
   +containerStyle?: ViewStyle,
-  +style?: ViewStyle,
+  +style?: Animated.WithAnimatedValue<ViewStyle>,
 };
 function SendMediaButton(props: Props): React.Node {
   const { onPress, queueCount, containerStyle, style, ...containerProps } =
