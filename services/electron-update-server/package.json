@@ -15,7 +15,7 @@
     "hazel-server": "^5.1.1"
   },
   "devDependencies": {
-    "flow-bin": "^0.262.0",
+    "flow-bin": "^0.269.1",
     "flow-typed": "^4.1.1",
     "nodemon": "^2.0.4"
   },
