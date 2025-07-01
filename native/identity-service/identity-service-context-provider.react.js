@@ -111,15 +111,16 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   const invalidTokenLogOut = useInvalidCSATLogOut();
   const authVerifiedEndpoint: <T>(
     identityRPCPromise: Promise<T>,
+    method: string,
   ) => Promise<T> = React.useCallback(
-    async identityRPCPromise => {
+    async (identityRPCPromise, method) => {
       try {
         const result = await identityRPCPromise;
         return result;
       } catch (e) {
         const message = getMessageForException(e);
         if (message === 'bad_credentials') {
-          void invalidTokenLogOut();
+          void invalidTokenLogOut(`identity_client_${method}`);
         }
         throw e;
       }
@@ -137,6 +138,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         return authVerifiedEndpoint(
           commRustModule.deleteWalletUser(userID, deviceID, token),
+          'deleteWalletUser',
         );
       },
       deletePasswordUser: async (password: string) => {
@@ -147,6 +149,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         return authVerifiedEndpoint(
           commRustModule.deletePasswordUser(userID, deviceID, token, password),
+          'deletePasswordUser',
         );
       },
       logOut: async (preRequestAuthMetadata?: AuthMetadata) => {
@@ -160,6 +163,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         }
         return authVerifiedEndpoint(
           commRustModule.logOut(userID, deviceID, token),
+          'logOut',
         );
       },
       logOutPrimaryDevice: async (
@@ -185,6 +189,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             token,
             JSON.stringify(signedDeviceList),
           ),
+          'logOutPrimaryDevice',
         );
       },
       logOutSecondaryDevice: async (preRequestAuthMetadata?: AuthMetadata) => {
@@ -198,6 +203,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         }
         return authVerifiedEndpoint(
           commRustModule.logOutSecondaryDevice(userID, deviceID, token),
+          'logOutSecondaryDevice',
         );
       },
       getKeyserverKeys: async (
@@ -210,6 +216,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         const result = await authVerifiedEndpoint(
           commRustModule.getKeyserverKeys(userID, deviceID, token, keyserverID),
+          'getKeyserverKeys',
         );
         const resultObject = JSON.parse(result);
         const payload = resultObject?.payload;
@@ -251,6 +258,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             targetUserID,
             selectedDeviceIDs,
           ),
+          'getOutboundKeysForUser',
         );
         const resultArray = JSON.parse(result);
 
@@ -320,6 +328,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             targetUserID,
             selectedDeviceIDs,
           ),
+          'getInboundKeysForUser',
         );
         const resultArray = JSON.parse(result);
 
@@ -388,6 +397,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             oneTimeKeys.contentOneTimeKeys,
             oneTimeKeys.notificationsOneTimeKeys,
           ),
+          'uploadOneTimeKeys',
         );
       },
       registerPasswordUser: async (
@@ -667,6 +677,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             userID,
             sinceTimestamp,
           ),
+          'getDeviceListHistoryForUser',
         );
         const rawPayloads: string[] = JSON.parse(result);
         const deviceLists: SignedDeviceList[] = rawPayloads.map(payload =>
@@ -681,6 +692,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const authMetadata = await getAuthMetadata();
         return await authVerifiedEndpoint(
           rawGetDeviceListsForUsers(authMetadata, userIDs),
+          'getDeviceListsForUsers',
         );
       },
       updateDeviceList: async (newDeviceList: SignedDeviceList) => {
@@ -697,6 +709,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             authAccessToken,
             payload,
           ),
+          'updateDeviceList',
         );
       },
       syncPlatformDetails: async () => {
@@ -711,6 +724,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             authDeviceID,
             authAccessToken,
           ),
+          'syncPlatformDetails',
         );
       },
       getFarcasterUsers: async (farcasterIDs: $ReadOnlyArray<string>) => {
@@ -732,6 +746,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             token,
             farcasterID,
           ),
+          'linkFarcasterAccount',
         );
       },
       unlinkFarcasterAccount: async () => {
@@ -742,6 +757,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         return authVerifiedEndpoint(
           commRustModule.unlinkFarcasterAccount(userID, deviceID, token),
+          'unlinkFarcasterAccount',
         );
       },
       findUserIdentities: async (userIDs: $ReadOnlyArray<string>) => {
@@ -752,6 +768,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         const result = await authVerifiedEndpoint(
           commRustModule.findUserIdentities(userID, deviceID, token, userIDs),
+          'findUserIdentities',
         );
         return assertWithValidator(
           JSON.parse(result),
@@ -775,6 +792,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             oldPassword,
             newPassword,
           ),
+          'changePassword',
         );
       },
     }),

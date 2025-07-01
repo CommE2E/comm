@@ -436,7 +436,7 @@ function useFetchAndDecryptMedia(): (
       );
 
       if (!output.result.success && output.result.reason === 'invalid_csat') {
-        void invalidTokenLogOut();
+        void invalidTokenLogOut('fetch_and_decrypt_media');
       }
       return output;
     },

@@ -79,7 +79,7 @@ function useClientBackup(): ClientBackup {
         } catch (e) {
           const message = getMessageForException(e);
           if (message === 'Unauthenticated') {
-            void invalidTokenLogOut();
+            void invalidTokenLogOut('backup_service_unauthenticated');
           }
           throw e;
         }

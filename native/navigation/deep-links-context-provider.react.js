@@ -139,7 +139,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
           setKeyserverOverride(newKeyserverOverride);
         } catch (e) {
           if (errorMessageIsInvalidCSAT(e)) {
-            void invalidTokenLogOut();
+            void invalidTokenLogOut('invite_link_download');
             return;
           }
           console.log('Error while downloading an invite link blob', e);
