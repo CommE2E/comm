@@ -6,6 +6,7 @@
 #include "entities/DMOperation.h"
 #include "entities/Draft.h"
 #include "entities/EntryInfo.h"
+#include "entities/Holder.h"
 #include "entities/InboundP2PMessage.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
@@ -208,6 +209,9 @@ public:
   virtual int getDatabaseVersion() const = 0;
   virtual std::optional<std::string>
   getSyncedMetadata(const std::string &entryName) const = 0;
+  virtual void replaceHolder(const Holder &holder) const = 0;
+  virtual void removeHolders(const std::vector<std::string> &hashes) const = 0;
+  virtual std::vector<Holder> getHolders() const = 0;
 
   virtual ~DatabaseQueryExecutor() = default;
 };
