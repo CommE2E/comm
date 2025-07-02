@@ -5,6 +5,7 @@ import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.j
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBDMOperationStoreOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { ClientDBEntryStoreOperation } from 'lib/ops/entries-store-ops.js';
+import type { ClientDBHolderStoreOperation } from 'lib/ops/holder-store-ops.js';
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
@@ -385,6 +386,7 @@ function processDBStoreOperations(
     entryStoreOperations,
     messageSearchStoreOperations,
     dmOperationStoreOperations,
+    holderStoreOperations,
   } = storeOperations;
 
   try {
@@ -496,6 +498,13 @@ function processDBStoreOperations(
       processDMOperationStoreOperations(
         sqliteQueryExecutor,
         dmOperationStoreOperations,
+        module,
+      );
+    }
+    if (holderStoreOperations && holderStoreOperations.length > 0) {
+      processHolderStoreOperations(
+        sqliteQueryExecutor,
+        holderStoreOperations,
         module,
       );
     }
@@ -664,6 +673,37 @@ function processDMOperationStoreOperations(
         `Error while processing ${
           operation.type
         } DMOperation operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
+function processHolderStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBHolderStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBHolderStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_holders') {
+        const { hashes } = operation.payload;
+        sqliteQueryExecutor.removeHolders(hashes);
+      } else if (operation.type === 'replace_holders') {
+        const { items } = operation.payload;
+        for (const item of items) {
+          sqliteQueryExecutor.replaceHolder(item);
+        }
+      } else {
+        throw new Error('Unsupported holder operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } holder operation: ${getProcessingStoreOpsExceptionMessage(
           e,
           module,
         )}`,
