@@ -23,6 +23,10 @@ import type {
 } from 'lib/ops/entries-store-ops';
 import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import {
+  type HolderStoreOperation,
+  createReplaceHolderOperation,
+} from 'lib/ops/holder-store-ops.js';
+import {
   type ClientDBIntegrityStoreOperation,
   integrityStoreOpsHandlers,
   type ReplaceIntegrityThreadHashesOperation,
@@ -1663,6 +1667,26 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       state,
       ops: {
         syncedMetadataStoreOperations,
+      },
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [94]: (async (state: AppState) => {
+    const storedHolders = state.holderStore.storedHolders;
+
+    const holderItems = entries(storedHolders).map(([hash, holderInfo]) => ({
+      hash,
+      holder: holderInfo.holder,
+      status: holderInfo.status,
+    }));
+
+    const operations: $ReadOnlyArray<HolderStoreOperation> = [
+      createReplaceHolderOperation(holderItems),
+    ];
+
+    return {
+      state,
+      ops: {
+        holderStoreOperations: operations,
       },
     };
   }: MigrationFunction<NavInfo, AppState>),
