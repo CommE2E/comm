@@ -4,7 +4,7 @@ import Security
 @objc(SecureStoreModule)
 public final class SecureStoreModule: NSObject {
   @objc
-  func getValueWithKey(key: String, options: SecureStoreOptions) -> String? {
+  func getValue(key: String, options: SecureStoreOptions) -> String? {
     do {
       return try get(with: key, options: options)
     } catch let swiftError {
