@@ -701,6 +701,7 @@ function getClientStoreFromQueryExecutor(
     messageStoreLocalMessageInfos:
       sqliteQueryExecutor.getAllMessageStoreLocalMessageInfos(),
     dmOperations: sqliteQueryExecutor.getAllDMOperations(),
+    holders: sqliteQueryExecutor.getHolders(),
   };
 }
 
