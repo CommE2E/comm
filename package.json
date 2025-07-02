@@ -30,7 +30,7 @@
     "docker-build-push:identity": "./scripts/docker-build-push-identity.sh"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.23.3",
+    "@babel/eslint-parser": "^7.27.0",
     "@stylistic/eslint-plugin-js": "^1.5.3",
     "clang-format": "^1.8.0",
     "core-js": "^3.6.5",
