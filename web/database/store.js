@@ -3,6 +3,7 @@
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
+import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
@@ -39,6 +40,7 @@ async function getClientDBStore(
     threadActivityStore: null,
     entries: null,
     messageStoreLocalMessageInfos: null,
+    holders: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -157,6 +159,14 @@ async function getClientDBStore(
       ),
     };
   }
+
+  if (data?.store?.holders && data.store.holders.length > 0) {
+    result = {
+      ...result,
+      holders: holderStoreOpsHandlers.translateClientDBData(data.store.holders),
+    };
+  }
+
   return result;
 }
 
