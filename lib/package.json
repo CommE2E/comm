@@ -51,7 +51,7 @@
     "invariant": "^2.2.4",
     "just-clone": "^3.2.1",
     "lodash": "^4.17.21",
-    "react": "19.0.0",
+    "react": "19.1.0",
     "react-icomoon": "^2.5.7",
     "react-redux": "^7.1.1",
     "redux-persist": "^6.0.0",
