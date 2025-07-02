@@ -6,8 +6,8 @@
   "description": "Expo modules for Comm App",
   "dependencies": {},
   "devDependencies": {
-    "expo-module-scripts": "^4.0.5",
-    "expo-modules-core": "2.3.12"
+    "expo-module-scripts": "4.1.9-canary-20250626-8ab1d87",
+    "expo-modules-core": "2.5.0-canary-20250613-b29d676"
   },
   "peerDependencies": {
     "expo": "*",
