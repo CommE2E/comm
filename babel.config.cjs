@@ -5,6 +5,7 @@ module.exports = {
     '@babel/plugin-proposal-object-rest-spread',
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
+    'babel-plugin-syntax-hermes-parser',
     ['@babel/plugin-transform-runtime', { useESModules: true }],
   ],
   env: {
