@@ -8,6 +8,10 @@ import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
 import {
+  type HolderStoreOperation,
+  createReplaceHolderOperation,
+} from 'lib/ops/holder-store-ops.js';
+import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
@@ -877,6 +881,26 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
       state,
       ops: {
         syncedMetadataStoreOperations,
+      },
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [94]: (async (state: AppState) => {
+    const storedHolders = state.holderStore.storedHolders;
+
+    const holderItems = entries(storedHolders).map(([hash, holderInfo]) => ({
+      hash,
+      holder: holderInfo.holder,
+      status: holderInfo.status,
+    }));
+
+    const operations: $ReadOnlyArray<HolderStoreOperation> = [
+      createReplaceHolderOperation(holderItems),
+    ];
+
+    return {
+      state,
+      ops: {
+        holderStoreOperations: operations,
       },
     };
   }: MigrationFunction<WebNavInfo, AppState>),
