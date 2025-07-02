@@ -60,6 +60,7 @@
 		8E3994552B039A7C00D5E950 /* UserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3994532B039A7C00D5E950 /* UserStore.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
+		8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8A8DFC2E15A4F100519F55 /* HolderStore.cpp */; };
 		8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */; };
 		8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */; };
 		8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF4E172DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp */; };
@@ -268,6 +269,9 @@
 		8E43C32B291E5B4A009378F5 /* TerminateApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TerminateApp.mm; path = Comm/TerminateApp.mm; sourceTree = "<group>"; };
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
+		8E8A8DFA2E15A4C400519F55 /* HolderStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HolderStoreOperations.h; sourceTree = "<group>"; };
+		8E8A8DFB2E15A4F100519F55 /* HolderStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HolderStore.h; path = PersistentStorageUtilities/DataStores/HolderStore.h; sourceTree = "<group>"; };
+		8E8A8DFC2E15A4F100519F55 /* HolderStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HolderStore.cpp; path = PersistentStorageUtilities/DataStores/HolderStore.cpp; sourceTree = "<group>"; };
 		8EA59BD22A6E800100EB4F53 /* NativeModuleUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModuleUtils.h; sourceTree = "<group>"; };
 		8EA59BD32A6E8CB700EB4F53 /* BaseDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseDataStore.h; path = PersistentStorageUtilities/DataStores/BaseDataStore.h; sourceTree = "<group>"; };
 		8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DraftStore.cpp; path = PersistentStorageUtilities/DataStores/DraftStore.cpp; sourceTree = "<group>"; };
@@ -529,6 +533,7 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				8E8A8DFA2E15A4C400519F55 /* HolderStoreOperations.h */,
 				0E02677E2D81ED7B00788249 /* DMOperationStoreOperations.h */,
 				CBAB63872BFCB071003B089F /* EntryStoreOperations.h */,
 				B3B02EBE2B8538860020D118 /* CommunityStoreOperations.h */,
@@ -726,6 +731,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				8E8A8DFB2E15A4F100519F55 /* HolderStore.h */,
+				8E8A8DFC2E15A4F100519F55 /* HolderStore.cpp */,
 				0E02677B2D81ED6600788249 /* DMOperationStore.h */,
 				0E02677C2D81ED6600788249 /* DMOperationStore.cpp */,
 				816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */,
@@ -1267,6 +1274,7 @@
 				7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
+				8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */,
 				8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */,
