@@ -3,6 +3,7 @@
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
+import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
@@ -35,6 +36,7 @@ async function getClientDBStore(
     threadActivityEntries,
     entries,
     messageStoreLocalMessageInfos,
+    holders,
   } = await commCoreModule.getClientDBStore(dbID);
   const threadInfosFromDB =
     threadStoreOpsHandlers.translateClientDBData(threads);
@@ -57,6 +59,7 @@ async function getClientDBStore(
   const localMessageInfosFromDB = translateClientDBLocalMessageInfos(
     messageStoreLocalMessageInfos,
   );
+  const holdersFromDB = holderStoreOpsHandlers.translateClientDBData(holders);
 
   return {
     drafts,
@@ -74,6 +77,7 @@ async function getClientDBStore(
     threadActivityStore: threadActivityStoreFromDB,
     entries: entriesFromDB,
     messageStoreLocalMessageInfos: localMessageInfosFromDB,
+    holders: holdersFromDB,
   };
 }
 
