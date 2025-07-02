@@ -79,6 +79,7 @@ jsi::Value CommCoreModule::getClientDBStore(
           std::vector<EntryInfo> entryStoreVector;
           std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
           std::vector<DMOperation> dmOperationsVector;
+          std::vector<Holder> holdersVector;
           try {
             draftsVector =
                 DatabaseManager::getQueryExecutor(identifier).getAllDrafts();
@@ -114,6 +115,8 @@ jsi::Value CommCoreModule::getClientDBStore(
                     .getAllMessageStoreLocalMessageInfos();
             dmOperationsVector =
                 DatabaseManager::getQueryExecutor(identifier).getDMOperations();
+            holdersVector =
+                DatabaseManager::getQueryExecutor(identifier).getHolders();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -156,6 +159,8 @@ jsi::Value CommCoreModule::getClientDBStore(
           auto dmOperationsVectorPtr =
               std::make_shared<std::vector<DMOperation>>(
                   std::move(dmOperationsVector));
+          auto holdersVectorPtr =
+              std::make_shared<std::vector<Holder>>(std::move(holdersVector));
           this->jsInvoker_->invokeAsync(
               [&innerRt,
                draftsVectorPtr,
@@ -173,6 +178,7 @@ jsi::Value CommCoreModule::getClientDBStore(
                entryStoreVectorPtr,
                messageStoreLocalMessageInfosVectorPtr,
                dmOperationsVectorPtr,
+               holdersVectorPtr,
                error,
                promise,
                draftStore = this->draftStore,
@@ -187,7 +193,8 @@ jsi::Value CommCoreModule::getClientDBStore(
                auxUserStore = this->auxUserStore,
                threadActivityStore = this->threadActivityStore,
                entryStore = this->entryStore,
-               dmOperationStore = this->dmOperationStore]() {
+               dmOperationStore = this->dmOperationStore,
+               holderStore = this->holderStore]() {
                 if (error.size()) {
                   promise->reject(error);
                   return;
@@ -226,6 +233,8 @@ jsi::Value CommCoreModule::getClientDBStore(
                         innerRt, messageStoreLocalMessageInfosVectorPtr);
                 jsi::Array jsiDMOperations = dmOperationStore.parseDBDataStore(
                     innerRt, dmOperationsVectorPtr);
+                jsi::Array jsiHolders =
+                    holderStore.parseDBDataStore(innerRt, holdersVectorPtr);
 
                 auto jsiClientDBStore = jsi::Object(innerRt);
                 jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -255,6 +264,7 @@ jsi::Value CommCoreModule::getClientDBStore(
                     jsiMessageStoreLocalMessageInfos);
                 jsiClientDBStore.setProperty(
                     innerRt, "dmOperations", jsiDMOperations);
+                jsiClientDBStore.setProperty(innerRt, "holders", jsiHolders);
 
                 promise->resolve(std::move(jsiClientDBStore));
               });
@@ -2103,7 +2113,8 @@ CommCoreModule::CommCoreModule(
       threadActivityStore(jsInvoker),
       entryStore(jsInvoker),
       messageSearchStore(jsInvoker),
-      dmOperationStore(jsInvoker) {
+      dmOperationStore(jsInvoker),
+      holderStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 
