@@ -74,7 +74,7 @@ post_install do |installer|
   installer.pods_project.build_configurations.each do |config|
     config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64 i386'
     config.build_settings['OTHER_CPLUSPLUSFLAGS'] =
-      '-DDONT_AUTOINSTALL_REANIMATED -DFOLLY_MOBILE -DFOLLY_USE_LIBCPP -DFOLLY_NO_CONFIG -DFOLLY_CFG_NO_COROUTINES -DFOLLY_HAVE_CLOCK_GETTIME -DRNVERSION=77 -DREANIMATED_VERSION=3.17.2'
+      '-DDONT_AUTOINSTALL_REANIMATED -DFOLLY_MOBILE -DFOLLY_USE_LIBCPP -DFOLLY_NO_CONFIG -DFOLLY_CFG_NO_COROUTINES -DFOLLY_HAVE_CLOCK_GETTIME -DRNVERSION=77 -DREANIMATED_VERSION=3.18.0'
   end
 
   # Lines below are needed to compile Notification Service
