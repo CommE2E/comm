@@ -74,7 +74,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "qrcode.react": "^3.1.0",
-    "react": "19.0.0",
+    "react": "19.1.0",
     "react-circular-progressbar": "^2.0.2",
     "react-color": "^2.13.0",
     "react-dnd": "^11.1.3",
