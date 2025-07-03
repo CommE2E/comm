@@ -740,6 +740,23 @@ pub fn is_transaction_retryable(
   }
 }
 
+pub fn cancellation_reasons(err: &DynamoDBError) -> Vec<&str> {
+  use aws_sdk_dynamodb::types::error::TransactionCanceledException;
+
+  match err {
+    DynamoDBError::TransactionCanceledException(
+      TransactionCanceledException {
+        cancellation_reasons: Some(reasons),
+        ..
+      },
+    ) => reasons
+      .iter()
+      .map(|reason| reason.code().unwrap_or_default())
+      .collect(),
+    _ => Vec::new(),
+  }
+}
+
 /// There are two error codes for operation failure due to already ongoing
 /// transaction:
 /// - `DynamoDBError::TransactionConflict`

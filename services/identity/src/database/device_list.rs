@@ -1,19 +1,22 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+  collections::{HashMap, HashSet},
+  sync::LazyLock,
+};
 
 use chrono::{DateTime, Utc};
 use comm_lib::{
   aws::ddb::{
     operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
     types::{
-      error::TransactionCanceledException, AttributeValue, Delete,
-      DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
+      AttributeValue, Delete, DeleteRequest, Put, TransactWriteItem, Update,
+      WriteRequest,
     },
   },
   backup::database::BackupItem,
   database::{
-    batch_operations::ExponentialBackoffConfig, AttributeExtractor,
-    AttributeMap, DBItemAttributeError, DBItemError, DynamoDBError,
-    TryFromAttribute,
+    batch_operations::ExponentialBackoffConfig, cancellation_reasons,
+    is_transaction_retryable, AttributeExtractor, AttributeMap,
+    DBItemAttributeError, DBItemError, DynamoDBError, TryFromAttribute,
   },
 };
 use serde::Serialize;
@@ -1744,6 +1747,15 @@ impl DatabaseClient {
       vec![put_device_list_operation, timestamp_update_operation];
     operations.extend(update_info.ddb_operations);
 
+    use comm_lib::database::error_codes as err;
+    static CONCURRET_UPDATE_REASONS: LazyLock<HashSet<&str>> =
+      LazyLock::new(|| {
+        HashSet::from([
+          err::CONDITIONAL_CHECK_FAILED,
+          err::TRANSACTION_CONFLICT,
+        ])
+      });
+
     self
       .client
       .transact_write_items()
@@ -1751,15 +1763,12 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| match DynamoDBError::from(e) {
-        DynamoDBError::TransactionCanceledException(
-          TransactionCanceledException {
-            cancellation_reasons: Some(reasons),
-            ..
-          },
-        ) if reasons
-          .iter()
-          .any(|reason| reason.code() == Some("ConditionalCheckFailed")) =>
-        {
+        e if is_transaction_retryable(&e, &CONCURRET_UPDATE_REASONS) => {
+          warn!(
+            user_id = redact_sensitive_data(user_id),
+            reason = ?cancellation_reasons(&e),
+            "Concurrent device list update attempt.",
+          );
           Error::DeviceList(DeviceListError::ConcurrentUpdateError)
         }
         other => {
