@@ -147,13 +147,28 @@ impl ServerConfig {
 
 impl fmt::Debug for ServerConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let ServerConfig {
+      localstack_endpoint,
+      keyserver_public_key,
+      tunnelbroker_endpoint,
+      backup_service_url,
+      blob_service_url,
+      opensearch_endpoint,
+      redact_sensitive_data,
+      // Explicitly redacted values
+      server_setup: _,
+      allow_origin: _,
+    } = &self;
     f.debug_struct("ServerConfig")
-      .field("localstack_endpoint", &self.localstack_endpoint)
+      .field("localstack_endpoint", localstack_endpoint)
       .field("server_setup", &"** redacted **")
-      .field("keyserver_public_key", &self.keyserver_public_key)
-      .field("tunnelbroker_endpoint", &self.tunnelbroker_endpoint)
-      .field("opensearch_endpoint", &self.opensearch_endpoint)
+      .field("keyserver_public_key", keyserver_public_key)
+      .field("tunnelbroker_endpoint", tunnelbroker_endpoint)
+      .field("backup_service_url", backup_service_url)
+      .field("blob_service_url", blob_service_url)
+      .field("opensearch_endpoint", opensearch_endpoint)
       .field("allow_origin_list", &"** redacted **")
+      .field("redact_sensitive_data", redact_sensitive_data)
       .finish()
   }
 }
