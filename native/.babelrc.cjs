@@ -15,6 +15,7 @@ module.exports = {
         extraPresets: ['@babel/preset-flow'],
       },
     ],
+    'babel-plugin-inline-import',
   ],
   env: {
     production: {
