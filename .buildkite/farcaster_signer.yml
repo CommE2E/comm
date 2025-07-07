@@ -1,0 +1,23 @@
+steps:
+  - label: 'Farcaster signer build'
+    key: 'farcaster-signer-build'
+    command:
+      - 'cd native'
+      - 'yarn build-farcaster-signer'
+      - 'git diff --exit-code'
+    agents:
+      - 'mac=true'
+
+  - wait:
+    continue_on_failure: true
+
+  - label: 'Clean on failure and Farcaster signer build'
+    command: |
+      if [ $(buildkite-agent step get "outcome" --step "farcaster-signer-build") == "hard_failed" ]; then
+        cd native
+        yarn clean-farcaster-signer
+        yarn build-farcaster-signer
+        git diff --exit-code
+      fi
+    agents:
+      - 'mac=true'

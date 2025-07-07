@@ -9,6 +9,7 @@
     "clean-rust": "cargo clean --manifest-path native_rust_library/Cargo.toml",
     "clean-android": "rm -rf android/build android/app/build android/app/.cxx",
     "clean-ios": "rm -rf ios/Pods/",
+    "clean-farcaster-signer": "rm -rf farcaster-auth/dist/",
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
     "start": "COMM_DEV=1 yarn expo start --dev-client",
     "dev": "yarn start",
@@ -21,7 +22,8 @@
     "react-native": "PATH=/usr/bin:/bin:\"$PATH\" react-native",
     "expo": "PATH=/usr/bin:/bin:\"$PATH\" expo",
     "xcodebuild": "cd ios && PATH=/usr/bin:/bin:\"$PATH\" xcodebuild",
-    "update-version": "node scripts/update-mobile-version.mjs"
+    "update-version": "node scripts/update-mobile-version.mjs",
+    "build-farcaster-signer": "cd farcaster-auth && webpack"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
@@ -35,6 +37,7 @@
     "@babel/preset-flow": "^7.23.3",
     "@redux-devtools/cli": "^2.0.0",
     "babel-jest": "^29.7.0",
+    "babel-plugin-inline-import": "^3.0.0",
     "babel-plugin-transform-bigint": "^1.0.34",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
@@ -51,7 +54,8 @@
     "react-native-codegen": "^0.70.6",
     "react-test-renderer": "18.1.0",
     "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git#c9c1600d71edc34e585ec8e3006d847a975fcea0",
-    "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git"
+    "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git",
+    "webpack-cli": "^5.0.1"
   },
   "dependencies": {
     "@commapp/expo-package": "0.0.1",
