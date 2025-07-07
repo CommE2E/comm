@@ -1,0 +1,24 @@
+steps:
+  - label: 'Farcaster signer build'
+    key: 'farcaster-signer-build'
+    command:
+      - 'nix develop --accept-flake-config --command yarn ci-cleaninstall'
+      - 'cd native'
+      - 'nix develop --accept-flake-config --command yarn build-farcaster-signer'
+      - 'git diff --exit-code'
+    agents:
+      - 'mac=true'
+
+  - wait:
+    continue_on_failure: true
+
+  - label: 'Clean on failure and Farcaster signer build'
+    command: |
+      if [ $(buildkite-agent step get "outcome" --step "farcaster-signer-build") == "hard_failed" ]; then
+        cd native
+        nix develop --accept-flake-config --command yarn clean-farcaster-signer
+        nix develop --accept-flake-config --command yarn build-farcaster-signer
+        git diff --exit-code
+      fi
+    agents:
+      - 'mac=true'
