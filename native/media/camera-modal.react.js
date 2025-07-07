@@ -782,6 +782,12 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
 
     const { hasPermission, requestPermission } = useCameraPermission();
 
+    React.useEffect(() => {
+      if (foreground && !hasPermission) {
+        void requestPermission();
+      }
+    }, [foreground]);
+
     const renderCamera = (): React.Node => {
       if (cameraRef.current) {
         void fetchCameraIDs();
@@ -910,7 +916,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
     const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
 
     let camera = null;
-    if (device) {
+    if (device && hasPermission) {
       camera = (
         <ReanimatedCamera
           style={StyleSheet.absoluteFill}
