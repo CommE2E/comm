@@ -60,25 +60,7 @@ class ClearableTextInput extends React.PureComponent<
     this.lastKeyPressed = null;
 
     this.sendMessage();
-    this.updateTextFromOldInput(text);
   };
-
-  updateTextFromOldInput(text: string) {
-    const { pendingMessage } = this;
-    invariant(
-      pendingMessage,
-      'updateTextFromOldInput should have a pendingMessage',
-    );
-    const pendingValue = pendingMessage.value;
-    if (!pendingValue || !text.startsWith(pendingValue)) {
-      return;
-    }
-    const newValue = text.substring(pendingValue.length);
-    if (this.props.value === newValue) {
-      return;
-    }
-    this.props.onChangeText(newValue);
-  }
 
   onOldInputKeyPress: (event: TextInputKeyPressEvent) => void = event => {
     const { key } = event.nativeEvent;
