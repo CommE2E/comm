@@ -588,11 +588,11 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
         );
       },
       [
-        closeButtonDimensions.value,
-        flashButtonDimensions.value,
+        closeButtonDimensions,
+        flashButtonDimensions,
         insets.top,
-        photoButtonDimensions.value,
-        switchCameraButtonDimensions.value,
+        photoButtonDimensions,
+        switchCameraButtonDimensions,
       ],
     );
 
@@ -674,7 +674,7 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
         'worklet';
         currentZoom.value = clamp(zoomBase.value * pinchScale, 1, 8);
       },
-      [currentZoom, zoomBase.value],
+      [currentZoom, zoomBase],
     );
 
     const onPinchEnd = React.useCallback(() => {
