@@ -60,7 +60,6 @@ class ClearableTextInput extends React.PureComponent<
     this.lastKeyPressed = null;
 
     this.sendMessage();
-    this.updateTextFromOldInput(text);
   };
 
   updateTextFromOldInput(text: string) {
