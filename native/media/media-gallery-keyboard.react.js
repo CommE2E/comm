@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import { Provider } from 'react-redux';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import {
   extensionFromFilename,
@@ -533,7 +534,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     });
     const containerStyle = { bottom: bottomInset };
     return (
-      <View style={[this.props.styles.container, containerStyle]}>
+      <GestureHandlerRootView
+        style={[this.props.styles.container, containerStyle]}
+      >
         <this.GalleryHeader />
         <View
           style={this.props.styles.galleryContainer}
@@ -551,7 +554,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
             style={this.sendButtonStyle}
           />
         </View>
-      </View>
+      </GestureHandlerRootView>
     );
   }
 
