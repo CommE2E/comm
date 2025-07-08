@@ -57,7 +57,7 @@ describe('getInitialMessages queries', () => {
         pinnedCount: 0,
         timestamps: null,
       },
-      threadSpecs[type].protocol.dataIsBackedUp,
+      threadSpecs[type].protocol().dataIsBackedUp,
     );
   };
 
@@ -80,7 +80,7 @@ describe('getInitialMessages queries', () => {
         content,
         time: BigInt(time),
       },
-      threadSpecs[threadType].protocol.dataIsBackedUp,
+      threadSpecs[threadType].protocol().dataIsBackedUp,
     );
   };
 
@@ -101,7 +101,7 @@ describe('getInitialMessages queries', () => {
         type,
         extras: '{}',
       },
-      threadSpecs[threadType].protocol.dataIsBackedUp,
+      threadSpecs[threadType].protocol().dataIsBackedUp,
     );
   };
 

@@ -55,7 +55,7 @@ describe('Fetch messages queries', () => {
         pinnedCount: 0,
         timestamps: null,
       },
-      threadSpecs[threadType].protocol.dataIsBackedUp,
+      threadSpecs[threadType].protocol().dataIsBackedUp,
     );
 
     // Create 50 messages using the appropriate backup flag
@@ -72,7 +72,7 @@ describe('Fetch messages queries', () => {
       };
       queryExecutor.replaceMessage(
         message,
-        threadSpecs[threadType].protocol.dataIsBackedUp,
+        threadSpecs[threadType].protocol().dataIsBackedUp,
       );
     }
 
@@ -97,7 +97,7 @@ describe('Fetch messages queries', () => {
         pinnedCount: 0,
         timestamps: null,
       },
-      threadSpecs[thickThreadType].protocol.dataIsBackedUp,
+      threadSpecs[thickThreadType].protocol().dataIsBackedUp,
     );
 
     // Add 10 messages to the thick thread (which will go to backup tables)
@@ -114,7 +114,7 @@ describe('Fetch messages queries', () => {
       };
       queryExecutor.replaceMessage(
         message,
-        threadSpecs[thickThreadType].protocol.dataIsBackedUp,
+        threadSpecs[thickThreadType].protocol().dataIsBackedUp,
       );
     }
   });

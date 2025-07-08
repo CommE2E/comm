@@ -581,17 +581,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
       const calendarQuery = this.props.calendarQuery();
-      threadCreationPromise = threadSpecs[
-        threadInfo.type
-      ].protocol.createRealThreadFromPendingThread({
-        threadInfo,
-        dispatchActionPromise: this.props.dispatchActionPromise,
-        createNewThinThread: this.props.newThinThread,
-        createNewThickThread: this.props.newThickThread,
-        sourceMessageID: threadInfo.sourceMessageID,
-        viewerID: this.props.viewerID,
-        calendarQuery,
-      });
+      threadCreationPromise = threadSpecs[threadInfo.type]
+        .protocol()
+        .createRealThreadFromPendingThread({
+          threadInfo,
+          dispatchActionPromise: this.props.dispatchActionPromise,
+          createNewThinThread: this.props.newThinThread,
+          createNewThickThread: this.props.newThickThread,
+          sourceMessageID: threadInfo.sourceMessageID,
+          viewerID: this.props.viewerID,
+          calendarQuery,
+        });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
     return threadCreationPromise;
@@ -866,7 +866,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { selectTime, localID, encryptionKey } = upload;
     const threadID = threadInfo.id;
     const uploadMultimediaMetadataToKeyserver =
-      threadSpecs[threadInfo.type].protocol.uploadMultimediaMetadataToKeyserver;
+      threadSpecs[threadInfo.type].protocol()
+        .uploadMultimediaMetadataToKeyserver;
     const isEncrypted =
       !!encryptionKey &&
       (upload.mediaType === 'encrypted_photo' ||
@@ -1208,7 +1209,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (pendingUpload.serverID) {
           const { serverID } = pendingUpload;
           if (
-            threadSpecs[threadInfo.type].protocol
+            threadSpecs[threadInfo.type].protocol()
               .uploadMultimediaMetadataToKeyserver
           ) {
             void this.props.deleteUpload({

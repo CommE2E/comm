@@ -842,10 +842,9 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       return connectionSelector(keyserverID)(state)?.status === 'connected';
     });
 
-    const online = threadSpecs[threadInfo.type].protocol.calendarIsOnline(
-      socketState,
-      isKeyserverConnected,
-    );
+    const online = threadSpecs[threadInfo.type]
+      .protocol()
+      .calendarIsOnline(socketState, isKeyserverConnected);
 
     const canEditEntry = useThreadHasPermission(
       threadInfo,

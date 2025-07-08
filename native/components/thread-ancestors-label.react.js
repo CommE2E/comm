@@ -52,10 +52,9 @@ function ThreadAncestorsLabel(props: Props): React.Node {
   }, [styles.pathText, styles.unread, unread]);
 
   return React.useMemo(() => {
-    const label =
-      threadSpecs[
-        threadInfo.type
-      ].protocol.presentationDetails.threadAncestorLabel(ancestorPath);
+    const label = threadSpecs[threadInfo.type]
+      .protocol()
+      .presentationDetails.threadAncestorLabel(ancestorPath);
 
     return (
       <Text numberOfLines={1} style={ancestorPathStyle}>

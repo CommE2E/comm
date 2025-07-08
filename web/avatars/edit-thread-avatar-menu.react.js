@@ -73,7 +73,8 @@ function EditThreadAvatarMenu(props: Props): React.Node {
 
   const uploadAvatarMedia = useUploadAvatarMedia({
     uploadMetadataToKeyserver:
-      threadSpecs[threadInfo.type].protocol.uploadMultimediaMetadataToKeyserver,
+      threadSpecs[threadInfo.type].protocol()
+        .uploadMultimediaMetadataToKeyserver,
   });
   const onImageSelected = React.useCallback(
     async (event: SyntheticEvent<HTMLInputElement>) => {

@@ -175,7 +175,8 @@ class Entry extends React.PureComponent<Props, State> {
       let historyButton = null;
       if (
         this.props.entryInfo.id &&
-        threadSpecs[this.props.threadInfo.type].protocol.supportsCalendarHistory
+        threadSpecs[this.props.threadInfo.type].protocol()
+          .supportsCalendarHistory
       ) {
         historyButton = (
           <a href="#" onClick={this.onHistory}>
@@ -509,10 +510,9 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       return connectionSelector(keyserverID)(state)?.status === 'connected';
     });
 
-    const online = threadSpecs[threadInfo.type].protocol.calendarIsOnline(
-      socketState,
-      isKeyserverConnected,
-    );
+    const online = threadSpecs[threadInfo.type]
+      .protocol()
+      .calendarIsOnline(socketState, isKeyserverConnected);
 
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();

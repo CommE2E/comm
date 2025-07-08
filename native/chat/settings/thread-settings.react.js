@@ -704,7 +704,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         const limit = 6;
 
         if (
-          !threadSpecs[threadInfo.type].protocol.presentationDetails
+          !threadSpecs[threadInfo.type].protocol().presentationDetails
             .supportsMediaGallery
         ) {
           return listData;
