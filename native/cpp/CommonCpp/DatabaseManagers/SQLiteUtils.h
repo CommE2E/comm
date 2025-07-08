@@ -12,7 +12,6 @@ public:
   static int getDatabaseVersion(sqlite3 *db);
   static bool setDatabaseVersion(sqlite3 *db, int db_version);
   static void setEncryptionKey(sqlite3 *db, const std::string &encryptionKey);
-  static std::string blobHashFromBlobServiceURI(const std::string &mediaURI);
   static bool fileExists(const std::string &filePath);
   static void
   attemptDeleteFile(const std::string &filePath, const char *errorMessage);

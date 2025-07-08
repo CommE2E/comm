@@ -398,17 +398,9 @@ void DatabaseManager::createMainCompaction(
     throw std::runtime_error(errorMessage);
   }
 
-  std::string getAllBlobServiceMediaSQL =
-      "SELECT * FROM media WHERE uri LIKE 'comm-blob-service://%';";
-  std::vector<Media> blobServiceMedia = getAllEntities<Media>(
-      DatabaseManager::mainConnectionManager->getConnection(),
-      getAllBlobServiceMediaSQL);
-
-  for (const auto &media : blobServiceMedia) {
-    std::string blobServiceURI = media.uri;
-    std::string blobHash =
-        SQLiteUtils::blobHashFromBlobServiceURI(blobServiceURI);
-    tempAttachmentsFile << blobHash << "\n";
+  auto holders = DatabaseManager::getQueryExecutor().getHolders();
+  for (const auto &holder : holders) {
+    tempAttachmentsFile << holder.hash << "\n";
   }
   tempAttachmentsFile.close();
 
