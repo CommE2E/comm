@@ -64,15 +64,6 @@ void SQLiteUtils::setEncryptionKey(
   }
 }
 
-// This is a temporary solution. In future we want to keep
-// a separate table for blob hashes. Tracked on Linear:
-// https://linear.app/comm/issue/ENG-6261/introduce-blob-hash-table
-std::string
-SQLiteUtils::blobHashFromBlobServiceURI(const std::string &mediaURI) {
-  static const std::string blobServicePrefix = "comm-blob-service://";
-  return mediaURI.substr(blobServicePrefix.size());
-}
-
 bool SQLiteUtils::fileExists(const std::string &filePath) {
   std::ifstream file(filePath.c_str());
   return file.good();

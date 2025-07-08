@@ -14,8 +14,6 @@
 
 namespace comm {
 
-const std::string BLOB_SERVICE_PREFIX = "comm-blob-service://";
-
 const int IV_LENGTH = 12;
 const int TAG_LENGTH = 16;
 
@@ -144,7 +142,7 @@ std::vector<std::string> NativeSQLiteConnectionManager::getAttachmentsFromLog(
     handleSQLiteError(
         getOperationResult, "Failed to extract operation from log iterator.");
 
-    if (std::string(tableName) != "media") {
+    if (std::string(tableName) != "holders") {
       continue;
     }
 
@@ -152,23 +150,19 @@ std::vector<std::string> NativeSQLiteConnectionManager::getAttachmentsFromLog(
       continue;
     }
 
-    sqlite3_value *uriFromMediaRow;
-    // In "media" table "uri" column has index 3 (starting from 0)
-    int getURIResult = sqlite3changeset_new(patchsetIter, 3, &uriFromMediaRow);
+    sqlite3_value *hashResult;
+    int getHashResult = sqlite3changeset_new(patchsetIter, 0, &hashResult);
     handleSQLiteError(
-        getURIResult,
-        "Failed to extract uri value of media row from log iterator.");
+        getHashResult,
+        "Failed to extract hash value of holder row from log iterator");
 
-    if (!uriFromMediaRow) {
+    if (!hashResult) {
       continue;
     }
 
-    std::string uri = std::string(
-        reinterpret_cast<const char *>(sqlite3_value_text(uriFromMediaRow)));
-    if (uri.compare(0, BLOB_SERVICE_PREFIX.size(), BLOB_SERVICE_PREFIX)) {
-      continue;
-    }
-    attachments.push_back(uri.substr(BLOB_SERVICE_PREFIX.size()));
+    std::string hash = std::string(
+        reinterpret_cast<const char *>(sqlite3_value_text(hashResult)));
+    attachments.push_back(hash);
   }
 
   handleSQLiteError(
