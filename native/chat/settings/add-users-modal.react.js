@@ -85,7 +85,7 @@ function AddUsersModal(props: Props): React.Node {
     }
 
     try {
-      await threadSpecs[threadInfo.type].protocol.addThreadMembers(
+      await threadSpecs[threadInfo.type].protocol().addThreadMembers(
         { newMemberIDs: userInfoInputIDs, threadInfo },
         {
           dmAddThreadMembers: addDMThreadMembers,

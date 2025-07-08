@@ -99,7 +99,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const threadMediaGalleryItem = React.useMemo(() => {
     if (
-      !threadSpecs[threadInfo.type].protocol.presentationDetails
+      !threadSpecs[threadInfo.type].protocol().presentationDetails
         .supportsMediaGallery
     ) {
       return null;

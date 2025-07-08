@@ -129,7 +129,7 @@ function ChatThreadListItem(props: Props): React.Node {
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
   const presentationDetails =
-    threadSpecs[threadInfo.type].protocol.presentationDetails;
+    threadSpecs[threadInfo.type].protocol().presentationDetails;
 
   const iconClass = unread ? css.iconUnread : css.iconRead;
   const icon =

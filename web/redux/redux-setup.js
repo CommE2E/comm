@@ -475,7 +475,7 @@ function validateStateAndQueueOpsProcessing(
     document.hasFocus() &&
     !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread &&
-    !threadSpecs[state.threadStore.threadInfos[activeThread].type].protocol
+    !threadSpecs[state.threadStore.threadInfos[activeThread].type].protocol()
       .threadActivityUpdatedByDMActivityHandler
   ) {
     // Makes sure a currently focused thread is never unread
