@@ -400,7 +400,7 @@ function useNativeUpdateThreadImageAvatar(): (
       selection: NativeMediaSelection,
       threadInfo: ThreadInfo | RawThreadInfo,
     ): Promise<void> => {
-      const metadataUploadLocation = threadSpecs[threadInfo.type].protocol
+      const metadataUploadLocation = threadSpecs[threadInfo.type].protocol()
         .uploadMultimediaMetadataToKeyserver
         ? 'keyserver'
         : 'none';

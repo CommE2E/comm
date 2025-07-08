@@ -160,7 +160,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     if (searching) {
       const { userInfoInputArray, genesisThreadInfo } = this.props;
       let parentThreadHeader;
-      const protocol = threadSpecs[threadInfo.type].protocol;
+      const protocol = threadSpecs[threadInfo.type].protocol();
       const childThreadType = protocol.pendingThreadType(
         userInfoInputArray.length,
       );

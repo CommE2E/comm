@@ -122,7 +122,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
           const threadType = threadInfos?.[entryInfo.threadID].type;
           const supportsCalendarHistory =
             !threadType ||
-            threadSpecs[threadType].protocol.supportsCalendarHistory;
+            threadSpecs[threadType].protocol().supportsCalendarHistory;
           return entryInfo.id && supportsCalendarHistory;
         }),
         _map((entryInfo: EntryInfo) => {

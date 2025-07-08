@@ -66,7 +66,7 @@ function AddMembersModalContent(props: Props): React.Node {
   const addUsers = React.useCallback(() => {
     const newMemberIDs = Array.from(pendingUsersToAdd.keys());
 
-    void threadSpecs[threadInfo.type].protocol.addThreadMembers(
+    void threadSpecs[threadInfo.type].protocol().addThreadMembers(
       { newMemberIDs, threadInfo },
       {
         dmAddThreadMembers: addDMThreadMembers,

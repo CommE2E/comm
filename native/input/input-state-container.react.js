@@ -559,17 +559,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
       const calendarQuery = this.props.calendarQuery();
-      threadCreationPromise = threadSpecs[
-        threadInfo.type
-      ].protocol.createRealThreadFromPendingThread({
-        threadInfo,
-        dispatchActionPromise: this.props.dispatchActionPromise,
-        createNewThinThread: this.props.newThinThread,
-        createNewThickThread: this.props.newThickThread,
-        sourceMessageID: threadInfo.sourceMessageID,
-        viewerID: this.props.viewerID,
-        calendarQuery,
-      });
+      threadCreationPromise = threadSpecs[threadInfo.type]
+        .protocol()
+        .createRealThreadFromPendingThread({
+          threadInfo,
+          dispatchActionPromise: this.props.dispatchActionPromise,
+          createNewThinThread: this.props.newThinThread,
+          createNewThickThread: this.props.newThickThread,
+          sourceMessageID: threadInfo.sourceMessageID,
+          viewerID: this.props.viewerID,
+          calendarQuery,
+        });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
     return threadCreationPromise;
@@ -841,7 +841,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         'uploaded media should be encrypted',
       );
       const uploadMetadataToKeyserver =
-        threadSpecs[threadInfo.type].protocol
+        threadSpecs[threadInfo.type].protocol()
           .uploadMultimediaMetadataToKeyserver;
       const uploadPromise = this.props.blobServiceUpload({
         uploadInput: {
