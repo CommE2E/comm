@@ -3100,6 +3100,42 @@ jsi::Value CommCoreModule::getSyncedMetadata(
       });
 }
 
+jsi::Value CommCoreModule::getHolders(jsi::Runtime &rt, jsi::String dbID) {
+  DatabaseIdentifier identifier = stringToDatabaseIdentifier(dbID.utf8(rt));
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<Holder> holdersVector;
+          try {
+            holdersVector =
+                DatabaseManager::getQueryExecutor(identifier).getHolders();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          auto holdersVectorPtr =
+              std::make_shared<std::vector<Holder>>(std::move(holdersVector));
+
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         promise,
+                                         holdersVectorPtr,
+                                         holderStore = this->holderStore]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            jsi::Array jsiHolders =
+                holderStore.parseDBDataStore(innerRt, holdersVectorPtr);
+            promise->resolve(std::move(jsiHolders));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

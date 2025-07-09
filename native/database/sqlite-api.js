@@ -1,8 +1,10 @@
 // @flow
 
+import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { getKeyserversToRemoveFromNotifsStore } from 'lib/ops/keyserver-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
 import type { DatabaseIdentifier } from 'lib/types/database-identifier-types';
+import type { StoredHolders } from 'lib/types/holder-types';
 import type { SQLiteAPI } from 'lib/types/sqlite-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types';
 import type { QRAuthBackupData } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
@@ -26,6 +28,11 @@ const sqliteAPI: SQLiteAPI = {
   getClientDBStore,
   getDatabaseVersion: commCoreModule.getDatabaseVersion,
   getSyncedMetadata: commCoreModule.getSyncedMetadata,
+
+  async getHolders(dbID: DatabaseIdentifier): Promise<StoredHolders> {
+    const dbHolders = await commCoreModule.getHolders(dbID);
+    return holderStoreOpsHandlers.translateClientDBData(dbHolders);
+  },
 
   // write operations
   removeInboundP2PMessages: commCoreModule.removeInboundP2PMessages,
