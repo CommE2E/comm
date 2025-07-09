@@ -41,6 +41,7 @@ export type AvatarSelectionParams = {
     +accountSelection: AccountSelection,
     +farcasterID: ?string,
     +farcasterAvatarURL: ?string,
+    +farcasterDCsToken: ?string,
   },
 };
 

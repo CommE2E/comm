@@ -2,6 +2,9 @@
   "env": {
     "react-native/react-native": true
   },
+  "globals": {
+    "URLSearchParams": "readonly"
+  },
   "plugins": ["react-native"],
   "rules": {
     "react-native/no-unused-styles": 2,
