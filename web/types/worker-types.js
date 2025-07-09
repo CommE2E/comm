@@ -9,6 +9,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { DatabaseIdentifier } from 'lib/types/database-identifier-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
+import type { ClientDBHolderItem } from 'lib/types/holder-types.js';
 import type {
   IdentityServiceClient,
   IdentityServiceAuthLayer,
@@ -57,6 +58,7 @@ export const workerRequestMessageTypes = Object.freeze({
   COPY_CONTENT_FROM_BACKUP_DB: 29,
   GET_DATABASE_VERSION: 30,
   GET_SYNCED_METADATA: 31,
+  GET_HOLDERS: 32,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -266,6 +268,11 @@ export type GetSyncedMetadataRequestMessage = {
   +dbID: DatabaseIdentifier,
 };
 
+export type GetHoldersRequestMessage = {
+  +type: 32,
+  +dbID: DatabaseIdentifier,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -298,7 +305,8 @@ export type WorkerRequestMessage =
   | MigrateBackupSchemaRequestMessage
   | CopyContentFromBackupDatabaseRequestMessage
   | GetDatabaseVersionRequestMessage
-  | GetSyncedMetadataRequestMessage;
+  | GetSyncedMetadataRequestMessage
+  | GetHoldersRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -320,6 +328,7 @@ export const workerResponseMessageTypes = Object.freeze({
   DM_OPERATIONS: 10,
   GET_DATABASE_VERSION: 11,
   GET_SYNCED_METADATA: 12,
+  GET_HOLDERS: 13,
 });
 
 export type PongWorkerResponseMessage = {
@@ -387,6 +396,11 @@ export type GetSyncedMetadataResponseMessage = {
   +syncedMetadata: ?string,
 };
 
+export type GetHoldersResponseMessage = {
+  +type: 13,
+  +holders: $ReadOnlyArray<ClientDBHolderItem>,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -400,7 +414,8 @@ export type WorkerResponseMessage =
   | ResetOutboundP2PMessagesResponseMessage
   | DMOperationsResponseMessage
   | GetDatabaseVersionResponseMessage
-  | GetSyncedMetadataResponseMessage;
+  | GetSyncedMetadataResponseMessage
+  | GetHoldersResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
