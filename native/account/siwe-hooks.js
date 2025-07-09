@@ -13,12 +13,13 @@ function useIdentityWalletRegisterCall(): IdentityWalletRegisterInput => Promise
   const identityWalletRegister = useIdentityWalletRegister();
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
-    async ({ address, message, signature, fid }) => {
+    async ({ address, message, signature, fid, farcasterDCsToken }) => {
       const siwePromise = identityWalletRegister(
         address,
         message,
         signature,
         fid,
+        farcasterDCsToken,
       );
       void dispatchActionPromise(identityRegisterActionTypes, siwePromise);
 
