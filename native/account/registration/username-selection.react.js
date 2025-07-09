@@ -28,6 +28,7 @@ export type UsernameSelectionParams = {
     +keyserverURL?: ?string,
     +farcasterID: ?string,
     +farcasterAvatarURL: ?string,
+    +farcasterDCsToken: ?string,
   },
 };
 

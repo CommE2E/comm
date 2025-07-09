@@ -150,6 +150,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       farcasterID: ?string,
       onNonceExpired: () => mixed,
       onAlertAcknowledged: ?() => mixed,
+      farcasterDCsToken: ?string,
     ) => {
       try {
         await identityWalletRegisterCall({
@@ -157,6 +158,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           message: accountSelection.message,
           signature: accountSelection.signature,
           fid: farcasterID,
+          farcasterDCsToken,
         });
       } catch (e) {
         const messageForException = getMessageForException(e);
@@ -203,12 +205,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               clearCachedSelections,
               onNonceExpired,
               onAlertAcknowledged,
+              farcasterDCsToken,
             } = input;
             if (accountSelection.accountType === 'username') {
               await identityRegisterUsernameAccount(
                 accountSelection,
                 farcasterID,
                 onAlertAcknowledged,
+                farcasterDCsToken,
               );
             } else {
               await identityRegisterEthereumAccount(
@@ -216,6 +220,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 farcasterID,
                 onNonceExpired,
                 onAlertAcknowledged,
+                farcasterDCsToken,
               );
             }
             if (passedKeyserverURL) {
