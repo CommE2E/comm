@@ -48,6 +48,7 @@ export type RegistrationServerCallInput = {
   +clearCachedSelections: () => void,
   +onNonceExpired: () => mixed,
   +onAlertAcknowledged?: () => mixed,
+  +farcasterDCsToken: ?string,
 };
 
 export type CachedUserSelections = {
@@ -60,6 +61,7 @@ export type CachedUserSelections = {
   +farcasterID?: string,
   +siweBackupSecrets?: ?SignedMessage,
   +farcasterAvatarURL?: ?string,
+  +farcasterDCsToken?: ?string,
 };
 
 export const ensAvatarSelection: AvatarData = {
