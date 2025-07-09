@@ -48,7 +48,7 @@ import {
 } from '../utils/drawer-utils.react.js';
 
 const maxDepth = 2;
-const safeAreaEdges: $ReadOnlyArray<string> = Platform.select({
+const safeAreaEdges = Platform.select({
   ios: ['top'],
   default: ['top', 'bottom'],
 });
