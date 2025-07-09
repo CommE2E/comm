@@ -93,6 +93,7 @@ public:
   virtual jsi::Value getDMOperationsByType(jsi::Runtime &rt, jsi::String type) = 0;
   virtual jsi::Value migrateBackupSchema(jsi::Runtime &rt) = 0;
   virtual jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getHolders(jsi::Runtime &rt, jsi::String dbID) = 0;
 
 };
 
@@ -697,6 +698,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::copyContentFromBackupDatabase, jsInvoker_, instance_);
+    }
+    jsi::Value getHolders(jsi::Runtime &rt, jsi::String dbID) override {
+      static_assert(
+          bridging::getParameterCount(&T::getHolders) == 2,
+          "Expected getHolders(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getHolders, jsInvoker_, instance_, std::move(dbID));
     }
 
   private:

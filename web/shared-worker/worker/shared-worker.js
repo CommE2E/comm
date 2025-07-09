@@ -415,6 +415,22 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_SYNCED_METADATA,
       syncedMetadata: sqliteQueryExecutor.getSyncedMetadata(message.entryName),
     };
+  } else if (message.type === workerRequestMessageTypes.GET_HOLDERS) {
+    if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
+        databaseIdentifier.RESTORED,
+        message,
+      );
+      return {
+        type: workerResponseMessageTypes.GET_HOLDERS,
+        holders: restoredQueryExecutor.getHolders(),
+      };
+    }
+
+    return {
+      type: workerResponseMessageTypes.GET_HOLDERS,
+      holders: sqliteQueryExecutor.getHolders(),
+    };
   }
 
   // write operations

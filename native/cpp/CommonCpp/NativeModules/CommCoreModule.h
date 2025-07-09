@@ -263,6 +263,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String entryName,
       jsi::String dbID) override;
+  virtual jsi::Value getHolders(jsi::Runtime &rt, jsi::String dbID) override;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) override;
   virtual jsi::Value
   getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) override;

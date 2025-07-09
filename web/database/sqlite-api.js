@@ -1,8 +1,13 @@
 // @flow
 
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
+import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
 import type { DatabaseIdentifier } from 'lib/types/database-identifier-types.js';
+import type {
+  ClientDBHolderItem,
+  StoredHolders,
+} from 'lib/types/holder-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
@@ -153,6 +158,16 @@ const sqliteAPI: SQLiteAPI = {
       dbID,
     });
     return data?.syncedMetadata ?? null;
+  },
+
+  async getHolders(dbID: DatabaseIdentifier): Promise<StoredHolders> {
+    const sharedWorker = await getCommSharedWorker();
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_HOLDERS,
+      dbID,
+    });
+    const dbHolders: $ReadOnlyArray<ClientDBHolderItem> = data?.holders ?? [];
+    return holderStoreOpsHandlers.translateClientDBData(dbHolders);
   },
 
   // write operations

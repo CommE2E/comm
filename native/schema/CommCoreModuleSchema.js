@@ -16,6 +16,7 @@ import type {
   EncryptedData,
   OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
+import type { ClientDBHolderItem } from 'lib/types/holder-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import type {
@@ -239,6 +240,7 @@ interface Spec extends TurboModule {
   +getDMOperationsByType: (type: string) => Promise<Array<ClientDBDMOperation>>;
   +migrateBackupSchema: () => Promise<void>;
   +copyContentFromBackupDatabase: () => Promise<void>;
+  +getHolders: (dbID: string) => Promise<$ReadOnlyArray<ClientDBHolderItem>>;
 }
 
 export interface CoreModuleSpec extends Spec {
