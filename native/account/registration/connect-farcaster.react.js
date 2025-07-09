@@ -64,6 +64,21 @@ function ConnectFarcaster(prop: Props): React.Node {
   const goToNextStep = React.useCallback(
     (fid?: ?string, farcasterAvatarURL: ?string) => {
       setWebViewState('closed');
+
+      if (fid) {
+        navigate<'ConnectFarcasterDCs'>({
+          name: 'ConnectFarcasterDCs',
+          params: {
+            userSelections: {
+              ...userSelections,
+              farcasterID: fid,
+              farcasterAvatarURL: farcasterAvatarURL,
+            },
+          },
+        });
+        return;
+      }
+
       invariant(
         !ethereumAccount || ethereumAccount.nonceTimestamp,
         'nonceTimestamp must be set after connecting to Ethereum account',
@@ -87,6 +102,7 @@ function ConnectFarcaster(prop: Props): React.Node {
               ...userSelections,
               farcasterID: fid,
               farcasterAvatarURL: farcasterAvatarURL,
+              farcasterDCsToken: null,
             },
           },
         });
@@ -98,6 +114,7 @@ function ConnectFarcaster(prop: Props): React.Node {
         farcasterID: fid,
         accountSelection: ethereumAccount,
         farcasterAvatarURL: farcasterAvatarURL,
+        farcasterDCsToken: null,
       };
       setSkipEthereumLoginOnce(false);
       navigate<'AvatarSelection'>({
@@ -116,14 +133,20 @@ function ConnectFarcaster(prop: Props): React.Node {
   );
 
   const onSkip = React.useCallback(() => {
-    if (cachedSelections.farcasterID || cachedSelections.farcasterAvatarURL) {
+    if (
+      cachedSelections.farcasterID ||
+      cachedSelections.farcasterAvatarURL ||
+      cachedSelections.farcasterDCsToken
+    ) {
       setCachedSelections(
-        ({ farcasterID, farcasterAvatarURL, ...rest }) => rest,
+        ({ farcasterID, farcasterAvatarURL, farcasterDCsToken, ...rest }) =>
+          rest,
       );
     }
     goToNextStep();
   }, [
     cachedSelections.farcasterAvatarURL,
+    cachedSelections.farcasterDCsToken,
     cachedSelections.farcasterID,
     goToNextStep,
     setCachedSelections,

@@ -25,6 +25,7 @@ import AuthRouter, {
 } from './auth-router.js';
 import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
+import { ConnectFarcasterDCs } from './connect-farcaster-dc.react.js';
 import ConnectFarcaster from './connect-farcaster.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import EmojiAvatarSelection from './emoji-avatar-selection.react.js';
@@ -58,6 +59,7 @@ import {
   RestorePasswordAccountScreenRouteName,
   RestoreBackupScreenRouteName,
   RestoreSIWEBackupRouteName,
+  ConnectFarcasterDCsRouteName,
 } from '../../navigation/route-names.js';
 import QRCodeScreen from '../qr-code-screen.react.js';
 import RestoreBackupScreen from '../restore-backup-screen.react.js';
@@ -226,6 +228,10 @@ function AuthComponent(props: Props): React.Node {
       <Auth.Screen
         name={RestoreSIWEBackupRouteName}
         component={RestoreSIWEBackup}
+      />
+      <Auth.Screen
+        name={ConnectFarcasterDCsRouteName}
+        component={ConnectFarcasterDCs}
       />
     </Auth.Navigator>
   );

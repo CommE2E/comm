@@ -48,6 +48,7 @@ export type ConnectEthereumParams = {
     +keyserverURL?: ?string,
     +farcasterID: ?string,
     +farcasterAvatarURL: ?string,
+    +farcasterDCsToken: ?string,
   },
 };
 
