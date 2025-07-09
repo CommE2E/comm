@@ -6,7 +6,7 @@ import { Text, Platform, Animated, Easing } from 'react-native';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
-const expandedHeight: number = Platform.select({
+const expandedHeight = Platform.select({
   android: 29.5,
   default: 27,
 });
