@@ -8,6 +8,7 @@ import type { NUXTipsOverlayBackdropParams } from './nux-tip-overlay-backdrop.re
 import type { ConnectSecondaryDeviceParams } from '../account/qr-auth/connect-secondary-device.react.js';
 import type { AvatarSelectionParams } from '../account/registration/avatar-selection.react.js';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
+import type { ConnectFarcasterDCsParams } from '../account/registration/connect-farcaster-dc.react.js';
 import type { ConnectFarcasterParams } from '../account/registration/connect-farcaster.react.js';
 import type { EmojiAvatarSelectionParams } from '../account/registration/emoji-avatar-selection.react.js';
 import type { ExistingEthereumAccountParams } from '../account/registration/existing-ethereum-account.react.js';
@@ -142,6 +143,7 @@ export const CreateMissingSIWEBackupMessageRouteName =
 export const RestoreSIWEBackupRouteName = 'RestoreSIWEBackup';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const ConnectFarcasterRouteName = 'ConnectFarcaster';
+export const ConnectFarcasterDCsRouteName = 'ConnectFarcasterDCs';
 export const UsernameSelectionRouteName = 'UsernameSelection';
 export const CommunityCreationRouteName = 'CommunityCreation';
 export const CommunityConfigurationRouteName = 'CommunityConfiguration';
@@ -327,6 +329,7 @@ export type AuthParamList = {
   +ConnectEthereum: ConnectEthereumParams,
   +ExistingEthereumAccount: ExistingEthereumAccountParams,
   +ConnectFarcaster: ConnectFarcasterParams,
+  +ConnectFarcasterDCs: ConnectFarcasterDCsParams,
   +CreateSIWEBackupMessage: CreateSIWEBackupMessageParams,
   +UsernameSelection: UsernameSelectionParams,
   +PasswordSelection: PasswordSelectionParams,

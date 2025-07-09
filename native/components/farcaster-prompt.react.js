@@ -1,58 +1,82 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
-type TextType = 'connect' | 'disconnect';
+type TextType = 'connect' | 'disconnect' | 'connect_DC';
 
 type Props = {
   +textType: TextType,
 };
 
+const prompts = {
+  connect: {
+    headerText: 'Do you want to connect your Farcaster account?',
+    bodyTexts: [
+      'Connecting your Farcaster account lets us bootstrap your social ' +
+        'graph. We’ll also surface communities based on your Farcaster ' +
+        'channels.',
+    ],
+    displayLogo: true,
+  },
+  disconnect: {
+    headerText: 'Disconnect from Farcaster',
+    bodyTexts: ['You can disconnect your Farcaster account at any time.'],
+    displayLogo: true,
+  },
+  connect_DC: {
+    headerText: 'Do you want to connect your Farcaster Direct Casts?',
+    bodyTexts: [
+      'If you share your Farcaster custody mnemonic below, you’ll be able to ' +
+        'send and receive Direct Cast messages using Comm.',
+      'You can find it in the Farcaster app within Settings → Advanced → ' +
+        'Show Farcaster recovery phrase.',
+      'Your mnemonic phrase is only used locally and is not sent to our ' +
+        'servers.',
+    ],
+    displayLogo: false,
+  },
+};
+
 function FarcasterPrompt(props: Props): React.Node {
   const { textType } = props;
 
-  let headerText;
-  if (textType === 'disconnect') {
-    headerText = 'Disconnect from Farcaster';
-  } else {
-    headerText = 'Do you want to connect your Farcaster account?';
-  }
-
-  let bodyText;
-  if (textType === 'disconnect') {
-    bodyText = 'You can disconnect your Farcaster account at any time.';
-  } else {
-    bodyText =
-      'Connecting your Farcaster account lets us bootstrap your social ' +
-      'graph. We’ll also surface communities based on your Farcaster ' +
-      'channels.';
-  }
+  const { headerText, bodyTexts, displayLogo } = prompts[textType];
 
   const styles = useStyles(unboundStyles);
-  const farcasterPrompt = React.useMemo(
+
+  let farcasterLogo = null;
+  if (displayLogo) {
+    farcasterLogo = (
+      <View style={styles.farcasterLogoContainer}>
+        <FarcasterLogo />
+      </View>
+    );
+  }
+
+  const bodyText = React.useMemo(
+    () =>
+      bodyTexts.map((text, id) => (
+        <Text style={styles.body} key={id}>
+          {text}
+        </Text>
+      )),
+    [bodyTexts, styles.body],
+  );
+
+  return React.useMemo(
     () => (
       <>
         <Text style={styles.header}>{headerText}</Text>
-        <Text style={styles.body}>{bodyText}</Text>
-        <View style={styles.farcasterLogoContainer}>
-          <FarcasterLogo />
-        </View>
+        {bodyText}
+        {farcasterLogo}
       </>
     ),
-    [
-      bodyText,
-      headerText,
-      styles.body,
-      styles.farcasterLogoContainer,
-      styles.header,
-    ],
+    [bodyText, farcasterLogo, headerText, styles.header],
   );
-
-  return farcasterPrompt;
 }
 
 const unboundStyles = {
