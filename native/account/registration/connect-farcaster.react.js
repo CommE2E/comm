@@ -115,7 +115,19 @@ function ConnectFarcaster(prop: Props): React.Node {
     ],
   );
 
-  const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);
+  const onSkip = React.useCallback(() => {
+    if (cachedSelections.farcasterID || cachedSelections.farcasterAvatarURL) {
+      setCachedSelections(
+        ({ farcasterID, farcasterAvatarURL, ...rest }) => rest,
+      );
+    }
+    goToNextStep();
+  }, [
+    cachedSelections.farcasterAvatarURL,
+    cachedSelections.farcasterID,
+    goToNextStep,
+    setCachedSelections,
+  ]);
 
   const identityServiceClient = React.useContext(IdentityClientContext);
   const getFarcasterUsers =
