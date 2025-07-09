@@ -248,20 +248,20 @@ const styles = StyleSheet.create({
   },
   errorReportIDText: {
     color: 'black',
-    fontFamily: (Platform.select({
+    fontFamily: Platform.select({
       ios: 'Menlo',
       default: 'monospace',
-    }): string),
+    }),
     fontSize: 12,
     paddingRight: 8,
     paddingTop: 3,
   },
   errorText: {
     color: 'black',
-    fontFamily: (Platform.select({
+    fontFamily: Platform.select({
       ios: 'Menlo',
       default: 'monospace',
-    }): string),
+    }),
   },
   header: {
     color: 'black',
