@@ -1,6 +1,7 @@
 {
   "env": {
-    "react-native/react-native": true
+    "react-native/react-native": true,
+    "browser": true
   },
   "plugins": ["react-native"],
   "rules": {
