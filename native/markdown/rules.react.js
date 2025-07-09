@@ -247,10 +247,10 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ) => {
         const { isNestedQuote } = state;
         const backgroundColor = isNestedQuote ? '#00000000' : '#00000066';
-        const borderLeftColor = (Platform.select({
+        const borderLeftColor = Platform.select({
           ios: '#00000066',
           default: isNestedQuote ? '#00000066' : '#000000A3',
-        }): string);
+        });
 
         return (
           <View
