@@ -122,10 +122,10 @@ const unboundStyles = {
     paddingRight: 7,
   },
   inactiveSearchText: {
-    transform: (Platform.select({
+    transform: Platform.select({
       ios: [{ translateY: 1 / 3 }],
       default: undefined,
-    }): ?$ReadOnlyArray<{ +translateY: number }>),
+    }),
   },
   searchText: {
     color: 'listForegroundLabel',
