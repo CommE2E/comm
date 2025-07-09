@@ -89,7 +89,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
         void invalidTokenLogOut('save_media');
         return;
       } else if (result.reason === 'save_unsupported') {
-        const os: string = Platform.select({
+        const os = Platform.select({
           ios: 'iOS',
           android: 'Android',
           default: Platform.OS,

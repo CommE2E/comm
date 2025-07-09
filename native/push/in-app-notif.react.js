@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   notificationContent: {
-    ...(Platform.select({
+    ...Platform.select({
       ios: {
         marginTop: 16,
         marginBottom: 6,
@@ -72,15 +72,11 @@ const styles = StyleSheet.create({
       default: {
         marginVertical: 16,
       },
-    }): {
-      +marginTop?: number,
-      +marginBottom?: number,
-      +marginVertical?: number,
     }),
     marginHorizontal: 10,
   },
   text: {
-    ...(Platform.select({
+    ...Platform.select({
       ios: {
         fontSize: 16,
         color: 'black',
@@ -88,7 +84,7 @@ const styles = StyleSheet.create({
       default: {
         fontSize: 18,
       },
-    }): { +fontSize: number, +color?: string }),
+    }),
   },
   title: {
     fontWeight: 'bold',

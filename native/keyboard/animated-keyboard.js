@@ -40,7 +40,7 @@ function useKeyboardHeight(
       ) {
         return;
       }
-      const keyboardHeight: number = Platform.select({
+      const keyboardHeight = Platform.select({
         // Android doesn't include the bottomInset in this height measurement
         android: event.endCoordinates.height,
         default: Math.max(
