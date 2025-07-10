@@ -9,6 +9,7 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import AddKeyserver from './add-keyserver.react.js';
 import AppearancePreferences from './appearance-preferences.react.js';
@@ -30,7 +31,6 @@ import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
 import TunnelbrokerMenu from './tunnelbroker-menu.react.js';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
 import {
