@@ -29,6 +29,7 @@ const persistBlacklist = [
   'alertStore',
   'globalThemeInfo',
   'holderStore',
+  'threadActivityStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
