@@ -17,12 +17,6 @@ config.watchFolders = [
 
 config.resolver.blockList = [/android[/\\].*/, /ios[/\\].*/];
 
-config.server.enhanceMiddleware = middleware => (req, res, next) => {
-  // Fix Android dev mode asset resolution for yarn workspaces
-  req.url = req.url.replace(/^\/node_modules/, '/assets/../node_modules');
-  return middleware(req, res, next);
-};
-
 config.transformer.getTransformOptions = async () => ({
   transform: {
     experimentalImportSupport: false,
