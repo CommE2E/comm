@@ -68,7 +68,7 @@ function TypeaheadTooltip<SuggestionItemType>(
       item: TypeaheadTooltipActionItem<SuggestionItemType>,
       ...
     }) => <TypeaheadTooltipButtonComponent item={item} />,
-    [],
+    [TypeaheadTooltipButtonComponent],
   );
 
   // This is a hack that was introduced due to a buggy behavior of a

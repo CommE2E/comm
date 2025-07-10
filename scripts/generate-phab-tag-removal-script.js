@@ -1,4 +1,4 @@
-/* eslint-disable flowtype/require-valid-file-annotation */
+/* eslint-disable ft-flow/require-valid-file-annotation */
 
 const { execSync } = require('child_process');
 const fs = require('fs');
