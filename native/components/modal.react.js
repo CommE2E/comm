@@ -3,9 +3,9 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import KeyboardAvoidingView from './keyboard-avoiding-view.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
 import {
