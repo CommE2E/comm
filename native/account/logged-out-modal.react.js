@@ -589,7 +589,7 @@ function LoggedOutModal(props: Props) {
   return React.useMemo(
     () => (
       <>
-        <ConnectedStatusBar barStyle="light-content" />
+        <ConnectedStatusBar barStyle="light" />
         <Image source={backgroundSource} style={backgroundStyle} />
         <SafeAreaView style={styles.container} edges={safeAreaEdges}>
           <KeyboardAvoidingView behavior="padding" style={styles.container}>
