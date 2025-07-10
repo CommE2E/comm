@@ -97,7 +97,7 @@ function Dropdown(props: DropdownProps): React.Node {
   const selectedOptionText =
     selectedIndex > -1
       ? options[selectedIndex].name
-      : defaultLabel ?? 'Select an option';
+      : (defaultLabel ?? 'Select an option');
 
   return (
     <>
