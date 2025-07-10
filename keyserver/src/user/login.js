@@ -114,7 +114,7 @@ async function registerOrLogIn(
   );
 }
 
-async function registerOrLogInBase<T>(
+async function registerOrLogInBase(
   userInfo: UserCredentials,
   getUpdateContentAccount: <T>(
     callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
