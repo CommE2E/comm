@@ -33,6 +33,7 @@ import { SyncCurrentUserInfoHandler } from 'lib/handlers/sync-current-user-info-
 import { SyncStoreVersionHandler } from 'lib/handlers/sync-store-version-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import {
@@ -539,7 +540,10 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       updateCalendarQueryLoadingStatus,
     );
 
-    const loggedIn = useSelector(isLoggedIn);
+    const baseLoggedIn = useSelector(isLoggedIn);
+    const restorationHasFinished = useIsUserDataReady();
+    const loggedIn = baseLoggedIn && restorationHasFinished;
+
     const activeThreadCurrentlyUnread = useSelector(
       state =>
         !activeChatThreadID ||
