@@ -30,17 +30,16 @@
     "docker-build-push:identity": "./scripts/docker-build-push-identity.sh"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.27.0",
     "@stylistic/eslint-plugin-js": "^1.5.3",
     "clang-format": "^1.8.0",
     "core-js": "^3.6.5",
     "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-flowtype": "^8.0.3",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-ft-flow": "^3.0.11",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^27.6.1",
     "eslint-plugin-monorepo": "^0.3.2",
-    "eslint-plugin-prettier": "^5.1.2",
+    "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-native": "^4.1.0",
@@ -48,11 +47,12 @@
     "find-up": "^5.0.0",
     "flow-mono-cli": "^1.5.0",
     "gaxios": "^4.3.2",
+    "hermes-eslint": "^0.29.1",
     "husky": "^7.0.0",
     "lint-staged": "^12.1.4",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.0.0",
-    "prettier": "^3.1.1"
+    "prettier": "^3.6.2"
   },
   "resolutions": {
     "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
