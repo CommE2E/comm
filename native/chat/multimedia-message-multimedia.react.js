@@ -162,7 +162,7 @@ const MultimediaMessageMultimedia: React.ComponentType<Props> = React.memo(
             onPress={onPress}
             postInProgress={postInProgress}
             pendingUpload={pendingUpload}
-            spinnerColor={item.threadInfo.color}
+            spinnerColor={`#${item.threadInfo.color}`}
           />
         </View>
       </AnimatedView>
