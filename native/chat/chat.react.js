@@ -30,6 +30,7 @@ import {
   useWindowDimensions,
   type MeasureOnSuccessCallback,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
@@ -63,7 +64,6 @@ import ThreadSettings from './settings/thread-settings.react.js';
 import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import { NUXHandler } from '../components/nux-handler.react.js';
 import {
   nuxTip,
