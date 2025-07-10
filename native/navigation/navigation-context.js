@@ -18,6 +18,7 @@ export type NavAction =
 export type NavContextType = {
   +state: PossiblyStaleNavigationState,
   +dispatch: (action: NavAction) => void,
+  +hasNavigatedToInitialState: boolean,
 };
 
 const NavContext: React.Context<?NavContextType> =
