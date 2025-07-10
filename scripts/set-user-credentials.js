@@ -1,4 +1,4 @@
-/* eslint-disable flowtype/require-valid-file-annotation */
+/* eslint-disable ft-flow/require-valid-file-annotation */
 
 const basePath = process.argv[2];
 
