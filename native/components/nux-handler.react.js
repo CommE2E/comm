@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
 import {
@@ -27,8 +28,9 @@ function NUXHandler(): React.Node {
   const { tipsProps } = nuxTipsContext;
 
   const loggedIn = useSelector(isLoggedIn);
+  const userDataReady = useIsUserDataReady();
 
-  if (!tipsProps || !loggedIn) {
+  if (!tipsProps || !loggedIn || !userDataReady) {
     return null;
   }
 

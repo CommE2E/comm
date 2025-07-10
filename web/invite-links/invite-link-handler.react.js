@@ -9,6 +9,7 @@ import {
 } from 'lib/actions/link-actions.js';
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
@@ -29,7 +30,9 @@ function InviteLinkHandler(): null {
   const inviteLinkSecret = React.useRef<?string>(null);
   const [keyserverOverride, setKeyserverOverride] =
     React.useState<?KeyserverOverride>(undefined);
-  const loggedIn = useSelector(isLoggedIn);
+  const baseLoggedIn = useSelector(isLoggedIn);
+  const userDataReady = useIsUserDataReady();
+  const loggedIn = baseLoggedIn && userDataReady;
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
