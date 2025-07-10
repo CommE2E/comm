@@ -13,6 +13,7 @@ import {
   BackHandler,
   ActivityIndicator,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import {
   Easing,
   useSharedValue,
@@ -35,7 +36,6 @@ import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import PromptButton from './prompt-button.react.js';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import { useRatchetingKeyboardHeight } from '../keyboard/animated-keyboard.js';
 import { createIsForegroundSelector } from '../navigation/nav-selectors.js';
