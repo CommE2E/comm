@@ -9,6 +9,7 @@ import {
   setDeviceTokenActionTypes,
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
@@ -196,6 +197,8 @@ function PushNotificationsHandler(): React.Node {
 
   const modalContext = useModalContext();
   const loggedIn = useSelector(isLoggedIn);
+  const userDataReady = useIsUserDataReady();
+  const fullyLoggedIn = loggedIn && userDataReady;
 
   const dispatch = useDispatch();
 
@@ -214,7 +217,7 @@ function PushNotificationsHandler(): React.Node {
         await createPushSubscription();
       } else if (
         Notification.permission === 'default' &&
-        loggedIn &&
+        fullyLoggedIn &&
         !shouldSkipPushPermissionAlert(notifPermissionAlertInfo)
       ) {
         // Ask existing users that are already logged in for permission
@@ -235,13 +238,13 @@ function PushNotificationsHandler(): React.Node {
   }, []);
 
   // Ask for permission on login
-  const prevLoggedIn = React.useRef(loggedIn);
+  const prevLoggedIn = React.useRef(fullyLoggedIn);
   React.useEffect(() => {
     if (!navigator.serviceWorker || !supported) {
       return;
     }
 
-    if (!prevLoggedIn.current && loggedIn) {
+    if (!prevLoggedIn.current && fullyLoggedIn) {
       if (Notification.permission === 'granted') {
         void createPushSubscription();
       } else if (
@@ -261,11 +264,11 @@ function PushNotificationsHandler(): React.Node {
         });
       }
     }
-    prevLoggedIn.current = loggedIn;
+    prevLoggedIn.current = fullyLoggedIn;
   }, [
     createPushSubscription,
     dispatch,
-    loggedIn,
+    fullyLoggedIn,
     modalContext,
     notifPermissionAlertInfo,
     prevLoggedIn,
