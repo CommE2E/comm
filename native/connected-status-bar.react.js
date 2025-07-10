@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { StatusBar, Platform } from 'react-native';
+import { Platform } from 'react-native';
+import { SystemBars } from 'react-native-edge-to-edge';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 
@@ -28,7 +29,7 @@ export default function ConnectedStatusBar(props: Props): React.Node {
 
   const fetchingSomething = globalLoadingStatus === 'loading';
   return (
-    <StatusBar
+    <SystemBars
       {...statusBarProps}
       barStyle={barStyle}
       networkActivityIndicatorVisible={fetchingSomething}
