@@ -16,6 +16,7 @@ import {
   parseDataFromDeepLink,
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
+import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -105,7 +106,9 @@ function DeepLinksContextProvider(props: Props): React.Node {
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
   const showVersionUnsupportedAlert = useShowVersionUnsupportedAlert(false);
-  const loggedIn = useSelector(isLoggedIn);
+  const baseLoggedIn = useSelector(isLoggedIn);
+  const userDataReady = useIsUserDataReady();
+  const loggedIn = baseLoggedIn && userDataReady;
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useVerifyInviteLink(keyserverOverride);
   const navigation = useNavigation();
