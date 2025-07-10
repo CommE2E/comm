@@ -1,14 +1,14 @@
 // @flow
 
 import * as React from 'react';
-import { StatusBar, Platform } from 'react-native';
+import { SystemBars } from 'react-native-edge-to-edge';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 
 import { useSelector } from './redux/redux-utils.js';
 
 type Props = {
-  +barStyle?: 'default' | 'light-content' | 'dark-content',
+  +barStyle?: 'default' | 'light' | 'dark',
   +animated?: boolean,
   +hidden?: boolean,
 };
@@ -19,18 +19,18 @@ export default function ConnectedStatusBar(props: Props): React.Node {
 
   let barStyle = inBarStyle;
   if (!barStyle) {
-    if (Platform.OS !== 'android' && activeTheme === 'light') {
-      barStyle = 'dark-content';
+    if (activeTheme === 'light') {
+      barStyle = 'dark';
     } else {
-      barStyle = 'light-content';
+      barStyle = 'light';
     }
   }
 
   const fetchingSomething = globalLoadingStatus === 'loading';
   return (
-    <StatusBar
+    <SystemBars
       {...statusBarProps}
-      barStyle={barStyle}
+      style={barStyle}
       networkActivityIndicatorVisible={fetchingSomething}
     />
   );
