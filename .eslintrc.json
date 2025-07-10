@@ -7,17 +7,17 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:flowtype/recommended",
+    "plugin:ft-flow/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:prettier/recommended",
     "prettier"
   ],
-  "parser": "@babel/eslint-parser",
+  "parser": "hermes-eslint",
   "plugins": [
     "react",
     "react-hooks",
-    "flowtype",
+    "ft-flow",
     "monorepo",
     "import",
     "@stylistic/js",
@@ -34,8 +34,21 @@
       "error",
       { "code": 5000, "comments": 80, "ignoreUrls": true }
     ],
-    "flowtype/require-valid-file-annotation": ["error", "always"],
-    "flowtype/require-exact-type": ["error", "never"],
+    "ft-flow/require-valid-file-annotation": ["error", "always"],
+    "ft-flow/require-exact-type": ["error", "never"],
+    // copied from eslint-config-prettier, which uses outdated flowtype/ rules
+    // https://github.com/prettier/eslint-config-prettier/blob/4c9489339d37bf96d31e0596e64bb8d4cb4308ef/index.js#L223-L233
+    "ft-flow/boolean-style": "off",
+    "ft-flow/delimiter-dangle": "off",
+    "ft-flow/generic-spacing": "off",
+    "ft-flow/object-type-curly-spacing": "off",
+    "ft-flow/object-type-delimiter": "off",
+    "ft-flow/quotes": "off",
+    "ft-flow/semi": "off",
+    "ft-flow/space-after-type-colon": "off",
+    "ft-flow/space-before-generic-bracket": "off",
+    "ft-flow/space-before-type-colon": "off",
+    "ft-flow/union-intersection-spacing": "off",
     "curly": "error",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -89,8 +102,8 @@
         "commonjs": true
       },
       "rules": {
-        "flowtype/require-valid-file-annotation": 0,
-        "flowtype/require-exact-type": 0
+        "ft-flow/require-valid-file-annotation": 0,
+        "ft-flow/require-exact-type": 0
       }
     }
   ]
