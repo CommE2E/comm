@@ -881,7 +881,11 @@ const CameraModal: React.ComponentType<Props> = React.memo<Props, void>(
       );
     };
 
-    const statusBar = isActive ? <ConnectedStatusBar hidden /> : null;
+    const statusBar = isActive ? (
+      <ConnectedStatusBar hidden />
+    ) : (
+      <ConnectedStatusBar hidden={false} />
+    );
     const device = useCameraDevice(useFrontCamera ? 'front' : 'back');
     if (!device) {
       return (
