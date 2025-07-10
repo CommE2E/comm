@@ -342,8 +342,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
 
   let aux_data = multipart.get_aux_data().await?;
   let siwe_backup_msg = aux_data.get_siwe_backup_msg()?;
-  // old clients didn't upload version info
-  let version_info = aux_data.get_backup_version_info()?.unwrap_or_default();
+  let input_version_info = aux_data.get_backup_version_info()?;
 
   let ordered_backup_item = db_client
     .find_last_backup_item(user_id)
@@ -361,8 +360,9 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
   let mut revokes = vec![user_keys_revoke];
 
   // copy user data and logs from old backup item, but assign new holders for all blobs
-  let (user_data, attachments) = match old_backup_item.clone() {
-    None => (None, Vec::new()),
+  let (user_data, attachments, version_info) = match old_backup_item {
+    // old clients didn't upload version info so use defaults
+    None => (None, Vec::new(), input_version_info.unwrap_or_default()),
     // If attachments and user_data exists, we need to create holder.
     // Otherwise, cleanup can remove this data.
     Some(item) => {
@@ -372,7 +372,6 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
         .iter()
         .map(|attachment| attachment.blob_hash.clone())
         .collect();
-
       let (attachments, attachments_revokes) =
         blob_utils::create_holders_for_blob_hashes(
           attachments_hashes,
@@ -393,6 +392,10 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
         None
       };
 
+      // version info is absent when uplodaing UserKeys by Identity.
+      // We should copy it along with UserData and attachments.
+      let version_info = input_version_info.unwrap_or(item.version_info);
+
       let log_revoke = db_client
         .copy_log_items_to_new_backup(
           user_id,
@@ -403,7 +406,7 @@ async fn upload_userkeys_and_create_backup_item<'revoke, 'blob: 'revoke>(
         .await?;
       revokes.push(log_revoke);
 
-      (user_data, attachments)
+      (user_data, attachments, version_info)
     }
   };
 
