@@ -3,8 +3,7 @@
 import { useHeaderHeight } from '@react-navigation/elements';
 import * as React from 'react';
 import { View } from 'react-native';
-
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 type ViewProps = React.ElementConfig<typeof View>;
 type Props = ViewProps;
