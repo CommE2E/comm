@@ -92,13 +92,13 @@ function InnerTextMessage(props: Props): React.Node {
 
   const darkColor = !isViewer
     ? activeTheme === 'dark'
-    : props.isThreadColorDarkOverride ?? colorIsDark(item.threadInfo.color);
+    : (props.isThreadColorDarkOverride ?? colorIsDark(item.threadInfo.color));
 
   const messageStyle = useAnimatedStyle(
     () => ({
       backgroundColor: !isViewer
         ? boundColors.listChatBubble
-        : props.threadColorOverride?.value ?? `#${item.threadInfo.color}`,
+        : (props.threadColorOverride?.value ?? `#${item.threadInfo.color}`),
     }),
     [boundColors.listChatBubble, isViewer, item.threadInfo.color],
   );
