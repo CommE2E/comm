@@ -122,7 +122,7 @@ class Crash extends React.PureComponent<Props, State> {
 
     return (
       <View style={styles.container}>
-        <ConnectedStatusBar barStyle="dark-content" />
+        <ConnectedStatusBar barStyle="dark" />
         <Icon name="bug" size={32} color="red" />
         <Text style={styles.header}>{this.errorTitle}</Text>
         <Text style={styles.text}>I&rsquo;m sorry, but the app crashed.</Text>
