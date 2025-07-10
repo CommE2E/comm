@@ -135,6 +135,7 @@ function Root() {
         | (PossiblyStaleNavigationState => GenericNavigationAction),
     ) => void>();
   const navStateInitializedRef = React.useRef(false);
+  const hasNavigatedToInitialState = React.useRef(false);
 
   // We call this here to start the loading process
   // We gate the UI on the fonts loading in AppNavigator
@@ -152,6 +153,7 @@ function Root() {
     const updatedNavContext = {
       state: navStateRef.current,
       dispatch: navDispatchRef.current,
+      hasNavigatedToInitialState: hasNavigatedToInitialState.current,
     };
     setNavContext(updatedNavContext);
     setGlobalNavContext(updatedNavContext);
@@ -166,6 +168,7 @@ function Root() {
     void (async () => {
       let loadedState = initialState;
       if (__DEV__) {
+        hasNavigatedToInitialState.current = true;
         try {
           const navStateString = await AsyncStorage.getItem(
             navStateAsyncStorageKey,
@@ -217,6 +220,7 @@ function Root() {
       invariant(state, 'nav state should be non-null');
       const prevState = navStateRef.current;
       navStateRef.current = state;
+      hasNavigatedToInitialState.current = true;
       updateNavContext();
 
       const queuedActions = queuedActionsRef.current;
