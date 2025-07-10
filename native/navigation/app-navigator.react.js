@@ -11,6 +11,7 @@ import CommunityDrawerTip from './community-drawer-tip.react.js';
 import HomeTabTip from './home-tab-tip.react.js';
 import IntroTip from './intro-tip.react.js';
 import MutedTabTip from './muted-tab-tip.react.js';
+import { NavContext } from './navigation-context.js';
 import NUXTipOverlayBackdrop from './nux-tip-overlay-backdrop.react.js';
 import { createOverlayNavigator } from './overlay-navigator.react.js';
 import type {
@@ -80,6 +81,8 @@ type AppNavigatorProps = {
 function AppNavigator(props: AppNavigatorProps): React.Node {
   const { navigation } = props;
 
+  const navContext = React.useContext(NavContext);
+
   const fontsLoaded = useLoadCommFonts();
 
   const rootContext = React.useContext(RootContext);
@@ -96,7 +99,11 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
     React.useState(splashScreenHasHidden);
 
   React.useEffect(() => {
-    if (localSplashScreenHasHidden || !fontsLoaded) {
+    if (
+      localSplashScreenHasHidden ||
+      !fontsLoaded ||
+      !navContext?.hasNavigatedToInitialState
+    ) {
       return;
     }
     splashScreenHasHidden = true;
@@ -108,7 +115,11 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
         setLocalSplashScreenHasHidden(true);
       }
     })();
-  }, [localSplashScreenHasHidden, fontsLoaded]);
+  }, [
+    localSplashScreenHasHidden,
+    fontsLoaded,
+    navContext?.hasNavigatedToInitialState,
+  ]);
 
   let pushHandler;
   if (localSplashScreenHasHidden) {
