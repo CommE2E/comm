@@ -1,8 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Platform, TouchableOpacity, View } from 'react-native';
-import Linking from 'react-native/Libraries/Linking/Linking.js';
+import { Platform, TouchableOpacity, View, Linking } from 'react-native';
 
 import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { deviceTokenSelector } from 'lib/selectors/keyserver-selectors.js';
