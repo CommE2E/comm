@@ -7,9 +7,9 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import CalendarScreen from './calendar-screen.react.js';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import {
   CalendarScreenRouteName,
