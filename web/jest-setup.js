@@ -1,5 +1,4 @@
 // @flow
-/* eslint-disable no-undef -- "global is not defined" */
 
 import crypto from 'crypto';
 import util from 'util';

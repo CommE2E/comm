@@ -72,7 +72,7 @@ function createChatTabBarButton<Route: NUXTipRouteNames>(
           </View>
         );
       },
-      [styles.icon],
+      [Icon, styles.icon],
     );
 
     const renderLabelText = React.useCallback(() => title, [title]);
