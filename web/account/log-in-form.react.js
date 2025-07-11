@@ -8,13 +8,20 @@ import { useWalletClient } from 'wagmi';
 
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useSecondaryDeviceQRAuthURL } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
+import {
+  useSecondaryDeviceQRAuthURL,
+  useSecondaryDeviceQRAuthContext,
+} from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import stores from 'lib/facts/stores.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
+import {
+  useIsRestoreFlowEnabled,
+  fullBackupSupport,
+} from 'lib/utils/services-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
+import RestorationProgress from './restoration.react.js';
 import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
@@ -22,6 +29,7 @@ import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function LegacyLoginForm() {
   const { openConnectModal } = useConnectModal();
@@ -84,6 +92,7 @@ function LegacyLoginForm() {
 
 function LoginForm() {
   const qrCodeURL = useSecondaryDeviceQRAuthURL();
+  const { qrAuthInProgress } = useSecondaryDeviceQRAuthContext();
 
   const { pushModal, clearModals, popModal } = useModalContext();
 
@@ -153,6 +162,19 @@ function LoginForm() {
     }
     return <LoadingIndicator status="loading" size="large" color="black" />;
   }, [qrCodeURL]);
+
+  const userDataRestoreStarted = useSelector(
+    state => state.restoreBackupState.status !== 'no_backup',
+  );
+
+  if (fullBackupSupport && (qrAuthInProgress || userDataRestoreStarted)) {
+    return (
+      <RestorationProgress
+        qrAuthInProgress={qrAuthInProgress}
+        userDataRestoreStarted={userDataRestoreStarted}
+      />
+    );
+  }
 
   return (
     <div className={css.new_modal_body}>

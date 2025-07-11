@@ -1,0 +1,203 @@
+/* Restoration Modal Base Styles */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  min-height: 438px;
+  padding: 19px 17px;
+  border-radius: 12px;
+  background-color: var(--auth-modal-bg);
+  border: var(--auth-modal-border-color) solid 1px;
+}
+
+.modalBody h1 {
+  color: var(--fg);
+  font-size: var(--xl-font-20);
+  line-height: var(--line-height-display);
+  font-weight: 700;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+}
+
+div.content .bottom {
+  margin-top: auto;
+}
+
+.modalText {
+  color: var(--fg);
+  font-size: var(--s-font-14);
+  font-weight: var(--normal);
+  line-height: var(--line-height-text);
+  margin: 5px 0;
+}
+
+/* Header Styles */
+.restorationSubtitle {
+  color: var(--fg);
+  font-size: var(--xs-font-12);
+  font-weight: var(--normal);
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+/* Progress Indicator Styles */
+.restorationProgress {
+  margin-top: 20px;
+}
+
+.progressSteps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+}
+
+.stepItem span {
+  font-size: var(--xs-font-12);
+  color: var(--auth-secondary-text-color);
+  text-align: center;
+}
+
+.stepIconCompleted {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--auth-step-icon-success-bg);
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--xs-font-12);
+  font-weight: bold;
+}
+
+.stepIconActive {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--auth-step-icon-active-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+  color: var(--fg);
+  font-weight: bold;
+  font-size: var(--xs-font-12);
+}
+
+.stepIconError {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--auth-step-icon-error-bg);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--xs-font-12);
+  font-weight: bold;
+}
+
+.stepIconPending {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--auth-step-icon-pending-bg);
+  color: var(--auth-secondary-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--xs-font-12);
+}
+
+.stepConnector {
+  width: 30px;
+  height: 2px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(106, 32, 227, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(106, 32, 227, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(106, 32, 227, 0);
+  }
+}
+
+/* Error Message Styles */
+.errorMessageContainer {
+  margin-bottom: 0;
+}
+
+.errorDetailsContainer {
+  background-color: var(--tool-tip-bg);
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+
+.errorDetailsHeader {
+  font-size: var(--xs-font-12);
+  font-weight: bold;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.errorDetails {
+  font-family: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New',
+    monospace;
+  font-size: var(--xs-font-12);
+  color: var(--fg);
+  line-height: 16px;
+  text-wrap: nowrap;
+  overflow: auto;
+}
+
+/* Button Styles */
+.errorButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  row-gap: 8px;
+}
+
+.errorButtons button {
+  font-size: var(--s-font-14);
+}
+
+/* Debug info Styles */
+.debugInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.debugInfo span {
+  color: var(--auth-secondary-text-color);
+  font-size: var(--xs-font-12);
+  line-height: var(--line-height-text);
+}
+
+/* Restoration progress spinner */
+div.restorationSpinnerWrapper {
+  display: flex;
+  justify-content: center;
+  margin: auto;
+}

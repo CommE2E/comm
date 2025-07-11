@@ -88,11 +88,12 @@ div.new_modal_body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 350px;
+  width: 380px;
+  min-height: 438px;
   padding: 19px 17px;
   border-radius: 12px;
-  background-color: #191723;
-  border: #272537 solid 1px;
+  background-color: var(--auth-modal-bg);
+  border: var(--auth-modal-border-color) solid 1px;
 }
 
 div.new_modal_body h1 {
