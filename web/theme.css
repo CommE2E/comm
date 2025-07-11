@@ -229,6 +229,13 @@
   --unsaved-changes-modal-text-color: var(--shades-white-60);
   --modal-secondary-label: var(--shades-black-50);
   --modal-separator: var(--shades-black-75);
+  --auth-modal-border-color: #272537;
+  --auth-modal-bg: #191723;
+  --auth-step-icon-pending-bg: #3a3a3a;
+  --auth-step-icon-active-bg: #4caf50;
+  --auth-step-icon-success-bg: #4caf50;
+  --auth-step-icon-error-bg: #4caf50;
+  --auth-secondary-text-color: #8c889a;
 }
 
 /* 
