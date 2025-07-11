@@ -88,7 +88,8 @@ div.new_modal_body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 350px;
+  width: 380px;
+  min-height: 438px;
   padding: 19px 17px;
   border-radius: 12px;
   background-color: #191723;
@@ -130,6 +131,15 @@ div.new_modal_body .qrCodeWrapper {
   align-items: center;
   justify-content: center;
   background: var(--fg);
+  width: 195px;
+  height: 195px;
+}
+
+div.new_modal_body .restorationSpinner {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 195px;
   height: 195px;
 }
