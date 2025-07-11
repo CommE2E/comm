@@ -8,10 +8,17 @@ import { useWalletClient } from 'wagmi';
 
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useSecondaryDeviceQRAuthURL } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
+import {
+  useSecondaryDeviceQRAuthURL,
+  useSecondaryDeviceQRAuthContext,
+} from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import stores from 'lib/facts/stores.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
+import {
+  useIsRestoreFlowEnabled,
+  fullBackupSupport,
+} from 'lib/utils/services-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
@@ -22,6 +29,7 @@ import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function LegacyLoginForm() {
   const { openConnectModal } = useConnectModal();
@@ -82,8 +90,111 @@ function LegacyLoginForm() {
   );
 }
 
+type BackupRestorationProgressProps = {
+  +qrAuthInProgress: boolean,
+  +userDataRestoreStarted: boolean,
+};
+function BackupRestorationProgress(props: BackupRestorationProgressProps) {
+  const { qrAuthInProgress, userDataRestoreStarted } = props;
+
+  const step: 'authenticating' | 'restoring' =
+    qrAuthInProgress && !userDataRestoreStarted
+      ? 'authenticating'
+      : 'restoring';
+
+  const [title, subtitle, statusMessage, statusDetail] = React.useMemo(() => {
+    if (step === 'authenticating') {
+      return [
+        'Authenticating device',
+        'Registering you device to Comm',
+        'Authenticating your device...',
+        "Please wait while we register your device's cryptographic keys",
+      ];
+    } else {
+      return [
+        'Restoring your data',
+        'Device authenticated successfully',
+        'Restoring your messages and settings...',
+        'Please wait while we complete this process',
+      ];
+    }
+  }, [step]);
+
+  const restoreState = useSelector(state => state.restoreBackupState.status);
+  let debugInfo;
+  if (isDev) {
+    debugInfo = (
+      <div className={css.buttons}>
+        <button>
+          Step: {step} ({restoreState})
+        </button>
+      </div>
+    );
+  }
+
+  const stepLoadingIndicator = React.useMemo(
+    () => <LoadingIndicator status="loading" size="small" />,
+    [],
+  );
+  const [authProgressStepClasName, authProgressStep] = React.useMemo(() => {
+    return step === 'authenticating'
+      ? [css.step_icon_active, stepLoadingIndicator]
+      : [css.step_icon_completed, '✓'];
+  }, [step, stepLoadingIndicator]);
+
+  const [restoreProgressStepClassName, restoreProgressStep] =
+    React.useMemo(() => {
+      return step === 'restoring'
+        ? [css.step_icon_active, stepLoadingIndicator]
+        : [css.step_icon_pending, '2'];
+    }, [step, stepLoadingIndicator]);
+
+  return (
+    <div className={css.new_modal_body}>
+      <div className={css.restoration_header}>
+        <h1>{title}</h1>
+        <div className={css.restoration_subtitle}>{subtitle}</div>
+      </div>
+      <HeaderSeparator />
+      <div className={css.content}>
+        <div className={css.restoration_progress}>
+          <div className={css.progress_steps}>
+            <div className={css.step_item}>
+              <div className={authProgressStepClasName}>{authProgressStep}</div>
+              <span>Authentication</span>
+            </div>
+            <div className={css.step_connector}></div>
+            <div className={css.step_item}>
+              <div className={restoreProgressStepClassName}>
+                {restoreProgressStep}
+              </div>
+              <span>Data Restoration</span>
+            </div>
+            <div className={css.step_connector}></div>
+            <div className={css.step_item}>
+              <div className={css.step_icon_pending}>3</div>
+              <span>Complete</span>
+            </div>
+          </div>
+        </div>
+        <div className={css.restoration_status}>
+          <div className={css.status_message}>{statusMessage}</div>
+          <div className={css.status_detail}>{statusDetail}</div>
+        </div>
+        <div className={css.restoration_spinner_container}>
+          <div className={css.restoration_spinner_wrapper}>
+            <LoadingIndicator status="loading" size="large" />
+          </div>
+        </div>
+        {debugInfo}
+      </div>
+    </div>
+  );
+}
+
 function LoginForm() {
   const qrCodeURL = useSecondaryDeviceQRAuthURL();
+  const { qrAuthInProgress } = useSecondaryDeviceQRAuthContext();
 
   const { pushModal, clearModals, popModal } = useModalContext();
 
@@ -153,6 +264,19 @@ function LoginForm() {
     }
     return <LoadingIndicator status="loading" size="large" color="black" />;
   }, [qrCodeURL]);
+
+  const userDataRestoreStarted = useSelector(
+    state => state.restoreBackupState.status !== 'no_backup',
+  );
+
+  if (fullBackupSupport && (qrAuthInProgress || userDataRestoreStarted)) {
+    return (
+      <BackupRestorationProgress
+        qrAuthInProgress={qrAuthInProgress}
+        userDataRestoreStarted={userDataRestoreStarted}
+      />
+    );
+  }
 
   return (
     <div className={css.new_modal_body}>

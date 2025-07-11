@@ -134,6 +134,15 @@ div.new_modal_body .qrCodeWrapper {
   height: 195px;
 }
 
+div.new_modal_body .restorationSpinner {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 195px;
+  height: 195px;
+}
+
 div.new_modal_body .buttons {
   display: flex;
   flex-direction: column;
@@ -154,4 +163,130 @@ div.new_modal_body button:hover {
 div.new_modal_body.small_modal {
   width: 320px;
   min-width: auto;
+}
+
+/* Data Restoration Progress Styles */
+div.restoration_header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+div.restoration_subtitle {
+  color: #8c889a;
+  font-size: var(--xs-font-12);
+  margin-top: 4px;
+  font-weight: var(--normal);
+}
+
+div.restoration_progress {
+  margin: 20px 0;
+}
+
+div.progress_steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+div.step_item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+}
+
+div.step_item span {
+  font-size: var(--xs-font-12);
+  color: #8c889a;
+  text-align: center;
+}
+
+div.step_icon_completed {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--xs-font-12);
+  font-weight: bold;
+}
+
+div.step_icon_active {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6a20e3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+div.step_icon_pending {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3a3a3a;
+  color: #8c889a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--xs-font-12);
+}
+
+div.step_connector {
+  width: 30px;
+  height: 2px;
+  background: #3a3a3a;
+  margin: 0 4px;
+}
+
+div.restoration_status {
+  text-align: center;
+  margin: 20px 0;
+}
+
+div.status_message {
+  color: white;
+  font-size: var(--s-font-14);
+  font-weight: var(--medium);
+  margin-bottom: 8px;
+}
+
+div.status_detail {
+  color: #8c889a;
+  font-size: var(--xs-font-12);
+}
+
+div.restoration_spinner_container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+div.restoration_spinner_wrapper {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(106, 32, 227, 0.1);
+  border: 1px solid rgba(106, 32, 227, 0.2);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(106, 32, 227, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(106, 32, 227, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(106, 32, 227, 0);
+  }
 }
