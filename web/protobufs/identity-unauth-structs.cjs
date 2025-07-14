@@ -1441,7 +1441,8 @@ proto.identity.unauth.RegistrationStartRequest.toObject = function(includeInstan
     username: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
     farcasterId: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, "")
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    farcasterDcsToken: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -1498,6 +1499,10 @@ proto.identity.unauth.RegistrationStartRequest.deserializeBinaryFromReader = fun
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setInitialDeviceList(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFarcasterDcsToken(value);
       break;
     default:
       reader.skipField();
@@ -1561,6 +1566,13 @@ proto.identity.unauth.RegistrationStartRequest.serializeBinaryToWriter = functio
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -1715,6 +1727,42 @@ proto.identity.unauth.RegistrationStartRequest.prototype.getInitialDeviceList = 
  */
 proto.identity.unauth.RegistrationStartRequest.prototype.setInitialDeviceList = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string farcaster_dc_token = 6;
+ * @return {string}
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.getFarcasterDcsToken = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.RegistrationStartRequest} returns this
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.setFarcasterDcsToken = function(value) {
+  return jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.RegistrationStartRequest} returns this
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.clearFarcasterDcsToken = function() {
+  return jspb.Message.setField(this, 6, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.hasFarcasterDcsToken = function() {
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
@@ -3288,7 +3336,8 @@ proto.identity.unauth.WalletAuthRequest.toObject = function(includeInstance, msg
     siweSignature: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
     farcasterId: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, "")
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    farcasterDcsToken: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -3345,6 +3394,10 @@ proto.identity.unauth.WalletAuthRequest.deserializeBinaryFromReader = function(m
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setInitialDeviceList(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFarcasterDcsToken(value);
       break;
     default:
       reader.skipField();
@@ -3408,6 +3461,13 @@ proto.identity.unauth.WalletAuthRequest.serializeBinaryToWriter = function(messa
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -3538,6 +3598,42 @@ proto.identity.unauth.WalletAuthRequest.prototype.getInitialDeviceList = functio
  */
 proto.identity.unauth.WalletAuthRequest.prototype.setInitialDeviceList = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string farcaster_dcs_token = 6;
+ * @return {string}
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.getFarcasterDcsToken = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.WalletAuthRequest} returns this
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.setFarcasterDcsToken = function(value) {
+  return jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.WalletAuthRequest} returns this
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.clearFarcasterDcsToken = function() {
+  return jspb.Message.setField(this, 6, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.hasFarcasterDcsToken = function() {
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
