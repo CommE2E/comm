@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBAuxUserInfo } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
@@ -60,6 +61,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_SYNCED_METADATA: 31,
   GET_HOLDERS: 32,
   REMOVE_LOCAL_MESSAGE_INFOS: 33,
+  GET_AUX_USER_INFOS: 34,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -281,6 +283,11 @@ export type RemoveLocalMessageInfosRequestMessage = {
   +dbID: DatabaseIdentifier,
 };
 
+export type GetAuxUserInfosRequestMessage = {
+  +type: 34,
+  +dbID: DatabaseIdentifier,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -315,7 +322,8 @@ export type WorkerRequestMessage =
   | GetDatabaseVersionRequestMessage
   | GetSyncedMetadataRequestMessage
   | GetHoldersRequestMessage
-  | RemoveLocalMessageInfosRequestMessage;
+  | RemoveLocalMessageInfosRequestMessage
+  | GetAuxUserInfosRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -338,6 +346,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_DATABASE_VERSION: 11,
   GET_SYNCED_METADATA: 12,
   GET_HOLDERS: 13,
+  GET_AUX_USER_INFOS: 14,
 });
 
 export type PongWorkerResponseMessage = {
@@ -410,6 +419,11 @@ export type GetHoldersResponseMessage = {
   +holders: $ReadOnlyArray<ClientDBHolderItem>,
 };
 
+export type GetAuxUserInfosResponseMessage = {
+  +type: 14,
+  +auxUserInfos: $ReadOnlyArray<ClientDBAuxUserInfo>,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -424,7 +438,8 @@ export type WorkerResponseMessage =
   | DMOperationsResponseMessage
   | GetDatabaseVersionResponseMessage
   | GetSyncedMetadataResponseMessage
-  | GetHoldersResponseMessage;
+  | GetHoldersResponseMessage
+  | GetAuxUserInfosResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
