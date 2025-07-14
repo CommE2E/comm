@@ -200,6 +200,13 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String deviceID,
       jsi::String accessToken,
       jsi::String farcasterID) override;
+  virtual jsi::Value linkFarcasterDCsAccount(
+      jsi::Runtime &rt,
+      jsi::String userID,
+      jsi::String deviceID,
+      jsi::String accessToken,
+      jsi::String farcasterID,
+      jsi::String farcasterDCsToken) override;
   virtual jsi::Value unlinkFarcasterAccount(
       jsi::Runtime &rt,
       jsi::String userID,
