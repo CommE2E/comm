@@ -6,6 +6,7 @@ import * as Progress from 'react-native-progress';
 
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
@@ -14,7 +15,11 @@ import type { AuthNavigationProp } from './registration/auth-navigator.react.js'
 import { useRestore, useV1Login } from './restore.js';
 import { commCoreModule } from '../native-modules.js';
 import { logInActionType } from '../navigation/action-types.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
+import {
+  RestoreBackupErrorScreenRouteName,
+  type NavigationRoute,
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import {
   appOutOfDateAlertDetails,
@@ -24,7 +29,6 @@ import {
   passwordLoginErrorAlertDetails,
   siweLoginErrorAlertDetails,
   userKeysRestoreErrorAlertDetails,
-  userDataRestoreErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
@@ -55,12 +59,29 @@ function RestoreBackupScreen(props: Props): React.Node {
 
   const restore = useRestore();
   const performV1Login = useV1Login();
+
+  const isRestoreError = useSelector(
+    state => state.restoreBackupState.status === 'user_data_restore_failed',
+  );
+  const canStartRestore = useSelector(
+    state => state.restoreBackupState.status === 'no_backup',
+  );
+
   React.useEffect(() => {
     const removeListener = props.navigation.addListener('beforeRemove', e => {
       if (e.data.action.type !== logInActionType) {
         e.preventDefault();
       }
     });
+    if (isRestoreError && fullBackupSupport) {
+      props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
+        deviceType: 'primary',
+      });
+      return removeListener;
+    }
+    if (!canStartRestore && fullBackupSupport) {
+      return removeListener;
+    }
     void (async () => {
       let step;
       const setStep = (newStep: string) => {
@@ -125,7 +146,11 @@ function RestoreBackupScreen(props: Props): React.Node {
         } else if (step === 'user_keys_restore') {
           alertDetails = userKeysRestoreErrorAlertDetails;
         } else if (step === 'user_data_restore') {
-          alertDetails = userDataRestoreErrorAlertDetails;
+          props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
+            deviceType: 'primary',
+            errorDetails: messageForException,
+          });
+          return;
         }
         Alert.alert(
           alertDetails.title,
