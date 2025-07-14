@@ -20,6 +20,7 @@ export interface Spec extends TurboModule {
     notifOneTimeKeys: $ReadOnlyArray<string>,
     farcasterID: string,
     initialDeviceList: string,
+    farcasterDCsToken: string,
   ) => Promise<string>;
   +registerReservedPasswordUser: (
     username: string,
@@ -61,6 +62,7 @@ export interface Spec extends TurboModule {
     notifOneTimeKeys: $ReadOnlyArray<string>,
     farcasterID: string,
     initialDeviceList: string,
+    farcasterDCsToken: string,
   ) => Promise<string>;
   +logInWalletUser: (
     siweMessage: string,
