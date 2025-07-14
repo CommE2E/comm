@@ -1,0 +1,173 @@
+// @flow
+
+import * as React from 'react';
+import { Text, View } from 'react-native';
+
+import {
+  markBackupAsRestoredActionType,
+  resetBackupRestoreStateActionType,
+} from 'lib/actions/backup-actions.js';
+import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
+
+import AuthButtonContainer from './auth-components/auth-button-container.react.js';
+import AuthContainer from './auth-components/auth-container.react.js';
+import AuthContentContainer from './auth-components/auth-content-container.react.js';
+import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
+import PrimaryButton from '../components/primary-button.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import { backupIsNewerThanAppAlertDetails } from '../utils/alert-messages.js';
+import Alert from '../utils/alert.js';
+
+type Props = {
+  +navigation: AuthNavigationProp<'RestoreBackupErrorScreen'>,
+  +route: NavigationRoute<'RestoreBackupErrorScreen'>,
+};
+
+export type RestoreBackupErrorScreenParams = {
+  +deviceType: 'primary' | 'secondary',
+  +errorDetails?: ?string,
+};
+
+function RestoreBackupErrorScreen(props: Props): React.Node {
+  const styles = useStyles(unboundStyles);
+  const { deviceType, errorDetails: errorDetailsProp } = props.route.params;
+
+  const storedError = useSelector(state =>
+    state.restoreBackupState.status === 'user_data_restore_failed'
+      ? state.restoreBackupState.payload.error
+      : null,
+  );
+  const errorDetails = React.useMemo(() => {
+    if (errorDetailsProp) {
+      return errorDetailsProp;
+    } else if (storedError) {
+      const messageForException = getMessageForException(storedError);
+      return messageForException ?? 'unknown_error';
+    }
+
+    console.warn('Restore error screen shown but no error details provided');
+    return 'unknown_error';
+  }, [errorDetailsProp, storedError]);
+
+  const dispatch = useDispatch();
+  const ignoreErrorAndLogIn = React.useCallback(() => {
+    dispatch({
+      type: markBackupAsRestoredActionType,
+    });
+  }, [dispatch]);
+  const onPressIgnore = React.useCallback(() => {
+    Alert.alert(
+      'Continue without full restoration?',
+      'Some of your data could not be restored from backup. You can still use the app, but recent messages and settings may be missing.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Continue',
+          onPress: ignoreErrorAndLogIn,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [ignoreErrorAndLogIn]);
+
+  const onPressTryAgain = React.useCallback(() => {
+    dispatch({
+      type: resetBackupRestoreStateActionType,
+    });
+
+    props.navigation.popToTop();
+  }, [props.navigation, dispatch]);
+
+  let fullMessage;
+  if (errorDetails === 'backup_is_newer') {
+    fullMessage = backupIsNewerThanAppAlertDetails.message;
+  } else {
+    fullMessage = 'Failed to restore your data from backup. ';
+  }
+
+  let secondaryDeviceWarning;
+  if (deviceType === 'secondary') {
+    secondaryDeviceWarning = (
+      <Text style={styles.section}>
+        Since your backup appears to be corrupt, you may lose data if you log
+        out of your primary device at this time.
+      </Text>
+    );
+  }
+  return (
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
+        <Text style={styles.header}>Restoration failed</Text>
+        <Text style={styles.section}>{fullMessage}</Text>
+        {secondaryDeviceWarning}
+        <View style={styles.errorDetailsContainer}>
+          <Text style={styles.errorDetailsHeader}>Error message:</Text>
+          <Text style={styles.errorDetails}>{errorDetails}</Text>
+        </View>
+        <Text style={styles.section}>
+          You can try restoring again, or continue using the app without your
+          complete data.
+        </Text>
+        <Text style={styles.section}>
+          For help recovering your data, email support@comm.app or message
+          Ashoat on the app.
+        </Text>
+      </AuthContentContainer>
+      <AuthButtonContainer>
+        <PrimaryButton
+          onPress={onPressTryAgain}
+          label="Try again"
+          variant="enabled"
+        />
+        <PrimaryButton
+          onPress={onPressIgnore}
+          label="Continue without restoring"
+          variant="outline"
+        />
+      </AuthButtonContainer>
+    </AuthContainer>
+  );
+}
+
+const unboundStyles = {
+  header: {
+    fontSize: 24,
+    color: 'panelForegroundLabel',
+    paddingBottom: 16,
+  },
+  section: {
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+    paddingBottom: 16,
+  },
+  errorDetailsContainer: {
+    backgroundColor: 'codeBackground',
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 8,
+  },
+  errorDetailsHeader: {
+    fontFamily: 'Arial',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'panelForegroundLabel',
+    marginBottom: 8,
+  },
+  errorDetails: {
+    fontFamily: 'Menlo',
+    fontSize: 12,
+    color: 'panelForegroundSecondaryLabel',
+    lineHeight: 16,
+  },
+  scrollViewContentContainer: {
+    flexGrow: 1,
+  },
+};
+
+export default RestoreBackupErrorScreen;
