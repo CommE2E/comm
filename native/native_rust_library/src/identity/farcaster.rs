@@ -6,7 +6,8 @@ use crate::{
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
-  protos::auth::LinkFarcasterAccountRequest, protos::unauth::Empty,
+  protos::auth::LinkFarcasterAccountRequest,
+  protos::auth::LinkFarcasterDCsAccountRequest, protos::unauth::Empty,
   protos::unauth::GetFarcasterUsersRequest,
 };
 use serde::Serialize;
@@ -46,6 +47,27 @@ pub mod ffi {
         device_id,
         access_token,
         farcaster_id,
+      )
+      .await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn link_farcaster_dcs_account(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    farcaster_id: String,
+    farcaster_dcs_token: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let result = link_farcaster_dcs_account_helper(
+        user_id,
+        device_id,
+        access_token,
+        farcaster_id,
+        farcaster_dcs_token,
       )
       .await;
       handle_void_result_as_callback(result, promise_id);
@@ -121,6 +143,34 @@ async fn link_farcaster_account_helper(
 
   identity_client
     .link_farcaster_account(link_farcaster_account_request)
+    .await?;
+
+  Ok(())
+}
+
+async fn link_farcaster_dcs_account_helper(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  farcaster_id: String,
+  farcaster_dcs_token: String,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    user_id,
+    device_id,
+    access_token,
+    PLATFORM_METADATA.clone(),
+  )
+  .await?;
+
+  let link_farcaster_dcs_account_request = LinkFarcasterDCsAccountRequest {
+    farcaster_id,
+    farcaster_dcs_token,
+  };
+
+  identity_client
+    .link_farcaster_d_cs_account(link_farcaster_dcs_account_request)
     .await?;
 
   Ok(())

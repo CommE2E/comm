@@ -341,6 +341,16 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityLinkFarcasterDCsAccount"]
+    fn link_farcaster_dcs_account(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      farcaster_id: String,
+      farcaster_dcs_token: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityUnlinkFarcasterAccount"]
     fn unlink_farcaster_account(
       user_id: String,

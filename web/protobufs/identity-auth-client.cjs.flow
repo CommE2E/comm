@@ -158,6 +158,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
+  linkFarcasterDCsAccount(
+    request: identityAuthStructs.LinkFarcasterDCsAccountRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
   findUserIdentities(
     request: identityAuthStructs.UserIdentitiesRequest,
     metadata: grpcWeb.Metadata | void,
@@ -280,6 +287,11 @@ declare export class IdentityClientServicePromiseClient {
 
   unlinkFarcasterAccount(
     request: identityStructs.Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  linkFarcasterDCsAccount(
+    request: identityAuthStructs.LinkFarcasterDCsAccountRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
