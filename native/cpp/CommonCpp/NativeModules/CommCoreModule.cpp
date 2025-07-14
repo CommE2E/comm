@@ -3154,6 +3154,43 @@ jsi::Value CommCoreModule::getHolders(jsi::Runtime &rt, jsi::String dbID) {
       });
 }
 
+jsi::Value CommCoreModule::getAuxUserInfos(jsi::Runtime &rt, jsi::String dbID) {
+  DatabaseIdentifier identifier = stringToDatabaseIdentifier(dbID.utf8(rt));
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<AuxUserInfo> auxUserInfosVector;
+          try {
+            auxUserInfosVector = DatabaseManager::getQueryExecutor(identifier)
+                                     .getAllAuxUserInfos();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          auto auxUserInfosVectorPtr =
+              std::make_shared<std::vector<AuxUserInfo>>(
+                  std::move(auxUserInfosVector));
+
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         promise,
+                                         auxUserInfosVectorPtr,
+                                         auxUserStore = this->auxUserStore]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            jsi::Array jsiAuxUserInfos =
+                auxUserStore.parseDBDataStore(innerRt, auxUserInfosVectorPtr);
+            promise->resolve(std::move(jsiAuxUserInfos));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
