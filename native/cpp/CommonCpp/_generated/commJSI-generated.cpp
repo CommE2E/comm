@@ -244,6 +244,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getHolders(jsi::
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeLocalMessageInfos(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeLocalMessageInfos(rt, args[0].asBool(), args[1].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAuxUserInfos(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getAuxUserInfos(rt, args[0].asString(rt));
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -322,6 +325,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["copyContentFromBackupDatabase"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_copyContentFromBackupDatabase};
   methodMap_["getHolders"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getHolders};
   methodMap_["removeLocalMessageInfos"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeLocalMessageInfos};
+  methodMap_["getAuxUserInfos"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAuxUserInfos};
 }
 
 

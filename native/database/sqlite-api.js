@@ -33,6 +33,10 @@ const sqliteAPI: SQLiteAPI = {
     const dbHolders = await commCoreModule.getHolders(dbID);
     return holderStoreOpsHandlers.translateClientDBData(dbHolders);
   },
+  async getAuxUserIDs(dbID: DatabaseIdentifier): Promise<Array<string>> {
+    const auxUserInfos = await commCoreModule.getAuxUserInfos(dbID);
+    return auxUserInfos.map(auxUserInfo => auxUserInfo.id);
+  },
 
   // write operations
   removeInboundP2PMessages: commCoreModule.removeInboundP2PMessages,
