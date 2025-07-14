@@ -60,10 +60,13 @@ async function parseTunnelbrokerQRAuthMessage(
   return payload;
 }
 
-function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
+function useHandleSecondaryDeviceLogInError(): (
+  error: mixed,
+  isUserDataRestoreError?: boolean,
+) => void {
   const { pushModal } = useModalContext();
   return React.useCallback(
-    (error: mixed) => {
+    (error: mixed, isUserDataRestoreError?: boolean) => {
       console.error('Secondary device log in error:', error);
       const messageForException = getMessageForException(error);
       if (
@@ -81,6 +84,9 @@ function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
       } else if (error instanceof BackupIsNewerError) {
         const message = getBackupIsNewerThanAppError();
         pushModal(<Alert title="App out of date">{message}</Alert>);
+      } else if (isUserDataRestoreError) {
+        // This is handled directly by the RestorationError component
+        return;
       } else {
         pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
       }
