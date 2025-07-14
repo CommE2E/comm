@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBAuxUserInfo } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
@@ -167,6 +168,17 @@ const sqliteAPI: SQLiteAPI = {
     });
     const dbHolders: $ReadOnlyArray<ClientDBHolderItem> = data?.holders ?? [];
     return holderStoreOpsHandlers.translateClientDBData(dbHolders);
+  },
+
+  async getAuxUserIDs(dbID: DatabaseIdentifier): Promise<Array<string>> {
+    const sharedWorker = await getCommSharedWorker();
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_AUX_USER_INFOS,
+      dbID,
+    });
+    const dbAuxUserInfos: $ReadOnlyArray<ClientDBAuxUserInfo> =
+      data?.auxUserInfos ?? [];
+    return dbAuxUserInfos.map(item => item.id);
   },
 
   // write operations
