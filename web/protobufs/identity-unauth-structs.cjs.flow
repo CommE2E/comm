@@ -124,6 +124,11 @@ declare export class RegistrationStartRequest extends Message {
   getInitialDeviceList(): string;
   setInitialDeviceList(value: string): RegistrationStartRequest;
 
+  getFarcasterDcsToken(): string;
+  setFarcasterDcsToken(value: string): RegistrationStartRequest;
+  hasFarcasterDcsToken(): boolean;
+  clearFarcasterDcsToken(): RegistrationStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationStartRequestObject;
   static toObject(includeInstance: boolean, msg: RegistrationStartRequest): RegistrationStartRequestObject;
@@ -138,6 +143,7 @@ export type RegistrationStartRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
   farcasterId?: string,
   initialDeviceList: string,
+  farcasterDcsToken?: string,
 };
 
 declare export class ReservedRegistrationStartRequest extends Message {
@@ -346,6 +352,11 @@ declare export class WalletAuthRequest extends Message {
   getInitialDeviceList(): string;
   setInitialDeviceList(value: string): WalletAuthRequest;
 
+  getFarcasterDcsToken(): string;
+  setFarcasterDcsToken(value: string): WalletAuthRequest;
+  hasFarcasterDcsToken(): boolean;
+  clearFarcasterDcsToken(): WalletAuthRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WalletAuthRequestObject;
   static toObject(includeInstance: boolean, msg: WalletAuthRequest): WalletAuthRequestObject;
@@ -360,6 +371,7 @@ export type WalletAuthRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
   farcasterId?: string,
   initialDeviceList: string,
+  farcasterDcsToken?: string,
 };
 
 declare export class RestoreUserRequest extends Message {
