@@ -48,6 +48,7 @@ use crate::constants::{
   RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX,
   RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
+  USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME,
   USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
   USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME,
@@ -168,6 +169,7 @@ impl DatabaseClient {
         None,
         registration_state.user_id,
         registration_state.farcaster_id,
+        registration_state.farcaster_dcs_token,
       )
       .await?;
 
@@ -218,6 +220,7 @@ impl DatabaseClient {
     platform_metadata: PlatformMetadata,
     access_token_creation_time: DateTime<Utc>,
     farcaster_id: Option<String>,
+    farcaster_dcs_token: Option<String>,
     initial_device_list: Option<SignedDeviceList>,
   ) -> Result<String, Error> {
     let wallet_identity = EthereumIdentity {
@@ -230,6 +233,7 @@ impl DatabaseClient {
         Some(wallet_identity),
         user_id,
         farcaster_id,
+        farcaster_dcs_token,
       )
       .await?;
 
@@ -276,6 +280,7 @@ impl DatabaseClient {
     wallet_identity: Option<EthereumIdentity>,
     user_id: Option<String>,
     farcaster_id: Option<String>,
+    farcaster_dcs_token: Option<String>,
   ) -> Result<String, Error> {
     let user_id = user_id.unwrap_or_else(generate_uuid);
     let mut user = HashMap::from([(
@@ -314,6 +319,13 @@ impl DatabaseClient {
       user.insert(
         USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(fid),
+      );
+    }
+
+    if let Some(token) = farcaster_dcs_token {
+      user.insert(
+        USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(token),
       );
     }
 

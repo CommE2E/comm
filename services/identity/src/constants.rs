@@ -18,6 +18,8 @@ pub const USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME: &str = "socialProof";
 pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
   "deviceListTimestamp";
 pub const USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME: &str = "farcasterID";
+pub const USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME: &str =
+  "farcasterDCsToken";
 pub const USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME: &str = "usernameLower";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
@@ -205,6 +207,7 @@ pub mod tonic_status_messages {
   pub const NONCE_EXPIRED: &str = "nonce_expired";
   pub const FID_TAKEN: &str = "fid_taken";
   pub const CANNOT_LINK_FID: &str = "cannot_link_fid";
+  pub const CANNOT_LINK_FARCASTER_DCS: &str = "cannot_link_farcaster_dcs";
   pub const INVALID_PLATFORM_METADATA: &str = "invalid_platform_metadata";
   pub const MISSING_CREDENTIALS: &str = "missing_credentials";
   pub const BAD_CREDENTIALS: &str = "bad_credentials";
