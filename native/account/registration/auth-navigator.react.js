@@ -57,9 +57,11 @@ import {
   RestorePromptScreenRouteName,
   RestorePasswordAccountScreenRouteName,
   RestoreBackupScreenRouteName,
+  RestoreBackupErrorScreenRouteName,
   RestoreSIWEBackupRouteName,
 } from '../../navigation/route-names.js';
 import QRCodeScreen from '../qr-code-screen.react.js';
+import RestoreBackupErrorScreen from '../restore-backup-error-screen.react.js';
 import RestoreBackupScreen from '../restore-backup-screen.react.js';
 import RestorePasswordAccountScreen from '../restore-password-account-screen.react.js';
 import RestorePromptScreen from '../restore-prompt-screen.react.js';
@@ -221,6 +223,11 @@ function AuthComponent(props: Props): React.Node {
       <Auth.Screen
         name={RestoreBackupScreenRouteName}
         component={RestoreBackupScreen}
+        options={disableGesturesScreenOptions}
+      />
+      <Auth.Screen
+        name={RestoreBackupErrorScreenRouteName}
+        component={RestoreBackupErrorScreen}
         options={disableGesturesScreenOptions}
       />
       <Auth.Screen
