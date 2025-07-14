@@ -77,6 +77,7 @@ pub struct UserRegistrationInfo {
   pub user_id: Option<String>,
   pub farcaster_id: Option<String>,
   pub initial_device_list: Option<SignedDeviceList>,
+  pub farcaster_dcs_token: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -157,6 +158,7 @@ impl IdentityClientService for ClientService {
       None,
       message.username.clone(),
       message.farcaster_id.clone(),
+      message.farcaster_dcs_token.clone(),
     )?;
     self
       .check_device_id_taken(
@@ -214,6 +216,7 @@ impl IdentityClientService for ClientService {
       &message,
       Some(user_id),
       original_username,
+      None,
       None,
     )?;
     self
@@ -603,6 +606,7 @@ impl IdentityClientService for ClientService {
           platform_metadata,
           login_time,
           message.farcaster_id,
+          message.farcaster_dcs_token,
           None,
         )
         .await?;
@@ -688,6 +692,7 @@ impl IdentityClientService for ClientService {
         platform_metadata,
         login_time,
         message.farcaster_id,
+        message.farcaster_dcs_token,
         initial_device_list,
       )
       .await?;
@@ -1439,6 +1444,7 @@ fn construct_user_registration_info(
   user_id: Option<String>,
   username: String,
   farcaster_id: Option<String>,
+  farcaster_dcs_token: Option<String>,
 ) -> Result<UserRegistrationInfo, tonic::Status> {
   Ok(UserRegistrationInfo {
     username,
@@ -1448,6 +1454,7 @@ fn construct_user_registration_info(
     user_id,
     farcaster_id,
     initial_device_list: message.get_and_verify_initial_device_list()?,
+    farcaster_dcs_token,
   })
 }
 

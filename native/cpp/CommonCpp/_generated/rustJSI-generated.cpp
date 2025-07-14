@@ -16,7 +16,7 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_generateNonce(js
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->generateNonce(rt);
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerPasswordUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->registerPasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt), args[11].asString(rt));
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->registerPasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt), args[11].asString(rt), args[12].asString(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerReservedPasswordUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->registerReservedPasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt), args[11].asString(rt), args[12].asString(rt));
@@ -25,7 +25,7 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInPasswordUse
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logInPasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerWalletUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->registerWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt), args[11].asString(rt));
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->registerWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt), args[11].asString(rt), args[12].asString(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInWalletUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logInWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt));
@@ -103,10 +103,10 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIdentiti
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
   methodMap_["generateNonce"] = MethodMetadata {0, __hostFunction_CommRustModuleSchemaCxxSpecJSI_generateNonce};
-  methodMap_["registerPasswordUser"] = MethodMetadata {12, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerPasswordUser};
+  methodMap_["registerPasswordUser"] = MethodMetadata {13, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerPasswordUser};
   methodMap_["registerReservedPasswordUser"] = MethodMetadata {13, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerReservedPasswordUser};
   methodMap_["logInPasswordUser"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInPasswordUser};
-  methodMap_["registerWalletUser"] = MethodMetadata {12, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerWalletUser};
+  methodMap_["registerWalletUser"] = MethodMetadata {13, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerWalletUser};
   methodMap_["logInWalletUser"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInWalletUser};
   methodMap_["updatePassword"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword};
   methodMap_["deletePasswordUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_deletePasswordUser};
