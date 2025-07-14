@@ -233,6 +233,7 @@ function useRestore(): (
             backupIsNewerThanAppAlertDetails.message,
           );
         }
+        throw error;
       }
     },
     [addLog, userDataRestore],
