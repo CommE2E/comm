@@ -3,7 +3,7 @@
 import type { RouteProp } from '@react-navigation/core';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
-import type { InviteLinkModalParams } from './invite-link-modal.react';
+import type { InviteLinkModalParams } from './invite-link-modal.react.js';
 import type { NUXTipsOverlayBackdropParams } from './nux-tip-overlay-backdrop.react.js';
 import type { ConnectSecondaryDeviceParams } from '../account/qr-auth/connect-secondary-device.react.js';
 import type { AvatarSelectionParams } from '../account/registration/avatar-selection.react.js';
@@ -16,7 +16,8 @@ import type { PasswordSelectionParams } from '../account/registration/password-s
 import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
 import type { CreateSIWEBackupMessageParams } from '../account/registration/siwe-backup-message-creation.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
-import type { RestoreBackupScreenParams } from '../account/restore-backup-screen.react';
+import type { RestoreBackupErrorScreenParams } from '../account/restore-backup-error-screen.react.js';
+import type { RestoreBackupScreenParams } from '../account/restore-backup-screen.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { RestoreSIWEBackupParams } from '../backup/restore-siwe-backup.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -159,6 +160,7 @@ export const RestorePromptScreenRouteName = 'RestorePromptScreen';
 export const RestorePasswordAccountScreenRouteName =
   'RestorePasswordAccountScreen';
 export const RestoreBackupScreenRouteName = 'RestoreBackupScreen';
+export const RestoreBackupErrorScreenRouteName = 'RestoreBackupErrorScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
@@ -337,6 +339,7 @@ export type AuthParamList = {
   +RestorePromptScreen: void,
   +RestorePasswordAccountScreen: void,
   +RestoreBackupScreen: RestoreBackupScreenParams,
+  +RestoreBackupErrorScreen: RestoreBackupErrorScreenParams,
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
