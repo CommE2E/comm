@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
+import type { ClientDBAuxUserInfo } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
@@ -241,6 +242,9 @@ interface Spec extends TurboModule {
   +migrateBackupSchema: () => Promise<void>;
   +copyContentFromBackupDatabase: () => Promise<void>;
   +getHolders: (dbID: string) => Promise<$ReadOnlyArray<ClientDBHolderItem>>;
+  +getAuxUserInfos: (
+    dbID: string,
+  ) => Promise<$ReadOnlyArray<ClientDBAuxUserInfo>>;
 }
 
 export interface CoreModuleSpec extends Spec {

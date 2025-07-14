@@ -94,6 +94,7 @@ public:
   virtual jsi::Value migrateBackupSchema(jsi::Runtime &rt) = 0;
   virtual jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) = 0;
   virtual jsi::Value getHolders(jsi::Runtime &rt, jsi::String dbID) = 0;
+  virtual jsi::Value getAuxUserInfos(jsi::Runtime &rt, jsi::String dbID) = 0;
 
 };
 
@@ -706,6 +707,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getHolders, jsInvoker_, instance_, std::move(dbID));
+    }
+    jsi::Value getAuxUserInfos(jsi::Runtime &rt, jsi::String dbID) override {
+      static_assert(
+          bridging::getParameterCount(&T::getAuxUserInfos) == 2,
+          "Expected getAuxUserInfos(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getAuxUserInfos, jsInvoker_, instance_, std::move(dbID));
     }
 
   private:

@@ -470,6 +470,22 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_HOLDERS,
       holders: sqliteQueryExecutor.getHolders(),
     };
+  } else if (message.type === workerRequestMessageTypes.GET_AUX_USER_INFOS) {
+    if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
+        databaseIdentifier.RESTORED,
+        message,
+      );
+      return {
+        type: workerResponseMessageTypes.GET_AUX_USER_INFOS,
+        auxUserInfos: restoredQueryExecutor.getAllAuxUserInfos(),
+      };
+    }
+
+    return {
+      type: workerResponseMessageTypes.GET_AUX_USER_INFOS,
+      auxUserInfos: sqliteQueryExecutor.getAllAuxUserInfos(),
+    };
   }
 
   // write operations
