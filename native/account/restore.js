@@ -32,8 +32,6 @@ import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import { rawGetDeviceListsForUsers } from '../identity-service/identity-service-context-provider.react.js';
 import { commCoreModule } from '../native-modules.js';
-import { backupIsNewerThanAppAlertDetails } from '../utils/alert-messages.js';
-import Alert from '../utils/alert.js';
 
 function useRestoreProtocol(): (
   // username or wallet address
@@ -224,12 +222,7 @@ function useRestore(): (
           messageForException ?? 'unknown error',
           new Set([logTypes.ERROR, logTypes.BACKUP]),
         );
-        if (messageForException === 'backup_is_newer') {
-          Alert.alert(
-            backupIsNewerThanAppAlertDetails.title,
-            backupIsNewerThanAppAlertDetails.message,
-          );
-        }
+        throw error;
       }
     },
     [addLog, userDataRestore],
