@@ -188,6 +188,13 @@ export interface Spec extends TurboModule {
     accessToken: string,
     farcasterID: string,
   ) => Promise<void>;
+  +linkFarcasterDCsAccount: (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+    farcasterID: string,
+    farcasterDCsToken: string,
+  ) => Promise<void>;
   +unlinkFarcasterAccount: (
     userID: string,
     deviceID: string,

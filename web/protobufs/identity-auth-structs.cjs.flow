@@ -693,6 +693,26 @@ export type LinkFarcasterAccountRequestObject = {
   farcasterId: string,
 }
 
+declare export class LinkFarcasterDCsAccountRequest extends Message {
+  getFarcasterDcsToken(): string;
+  setFarcasterDcsToken(value: string): LinkFarcasterDCsAccountRequest;
+
+  getFarcasterId(): string;
+  setFarcasterId(value: string): LinkFarcasterDCsAccountRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkFarcasterDCsAccountRequestObject;
+  static toObject(includeInstance: boolean, msg: LinkFarcasterDCsAccountRequest): LinkFarcasterDCsAccountRequestObject;
+  static serializeBinaryToWriter(message: LinkFarcasterDCsAccountRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkFarcasterDCsAccountRequest;
+  static deserializeBinaryFromReader(message: LinkFarcasterDCsAccountRequest, reader: BinaryReader): LinkFarcasterDCsAccountRequest;
+}
+
+export type LinkFarcasterDCsAccountRequestObject = {
+  farcasterDcsToken: string,
+  farcasterId: string,
+}
+
 declare export class UserIdentitiesRequest extends Message {
   getUserIdsList(): Array<string>;
   setUserIdsList(value: Array<string>): UserIdentitiesRequest;
