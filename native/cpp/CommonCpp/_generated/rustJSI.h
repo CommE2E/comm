@@ -47,6 +47,7 @@ public:
   virtual jsi::Value findUserIDForUsername(jsi::Runtime &rt, jsi::String username) = 0;
   virtual jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) = 0;
   virtual jsi::Value linkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID) = 0;
+  virtual jsi::Value linkFarcasterDCsAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID, jsi::String farcasterDCsToken) = 0;
   virtual jsi::Value unlinkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value findUserIdentities(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array userIDs) = 0;
 
@@ -285,6 +286,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::linkFarcasterAccount, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(farcasterID));
+    }
+    jsi::Value linkFarcasterDCsAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID, jsi::String farcasterDCsToken) override {
+      static_assert(
+          bridging::getParameterCount(&T::linkFarcasterDCsAccount) == 6,
+          "Expected linkFarcasterDCsAccount(...) to have 6 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::linkFarcasterDCsAccount, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(farcasterID), std::move(farcasterDCsToken));
     }
     jsi::Value unlinkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
       static_assert(

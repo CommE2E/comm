@@ -768,6 +768,26 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           'linkFarcasterAccount',
         );
       },
+      linkFarcasterDCsAccount: async (
+        farcasterID: string,
+        farcasterDCsToken: string,
+      ) => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        return authVerifiedEndpoint(
+          commRustModule.linkFarcasterDCsAccount(
+            userID,
+            deviceID,
+            token,
+            farcasterID,
+            farcasterDCsToken,
+          ),
+          'linkFarcasterDCsAccount',
+        );
+      },
       unlinkFarcasterAccount: async () => {
         const {
           deviceID,
