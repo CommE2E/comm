@@ -97,6 +97,10 @@ service IdentityClientService {
   // Called by an existing user to unlink their Farcaster account
   rpc UnlinkFarcasterAccount(identity.unauth.Empty) returns
     (identity.unauth.Empty) {}
+  // Called by an existing user with a linked Farcaster account to link
+  // their DCs
+  rpc LinkFarcasterDCsAccount(LinkFarcasterDCsAccountRequest) returns
+    (identity.unauth.Empty) {}
 
   /* Miscellaneous actions */
 
@@ -360,6 +364,11 @@ message UpdateDeviceListRequest {
 
 message LinkFarcasterAccountRequest {
   string farcaster_id = 1;
+}
+
+message LinkFarcasterDCsAccountRequest {
+  string farcaster_dcs_token = 1;
+  string farcaster_id = 2;
 }
 
 // FindUserIdentities

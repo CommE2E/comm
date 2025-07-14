@@ -26,11 +26,11 @@ use super::protos::auth::{
   DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
   DeletePasswordUserStartResponse, GetDeviceListRequest, GetDeviceListResponse,
   InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
-  KeyserverKeysResponse, LinkFarcasterAccountRequest, OutboundKeyInfo,
-  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  PeersDeviceListsRequest, PeersDeviceListsResponse,
-  PrimaryDeviceLogoutRequest, PrivilegedDeleteUsersRequest,
-  PrivilegedResetUserPasswordFinishRequest,
+  KeyserverKeysResponse, LinkFarcasterAccountRequest,
+  LinkFarcasterDCsAccountRequest, OutboundKeyInfo, OutboundKeysForUserRequest,
+  OutboundKeysForUserResponse, PeersDeviceListsRequest,
+  PeersDeviceListsResponse, PrimaryDeviceLogoutRequest,
+  PrivilegedDeleteUsersRequest, PrivilegedResetUserPasswordFinishRequest,
   PrivilegedResetUserPasswordStartRequest,
   PrivilegedResetUserPasswordStartResponse, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
@@ -1097,7 +1097,7 @@ impl IdentityClientService for AuthenticatedService {
       .await?;
 
     if get_farcaster_users_response.len() > 1 {
-      error!(
+      warn!(
         errorType = error_types::GRPC_SERVICES_LOG,
         "multiple users associated with the same Farcaster ID"
       );
@@ -1125,6 +1125,46 @@ impl IdentityClientService for AuthenticatedService {
   }
 
   #[tracing::instrument(skip_all)]
+  async fn link_farcaster_d_cs_account(
+    &self,
+    request: tonic::Request<LinkFarcasterDCsAccountRequest>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    info!(
+      user_id = redact_sensitive_data(&user_id),
+      "Attempting to link Farcaster DCs account"
+    );
+
+    let fid_count = self
+      .db_client
+      .get_farcaster_users(vec![message.farcaster_id.clone()])
+      .await?
+      .len();
+
+    if fid_count != 1 {
+      warn!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        fid = redact_sensitive_data(&message.farcaster_id),
+        count = fid_count,
+        "Farcaster ID missing or non-unique"
+      );
+      return Err(Status::failed_precondition(
+        tonic_status_messages::CANNOT_LINK_FARCASTER_DCS,
+      ));
+    }
+
+    self
+      .db_client
+      .add_farcaster_dcs_token(user_id, message.farcaster_dcs_token)
+      .await?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
+
+  #[tracing::instrument(skip_all)]
   async fn unlink_farcaster_account(
     &self,
     request: tonic::Request<Empty>,
@@ -1136,7 +1176,7 @@ impl IdentityClientService for AuthenticatedService {
       "Attempting to unlink Farcaster account."
     );
 
-    self.db_client.remove_farcaster_id(user_id).await?;
+    self.db_client.unlink_farcaster(user_id).await?;
 
     let response = Empty {};
     Ok(Response::new(response))
