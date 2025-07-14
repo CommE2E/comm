@@ -414,6 +414,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         username: string,
         password: string,
         fid: ?string,
+        farcasterDCsToken: ?string,
       ) => {
         const { olmAPI } = getConfig();
         await olmAPI.initializeCryptoAccount();
@@ -442,6 +443,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
           JSON.stringify(initialDeviceList),
+          farcasterDCsToken ?? '',
         );
 
         return await processAuthResult(
@@ -526,6 +528,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         siweMessage: string,
         siweSignature: string,
         fid: ?string,
+        farcasterDCsToken: ?string,
       ) => {
         const { olmAPI } = getConfig();
         await olmAPI.initializeCryptoAccount();
@@ -554,6 +557,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
           JSON.stringify(initialDeviceList),
+          farcasterDCsToken ?? '',
         );
 
         return await processAuthResult(

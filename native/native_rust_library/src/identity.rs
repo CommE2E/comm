@@ -120,6 +120,7 @@ pub struct RegisterPasswordUserInfo {
   pub device_keys: DeviceKeys,
   pub farcaster_id: Option<String>,
   pub initial_device_list: String,
+  pub farcaster_dcs_token: Option<String>,
 }
 
 pub struct RegisterReservedPasswordUserInfo {
@@ -143,6 +144,7 @@ pub struct RegisterWalletUserInfo {
   pub device_keys: DeviceKeys,
   pub farcaster_id: Option<String>,
   pub initial_device_list: String,
+  pub farcaster_dcs_token: Option<String>,
 }
 
 pub struct RestoreUserInfo {
