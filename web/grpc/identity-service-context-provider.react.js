@@ -159,6 +159,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       syncPlatformDetails: proxyMethodToWorker('syncPlatformDetails'),
       getFarcasterUsers: proxyMethodToWorker('getFarcasterUsers'),
       linkFarcasterAccount: proxyMethodToWorker('linkFarcasterAccount'),
+      linkFarcasterDCsAccount: proxyMethodToWorker('linkFarcasterDCsAccount'),
       unlinkFarcasterAccount: proxyMethodToWorker('unlinkFarcasterAccount'),
       findUserIdentities: proxyMethodToWorker('findUserIdentities'),
       versionSupported: proxyMethodToWorker('versionSupported'),
