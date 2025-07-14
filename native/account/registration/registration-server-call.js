@@ -92,6 +92,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       accountSelection: UsernameAccountSelection,
       farcasterID: ?string,
       onAlertAcknowledged: ?() => mixed,
+      farcasterDCsToken: ?string,
     ) => {
       const identityRegisterPromise = (async () => {
         try {
@@ -99,6 +100,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             accountSelection.username,
             accountSelection.password,
             farcasterID,
+            farcasterDCsToken,
           );
         } catch (e) {
           const messageForException = getMessageForException(e);

@@ -13,7 +13,7 @@ use grpc_clients::identity::{
 use tracing::instrument;
 
 use super::{
-  farcaster::farcaster_id_string_to_option, IdentityAuthResult,
+  farcaster::possibly_empty_string_to_option, IdentityAuthResult,
   RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
   RegisterWalletUserInfo, PLATFORM_METADATA,
 };
@@ -42,6 +42,7 @@ pub mod ffi {
     farcaster_id: String,
     initial_device_list: String,
     promise_id: u32,
+    farcaster_dcs_token: String,
   ) {
     RUNTIME.spawn(async move {
       let password_user_info = RegisterPasswordUserInfo {
@@ -57,8 +58,11 @@ pub mod ffi {
           content_one_time_keys,
           notif_one_time_keys,
         },
-        farcaster_id: farcaster_id_string_to_option(&farcaster_id),
+        farcaster_id: possibly_empty_string_to_option(&farcaster_id),
         initial_device_list,
+        farcaster_dcs_token: possibly_empty_string_to_option(
+          &farcaster_dcs_token,
+        ),
       };
       let result = register_password_user_helper(password_user_info).await;
       handle_string_result_as_callback(result, promise_id);
@@ -121,6 +125,7 @@ pub mod ffi {
     farcaster_id: String,
     initial_device_list: String,
     promise_id: u32,
+    farcaster_dcs_token: String,
   ) {
     RUNTIME.spawn(async move {
       let wallet_user_info = RegisterWalletUserInfo {
@@ -136,8 +141,11 @@ pub mod ffi {
           content_one_time_keys,
           notif_one_time_keys,
         },
-        farcaster_id: farcaster_id_string_to_option(&farcaster_id),
+        farcaster_id: possibly_empty_string_to_option(&farcaster_id),
         initial_device_list,
+        farcaster_dcs_token: possibly_empty_string_to_option(
+          &farcaster_dcs_token,
+        ),
       };
       let result = register_wallet_user_helper(wallet_user_info).await;
       handle_string_result_as_callback(result, promise_id);
@@ -158,6 +166,7 @@ async fn register_password_user_helper(
     device_key_upload: Some(password_user_info.device_keys.into()),
     farcaster_id: password_user_info.farcaster_id,
     initial_device_list: password_user_info.initial_device_list,
+    farcaster_dcs_token: password_user_info.farcaster_dcs_token,
   };
 
   let mut identity_client =
@@ -243,6 +252,7 @@ async fn register_wallet_user_helper(
     device_key_upload: Some(wallet_user_info.device_keys.into()),
     farcaster_id: wallet_user_info.farcaster_id,
     initial_device_list: wallet_user_info.initial_device_list,
+    farcaster_dcs_token: wallet_user_info.farcaster_dcs_token,
   };
 
   let mut identity_client =

@@ -93,6 +93,7 @@ pub async fn register_user_device_with_device_list(
     }),
     farcaster_id: None,
     initial_device_list: initial_device_list.unwrap_or_default(),
+    farcaster_dcs_token: None,
   };
 
   let mut identity_client = get_unauthenticated_client(
