@@ -261,6 +261,7 @@ async fn log_in_wallet_user_helper(
     device_key_upload: Some(wallet_user_info.device_keys.into()),
     farcaster_id: None,
     initial_device_list: "".to_string(),
+    farcaster_dcs_token: None,
   };
 
   let mut identity_client =

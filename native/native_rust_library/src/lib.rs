@@ -61,6 +61,7 @@ mod ffi {
       farcaster_id: String,
       initial_device_list: String,
       promise_id: u32,
+      farcaster_dcs_token: String,
     );
 
     #[cxx_name = "identityRegisterReservedPasswordUser"]
@@ -111,6 +112,7 @@ mod ffi {
       farcaster_id: String,
       initial_device_list: String,
       promise_id: u32,
+      farcaster_dcs_token: String,
     );
 
     #[cxx_name = "identityLogInWalletUser"]

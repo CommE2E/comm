@@ -133,6 +133,7 @@ message RegistrationStartRequest {
   // }
   // It's an empty string for older clients which don't sign device lists yet.
   string initial_device_list = 5;
+  optional string farcaster_dcs_token = 6;
 }
 
 message ReservedRegistrationStartRequest {
@@ -231,6 +232,7 @@ message WalletAuthRequest {
   // It's an empty string when used outside `RegisterWalletUser` RPC
   // and for older clients which don't sign device lists yet.
   string initial_device_list = 5;
+  optional string farcaster_dcs_token = 6;
 }
 
 // Primary backup restore

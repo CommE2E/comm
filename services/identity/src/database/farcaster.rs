@@ -9,6 +9,7 @@ use tracing::error;
 
 use crate::constants::error_types;
 use crate::constants::USERS_TABLE;
+use crate::constants::USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME;
 use crate::constants::USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME;
 use crate::constants::USERS_TABLE_FARCASTER_ID_INDEX;
 use crate::constants::USERS_TABLE_PARTITION_KEY;
@@ -68,8 +69,9 @@ impl DatabaseClient {
     farcaster_id: String,
   ) -> Result<(), Error> {
     let update_expression = format!(
-      "SET {0} = if_not_exists({0}, :val)",
+      "SET {0} = if_not_exists({0}, :val) REMOVE {1}",
       USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
+      USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME,
     );
 
     let response = self
@@ -107,12 +109,46 @@ impl DatabaseClient {
     Ok(())
   }
 
-  pub async fn remove_farcaster_id(
+  pub async fn add_farcaster_dcs_token(
     &self,
     user_id: String,
+    farcaster_dcs_token: String,
   ) -> Result<(), Error> {
-    let update_expression =
-      format!("REMOVE {}", USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
+    let update_expression = format!(
+      "SET {0} = :val",
+      USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME,
+    );
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .expression_attribute_values(
+        ":val",
+        AttributeValue::S(farcaster_dcs_token.clone()),
+      )
+      .return_values(ReturnValue::UpdatedNew)
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          errorType = error_types::FARCASTER_DB_LOG,
+          "DDB client failed to add Farcaster DCs token: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
+  pub async fn unlink_farcaster(&self, user_id: String) -> Result<(), Error> {
+    let update_expression = format!(
+      "REMOVE {}, {}",
+      USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
+      USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME
+    );
 
     self
       .client
