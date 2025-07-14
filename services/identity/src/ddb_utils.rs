@@ -8,6 +8,7 @@ use std::iter::IntoIterator;
 
 use crate::{
   constants::{
+    USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME,
     USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
     USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
     USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
@@ -166,6 +167,7 @@ pub fn into_one_time_update_and_delete_requests(
 pub struct DBIdentity {
   pub identifier: Identifier,
   pub farcaster_id: Option<String>,
+  pub farcaster_dcs_token: Option<String>,
 }
 
 pub enum Identifier {
@@ -195,12 +197,16 @@ impl TryFrom<AttributeMap> for DBIdentity {
     let farcaster_id =
       value.take_attr(USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME)?;
 
+    let farcaster_dcs_token =
+      value.take_attr(USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME)?;
+
     let username_result = value.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE);
 
     if let Ok(username) = username_result {
       return Ok(DBIdentity {
         identifier: Identifier::Username(username),
         farcaster_id,
+        farcaster_dcs_token,
       });
     }
 
@@ -218,6 +224,7 @@ impl TryFrom<AttributeMap> for DBIdentity {
           social_proof,
         }),
         farcaster_id,
+        farcaster_dcs_token,
       })
     } else {
       Err(Self::Error::MalformedItem)
