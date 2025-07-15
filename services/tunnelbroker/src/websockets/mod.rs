@@ -318,7 +318,7 @@ async fn accept_connection(
     }
   }
 
-  info!("Unregistering connection to: {}", addr);
+  trace!("Unregistering connection to: {}", addr);
   session.close().await
 }
 
