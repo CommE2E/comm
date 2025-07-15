@@ -54,6 +54,8 @@ pub struct Identity {
   pub eth_identity: Option<EthereumIdentity>,
   #[napi(js_name = "farcasterID")]
   pub farcaster_id: Option<String>,
+  #[napi(js_name = "hasFarcasterDCsToken")]
+  pub has_farcaster_dcs_token: bool,
 }
 
 // This struct should not be altered without also updating EthereumIdentity in
@@ -84,6 +86,7 @@ impl From<ProtoIdentity> for Identity {
       username: proto_identity.username,
       eth_identity: proto_identity.eth_identity.map(EthereumIdentity::from),
       farcaster_id: proto_identity.farcaster_id,
+      has_farcaster_dcs_token: proto_identity.has_farcaster_dcs_token,
     }
   }
 }
