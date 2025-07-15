@@ -17,7 +17,10 @@ import {
   type LogOutResult,
 } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { useSetLocalFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useSetLocalCurrentUserSupportsDCs,
+  useSetLocalFID,
+} from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
@@ -189,6 +192,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   const dispatch = useDispatch();
   const setLocalFID = useSetLocalFID();
+  const setLocalDCsSupport = useSetLocalCurrentUserSupportsDCs();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
       new Promise<void>(
@@ -232,6 +236,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               });
             }
             setLocalFID(farcasterID);
+            setLocalDCsSupport(!!farcasterDCsToken);
             if (siweBackupSecrets) {
               await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
             }
@@ -261,6 +266,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       dispatch,
       identityRegisterEthereumAccount,
       identityRegisterUsernameAccount,
+      setLocalDCsSupport,
       setLocalFID,
     ],
   );

@@ -6,7 +6,11 @@ import { Text, View } from 'react-native';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
-type TextType = 'connect' | 'disconnect' | 'connect_DC';
+type TextType =
+  | 'connect'
+  | 'disconnect'
+  | 'disconnect_or_connect_DC'
+  | 'connect_DC';
 
 type Props = {
   +textType: TextType,
@@ -25,6 +29,11 @@ const prompts = {
   disconnect: {
     headerText: 'Disconnect from Farcaster',
     bodyTexts: ['You can disconnect your Farcaster account at any time.'],
+    displayLogo: true,
+  },
+  disconnect_or_connect_DC: {
+    headerText: 'Farcaster account',
+    bodyTexts: ['Your Farcaster account is connected.'],
     displayLogo: true,
   },
   connect_DC: {
