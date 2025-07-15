@@ -126,6 +126,7 @@ message Identity {
   string username = 1;
   optional EthereumIdentity eth_identity = 2;
   optional string farcaster_id = 3;
+  bool has_farcaster_dcs_token = 4;
 }
 
 // UploadOneTimeKeys

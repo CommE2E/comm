@@ -693,6 +693,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
           ethIdentity: identityObject.ethIdentity,
           username: identityObject.username,
           farcasterID: identityObject.farcasterId,
+          hasFarcasterDCsToken: identityObject.hasFarcasterDcsToken,
         },
       };
     });

@@ -974,7 +974,8 @@ proto.identity.auth.Identity.toObject = function(includeInstance, msg) {
   var f, obj = {
     username: jspb.Message.getFieldWithDefault(msg, 1, ""),
     ethIdentity: (f = msg.getEthIdentity()) && proto.identity.auth.EthereumIdentity.toObject(includeInstance, f),
-    farcasterId: jspb.Message.getFieldWithDefault(msg, 3, "")
+    farcasterId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    hasFarcasterDcsToken: jspb.Message.getBooleanFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -1024,6 +1025,10 @@ proto.identity.auth.Identity.deserializeBinaryFromReader = function(msg, reader)
       var value = /** @type {string} */ (reader.readString());
       msg.setFarcasterId(value);
       break;
+    case 4:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setHasFarcasterDcsToken(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1072,6 +1077,13 @@ proto.identity.auth.Identity.serializeBinaryToWriter = function(message, writer)
   if (f != null) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getHasFarcasterDcsToken();
+  if (f) {
+    writer.writeBool(
+      4,
       f
     );
   }
@@ -1166,6 +1178,24 @@ proto.identity.auth.Identity.prototype.clearFarcasterId = function() {
  */
 proto.identity.auth.Identity.prototype.hasFarcasterId = function() {
   return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional bool has_farcaster_dcs_token = 4;
+ * @return {boolean}
+ */
+proto.identity.auth.Identity.prototype.getHasFarcasterDcsToken = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.identity.auth.Identity} returns this
+ */
+proto.identity.auth.Identity.prototype.setHasFarcasterDcsToken = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
 
