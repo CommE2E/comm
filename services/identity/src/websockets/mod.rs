@@ -16,7 +16,7 @@ use identity_search_messages::{
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info, trace, warn};
 
 mod auth;
 mod opensearch;
@@ -365,6 +365,6 @@ async fn accept_connection(
     }
   }
 
-  info!("unregistering connection to: {}", addr);
+  trace!("unregistering connection to: {}", addr);
   close_connection(outgoing).await;
 }
