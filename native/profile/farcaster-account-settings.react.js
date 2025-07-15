@@ -1,14 +1,20 @@
 // @flow
 
 import * as React from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import { useCurrentUserFID, useUnlinkFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useCurrentUserFID,
+  useCurrentUserFIDDCs,
+  useUnlinkFID,
+} from 'lib/utils/farcaster-utils.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 
+import ConnectFarcasterDCs from './connect-farcaster-dcs.react.js';
 import type { ProfileNavigationProp } from './profile.react.js';
 import FarcasterPrompt from '../components/farcaster-prompt.react.js';
-import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
+import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import PrimaryButton from '../components/primary-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -24,6 +30,7 @@ type Props = {
 // eslint-disable-next-line no-unused-vars
 function FarcasterAccountSettings(props: Props): React.Node {
   const fid = useCurrentUserFID();
+  const fidDCs = useCurrentUserFIDDCs();
 
   const styles = useStyles(unboundStyles);
 
@@ -47,6 +54,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
+  const [showConnectDCs, setShowConnectDCs] = React.useState(false);
 
   const [isLoadingLinkFID, setIsLoadingLinkFID] = React.useState(false);
 
@@ -70,59 +78,118 @@ function FarcasterAccountSettings(props: Props): React.Node {
     setWebViewState('opening');
   }, []);
 
+  const onPressConnectDCs = React.useCallback(() => {
+    setShowConnectDCs(true);
+  }, []);
+
+  const onConnectDCsSuccess = React.useCallback(() => {
+    setShowConnectDCs(false);
+  }, []);
+
+  const onConnectDCsCancel = React.useCallback(() => {
+    setShowConnectDCs(false);
+  }, []);
+
   const disconnectButtonVariant = isLoadingUnlinkFID ? 'loading' : 'outline';
 
   const connectButtonVariant = isLoadingLinkFID ? 'loading' : 'enabled';
 
-  const button = React.useMemo(() => {
+  const buttons = React.useMemo(() => {
     if (fid) {
-      return (
+      const buttonList = [
         <PrimaryButton
+          key="disconnect"
           onPress={onPressDisconnect}
           label="Disconnect"
           variant={disconnectButtonVariant}
+        />,
+      ];
+
+      if (supportsFarcasterDCs && !fidDCs) {
+        buttonList.unshift(
+          <PrimaryButton
+            key="connect-dcs"
+            onPress={onPressConnectDCs}
+            label="Connect Direct Casts"
+            variant="enabled"
+          />,
+        );
+      }
+
+      return buttonList;
+    }
+
+    return [
+      <PrimaryButton
+        key="connect"
+        onPress={onPressConnectFarcaster}
+        label="Connect Farcaster account"
+        variant={connectButtonVariant}
+      />,
+    ];
+  }, [
+    connectButtonVariant,
+    disconnectButtonVariant,
+    fid,
+    fidDCs,
+    onPressConnectFarcaster,
+    onPressDisconnect,
+    onPressConnectDCs,
+  ]);
+
+  const farcasterPromptTextType = React.useMemo(() => {
+    if (!fid) {
+      return 'connect';
+    }
+    if (supportsFarcasterDCs && !fidDCs) {
+      return 'connected_with_options';
+    }
+    return 'disconnect';
+  }, [fid, fidDCs]);
+
+  return React.useMemo(() => {
+    if (showConnectDCs) {
+      return (
+        <ConnectFarcasterDCs
+          onSuccess={onConnectDCsSuccess}
+          onCancel={onConnectDCsCancel}
         />
       );
     }
 
     return (
-      <PrimaryButton
-        onPress={onPressConnectFarcaster}
-        label="Connect Farcaster account"
-        variant={connectButtonVariant}
-      />
-    );
-  }, [
-    connectButtonVariant,
-    disconnectButtonVariant,
-    fid,
-    onPressConnectFarcaster,
-    onPressDisconnect,
-  ]);
-
-  const farcasterPromptTextType = fid ? 'disconnect' : 'connect';
-  const farcasterAccountSettings = React.useMemo(
-    () => (
       <View style={styles.connectContainer}>
-        <View style={styles.promptContainer}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContentContainer}
+          style={styles.promptContainer}
+          alwaysBounceVertical={false}
+        >
           <FarcasterPrompt textType={farcasterPromptTextType} />
+        </ScrollView>
+        <View style={styles.buttonContainer}>
+          {buttons.map((button, index) => (
+            <View key={index} style={index > 0 ? styles.buttonSpacing : null}>
+              {button}
+            </View>
+          ))}
         </View>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
-        <View style={styles.buttonContainer}>{button}</View>
       </View>
-    ),
-    [
-      button,
-      farcasterPromptTextType,
-      onSuccess,
-      styles.buttonContainer,
-      styles.connectContainer,
-      styles.promptContainer,
-      webViewState,
-    ],
-  );
-
-  return farcasterAccountSettings;
+    );
+  }, [
+    buttons,
+    farcasterPromptTextType,
+    onConnectDCsCancel,
+    onConnectDCsSuccess,
+    onSuccess,
+    showConnectDCs,
+    styles.buttonContainer,
+    styles.buttonSpacing,
+    styles.connectContainer,
+    styles.promptContainer,
+    styles.scrollViewContentContainer,
+    webViewState,
+  ]);
 }
 
 const unboundStyles = {
@@ -130,15 +197,20 @@ const unboundStyles = {
     flex: 1,
     backgroundColor: 'panelBackground',
     paddingBottom: 16,
+    justifyContent: 'space-between',
   },
   promptContainer: {
-    flex: 1,
     padding: 16,
-    justifyContent: 'space-between',
   },
   buttonContainer: {
     marginVertical: 8,
     marginHorizontal: 16,
+  },
+  buttonSpacing: {
+    marginTop: 8,
+  },
+  scrollViewContentContainer: {
+    padding: 16,
   },
 };
 
