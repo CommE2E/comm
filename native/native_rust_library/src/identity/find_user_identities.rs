@@ -55,6 +55,8 @@ pub struct Identity {
   pub eth_identity: Option<EthereumIdentity>,
   #[serde(rename = "farcasterID")]
   pub farcaster_id: Option<String>,
+  #[serde(rename = "hasFarcasterDCsToken")]
+  pub has_farcaster_dcs_token: bool,
 }
 
 impl TryFrom<UserIdentitiesResponse> for UserIdentities {
@@ -78,6 +80,7 @@ impl TryFrom<UserIdentitiesResponse> for UserIdentities {
             username: identity.username,
             eth_identity,
             farcaster_id: identity.farcaster_id,
+            has_farcaster_dcs_token: identity.has_farcaster_dcs_token,
           },
         )
       })

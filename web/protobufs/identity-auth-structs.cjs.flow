@@ -47,6 +47,9 @@ declare export class Identity extends Message {
   hasFarcasterId(): boolean;
   clearFarcasterId(): Identity;
 
+  getHasFarcasterDcsToken(): boolean;
+  setHasFarcasterDcsToken(value: boolean): Identity;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IdentityObject;
   static toObject(includeInstance: boolean, msg: Identity): IdentityObject;
@@ -59,6 +62,7 @@ export type IdentityObject = {
   username: string,
   ethIdentity: ?EthereumIdentityObject,
   farcasterId: ?string,
+  hasFarcasterDcsToken: boolean,
 }
 
 declare export class UploadOneTimeKeysRequest extends Message {
