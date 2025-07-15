@@ -343,6 +343,7 @@ impl From<DBIdentity> for Identity {
         username,
         eth_identity: None,
         farcaster_id: value.farcaster_id,
+        has_farcaster_dcs_token: value.farcaster_dcs_token.is_some(),
       },
       DBIdentifier::WalletAddress(eth_identity) => Identity {
         username: eth_identity.wallet_address.clone(),
@@ -352,6 +353,7 @@ impl From<DBIdentity> for Identity {
           siwe_signature: eth_identity.social_proof.signature,
         }),
         farcaster_id: value.farcaster_id,
+        has_farcaster_dcs_token: value.farcaster_dcs_token.is_some(),
       },
     }
   }
