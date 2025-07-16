@@ -3,7 +3,15 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import {
+  markBackupAsRestoredActionType,
+  resetBackupRestoreStateActionType,
+} from 'lib/actions/backup-actions.js';
+import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import AuthButtonContainer from './auth-components/auth-button-container.react.js';
 import AuthContainer from './auth-components/auth-container.react.js';
@@ -11,6 +19,7 @@ import AuthContentContainer from './auth-components/auth-content-container.react
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import PrimaryButton from '../components/primary-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { LoggedOutModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -46,9 +55,16 @@ function RestoreBackupErrorScreen(props: Props): React.Node {
     return 'unknown_error';
   }, [errorDetailsProp, storedError]);
 
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const loggedIn = useSelector(isLoggedIn);
+  const logOut = useLogOut();
+
   const ignoreErrorAndLogIn = React.useCallback(() => {
-    // TODO: Not implemented
-  }, []);
+    dispatch({
+      type: markBackupAsRestoredActionType,
+    });
+  }, [dispatch]);
 
   const onPressIgnore = React.useCallback(() => {
     Alert.alert(
@@ -67,8 +83,16 @@ function RestoreBackupErrorScreen(props: Props): React.Node {
   }, [ignoreErrorAndLogIn]);
 
   const onPressTryAgain = React.useCallback(() => {
-    // TODO: Not implemented
-  }, []);
+    if (loggedIn) {
+      void dispatchActionPromise(logOutActionTypes, logOut());
+    } else {
+      dispatch({
+        type: resetBackupRestoreStateActionType,
+      });
+    }
+
+    props.navigation.navigate(LoggedOutModalRouteName);
+  }, [props.navigation, loggedIn, logOut, dispatch, dispatchActionPromise]);
 
   const deviceTypeWarning = React.useMemo(() => {
     if (deviceType === 'secondary') {
