@@ -10,7 +10,7 @@ import css from './style.css';
 
 type Props = {
   +status: LoadingStatus,
-  +size?: 'small' | 'medium' | 'large',
+  +size?: 'small' | 'medium' | 'large' | 'x-large',
   +color?: 'black' | 'white',
   +loadingClassName?: string,
   +errorClassName?: string,
@@ -30,6 +30,8 @@ export default function LoadingIndicator(props: Props): React.Node {
         hasRendered && size === 'medium',
       [css['loading-indicator-loading-small']]: hasRendered && size === 'small',
       [css['loading-indicator-loading-large']]: hasRendered && size === 'large',
+      [css['loading-indicator-loading-x-large']]:
+        hasRendered && size === 'x-large',
       [css['loading-indicator-black']]:
         hasRendered && tinycolor.equals(color, 'black'),
     };

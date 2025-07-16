@@ -162,6 +162,19 @@ span.loading-indicator-loading-large:after {
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
+span.loading-indicator-loading-x-large:after {
+  content: ' ';
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation-name: loading-indicator-loading;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
 span.loading-indicator-loading-small:after {
   content: ' ';
   display: block;
