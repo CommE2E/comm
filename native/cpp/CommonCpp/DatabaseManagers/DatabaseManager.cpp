@@ -46,7 +46,24 @@ const DatabaseQueryExecutor &
 DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
   if (id == DatabaseIdentifier::RESTORED) {
     if (!DatabaseManager::restoredConnectionManager) {
-      throw std::runtime_error("restoredConnectionManager is not set");
+      folly::Optional<std::string> mainCompactionPath =
+          CommSecureStore::get(CommSecureStore::restoredBackupPath);
+      folly::Optional<std::string> mainCompactionEncryptionKey =
+          CommSecureStore::get(CommSecureStore::restoredBackupDataKey);
+
+      if (!mainCompactionPath.has_value() ||
+          !mainCompactionEncryptionKey.has_value()) {
+        throw std::runtime_error("restoredConnectionManager is not set");
+      }
+
+      SQLiteBackup::validateMainCompaction(
+          mainCompactionPath.value(), mainCompactionEncryptionKey.value());
+
+      DatabaseManager::restoredConnectionManager =
+          std::make_shared<NativeSQLiteConnectionManager>(
+              mainCompactionPath.value(),
+              mainCompactionEncryptionKey.value(),
+              "");
     }
 
     thread_local SQLiteQueryExecutor restoredQueryExecutor(
