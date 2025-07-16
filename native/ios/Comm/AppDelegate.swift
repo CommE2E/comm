@@ -156,6 +156,10 @@ public class AppDelegate: ExpoAppDelegate {
   public override func applicationWillResignActive(_ application: UIApplication) {
     (CommIOSServicesClient.sharedInstance() as? CommIOSServicesClient)?.cancelOngoingRequests()
   }
+
+  public override func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+    return Orientation.getOrientation()
+  }
 }
 
 class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
