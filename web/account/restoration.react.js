@@ -2,7 +2,18 @@
 
 import * as React from 'react';
 
+import {
+  markBackupAsRestoredActionType,
+  resetBackupRestoreStateActionType,
+} from 'lib/actions/backup-actions.js';
+import {
+  logOutActionTypes,
+  useSecondaryDeviceLogOut,
+} from 'lib/actions/user-actions.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
 import css from './restoration.css';
@@ -115,18 +126,31 @@ type RestorationErrorProps = {
 function RestorationError(props: RestorationErrorProps): React.Node {
   const { step, error } = props;
 
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const logOut = useSecondaryDeviceLogOut();
+  const loggedIn = useSelector(isLoggedIn);
+
   const errorDetails = React.useMemo(() => {
     const messageForException = getMessageForException(error);
     return messageForException ?? 'unknown error';
   }, [error]);
 
   const onPressIgnore = React.useCallback(() => {
-    // TODO: Not implemented
-  }, []);
+    dispatch({
+      type: markBackupAsRestoredActionType,
+    });
+  }, [dispatch]);
 
   const onPressTryAgain = React.useCallback(() => {
-    // TODO: Not implemented
-  }, []);
+    if (loggedIn) {
+      void dispatchActionPromise(logOutActionTypes, logOut());
+    } else {
+      dispatch({
+        type: resetBackupRestoreStateActionType,
+      });
+    }
+  }, [dispatch, dispatchActionPromise, loggedIn, logOut]);
 
   return (
     <RestorationViewContainer
