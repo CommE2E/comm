@@ -29,6 +29,7 @@ import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
+import { RestoreBackupHandler } from 'lib/handlers/restore-backup-handler.react.js';
 import { SyncCurrentUserInfoHandler } from 'lib/handlers/sync-current-user-info-handler.react.js';
 import { SyncStoreVersionHandler } from 'lib/handlers/sync-store-version-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
@@ -267,6 +268,7 @@ class App extends React.PureComponent<Props> {
                     <TunnelbrokerDeviceTokenHandler />
                     <SyncStoreVersionHandler />
                     <SyncCurrentUserInfoHandler />
+                    <RestoreBackupHandler />
                     <FarcasterChannelPrefetchHandler />
                     <FarcasterDataHandler />
                     <AutoJoinCommunityHandler />
