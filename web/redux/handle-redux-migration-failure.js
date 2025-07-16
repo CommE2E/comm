@@ -12,6 +12,7 @@ const persistWhitelist = [
   'messageStore',
   'tunnelbrokerDeviceToken',
   'queuedDMOperations',
+  'restoreBackupState',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
