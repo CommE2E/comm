@@ -46,7 +46,24 @@ const DatabaseQueryExecutor &
 DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
   if (id == DatabaseIdentifier::RESTORED) {
     if (!DatabaseManager::restoredConnectionManager) {
-      throw std::runtime_error("restoredConnectionManager is not set");
+      folly::Optional<std::string> mainCompactionPath =
+          CommSecureStore::get(CommSecureStore::restoredBackupPath);
+      folly::Optional<std::string> mainCompactionEncryptionKey =
+          CommSecureStore::get(CommSecureStore::restoredBackupDataKey);
+
+      if (!mainCompactionPath.has_value() ||
+          !mainCompactionEncryptionKey.has_value()) {
+        throw std::runtime_error("restoredConnectionManager is not set");
+      }
+
+      SQLiteBackup::validateMainCompaction(
+          mainCompactionPath.value(), mainCompactionEncryptionKey.value());
+
+      DatabaseManager::restoredConnectionManager =
+          std::make_shared<NativeSQLiteConnectionManager>(
+              mainCompactionPath.value(),
+              mainCompactionEncryptionKey.value(),
+              "");
     }
 
     thread_local SQLiteQueryExecutor restoredQueryExecutor(
@@ -449,6 +466,7 @@ void DatabaseManager::restoreFromMainCompaction(
   CommSecureStore::set(CommSecureStore::restoredBackupPath, mainCompactionPath);
   CommSecureStore::set(
       CommSecureStore::restoredBackupDataKey, mainCompactionEncryptionKey);
+  Logger::log("setting in CommSecureStore");
   // At this point, logs are already applied to the database, and we don't have
   // access to it, so we use just an empty string.
   DatabaseManager::restoredConnectionManager =
@@ -462,6 +480,7 @@ void DatabaseManager::copyContentFromBackupDatabase() {
       DatabaseManager::restoredConnectionManager->getBackupDataKey());
   // Copying is the final step of the restore, we don't need it anymore, so we
   // should clean all the data.
+  Logger::log("CLEARING THIS ONE");
   DatabaseManager::clearRestoredDatabaseSensitiveData();
 }
 
