@@ -9,7 +9,10 @@ import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import { getMessageForException } from 'lib/utils/errors.js';
+import {
+  BackupIsNewerError,
+  getMessageForException,
+} from 'lib/utils/errors.js';
 
 import * as AES from './aes-crypto-module.js';
 import {
@@ -76,7 +79,7 @@ function handleSecondaryDeviceLogInError(error: mixed): void {
       networkErrorAlertDetails.title,
       networkErrorAlertDetails.message,
     );
-  } else if (messageForException === 'backup_is_newer') {
+  } else if (error instanceof BackupIsNewerError) {
     Alert.alert(
       backupIsNewerThanAppAlertDetails.title,
       backupIsNewerThanAppAlertDetails.message,

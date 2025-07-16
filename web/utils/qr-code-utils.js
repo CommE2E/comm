@@ -18,7 +18,10 @@ import {
   convertBytesToObj,
   convertObjToBytes,
 } from 'lib/utils/conversion-utils.js';
-import { getMessageForException } from 'lib/utils/errors.js';
+import {
+  BackupIsNewerError,
+  getMessageForException,
+} from 'lib/utils/errors.js';
 
 import { base64DecodeBuffer, base64EncodeBuffer } from './base64-utils.js';
 import { getBackupIsNewerThanAppError } from './version-utils.js';
@@ -75,7 +78,7 @@ function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
             connection.
           </Alert>,
         );
-      } else if (messageForException === 'backup_is_newer') {
+      } else if (error instanceof BackupIsNewerError) {
         const message = getBackupIsNewerThanAppError();
         pushModal(<Alert title="App out of date">{message}</Alert>);
       } else {
