@@ -23,7 +23,10 @@ import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { composeRawDeviceList } from 'lib/utils/device-list-utils.js';
-import { getMessageForException } from 'lib/utils/errors.js';
+import {
+  BackupIsNewerError,
+  getMessageForException,
+} from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 import { fullBackupSupport } from 'lib/utils/services-utils.js';
@@ -224,7 +227,7 @@ function useRestore(): (
           messageForException ?? 'unknown error',
           new Set([logTypes.ERROR, logTypes.BACKUP]),
         );
-        if (messageForException === 'backup_is_newer') {
+        if (error instanceof BackupIsNewerError) {
           Alert.alert(
             backupIsNewerThanAppAlertDetails.title,
             backupIsNewerThanAppAlertDetails.message,
