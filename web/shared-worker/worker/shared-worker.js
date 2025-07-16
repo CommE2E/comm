@@ -97,6 +97,7 @@ async function initDatabase(
     }
   }
 
+  // Main database
   const encryptedContent =
     await localforage.getItem<EncryptedData>(SQLITE_CONTENT);
 
@@ -122,6 +123,44 @@ async function initDatabase(
   setSQLiteQueryExecutor(
     new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH, false),
   );
+
+  // Restored database
+  const encryptedRestoredContent = await localforage.getItem<EncryptedData>(
+    RESTORED_SQLITE_CONTENT,
+  );
+
+  let restoredDBContent = null;
+  try {
+    if (encryptionKey && encryptedRestoredContent) {
+      restoredDBContent = await decryptData(
+        encryptedRestoredContent,
+        encryptionKey,
+      );
+    }
+  } catch (e) {
+    console.error(
+      'Error while decrypting restored content, clearing restored database',
+    );
+    await localforage.removeItem(RESTORED_SQLITE_CONTENT);
+  }
+  if (restoredDBContent) {
+    importDatabaseContent(
+      restoredDBContent,
+      newModule,
+      SQLITE_RESTORE_DATABASE_PATH,
+    );
+
+    console.info(
+      'Restored database exists and is properly encrypted, using persisted data',
+    );
+
+    setSQLiteQueryExecutor(
+      new newModule.SQLiteQueryExecutor(SQLITE_RESTORE_DATABASE_PATH, false),
+      databaseIdentifier.RESTORED,
+    );
+  } else {
+    console.info('Restored database does not exist');
+  }
 }
 
 async function initBackupClient(
