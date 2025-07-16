@@ -2120,7 +2120,7 @@ PODS:
     - Yoga
   - react-native-netinfo (11.4.1):
     - React-Core
-  - react-native-orientation-locker (1.5.0):
+  - react-native-orientation-locker (1.7.0):
     - React-Core
   - react-native-pager-view (6.7.1):
     - boost
@@ -3462,7 +3462,7 @@ SPEC CHECKSUMS:
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-keyboard-controller: 67ade97aef69b23d03c4e46ef0889de00b6056a2
   react-native-netinfo: f0a9899081c185db1de5bb2fdc1c88c202a059ac
-  react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
+  react-native-orientation-locker: 5819fd23ca89cbac0d736fb4314745f62716d517
   react-native-pager-view: fb71fc7749da79d194e0e3e455d02fc0211c0042
   react-native-safe-area-context: 8870dc3e45c8d241336cd8ee3fa3fc76f3a040ac
   react-native-video: 52058745684402ec29da5c3fbda4f441d328cf03
