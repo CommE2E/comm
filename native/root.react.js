@@ -55,6 +55,7 @@ import { actionLogger } from 'lib/utils/action-logger.js';
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import BackupHandlerContextProvider from './backup/backup-handler-context-provider.js';
+import { SecondaryDevicesBackupHandler } from './backup/secondary-devices-backup-handler.react.js';
 import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
@@ -408,6 +409,7 @@ function Root() {
                                                         <AutoJoinCommunityHandler />
                                                         <SyncCommunityStoreHandler />
                                                         <InitialStateSharingHandler />
+                                                        <SecondaryDevicesBackupHandler />
                                                       </PersistedStateGate>
                                                       {navigation}
                                                     </RegistrationContextProvider>
