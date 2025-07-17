@@ -14,6 +14,7 @@ import {
 } from 'lib/hooks/peer-list-hooks.js';
 import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import {
+  getOwnPeerDevices,
   getOwnRawDeviceList,
   isLoggedIn,
 } from 'lib/selectors/user-selectors.js';
@@ -21,6 +22,7 @@ import { useStaffAlert } from 'lib/shared/staff-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { type LocalLatestBackupInfo } from 'lib/types/backup-types.js';
 import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
+import { identityDeviceTypes } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -97,6 +99,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     [dispatchActionPromise, migrateToNewFlow],
   );
 
+  const ownDevices = useSelector(getOwnPeerDevices);
   const performUserKeysUpload = React.useCallback(async () => {
     const promise = (async () => {
       const backupID = await createUserKeysBackup();
@@ -109,24 +112,44 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     await promise;
   }, [createUserKeysBackup, dispatchActionPromise]);
 
-  const performUserDataUpload = React.useCallback(async () => {
-    const promise: Promise<CreateUserDataBackupPayload> = (async () => {
-      const { sqliteAPI } = getConfig();
-      const databaseVersion = await sqliteAPI.getDatabaseVersion(
-        databaseIdentifier.MAIN,
+  const performUserDataUpload = React.useCallback(
+    async (firstUserDataUpload: boolean, currentDeviceID: string) => {
+      const ownDevicesWithoutBackup: Array<string> = [];
+      if (firstUserDataUpload) {
+        const ownSecondaryDevices = ownDevices
+          .filter(
+            ({ deviceID, platformDetails }) =>
+              deviceID !== currentDeviceID &&
+              platformDetails?.deviceType !== identityDeviceTypes.KEYSERVER,
+          )
+          .map(({ deviceID }) => deviceID);
+        ownDevicesWithoutBackup.push(...ownSecondaryDevices);
+      }
+
+      const promise: Promise<CreateUserDataBackupPayload> = (async () => {
+        const { sqliteAPI } = getConfig();
+        const databaseVersion = await sqliteAPI.getDatabaseVersion(
+          databaseIdentifier.MAIN,
+        );
+        const backupID = await createUserDataBackup();
+        return {
+          latestBackupInfo: {
+            backupID,
+            timestamp: Date.now(),
+          },
+          latestDatabaseVersion: databaseVersion,
+        };
+      })();
+      void dispatchActionPromise(
+        createUserDataBackupActionTypes,
+        promise,
+        undefined,
+        { ownDevicesWithoutBackup },
       );
-      const backupID = await createUserDataBackup();
-      return {
-        latestBackupInfo: {
-          backupID,
-          timestamp: Date.now(),
-        },
-        latestDatabaseVersion: databaseVersion,
-      };
-    })();
-    void dispatchActionPromise(createUserDataBackupActionTypes, promise);
-    await promise;
-  }, [createUserDataBackup, dispatchActionPromise]);
+      await promise;
+    },
+    [createUserDataBackup, dispatchActionPromise, ownDevices],
+  );
 
   const startBackupHandler = React.useCallback(() => {
     if (handlerStartedRef.current) {
@@ -270,7 +293,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         await performMigrationToNewFlow(currentIdentityUserState);
       } else if (shouldUploadUserData && fullBackupSupport) {
         step = 'creating User Data backup';
-        await performUserDataUpload();
+        await performUserDataUpload(firstUserDataUpload, deviceID);
       } else if (shouldUploadUserKeys) {
         step = 'creating User Keys backup';
         await performUserKeysUpload();
