@@ -53,7 +53,8 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
 
       if (!mainCompactionPath.has_value() ||
           !mainCompactionEncryptionKey.has_value()) {
-        throw std::runtime_error("restoredConnectionManager is not set");
+        throw std::runtime_error(
+            "mainCompaction path / encryption key is not set");
       }
 
       SQLiteBackup::validateMainCompaction(
