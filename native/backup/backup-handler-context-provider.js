@@ -82,14 +82,6 @@ function BackupHandlerContextProvider(props: Props): React.Node {
   const canPerformBackupOperation = loggedIn && !isBackground;
 
   const restoreBackupState = useSelector(state => state.restoreBackupState);
-  const userDataCompactionPossible = React.useMemo(() => {
-    // allow compaction only when UserData restoration is completed
-    // or after the previous compaction has finished uploading.
-    return (
-      restoreBackupState.status === 'user_data_restore_completed' ||
-      restoreBackupState.status === 'user_data_backup_success'
-    );
-  }, [restoreBackupState]);
 
   // State to force re-render.
   const [renderCount, setRenderCount] = React.useState(0);
@@ -229,10 +221,30 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       const shouldDoMigration =
         usingRestoreFlow && !currentDeviceList.curPrimarySignature;
       const shouldUploadUserKeys = isPrimary && !latestBackupInfo;
+
+      // App has UserKeys backup, but without UserData and this is first
+      // ever upload.
+      const firstUserDataUpload = restoreBackupState.status === 'no_backup';
+
+      // When previous upload failed, device should restart it.
+      const userDataUploadFailed =
+        restoreBackupState.status === 'user_data_backup_failed';
+
+      // Allow compaction only when UserData restoration is completed,
+      // or after the previous compaction has finished uploading.
+      const userDataCompactionPossible =
+        restoreBackupState.status === 'user_data_restore_completed' ||
+        restoreBackupState.status === 'user_data_backup_success';
+
+      // Check if another compaction is needed, but only when the
+      // device is in a state where this is possible.
+      const compactionNeeded =
+        (checkIfCompactionNeeded(latestBackupInfo) || databaseSchemaChanged) &&
+        userDataCompactionPossible;
+
       const shouldUploadUserData =
         isPrimary &&
-        userDataCompactionPossible &&
-        (checkIfCompactionNeeded(latestBackupInfo) || databaseSchemaChanged);
+        (firstUserDataUpload || userDataUploadFailed || compactionNeeded);
 
       // Tunnelbroker connection is required to broadcast
       // device list updates after migration.
@@ -287,10 +299,10 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     performMigrationToNewFlow,
     performUserDataUpload,
     performUserKeysUpload,
+    restoreBackupState.status,
     showAlertToStaff,
     socketState.isAuthorized,
     startBackupHandler,
-    userDataCompactionPossible,
     usingRestoreFlow,
   ]);
 
