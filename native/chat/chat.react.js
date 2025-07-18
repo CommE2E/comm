@@ -224,7 +224,7 @@ function ChatNavigator({
       state={state}
       descriptors={descriptors}
       navigation={navigation}
-      detachInactiveScreens={Platform.OS !== 'ios'}
+      detachInactiveScreens={false}
     />
   );
 }
