@@ -502,6 +502,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           onViewableItemsChanged={this.onViewableItemsChanged}
           extraData={this.state}
           ref={this.flatListRef}
+          windowSize={1}
         />
       );
     } else if (selections && containerHeight) {
