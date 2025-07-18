@@ -208,6 +208,13 @@ function MediaGalleryMedia(props: Props): React.Node {
     [dimensionsStyle, mediaStyle],
   );
 
+  const videoRef = React.useRef(null);
+
+  // https://github.com/TheWidlarzGroup/react-native-video/issues/4497
+  const onVideoEnd = React.useCallback(() => {
+    videoRef.current?.seek(0);
+  }, []);
+
   let media;
   const source = { uri };
   if (step === 'video_library') {
@@ -221,11 +228,14 @@ function MediaGalleryMedia(props: Props): React.Node {
     media = (
       <AnimatedView style={mediaStyle}>
         <Video
+          ref={videoRef}
           source={source}
-          repeat={true}
+          repeat={false}
           muted={true}
           resizeMode={resizeMode}
           style={dimensionsStyle}
+          onEnd={onVideoEnd}
+          disableFocus={true}
         />
       </AnimatedView>
     );
