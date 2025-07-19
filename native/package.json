@@ -57,7 +57,7 @@
     "@commapp/expo-package": "0.0.1",
     "@commapp/sqlcipher-amalgamation": "^4.5.5-e",
     "@ethersproject/shims": "^5.7.0",
-    "@expo/react-native-action-sheet": "^3.14.0",
+    "@expo/react-native-action-sheet": "^4.1.1",
     "@expo/vector-icons": "^14.1.0",
     "@gorhom/bottom-sheet": "^4.4.5",
     "@react-native-async-storage/async-storage": "2.1.2",
