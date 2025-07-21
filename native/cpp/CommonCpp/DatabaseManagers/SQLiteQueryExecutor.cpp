@@ -1714,6 +1714,46 @@ void SQLiteQueryExecutor::copyContentFromDatabase(
     sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
         << " FROM sourceDB." << tableName << ";" << std::endl;
   }
+
+  int textTypeInt = static_cast<int>(MessageType::TEXT);
+  int editTypeInt = static_cast<int>(MessageType::EDIT_MESSAGE);
+  int deleteTypeInt = static_cast<int>(MessageType::DELETE_MESSAGE);
+
+  // Populate message_search table for copied TEXT messages
+  sql << "INSERT OR IGNORE INTO message_search ("
+      << "  original_message_id, message_id, processed_content) "
+      << "SELECT id, id, content "
+      << "FROM sourceDB.backup_messages "
+      << "WHERE type = " << textTypeInt << ";" << std::endl;
+
+  // Update message_search table for EDIT_MESSAGE entries
+  sql << "UPDATE message_search "
+      << "SET "
+      << "  message_id = b.id,"
+      << "  processed_content = IIF("
+      << "    JSON_VALID(b.content),"
+      << "    JSON_EXTRACT(b.content, '$.text'),"
+      << "    NULL"
+      << "  )"
+      << "FROM sourceDB.backup_messages AS b "
+      << "WHERE message_search.original_message_id = IIF("
+      << "  JSON_VALID(b.content),"
+      << "  JSON_EXTRACT(b.content, '$.targetMessageID'),"
+      << "  NULL"
+      << ") "
+      << "  AND b.type = " << editTypeInt << ";" << std::endl;
+
+  // Delete message_search entries for DELETE_MESSAGE
+  sql << "DELETE FROM message_search "
+      << "WHERE original_message_id IN ("
+      << "  SELECT IIF("
+      << "    JSON_VALID(content),"
+      << "    JSON_EXTRACT(content, '$.targetMessageID'),"
+      << "    NULL"
+      << "  ) "
+      << "  FROM sourceDB.backup_messages "
+      << "  WHERE type = " << deleteTypeInt << ");" << std::endl;
+
   sql << "DETACH DATABASE sourceDB;";
   executeQuery(this->getConnection(), sql.str());
 }
