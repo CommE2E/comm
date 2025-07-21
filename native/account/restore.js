@@ -7,7 +7,7 @@ import {
   restoreUserActionTypes,
   type RestoreProtocolResult,
 } from 'lib/actions/user-actions.js';
-import { useUserDataRestore } from 'lib/backup/use-user-data-restore.js';
+import { useUserDataRestoreContext } from 'lib/backup/user-data-restore-context.js';
 import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import {
   useLogIn,
@@ -208,7 +208,7 @@ function useRestore(): (
   );
 
   const { addLog } = useDebugLogs();
-  const userDataRestore = useUserDataRestore();
+  const { restoreUserData: userDataRestore } = useUserDataRestoreContext();
   const restoreUserData = React.useCallback(
     async (identityAuthResult: ?IdentityAuthResult) => {
       if (!fullBackupSupport) {

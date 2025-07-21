@@ -13,6 +13,7 @@ import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions.js';
+import { UserDataRestoreProvider } from 'lib/backup/user-data-restore-context.js';
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { FarcasterChannelPrefetchHandler } from 'lib/components/farcaster-channel-prefetch-handler.react.js';
@@ -576,37 +577,41 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       <AppThemeWrapper>
         <AlchemyENSCacheProvider>
           <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
-            <TunnelbrokerProvider
-              shouldBeClosed={lockStatus !== 'acquired'}
-              onClose={releaseLockOrAbortRequest}
-              secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
-            >
-              <BadgeHandler />
-              <IdentitySearchProvider>
-                <SecondaryDeviceQRAuthContextProvider
-                  parseTunnelbrokerQRAuthMessage={
-                    parseTunnelbrokerQRAuthMessage
-                  }
-                  composeTunnelbrokerQRAuthMessage={
-                    composeTunnelbrokerQRAuthMessage
-                  }
-                  generateAESKey={generateQRAuthAESKey}
-                  onLogInError={handleSecondaryDeviceLogInError}
-                >
-                  <App
-                    {...props}
-                    navInfo={navInfo}
-                    entriesLoadingStatus={entriesLoadingStatus}
-                    loggedIn={loggedIn}
-                    activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-                    dispatch={dispatch}
-                    modals={modals}
-                  />
-                </SecondaryDeviceQRAuthContextProvider>
-                <DBOpsHandler />
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-              </IdentitySearchProvider>
-            </TunnelbrokerProvider>
+            <UserDataRestoreProvider>
+              <TunnelbrokerProvider
+                shouldBeClosed={lockStatus !== 'acquired'}
+                onClose={releaseLockOrAbortRequest}
+                secondaryTunnelbrokerConnection={
+                  secondaryTunnelbrokerConnection
+                }
+              >
+                <BadgeHandler />
+                <IdentitySearchProvider>
+                  <SecondaryDeviceQRAuthContextProvider
+                    parseTunnelbrokerQRAuthMessage={
+                      parseTunnelbrokerQRAuthMessage
+                    }
+                    composeTunnelbrokerQRAuthMessage={
+                      composeTunnelbrokerQRAuthMessage
+                    }
+                    generateAESKey={generateQRAuthAESKey}
+                    onLogInError={handleSecondaryDeviceLogInError}
+                  >
+                    <App
+                      {...props}
+                      navInfo={navInfo}
+                      entriesLoadingStatus={entriesLoadingStatus}
+                      loggedIn={loggedIn}
+                      activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                      dispatch={dispatch}
+                      modals={modals}
+                    />
+                  </SecondaryDeviceQRAuthContextProvider>
+                  <DBOpsHandler />
+                  <KeyserverConnectionsHandler socketComponent={Socket} />
+                </IdentitySearchProvider>
+              </TunnelbrokerProvider>
+            </UserDataRestoreProvider>
           </NeynarClientProvider>
         </AlchemyENSCacheProvider>
       </AppThemeWrapper>
