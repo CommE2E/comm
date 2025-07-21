@@ -197,24 +197,32 @@ async function persist() {
   }
 
   async function persistMainDatabase(key: ?CryptoKey): Promise<void> {
-    if (!dbModule || !key) {
-      return;
+    try {
+      if (!dbModule || !key) {
+        return;
+      }
+      const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
+      const encryptedData = await encryptData(dbData, key);
+      await localforage.setItem(SQLITE_CONTENT, encryptedData);
+    } catch (e) {
+      console.error(e);
     }
-    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
-    const encryptedData = await encryptData(dbData, key);
-    await localforage.setItem(SQLITE_CONTENT, encryptedData);
   }
 
   async function persistRestoredDatabase(key: ?CryptoKey): Promise<void> {
-    if (!dbModule || !restoredQueryExecutor || !key) {
-      return;
+    try {
+      if (!dbModule || !restoredQueryExecutor || !key) {
+        return;
+      }
+      const restoredDBData = exportDatabaseContent(
+        dbModule,
+        SQLITE_RESTORE_DATABASE_PATH,
+      );
+      const restoredEncryptedData = await encryptData(restoredDBData, key);
+      await localforage.setItem(RESTORED_SQLITE_CONTENT, restoredEncryptedData);
+    } catch (e) {
+      console.error(e);
     }
-    const restoredDBData = exportDatabaseContent(
-      dbModule,
-      SQLITE_RESTORE_DATABASE_PATH,
-    );
-    const restoredEncryptedData = await encryptData(restoredDBData, key);
-    await localforage.setItem(RESTORED_SQLITE_CONTENT, restoredEncryptedData);
   }
 
   while (persistNeeded) {
