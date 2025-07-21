@@ -31,6 +31,9 @@ class DatabaseManager {
   static void
   initializeSQLiteQueryExecutorProperties(std::string &databasePath);
 
+  // Creates restoredConnectionManager instance based on data from SecureStore.
+  static void initializeRestoredConnectionManager();
+
   // Generate and persist a backup key used as a database encryption key.
   static std::string generateBackupDataKey();
   // Generate and persist key used for encrypt backup logs.
