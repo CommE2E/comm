@@ -46,25 +46,7 @@ const DatabaseQueryExecutor &
 DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
   if (id == DatabaseIdentifier::RESTORED) {
     if (!DatabaseManager::restoredConnectionManager) {
-      folly::Optional<std::string> mainCompactionPath =
-          CommSecureStore::get(CommSecureStore::restoredBackupPath);
-      folly::Optional<std::string> mainCompactionEncryptionKey =
-          CommSecureStore::get(CommSecureStore::restoredBackupDataKey);
-
-      if (!mainCompactionPath.has_value() ||
-          !mainCompactionEncryptionKey.has_value()) {
-        throw std::runtime_error(
-            "mainCompaction path / encryption key is not set");
-      }
-
-      SQLiteBackup::validateMainCompaction(
-          mainCompactionPath.value(), mainCompactionEncryptionKey.value());
-
-      DatabaseManager::restoredConnectionManager =
-          std::make_shared<NativeSQLiteConnectionManager>(
-              mainCompactionPath.value(),
-              mainCompactionEncryptionKey.value(),
-              "");
+      DatabaseManager::initializeRestoredConnectionManager();
     }
 
     thread_local SQLiteQueryExecutor restoredQueryExecutor(
@@ -180,6 +162,28 @@ void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
       return;
     }
   }
+}
+
+void DatabaseManager::initializeRestoredConnectionManager() {
+  if (DatabaseManager::restoredConnectionManager) {
+    return;
+  }
+  folly::Optional<std::string> mainCompactionPath =
+      CommSecureStore::get(CommSecureStore::restoredBackupPath);
+  folly::Optional<std::string> mainCompactionEncryptionKey =
+      CommSecureStore::get(CommSecureStore::restoredBackupDataKey);
+
+  if (!mainCompactionPath.has_value() ||
+      !mainCompactionEncryptionKey.has_value()) {
+    throw std::runtime_error("mainCompaction path / encryption key is not set");
+  }
+
+  SQLiteBackup::validateMainCompaction(
+      mainCompactionPath.value(), mainCompactionEncryptionKey.value());
+
+  DatabaseManager::restoredConnectionManager =
+      std::make_shared<NativeSQLiteConnectionManager>(
+          mainCompactionPath.value(), mainCompactionEncryptionKey.value(), "");
 }
 
 void DatabaseManager::setDatabaseStatusAsWorkable() {
@@ -475,6 +479,10 @@ void DatabaseManager::restoreFromMainCompaction(
 }
 
 void DatabaseManager::copyContentFromBackupDatabase() {
+  if (!DatabaseManager::restoredConnectionManager) {
+    DatabaseManager::initializeRestoredConnectionManager();
+  }
+
   DatabaseManager::getQueryExecutor().copyContentFromDatabase(
       DatabaseManager::restoredConnectionManager->getSQLiteFilePath(),
       DatabaseManager::restoredConnectionManager->getBackupDataKey());
