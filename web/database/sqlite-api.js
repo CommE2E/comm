@@ -8,7 +8,6 @@ import type {
   ClientDBHolderItem,
   StoredHolders,
 } from 'lib/types/holder-types.js';
-import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
   SQLiteAPI,
@@ -260,10 +259,10 @@ const sqliteAPI: SQLiteAPI = {
   //backup
   async restoreUserData(
     qrAuthBackupData: QRAuthBackupData,
-    identityAuthResult: IdentityAuthResult,
+    userID: string,
+    accessToken: string,
   ): Promise<void> {
     const { backupID, backupDataKey, backupLogDataKey } = qrAuthBackupData;
-    const { userID, accessToken } = identityAuthResult;
     const [deviceID, sharedWorker] = await Promise.all([
       getContentSigningKey(),
       getCommSharedWorker(),
