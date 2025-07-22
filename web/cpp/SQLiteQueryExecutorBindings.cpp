@@ -352,7 +352,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("getSyncedMetadata", &SQLiteQueryExecutor::getSyncedMetadata)
       .function("replaceHolder", &SQLiteQueryExecutor::replaceHolder)
       .function("removeHolders", &SQLiteQueryExecutor::removeHolders)
-      .function("getHolders", &SQLiteQueryExecutor::getHolders);
+      .function("getHolders", &SQLiteQueryExecutor::getHolders)
+      .function(
+          "removeLocalMessageInfos",
+          &SQLiteQueryExecutor::removeLocalMessageInfos);
 
   class_<SQLiteBackup>("SQLiteBackup")
       .class_function(

@@ -3154,6 +3154,38 @@ jsi::Value CommCoreModule::getHolders(jsi::Runtime &rt, jsi::String dbID) {
       });
 }
 
+jsi::Value CommCoreModule::removeLocalMessageInfos(
+    jsi::Runtime &rt,
+    bool includeNonLocalMessages,
+    jsi::String dbID) {
+  DatabaseIdentifier identifier = stringToDatabaseIdentifier(dbID.utf8(rt));
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor(identifier).beginTransaction();
+            DatabaseManager::getQueryExecutor(identifier)
+                .removeLocalMessageInfos(includeNonLocalMessages);
+            DatabaseManager::getQueryExecutor(identifier).commitTransaction();
+          } catch (std::system_error &e) {
+            error = e.what();
+            DatabaseManager::getQueryExecutor(identifier).rollbackTransaction();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt, error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
