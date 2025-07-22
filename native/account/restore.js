@@ -219,7 +219,11 @@ function useRestore(): (
           throw new Error('Missing identityAuthResult');
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
-        await userDataRestore(backupData, identityAuthResult);
+        await userDataRestore(
+          identityAuthResult.userID,
+          identityAuthResult.accessToken,
+          backupData,
+        );
       } catch (error) {
         const messageForException = getMessageForException(error);
         addLog(
