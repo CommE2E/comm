@@ -293,6 +293,18 @@ const sqliteAPI: SQLiteAPI = {
       type: workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB,
     });
   },
+
+  async removeLocalMessageInfos(
+    includeNonLocalMessages: boolean,
+    dbID: DatabaseIdentifier,
+  ): Promise<void> {
+    const sharedWorker = await getCommSharedWorker();
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.REMOVE_LOCAL_MESSAGE_INFOS,
+      includeNonLocalMessages,
+      dbID,
+    });
+  },
 };
 
 export { sqliteAPI };

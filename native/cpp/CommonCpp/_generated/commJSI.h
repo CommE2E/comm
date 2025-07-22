@@ -94,6 +94,7 @@ public:
   virtual jsi::Value migrateBackupSchema(jsi::Runtime &rt) = 0;
   virtual jsi::Value copyContentFromBackupDatabase(jsi::Runtime &rt) = 0;
   virtual jsi::Value getHolders(jsi::Runtime &rt, jsi::String dbID) = 0;
+  virtual jsi::Value removeLocalMessageInfos(jsi::Runtime &rt, bool includeNonLocalMessages, jsi::String dbID) = 0;
 
 };
 
@@ -706,6 +707,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getHolders, jsInvoker_, instance_, std::move(dbID));
+    }
+    jsi::Value removeLocalMessageInfos(jsi::Runtime &rt, bool includeNonLocalMessages, jsi::String dbID) override {
+      static_assert(
+          bridging::getParameterCount(&T::removeLocalMessageInfos) == 3,
+          "Expected removeLocalMessageInfos(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::removeLocalMessageInfos, jsInvoker_, instance_, std::move(includeNonLocalMessages), std::move(dbID));
     }
 
   private:

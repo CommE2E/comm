@@ -241,6 +241,10 @@ interface Spec extends TurboModule {
   +migrateBackupSchema: () => Promise<void>;
   +copyContentFromBackupDatabase: () => Promise<void>;
   +getHolders: (dbID: string) => Promise<$ReadOnlyArray<ClientDBHolderItem>>;
+  +removeLocalMessageInfos: (
+    includeNonLocalMessages: boolean,
+    dbID: string,
+  ) => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
