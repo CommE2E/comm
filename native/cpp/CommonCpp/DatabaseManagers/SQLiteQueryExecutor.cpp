@@ -1813,4 +1813,24 @@ std::vector<Holder> SQLiteQueryExecutor::getHolders() const {
   return getAllEntities<Holder>(this->getConnection(), query);
 }
 
+void SQLiteQueryExecutor::removeLocalMessageInfos(
+    bool includeNonLocalMessages) const {
+  if (!includeNonLocalMessages) {
+    static std::string removeLocalQuery =
+        "UPDATE backup_messages "
+        "SET local_id = NULL "
+        "WHERE id IN "
+        "  (SELECT id FROM backup_message_store_local); "
+        "DELETE FROM backup_message_store_local;";
+    executeQuery(this->getConnection(), removeLocalQuery);
+  } else {
+    static std::string removeWithNonLocalQuery =
+        "DELETE FROM backup_messages "
+        "WHERE id IN "
+        "  (SELECT id FROM backup_message_store_local); "
+        "DELETE FROM backup_message_store_local;";
+    executeQuery(this->getConnection(), removeWithNonLocalQuery);
+  }
+}
+
 } // namespace comm

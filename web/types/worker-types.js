@@ -59,6 +59,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_DATABASE_VERSION: 30,
   GET_SYNCED_METADATA: 31,
   GET_HOLDERS: 32,
+  REMOVE_LOCAL_MESSAGE_INFOS: 33,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -74,6 +75,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
   workerRequestMessageTypes.MIGRATE_BACKUP_SCHEMA,
   workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB,
+  workerRequestMessageTypes.REMOVE_LOCAL_MESSAGE_INFOS,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -273,6 +275,12 @@ export type GetHoldersRequestMessage = {
   +dbID: DatabaseIdentifier,
 };
 
+export type RemoveLocalMessageInfosRequestMessage = {
+  +type: 33,
+  +includeNonLocalMessages: boolean,
+  +dbID: DatabaseIdentifier,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -306,7 +314,8 @@ export type WorkerRequestMessage =
   | CopyContentFromBackupDatabaseRequestMessage
   | GetDatabaseVersionRequestMessage
   | GetSyncedMetadataRequestMessage
-  | GetHoldersRequestMessage;
+  | GetHoldersRequestMessage
+  | RemoveLocalMessageInfosRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,

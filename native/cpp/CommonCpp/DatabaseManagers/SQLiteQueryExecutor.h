@@ -203,6 +203,7 @@ public:
   void replaceHolder(const Holder &holder) const override;
   void removeHolders(const std::vector<std::string> &hashes) const override;
   std::vector<Holder> getHolders() const override;
+  void removeLocalMessageInfos(bool includeNonLocalMessages) const override;
 };
 
 } // namespace comm
