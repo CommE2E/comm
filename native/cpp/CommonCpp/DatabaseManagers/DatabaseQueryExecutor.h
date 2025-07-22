@@ -212,6 +212,7 @@ public:
   virtual void replaceHolder(const Holder &holder) const = 0;
   virtual void removeHolders(const std::vector<std::string> &hashes) const = 0;
   virtual std::vector<Holder> getHolders() const = 0;
+  virtual void removeLocalMessageInfos(bool includeNonLocalMessages) const = 0;
 
   virtual ~DatabaseQueryExecutor() = default;
 };

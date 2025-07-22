@@ -220,6 +220,7 @@ function useRestore(): (
         }
         const backupData = await commCoreModule.getQRAuthBackupData();
         await userDataRestore(
+          true,
           identityAuthResult.userID,
           identityAuthResult.accessToken,
           backupData,

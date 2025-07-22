@@ -89,6 +89,7 @@ const sqliteAPI: SQLiteAPI = {
   },
   migrateBackupSchema: commCoreModule.migrateBackupSchema,
   copyContentFromBackupDatabase: commCoreModule.copyContentFromBackupDatabase,
+  removeLocalMessageInfos: commCoreModule.removeLocalMessageInfos,
 };
 
 export { sqliteAPI };

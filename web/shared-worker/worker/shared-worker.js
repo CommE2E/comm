@@ -620,6 +620,41 @@ async function processAppRequest(
       setSQLiteQueryExecutor(null, databaseIdentifier.RESTORED);
     }
     await localforage.removeItem(RESTORED_SQLITE_CONTENT);
+  } else if (
+    message.type === workerRequestMessageTypes.REMOVE_LOCAL_MESSAGE_INFOS
+  ) {
+    if (message.dbID && message.dbID === databaseIdentifier.RESTORED) {
+      const restoredQueryExecutor = getSQLiteQueryExecutorOrThrow(
+        databaseIdentifier.RESTORED,
+        message,
+      );
+      try {
+        restoredQueryExecutor.beginTransaction();
+        restoredQueryExecutor.removeLocalMessageInfos(
+          message.includeNonLocalMessages,
+        );
+        restoredQueryExecutor.commitTransaction();
+      } catch (e) {
+        restoredQueryExecutor.rollbackTransaction();
+        console.log(
+          'Error while removing local message infos from restored DB: ',
+          e,
+        );
+        throw e;
+      }
+    } else {
+      try {
+        sqliteQueryExecutor.beginTransaction();
+        sqliteQueryExecutor.removeLocalMessageInfos(
+          message.includeNonLocalMessages,
+        );
+        sqliteQueryExecutor.commitTransaction();
+      } catch (e) {
+        sqliteQueryExecutor.rollbackTransaction();
+        console.log('Error while removing local message infos: ', e);
+        throw e;
+      }
+    }
   }
 
   persistNeeded = true;

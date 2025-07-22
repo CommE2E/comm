@@ -229,6 +229,8 @@ declare export class SQLiteQueryExecutor {
   removeHolders(hashes: $ReadOnlyArray<string>): void;
   getHolders(): $ReadOnlyArray<ClientDBHolderItem>;
 
+  removeLocalMessageInfos(includeNonLocalMessages: boolean): void;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
