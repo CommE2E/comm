@@ -80,9 +80,9 @@ async function getTBConnectionInfo(): Promise<TBConnectionInfo> {
     return tbConfig;
   }
 
-  console.warn('Defaulting to staging Tunnelbroker');
+  console.warn('Defaulting to local Tunnelbroker');
   return {
-    url: 'wss://tunnelbroker.staging.commtechnologies.org:51001',
+    url: 'ws://192.168.83.205:51001',
   };
 }
 

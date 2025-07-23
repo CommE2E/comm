@@ -42,8 +42,7 @@ impl ServiceConfig for IdentityServiceConfig {
 
   fn debug_default() -> Self {
     Self {
-      identity_socket_addr:
-        "https://identity.staging.commtechnologies.org:50054".to_string(),
+      identity_socket_addr: "http://192.168.83.205:50054".to_string(),
     }
   }
 
@@ -73,8 +72,7 @@ impl ServiceConfig for BackupServiceConfig {
 
   fn debug_default() -> Self {
     Self {
-      backup_socket_addr: "https://backup.staging.commtechnologies.org"
-        .to_string(),
+      backup_socket_addr: "http://192.168.83.205:50052".to_string(),
     }
   }
 

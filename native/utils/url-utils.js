@@ -10,7 +10,7 @@ import {
   checkForMissingNatDevHostname,
 } from './dev-hostname.js';
 
-const localhostHostname = 'localhost';
+const localhostHostname = '192.168.83.205';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';
 
 const productionNodeServerURL = 'https://squadcal.org';
