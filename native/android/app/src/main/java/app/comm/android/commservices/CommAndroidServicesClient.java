@@ -38,10 +38,10 @@ public class CommAndroidServicesClient {
       new CommAndroidServicesClient();
 
   public static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
-      ? "https://blob.staging.commtechnologies.org"
+      ? "http://192.168.100.9:50053"
       : "https://blob.commtechnologies.org";
   public static final String IDENTITY_SERVICE_URL = BuildConfig.DEBUG
-      ? "https://identity.staging.commtechnologies.org:51004"
+      ? "http://192.168.100.9:51004"
       : "https://identity.commtechnologies.org:51004";
   public static final String BLOB_HASH_KEY = "blob_hash";
   public static final String BLOB_HOLDER_KEY = "holder";
