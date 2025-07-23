@@ -51,6 +51,13 @@ export type MessageEntity = {
   +medias: $ReadOnlyArray<Media>,
 };
 
+export type ClientDBQueuedDMOperation = {
+  +queue_type: string,
+  +queue_key: string,
+  +operation_data: string,
+  +timestamp: string,
+};
+
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string, skipMigration: boolean): void;
 
@@ -228,6 +235,11 @@ declare export class SQLiteQueryExecutor {
   replaceHolder(holder: ClientDBHolderItem): void;
   removeHolders(hashes: $ReadOnlyArray<string>): void;
   getHolders(): $ReadOnlyArray<ClientDBHolderItem>;
+
+  addQueuedDMOperation(operation: ClientDBQueuedDMOperation): void;
+  removeQueuedDMOperationsOlderThan(timestamp: string): void;
+  clearQueuedDMOperations(queueType: string, queueKey: string): void;
+  getQueuedDMOperations(): $ReadOnlyArray<ClientDBQueuedDMOperation>;
 
   removeLocalMessageInfos(includeNonLocalMessages: boolean): void;
 

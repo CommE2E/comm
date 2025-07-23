@@ -14,6 +14,7 @@
 #include "entities/Media.h"
 #include "entities/Message.h"
 #include "entities/MessageSearchResult.h"
+#include "entities/QueuedDMOperation.h"
 #include "entities/SQLiteStatementWrapper.h"
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
@@ -203,6 +204,13 @@ public:
   void replaceHolder(const Holder &holder) const override;
   void removeHolders(const std::vector<std::string> &hashes) const override;
   std::vector<Holder> getHolders() const override;
+  void addQueuedDMOperation(const QueuedDMOperation &operation) const override;
+  void removeQueuedDMOperationsOlderThan(
+      const std::string &timestamp) const override;
+  void clearQueuedDMOperations(
+      const std::string &queueType,
+      const std::string &queueKey) const override;
+  std::vector<QueuedDMOperation> getQueuedDMOperations() const override;
   void removeLocalMessageInfos(bool includeNonLocalMessages) const override;
 };
 

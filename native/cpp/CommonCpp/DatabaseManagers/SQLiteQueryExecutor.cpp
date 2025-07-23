@@ -1833,4 +1833,70 @@ void SQLiteQueryExecutor::removeLocalMessageInfos(
   }
 }
 
+void SQLiteQueryExecutor::addQueuedDMOperation(
+    const QueuedDMOperation &operation) const {
+  static std::string query =
+      "INSERT INTO queued_dm_operations( "
+      "  queue_type, queue_key, operation_data, timestamp) "
+      "VALUES (:queue_type, :queue_key, :operation_data, :timestamp);";
+  SQLiteQueuedDMOperation sqliteOperation =
+      operation.toSQLiteQueuedDMOperation();
+  replaceEntity<SQLiteQueuedDMOperation>(
+      this->getConnection(), query, sqliteOperation);
+}
+
+void SQLiteQueryExecutor::removeQueuedDMOperationsOlderThan(
+    const std::string &timestamp) const {
+  static std::string query =
+      "DELETE FROM queued_dm_operations "
+      "WHERE timestamp < :timestamp;";
+
+  SQLiteStatementWrapper preparedSQL(
+      getConnection(), query, "removeQueuedDMOperationsOlderThan");
+
+  int timestamp_index = sqlite3_bind_parameter_index(preparedSQL, ":timestamp");
+  bindStringToSQL(timestamp, preparedSQL, timestamp_index);
+  sqlite3_step(preparedSQL);
+}
+
+void SQLiteQueryExecutor::clearQueuedDMOperations(
+    const std::string &queueType,
+    const std::string &queueKey) const {
+  static std::string query =
+      "DELETE FROM queued_dm_operations "
+      "WHERE queue_type = :queue_type AND queue_key = :queue_key;";
+
+  SQLiteStatementWrapper preparedSQL(
+      getConnection(), query, "clearQueuedDMOperations");
+
+  int queue_type_index =
+      sqlite3_bind_parameter_index(preparedSQL, ":queue_type");
+  bindStringToSQL(queueType, preparedSQL, queue_type_index);
+
+  int queue_key_index = sqlite3_bind_parameter_index(preparedSQL, ":queue_key");
+  bindStringToSQL(queueKey, preparedSQL, queue_key_index);
+
+  sqlite3_step(preparedSQL);
+}
+
+std::vector<QueuedDMOperation>
+SQLiteQueryExecutor::getQueuedDMOperations() const {
+  static std::string query =
+      "SELECT queue_type, queue_key, operation_data, timestamp "
+      "FROM queued_dm_operations "
+      "ORDER BY timestamp ASC;";
+
+  std::vector<SQLiteQueuedDMOperation> sqliteOperations =
+      getAllEntities<SQLiteQueuedDMOperation>(this->getConnection(), query);
+
+  std::vector<QueuedDMOperation> operations;
+  operations.reserve(sqliteOperations.size());
+
+  for (const auto &sqliteOp : sqliteOperations) {
+    operations.emplace_back(sqliteOp);
+  }
+
+  return operations;
+}
+
 } // namespace comm
