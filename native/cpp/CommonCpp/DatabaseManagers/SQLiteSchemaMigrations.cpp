@@ -917,6 +917,24 @@ bool create_holders_table(sqlite3 *db) {
   return SQLiteSchema::createTable(db, query, "holders");
 }
 
+bool create_queued_dm_operations_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS queued_dm_operations ("
+      "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "  queue_type TEXT NOT NULL,"
+      "  queue_key TEXT NOT NULL,"
+      "  operation_data TEXT NOT NULL,"
+      "  timestamp INTEGER NOT NULL"
+      ");"
+
+      "CREATE INDEX IF NOT EXISTS queued_dm_operations_idx_timestamp"
+      "  ON queued_dm_operations (timestamp);"
+      "CREATE INDEX IF NOT EXISTS queued_dm_operations_idx_queue"
+      "  ON queued_dm_operations (queue_type, queue_key);";
+
+  return SQLiteSchema::createTable(db, query, "queued_dm_operations");
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -964,6 +982,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {54, {create_dm_operations_table, true}},
      {55, {convert_target_message_to_standard_column, true}},
      {56, {create_backup_tables, true}},
-     {57, {create_holders_table, true}}}};
+     {57, {create_holders_table, true}},
+     {58, {create_queued_dm_operations_table, true}}}};
 
 } // namespace comm
