@@ -17,6 +17,7 @@ set(DBM_HDRS
   "entities/SQLiteDataConverters.h"
   "entities/Draft.h"
   "entities/Holder.h"
+  "entities/QueuedDMOperation.h"
   "entities/Media.h"
   "entities/Message.h"
   "entities/Metadata.h"

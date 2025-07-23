@@ -18,6 +18,7 @@
 #include "entities/OlmPersistSession.h"
 #include "entities/OutboundP2PMessage.h"
 #include "entities/PersistItem.h"
+#include "entities/QueuedDMOperation.h"
 #include "entities/Report.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/Thread.h"
@@ -213,6 +214,14 @@ public:
   virtual void replaceHolder(const Holder &holder) const = 0;
   virtual void removeHolders(const std::vector<std::string> &hashes) const = 0;
   virtual std::vector<Holder> getHolders() const = 0;
+  virtual void
+  addQueuedDMOperation(const QueuedDMOperation &operation) const = 0;
+  virtual void
+  removeQueuedDMOperationsOlderThan(const std::string &timestamp) const = 0;
+  virtual void clearQueuedDMOperations(
+      const std::string &queueType,
+      const std::string &queueKey) const = 0;
+  virtual std::vector<QueuedDMOperation> getQueuedDMOperations() const = 0;
   virtual void removeLocalMessageInfos(bool includeNonLocalMessages) const = 0;
 
   virtual ~DatabaseQueryExecutor() = default;
