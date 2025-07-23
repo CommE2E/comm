@@ -9,7 +9,7 @@ import type { FarcasterWebViewMessage } from 'lib/types/farcaster-types.js';
 import type { WebViewMessageEvent } from '../types/web-view-types.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
-const commConnectFarcasterURL = `${defaultLandingURLPrefix}/connect-farcaster`;
+const commConnectFarcasterURL = `https://comm.app/connect-farcaster`;
 
 const webViewSource = { uri: commConnectFarcasterURL };
 
