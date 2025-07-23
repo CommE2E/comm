@@ -737,7 +737,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         return;
       }
       const defaultCorsConfig = {
-        domain: 'http://localhost:3000',
+        domain: 'http://192.168.83.107:3000',
       };
       await writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
     },

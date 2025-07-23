@@ -75,9 +75,9 @@ impl Default for IdentityServiceConfig {
     info!("Using default identity configuration based on NODE_ENV");
 
     const DEV_SOCKET_ADDR: &str =
-      "https://identity.staging.commtechnologies.org:50054";
+      "http://192.168.83.107:50054";
     const PROD_SOCKET_ADDR: &str =
-      "https://identity.commtechnologies.org:50054";
+      "http://192.168.83.107:50054";
 
     let default_socket_addr = match var(ENV_NODE_ENV) {
       Ok(val) if val == ENV_DEVELOPMENT => DEV_SOCKET_ADDR,
