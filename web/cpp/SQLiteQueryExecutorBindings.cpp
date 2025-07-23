@@ -145,6 +145,12 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("holder", &Holder::holder)
       .field("status", &Holder::status);
 
+  value_object<QueuedDMOperation>("QueuedDMOperation")
+      .field("queueType", &QueuedDMOperation::queue_type)
+      .field("queueKey", &QueuedDMOperation::queue_key)
+      .field("operationData", &QueuedDMOperation::operation_data)
+      .field("timestamp", &QueuedDMOperation::timestamp);
+
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string, bool>()
       .function("migrate", &SQLiteQueryExecutor::migrate)
@@ -353,6 +359,16 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("replaceHolder", &SQLiteQueryExecutor::replaceHolder)
       .function("removeHolders", &SQLiteQueryExecutor::removeHolders)
       .function("getHolders", &SQLiteQueryExecutor::getHolders)
+      .function(
+          "addQueuedDMOperation", &SQLiteQueryExecutor::addQueuedDMOperation)
+      .function(
+          "removeQueuedDMOperationsOlderThan",
+          &SQLiteQueryExecutor::removeQueuedDMOperationsOlderThan)
+      .function(
+          "clearQueuedDMOperations",
+          &SQLiteQueryExecutor::clearQueuedDMOperations)
+      .function(
+          "getQueuedDMOperations", &SQLiteQueryExecutor::getQueuedDMOperations)
       .function(
           "removeLocalMessageInfos",
           &SQLiteQueryExecutor::removeLocalMessageInfos);
