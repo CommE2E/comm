@@ -4,10 +4,8 @@
 #import "Logger.h"
 
 #ifdef DEBUG
-NSString const *blobServiceAddress =
-    @"https://blob.staging.commtechnologies.org";
-NSString const *identityServiceAddress =
-    @"https://identity.staging.commtechnologies.org:51004";
+NSString const *blobServiceAddress = @"http://192.168.100.9:50053";
+NSString const *identityServiceAddress = @"http://192.168.100.9:51004";
 #else
 NSString const *blobServiceAddress = @"https://blob.commtechnologies.org";
 NSString const *identityServiceAddress =
