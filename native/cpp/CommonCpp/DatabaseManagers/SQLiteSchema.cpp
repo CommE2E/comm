@@ -241,6 +241,14 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  status TEXT NOT NULL"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS queued_dm_operations ("
+      "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "  queue_type TEXT NOT NULL,"
+      "  queue_key TEXT NOT NULL,"
+      "  operation_data TEXT NOT NULL,"
+      "  timestamp INTEGER NOT NULL"
+      ");"
+
       "CREATE INDEX IF NOT EXISTS media_idx_container"
       "  ON media (container);"
 
@@ -263,7 +271,12 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  ON outbound_p2p_messages (device_id, timestamp);"
 
       "CREATE INDEX IF NOT EXISTS dm_operations_idx_type"
-      "  ON dm_operations (type);";
+      "  ON dm_operations (type);"
+
+      "CREATE INDEX IF NOT EXISTS queued_dm_operations_idx_timestamp"
+      "  ON queued_dm_operations (timestamp);"
+      "CREATE INDEX IF NOT EXISTS queued_dm_operations_idx_queue"
+      "  ON queued_dm_operations (queue_type, queue_key);";
 
   char *error;
   sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
