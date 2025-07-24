@@ -47,6 +47,7 @@ function SQLiteDataHandler(): React.Node {
       shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
     ) {
       try {
+        console.info(new Date().toISOString(), '- Starting DB cleanup');
         setDatabaseResetStatus(databaseResetStatus.RESET_IN_PROGRESS);
         await sharedWorker.init({ clearDatabase: true });
         setDatabaseResetStatus(databaseResetStatus.READY);
