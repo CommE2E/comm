@@ -203,6 +203,7 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +resetOutboundP2PMessagesForDevice: (
     deviceID: string,
+    newDeviceID?: ?string,
   ) => Promise<Array<string>>;
   // This type should be DatabaseIdentifier
   +getDatabaseVersion: (dbID: string) => Promise<number>;

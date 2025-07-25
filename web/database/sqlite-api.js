@@ -206,12 +206,14 @@ const sqliteAPI: SQLiteAPI = {
 
   async resetOutboundP2PMessagesForDevice(
     deviceID: string,
+    newDeviceID?: ?string,
   ): Promise<Array<string>> {
     const sharedWorker = await getCommSharedWorker();
 
     const data = await sharedWorker.schedule({
       type: workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
       deviceID,
+      newDeviceID,
     });
     const messageIDs: ?$ReadOnlyArray<string> = data?.messageIDs;
     return messageIDs ? [...messageIDs] : [];
