@@ -82,7 +82,7 @@ public:
   virtual jsi::Value getUnsentOutboundP2PMessages(jsi::Runtime &rt) = 0;
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessage(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
-  virtual jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID) = 0;
+  virtual jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID, std::optional<jsi::String> newDeviceID) = 0;
   virtual jsi::Value getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) = 0;
   virtual jsi::Value getSyncedMetadata(jsi::Runtime &rt, jsi::String entryName, jsi::String dbID) = 0;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
@@ -613,13 +613,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeOutboundP2PMessage, jsInvoker_, instance_, std::move(messageID), std::move(deviceID));
     }
-    jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID) override {
+    jsi::Value resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, jsi::String deviceID, std::optional<jsi::String> newDeviceID) override {
       static_assert(
-          bridging::getParameterCount(&T::resetOutboundP2PMessagesForDevice) == 2,
-          "Expected resetOutboundP2PMessagesForDevice(...) to have 2 parameters");
+          bridging::getParameterCount(&T::resetOutboundP2PMessagesForDevice) == 3,
+          "Expected resetOutboundP2PMessagesForDevice(...) to have 3 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::resetOutboundP2PMessagesForDevice, jsInvoker_, instance_, std::move(deviceID));
+          rt, &T::resetOutboundP2PMessagesForDevice, jsInvoker_, instance_, std::move(deviceID), std::move(newDeviceID));
     }
     jsi::Value getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) override {
       static_assert(

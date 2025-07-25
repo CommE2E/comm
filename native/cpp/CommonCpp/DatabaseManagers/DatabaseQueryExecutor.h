@@ -176,8 +176,9 @@ public:
   virtual void markOutboundP2PMessageAsSent(
       std::string messageID,
       std::string deviceID) const = 0;
-  virtual std::vector<std::string>
-  resetOutboundP2PMessagesForDevice(std::string deviceID) const = 0;
+  virtual std::vector<std::string> resetOutboundP2PMessagesForDevice(
+      std::string deviceID,
+      std::optional<std::string> newDeviceID) const = 0;
   virtual void addInboundP2PMessage(InboundP2PMessage message) const = 0;
   virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
