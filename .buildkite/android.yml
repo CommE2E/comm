@@ -16,5 +16,6 @@ steps:
           image: 'reactnativecommunity/react-native-android:latest'
           shell: ['/bin/bash', '-e', '-c']
           propagate-environment: true
+          args: ['CMAKE_VERSION=3.18.1']
     agents:
       - 'autoscaling=true'
