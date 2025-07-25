@@ -2,6 +2,10 @@
 
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import {
+  convertClientDBDMOperationToDMOperation,
+  dmOperationsStoreOpsHandlers,
+} from 'lib/ops/dm-operations-store-ops.js';
 import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
@@ -40,7 +44,9 @@ async function getClientDBStore(
     threadActivityStore: null,
     entries: null,
     messageStoreLocalMessageInfos: null,
+    dmOperations: null,
     holders: null,
+    queuedDMOperations: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -160,10 +166,31 @@ async function getClientDBStore(
     };
   }
 
+  if (data?.store?.dmOperations && data.store.dmOperations.length > 0) {
+    result = {
+      ...result,
+      dmOperations: data.store.dmOperations.map(
+        convertClientDBDMOperationToDMOperation,
+      ),
+    };
+  }
+
   if (data?.store?.holders && data.store.holders.length > 0) {
     result = {
       ...result,
       holders: holderStoreOpsHandlers.translateClientDBData(data.store.holders),
+    };
+  }
+
+  if (
+    data?.store?.queuedDMOperations &&
+    data.store.queuedDMOperations.length > 0
+  ) {
+    result = {
+      ...result,
+      queuedDMOperations: dmOperationsStoreOpsHandlers.translateClientDBData(
+        data.store.queuedDMOperations,
+      ),
     };
   }
 
