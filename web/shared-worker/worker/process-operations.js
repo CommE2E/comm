@@ -665,6 +665,14 @@ function processDMOperationStoreOperations(
           type,
           operation: dmOperation,
         });
+      } else if (operation.type === 'add_queued_dm_operation') {
+        sqliteQueryExecutor.addQueuedDMOperation(operation.payload);
+      } else if (operation.type === 'clear_dm_operations_queue') {
+        const { queueType, queueKey } = operation.payload;
+        sqliteQueryExecutor.clearQueuedDMOperations(queueType, queueKey);
+      } else if (operation.type === 'prune_queued_dm_operations') {
+        const { timestamp } = operation.payload;
+        sqliteQueryExecutor.removeQueuedDMOperationsOlderThan(timestamp);
       } else {
         throw new Error('Unsupported DMOperation operation');
       }
