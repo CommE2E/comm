@@ -256,7 +256,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String deviceID) override;
   virtual jsi::Value resetOutboundP2PMessagesForDevice(
       jsi::Runtime &rt,
-      jsi::String deviceID) override;
+      jsi::String deviceID,
+      std::optional<jsi::String> newDeviceID) override;
   virtual jsi::Value
   getDatabaseVersion(jsi::Runtime &rt, jsi::String dbID) override;
   virtual jsi::Value getSyncedMetadata(
