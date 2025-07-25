@@ -206,7 +206,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeOutboundP2PMessage(rt, args[0].asString(rt), args[1].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->resetOutboundP2PMessagesForDevice(rt, args[0].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->resetOutboundP2PMessagesForDevice(rt, args[0].asString(rt), args[1].isNull() || args[1].isUndefined() ? std::nullopt : std::make_optional(args[1].asString(rt)));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDatabaseVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDatabaseVersion(rt, args[0].asString(rt));
@@ -312,7 +312,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getUnsentOutboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUnsentOutboundP2PMessages};
   methodMap_["markOutboundP2PMessageAsSent"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PMessageAsSent};
   methodMap_["removeOutboundP2PMessage"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessage};
-  methodMap_["resetOutboundP2PMessagesForDevice"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice};
+  methodMap_["resetOutboundP2PMessagesForDevice"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice};
   methodMap_["getDatabaseVersion"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDatabaseVersion};
   methodMap_["getSyncedMetadata"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedMetadata};
   methodMap_["markPrekeysAsPublished"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished};
