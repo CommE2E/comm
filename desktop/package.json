@@ -40,6 +40,7 @@
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
+    "babel-plugin-syntax-hermes-parser": "^0.29.1",
     "cross-env": "^7.0.3",
     "electron": "^25.8.4",
     "flow-bin": "^0.269.1",
