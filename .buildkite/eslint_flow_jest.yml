@@ -1,11 +1,11 @@
 steps:
   - label: ':eslint: :jest: ESLint & Flow & Jest'
-    command: '(pkill flow || true) && curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . /root/.cargo/env && apt update && apt install -y cmake && yarn ci-cleaninstall && yarn eslint:all --max-warnings=0 && yarn flow:all && yarn jest:all'
+    command: '(pkill flow || true) && curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . "/home/circleci/.cargo/env" && sudo apt update && sudo apt install -y cmake && yarn ci-cleaninstall && yarn eslint:all --max-warnings=0 && yarn flow:all && yarn jest:all'
     retry:
       automatic: true
     plugins:
       - docker#v5.3.0:
-          image: 'node:20.10.0-bullseye'
+          image: 'cimg/node:20.19'
           always-pull: true
           workdir: /comm
           propagate-environment: true
