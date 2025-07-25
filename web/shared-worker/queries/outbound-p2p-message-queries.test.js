@@ -211,8 +211,10 @@ describe('Outbound P2P messages queries', () => {
       MSG_NOT_RESET,
     ]);
 
-    const messageIDs =
-      queryExecutor?.resetOutboundP2PMessagesForDevice(deviceID);
+    const messageIDs = queryExecutor?.resetOutboundP2PMessagesForDevice(
+      deviceID,
+      null,
+    );
 
     expect(messageIDs).toEqual([
       MSG_TO_RESET_1.messageID,

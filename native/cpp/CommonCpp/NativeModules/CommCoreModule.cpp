@@ -18,6 +18,7 @@
 #include "JSIRust.h"
 #include "lib.rs.h"
 #include <algorithm>
+#include <optional>
 #include <string>
 
 namespace comm {
@@ -3007,8 +3008,12 @@ jsi::Value CommCoreModule::removeOutboundP2PMessage(
 
 jsi::Value CommCoreModule::resetOutboundP2PMessagesForDevice(
     jsi::Runtime &rt,
-    jsi::String deviceID) {
+    jsi::String deviceID,
+    std::optional<jsi::String> newDeviceID) {
   std::string deviceIDCpp{deviceID.utf8(rt)};
+  std::optional<std::string> newDeviceIDCpp = newDeviceID.has_value()
+      ? std::optional{newDeviceID.value().utf8(rt)}
+      : std::nullopt;
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -3019,7 +3024,8 @@ jsi::Value CommCoreModule::resetOutboundP2PMessagesForDevice(
           try {
             DatabaseManager::getQueryExecutor().beginTransaction();
             messageIDs = DatabaseManager::getQueryExecutor()
-                             .resetOutboundP2PMessagesForDevice(deviceIDCpp);
+                             .resetOutboundP2PMessagesForDevice(
+                                 deviceIDCpp, newDeviceIDCpp);
             DatabaseManager::getQueryExecutor().commitTransaction();
           } catch (std::system_error &e) {
             error = e.what();
