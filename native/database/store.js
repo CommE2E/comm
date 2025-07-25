@@ -2,6 +2,10 @@
 
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import {
+  convertClientDBDMOperationToDMOperation,
+  dmOperationsStoreOpsHandlers,
+} from 'lib/ops/dm-operations-store-ops.js';
 import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import { holderStoreOpsHandlers } from 'lib/ops/holder-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
@@ -36,7 +40,9 @@ async function getClientDBStore(
     threadActivityEntries,
     entries,
     messageStoreLocalMessageInfos,
+    dmOperations,
     holders,
+    queuedDMOperations,
   } = await commCoreModule.getClientDBStore(dbID);
   const threadInfosFromDB =
     threadStoreOpsHandlers.translateClientDBData(threads);
@@ -59,7 +65,12 @@ async function getClientDBStore(
   const localMessageInfosFromDB = translateClientDBLocalMessageInfos(
     messageStoreLocalMessageInfos,
   );
+  const dmOperationsFromDB = dmOperations.map(
+    convertClientDBDMOperationToDMOperation,
+  );
   const holdersFromDB = holderStoreOpsHandlers.translateClientDBData(holders);
+  const queuedDMOperationsFromDB =
+    dmOperationsStoreOpsHandlers.translateClientDBData(queuedDMOperations);
 
   return {
     drafts,
@@ -77,7 +88,9 @@ async function getClientDBStore(
     threadActivityStore: threadActivityStoreFromDB,
     entries: entriesFromDB,
     messageStoreLocalMessageInfos: localMessageInfosFromDB,
+    dmOperations: dmOperationsFromDB,
     holders: holdersFromDB,
+    queuedDMOperations: queuedDMOperationsFromDB,
   };
 }
 
