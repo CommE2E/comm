@@ -1,11 +1,10 @@
 // @flow
 
+import type { ClientDBQueuedDMOperation } from 'lib/ops/dm-operations-store-ops.js';
+
 import { getDatabaseModule } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
-import {
-  type SQLiteQueryExecutor,
-  type ClientDBQueuedDMOperation,
-} from '../types/sqlite-query-executor.js';
+import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
