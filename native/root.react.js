@@ -15,6 +15,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import Orientation from 'react-native-orientation-locker';
 import {
   SafeAreaProvider,
@@ -454,9 +455,11 @@ const styles = StyleSheet.create({
 function AppRoot(): React.Node {
   return (
     <Provider store={store}>
-      <CallKeyserverEndpointProvider>
-        <Root />
-      </CallKeyserverEndpointProvider>
+      <KeyboardProvider>
+        <CallKeyserverEndpointProvider>
+          <Root />
+        </CallKeyserverEndpointProvider>
+      </KeyboardProvider>
     </Provider>
   );
 }

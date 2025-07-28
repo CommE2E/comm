@@ -3,10 +3,15 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useCurrentUserFID,
+  useCurrentUserSupportsDCs,
+} from 'lib/utils/farcaster-utils.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -17,6 +22,7 @@ import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import ConnectFarcasterDCs from '../profile/connect-farcaster-dcs.react.js';
 import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
 const farcasterPromptHeight = 350;
@@ -37,8 +43,10 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
     React.useState<FarcasterWebViewState>('closed');
 
   const [isLoadingLinkFID, setIsLoadingLinkFID] = React.useState(false);
+  const [showConnectDCs, setShowConnectDCs] = React.useState(false);
 
   const fid = useCurrentUserFID();
+  const currentUserSupportsDCs = useCurrentUserSupportsDCs();
 
   const tryLinkFID = useTryLinkFID();
 
@@ -48,6 +56,9 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
       try {
         await tryLinkFID(newFID);
+        if (supportsFarcasterDCs) {
+          setShowConnectDCs(true);
+        }
       } finally {
         setIsLoadingLinkFID(false);
       }
@@ -71,19 +82,49 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   React.useEffect(() => {
     if (fid && isAppForegrounded) {
-      goBack();
+      if (currentUserSupportsDCs || !supportsFarcasterDCs) {
+        goBack();
+      } else if (supportsFarcasterDCs && !showConnectDCs) {
+        setShowConnectDCs(true);
+      }
     }
-  }, [fid, goBack, isAppForegrounded]);
+  }, [fid, goBack, isAppForegrounded, currentUserSupportsDCs, showConnectDCs]);
 
   const onPressConnect = React.useCallback(() => {
     setIsLoadingLinkFID(true);
     setWebViewState('opening');
   }, []);
 
+  const onConnectDCsSuccess = React.useCallback(() => {
+    setShowConnectDCs(false);
+    goBack();
+  }, [goBack]);
+
+  const onConnectDCsCancel = React.useCallback(() => {
+    setShowConnectDCs(false);
+    goBack();
+  }, [goBack]);
+
   const connectButtonVariant = isLoadingLinkFID ? 'loading' : 'enabled';
 
-  const connectFarcasterBottomSheet = React.useMemo(
-    () => (
+  const connectFarcasterBottomSheet = React.useMemo(() => {
+    if (showConnectDCs) {
+      return (
+        <BottomSheet onClosed={goBack}>
+          <KeyboardAvoidingView
+            behavior="padding"
+            style={styles.keyboardAvoidingView}
+          >
+            <ConnectFarcasterDCs
+              onSuccess={onConnectDCsSuccess}
+              onCancel={onConnectDCsCancel}
+            />
+          </KeyboardAvoidingView>
+        </BottomSheet>
+      );
+    }
+
+    return (
       <BottomSheet onClosed={goBack}>
         <View style={styles.container}>
           <View style={styles.promptContainer}>
@@ -97,9 +138,17 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         </View>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       </BottomSheet>
-    ),
-    [goBack, onPressConnect, connectButtonVariant, onSuccess, webViewState],
-  );
+    );
+  }, [
+    showConnectDCs,
+    goBack,
+    onConnectDCsSuccess,
+    onConnectDCsCancel,
+    onPressConnect,
+    connectButtonVariant,
+    onSuccess,
+    webViewState,
+  ]);
 
   return connectFarcasterBottomSheet;
 }
@@ -108,6 +157,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   promptContainer: {
     marginBottom,

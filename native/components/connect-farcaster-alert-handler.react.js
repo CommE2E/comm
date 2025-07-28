@@ -11,10 +11,12 @@ import {
 } from 'lib/types/alert-types.js';
 import {
   useCurrentUserFID,
+  useCurrentUserSupportsDCs,
   useSetLocalFID,
 } from 'lib/utils/farcaster-utils.js';
 import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { ConnectFarcasterBottomSheetRouteName } from '../navigation/route-names.js';
@@ -28,6 +30,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
 
   const fid = useCurrentUserFID();
+  const currentUserSupportsDCs = useCurrentUserSupportsDCs();
 
   const setLocalFID = useSetLocalFID();
 
@@ -38,11 +41,16 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    const shouldShowForDCs =
+      supportsFarcasterDCs && fid && !currentUserSupportsDCs;
+    const shouldShowForInitialConnection = !fid;
+
     if (
       !loggedIn ||
       !isActive ||
       shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) ||
-      connectFarcasterAlertInfo.coldStartCount < 2
+      connectFarcasterAlertInfo.coldStartCount < 2 ||
+      (!shouldShowForInitialConnection && !shouldShowForDCs)
     ) {
       return;
     }
@@ -69,6 +77,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     })();
   }, [
     connectFarcasterAlertInfo,
+    currentUserSupportsDCs,
     dispatch,
     fid,
     isActive,

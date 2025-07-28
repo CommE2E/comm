@@ -408,6 +408,8 @@ PODS:
     - React
   - react-native-in-app-message (1.0.2):
     - React
+  - react-native-keyboard-controller (1.18.2):
+    - React-Core
   - react-native-netinfo (9.3.7):
     - React-Core
   - react-native-orientation-locker (1.5.0):
@@ -629,6 +631,7 @@ DEPENDENCIES:
   - React-logger (from `../../node_modules/react-native/ReactCommon/logger`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-in-app-message (from `../node_modules/react-native-in-app-message`)
+  - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -783,6 +786,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-in-app-message:
     :path: "../node_modules/react-native-in-app-message"
+  react-native-keyboard-controller:
+    :path: "../node_modules/react-native-keyboard-controller"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-orientation-locker:
@@ -912,6 +917,7 @@ SPEC CHECKSUMS:
   React-logger: 31f198387a04172be49fe38e41a082560a81aeeb
   react-native-camera: b5c8c7a71feecfdd5b39f0dbbf6b64b957ed55f2
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
+  react-native-keyboard-controller: 935a3cfa2ef467ac2fbc64b0cf9a5907abe762a3
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
   react-native-pager-view: 3051346698a0ba0c4e13e40097cc11b00ee03cca

@@ -76,7 +76,7 @@ function InnerConnectFarcasterDCs(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   return (
-    <View style={styles.container}>
+    <>
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
@@ -111,16 +111,11 @@ function InnerConnectFarcasterDCs(props: Props): React.Node {
         />
         <PrimaryButton onPress={onCancel} label="Cancel" variant="outline" />
       </View>
-    </View>
+    </>
   );
 }
 
 const unboundStyles = {
-  container: {
-    flex: 1,
-    backgroundColor: 'panelBackground',
-    paddingBottom: 16,
-  },
   scrollView: {
     flex: 1,
   },
