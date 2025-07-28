@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../DatabaseManagers/entities/DMOperation.h"
+#include "../../../DatabaseManagers/entities/QueuedDMOperation.h"
 #include "../../DBOperationBase.h"
 #include "BaseDataStore.h"
 #include "DMOperationStoreOperations.h"
@@ -14,6 +15,9 @@ private:
   static OperationType REMOVE_OPERATION;
   static OperationType REMOVE_ALL_OPERATION;
   static OperationType REPLACE_OPERATION;
+  static OperationType ADD_OPERATION;
+  static OperationType CLEAR_OPERATION;
+  static OperationType PRUNE_OPERATION;
 
 public:
   DMOperationStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
@@ -25,6 +29,10 @@ public:
   jsi::Array parseDBDataStore(
       jsi::Runtime &rt,
       std::shared_ptr<std::vector<DMOperation>> dataVectorPtr) const override;
+
+  jsi::Array parseDBQueuedDMOperations(
+      jsi::Runtime &rt,
+      std::shared_ptr<std::vector<QueuedDMOperation>> dataVectorPtr) const;
 };
 
 } // namespace comm
