@@ -589,6 +589,10 @@ async function processAppRequest(
       message.deviceID,
     );
   } else if (
+    message.type === workerRequestMessageTypes.REMOVE_ALL_OUTBOUND_P2P_MESSAGES
+  ) {
+    sqliteQueryExecutor.removeAllOutboundP2PMessages(message.deviceID);
+  } else if (
     message.type === workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES
   ) {
     let messageIDs: $ReadOnlyArray<string> = [];

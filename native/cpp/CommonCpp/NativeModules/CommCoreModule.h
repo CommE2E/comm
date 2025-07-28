@@ -254,6 +254,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String messageID,
       jsi::String deviceID) override;
+  virtual jsi::Value
+  removeAllOutboundP2PMessages(jsi::Runtime &rt, jsi::String deviceID) override;
   virtual jsi::Value resetOutboundP2PMessagesForDevice(
       jsi::Runtime &rt,
       jsi::String deviceID,
