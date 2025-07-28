@@ -62,6 +62,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_HOLDERS: 32,
   REMOVE_LOCAL_MESSAGE_INFOS: 33,
   GET_AUX_USER_INFOS: 34,
+  REMOVE_ALL_OUTBOUND_P2P_MESSAGES: 35,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -78,6 +79,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.MIGRATE_BACKUP_SCHEMA,
   workerRequestMessageTypes.COPY_CONTENT_FROM_BACKUP_DB,
   workerRequestMessageTypes.REMOVE_LOCAL_MESSAGE_INFOS,
+  workerRequestMessageTypes.REMOVE_ALL_OUTBOUND_P2P_MESSAGES,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -289,6 +291,11 @@ export type GetAuxUserInfosRequestMessage = {
   +dbID: DatabaseIdentifier,
 };
 
+export type RemoveAllOutboundP2PMessagesRequestMessage = {
+  +type: 35,
+  +deviceID: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -324,7 +331,8 @@ export type WorkerRequestMessage =
   | GetSyncedMetadataRequestMessage
   | GetHoldersRequestMessage
   | RemoveLocalMessageInfosRequestMessage
-  | GetAuxUserInfosRequestMessage;
+  | GetAuxUserInfosRequestMessage
+  | RemoveAllOutboundP2PMessagesRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,

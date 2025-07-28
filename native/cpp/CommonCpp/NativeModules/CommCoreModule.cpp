@@ -3006,6 +3006,34 @@ jsi::Value CommCoreModule::removeOutboundP2PMessage(
       });
 }
 
+jsi::Value CommCoreModule::removeAllOutboundP2PMessages(
+    jsi::Runtime &rt,
+    jsi::String deviceID) {
+  auto deviceIDCpp{deviceID.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().removeAllOutboundP2PMessages(
+                deviceIDCpp);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::resetOutboundP2PMessagesForDevice(
     jsi::Runtime &rt,
     jsi::String deviceID,
