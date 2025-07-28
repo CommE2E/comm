@@ -232,6 +232,15 @@ const sqliteAPI: SQLiteAPI = {
     });
   },
 
+  async removeAllOutboundP2PMessages(deviceID: string) {
+    const sharedWorker = await getCommSharedWorker();
+
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.REMOVE_ALL_OUTBOUND_P2P_MESSAGES,
+      deviceID,
+    });
+  },
+
   async processDBStoreOperations(
     storeOperations: StoreOperations,
     dbID: DatabaseIdentifier,
