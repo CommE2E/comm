@@ -81,6 +81,7 @@ jsi::Value CommCoreModule::getClientDBStore(
           std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
           std::vector<DMOperation> dmOperationsVector;
           std::vector<Holder> holdersVector;
+          std::vector<QueuedDMOperation> queuedDMOperationsVector;
           try {
             draftsVector =
                 DatabaseManager::getQueryExecutor(identifier).getAllDrafts();
@@ -118,6 +119,9 @@ jsi::Value CommCoreModule::getClientDBStore(
                 DatabaseManager::getQueryExecutor(identifier).getDMOperations();
             holdersVector =
                 DatabaseManager::getQueryExecutor(identifier).getHolders();
+            queuedDMOperationsVector =
+                DatabaseManager::getQueryExecutor(identifier)
+                    .getQueuedDMOperations();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -162,6 +166,9 @@ jsi::Value CommCoreModule::getClientDBStore(
                   std::move(dmOperationsVector));
           auto holdersVectorPtr =
               std::make_shared<std::vector<Holder>>(std::move(holdersVector));
+          auto queuedDMOperationsVectorPtr =
+              std::make_shared<std::vector<QueuedDMOperation>>(
+                  std::move(queuedDMOperationsVector));
           this->jsInvoker_->invokeAsync(
               [&innerRt,
                draftsVectorPtr,
@@ -180,6 +187,7 @@ jsi::Value CommCoreModule::getClientDBStore(
                messageStoreLocalMessageInfosVectorPtr,
                dmOperationsVectorPtr,
                holdersVectorPtr,
+               queuedDMOperationsVectorPtr,
                error,
                promise,
                draftStore = this->draftStore,
@@ -236,6 +244,9 @@ jsi::Value CommCoreModule::getClientDBStore(
                     innerRt, dmOperationsVectorPtr);
                 jsi::Array jsiHolders =
                     holderStore.parseDBDataStore(innerRt, holdersVectorPtr);
+                jsi::Array jsiQueuedDMOperations =
+                    dmOperationStore.parseDBQueuedDMOperations(
+                        innerRt, queuedDMOperationsVectorPtr);
 
                 auto jsiClientDBStore = jsi::Object(innerRt);
                 jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -266,6 +277,8 @@ jsi::Value CommCoreModule::getClientDBStore(
                 jsiClientDBStore.setProperty(
                     innerRt, "dmOperations", jsiDMOperations);
                 jsiClientDBStore.setProperty(innerRt, "holders", jsiHolders);
+                jsiClientDBStore.setProperty(
+                    innerRt, "queuedDMOperations", jsiQueuedDMOperations);
 
                 promise->resolve(std::move(jsiClientDBStore));
               });
