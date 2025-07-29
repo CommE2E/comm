@@ -7,6 +7,7 @@ import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import {
   IdentityClientContext,
   type AuthMetadata,
+  type PartialAuthMetadata,
 } from 'lib/shared/identity-client-context.js';
 import type {
   IdentityServiceClient,
@@ -36,14 +37,29 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   const userID = useSelector(state => state.currentUserInfo?.id);
   const accessToken = useSelector(state => state.commServicesAccessToken);
 
+  const authMetadataOverride = React.useRef<?AuthMetadata>(null);
+  const setAuthMetadataOverride = React.useCallback(
+    (metadata: PartialAuthMetadata) => {
+      authMetadataOverride.current = metadata;
+    },
+    [],
+  );
+  const clearAuthMetadataOverride = React.useCallback(() => {
+    authMetadataOverride.current = null;
+  }, []);
+
   const getAuthMetadata = React.useCallback<
     () => Promise<AuthMetadata>,
   >(async () => {
     const contentSigningKey = await getContentSigningKey();
+
+    const { userID: userIDOverride, accessToken: csatOverride } =
+      authMetadataOverride.current ?? {};
+
     return {
-      userID,
+      userID: userIDOverride ?? userID,
       deviceID: contentSigningKey,
-      accessToken,
+      accessToken: csatOverride ?? accessToken,
     };
   }, [accessToken, userID]);
 
@@ -171,8 +187,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     () => ({
       identityClient: client,
       getAuthMetadata,
+      setAuthMetadataOverride,
+      clearAuthMetadataOverride,
     }),
-    [client, getAuthMetadata],
+    [
+      client,
+      getAuthMetadata,
+      setAuthMetadataOverride,
+      clearAuthMetadataOverride,
+    ],
   );
 
   return (
