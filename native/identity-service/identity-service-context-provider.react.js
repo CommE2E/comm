@@ -6,7 +6,11 @@ import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
 import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import { createAndSignSingletonDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import type {
+  AuthMetadata,
+  FullAuthMetadata,
+  PartialAuthMetadata,
+} from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
   identityKeysBlobValidator,
@@ -71,6 +75,18 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   }, []);
 
   const accessToken = useSelector(state => state.commServicesAccessToken);
+  const authMetadataOverride = React.useRef<?AuthMetadata>(null);
+
+  const setAuthMetadataOverride = React.useCallback(
+    (metadata: PartialAuthMetadata) => {
+      authMetadataOverride.current = metadata;
+    },
+    [],
+  );
+
+  const clearAuthMetadataOverride = React.useCallback(() => {
+    authMetadataOverride.current = null;
+  }, []);
 
   const getAuthMetadata = React.useCallback<
     () => Promise<{
@@ -79,12 +95,17 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       +accessToken: string,
     }>,
   >(async () => {
+    const { userID: userIDOverride, accessToken: csatOverride } =
+      authMetadataOverride.current ?? {};
+
     const deviceID = await getContentSigningKey();
-    const userID = await userIDPromiseRef.current;
-    if (!deviceID || !userID || !accessToken) {
+    const userID = userIDOverride ?? (await userIDPromiseRef.current);
+    const token = csatOverride ?? accessToken;
+
+    if (!deviceID || !userID || !token) {
       throw new Error('Identity AuthMetadata is missing');
     }
-    return { deviceID, userID, accessToken };
+    return { deviceID, userID, accessToken: token };
   }, [accessToken]);
 
   const processAuthResult = async (authResult: string, deviceID: string) => {
@@ -842,8 +863,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     () => ({
       identityClient: client,
       getAuthMetadata,
+      setAuthMetadataOverride,
+      clearAuthMetadataOverride,
     }),
-    [client, getAuthMetadata],
+    [
+      client,
+      getAuthMetadata,
+      setAuthMetadataOverride,
+      clearAuthMetadataOverride,
+    ],
   );
 
   return (
@@ -853,14 +881,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   );
 }
 
-// Unfortunately, Required<AuthMetadata>
-// doesn't work for `prop: ?string`
-type RequiredAuthMetadata = $ObjMap<
-  AuthMetadata,
-  <T>(prop: T) => $NonMaybeType<T>,
->;
 async function rawGetDeviceListsForUsers(
-  authMetadata: RequiredAuthMetadata,
+  authMetadata: FullAuthMetadata,
   userIDs: $ReadOnlyArray<string>,
 ): Promise<PeersDeviceLists> {
   const {
