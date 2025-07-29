@@ -158,6 +158,7 @@ export const RolesNavigatorRouteName = 'RolesNavigator';
 export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
+export const QRAuthProgressScreenRouteName = 'QRAuthProgressScreen';
 export const RestorePromptScreenRouteName = 'RestorePromptScreen';
 export const RestorePasswordAccountScreenRouteName =
   'RestorePasswordAccountScreen';
@@ -339,6 +340,7 @@ export type AuthParamList = {
   +RegistrationTerms: RegistrationTermsParams,
   +AccountDoesNotExist: void,
   +QRCodeScreen: void,
+  +QRAuthProgressScreen: void,
   +RestorePromptScreen: void,
   +RestorePasswordAccountScreen: void,
   +RestoreBackupScreen: RestoreBackupScreenParams,
