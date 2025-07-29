@@ -18,6 +18,7 @@
 #include "entities/SQLiteDataConverters.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/UserInfo.h"
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -1731,6 +1732,12 @@ void SQLiteQueryExecutor::copyContentFromDatabase(
       SQLiteBackup::tablesAllowlist.begin(),
       SQLiteBackup::tablesAllowlist.end());
 
+  // Remove queued_dm_operations from tableNames since it needs special handling
+  // due to autoincrement ID column.
+  tableNames.erase(
+      std::remove(tableNames.begin(), tableNames.end(), "queued_dm_operations"),
+      tableNames.end());
+
   if (!SQLiteUtils::fileExists(sourceDatabasePath)) {
     std::stringstream errorMessage;
     errorMessage << "Error: Source file does not exist at path: "
@@ -1751,6 +1758,13 @@ void SQLiteQueryExecutor::copyContentFromDatabase(
     sql << "INSERT OR IGNORE INTO " << tableName << " SELECT *"
         << " FROM sourceDB." << tableName << ";" << std::endl;
   }
+
+  // Handle queued_dm_operations separately since it has an autoincrement ID
+  // We need to insert without the ID column to let SQLite generate new IDs.
+  sql << "INSERT OR IGNORE INTO queued_dm_operations "
+      << "(queue_type, queue_key, operation_data, timestamp) "
+      << "SELECT queue_type, queue_key, operation_data, timestamp "
+      << "FROM sourceDB.queued_dm_operations;" << std::endl;
 
   // There is a similar code for "live" index processing. Before making any
   // changes here, please reference `getMessageSearchStoreOps` in

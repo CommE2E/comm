@@ -29,7 +29,8 @@ std::unordered_set<std::string> SQLiteBackup::tablesAllowlist = {
     "backup_entries",
     "backup_message_store_local",
     "holders",
-};
+    "dm_operations",
+    "queued_dm_operations"};
 
 void SQLiteBackup::cleanupDatabaseExceptAllowlist(sqlite3 *db) {
   std::vector<std::string> tables = SQLiteUtils::getAllTableNames(db);

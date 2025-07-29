@@ -378,4 +378,48 @@ describe('Multiple databases', () => {
     expect(searchResults.length).toBe(1);
     expect(searchResults[0].message.id).toBe(originalMessageID);
   });
+
+  it('copies queued_dm_operations with new autoincrement IDs', () => {
+    // Test operations to add to backup database
+    const testOperations = [
+      {
+        queueType: 'thread',
+        queueKey: 'thread123',
+        operationData: '{"type":"send_text_message","text":"Hello"}',
+        timestamp: '1642500000000',
+      },
+      {
+        queueType: 'membership',
+        queueKey: 'thread456#user789',
+        operationData: '{"type":"add_members","userIDs":["user789"]}',
+        timestamp: '1642500001000',
+      },
+      {
+        queueType: 'message',
+        queueKey: 'msg101',
+        operationData: '{"type":"send_reaction","reaction":"👍"}',
+        timestamp: '1642500002000',
+      },
+    ];
+
+    // Add operations to backup database
+    testOperations.forEach(op => {
+      backupQueryExecutor.addQueuedDMOperation(op);
+    });
+
+    // Verify operations exist in backup
+    const backupOperations = backupQueryExecutor.getQueuedDMOperations();
+    expect(backupOperations.length).toBe(3);
+
+    // Verify main database is empty
+    let mainOperations = mainQueryExecutor.getQueuedDMOperations();
+    expect(mainOperations.length).toBe(0);
+
+    // Copy content from backup to main
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+
+    // Verify operations were copied to main database
+    mainOperations = mainQueryExecutor.getQueuedDMOperations();
+    expect(mainOperations.length).toBe(3);
+  });
 });
