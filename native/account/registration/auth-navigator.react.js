@@ -55,6 +55,7 @@ import {
   type ScreenParamList,
   type AuthParamList,
   QRCodeScreenRouteName,
+  QRAuthProgressScreenRouteName,
   RestorePromptScreenRouteName,
   RestorePasswordAccountScreenRouteName,
   RestoreBackupScreenRouteName,
@@ -62,6 +63,7 @@ import {
   RestoreSIWEBackupRouteName,
   ConnectFarcasterDCsRouteName,
 } from '../../navigation/route-names.js';
+import QRAuthProgressScreen from '../qr-auth-progress-screen.react.js';
 import QRCodeScreen from '../qr-code-screen.react.js';
 import RestoreBackupErrorScreen from '../restore-backup-error-screen.react.js';
 import RestoreBackupScreen from '../restore-backup-screen.react.js';
@@ -214,6 +216,11 @@ function AuthComponent(props: Props): React.Node {
         component={AccountDoesNotExist}
       />
       <Auth.Screen name={QRCodeScreenRouteName} component={QRCodeScreen} />
+      <Auth.Screen
+        name={QRAuthProgressScreenRouteName}
+        component={QRAuthProgressScreen}
+        options={disableGesturesScreenOptions}
+      />
       <Auth.Screen
         name={RestorePromptScreenRouteName}
         component={RestorePromptScreen}
