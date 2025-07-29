@@ -22,7 +22,10 @@ import AuthContentContainer from './auth-components/auth-content-container.react
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import LinkButton from '../components/link-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { RestorePromptScreenRouteName } from '../navigation/route-names.js';
+import {
+  RestorePromptScreenRouteName,
+  QRAuthProgressScreenRouteName,
+} from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type QRCodeScreenProps = {
@@ -31,8 +34,13 @@ type QRCodeScreenProps = {
 };
 
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const { qrData, openSecondaryQRAuth, closeSecondaryQRAuth, canGenerateQRs } =
-    useSecondaryDeviceQRAuthContext();
+  const {
+    qrData,
+    openSecondaryQRAuth,
+    closeSecondaryQRAuth,
+    canGenerateQRs,
+    qrAuthInProgress,
+  } = useSecondaryDeviceQRAuthContext();
 
   const [attemptNumber, setAttemptNumber] = React.useState(0);
 
@@ -57,6 +65,14 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     React.useCallback(() => {
       return closeSecondaryQRAuth;
     }, [closeSecondaryQRAuth]),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (qrAuthInProgress) {
+        props.navigation.navigate(QRAuthProgressScreenRouteName);
+      }
+    }, [qrAuthInProgress, props.navigation]),
   );
 
   const { platform } = getConfig().platformDetails;
