@@ -17,6 +17,7 @@ import {
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { convertQueuedDMOperationsStoreToAddOps } from 'lib/ops/dm-operations-store-ops.js';
 import type {
   ClientDBEntryStoreOperation,
   ReplaceEntryOperation,
@@ -1687,6 +1688,17 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       state,
       ops: {
         holderStoreOperations: operations,
+      },
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [95]: (async (state: AppState) => {
+    const queuedDMOperations = state.queuedDMOperations;
+
+    return {
+      state,
+      ops: {
+        dmOperationStoreOperations:
+          convertQueuedDMOperationsStoreToAddOps(queuedDMOperations),
       },
     };
   }: MigrationFunction<NavInfo, AppState>),
