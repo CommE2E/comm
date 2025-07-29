@@ -11,7 +11,6 @@ const persistWhitelist = [
   'customServer',
   'messageStore',
   'tunnelbrokerDeviceToken',
-  'queuedDMOperations',
   'restoreBackupState',
 ];
 

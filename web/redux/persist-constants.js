@@ -3,6 +3,6 @@
 const rootKey = 'root';
 const rootKeyPrefix = 'persist:';
 const completeRootKey = `${rootKeyPrefix}${rootKey}`;
-const storeVersion = 94;
+const storeVersion = 95;
 
 export { rootKey, rootKeyPrefix, completeRootKey, storeVersion };
