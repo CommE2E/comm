@@ -7,6 +7,7 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
+import { convertQueuedDMOperationsStoreToAddOps } from 'lib/ops/dm-operations-store-ops.js';
 import {
   type HolderStoreOperation,
   createReplaceHoldersOperation,
@@ -901,6 +902,17 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
       state,
       ops: {
         holderStoreOperations: operations,
+      },
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [95]: (async (state: AppState) => {
+    const queuedDMOperations = state.queuedDMOperations;
+
+    return {
+      state,
+      ops: {
+        dmOperationStoreOperations:
+          convertQueuedDMOperationsStoreToAddOps(queuedDMOperations),
       },
     };
   }: MigrationFunction<WebNavInfo, AppState>),
