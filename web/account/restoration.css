@@ -177,6 +177,7 @@ div.content .bottom {
   flex-direction: column;
   align-items: stretch;
   row-gap: 8px;
+  margin-top: auto;
 }
 
 .errorButtons button {
