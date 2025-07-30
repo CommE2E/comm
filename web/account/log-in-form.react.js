@@ -167,11 +167,17 @@ function LoginForm() {
     state => state.restoreBackupState.status !== 'no_backup',
   );
 
-  if (fullBackupSupport && (qrAuthInProgress || userDataRestoreStarted)) {
+  const [errorUIShown, setErrorUIShown] = React.useState(false);
+
+  if (
+    fullBackupSupport &&
+    (qrAuthInProgress || userDataRestoreStarted || errorUIShown)
+  ) {
     return (
       <RestorationProgress
         qrAuthInProgress={qrAuthInProgress}
         userDataRestoreStarted={userDataRestoreStarted}
+        onErrorUIToggle={setErrorUIShown}
       />
     );
   }
