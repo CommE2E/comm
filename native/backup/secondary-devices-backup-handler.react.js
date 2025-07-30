@@ -1,16 +1,20 @@
 // @flow
 
 import * as React from 'react';
+import uuid from 'uuid';
 
 import { sendBackupDataToSecondaryActionTypes } from 'lib/actions/backup-actions.js';
 import { getOwnPeerDevices } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { usePeerToPeerCommunication } from 'lib/tunnelbroker/peer-to-peer-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
+import { outboundP2PMessageStatuses } from 'lib/types/sqlite-types.js';
 import {
   type BackupDataP2PMessage,
   userActionsP2PMessageTypes,
 } from 'lib/types/tunnelbroker/user-actions-peer-to-peer-message-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
@@ -28,7 +32,7 @@ function SecondaryDevicesBackupHandler(): React.Node {
     state => state.backupStore.ownDevicesWithoutBackup,
   );
   const ownDevices = useSelector(getOwnPeerDevices);
-  const { broadcastEphemeralMessage } = usePeerToPeerCommunication();
+  const { processOutboundMessages } = usePeerToPeerCommunication();
   const dispatchActionPromise = useDispatchActionPromise();
   const { socketState } = useTunnelbroker();
   const restoreBackupState = useSelector(state => state.restoreBackupState);
@@ -60,27 +64,42 @@ function SecondaryDevicesBackupHandler(): React.Node {
       primaryDeviceID: thisDeviceID,
       backupData,
     };
-    const rawPayload = JSON.stringify(backupDataP2PMessage);
+    const plaintext = JSON.stringify(backupDataP2PMessage);
+    const timestamp = new Date().getTime().toString();
 
-    const recipients =
-      ownDevicesWithoutBackup
-        ?.filter(deviceID => !removedDevices.includes(deviceID))
-        ?.map(deviceID => ({
-          deviceID,
-          userID: thisUserID,
-        })) ?? [];
+    const messages = ownDevicesWithoutBackup
+      ?.filter(deviceID => !removedDevices.includes(deviceID))
+      .map(deviceID => ({
+        messageID: uuid.v4(),
+        deviceID,
+        userID: thisUserID,
+        timestamp,
+        plaintext,
+        ciphertext: '',
+        status: outboundP2PMessageStatuses.persisted,
+        supportsAutoRetry: true,
+      }));
 
-    const devicesThatReceivedMessage = await broadcastEphemeralMessage(
-      rawPayload,
-      recipients,
-      authMetadata,
+    if (!messages || messages.length === 0) {
+      return removedDevices;
+    }
+
+    const { sqliteAPI } = getConfig();
+    await sqliteAPI.processDBStoreOperations(
+      { outboundP2PMessages: messages },
+      databaseIdentifier.MAIN,
     );
-    return [...removedDevices, ...devicesThatReceivedMessage];
+    processOutboundMessages(messages.map(m => m.messageID));
+
+    //  The message was persisted and supports auto-retry, which means
+    //  it will be delivered.
+    const devicesThatWillReceiveMessage = messages.map(m => m.deviceID);
+    return [...removedDevices, ...devicesThatWillReceiveMessage];
   }, [
-    broadcastEphemeralMessage,
     getAuthMetadata,
     ownDevices,
     ownDevicesWithoutBackup,
+    processOutboundMessages,
   ]);
 
   const executed = React.useRef(false);
