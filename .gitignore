@@ -35,6 +35,9 @@ services/search-index-lambda/target
 .vscode
 !.vscode/extensions.json
 
+.idea
+services/.idea
+
 # CMake
 native/cpp/**/build
 services/*/build
