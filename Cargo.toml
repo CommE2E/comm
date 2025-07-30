@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-# We prefer the wildcard approach because it's easier to exclude 
+# We prefer the wildcard approach because it's easier to exclude
 # these from Dockerfiles with `sed`
 members = [
   # All packages in these directories, except explicitly excluded
@@ -26,6 +26,7 @@ exclude = [
   "web/opaque-ke-wasm",
   "native/native_rust_library",
   "services/.idea",
+  "shared/.idea",
 ]
 
 [workspace.package]

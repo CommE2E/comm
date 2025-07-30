@@ -4,6 +4,7 @@
 .eslintcache
 .vscode
 !.vscode/extensions.json
+.idea
 
 Dockerfile
 docker-compose.yml
@@ -40,6 +41,7 @@ keyserver/*.env
 keyserver/*.env.*
 keyserver/addons/rust-node-addon/target
 
+services/.idea
 services/*/target
 services/identity/secrets
 services/electron-update-server/node_modules
