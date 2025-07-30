@@ -22,6 +22,7 @@ import {
   BackupIsNewerError,
   getMessageForException,
 } from 'lib/utils/errors.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import { base64DecodeBuffer, base64EncodeBuffer } from './base64-utils.js';
 import { getBackupIsNewerThanAppError } from './version-utils.js';
@@ -68,6 +69,11 @@ function useHandleSecondaryDeviceLogInError(): (
   return React.useCallback(
     (error: mixed, isUserDataRestoreError?: boolean) => {
       console.error('Secondary device log in error:', error);
+      if (fullBackupSupport) {
+        // for full backup, errors are handled in the restore UI
+        return;
+      }
+
       const messageForException = getMessageForException(error);
       if (
         messageForException === 'client_version_unsupported' ||
