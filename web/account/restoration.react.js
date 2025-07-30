@@ -10,8 +10,12 @@ import {
   logOutActionTypes,
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
+import { useSecondaryDeviceQRAuthContext } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { getMessageForException } from 'lib/utils/errors.js';
+import {
+  BackupIsNewerError,
+  getMessageForException,
+} from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -21,6 +25,10 @@ import Button, { buttonThemes } from '../components/button.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
+import {
+  getBackupIsNewerThanAppError,
+  getVersionUnsupportedError,
+} from '../utils/version-utils.js';
 
 type RestorationStep = 'authenticating' | 'restoring';
 
@@ -118,13 +126,13 @@ function RestorationViewContainer(props: ContainerProps): React.Node {
   );
 }
 
-type RestorationErrorProps = {
+type FailedRestorationErrorProps = {
   +error: Error,
-  +step: RestorationStep,
 };
-
-function RestorationError(props: RestorationErrorProps): React.Node {
-  const { step, error } = props;
+function RestorationFailedError(
+  props: FailedRestorationErrorProps,
+): React.Node {
+  const { error } = props;
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -155,7 +163,7 @@ function RestorationError(props: RestorationErrorProps): React.Node {
   return (
     <RestorationViewContainer
       title="Restoration failed"
-      step={step}
+      step="restoring"
       isError={true}
     >
       <div className={css.errorMessageContainer}>
@@ -193,31 +201,51 @@ function RestorationError(props: RestorationErrorProps): React.Node {
   );
 }
 
-export type RestorationProgressProps = {
-  +qrAuthInProgress: boolean,
-  +userDataRestoreStarted: boolean,
+type SimpleErrorProps = {
+  +title: string,
+  +rawErrorMessage?: ?string,
+  +step: RestorationStep,
+  +onTryAgain?: () => void,
+  +children?: React.Node,
 };
+function SimpleError(props: SimpleErrorProps): React.Node {
+  const { title, step, children, rawErrorMessage, onTryAgain } = props;
 
-function RestorationProgress(props: RestorationProgressProps): React.Node {
-  const { qrAuthInProgress, userDataRestoreStarted } = props;
-
-  const restorationError = useSelector(state =>
-    state.restoreBackupState.status === 'user_data_restore_failed'
-      ? state.restoreBackupState.payload.error
-      : null,
+  return (
+    <RestorationViewContainer title={title} step={step} isError={true}>
+      <div className={css.errorMessageContainer}>
+        <div className={css.modalText}>{children}</div>
+        {rawErrorMessage && (
+          <div className={css.errorDetailsContainer}>
+            <div className={css.errorDetailsHeader}>Error message:</div>
+            <div className={css.errorDetails}>{rawErrorMessage}</div>
+          </div>
+        )}
+      </div>
+      <div className={css.errorButtons}>
+        {!!onTryAgain && (
+          <Button
+            variant="filled"
+            buttonColor={buttonThemes.primary}
+            onClick={onTryAgain}
+          >
+            Try again
+          </Button>
+        )}
+      </div>
+    </RestorationViewContainer>
   );
+}
 
-  const step: RestorationStep =
-    qrAuthInProgress && !userDataRestoreStarted
-      ? 'authenticating'
-      : 'restoring';
-
-  if (restorationError) {
-    return <RestorationError step={step} error={restorationError} />;
-  }
+export type ProgressViewProps = {
+  +step: RestorationStep,
+};
+function ProgressView(props: ProgressViewProps): React.Node {
+  const { step } = props;
 
   const title =
     step === 'authenticating' ? 'Authenticating device' : 'Restoring your data';
+
   return (
     <RestorationViewContainer title={title} step={step} isError={false}>
       <div className={css.restorationSpinnerWrapper}>
@@ -227,4 +255,111 @@ function RestorationProgress(props: RestorationProgressProps): React.Node {
   );
 }
 
-export default RestorationProgress;
+type AuthErrorProps = {
+  +error: mixed,
+  +handleRetry: () => void,
+};
+function AuthErrorView(props: AuthErrorProps): React.Node {
+  const { error, handleRetry } = props;
+
+  const rawErrorMessage = React.useMemo(
+    () => getMessageForException(error),
+    [error],
+  );
+
+  if (
+    rawErrorMessage === 'client_version_unsupported' ||
+    rawErrorMessage === 'unsupported_version'
+  ) {
+    return (
+      <SimpleError title="App version unsupported" step="authenticating">
+        {getVersionUnsupportedError()}
+      </SimpleError>
+    );
+  } else if (rawErrorMessage === 'network_error') {
+    return (
+      <SimpleError
+        title="Network error"
+        step="authenticating"
+        onTryAgain={handleRetry}
+      >
+        Failed to contact Comm services. Please check your network connection.
+      </SimpleError>
+    );
+  } else {
+    return (
+      <SimpleError
+        title="Unknown error"
+        step="authenticating"
+        onTryAgain={handleRetry}
+        rawErrorMessage={rawErrorMessage}
+      >
+        Uhh... try again?
+      </SimpleError>
+    );
+  }
+}
+
+type RestoreErrorProps = {
+  +error: Error,
+};
+function RestoreErrorView(props: RestoreErrorProps): React.Node {
+  const { error } = props;
+
+  if (error instanceof BackupIsNewerError) {
+    return (
+      <SimpleError step="restoring" title="App out of date">
+        {getBackupIsNewerThanAppError()}
+      </SimpleError>
+    );
+  } else {
+    return <RestorationFailedError error={error} />;
+  }
+}
+
+export type RestorationViewProps = {
+  +qrAuthInProgress: boolean,
+  +userDataRestoreStarted: boolean,
+};
+function RestorationView(props: RestorationViewProps): React.Node {
+  const { qrAuthInProgress, userDataRestoreStarted } = props;
+
+  const { registerErrorListener } = useSecondaryDeviceQRAuthContext();
+  const [qrAuthError, setQRAuthError] = React.useState<?mixed>(null);
+  const userDataError = useSelector(state =>
+    state.restoreBackupState.status === 'user_data_restore_failed'
+      ? state.restoreBackupState.payload.error
+      : null,
+  );
+
+  React.useEffect(() => {
+    const subscription = registerErrorListener((error, isUserDataError) => {
+      if (isUserDataError) {
+        // user data errors are handled by selector
+        return;
+      }
+      setQRAuthError(error);
+    });
+
+    return () => subscription.remove();
+  }, [registerErrorListener]);
+
+  const retryQRAuth = React.useCallback(() => {
+    setQRAuthError(null);
+  }, []);
+
+  if (userDataError) {
+    return <RestoreErrorView error={userDataError} />;
+  } else if (qrAuthError) {
+    return <AuthErrorView error={qrAuthError} handleRetry={retryQRAuth} />;
+  }
+
+  const step: RestorationStep =
+    qrAuthInProgress && !userDataRestoreStarted
+      ? 'authenticating'
+      : 'restoring';
+
+  return <ProgressView step={step} />;
+}
+
+export default RestorationView;
