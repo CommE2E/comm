@@ -26,6 +26,7 @@ keyserver/*.env
 keyserver/*.env.*
 keyserver/cpu_profiling_logs
 
+services/.idea
 services/tunnelbroker/target
 services/tunnelbroker/src/libcpp/test/build
 
@@ -34,6 +35,7 @@ services/search-index-lambda/target
 .eslintcache
 .vscode
 !.vscode/extensions.json
+.idea
 
 # CMake
 native/cpp/**/build
