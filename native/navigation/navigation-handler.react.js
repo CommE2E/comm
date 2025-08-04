@@ -1,5 +1,6 @@
 // @flow
 
+import { CommonActions } from '@react-navigation/core';
 import * as React from 'react';
 
 import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
@@ -9,12 +10,19 @@ import { usePersistedStateLoaded } from 'lib/selectors/app-state-selectors.js';
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
 import NavFromReduxHandler from './nav-from-redux-handler.react.js';
-import { useIsAppLoggedIn } from './nav-selectors.js';
+import { useIsAppLoggedIn, useCurrentLeafRouteName } from './nav-selectors.js';
 import { NavContext, type NavAction } from './navigation-context.js';
 import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.js';
+import {
+  RestoreBackupScreenRouteName,
+  RestoreBackupErrorScreenRouteName,
+  QRAuthProgressScreenRouteName,
+  AuthRouteName,
+} from './route-names.js';
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import { MissingRegistrationDataHandler } from '../account/registration/missing-registration-data/missing-registration-data-handler.react.js';
 import DevTools from '../redux/dev-tools.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavigationHandler() {
@@ -61,22 +69,77 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
   const userDataReady = useIsUserDataReady();
-  const appLoggedIn = loggedIn && userDataReady;
+
+  const isRestoreError = useSelector(
+    state => state.restoreBackupState.status === 'user_data_restore_failed',
+  );
 
   const navLoggedIn = useIsAppLoggedIn();
-  const prevLoggedInRef = React.useRef<?boolean>();
+  const currentRouteName = useCurrentLeafRouteName();
+  const prevStateRef = React.useRef<?string>();
 
   React.useEffect(() => {
-    if (appLoggedIn === prevLoggedInRef.current) {
+    const currentStateHash = [
+      loggedIn.toString(),
+      userDataReady.toString(),
+      isRestoreError.toString(),
+    ].join('#');
+    if (currentStateHash === prevStateRef.current) {
       return;
     }
-    prevLoggedInRef.current = appLoggedIn;
-    if (appLoggedIn && !navLoggedIn) {
-      dispatch({ type: (logInActionType: 'LOG_IN') });
-    } else if (!appLoggedIn && navLoggedIn) {
+    prevStateRef.current = currentStateHash;
+
+    const appLoggedIn = loggedIn && userDataReady;
+    if (!loggedIn && navLoggedIn) {
+      // User logged out - show auth flow
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
+    } else if (loggedIn && !userDataReady) {
+      // User is authenticated but data not ready
+      if (
+        isRestoreError &&
+        currentRouteName !== RestoreBackupErrorScreenRouteName
+      ) {
+        // Show error screen if not already there
+        dispatch(
+          CommonActions.navigate({
+            name: AuthRouteName,
+            params: {
+              screen: RestoreBackupErrorScreenRouteName,
+              params: {
+                errorInfo: {
+                  type: 'restore_failed',
+                },
+              },
+            },
+          }),
+        );
+      }
+      // Show restore screen if not already there
+      else if (
+        currentRouteName !== RestoreBackupScreenRouteName &&
+        currentRouteName !== QRAuthProgressScreenRouteName
+      ) {
+        dispatch(
+          CommonActions.navigate({
+            name: AuthRouteName,
+            params: {
+              screen: RestoreBackupScreenRouteName,
+            },
+          }),
+        );
+      }
+    } else if (appLoggedIn && !navLoggedIn) {
+      // User fully authenticated and data ready - show main app
+      dispatch({ type: (logInActionType: 'LOG_IN') });
     }
-  }, [navLoggedIn, appLoggedIn, dispatch]);
+  }, [
+    loggedIn,
+    userDataReady,
+    navLoggedIn,
+    isRestoreError,
+    currentRouteName,
+    dispatch,
+  ]);
 
   return null;
 });

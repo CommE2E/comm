@@ -65,9 +65,6 @@ function RestoreBackupScreen(props: Props): React.Node {
   const restore = useRestore();
   const performV1Login = useV1Login();
 
-  const isRestoreError = useSelector(
-    state => state.restoreBackupState.status === 'user_data_restore_failed',
-  );
   const restoreHasStarted = useSelector(
     state => state.restoreBackupState.status !== 'no_backup',
   );
@@ -81,15 +78,6 @@ function RestoreBackupScreen(props: Props): React.Node {
         e.preventDefault();
       }
     });
-    if (isRestoreError && fullBackupSupport) {
-      props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-        errorInfo: {
-          type: 'restore_failed',
-          restoreType: 'primary',
-        },
-      });
-      return removeListener;
-    }
     if ((restoreHasStarted || !shouldStartRestore) && fullBackupSupport) {
       return removeListener;
     }
@@ -161,12 +149,7 @@ function RestoreBackupScreen(props: Props): React.Node {
         } else if (step === 'user_keys_restore') {
           alertDetails = userKeysRestoreErrorAlertDetails;
         } else if (step === 'user_data_restore') {
-          props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-            errorInfo: {
-              type: 'restore_failed',
-              restoreType: 'primary',
-            },
-          });
+          // this is handled by LogInHandler
           return;
         }
 

@@ -71,21 +71,8 @@ function QRAuthProgressScreen(props: Props): React.Node {
 
   const { qrAuthInProgress, registerErrorListener } =
     useSecondaryDeviceQRAuthContext();
-  const userDataRestoreStatus = useSelector(
-    state => state.restoreBackupState.status,
-  );
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (userDataRestoreStatus === 'user_data_restore_failed') {
-        props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-          errorInfo: {
-            type: 'restore_failed',
-            restoreType: 'secondary',
-          },
-        });
-      }
-    }, [props.navigation, userDataRestoreStatus]),
+  const userDataRestoreStarted = useSelector(
+    state => state.restoreBackupState.status !== 'no_backup',
   );
 
   useFocusEffect(
@@ -95,7 +82,7 @@ function QRAuthProgressScreen(props: Props): React.Node {
       }
       const subscription = registerErrorListener((error, isUserDataError) => {
         if (isUserDataError) {
-          // user data errors are handled by selector
+          // user data errors are handled by LogInHandler
           return;
         }
 
@@ -126,7 +113,6 @@ function QRAuthProgressScreen(props: Props): React.Node {
     }, [registerErrorListener, props.navigation]),
   );
 
-  const userDataRestoreStarted = userDataRestoreStatus !== 'no_backup';
   const step: 'authenticating' | 'restoring' =
     qrAuthInProgress && !userDataRestoreStarted
       ? 'authenticating'
