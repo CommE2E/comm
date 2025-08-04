@@ -1,5 +1,6 @@
 // @flow
 
+import { CommonActions } from '@react-navigation/native';
 import * as React from 'react';
 
 import { type SIWEResult } from 'lib/types/siwe-types.js';
@@ -42,21 +43,24 @@ function RestoreSIWEBackup(props: Props): React.Node {
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       props.navigation.navigate(RestoreBackupScreenRouteName, {
-        userIdentifier,
-        credentials: {
-          type: 'siwe',
-          socialProof: {
-            message,
-            signature,
-          },
-          backup: {
-            message: result.message,
-            signature: result.signature,
+        primaryRestoreInfo: {
+          userIdentifier,
+          credentials: {
+            type: 'siwe',
+            socialProof: {
+              message,
+              signature,
+            },
+            backup: {
+              message: result.message,
+              signature: result.signature,
+            },
           },
         },
+        returnNavAction: CommonActions.navigate({ key: route.key }),
       });
     },
-    [message, props.navigation, signature, userIdentifier],
+    [message, props.navigation, route.key, signature, userIdentifier],
   );
 
   return (
