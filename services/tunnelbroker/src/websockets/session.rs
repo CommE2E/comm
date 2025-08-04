@@ -474,7 +474,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         debug!("Received message for {}", message_request.device_id);
 
         let result = self.handle_message_to_device(&message_request).await;
-        Some(self.get_message_to_device_status(
+        Some(MessageSentStatus::from_result(
           &message_request.client_message_id,
           result,
         ))
@@ -503,7 +503,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         let result = self
           .handle_message_to_tunnelbroker(&message_to_tunnelbroker)
           .await;
-        Some(self.get_message_to_device_status(
+        Some(MessageSentStatus::from_result(
           &message_request.client_message_id,
           result,
         ))
@@ -531,10 +531,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         {
           Ok(token) => token,
           Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
+            return Some(MessageSentStatus::from_result(
+              &notif.client_message_id,
+              Err(e),
+            ));
           }
         };
 
@@ -559,13 +559,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
               };
             }
           }
-          return Some(
-            self
-              .get_message_to_device_status(&notif.client_message_id, response),
-          );
+          return Some(MessageSentStatus::from_result(
+            &notif.client_message_id,
+            response,
+          ));
         }
 
-        Some(self.get_message_to_device_status(
+        Some(MessageSentStatus::from_result(
           &notif.client_message_id,
           Err(SessionError::MissingAPNsClient),
         ))
@@ -596,10 +596,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         {
           Ok(token) => token,
           Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
+            return Some(MessageSentStatus::from_result(
+              &notif.client_message_id,
+              Err(e),
+            ))
           }
         };
 
@@ -625,12 +625,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
               };
             }
           }
-          return Some(
-            self.get_message_to_device_status(&notif.client_message_id, result),
-          );
+          return Some(MessageSentStatus::from_result(
+            &notif.client_message_id,
+            result,
+          ));
         }
 
-        Some(self.get_message_to_device_status(
+        Some(MessageSentStatus::from_result(
           &notif.client_message_id,
           Err(SessionError::MissingFCMClient),
         ))
@@ -647,7 +648,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         debug!("Received WebPush notif for {}", notif.device_id);
 
         let Some(web_push_client) = self.notif_client.web_push.clone() else {
-          return Some(self.get_message_to_device_status(
+          return Some(MessageSentStatus::from_result(
             &notif.client_message_id,
             Err(SessionError::MissingWebPushClient),
           ));
@@ -659,10 +660,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         {
           Ok(token) => token,
           Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
+            return Some(MessageSentStatus::from_result(
+              &notif.client_message_id,
+              Err(e),
+            ))
           }
         };
 
@@ -696,9 +697,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
             );
           }
         }
-        Some(
-          self.get_message_to_device_status(&notif.client_message_id, result),
-        )
+        Some(MessageSentStatus::from_result(
+          &notif.client_message_id,
+          result,
+        ))
       }
       DeviceToTunnelbrokerMessage::WNSNotif(notif) => {
         if !self.device_info.is_authenticated {
@@ -711,7 +713,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         debug!("Received WNS notif for {}", notif.device_id);
 
         let Some(wns_client) = self.notif_client.wns.clone() else {
-          return Some(self.get_message_to_device_status(
+          return Some(MessageSentStatus::from_result(
             &notif.client_message_id,
             Err(SessionError::MissingWNSClient),
           ));
@@ -723,10 +725,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         {
           Ok(token) => token,
           Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
+            return Some(MessageSentStatus::from_result(
+              &notif.client_message_id,
+              Err(e),
+            ))
           }
         };
 
@@ -749,9 +751,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
             };
           }
         }
-        Some(
-          self.get_message_to_device_status(&notif.client_message_id, result),
-        )
+        Some(MessageSentStatus::from_result(
+          &notif.client_message_id,
+          result,
+        ))
       }
       _ => {
         error!("Client sent invalid message type");
@@ -821,23 +824,6 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           "Failed to delete queue: {}", e
         );
       }
-    }
-  }
-
-  pub fn get_message_to_device_status<E>(
-    &mut self,
-    client_message_id: &str,
-    result: Result<(), E>,
-  ) -> MessageSentStatus
-  where
-    E: std::error::Error,
-  {
-    match result {
-      Ok(()) => MessageSentStatus::Success(client_message_id.to_string()),
-      Err(err) => MessageSentStatus::Error(Failure {
-        id: client_message_id.to_string(),
-        error: err.to_string(),
-      }),
     }
   }
 

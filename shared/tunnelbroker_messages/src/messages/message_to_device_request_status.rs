@@ -31,6 +31,21 @@ pub enum MessageSentStatus {
   SerializationError(String),
 }
 
+impl MessageSentStatus {
+  pub fn from_result<E>(client_message_id: &str, result: Result<(), E>) -> Self
+  where
+    E: std::error::Error,
+  {
+    match result {
+      Ok(()) => MessageSentStatus::Success(client_message_id.to_string()),
+      Err(err) => MessageSentStatus::Error(Failure {
+        id: client_message_id.to_string(),
+        error: err.to_string(),
+      }),
+    }
+  }
+}
+
 // NOTE: Keep this in sync with
 // lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
