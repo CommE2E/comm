@@ -75,7 +75,10 @@ function RestoreBackupScreen(props: Props): React.Node {
     });
     if (isRestoreError && fullBackupSupport) {
       props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-        deviceType: 'primary',
+        errorInfo: {
+          type: 'restore_failed',
+          restoreType: 'primary',
+        },
       });
       return removeListener;
     }
@@ -147,8 +150,10 @@ function RestoreBackupScreen(props: Props): React.Node {
           alertDetails = userKeysRestoreErrorAlertDetails;
         } else if (step === 'user_data_restore') {
           props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-            deviceType: 'primary',
-            errorDetails: messageForException,
+            errorInfo: {
+              type: 'restore_failed',
+              restoreType: 'primary',
+            },
           });
           return;
         }
