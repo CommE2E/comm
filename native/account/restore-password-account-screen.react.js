@@ -1,5 +1,6 @@
 // @flow
 
+import { CommonActions } from '@react-navigation/native';
 import * as React from 'react';
 import { Text, TextInput, View } from 'react-native';
 
@@ -111,11 +112,14 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
         return;
       }
       props.navigation.navigate(RestoreBackupScreenRouteName, {
-        userIdentifier: credentials.username,
-        credentials: {
-          type: 'password',
-          password: credentials.password,
+        primaryRestoreInfo: {
+          userIdentifier: credentials.username,
+          credentials: {
+            type: 'password',
+            password: credentials.password,
+          },
         },
+        returnNavAction: CommonActions.navigate({ key: props.route.key }),
       });
     } catch (e) {
       const messageForException = getMessageForException(e);
@@ -156,6 +160,7 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
     onUnsuccessfulLoginAlertAcknowledged,
     performV1Login,
     props.navigation,
+    props.route.key,
     retrieveLatestBackupInfo,
   ]);
 
