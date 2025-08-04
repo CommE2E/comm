@@ -278,16 +278,10 @@ async fn accept_connection(
             ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
 
             let Some(message_status) = session.handle_websocket_frame_from_device(msg).await else {
+              // There is no response back to the client
               continue;
             };
-            let request_status = DeviceToTunnelbrokerRequestStatus {
-              client_message_ids: vec![message_status]
-            };
-            if let Ok(response) = serde_json::to_string(&request_status) {
-                session.send_message_to_device(Message::text(response)).await;
-            } else {
-                break;
-            }
+            session.send_message_to_device(Message::text(message_status)).await;
           }
           _ => {
             error!("Client sent invalid message type");
