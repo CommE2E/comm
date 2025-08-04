@@ -15,6 +15,7 @@ import type { AuthNavigationProp } from './registration/auth-navigator.react.js'
 import { useRestore, useV1Login } from './restore.js';
 import { commCoreModule } from '../native-modules.js';
 import { logInActionType } from '../navigation/action-types.js';
+import type { NavAction } from '../navigation/navigation-context.js';
 import {
   RestoreBackupErrorScreenRouteName,
   type NavigationRoute,
@@ -36,7 +37,7 @@ type Props = {
   +route: NavigationRoute<'RestoreBackupScreen'>,
 };
 
-export type RestoreBackupScreenParams = {
+type PrimaryRestoreInfo = {
   +userIdentifier: string,
   +credentials:
     | {
@@ -50,11 +51,16 @@ export type RestoreBackupScreenParams = {
       },
 };
 
+export type RestoreBackupScreenParams = {
+  +primaryRestoreInfo?: PrimaryRestoreInfo,
+  +returnNavAction?: NavAction,
+};
+
 function RestoreBackupScreen(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const { userIdentifier, credentials } = props.route.params;
+  const { primaryRestoreInfo, returnNavAction } = props.route.params || {};
 
   const restore = useRestore();
   const performV1Login = useV1Login();
@@ -62,9 +68,12 @@ function RestoreBackupScreen(props: Props): React.Node {
   const isRestoreError = useSelector(
     state => state.restoreBackupState.status === 'user_data_restore_failed',
   );
-  const canStartRestore = useSelector(
-    state => state.restoreBackupState.status === 'no_backup',
+  const restoreHasStarted = useSelector(
+    state => state.restoreBackupState.status !== 'no_backup',
   );
+
+  // Only start restoration if we have the necessary data
+  const shouldStartRestore = !!primaryRestoreInfo;
 
   React.useEffect(() => {
     const removeListener = props.navigation.addListener('beforeRemove', e => {
@@ -81,10 +90,15 @@ function RestoreBackupScreen(props: Props): React.Node {
       });
       return removeListener;
     }
-    if (!canStartRestore && fullBackupSupport) {
+    if ((restoreHasStarted || !shouldStartRestore) && fullBackupSupport) {
       return removeListener;
     }
     void (async () => {
+      if (!primaryRestoreInfo) {
+        return;
+      }
+      const { userIdentifier, credentials } = primaryRestoreInfo;
+
       let step;
       const setStep = (newStep: string) => {
         step = newStep;
@@ -163,14 +177,16 @@ function RestoreBackupScreen(props: Props): React.Node {
             errorTitle: alertDetails.title,
             errorMessage: alertDetails.message,
             rawErrorMessage: messageForException,
+            returnNavAction,
           },
         });
       }
     })();
     return removeListener;
-    // We want this effect to run exactly once
+    // We want this effect to run exactly once for the core logic, but it should
+    // update when shouldStartRestore changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shouldStartRestore]);
 
   return (
     <AuthContainer>
