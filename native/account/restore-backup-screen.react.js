@@ -30,7 +30,6 @@ import {
   siweLoginErrorAlertDetails,
   userKeysRestoreErrorAlertDetails,
 } from '../utils/alert-messages.js';
-import Alert from '../utils/alert.js';
 
 type Props = {
   +navigation: AuthNavigationProp<'RestoreBackupScreen'>,
@@ -112,7 +111,6 @@ function RestoreBackupScreen(props: Props): React.Node {
           );
         }
       } catch (e) {
-        removeListener();
         const messageForException = getMessageForException(e);
         console.log(
           `Backup restore error: ${messageForException ?? 'unknown error'}`,
@@ -157,12 +155,16 @@ function RestoreBackupScreen(props: Props): React.Node {
           });
           return;
         }
-        Alert.alert(
-          alertDetails.title,
-          alertDetails.message,
-          [{ text: 'OK', onPress: props.navigation.goBack }],
-          { cancelable: false },
-        );
+
+        removeListener();
+        props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
+          errorInfo: {
+            type: 'generic_error',
+            errorTitle: alertDetails.title,
+            errorMessage: alertDetails.message,
+            rawErrorMessage: messageForException,
+          },
+        });
       }
     })();
     return removeListener;
