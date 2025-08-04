@@ -8,8 +8,12 @@ import {
   resetBackupRestoreStateActionType,
 } from 'lib/actions/backup-actions.js';
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
+import { useDeviceKind } from 'lib/hooks/primary-device-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { getMessageForException } from 'lib/utils/errors.js';
+import {
+  getMessageForException,
+  BackupIsNewerError,
+} from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -18,42 +22,50 @@ import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
 import type { AuthNavigationProp } from './registration/auth-navigator.react.js';
 import PrimaryButton from '../components/primary-button.react.js';
+import type { NavAction } from '../navigation/navigation-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { LoggedOutModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import { backupIsNewerThanAppAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
-type Props = {
-  +navigation: AuthNavigationProp<'RestoreBackupErrorScreen'>,
-  +route: NavigationRoute<'RestoreBackupErrorScreen'>,
-};
+type ErrorInfo =
+  | {
+      +type: 'restore_failed',
+      +restoreType?: 'primary' | 'secondary',
+    }
+  | {
+      +type: 'generic_error',
+      +errorTitle: string,
+      +errorMessage: string,
+      +rawErrorMessage?: ?string,
+      +returnNavAction?: ?NavAction,
+    };
 
 export type RestoreBackupErrorScreenParams = {
-  +deviceType: 'primary' | 'secondary',
-  +errorDetails?: ?string,
+  +errorInfo: ErrorInfo,
 };
 
-function RestoreBackupErrorScreen(props: Props): React.Node {
+type RestorationFailedViewProps = {
+  +navigation: ScreenProps['navigation'],
+  +error: ?Error,
+  +restoreType?: 'primary' | 'secondary',
+};
+function RestorationFailedView(props: RestorationFailedViewProps): React.Node {
   const styles = useStyles(unboundStyles);
-  const { deviceType, errorDetails: errorDetailsProp } = props.route.params;
+  const { error, navigation } = props;
 
-  const storedError = useSelector(state =>
-    state.restoreBackupState.status === 'user_data_restore_failed'
-      ? state.restoreBackupState.payload.error
-      : null,
-  );
   const errorDetails = React.useMemo(() => {
-    if (errorDetailsProp) {
-      return errorDetailsProp;
-    } else if (storedError) {
-      const messageForException = getMessageForException(storedError);
-      return messageForException ?? 'unknown_error';
+    const errorMessage = getMessageForException(error);
+    if (!errorMessage && navigation.isFocused()) {
+      console.warn('Restore error screen shown but no error is stored');
     }
+    return errorMessage ?? 'unknown_error';
+  }, [error, navigation]);
 
-    console.warn('Restore error screen shown but no error details provided');
-    return 'unknown_error';
-  }, [errorDetailsProp, storedError]);
+  const deviceKind = useDeviceKind();
+  const deviceType = props.restoreType ?? deviceKind;
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -91,8 +103,8 @@ function RestoreBackupErrorScreen(props: Props): React.Node {
       });
     }
 
-    props.navigation.navigate(LoggedOutModalRouteName);
-  }, [props.navigation, loggedIn, logOut, dispatch, dispatchActionPromise]);
+    navigation.navigate(LoggedOutModalRouteName);
+  }, [navigation, loggedIn, logOut, dispatch, dispatchActionPromise]);
 
   const deviceTypeWarning = React.useMemo(() => {
     if (deviceType === 'secondary') {
@@ -138,6 +150,98 @@ function RestoreBackupErrorScreen(props: Props): React.Node {
         />
       </AuthButtonContainer>
     </AuthContainer>
+  );
+}
+
+type SimpleErrorViewProps = {
+  +title: string,
+  +message: string,
+  +rawErrorMessage?: ?string,
+  +onTryAgain?: () => void,
+};
+function SimpleErrorView(props: SimpleErrorViewProps): React.Node {
+  const { onTryAgain, title, message, rawErrorMessage } = props;
+
+  const styles = useStyles(unboundStyles);
+
+  let rawErrorContents;
+  if (rawErrorMessage) {
+    rawErrorContents = (
+      <View style={styles.errorDetailsContainer}>
+        <Text style={styles.errorDetailsHeader}>Error message:</Text>
+        <Text style={styles.errorDetails}>{rawErrorMessage}</Text>
+      </View>
+    );
+  }
+
+  let tryAgainButton;
+  if (onTryAgain) {
+    tryAgainButton = (
+      <PrimaryButton onPress={onTryAgain} label="Try again" variant="enabled" />
+    );
+  }
+
+  return (
+    <AuthContainer>
+      <AuthContentContainer style={styles.scrollViewContentContainer}>
+        <Text style={styles.header}>{title}</Text>
+        <Text style={styles.section}>{message}</Text>
+        {rawErrorContents}
+      </AuthContentContainer>
+      <AuthButtonContainer>{tryAgainButton}</AuthButtonContainer>
+    </AuthContainer>
+  );
+}
+
+type ScreenProps = {
+  +navigation: AuthNavigationProp<'RestoreBackupErrorScreen'>,
+  +route: NavigationRoute<'RestoreBackupErrorScreen'>,
+};
+function RestoreBackupErrorScreen(props: ScreenProps): React.Node {
+  const { navigation } = props;
+  const { errorInfo } = props.route.params;
+
+  const userDataError = useSelector(state =>
+    state.restoreBackupState.status === 'user_data_restore_failed'
+      ? state.restoreBackupState.payload.error
+      : null,
+  );
+
+  const handleTryAgain = React.useCallback(() => {
+    if (!errorInfo.returnNavAction) {
+      return;
+    }
+    navigation.dispatch(errorInfo.returnNavAction);
+  }, [errorInfo.returnNavAction, navigation]);
+
+  if (errorInfo.type === 'restore_failed') {
+    const { restoreType } = errorInfo;
+
+    if (userDataError && userDataError instanceof BackupIsNewerError) {
+      return (
+        <SimpleErrorView
+          title={backupIsNewerThanAppAlertDetails.title}
+          message={backupIsNewerThanAppAlertDetails.message}
+        />
+      );
+    }
+
+    return (
+      <RestorationFailedView
+        navigation={props.navigation}
+        restoreType={restoreType}
+        error={userDataError}
+      />
+    );
+  }
+
+  const { errorTitle, errorMessage } = errorInfo;
+  return (
+    <SimpleErrorView
+      title={errorTitle}
+      message={errorMessage}
+      onTryAgain={handleTryAgain}
+    />
   );
 }
 
