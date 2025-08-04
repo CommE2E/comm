@@ -13,6 +13,7 @@ import {
   BackupIsNewerError,
   getMessageForException,
 } from 'lib/utils/errors.js';
+import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import * as AES from './aes-crypto-module.js';
 import {
@@ -65,6 +66,10 @@ function parseTunnelbrokerQRAuthMessage(
 
 function handleSecondaryDeviceLogInError(error: mixed): void {
   console.error('Secondary device log in error:', error);
+  if (fullBackupSupport) {
+    // for full backup, errors are handled in the restore UI
+    return;
+  }
   const messageForException = getMessageForException(error);
   if (
     messageForException === 'client_version_unsupported' ||
