@@ -278,7 +278,7 @@
     json5 "^2.2.3"
     semver "^6.3.1"
 
-"@babel/generator@^7.20.5", "@babel/generator@^7.25.0", "@babel/generator@^7.28.3", "@babel/generator@^7.4.0", "@babel/generator@^7.7.2":
+"@babel/generator@^7.20.5", "@babel/generator@^7.25.0", "@babel/generator@^7.28.0", "@babel/generator@^7.28.3", "@babel/generator@^7.4.0", "@babel/generator@^7.7.2":
   version "7.28.3"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.28.3.tgz#9626c1741c650cbac39121694a0f2d7451b8ef3e"
   integrity sha512-3lSpxGgvnmZznmBkCRnVREPUFJv2wrv9iAoFDvADJc0ypmdOxdUtcLeBgBJ6zE0PMeTKnxeQzyk0xTBq4Ep7zw==
@@ -469,7 +469,7 @@
     regenerator-runtime "^0.14.0"
     v8flags "^3.1.1"
 
-"@babel/parser@^7.1.0", "@babel/parser@^7.13.16", "@babel/parser@^7.14.0", "@babel/parser@^7.14.7", "@babel/parser@^7.20.0", "@babel/parser@^7.20.7", "@babel/parser@^7.25.3", "@babel/parser@^7.27.2", "@babel/parser@^7.28.3", "@babel/parser@^7.4.3":
+"@babel/parser@^7.1.0", "@babel/parser@^7.13.16", "@babel/parser@^7.14.0", "@babel/parser@^7.14.7", "@babel/parser@^7.20.0", "@babel/parser@^7.20.7", "@babel/parser@^7.25.3", "@babel/parser@^7.27.2", "@babel/parser@^7.28.0", "@babel/parser@^7.28.3", "@babel/parser@^7.4.3":
   version "7.28.3"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.28.3.tgz#d2d25b814621bca5fe9d172bc93792547e7a2a71"
   integrity sha512-7+Ey1mAgYqFAx2h0RuoxcQT5+MlG3GTV0TQrgr7/ZliKsm/MNDxVVutlWaziMq7wJNAz8MTqz55XLpWvva6StA==
@@ -1362,7 +1362,20 @@
     "@babel/parser" "^7.27.2"
     "@babel/types" "^7.27.1"
 
-"@babel/traverse--for-generate-function-map@npm:@babel/traverse@^7.25.3", "@babel/traverse@^7.1.0", "@babel/traverse@^7.25.3", "@babel/traverse@^7.27.1", "@babel/traverse@^7.28.0", "@babel/traverse@^7.28.3", "@babel/traverse@^7.4.3", "@babel/traverse@^7.4.5":
+"@babel/traverse--for-generate-function-map@npm:@babel/traverse@^7.25.3", "@babel/traverse@^7.1.0", "@babel/traverse@^7.25.3", "@babel/traverse@^7.27.1", "@babel/traverse@^7.28.0", "@babel/traverse@^7.4.3", "@babel/traverse@^7.4.5":
+  version "7.28.0"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.28.0.tgz#518aa113359b062042379e333db18380b537e34b"
+  integrity sha512-mGe7UK5wWyh0bKRfupsUchrQGqvDbZDbKJw+kcRGSmdHVYrv+ltd0pnpDTVpiTqnaBru9iEvA8pz8W46v0Amwg==
+  dependencies:
+    "@babel/code-frame" "^7.27.1"
+    "@babel/generator" "^7.28.0"
+    "@babel/helper-globals" "^7.28.0"
+    "@babel/parser" "^7.28.0"
+    "@babel/template" "^7.27.2"
+    "@babel/types" "^7.28.0"
+    debug "^4.3.1"
+
+"@babel/traverse@^7.28.3":
   version "7.28.3"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.28.3.tgz#6911a10795d2cce43ec6a28cffc440cca2593434"
   integrity sha512-7w4kZYHneL3A6NP2nxzHvT3HCZ7puDZZjFMqDpBPECub79sTtSO5CGXDkKrTQq8ksAwfD/XI2MRFX23njdDaIQ==
@@ -1375,7 +1388,7 @@
     "@babel/types" "^7.28.2"
     debug "^4.3.1"
 
-"@babel/types@^7.0.0", "@babel/types@^7.20.0", "@babel/types@^7.20.7", "@babel/types@^7.24.7", "@babel/types@^7.25.2", "@babel/types@^7.27.1", "@babel/types@^7.27.3", "@babel/types@^7.28.2", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.0", "@babel/types@^7.4.4":
+"@babel/types@^7.0.0", "@babel/types@^7.20.0", "@babel/types@^7.20.7", "@babel/types@^7.24.7", "@babel/types@^7.25.2", "@babel/types@^7.27.1", "@babel/types@^7.27.3", "@babel/types@^7.28.0", "@babel/types@^7.28.2", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.0", "@babel/types@^7.4.4":
   version "7.28.2"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.28.2.tgz#da9db0856a9a88e0a13b019881d7513588cf712b"
   integrity sha512-ruv7Ae4J5dUYULmeXw1gmb7rYRz57OWCPM57pHojnLq/3Z1CK2lNSLTCVjxVk1F/TZHwOZZrOWi0ur95BbLxNQ==
@@ -1431,10 +1444,10 @@
     preact "^10.16.0"
     sha.js "^2.4.11"
 
-"@commapp/olm@0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.5.tgz#584ac1a1c2d61bedd50440a8c2312f405754f128"
-  integrity sha512-T5+tj3f19SHi3plhuBjMbY1yKgvJkjCY27upReFHbW39NswN85DoXoiCkhZOjbCXhX+SjtDqm56KXZC8PGBgZw==
+"@commapp/olm@0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.6.tgz#b86b6b2d6ef0e95d8513c424fc9fd1d35ba90594"
+  integrity sha512-Ng1WUCqrpMTzn2SLKLVp12sIyE7qlADPdA/j4clz2pRwTksmrAiden7yu6EXGXDUcDkTosCwCbHAkIi1nXJMLA==
 
 "@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.4":
   version "0.0.4"
@@ -19555,9 +19568,9 @@ ohash@^1.1.3:
   resolved "https://registry.yarnpkg.com/ohash/-/ohash-1.1.3.tgz#f12c3c50bfe7271ce3fd1097d42568122ccdcf07"
   integrity sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==
 
-"olm@git+https://github.com/CommE2E/olm.git#v0.2.5":
+"olm@git+https://github.com/CommE2E/olm.git#v0.2.6":
   version "0.0.0"
-  resolved "git+https://github.com/CommE2E/olm.git#9b26e8a1d6e59d3ee537ae6d83d2476f8d32e4cd"
+  resolved "git+https://github.com/CommE2E/olm.git#86b3e23cd1928fb01764b308f21dc7382730214d"
 
 on-exit-leak-free@^0.2.0:
   version "0.2.0"

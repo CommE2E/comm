@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.28.3",
-    "@commapp/olm": "0.2.5",
+    "@commapp/olm": "0.2.6",
     "@commapp/opaque-ke-wasm": "npm:@commapp/opaque-ke-wasm@^0.0.4",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
