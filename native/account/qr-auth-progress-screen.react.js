@@ -70,7 +70,10 @@ function QRAuthProgressScreen(props: Props): React.Node {
     React.useCallback(() => {
       if (userDataRestoreStatus === 'user_data_restore_failed') {
         props.navigation.navigate(RestoreBackupErrorScreenRouteName, {
-          deviceType: 'secondary',
+          errorInfo: {
+            type: 'restore_failed',
+            restoreType: 'secondary',
+          },
         });
       }
     }, [props.navigation, userDataRestoreStatus]),
