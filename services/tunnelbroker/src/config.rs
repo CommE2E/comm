@@ -50,6 +50,10 @@ pub struct AppConfig {
   #[arg(env = ENV_WNS_CONFIG)]
   #[arg(long)]
   pub wns_config: Option<WNSConfig>,
+  /// Farcaster API
+  #[arg(env = "FARCASTER_API_URL")]
+  #[arg(long, default_value = "https://client.farcaster.xyz/")]
+  pub farcaster_api_url: reqwest::Url,
 }
 
 /// Stores configuration parsed from command-line arguments
