@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error, warn};
 
-use crate::constants::dynamodb::{device_tokens, undelivered_messages};
+use crate::constants::dynamodb::{device_tokens, undelivered_messages, users};
 use crate::constants::error_types;
 
 pub mod message;
@@ -325,5 +325,33 @@ impl DatabaseClient {
         Error::AwsSdk(e.into())
       })?;
     Ok(())
+  }
+
+  pub async fn get_farcaster_token(
+    &self,
+    user_id: &str,
+  ) -> Result<Option<String>, Error> {
+    let get_response = self
+      .client
+      .get_item()
+      .table_name(users::TABLE_NAME)
+      .key(users::PARTITION_KEY, AttributeValue::S(user_id.into()))
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to get device farcaster token {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    let Some(mut item) = get_response.item else {
+      return Ok(None);
+    };
+
+    let device_token: String =
+      item.take_attr(users::USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME)?;
+    Ok(Some(device_token))
   }
 }
