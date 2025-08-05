@@ -1,4 +1,5 @@
 use crate::amqp_client::AmqpClient;
+use crate::config::CONFIG;
 use crate::constants::error_types;
 use crate::database::DatabaseClient;
 use crate::notifs::apns::headers::NotificationHeaders;
@@ -13,7 +14,7 @@ use crate::notifs::wns::error::Error::WNSNotification as NotifsWNSError;
 use crate::notifs::wns::{WNSClient, WNSNotif};
 use crate::websockets::session::SessionError;
 use ::web_push::WebPushError;
-use tracing::{debug, error};
+use tracing::{debug, error, info};
 use tunnelbroker_messages::bad_device_token::BadDeviceToken;
 use tunnelbroker_messages::MessageSentStatus;
 use tunnelbroker_messages::{MessageToDeviceRequest, Platform};
@@ -54,13 +55,98 @@ pub struct NotifClient {
 }
 
 impl NotifClient {
-  pub fn new(
-    apns: Option<APNsClient>,
-    fcm: Option<FCMClient>,
-    web_push: Option<WebPushClient>,
-    wns: Option<WNSClient>,
-    db_client: DatabaseClient,
-  ) -> NotifClient {
+  pub fn new(db_client: DatabaseClient) -> NotifClient {
+    let apns_config = CONFIG.apns_config.clone();
+
+    let apns = match apns_config {
+      Some(config) => match APNsClient::new(&config) {
+        Ok(apns_client) => {
+          info!("APNs client created successfully");
+          Some(apns_client)
+        }
+        Err(err) => {
+          error!(
+            errorType = error_types::APNS_ERROR,
+            "Error creating APNs client: {}", err
+          );
+          None
+        }
+      },
+      None => {
+        error!(
+          errorType = error_types::APNS_ERROR,
+          "APNs config is missing"
+        );
+        None
+      }
+    };
+
+    let fcm_config = CONFIG.fcm_config.clone();
+    let fcm = match fcm_config {
+      Some(config) => match FCMClient::new(&config) {
+        Ok(fcm_client) => {
+          info!("FCM client created successfully");
+          Some(fcm_client)
+        }
+        Err(err) => {
+          error!(
+            errorType = error_types::FCM_ERROR,
+            "Error creating FCM client: {}", err
+          );
+          None
+        }
+      },
+      None => {
+        error!(errorType = error_types::FCM_ERROR, "FCM config is missing");
+        None
+      }
+    };
+
+    let web_push_config = CONFIG.web_push_config.clone();
+    let web_push = match web_push_config {
+      Some(config) => match WebPushClient::new(&config) {
+        Ok(web_client) => {
+          info!("Web Push client created successfully");
+          Some(web_client)
+        }
+        Err(err) => {
+          error!(
+            errorType = error_types::WEB_PUSH_ERROR,
+            "Error creating Web Push client: {}", err
+          );
+          None
+        }
+      },
+      None => {
+        error!(
+          errorType = error_types::WEB_PUSH_ERROR,
+          "Web Push config is missing"
+        );
+        None
+      }
+    };
+
+    let wns_config = CONFIG.wns_config.clone();
+    let wns = match wns_config {
+      Some(config) => match WNSClient::new(&config) {
+        Ok(wns_client) => {
+          info!("WNS client created successfully");
+          Some(wns_client)
+        }
+        Err(err) => {
+          error!(
+            errorType = error_types::WNS_ERROR,
+            "Error creating WNS client: {}", err
+          );
+          None
+        }
+      },
+      None => {
+        error!(errorType = error_types::WNS_ERROR, "WNS config is missing");
+        None
+      }
+    };
+
     NotifClient {
       apns,
       fcm,
