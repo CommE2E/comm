@@ -10,7 +10,7 @@ import { Viewer } from './viewer.js';
 // functions.
 function createBotViewer(userID: string): Viewer {
   let userIDIsBot = false;
-  for (const botName in bots) {
+  for (const botName of Object.keys(bots)) {
     if (bots[botName].userID === userID) {
       userIDIsBot = true;
       break;

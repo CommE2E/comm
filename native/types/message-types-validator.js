@@ -9,7 +9,7 @@ import Alert from '../utils/alert.js';
 if (__DEV__) {
   const messageTypesCpp = new Set(commConstants.NATIVE_MESSAGE_TYPES);
   const missingMessageTypesCpp = [];
-  for (const messageName in messageTypes) {
+  for (const messageName of Object.keys(messageTypes)) {
     const messageType = messageTypes[messageName];
     if (
       messageSpecs[messageType]?.getMessageNotifyType &&
