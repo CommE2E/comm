@@ -3,25 +3,9 @@ use crate::database::DatabaseClient;
 use crate::farcaster::error::Error::MissingFarcasterToken;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use tracing::{debug, error};
+use tunnelbroker_messages::farcaster::{APIMethod, FarcasterAPIRequest};
+
 pub mod error;
-
-#[derive(Debug)]
-pub enum APIMethod {
-  PUT,
-  GET,
-  STREAM,
-}
-
-pub struct FarcasterAPIRequest {
-  pub request_id: String,
-  pub user_id: String,
-  /// API version, examples: "v2", "fc"
-  pub api_version: String,
-  pub endpoint: String,
-  pub method: APIMethod,
-  /// query, body, or stream message
-  pub payload: String,
-}
 
 #[derive(Clone)]
 pub struct FarcasterClient {
