@@ -11,7 +11,7 @@ use tonic::transport::Server;
 use tracing::debug;
 use tunnelbroker_messages::MessageToDevice;
 
-use crate::amqp::{AmqpChannel, AmqpConnection};
+use crate::amqp_client::amqp::{AmqpChannel, AmqpConnection};
 use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, CONFIG};
