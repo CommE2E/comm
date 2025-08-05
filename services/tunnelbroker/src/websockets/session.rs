@@ -21,6 +21,7 @@ use tunnelbroker_messages::{DeviceToTunnelbrokerRequestStatus, Platform};
 
 use crate::amqp_client::AmqpClient;
 use crate::database::{self, DatabaseClient};
+use crate::farcaster::FarcasterClient;
 use crate::identity;
 use crate::notifs::NotifClient;
 
@@ -41,6 +42,7 @@ pub struct WebsocketSession<S> {
   // Each websocket has an AMQP connection associated with a particular device
   amqp_client: AmqpClient,
   notif_client: NotifClient,
+  farcaster_client: FarcasterClient,
 }
 
 #[derive(
@@ -162,6 +164,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     device_info: DeviceInfo,
     amqp: AmqpConnection,
     notif_client: NotifClient,
+    farcaster_client: FarcasterClient,
   ) -> Result<Self, super::ErrorWithStreamHandle<S>> {
     let amqp_client =
       match AmqpClient::new(db_client.clone(), device_info.clone(), amqp).await
@@ -176,6 +179,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       device_info,
       amqp_client,
       notif_client,
+      farcaster_client,
     })
   }
 

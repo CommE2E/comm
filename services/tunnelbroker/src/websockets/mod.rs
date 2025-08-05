@@ -1,10 +1,11 @@
 pub mod session;
 
-use crate::amqp_client::amqp::AmqpConnection;
+use crate::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
 use crate::websockets::session::SessionError;
+use crate::FarcasterClient;
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::{SinkExt, StreamExt};
@@ -43,6 +44,7 @@ struct WebsocketService {
   amqp: AmqpConnection,
   db_client: DatabaseClient,
   notif_client: NotifClient,
+  farcaster_client: FarcasterClient,
 }
 
 impl hyper::service::Service<Request<Body>> for WebsocketService {
@@ -65,6 +67,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
     let db_client = self.db_client.clone();
     let amqp = self.amqp.clone();
     let notif_client = self.notif_client.clone();
+    let farcaster_client = self.farcaster_client.clone();
 
     let future = async move {
       // Check if the request is a websocket upgrade request.
@@ -73,8 +76,15 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
         // Spawn a task to handle the websocket connection.
         tokio::spawn(async move {
-          accept_connection(websocket, addr, db_client, amqp, notif_client)
-            .await;
+          accept_connection(
+            websocket,
+            addr,
+            db_client,
+            amqp,
+            notif_client,
+            farcaster_client,
+          )
+          .await;
         });
 
         // Return the response so the spawned future can continue.
@@ -104,6 +114,7 @@ pub async fn run_server(
   db_client: DatabaseClient,
   amqp_connection: &AmqpConnection,
   notif_client: NotifClient,
+  farcaster_client: FarcasterClient,
 ) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
     .unwrap_or_else(|_| format!("0.0.0.0:{}", &CONFIG.http_port));
@@ -125,6 +136,7 @@ pub async fn run_server(
           db_client: db_client.clone(),
           addr,
           notif_client: notif_client.clone(),
+          farcaster_client: farcaster_client.clone(),
         },
       )
       .with_upgrades();
@@ -169,6 +181,7 @@ async fn accept_connection(
   db_client: DatabaseClient,
   amqp_connection: AmqpConnection,
   notif_client: NotifClient,
+  farcaster_client: FarcasterClient,
 ) {
   debug!("Incoming connection from: {}", addr);
 
@@ -194,6 +207,7 @@ async fn accept_connection(
       db_client,
       amqp_connection,
       notif_client,
+      farcaster_client,
     )
     .await
     {
@@ -322,12 +336,20 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   db_client: DatabaseClient,
   amqp: AmqpConnection,
   notif_client: NotifClient,
+  farcaster_client: FarcasterClient,
 ) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
   let device_info = match get_device_info_from_frame(frame).await {
     Ok(info) => info,
     Err(e) => return Err((e, outgoing)),
   };
 
-  WebsocketSession::new(outgoing, db_client, device_info, amqp, notif_client)
-    .await
+  WebsocketSession::new(
+    outgoing,
+    db_client,
+    device_info,
+    amqp,
+    notif_client,
+    farcaster_client,
+  )
+  .await
 }

@@ -3,11 +3,13 @@ pub mod config;
 pub mod constants;
 pub mod database;
 pub mod error;
+pub mod farcaster;
 pub mod grpc;
 pub mod identity;
 pub mod notifs;
 pub mod websockets;
 
+use crate::farcaster::FarcasterClient;
 use crate::notifs::NotifClient;
 use amqp_client::amqp;
 use anyhow::{anyhow, Result};
@@ -51,11 +53,16 @@ async fn main() -> Result<()> {
 
   let notif_client = NotifClient::new(db_client.clone());
 
+  let farcaster_api_url = CONFIG.farcaster_api_url.clone();
+  let farcaster_client = FarcasterClient::new(farcaster_api_url)
+    .expect("Unable to create Farcaster client");
+
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server = websockets::run_server(
     db_client.clone(),
     &amqp_connection,
     notif_client.clone(),
+    farcaster_client.clone(),
   );
 
   tokio::select! {
