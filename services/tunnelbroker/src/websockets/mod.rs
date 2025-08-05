@@ -1,6 +1,6 @@
 pub mod session;
 
-use crate::amqp::AmqpConnection;
+use crate::amqp_client::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
