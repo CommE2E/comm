@@ -2,6 +2,7 @@
 
 pub mod bad_device_token;
 pub mod device_list_updated;
+pub mod farcaster;
 pub mod keys;
 pub mod message_receive_confirmation;
 pub mod message_to_device;
@@ -26,6 +27,7 @@ pub use websocket_messages::{
 };
 
 use crate::bad_device_token::BadDeviceToken;
+use crate::messages::farcaster::{FarcasterAPIRequest, FarcasterAPIResponse};
 use crate::notif::*;
 use serde::{Deserialize, Serialize};
 
@@ -50,6 +52,7 @@ pub enum DeviceToTunnelbrokerMessage {
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
   MessageToTunnelbrokerRequest(MessageToTunnelbrokerRequest),
+  FarcasterAPIRequest(FarcasterAPIRequest),
   Heartbeat(Heartbeat),
 }
 
@@ -59,6 +62,7 @@ pub enum DeviceToTunnelbrokerMessage {
 pub enum TunnelbrokerToDeviceMessage {
   ConnectionInitializationResponse(ConnectionInitializationResponse),
   DeviceToTunnelbrokerRequestStatus(DeviceToTunnelbrokerRequestStatus),
+  FarcasterAPIResponse(FarcasterAPIResponse),
   MessageToDevice(MessageToDevice),
   BadDeviceToken(BadDeviceToken),
   Heartbeat(Heartbeat),
