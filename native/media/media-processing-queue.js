@@ -50,7 +50,7 @@ class MediaProcessingQueue {
 
   possiblyRunCommands() {
     let openSlots: { [string]: number } = {};
-    for (const type in this.currentCalls) {
+    for (const type of Object.keys(this.currentCalls)) {
       const currentCalls = this.currentCalls[type];
       const maxCalls = maxSimultaneousCalls[type];
       const callsLeft = maxCalls - currentCalls;

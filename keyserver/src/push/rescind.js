@@ -224,7 +224,7 @@ async function rescindPushNotifs(
   const newNotifRows = [];
   if (numRescinds > 0) {
     invariant(dbIDs, 'dbIDs should be set');
-    for (const rescindedID in deliveryResults) {
+    for (const rescindedID of Object.keys(deliveryResults)) {
       const delivery: RescindDelivery = {
         source: 'rescind',
         rescindedID,

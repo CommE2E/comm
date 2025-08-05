@@ -46,7 +46,7 @@ async function createInitialRolesForNewThread(
   const time = Date.now();
   const newRows = [];
   const namesToIDs: { [string]: string } = {};
-  for (const name in rolePermissions) {
+  for (const name of Object.keys(rolePermissions)) {
     const id = ids.shift();
     namesToIDs[name] = id;
     const permissionsBlob = JSON.stringify(rolePermissions[name]);

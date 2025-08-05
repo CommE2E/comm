@@ -94,7 +94,7 @@ function DimensionsUpdater(): null {
         rotated: updates.width > updates.height === defaultIsPortrait,
       };
     }
-    for (const key in updates) {
+    for (const key of Object.keys(updates)) {
       if (updates[key] === dimensions[key]) {
         continue;
       }
