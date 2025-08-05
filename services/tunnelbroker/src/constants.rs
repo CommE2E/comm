@@ -63,6 +63,17 @@ pub mod dynamodb {
 
     pub const DEVICE_TOKEN_INDEX_NAME: &str = "deviceToken-index";
   }
+
+  //FIXME: This is a temporary solution to retrieve the Farcaster-related
+  // data without introducing dependency between services and will be
+  // fixed as part of ENG-11058.
+  pub mod users {
+    pub const TABLE_NAME: &str = "identity-users";
+    pub const PARTITION_KEY: &str = "userID";
+    pub const USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME: &str = "farcasterID";
+    pub const USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME: &str =
+      "farcasterDCsToken";
+  }
 }
 
 // Log Error Types
