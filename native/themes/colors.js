@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 
 import type { GlobalTheme } from 'lib/types/theme-types.js';
+import { entries } from 'lib/utils/objects.js';
 
 import { selectBackgroundIsDark } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
@@ -389,7 +390,7 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
 );
 
 const magicStrings = new Set<string>();
-for (const theme in colors) {
+for (const theme of Object.keys(colors)) {
   for (const magicString in colors[theme]) {
     magicStrings.add(magicString);
   }
@@ -407,8 +408,7 @@ function stylesFromColors<IS: Styles>(
   for (const key in obj) {
     const style = obj[key];
     const filledInStyle = { ...style };
-    for (const styleKey in style) {
-      const styleValue = style[styleKey];
+    for (const [styleKey, styleValue] of entries(style)) {
       if (typeof styleValue !== 'string') {
         continue;
       }

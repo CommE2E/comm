@@ -79,7 +79,7 @@ async function updateRelationships(
     const directedDeleteIDs = [];
     const messageDatas = [];
     const now = Date.now();
-    for (const userID in userRelationshipOperations) {
+    for (const userID of Object.keys(userRelationshipOperations)) {
       const operations = userRelationshipOperations[userID];
       const ids = sortUserIDs(viewer.userID, userID);
 
