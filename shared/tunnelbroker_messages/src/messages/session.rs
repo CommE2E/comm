@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 ///     messages to device
 ///   - Tunnelbroker then polls for incoming messages from device
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum DeviceTypes {
   Mobile,

@@ -1,4 +1,4 @@
-pub mod amqp;
+pub mod amqp_client;
 pub mod config;
 pub mod constants;
 pub mod database;
@@ -13,6 +13,7 @@ use crate::notifs::fcm::FCMClient;
 use crate::notifs::web_push::WebPushClient;
 use crate::notifs::wns::WNSClient;
 use crate::notifs::NotifClient;
+use amqp_client::amqp;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
 use constants::{error_types, COMM_SERVICES_USE_JSON_LOGS};
