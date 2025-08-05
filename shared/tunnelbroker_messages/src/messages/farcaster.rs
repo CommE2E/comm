@@ -32,13 +32,14 @@ pub struct FarcasterAPIResponseError {
   pub message: String,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, PartialEq, Debug)]
 #[serde(tag = "type", content = "data")]
 pub enum FarcasterAPIResponseData {
   /// JSON stringified response
   Success(String),
   /// ErrorMessage
-  Error(FarcasterAPIResponseError),
+  ErrorResponse(FarcasterAPIResponseError),
+  Error(String),
   /// The request was invalid (e.g., Bytes instead of Text).
   /// In this case, the request ID cannot be retrieved.
   InvalidRequest,
@@ -51,7 +52,7 @@ pub enum FarcasterAPIResponseData {
   MissingFarcasterDCsToken,
 }
 
-#[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]
+#[derive(Serialize, TagAwareDeserialize, PartialEq, Debug)]
 #[serde(tag = "type", remote = "Self", rename_all = "camelCase")]
 pub struct FarcasterAPIResponse {
   #[serde(rename = "requestID")]

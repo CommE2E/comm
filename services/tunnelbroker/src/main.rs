@@ -54,8 +54,9 @@ async fn main() -> Result<()> {
   let notif_client = NotifClient::new(db_client.clone());
 
   let farcaster_api_url = CONFIG.farcaster_api_url.clone();
-  let farcaster_client = FarcasterClient::new(farcaster_api_url)
-    .expect("Unable to create Farcaster client");
+  let farcaster_client =
+    FarcasterClient::new(farcaster_api_url, db_client.clone())
+      .expect("Unable to create Farcaster client");
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server = websockets::run_server(
