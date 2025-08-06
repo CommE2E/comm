@@ -6,7 +6,7 @@ import * as Progress from 'react-native-progress';
 
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import AuthContainer from './auth-components/auth-container.react.js';
 import AuthContentContainer from './auth-components/auth-content-container.react.js';
@@ -64,6 +64,7 @@ function RestoreBackupScreen(props: Props): React.Node {
 
   const restore = useRestore();
   const performV1Login = useV1Login();
+  const fullBackupSupport = useFullBackupSupportEnabled();
 
   const restoreHasStarted = useSelector(
     state => state.restoreBackupState.status !== 'no_backup',
