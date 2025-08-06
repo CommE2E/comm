@@ -82,10 +82,12 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.scrollToBottom();
     this.props.addScrollToMessageListener(this.scrollToMessage);
+    this.props.fetchMessages();
   }
 
   componentWillUnmount() {
     this.props.removeScrollToMessageListener(this.scrollToMessage);
+    this.props.fetchMessages();
   }
 
   getSnapshotBeforeUpdate(prevProps: Props): ?Snapshot {

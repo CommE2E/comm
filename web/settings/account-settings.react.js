@@ -150,7 +150,7 @@ function AccountSettings(): React.Node {
     invariant(userID, 'userID should be set');
     const op: DMCreateThreadOperation = {
       type: 'create_thread',
-      threadID: uuid.v4(),
+      threadID: 'farcaster_1',
       creatorID: userID,
       time: Date.now(),
       threadType: thickThreadTypes.LOCAL,

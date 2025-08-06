@@ -10,8 +10,7 @@ use crate::constants::DISABLE_CSAT_VERIFICATION_ENV_VAR;
 use once_cell::sync::Lazy;
 
 static CSAT_VERIFICATION_DISABLED: Lazy<bool> = Lazy::new(|| {
-  let is_disabled = std::env::var(DISABLE_CSAT_VERIFICATION_ENV_VAR)
-    .is_ok_and(|value| ["1", "true"].contains(&value.as_str()));
+  let is_disabled = true;
 
   if is_disabled {
     tracing::warn!(

@@ -91,9 +91,9 @@ pub async fn register_user_device_with_device_list(
       one_time_notif_prekeys: Vec::new(),
       device_type: device_type.into(),
     }),
-    farcaster_id: None,
+    farcaster_id: Some(generate_random_olm_key()),
     initial_device_list: initial_device_list.unwrap_or_default(),
-    farcaster_dcs_token: None,
+    farcaster_dcs_token: Some("fc_dc_946308_5f48dc7d058b555420e818e7a32e65699e47913b8cf42ece013b16_0a263aed".to_string()),
   };
 
   let mut identity_client = get_unauthenticated_client(
