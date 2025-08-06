@@ -22,7 +22,7 @@ import {
   BackupIsNewerError,
   getMessageForException,
 } from 'lib/utils/errors.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import { base64DecodeBuffer, base64EncodeBuffer } from './base64-utils.js';
 import { getBackupIsNewerThanAppError } from './version-utils.js';
@@ -66,6 +66,8 @@ function useHandleSecondaryDeviceLogInError(): (
   isUserDataRestoreError?: boolean,
 ) => void {
   const { pushModal } = useModalContext();
+
+  const fullBackupSupport = useFullBackupSupportEnabled();
   return React.useCallback(
     (error: mixed, isUserDataRestoreError?: boolean) => {
       console.error('Secondary device log in error:', error);
@@ -97,7 +99,7 @@ function useHandleSecondaryDeviceLogInError(): (
         pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
       }
     },
-    [pushModal],
+    [pushModal, fullBackupSupport],
   );
 }
 

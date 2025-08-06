@@ -47,6 +47,8 @@
 		7FDFC0FE2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */; };
 		7FDFC0FF2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */; };
 		7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */; };
+		7FE179022E43980200973CAF /* ServicesUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE179012E43980200973CAF /* ServicesUtils.cpp */; };
+		7FE179032E43980200973CAF /* ServicesUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE179012E43980200973CAF /* ServicesUtils.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
@@ -240,6 +242,8 @@
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		7FDFC0FC2DC0FEBD00B1D87F /* OlmUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OlmUtils.h; sourceTree = "<group>"; };
 		7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OlmUtils.cpp; sourceTree = "<group>"; };
+		7FE179002E43980200973CAF /* ServicesUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServicesUtils.h; sourceTree = "<group>"; };
+		7FE179012E43980200973CAF /* ServicesUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServicesUtils.cpp; sourceTree = "<group>"; };
 		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
 		7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "commJSI-generated.cpp"; sourceTree = "<group>"; };
 		816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MessageSearchStore.cpp; path = PersistentStorageUtilities/DataStores/MessageSearchStore.cpp; sourceTree = "<group>"; };
@@ -514,6 +518,8 @@
 		71BE84382636A944002849D2 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				7FE179002E43980200973CAF /* ServicesUtils.h */,
+				7FE179012E43980200973CAF /* ServicesUtils.cpp */,
 				7FDFC0FC2DC0FEBD00B1D87F /* OlmUtils.h */,
 				7FDFC0FD2DC0FEBD00B1D87F /* OlmUtils.cpp */,
 				CBB0DF5E2B767FDF008E22FF /* CommMMKV.h */,
@@ -1293,6 +1299,7 @@
 				8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */,
+				7FE179022E43980200973CAF /* ServicesUtils.cpp in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				DFD5E7862B052B1400C32B6A /* RustAESCrypto.cpp in Sources */,
 				816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */,
@@ -1344,6 +1351,7 @@
 				7FDFC1002DC105E500B1D87F /* Base64.cpp in Sources */,
 				CBB0DF612B768007008E22FF /* CommMMKV.mm in Sources */,
 				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
+				7FE179032E43980200973CAF /* ServicesUtils.cpp in Sources */,
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,

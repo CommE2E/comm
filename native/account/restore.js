@@ -29,7 +29,7 @@ import {
 } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import { setNativeCredentials } from './native-credentials.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -209,6 +209,7 @@ function useRestore(): (
 
   const { addLog } = useDebugLogs();
   const { userDataRestore } = useUserDataRestoreContext();
+  const fullBackupSupport = useFullBackupSupportEnabled();
   const restoreUserData = React.useCallback(
     async (identityAuthResult: ?IdentityAuthResult) => {
       if (!fullBackupSupport) {
@@ -241,7 +242,7 @@ function useRestore(): (
         throw error;
       }
     },
-    [addLog, userDataRestore],
+    [addLog, userDataRestore, fullBackupSupport],
   );
 
   const logIn = useLogIn('restore');

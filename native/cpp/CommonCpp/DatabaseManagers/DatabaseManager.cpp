@@ -64,7 +64,7 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
     DatabaseManager::indicateQueryExecutorCreation();
     std::string currentBackupID = mainQueryExecutor.getMetadata("backupID");
     const auto userID = CommSecureStore::get(CommSecureStore::userID);
-    if (!ServicesUtils::fullBackupSupport || !currentBackupID.size() ||
+    if (!ServicesUtils::fullBackupSupport() || !currentBackupID.size() ||
         !userID.hasValue()) {
       return;
     }
@@ -290,7 +290,7 @@ void DatabaseManager::setUserDataKeys(
 }
 
 void DatabaseManager::captureBackupLogForLastOperation() {
-  if (!ServicesUtils::fullBackupSupport) {
+  if (!ServicesUtils::fullBackupSupport()) {
     return;
   }
   std::string backupID =
@@ -315,7 +315,7 @@ void DatabaseManager::captureBackupLogForLastOperation() {
 }
 
 void DatabaseManager::triggerBackupFileUpload() {
-  if (!ServicesUtils::fullBackupSupport) {
+  if (!ServicesUtils::fullBackupSupport()) {
     return;
   }
   ::triggerBackupFileUpload();
@@ -455,7 +455,7 @@ void DatabaseManager::createMainCompaction(
   DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(false);
   DatabaseManager::getQueryExecutor().setMetadata("backupID", backupID);
   DatabaseManager::getQueryExecutor().clearMetadata("logID");
-  if (ServicesUtils::fullBackupSupport) {
+  if (ServicesUtils::fullBackupSupport()) {
     DatabaseManager::setUserDataKeys(
         mainCompactionEncryptionKey, newLogEncryptionKey);
     DatabaseManager::mainConnectionManager->setLogsMonitoringEnabled(true);
