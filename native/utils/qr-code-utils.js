@@ -13,7 +13,6 @@ import {
   BackupIsNewerError,
   getMessageForException,
 } from 'lib/utils/errors.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
 
 import * as AES from './aes-crypto-module.js';
 import {
@@ -64,7 +63,10 @@ function parseTunnelbrokerQRAuthMessage(
   return Promise.resolve(payload);
 }
 
-function handleSecondaryDeviceLogInError(error: mixed): void {
+function handleSecondaryDeviceLogInError(
+  error: mixed,
+  fullBackupSupport: boolean,
+): void {
   console.error('Secondary device log in error:', error);
   if (fullBackupSupport) {
     // for full backup, errors are handled in the restore UI

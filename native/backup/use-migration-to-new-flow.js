@@ -22,7 +22,7 @@ import {
   rawDeviceListFromSignedList,
 } from 'lib/utils/device-list-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import { useClientBackup } from './use-client-backup.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -72,6 +72,8 @@ function useMigrationToNewFlow(): (
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
   const dispatch = useDispatch();
+
+  const fullBackupSupport = useFullBackupSupportEnabled();
 
   return React.useCallback(
     async (
@@ -155,6 +157,7 @@ function useMigrationToNewFlow(): (
       identityClient,
       retrieveLatestBackupInfo,
       userIdentifier,
+      fullBackupSupport,
     ],
   );
 }
