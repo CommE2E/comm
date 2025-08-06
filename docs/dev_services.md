@@ -82,7 +82,7 @@ The log level in this mode is increased from ERROR to INFO.
 
 ### Running services in the sandbox
 
-First, you need to initialize the local cloud using the following command from the the `services` directory:
+First, you need to initialize the local cloud using the following command from the `services` directory:
 
 ```
 yarn init-local-cloud
@@ -90,22 +90,22 @@ yarn init-local-cloud
 
 This will start the LocalStack Docker image and initialize required resources, including DynamoDB tables and S3 buckets, using the Terraform scripts located in `services/terraform`.
 
-To start a certain service in the sandbox you can run the following command:
+To start any service in the sandbox, except the Identity, you can run the following command:
 
 ```
-yarn run-[service-name]-service-in-sandbox
+cargo run
 ```
 
-For example, for Tunnelbroker the command will look like this:
+To run the Identity service for the first time, you need to configure its keys:
 
 ```
-yarn run-tunnelbroker-service-in-sandbox
+cargo run keygen
 ```
 
-You can also run all services at once in the sandbox using the command below:
+Then you can start the service:
 
 ```
-yarn run-all-services-in-sandbox
+cargo run server
 ```
 
 ### Rebuilding the base image

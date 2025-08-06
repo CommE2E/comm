@@ -38,3 +38,12 @@ aws dynamodb scan --table-name your-table --endpoint-url http://localhost:4566
 Again, replace `your-table` with the name of the name of the table you would like to inspect.
 
 These commands will give you an overview of your table’s structure and contents in LocalStack DynamoDB.
+
+### DynamoDB web UI
+
+You can also use a web UI, for example `dynamodb-admin` to view and edit DynamoDB tables.
+
+```
+npm install -g dynamodb-admin
+DYNAMO_ENDPOINT=http://localhost:4566 AWS_REGION=us-east-2 npx dynamodb-admin --open
+```
