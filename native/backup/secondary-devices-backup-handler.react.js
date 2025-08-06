@@ -16,7 +16,7 @@ import {
 } from 'lib/types/tunnelbroker/user-actions-peer-to-peer-message-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { fullBackupSupport } from 'lib/utils/services-utils.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -103,6 +103,7 @@ function SecondaryDevicesBackupHandler(): React.Node {
   ]);
 
   const executed = React.useRef(false);
+  const fullBackupSupport = useFullBackupSupportEnabled();
   React.useEffect(() => {
     if (
       !fullBackupSupport ||
@@ -131,6 +132,7 @@ function SecondaryDevicesBackupHandler(): React.Node {
     restoreBackupState.status,
     sendBackupDataToSecondaryDevices,
     socketState.isAuthorized,
+    fullBackupSupport,
   ]);
 
   return null;

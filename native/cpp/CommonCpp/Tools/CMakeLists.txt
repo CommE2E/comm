@@ -14,6 +14,7 @@ set(TOOLS_SRCS
   "Base64.cpp"
   "WorkerThread.cpp"
   "StaffUtils.cpp"
+  "ServicesUtils.cpp"
   "OlmUtils.cpp"
 )
 

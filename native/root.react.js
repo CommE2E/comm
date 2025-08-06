@@ -53,6 +53,7 @@ import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
+import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
@@ -158,6 +159,12 @@ function Root() {
 
   const [initialState, setInitialState] = React.useState(
     __DEV__ ? undefined : defaultNavigationState,
+  );
+
+  const fullBackupSupport = useFullBackupSupportEnabled();
+  const handleQRAuthError = React.useCallback(
+    (error: mixed) => handleSecondaryDeviceLogInError(error, fullBackupSupport),
+    [fullBackupSupport],
   );
 
   React.useEffect(() => {
@@ -367,7 +374,7 @@ function Root() {
                               composeTunnelbrokerQRAuthMessage
                             }
                             generateAESKey={generateQRAuthAESKey}
-                            onLogInError={handleSecondaryDeviceLogInError}
+                            onLogInError={handleQRAuthError}
                           >
                             <FeatureFlagsProvider>
                               <NavContext.Provider value={navContext}>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StaffUtils.h"
+
 namespace comm {
 
 class ServicesUtils {
@@ -9,7 +11,7 @@ public:
   // and apply compaction and logs. App is able to generate and upload
   // compaction and logs.
   // Keep in sync with lib/utils/services-utils.js
-  const static bool fullBackupSupport = false;
+  static bool fullBackupSupport();
 };
 
 } // namespace comm

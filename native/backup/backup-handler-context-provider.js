@@ -29,7 +29,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
-  fullBackupSupport,
+  useFullBackupSupportEnabled,
   useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
@@ -44,6 +44,7 @@ const backupInterval = 14 * 24 * 60 * 60 * 1000;
 
 function checkIfCompactionNeeded(
   latestBackupInfo: ?LocalLatestBackupInfo,
+  fullBackupSupport: boolean,
 ): boolean {
   if (!fullBackupSupport) {
     return false;
@@ -169,13 +170,20 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     handlerStartedRef.current = false;
   }, []);
 
+  const fullBackupSupport = useFullBackupSupportEnabled();
+
   React.useEffect(() => {
     if (fullBackupSupport && canPerformBackupOperation) {
       startBackupHandler();
     } else if (!canPerformBackupOperation) {
       stopBackupHandler();
     }
-  }, [canPerformBackupOperation, startBackupHandler, stopBackupHandler]);
+  }, [
+    canPerformBackupOperation,
+    startBackupHandler,
+    stopBackupHandler,
+    fullBackupSupport,
+  ]);
 
   const usingRestoreFlow = useIsRestoreFlowEnabled();
 
@@ -262,7 +270,8 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       // Check if another compaction is needed, but only when the
       // device is in a state where this is possible.
       const compactionNeeded =
-        (checkIfCompactionNeeded(latestBackupInfo) || databaseSchemaChanged) &&
+        (checkIfCompactionNeeded(latestBackupInfo, fullBackupSupport) ||
+          databaseSchemaChanged) &&
         userDataCompactionPossible;
 
       const shouldUploadUserData =
@@ -327,6 +336,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     socketState.isAuthorized,
     startBackupHandler,
     usingRestoreFlow,
+    fullBackupSupport,
   ]);
 
   React.useEffect(() => {

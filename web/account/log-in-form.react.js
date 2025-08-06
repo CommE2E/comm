@@ -16,7 +16,7 @@ import stores from 'lib/facts/stores.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   useIsRestoreFlowEnabled,
-  fullBackupSupport,
+  useFullBackupSupportEnabled,
 } from 'lib/utils/services-utils.js';
 
 import HeaderSeparator from './header-separator.react.js';
@@ -168,6 +168,8 @@ function LoginForm() {
   );
 
   const [errorUIShown, setErrorUIShown] = React.useState(false);
+
+  const fullBackupSupport = useFullBackupSupportEnabled();
 
   if (
     fullBackupSupport &&
