@@ -1,7 +1,12 @@
 #include "ServicesUtils.h"
+#include "StaffUtils.h"
 
 namespace comm {
 bool ServicesUtils::fullBackupSupport() {
-  return false;
+#if DEBUG
+  return true;
+#else
+  return StaffUtils::isStaffRelease();
+#endif
 }
 } // namespace comm
