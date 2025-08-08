@@ -22,35 +22,41 @@ enum class ThreadType {
   PERSONAL = 14,
   PRIVATE = 15,
   THICK_SIDEBAR = 16,
+  FARCASTER_PERSONAL = 17,
+  FARCASTER_GROUP = 18,
 };
-
-const std::vector<ThreadType> THICK_THREAD_TYPES{
-    ThreadType::LOCAL,
-    ThreadType::PERSONAL,
-    ThreadType::PRIVATE,
-    ThreadType::THICK_SIDEBAR};
 
 // Regex patterns - should be in sync with lib/utils/validation-utils.js
 const std::string UUID_REGEX_STRING =
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{"
     "12}";
-const std::string ID_SCHEMA_REGEX_STRING = "(?:(?:[0-9]+|" + UUID_REGEX_STRING +
-    ")\\|)?(?:[0-9]+|" + UUID_REGEX_STRING + ")";
+const std::string FARCASTER_ID_REGEX_STRING =
+    "FARCASTER#(?:(?:[0-9a-f]+)|(?:"
+    "[0-9]+-[0-9]+))";
+const std::string ID_SCHEMA_REGEX_STRING = "(?:" + FARCASTER_ID_REGEX_STRING +
+    "|(?:(?:[0-9]+|" + UUID_REGEX_STRING + ")\\|)?(?:[0-9]+|" +
+    UUID_REGEX_STRING + "))";
 
-const std::regex IS_SCHEMA_REGEX("^" + ID_SCHEMA_REGEX_STRING + "$");
+const std::regex ID_SCHEMA_REGEX("^" + ID_SCHEMA_REGEX_STRING + "$");
 const std::regex THICK_ID_REGEX("^" + UUID_REGEX_STRING + "$");
+const std::regex FARCASTER_ID_REGEX("^" + FARCASTER_ID_REGEX_STRING + "$");
 
 // Helper functions for regex testing
 inline bool isSchemaID(const std::string &threadID) {
-  return std::regex_match(threadID, IS_SCHEMA_REGEX);
+  return std::regex_match(threadID, ID_SCHEMA_REGEX);
 }
 
 inline bool isThickID(const std::string &threadID) {
   return std::regex_match(threadID, THICK_ID_REGEX);
 }
 
+inline bool isFarcasterID(const std::string &threadID) {
+  return std::regex_match(threadID, FARCASTER_ID_REGEX);
+}
+
 inline bool threadIDMatchesKeyserverProtocol(const std::string &threadID) {
-  return isSchemaID(threadID) && !isThickID(threadID);
+  return isSchemaID(threadID) && !isThickID(threadID) &&
+      !isFarcasterID(threadID);
 }
 
 } // namespace comm
