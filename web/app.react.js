@@ -49,7 +49,7 @@ import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
+import type { DeviceToTunnelbrokerRequest } from 'lib/types/tunnelbroker/messages.js';
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -413,11 +413,11 @@ const WEB_TUNNELBROKER_MESSAGE_TYPES = Object.freeze({
 
 function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
   const onSendMessageCallbacks = React.useRef<
-    Set<(MessageToDeviceRequest) => mixed>,
+    Set<(identifier: string, message: DeviceToTunnelbrokerRequest) => mixed>,
   >(new Set());
 
   const onMessageStatusCallbacks = React.useRef<
-    Set<(messageID: string, error: ?string) => mixed>,
+    Set<(identifier: string, error: ?string) => mixed>,
   >(new Set());
 
   React.useEffect(() => {
@@ -432,7 +432,12 @@ function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
       }
       const data = event.data;
       if (data.type === WEB_TUNNELBROKER_MESSAGE_TYPES.SEND_MESSAGE) {
-        if (typeof data.message !== 'object' || !data.message) {
+        if (
+          typeof data.message !== 'object' ||
+          !data.message ||
+          typeof data.identifier !== 'string' ||
+          !data.identifier
+        ) {
           console.log(
             'Invalid tunnelbroker message request received ' +
               'from shared tunnelbroker broadcast channel',
@@ -441,20 +446,21 @@ function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
           return;
         }
         // We know that the input was already validated
-        const message: MessageToDeviceRequest = (data.message: any);
+        const message: DeviceToTunnelbrokerRequest = (data.message: any);
+        const identifier: string = data.identifier;
 
         for (const callback of onSendMessageCallbacks.current) {
-          callback(message);
+          callback(identifier, message);
         }
       } else if (data.type === WEB_TUNNELBROKER_MESSAGE_TYPES.MESSAGE_STATUS) {
-        if (typeof data.messageID !== 'string') {
+        if (typeof data.identifier !== 'string') {
           console.log(
-            'Missing message id in message status message ' +
+            'Missing identifier in message status message ' +
               'from shared tunnelbroker broadcast channel',
           );
           return;
         }
-        const messageID = data.messageID;
+        const identifier = data.identifier;
 
         if (
           typeof data.error !== 'string' &&
@@ -471,7 +477,7 @@ function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
         const error = data.error;
 
         for (const callback of onMessageStatusCallbacks.current) {
-          callback(messageID, error);
+          callback(identifier, error);
         }
       } else {
         console.log(
@@ -489,9 +495,10 @@ function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
 
   return React.useMemo(
     () => ({
-      sendMessage: message =>
+      sendMessage: (identifier: string, message: DeviceToTunnelbrokerRequest) =>
         WEB_TUNNELBROKER_CHANNEL.postMessage({
           type: WEB_TUNNELBROKER_MESSAGE_TYPES.SEND_MESSAGE,
+          identifier,
           message,
         }),
       onSendMessage: callback => {
@@ -500,10 +507,10 @@ function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
           onSendMessageCallbacks.current.delete(callback);
         };
       },
-      setMessageStatus: (messageID, error) => {
+      setMessageStatus: (identifier, error) => {
         WEB_TUNNELBROKER_CHANNEL.postMessage({
           type: WEB_TUNNELBROKER_MESSAGE_TYPES.MESSAGE_STATUS,
-          messageID,
+          identifier,
           error,
         });
       },
