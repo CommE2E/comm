@@ -29,7 +29,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
-  std::string getThickThreadTypesList() const;
 
 public:
   SQLiteQueryExecutor(std::string sqliteFilePath, bool skipMigration = false);
