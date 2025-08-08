@@ -188,20 +188,6 @@ void SQLiteQueryExecutor::removeAllMessages() const {
   }
 }
 
-std::string SQLiteQueryExecutor::getThickThreadTypesList() const {
-  std::stringstream resultStream;
-  for (auto it = THICK_THREAD_TYPES.begin(); it != THICK_THREAD_TYPES.end();
-       ++it) {
-    int typeInt = static_cast<int>(*it);
-    resultStream << typeInt;
-
-    if (it + 1 != THICK_THREAD_TYPES.end()) {
-      resultStream << ",";
-    }
-  }
-  return resultStream.str();
-}
-
 std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
   static std::string getInitialMessagesSQL =
       "SELECT "
