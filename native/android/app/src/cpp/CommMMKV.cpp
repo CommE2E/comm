@@ -85,7 +85,7 @@ public:
   static void removeKeys(const std::vector<std::string> &keys) {
     static const auto cls = javaClassStatic();
     static auto method =
-        cls->getStaticMethod<void(local_ref<JArrayClass<JString>>)>(
+        cls->getStaticMethod<void(alias_ref<JArrayClass<JString>>)>(
             "removeKeys");
 
     local_ref<JArrayClass<JString>> keysJava =
@@ -130,7 +130,7 @@ public:
   setStringSet(std::string key, const std::vector<std::string> &elements) {
     static const auto cls = javaClassStatic();
     static auto method = cls->getStaticMethod<jboolean(
-        std::string, local_ref<JArrayClass<JString>>)>("setStringSet");
+        std::string, alias_ref<JArrayClass<JString>>)>("setStringSet");
 
     local_ref<JArrayClass<JString>> elementsJava =
         JArrayClass<JString>::newArray(elements.size());
