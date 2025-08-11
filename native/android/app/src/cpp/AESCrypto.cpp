@@ -20,7 +20,7 @@ public:
 
     static const auto cls = javaClassStatic();
     static auto method =
-        cls->template getStaticMethod<void(local_ref<JByteBuffer>)>(
+        cls->template getStaticMethod<void(alias_ref<JByteBuffer>)>(
             "generateKey");
     method(cls, byteBuffer);
   }
@@ -34,9 +34,9 @@ public:
         JByteBuffer::wrapBytes(sealedData.data(), sealedData.size());
     static const auto cls = javaClassStatic();
     static auto method = cls->template getStaticMethod<void(
-        local_ref<JByteBuffer>,
-        local_ref<JByteBuffer>,
-        local_ref<JByteBuffer>)>("encrypt");
+        alias_ref<JByteBuffer>,
+        alias_ref<JByteBuffer>,
+        alias_ref<JByteBuffer>)>("encrypt");
     method(cls, keyBuffer, plaintextBuffer, sealedDataBuffer);
   }
 
@@ -49,9 +49,9 @@ public:
         JByteBuffer::wrapBytes(plaintext.data(), plaintext.size());
     static const auto cls = javaClassStatic();
     static auto method = cls->template getStaticMethod<void(
-        local_ref<JByteBuffer>,
-        local_ref<JByteBuffer>,
-        local_ref<JByteBuffer>)>("decrypt");
+        alias_ref<JByteBuffer>,
+        alias_ref<JByteBuffer>,
+        alias_ref<JByteBuffer>)>("decrypt");
     method(cls, keyBuffer, sealedDataBuffer, plaintextBuffer);
   }
 };
