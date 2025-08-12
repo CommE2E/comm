@@ -547,12 +547,6 @@ function validateStateAndQueueOpsProcessing(
   }
 
   // The operations were already dispatched from the main tab
-
-  // For now the `dispatchSource` field is not included in any of the
-  // redux actions and this causes flow to throw an error.
-  // As soon as one of the actions is updated, this fix (and the corresponding
-  // one in tab-synchronization.js) can be removed.
-  // $FlowFixMe
   if (action.dispatchSource === 'tab-sync') {
     return state;
   }
