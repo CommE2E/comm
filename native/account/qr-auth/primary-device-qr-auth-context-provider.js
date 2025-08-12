@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { useGetAndUpdateDeviceListsForUsers } from 'lib/hooks/peer-list-hooks.js';
 import { useWaitForConnection } from 'lib/hooks/wait-for-connection.js';
 import {
   getOwnPeerDevices,
@@ -64,6 +65,7 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
     useTunnelbroker();
   const { addLog } = useDebugLogs();
   const waitForConnection = useWaitForConnection('tunnelbroker');
+  const updateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
@@ -80,6 +82,22 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       }
     };
   }, []);
+
+  const refetchPlatformDetails = React.useCallback(async () => {
+    try {
+      const { userID } = await identityContext.getAuthMetadata();
+      if (!userID) {
+        return;
+      }
+      await updateDeviceListsForUsers([userID]);
+    } catch (e) {
+      console.log(
+        `Refetching platform details failed: ${
+          getMessageForException(e) ?? ''
+        }`,
+      );
+    }
+  }, [identityContext, updateDeviceListsForUsers]);
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerToDeviceMessage) => {
@@ -124,8 +142,9 @@ function PrimaryDeviceQRAuthContextProvider(props: Props): React.Node {
       clearTimeout(timeout.current);
       timeout.current = null;
       navigate(SecondaryDeviceConnectedRouteName);
+      void refetchPlatformDetails();
     },
-    [connectingInProgress, navigate],
+    [connectingInProgress, navigate, refetchPlatformDetails],
   );
 
   React.useEffect(() => {
