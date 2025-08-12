@@ -4,9 +4,7 @@ use chrono::{DateTime, Utc};
 use comm_lib::{
   backup::BackupVersionInfo,
   blob::types::BlobInfo,
-  database::{
-    parse_int_attribute, AttributeExtractor, DBItemError, TryFromAttribute,
-  },
+  database::{AttributeExtractor, DBItemError, TryFromAttribute},
 };
 use std::collections::HashMap;
 
@@ -21,7 +19,6 @@ pub struct OrderedBackupItem {
   pub backup_id: String,
   pub user_keys: BlobInfo,
   pub siwe_backup_msg: Option<String>,
-  pub total_size: u64,
   pub version_info: BackupVersionInfo,
 }
 
@@ -52,13 +49,6 @@ impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
     let siwe_backup_msg: Option<String> =
       value.take_attr(backup_table::attr::SIWE_BACKUP_MSG)?;
 
-    let size_attr = value.remove(backup_table::attr::TOTAL_SIZE);
-    let total_size = if size_attr.is_some() {
-      parse_int_attribute(backup_table::attr::TOTAL_SIZE, size_attr)?
-    } else {
-      0u64
-    };
-
     // older backups don't have this attribute
     let version_info: BackupVersionInfo = value
       .take_attr::<Option<_>>(backup_table::attr::VERSION_INFO)?
@@ -70,7 +60,6 @@ impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
       backup_id,
       user_keys,
       siwe_backup_msg,
-      total_size,
       version_info,
     })
   }
