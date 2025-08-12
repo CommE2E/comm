@@ -2,11 +2,10 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Switch, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { getMessageForException } from 'lib/utils/errors.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
@@ -14,7 +13,6 @@ import { useGetBackupSecretForLoggedInUser } from '../backup/use-get-backup-secr
 import Button from '../components/button.react.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { setLocalSettingsActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -26,14 +24,9 @@ type Props = {
 // eslint-disable-next-line no-unused-vars
 function BackupMenu(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const dispatch = useDispatch();
   const colors = useColors();
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const getBackupSecret = useGetBackupSecretForLoggedInUser();
-
-  const isBackupEnabled = useSelector(
-    state => state.localSettings.isBackupEnabled,
-  );
   const latestBackupInfo = useSelector(
     state => state.backupStore.latestBackupInfo,
   );
@@ -156,29 +149,11 @@ function BackupMenu(props: Props): React.Node {
     userIdentifier,
   ]);
 
-  const onBackupToggled = React.useCallback(
-    (value: boolean) => {
-      dispatch({
-        type: setLocalSettingsActionType,
-        payload: { isBackupEnabled: value },
-      });
-    },
-    [dispatch],
-  );
-
   return (
     <ScrollView
       contentContainerStyle={styles.scrollViewContentContainer}
       style={styles.scrollView}
     >
-      <Text style={styles.header}>SETTINGS</Text>
-      <View style={styles.section}>
-        <View style={styles.submenuButton}>
-          <Text style={styles.submenuText}>Toggle automatic backup</Text>
-          <Switch value={isBackupEnabled} onValueChange={onBackupToggled} />
-        </View>
-      </View>
-
       <Text style={styles.header}>ACTIONS</Text>
       <View style={styles.section}>
         <Button
@@ -251,12 +226,6 @@ const unboundStyles = {
     fontWeight: '400',
     paddingBottom: 3,
     paddingHorizontal: 24,
-  },
-  submenuButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    alignItems: 'center',
   },
   submenuText: {
     color: 'panelForegroundLabel',
