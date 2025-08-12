@@ -28,7 +28,6 @@ pub mod backup_table {
     pub const USER_KEYS: &str = "userKeys";
     pub const ATTACHMENTS: &str = "attachments";
     pub const SIWE_BACKUP_MSG: &str = "siweBackupMsg";
-    pub const TOTAL_SIZE: &str = "totalSize";
     pub const VERSION_INFO: &str = "versionInfo";
 
     pub mod version_info {
@@ -48,8 +47,6 @@ pub struct BackupItem {
   pub user_data: Option<BlobInfo>,
   pub attachments: Vec<BlobInfo>,
   pub siwe_backup_msg: Option<String>,
-  #[serde(default)]
-  pub total_size: u64,
   #[serde(default)]
   pub version_info: BackupVersionInfo,
 }
@@ -72,7 +69,6 @@ impl BackupItem {
       user_data,
       attachments,
       siwe_backup_msg,
-      total_size: 0,
       version_info,
     }
   }
@@ -137,10 +133,6 @@ impl From<BackupItem> for AttributeMap {
       (
         backup_table::attr::USER_KEYS.to_string(),
         value.user_keys.into(),
-      ),
-      (
-        backup_table::attr::TOTAL_SIZE.to_string(),
-        AttributeValue::N(value.total_size.to_string()),
       ),
       (
         backup_table::attr::VERSION_INFO.to_string(),
@@ -214,13 +206,6 @@ impl TryFrom<AttributeMap> for BackupItem {
     let siwe_backup_msg: Option<String> =
       value.take_attr(backup_table::attr::SIWE_BACKUP_MSG)?;
 
-    let size_attr = value.remove(backup_table::attr::TOTAL_SIZE);
-    let total_size = if size_attr.is_some() {
-      parse_int_attribute(backup_table::attr::TOTAL_SIZE, size_attr)?
-    } else {
-      0u64
-    };
-
     // older backups don't have this attribute
     let version_info: BackupVersionInfo = value
       .take_attr::<Option<_>>(backup_table::attr::VERSION_INFO)?
@@ -234,7 +219,6 @@ impl TryFrom<AttributeMap> for BackupItem {
       user_data,
       attachments,
       siwe_backup_msg,
-      total_size,
       version_info,
     })
   }
@@ -304,7 +288,6 @@ mod tests {
     let deserialized: BackupItem =
       serde_json::from_str(payload).expect("failed to deserialized BackupItem");
 
-    assert_eq!(deserialized.total_size, 0u64);
     assert_eq!(deserialized.version_info.code_version, 0u16);
     assert_eq!(deserialized.version_info.state_version, 0u16);
     assert_eq!(deserialized.version_info.db_version, 0u16);
