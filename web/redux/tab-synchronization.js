@@ -9,11 +9,6 @@ const WEB_REDUX_CHANNEL = new BroadcastChannel('shared-redux');
 const tabSynchronizationMiddleware: Middleware<AppState, Action> =
   () => next => action => {
     const result = next(action);
-    // For now the `dispatchSource` field is not included in any of the
-    // redux actions and this causes flow to throw an error.
-    // As soon as one of the actions is updated, this fix (and the corresponding
-    // one in redux-setup.js) can be removed.
-    // $FlowFixMe
     if (action.dispatchSource === 'tunnelbroker') {
       WEB_REDUX_CHANNEL.postMessage(action);
     }
