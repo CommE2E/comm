@@ -90,6 +90,17 @@ function migrateThreadStoreForEditThreadPermissions(threadInfos: {
         roles: updatedRoles,
       };
       newThreadInfos[threadID] = newThreadInfo;
+    } else if (threadInfo.farcaster) {
+      const updatedMembers = threadInfo.members.map(member =>
+        addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
+      );
+      const newThreadInfo = {
+        ...threadInfo,
+        members: updatedMembers,
+        currentUser: updatedCurrentUser,
+        roles: updatedRoles,
+      };
+      newThreadInfos[threadID] = newThreadInfo;
     } else {
       const updatedMembers = threadInfo.members.map(member =>
         addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
