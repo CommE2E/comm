@@ -600,6 +600,7 @@ async function processAppRequest(
       sqliteQueryExecutor.beginTransaction();
       messageIDs = sqliteQueryExecutor.resetOutboundP2PMessagesForDevice(
         message.deviceID,
+        message.newDeviceID,
       );
       sqliteQueryExecutor.commitTransaction();
     } catch (e) {
