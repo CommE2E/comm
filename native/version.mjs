@@ -1,4 +1,4 @@
 // @flow
 
-export const codeVersion = 510;
-export const codeVersionName = '1.0.510';
+export const codeVersion = 511;
+export const codeVersionName = '1.0.511';
