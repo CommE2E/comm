@@ -90,6 +90,17 @@ function persistMigrationForManagePinsThreadPermission(
         roles: updatedRoles,
       };
       newThreadInfos[threadID] = updatedThreadInfo;
+    } else if (threadInfo.farcaster) {
+      const updatedMembers = threadInfo.members.map(member =>
+        addManagePinsThreadPermissionToUser(threadInfo, member, threadID),
+      );
+      const updatedThreadInfo = {
+        ...threadInfo,
+        members: updatedMembers,
+        currentUser: updatedCurrentUser,
+        roles: updatedRoles,
+      };
+      newThreadInfos[threadID] = updatedThreadInfo;
     } else {
       const updatedMembers = threadInfo.members.map(member =>
         addManagePinsThreadPermissionToUser(threadInfo, member, threadID),
