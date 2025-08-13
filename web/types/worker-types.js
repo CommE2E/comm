@@ -236,7 +236,7 @@ export type SearchMessagesRequestMessage = {
 export type ResetOutboundP2PMessagesRequestMessage = {
   +type: 24,
   +deviceID: string,
-  +newDeviceID?: ?string,
+  +newDeviceID: ?string,
 };
 
 export type FetchMessagesRequestMessage = {
