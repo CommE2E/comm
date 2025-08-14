@@ -418,3 +418,40 @@ resource "aws_dynamodb_table" "reports-service-reports" {
     enabled = local.pitr_enabled
   }
 }
+
+resource "aws_dynamodb_table" "farcaster-tokens" {
+  name         = "farcaster-tokens"
+  hash_key     = "userID"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "userID"
+    type = "S"
+  }
+
+  attribute {
+    name = "assignedInstance"
+    type = "S"
+  }
+
+  attribute {
+    name = "lastHeartbeat"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name            = "assignedInstance-index"
+    hash_key        = "assignedInstance"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "lastHeartbeat-index"
+    hash_key        = "lastHeartbeat"
+    projection_type = "ALL"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
+}
