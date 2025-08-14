@@ -9,7 +9,7 @@ use std::str::FromStr;
 
 #[cfg(feature = "blob-client")]
 pub mod blob;
-
+pub mod shared_tables;
 // # Useful type aliases
 
 // Rust exports `pub type` only into the so-called "type namespace", but in
