@@ -19,7 +19,7 @@ pub const PLACEHOLDER_CODE_VERSION: u64 = 0;
 pub const DEVICE_TYPE: &str = "service";
 const PASSWORD: &str = "pass";
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DeviceInfo {
   pub username: String,
   pub user_id: String,
@@ -45,7 +45,28 @@ pub async fn register_user_device(
   keys: Option<&ClientPublicKeys>,
   device_type: Option<DeviceType>,
 ) -> DeviceInfo {
-  register_user_device_with_device_list(keys, device_type, None).await
+  register_user_device_with_farcaster(keys, device_type, None, None, None).await
+}
+
+/// Register a new user with a device and optional farcaster data.
+/// - Gives random username (returned by function).
+/// - Device type defaults to keyserver.
+/// - Device ID taken from `keys` (ed25519), see [`DEFAULT_CLIENT_KEYS`]
+pub async fn register_user_device_with_farcaster(
+  keys: Option<&ClientPublicKeys>,
+  device_type: Option<DeviceType>,
+  farcaster_id: Option<String>,
+  farcaster_dcs_token: Option<String>,
+  initial_device_list: Option<String>,
+) -> DeviceInfo {
+  register_user_device_with_device_list_and_farcaster(
+    keys,
+    device_type,
+    initial_device_list,
+    farcaster_id,
+    farcaster_dcs_token,
+  )
+  .await
 }
 
 /// Same as [`register_user_device`] but with third param being a
@@ -54,6 +75,24 @@ pub async fn register_user_device_with_device_list(
   keys: Option<&ClientPublicKeys>,
   device_type: Option<DeviceType>,
   initial_device_list: Option<String>,
+) -> DeviceInfo {
+  register_user_device_with_device_list_and_farcaster(
+    keys,
+    device_type,
+    initial_device_list,
+    None,
+    None,
+  )
+  .await
+}
+
+/// Core registration function with all parameters
+async fn register_user_device_with_device_list_and_farcaster(
+  keys: Option<&ClientPublicKeys>,
+  device_type: Option<DeviceType>,
+  initial_device_list: Option<String>,
+  farcaster_id: Option<String>,
+  farcaster_dcs_token: Option<String>,
 ) -> DeviceInfo {
   let username: String = rand::thread_rng()
     .sample_iter(&Alphanumeric)
@@ -91,9 +130,9 @@ pub async fn register_user_device_with_device_list(
       one_time_notif_prekeys: Vec::new(),
       device_type: device_type.into(),
     }),
-    farcaster_id: None,
+    farcaster_id,
     initial_device_list: initial_device_list.unwrap_or_default(),
-    farcaster_dcs_token: None,
+    farcaster_dcs_token,
   };
 
   let mut identity_client = get_unauthenticated_client(
