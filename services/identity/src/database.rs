@@ -315,14 +315,14 @@ impl DatabaseClient {
       );
     }
 
-    if let Some(fid) = farcaster_id {
+    if let Some(fid) = farcaster_id.clone() {
       user.insert(
         USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(fid),
       );
     }
 
-    if let Some(token) = farcaster_dcs_token {
+    if let Some(token) = farcaster_dcs_token.clone() {
       user.insert(
         USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(token),
@@ -363,13 +363,50 @@ impl DatabaseClient {
         .delete(delete_user_from_reserved_usernames)
         .build();
 
+    let mut transact_items = vec![
+      put_user_operation,
+      delete_user_from_reserved_usernames_operation,
+    ];
+
+    // Add entry to farcaster_tokens table if farcaster data is provided
+    if let (Some(fid), Some(token)) = (farcaster_id, farcaster_dcs_token) {
+      use comm_lib::database::shared_tables::farcaster_tokens;
+
+      let farcaster_item = HashMap::from([
+        (
+          farcaster_tokens::PARTITION_KEY.to_string(),
+          AttributeValue::S(user_id.clone()),
+        ),
+        (
+          farcaster_tokens::FARCASTER_ID.to_string(),
+          AttributeValue::S(fid),
+        ),
+        (
+          farcaster_tokens::FARCASTER_DCS_TOKEN.to_string(),
+          AttributeValue::S(token),
+        ),
+      ]);
+
+      let put_farcaster_token = Put::builder()
+        .table_name(farcaster_tokens::TABLE_NAME)
+        .set_item(Some(farcaster_item))
+        // make sure we don't accidentally overwrite existing row
+        .condition_expression("attribute_not_exists(#pk)")
+        .expression_attribute_names("#pk", farcaster_tokens::PARTITION_KEY)
+        .build()
+        .expect("key, update_expression or table_name not set in Put builder");
+
+      let put_farcaster_token_operation = TransactWriteItem::builder()
+        .put(put_farcaster_token)
+        .build();
+
+      transact_items.push(put_farcaster_token_operation);
+    }
+
     self
       .client
       .transact_write_items()
-      .set_transact_items(Some(vec![
-        put_user_operation,
-        delete_user_from_reserved_usernames_operation,
-      ]))
+      .set_transact_items(Some(transact_items))
       .send()
       .await
       .map_err(|e| {
@@ -597,6 +634,9 @@ impl DatabaseClient {
 
     debug!(user_id, "Attempting to delete user's access tokens");
     self.delete_all_tokens_for_user(&user_id).await?;
+
+    debug!(user_id, "Attempting to delete user's farcaster tokens");
+    self.delete_farcaster_tokens_for_user(&user_id).await?;
 
     debug!(user_id, "Attempting to delete user");
     match self
