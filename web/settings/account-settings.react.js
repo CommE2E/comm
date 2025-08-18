@@ -18,6 +18,7 @@ import {
   type OutboundDMOperationSpecification,
 } from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
+import { useFarcasterConversationsSync } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { DMCreateThreadOperation } from 'lib/types/dm-ops.js';
@@ -27,7 +28,10 @@ import {
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
+import {
+  supportsFarcasterDCs,
+  useIsRestoreFlowEnabled,
+} from 'lib/utils/services-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
@@ -178,6 +182,8 @@ function AccountSettings(): React.Node {
     [pushModal],
   );
 
+  const farcasterConversationsSync = useFarcasterConversationsSync();
+
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -276,6 +282,25 @@ function AccountSettings(): React.Node {
     );
   }
 
+  let farcaster;
+  if (staffCanSee && supportsFarcasterDCs) {
+    farcaster = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Farcaster menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Farcaster DCs integration</span>
+              <Button variant="text" onClick={farcasterConversationsSync}>
+                <p className={css.buttonText}>Sync</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   let debugLogs;
   if (staffCanSee) {
     debugLogs = (
@@ -329,6 +354,7 @@ function AccountSettings(): React.Node {
         {tunnelbroker}
         {deviceData}
         {dms}
+        {farcaster}
         {debugLogs}
       </div>
     </div>
