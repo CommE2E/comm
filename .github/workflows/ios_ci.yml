@@ -36,6 +36,9 @@ jobs:
       - name: Delete iOS simulator caches
         run: sudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Install Developer certificate
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
