@@ -20,6 +20,7 @@ import {
   dmOperationSpecificationTypes,
 } from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
+import { useFarcasterConversationsSync } from 'lib/shared/farcaster/farcaster-hooks.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import type { DMCreateThreadOperation } from 'lib/types/dm-ops';
 import { thickThreadTypes } from 'lib/types/thread-types-enum.js';
@@ -29,7 +30,10 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
-import { useIsRestoreFlowEnabled } from 'lib/utils/services-utils.js';
+import {
+  supportsFarcasterDCs,
+  useIsRestoreFlowEnabled,
+} from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -182,6 +186,7 @@ type Props = {
   +onCreateDMThread: () => Promise<void>,
   +currentUserFID: ?string,
   +usingRestoreFlow: boolean,
+  +farcasterConversationsSync: () => Promise<void>,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -279,6 +284,17 @@ class ProfileScreen extends React.PureComponent<Props> {
         </>
       );
     }
+    let farcaster;
+    if (staffCanSee && supportsFarcasterDCs) {
+      farcaster = (
+        <>
+          <ProfileRow
+            content="Farcaster DCs integration sync"
+            onPress={this.onPressFarcasterConversationsSync}
+          />
+        </>
+      );
+    }
 
     return (
       <View style={this.props.styles.container}>
@@ -338,6 +354,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
             {dmActions}
+            {farcaster}
             {debugLogs}
           </View>
           <View style={this.props.styles.unpaddedSection}>
@@ -544,6 +561,10 @@ class ProfileScreen extends React.PureComponent<Props> {
     void this.props.onCreateDMThread();
   };
 
+  onPressFarcasterConversationsSync = () => {
+    void this.props.farcasterConversationsSync();
+  };
+
   onPressDebugLogs = () => {
     this.props.navigation.navigate({ name: DebugLogsScreenRouteName });
   };
@@ -616,6 +637,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     }, [checkIfPrimaryDevice]);
 
     const usingRestoreFlow = useIsRestoreFlowEnabled();
+    const farcasterConversationsSync = useFarcasterConversationsSync();
 
     return (
       <ProfileScreen
@@ -635,6 +657,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         onCreateDMThread={onCreateDMThread}
         currentUserFID={currentUserID}
         usingRestoreFlow={usingRestoreFlow}
+        farcasterConversationsSync={farcasterConversationsSync}
       />
     );
   });
