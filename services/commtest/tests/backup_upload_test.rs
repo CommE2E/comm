@@ -75,8 +75,11 @@ async fn backup_upload_user_keys() -> Result<(), Error> {
     .download_backup_data(&backup_descriptor, RequestedData::UserKeys)
     .await;
 
-  assert_reqwest_error(user_data_response, StatusCode::NOT_FOUND);
   assert_reqwest_error(user_keys_response, StatusCode::NOT_FOUND);
+  assert!(matches!(
+    user_data_response,
+    Err(backup_client::Error::NoBackupData)
+  ));
 
   Ok(())
 }
@@ -274,8 +277,11 @@ async fn backup_upload_user_keys_and_user_data() -> Result<(), Error> {
     .download_backup_data(&removed_backup_descriptor, RequestedData::UserKeys)
     .await;
 
-  assert_reqwest_error(user_data_response, StatusCode::NOT_FOUND);
   assert_reqwest_error(user_keys_response, StatusCode::NOT_FOUND);
+  assert!(matches!(
+    user_data_response,
+    Err(backup_client::Error::NoBackupData)
+  ));
 
   Ok(())
 }
