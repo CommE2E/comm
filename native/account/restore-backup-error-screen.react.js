@@ -106,7 +106,15 @@ function RestorationFailedView(props: RestorationFailedViewProps): React.Node {
     navigation.navigate(LoggedOutModalRouteName);
   }, [navigation, loggedIn, logOut, dispatch, dispatchActionPromise]);
 
-  const deviceTypeWarning = React.useMemo(() => {
+  const userFriendlyErrorMessage = React.useMemo(() => {
+    if (errorDetails === 'no_backup_data') {
+      return (
+        <Text style={styles.section}>
+          Your user data backup is not ready yet. Make sure Comm app on your
+          primary device has been updated to the latest version, then try again.
+        </Text>
+      );
+    }
     if (deviceType === 'secondary') {
       return (
         <Text style={styles.section}>
@@ -121,13 +129,13 @@ function RestorationFailedView(props: RestorationFailedViewProps): React.Node {
         </Text>
       );
     }
-  }, [deviceType, styles.section]);
+  }, [deviceType, styles.section, errorDetails]);
 
   return (
     <AuthContainer>
       <AuthContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Restoration failed</Text>
-        {deviceTypeWarning}
+        {userFriendlyErrorMessage}
         <View style={styles.errorDetailsContainer}>
           <Text style={styles.errorDetailsHeader}>Error message:</Text>
           <Text style={styles.errorDetails}>{errorDetails}</Text>
