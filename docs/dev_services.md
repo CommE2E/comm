@@ -102,7 +102,7 @@ For example, for Tunnelbroker the command will look like this:
 yarn run-tunnelbroker-service-in-sandbox
 ```
 
-You can also run all services at once in the sandbox using the command below:
+You can also run all services at once in the sandbox using the command below :
 
 ```
 yarn run-all-services-in-sandbox
