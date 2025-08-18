@@ -36,8 +36,11 @@ jobs:
       - name: Delete iOS simulator caches
         run: sudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      - name: Patch in working Xcode + iOS version
+        run: |
+          # https://github.com/actions/runner-images/issues/12758
+          sudo xcode-select --switch /Applications/Xcode_16.2.app
+          sudo xcodebuild -downloadPlatform iOS
 
       - name: Install Developer certificate
         env:
