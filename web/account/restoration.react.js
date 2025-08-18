@@ -160,6 +160,24 @@ function RestorationFailedError(
     }
   }, [dispatch, dispatchActionPromise, loggedIn, logOut]);
 
+  const userFriendlyErrorMessage = React.useMemo(() => {
+    if (errorDetails === 'no_backup_data') {
+      return (
+        <div className={css.modalText}>
+          Your user data backup is not ready yet. Make sure the Comm app on your
+          primary device has been updated to the latest version, then try again.
+        </div>
+      );
+    } else {
+      return (
+        <div className={css.modalText}>
+          Your backup appears to be corrupt. Be careful with your primary
+          device, as you may lose data if you log out of it at this time.
+        </div>
+      );
+    }
+  }, [errorDetails]);
+
   return (
     <RestorationViewContainer
       title="Restoration failed"
@@ -167,10 +185,7 @@ function RestorationFailedError(
       isError={true}
     >
       <div className={css.errorMessageContainer}>
-        <div className={css.modalText}>
-          Your backup appears to be corrupt. Be careful with your primary
-          device, as you may lose data if you log out of it at this time.
-        </div>
+        {userFriendlyErrorMessage}
         <div className={css.errorDetailsContainer}>
           <div className={css.errorDetailsHeader}>Error message:</div>
           <div className={css.errorDetails}>{errorDetails}</div>
