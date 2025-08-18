@@ -141,6 +141,9 @@ impl BackupClient {
     }
 
     let response = request.send().await?;
+    if response.status() == StatusCode::NOT_FOUND {
+      return Err(Error::NoBackupData);
+    }
 
     let result = response.error_for_status()?.bytes().await?.to_vec();
     Ok(result)
@@ -402,6 +405,8 @@ pub enum Error {
   WSClosed,
   Unauthenticated,
   InvalidRequest,
+  #[display(fmt = "no_backup_data")]
+  NoBackupData,
 }
 
 impl Error {
