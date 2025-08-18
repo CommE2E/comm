@@ -141,7 +141,9 @@ impl BackupClient {
     }
 
     let response = request.send().await?;
-    if response.status() == StatusCode::NOT_FOUND {
+    if response.status() == StatusCode::NOT_FOUND
+      && matches!(requested_data, RequestedData::UserData)
+    {
       return Err(Error::NoBackupData);
     }
 
