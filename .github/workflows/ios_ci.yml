@@ -35,13 +35,12 @@ jobs:
 
       - name: Delete iOS simulator caches
         run: sudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*
-
-      - name: Patch in working Xcode + iOS version
+      
+      - name: Download iOS Platform
         run: |
           # https://github.com/actions/runner-images/issues/12758
-          sudo xcode-select --switch /Applications/Xcode_16.2.app
           sudo xcodebuild -downloadPlatform iOS
-
+          
       - name: Install Developer certificate
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
