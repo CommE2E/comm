@@ -3,14 +3,15 @@ name: iOS Build CI
 on:
   push:
     branches:
-      - master
-      - 'debugci/ios_ci/*'
-    paths-ignore:
-      - 'landing/**'
-      - 'web/**'
-      - 'docs/**'
-      - 'keyserver/**'
-      - 'desktop/**'
+      # - master
+      # - 'debugci/ios_ci/*'
+      - 'graszka22/rn80-upgrade'
+    # paths-ignore:
+    #   - 'landing/**'
+    #   - 'web/**'
+    #   - 'docs/**'
+    #   - 'keyserver/**'
+    #   - 'desktop/**'
 
 jobs:
   build:
@@ -35,12 +36,6 @@ jobs:
 
       - name: Delete iOS simulator caches
         run: sudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*
-
-      - name: Patch in working Xcode + iOS version
-        run: |
-          # https://github.com/actions/runner-images/issues/12758
-          sudo xcode-select --switch /Applications/Xcode_16.2.app
-          sudo xcodebuild -downloadPlatform iOS
 
       - name: Install Developer certificate
         env:
