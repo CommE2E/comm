@@ -9,6 +9,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useGetAndUpdateDeviceListsForUsers } from 'lib/hooks/peer-list-hooks.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { PrimaryDeviceQRAuthContext } from './primary-device-qr-auth-context.js';
@@ -72,6 +74,30 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
     }
   }, [navigateToLinkedDevices, onRemoveSecondaryDevice]);
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'identity context not set');
+  const updateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
+  const refetchPlatformDetails = React.useCallback(async () => {
+    try {
+      const { userID } = await identityContext.getAuthMetadata();
+      if (!userID) {
+        return;
+      }
+      await updateDeviceListsForUsers([userID]);
+    } catch (e) {
+      console.log(
+        `Refetching platform details failed: ${
+          getMessageForException(e) ?? ''
+        }`,
+      );
+    }
+  }, [identityContext, updateDeviceListsForUsers]);
+
+  const onPressKeep = React.useCallback(async () => {
+    void refetchPlatformDetails();
+    navigateToLinkedDevices();
+  }, [navigateToLinkedDevices, refetchPlatformDetails]);
+
   const styles = useStyles(unboundStyles);
 
   return (
@@ -93,7 +119,7 @@ function SecondaryDeviceNotResponding(props: Props): React.Node {
           variant={removeButtonVariant}
         />
         <PrimaryButton
-          onPress={navigateToLinkedDevices}
+          onPress={onPressKeep}
           label="Keep device"
           variant="enabled"
         />
