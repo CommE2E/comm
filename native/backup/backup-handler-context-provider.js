@@ -39,8 +39,8 @@ import { useMigrationToNewFlow } from './use-migration-to-new-flow.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-// Two weeks in milliseconds
-const backupInterval = 14 * 24 * 60 * 60 * 1000;
+// One week in milliseconds
+const backupInterval = 7 * 24 * 60 * 60 * 1000;
 
 function checkIfCompactionNeeded(
   latestBackupInfo: ?LocalLatestBackupInfo,
