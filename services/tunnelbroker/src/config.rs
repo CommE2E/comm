@@ -54,6 +54,18 @@ pub struct AppConfig {
   #[arg(env = "FARCASTER_API_URL")]
   #[arg(long, default_value = "https://client.farcaster.xyz/")]
   pub farcaster_api_url: reqwest::Url,
+  /// Token distributor scan interval (seconds)
+  #[arg(env = "TOKEN_DISTRIBUTOR_SCAN_INTERVAL")]
+  #[arg(long, default_value_t = 30)]
+  pub token_distributor_scan_interval: u64,
+  /// Token distributor heartbeat interval (seconds)
+  #[arg(env = "TOKEN_DISTRIBUTOR_HEARTBEAT_INTERVAL")]
+  #[arg(long, default_value_t = 10)]
+  pub token_distributor_heartbeat_interval: u64,
+  /// Token distributor heartbeat timeout (seconds)
+  #[arg(env = "TOKEN_DISTRIBUTOR_HEARTBEAT_TIMEOUT")]
+  #[arg(long, default_value_t = 60)]
+  pub token_distributor_heartbeat_timeout: u64,
 }
 
 /// Stores configuration parsed from command-line arguments

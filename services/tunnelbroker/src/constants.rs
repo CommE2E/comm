@@ -88,4 +88,5 @@ pub mod error_types {
   pub const IDENTITY_ERROR: &str = "Identity Error";
   pub const WEBSOCKET_ERROR: &str = "Websocket Error";
   pub const SERVER_ERROR: &str = "Server Error";
+  pub const TOKEN_DISTRIBUTOR_ERROR: &str = "Token Distributor Error";
 }

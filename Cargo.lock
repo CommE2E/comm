@@ -5691,7 +5691,9 @@ checksum = "54319c93411147bced34cb5609a80e0a8e44c5999c93903a81cd866630ec0bfd"
 dependencies = [
  "futures-util",
  "log",
+ "native-tls",
  "tokio",
+ "tokio-native-tls",
  "tungstenite 0.18.0",
 ]
 
@@ -6032,6 +6034,7 @@ dependencies = [
  "http 0.2.12",
  "httparse",
  "log",
+ "native-tls",
  "rand 0.8.5",
  "sha1",
  "thiserror 1.0.61",
@@ -6083,6 +6086,8 @@ dependencies = [
  "tokio",
  "tokio-executor-trait",
  "tokio-reactor-trait",
+ "tokio-tungstenite 0.18.0",
+ "tokio-util",
  "tonic 0.8.3",
  "tonic-build 0.8.4",
  "tracing",
