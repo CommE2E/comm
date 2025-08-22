@@ -1,8 +1,11 @@
 mod config;
+mod error;
+mod token_connection;
 
 use crate::constants::error_types;
 use crate::database::DatabaseClient;
 pub(crate) use crate::token_distributor::config::TokenDistributorConfig;
+use crate::token_distributor::token_connection::TokenConnection;
 use comm_lib::database::Error;
 use futures_util::future;
 use std::collections::HashMap;
@@ -146,7 +149,13 @@ impl TokenDistributor {
 
           // Spawn TokenConnection task
           info!("Starting WebSocket connection task for user: {}", user_id);
-          //TODO
+          TokenConnection::start(
+            self.db.clone(),
+            self.config.clone(),
+            user_id.clone(),
+            token_data,
+            cancel_token.clone(),
+          );
 
           // Store the cancellation token
           self.connections.insert(user_id.clone(), cancel_token);
