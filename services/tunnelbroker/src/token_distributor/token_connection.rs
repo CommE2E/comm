@@ -34,11 +34,39 @@ impl TokenConnection {
       if let Err(e) = connection.run(cancellation_token).await {
         error!("TokenConnection failed for user {}: {:?}", user_id, e);
 
+        // Emit connection failure metric with specific error type
+        let error_type = match &e {
+          TokenConnectionError::PingTimeout => "PingTimeout",
+          TokenConnectionError::WebSocketConnection(_) => "WebSocketConnection",
+          TokenConnectionError::AuthenticationFailed(_) => {
+            "AuthenticationFailed"
+          }
+          TokenConnectionError::WebSocketClosed(_) => "WebSocketClosed",
+          TokenConnectionError::StreamEnded => "StreamEnded",
+          TokenConnectionError::DatabaseError(_) => "DatabaseError",
+          TokenConnectionError::TokenOwnershipLost => "TokenOwnershipLost",
+          TokenConnectionError::HeartbeatFailed(_) => "HeartbeatFailed",
+          TokenConnectionError::Cancelled => "Cancelled",
+        };
+
+        info!(
+          metricType = "TokenDistributor_ConnectionFailure",
+          metricValue = 1,
+          instanceId = config.instance_id,
+          userId = user_id,
+          errorType = error_type,
+          "Connection failure occurred"
+        );
+
         // Clean up token in database on connection failure
         if let Err(release_err) =
           db.release_token(&user_id, &config.instance_id).await
         {
-          warn!("Failed to release token for user {} after connection failure: {:?}",  user_id, release_err);
+          warn!(
+            "Failed to release token for user {} after connection failure: {:?}",
+            user_id,
+            release_err
+          );
         }
       }
     });

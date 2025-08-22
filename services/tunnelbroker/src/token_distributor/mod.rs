@@ -33,6 +33,15 @@ impl TokenDistributor {
       config.metrics_interval.as_secs()
     );
 
+    // Emit initial metrics
+    info!(
+      metricType = "TokenDistributor_InstanceStarted",
+      metricValue = 1,
+      instanceId = config.instance_id,
+      maxConnections = config.max_connections,
+      "TokenDistributor instance started"
+    );
+
     Self {
       db,
       config,
@@ -113,6 +122,14 @@ impl TokenDistributor {
       debug!("No orphaned tokens found during scan");
     } else {
       info!("Found {} orphaned tokens to process", orphaned_tokens.len());
+
+      // Emit orphaned tokens metric
+      info!(
+        metricType = "TokenDistributor_OrphanedTokensFound",
+        metricValue = orphaned_tokens.len(),
+        instanceId = self.config.instance_id,
+        "Orphaned tokens discovered during scan"
+      );
     }
 
     let mut claimed_count = 0;
@@ -142,6 +159,15 @@ impl TokenDistributor {
             user_id,
             claimed_count + 1,
             available_slots
+          );
+
+          // Emit token claimed metric
+          info!(
+            metricType = "TokenDistributor_TokenClaimed",
+            metricValue = 1,
+            instanceId = self.config.instance_id,
+            userId = user_id,
+            "Token successfully claimed"
           );
 
           // Create cancellation token for this connection
@@ -177,6 +203,15 @@ impl TokenDistributor {
             "Database error while claiming token for user {}: {:?}",
             user_id, e
           );
+
+          // Emit token claim failure metric
+          info!(
+            metricType = "TokenDistributor_TokenClaimFailure",
+            metricValue = 1,
+            instanceId = self.config.instance_id,
+            userId = user_id,
+            "Token claim failed due to database error"
+          );
         }
       }
     }
@@ -198,13 +233,44 @@ impl TokenDistributor {
     let cleaned_count = initial_count - self.connections.len();
     if cleaned_count > 0 {
       debug!("Cleaned up {} dead connections", cleaned_count);
+
+      // Emit dead connections cleaned metric
+      info!(
+        metricType = "TokenDistributor_DeadConnectionsCleaned",
+        metricValue = cleaned_count,
+        instanceId = self.config.instance_id,
+        "Dead connections cleaned up"
+      );
     }
   }
 
   async fn emit_metrics(&self) {
-    //TODO: implement metrics
-  }
+    // Emit current active connections metric
+    info!(
+      metricType = "TokenDistributor_ActiveConnections",
+      metricValue = self.connections.len(),
+      instanceId = self.config.instance_id,
+      "Current active connections count"
+    );
 
+    // Emit total tokens count metric
+    match self.db.get_total_tokens_count().await {
+      Ok(total_tokens) => {
+        info!(
+          metricType = "TokenDistributor_TotalTokensCount",
+          metricValue = total_tokens,
+          instanceId = self.config.instance_id,
+          "Total tokens count in database"
+        );
+      }
+      Err(e) => {
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "Failed to get total tokens count: {:?}", e
+        );
+      }
+    }
+  }
   async fn graceful_shutdown(&mut self) -> Result<(), Error> {
     info!("Starting graceful shutdown...");
 
@@ -227,6 +293,15 @@ impl TokenDistributor {
         match db.release_token(&user_id_clone, instance_id).await {
           Ok(true) => {
             debug!("Released token for user: {}", user_id_clone);
+
+            // Emit token released metric
+            info!(
+              metricType = "TokenDistributor_TokenReleased",
+              metricValue = 1,
+              instanceId = instance_id,
+              userId = user_id_clone,
+              "Token successfully released during shutdown"
+            );
           }
           Ok(false) => {
             debug!("Token for user {} already released", user_id_clone);
