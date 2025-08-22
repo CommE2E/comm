@@ -7,10 +7,12 @@ pub mod farcaster;
 pub mod grpc;
 pub mod identity;
 pub mod notifs;
+pub mod token_distributor;
 pub mod websockets;
 
 use crate::farcaster::FarcasterClient;
 use crate::notifs::NotifClient;
+use crate::token_distributor::{TokenDistributor, TokenDistributorConfig};
 use amqp_client::amqp;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
@@ -66,12 +68,19 @@ async fn main() -> Result<()> {
     farcaster_client.clone(),
   );
 
+  let token_config = TokenDistributorConfig::default();
+  let mut token_distributor =
+    TokenDistributor::new(db_client.clone(), token_config);
+
   tokio::select! {
     grpc_result = grpc_server => {
       grpc_result.map_err(|err| anyhow!("gRPC server failed: {:?}", err))
     },
     ws_result = websocket_server => {
       ws_result.map_err(|err| anyhow!("WS server failed: {:?}", err))
+    },
+    token_result = token_distributor.start() => {
+      token_result.map_err(|err| anyhow!("Token distributor failed: {:?}", err))
     },
   }
 }

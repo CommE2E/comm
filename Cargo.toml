@@ -4,29 +4,29 @@ resolver = "2"
 # We prefer the wildcard approach because it's easier to exclude
 # these from Dockerfiles with `sed`
 members = [
-  # All packages in these directories, except explicitly excluded
-  "services/*",
-  "shared/*",
-  # Other packages
-  "keyserver/addons/rust-node-addon",
+    # All packages in these directories, except explicitly excluded
+    "services/*",
+    "shared/*",
+    # Other packages
+    "keyserver/addons/rust-node-addon",
 ]
 
 exclude = [
-  # These directories are not Rust services
-  "services/electron-update-server",
-  "services/terraform",
-  "services/scripts",
-  "services/node_modules",
-  "shared/protos",
-  "shared/cmake",
-  # search-index-lambda has no common dependencies
-  "services/search-index-lambda",
-  # These fail to compile while in workspace
-  "web/backup-client-wasm",
-  "web/opaque-ke-wasm",
-  "native/native_rust_library",
-  "services/.idea",
-  "shared/.idea",
+    # These directories are not Rust services
+    "services/electron-update-server",
+    "services/terraform",
+    "services/scripts",
+    "services/node_modules",
+    "shared/protos",
+    "shared/cmake",
+    # search-index-lambda has no common dependencies
+    "services/search-index-lambda",
+    # These fail to compile while in workspace
+    "web/backup-client-wasm",
+    "web/opaque-ke-wasm",
+    "native/native_rust_library",
+    "services/.idea",
+    "shared/.idea",
 ]
 
 [workspace.package]
@@ -93,6 +93,7 @@ tokio = "1.37.0"
 tokio-stream = "0.1.14"
 tokio-tungstenite = "0.18.0"
 tokio-tungstenite-wasm = "0.2.1"
+tokio-util = "0.7.11"
 tonic = "0.8.3"
 tonic-web = "0.9.1"
 tower-http = "0.4"
