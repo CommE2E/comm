@@ -439,15 +439,21 @@ resource "aws_dynamodb_table" "farcaster-tokens" {
     type = "N"
   }
 
+  attribute {
+    name = "unassigned"
+    type = "S"
+  }
+
   global_secondary_index {
-    name            = "assignedInstance-index"
+    name            = "assignedInstance-lastHeartbeat-index"
     hash_key        = "assignedInstance"
+    range_key       = "lastHeartbeat"
     projection_type = "ALL"
   }
 
   global_secondary_index {
-    name            = "lastHeartbeat-index"
-    hash_key        = "lastHeartbeat"
+    name            = "unassigned-index"
+    hash_key        = "unassigned"
     projection_type = "ALL"
   }
 
