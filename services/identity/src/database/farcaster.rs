@@ -179,6 +179,10 @@ impl DatabaseClient {
         farcaster_tokens::FARCASTER_DCS_TOKEN.to_string(),
         AttributeValue::S(farcaster_dcs_token),
       ),
+      (
+        farcaster_tokens::UNASSIGNED.to_string(),
+        AttributeValue::S("true".to_string()),
+      ),
     ]);
 
     let put_farcaster_token = Put::builder()
