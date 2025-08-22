@@ -18,6 +18,7 @@ use crate::constants::error_types;
 
 pub mod message;
 pub mod message_id;
+pub mod token_distributor;
 
 use crate::database::message_id::MessageID;
 pub use message::*;
