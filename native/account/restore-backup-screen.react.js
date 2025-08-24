@@ -121,7 +121,8 @@ function RestoreBackupScreen(props: Props): React.Node {
         let alertDetails = unknownErrorAlertDetails;
         if (
           messageForException === 'user_not_found' ||
-          messageForException === 'login_failed'
+          messageForException === 'login_failed' ||
+          messageForException === 'backup_decryption_failed'
         ) {
           alertDetails = userNotFoundAlertDetails;
         } else if (

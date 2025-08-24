@@ -127,7 +127,8 @@ function RestorePasswordAccountScreen(props: Props): React.Node {
       let onPress = null;
       if (
         messageForException === 'user_not_found' ||
-        messageForException === 'login_failed'
+        messageForException === 'login_failed' ||
+        messageForException === 'backup_decryption_failed'
       ) {
         alertMessage = userNotFoundAlertDetails;
         onPress = onUnsuccessfulLoginAlertAcknowledged;
