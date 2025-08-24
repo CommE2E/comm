@@ -527,6 +527,16 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
 #[display(fmt = "user_not_found")]
 struct UserNotFoundError;
 
+#[derive(Debug, derive_more::Display)]
+#[display(fmt = "backup_decryption_failed")]
+struct BackupDecryptionError(Box<dyn Error>);
+
+impl std::error::Error for BackupDecryptionError {
+  fn source(&self) -> Option<&(dyn Error + 'static)> {
+    Some(<Box<_> as std::ops::Deref>::deref(&self.0))
+  }
+}
+
 // This struct should match `SIWEBackupData` in `lib/types/backup-types.js`
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -579,7 +589,7 @@ impl UserKeys {
     data: &mut [u8],
     backup_key: &mut [u8],
   ) -> Result<Self, Box<dyn Error>> {
-    let decrypted = decrypt(backup_key, data)?;
+    let decrypted = decrypt(backup_key, data).map_err(BackupDecryptionError)?;
     Ok(serde_json::from_slice(&decrypted)?)
   }
 }
