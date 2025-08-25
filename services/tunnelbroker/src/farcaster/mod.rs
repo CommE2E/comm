@@ -79,10 +79,11 @@ impl FarcasterClient {
         url.set_query(Some(&request.payload));
         self.http_client.get(url).headers(headers)
       }
-      APIMethod::STREAM => {
-        error!("Received STREAM API for {}", request.endpoint);
-        return Err(error::Error::InvalidRequest);
-      }
+      APIMethod::POST => self
+        .http_client
+        .post(url)
+        .headers(headers)
+        .body(request.payload),
     };
 
     let response = request_builder.send().await?;
