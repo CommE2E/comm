@@ -6,7 +6,7 @@ use util_macros::TagAwareDeserialize;
 pub enum APIMethod {
   PUT,
   GET,
-  STREAM,
+  POST,
 }
 
 #[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]

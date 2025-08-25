@@ -69,7 +69,7 @@ impl FarcasterClient {
       .extend(&[&request.api_version, &request.endpoint]);
 
     let request_builder = match request.method {
-      APIMethod::PUT => self
+      APIMethod::PUT | APIMethod::POST => self
         .http_client
         .put(url)
         .headers(headers)
@@ -78,10 +78,6 @@ impl FarcasterClient {
         // Directly append entire string of params
         url.set_query(Some(&request.payload));
         self.http_client.get(url).headers(headers)
-      }
-      APIMethod::STREAM => {
-        error!("Received STREAM API for {}", request.endpoint);
-        return Err(error::Error::InvalidRequest);
       }
     };
 
