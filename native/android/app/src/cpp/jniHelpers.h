@@ -34,7 +34,14 @@ struct NativeAndroidAccessProvider {
     // require access to native Java API we need to temporarily attach the
     // thread to JVM This function attaches thread to JVM for the time lambda
     // passed to this function will be executing.
-    jni::ThreadScope::WithClassLoader(std::move(task));
+    auto wrappedTask = [task = std::move(task)]() {
+      try {
+        task();
+      } catch (jni::JniException &e) {
+        throw std::runtime_error(std::string{"Java exception: "} + e.what());
+      }
+    };
+    jni::ThreadScope::WithClassLoader(std::move(wrappedTask));
   }
 };
 
