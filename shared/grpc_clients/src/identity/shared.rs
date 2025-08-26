@@ -12,6 +12,7 @@ pub struct PlatformMetadata {
   pub major_desktop_version: Option<u64>,
 }
 
+#[derive(Clone, Debug)]
 pub struct CodeVersionLayer {
   pub(crate) code_version: u64,
   pub(crate) device_type: String,
@@ -74,6 +75,7 @@ impl ToMetadataValueAscii for u64 {
   }
 }
 
+#[derive(Clone, Debug)]
 pub struct ChainedInterceptor<A, B>
 where
   A: Interceptor + Send + Sync + 'static,

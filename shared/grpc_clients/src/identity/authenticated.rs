@@ -19,6 +19,7 @@ pub struct AuthLayer {
   access_token: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct ServicesAuthLayer {
   services_token: String,
 }
