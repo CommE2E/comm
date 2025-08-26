@@ -4,6 +4,7 @@ import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -87,12 +88,12 @@ function ThreadSettingsGeneralTab(
 
   const threadNameInputDisabled = !canEditThreadName;
 
-  return (
-    <div className={css.container}>
-      <div>
-        <div className={css.editAvatarContainer}>
-          <EditThreadAvatar threadInfo={threadInfo} />
-        </div>
+  const nameSection = React.useMemo(() => {
+    if (!threadSpecs[threadInfo.type].protocol().canChangeSettings.name) {
+      return null;
+    }
+    return (
+      <>
         <div className={css.form_title}>Chat name</div>
         <div className={css.form_content}>
           <Input
@@ -107,7 +108,25 @@ function ThreadSettingsGeneralTab(
             ref={nameInputRef}
           />
         </div>
-      </div>
+      </>
+    );
+  }, [
+    onChangeName,
+    queuedChanges.name,
+    threadInfo.name,
+    threadInfo.type,
+    threadNameInputDisabled,
+    threadNamePlaceholder,
+    threadSettingsOperationInProgress,
+  ]);
+
+  const descriptionSection = React.useMemo(() => {
+    if (
+      !threadSpecs[threadInfo.type].protocol().canChangeSettings.description
+    ) {
+      return null;
+    }
+    return (
       <div>
         <div className={css.form_title}>Description</div>
         <div className={css.form_content}>
@@ -120,6 +139,20 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
+    );
+  }, [
+    onChangeDescription,
+    queuedChanges.description,
+    threadInfo.description,
+    threadInfo.type,
+    threadSettingsOperationInProgress,
+  ]);
+
+  const colorSection = React.useMemo(() => {
+    if (!threadSpecs[threadInfo.type].protocol().canChangeSettings.color) {
+      return null;
+    }
+    return (
       <div>
         <div className={css.form_title}>Color</div>
         <div className={css.colorSelectorContainer}>
@@ -129,6 +162,19 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
+    );
+  }, [onChangeColor, queuedChanges.color, threadInfo.color, threadInfo.type]);
+
+  return (
+    <div className={css.container}>
+      <div>
+        <div className={css.editAvatarContainer}>
+          <EditThreadAvatar threadInfo={threadInfo} />
+        </div>
+        {nameSection}
+      </div>
+      {descriptionSection}
+      {colorSection}
     </div>
   );
 }

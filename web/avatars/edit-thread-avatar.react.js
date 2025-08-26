@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
@@ -27,9 +28,15 @@ function EditThreadAvatar(props: Props): React.Node {
     threadInfo,
     threadPermissions.EDIT_THREAD_AVATAR,
   );
+  const threadSupportThreadEdit =
+    threadSpecs[threadInfo.type].protocol().canChangeSettings.avatar;
 
   let editThreadAvatarMenu;
-  if (canEditThreadAvatar && !threadAvatarSaveInProgress) {
+  if (
+    canEditThreadAvatar &&
+    !threadAvatarSaveInProgress &&
+    threadSupportThreadEdit
+  ) {
     editThreadAvatarMenu = <EditThreadAvatarMenu threadInfo={threadInfo} />;
   }
 
