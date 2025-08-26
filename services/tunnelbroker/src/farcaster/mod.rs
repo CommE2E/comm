@@ -8,6 +8,7 @@ use tracing::{debug, error};
 use tunnelbroker_messages::farcaster::{APIMethod, FarcasterAPIRequest};
 
 pub mod error;
+pub mod types;
 
 #[derive(Clone)]
 pub struct FarcasterClient {

@@ -1,5 +1,6 @@
 use crate::amqp_client::amqp::AmqpConnection;
 use crate::database::DatabaseClient;
+use crate::farcaster::types::FarcasterMessage;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
@@ -123,8 +124,8 @@ impl TokenConnection {
                 Ok(false) => {
                   warn!(
                     "Lost token ownership for user {}, stopping reconnection attempts",
-                    self.user_id)
-                  ;
+                    self.user_id
+                  );
                   return Err(TokenConnectionError::TokenOwnershipLost);
                 }
                 Err(err) => {
@@ -252,7 +253,38 @@ impl TokenConnection {
             Some(Ok(msg)) => match msg {
               Message::Text(text) => {
                 info!("Received message for {}: {}", self.user_id, text);
-                //TODO: Handle incoming message
+                match serde_json::from_str::<FarcasterMessage>(&text) {
+                  Ok(farcaster_msg) => {
+                    debug!("Parsed Farcaster message type: {}", farcaster_msg.message_type);
+
+                    match farcaster_msg.message_type.as_str() {
+                      "refresh-direct-cast-conversation" => {
+                        debug!("Processing refresh-direct-cast-conversation message");
+                        if let Some(payload) = &farcaster_msg.payload {
+                          debug!("Conversation payload: {}", payload);
+                        }
+                      }
+                      "refresh-self-direct-casts-inbox" => {
+                        debug!("Processing refresh-self-direct-casts-inbox message");
+                        if let Some(payload) = &farcaster_msg.payload {
+                          debug!("Inbox refresh payload: {}", payload);
+                        }
+                      }
+                      "unseen" => {
+                        debug!("Processing unseen message");
+                        if let Some(data) = &farcaster_msg.data {
+                          debug!("Unseen data: {}", data);
+                        }
+                      }
+                      _ => {
+                        info!("Unknown Farcaster message type: {}", farcaster_msg.message_type);
+                      }
+                    }
+                  }
+                  Err(e) => {
+                    warn!("Failed to parse message as Farcaster format: {}", e);
+                  }
+                }
               }
               Message::Binary(_data) => {
                 debug!("Received binary message for user: {}", self.user_id);
