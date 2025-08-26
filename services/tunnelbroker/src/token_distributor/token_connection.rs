@@ -1,16 +1,21 @@
-use crate::amqp_client::amqp::AmqpConnection;
+use crate::amqp_client::amqp::{
+  send_message_to_device, AmqpChannel, AmqpConnection,
+};
 use crate::database::DatabaseClient;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
+use grpc_clients::identity::protos::authenticated::PeersDeviceListsRequest;
 use lapin::{options::*, types::FieldTable, ExchangeKind};
 use std::time::Duration;
 use tokio::time::{interval, Instant};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, trace, warn};
-use tunnelbroker_messages::farcaster::FarcasterMessage;
+use tunnelbroker_messages::farcaster::{
+  FarcasterMessage, NewFarcasterMessage, RefreshDirectCastConversationPayload,
+};
 
 pub(crate) struct TokenConnection {
   db: DatabaseClient,
@@ -19,6 +24,7 @@ pub(crate) struct TokenConnection {
   token_data: String,
   amqp_connection: AmqpConnection,
   grpc_client: ChainedInterceptedServicesAuthClient,
+  amqp_channel: AmqpChannel,
 }
 
 impl TokenConnection {
@@ -36,8 +42,9 @@ impl TokenConnection {
       config: config.clone(),
       user_id: user_id.clone(),
       token_data,
-      amqp_connection,
+      amqp_connection: amqp_connection.clone(),
       grpc_client,
+      amqp_channel: AmqpChannel::new(&amqp_connection),
     };
 
     tokio::spawn(async move {
@@ -58,6 +65,9 @@ impl TokenConnection {
           TokenConnectionError::HeartbeatFailed(_) => "HeartbeatFailed",
           TokenConnectionError::Cancelled => "Cancelled",
           TokenConnectionError::AmqpSetupFailed(_) => "AmqpSetupFailed",
+          TokenConnectionError::MessageParsingFailed(_) => {
+            "MessageParsingFailed"
+          }
         };
 
         info!(
@@ -220,6 +230,8 @@ impl TokenConnection {
       self.config.ping_timeout.as_secs()
     );
 
+    let mut client = self.grpc_client.clone();
+
     loop {
       tokio::select! {
         // Handle AMQP messages and forward to WebSocket
@@ -259,9 +271,11 @@ impl TokenConnection {
 
                     match farcaster_msg.message_type.as_str() {
                       "refresh-direct-cast-conversation" => {
-                        debug!("Processing refresh-direct-cast-conversation message");
-                        if let Some(payload) = &farcaster_msg.payload {
-                          debug!("Conversation payload: {}", payload);
+                        if let Err(e) = self.handle_refresh_conversation(
+                          farcaster_msg.payload.as_ref(),
+                          &mut client,
+                        ).await {
+                          error!("Failed to handle refresh direct cast conversation: {:?}", e);
                         }
                       }
                       "refresh-self-direct-casts-inbox" => {
@@ -436,5 +450,81 @@ impl TokenConnection {
       topic_name, self.user_id
     );
     Ok(consumer)
+  }
+
+  async fn handle_refresh_conversation(
+    &self,
+    payload: Option<&serde_json::Value>,
+    client: &mut ChainedInterceptedServicesAuthClient,
+  ) -> Result<(), TokenConnectionError> {
+    debug!(
+      "Handling refresh direct cast conversation for user: {}",
+      self.user_id
+    );
+
+    let (conversation_id, direct_cast_message) = match payload {
+      Some(payload_value) => {
+        match serde_json::from_value::<RefreshDirectCastConversationPayload>(
+          payload_value.clone(),
+        ) {
+          Ok(parsed_payload) => {
+            (parsed_payload.conversation_id, parsed_payload.message)
+          }
+          Err(e) => {
+            warn!(
+              "Failed to parse RefreshDirectCastConversation payload: {}",
+              e
+            );
+            return Err(TokenConnectionError::MessageParsingFailed(format!(
+              "Invalid payload: {}",
+              e
+            )));
+          }
+        }
+      }
+      None => {
+        warn!("No payload provided for refresh direct cast conversation");
+        return Err(TokenConnectionError::MessageParsingFailed(
+          "Missing payload".to_string(),
+        ));
+      }
+    };
+
+    debug!(
+      "Processing refresh for conversation ID: {}",
+      conversation_id
+    );
+
+    let request = PeersDeviceListsRequest {
+      user_ids: vec![self.user_id.clone()],
+    };
+    let user_devices_response = client
+      .get_device_lists_for_users(request)
+      .await
+      .expect("GetDeviceListsForUser RPC failed")
+      .into_inner();
+
+    let user_devices_option = user_devices_response
+      .users_devices_platform_details
+      .get(&self.user_id);
+    let message = NewFarcasterMessage {
+      message: direct_cast_message,
+    };
+    if let Some(user_devices) = user_devices_option {
+      for (device_id, platform_details) in
+        &user_devices.devices_platform_details
+      {
+        let payload = serde_json::to_string(&message)?;
+        send_message_to_device(
+          &self.db,
+          &self.amqp_channel,
+          device_id.to_string(),
+          payload,
+        )
+        .await?;
+      }
+    }
+
+    Ok(())
   }
 }

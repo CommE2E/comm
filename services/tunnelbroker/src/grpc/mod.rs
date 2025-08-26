@@ -2,19 +2,20 @@ mod proto {
   tonic::include_proto!("tunnelbroker");
 }
 
-use lapin::{options::BasicPublishOptions, BasicProperties};
+use crate::amqp_client::amqp::{
+  send_message_to_device, AmqpChannel, AmqpConnection,
+};
+use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
+use crate::database::DatabaseClient;
+use crate::{constants, CONFIG};
+use lapin::options::BasicPublishOptions;
+use lapin::BasicProperties;
 use proto::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
 use proto::Empty;
 use tonic::transport::Server;
 use tracing::debug;
-use tunnelbroker_messages::MessageToDevice;
-
-use crate::amqp_client::amqp::{AmqpChannel, AmqpConnection};
-use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
-use crate::database::{handle_ddb_error, DatabaseClient};
-use crate::{constants, CONFIG};
 
 struct TunnelbrokerGRPC {
   client: DatabaseClient,
@@ -38,39 +39,14 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
   ) -> Result<tonic::Response<proto::Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    debug!("Received message for {}", &message.device_id);
-
-    let client_message_id = uuid::Uuid::new_v4().to_string();
-
-    let message_id = self
-      .client
-      .persist_message(&message.device_id, &message.payload, &client_message_id)
-      .await
-      .map_err(handle_ddb_error)?;
-
-    let message_to_device = MessageToDevice {
-      device_id: message.device_id.clone(),
-      payload: message.payload,
-      message_id,
-    };
-
-    let serialized_message = serde_json::to_string(&message_to_device)
-      .map_err(|_| tonic::Status::invalid_argument("Invalid argument"))?;
-
-    self
-      .amqp_channel
-      .get()
-      .await
-      .map_err(handle_amqp_error)?
-      .basic_publish(
-        "",
-        &message.device_id,
-        BasicPublishOptions::default(),
-        serialized_message.as_bytes(),
-        BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
-      )
-      .await
-      .map_err(handle_amqp_error)?;
+    send_message_to_device(
+      &self.client,
+      &self.amqp_channel,
+      message.device_id,
+      message.payload,
+    )
+    .await
+    .map_err(|_| tonic::Status::internal("Internal Error"))?;
 
     let response = tonic::Response::new(Empty {});
     Ok(response)

@@ -151,3 +151,9 @@ pub struct FarcasterMessage {
   #[serde(flatten)]
   pub extra: serde_json::Map<String, serde_json::Value>,
 }
+
+#[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]
+#[serde(tag = "type", remote = "Self", rename_all = "camelCase")]
+pub struct NewFarcasterMessage {
+  pub message: DirectCastMessage,
+}

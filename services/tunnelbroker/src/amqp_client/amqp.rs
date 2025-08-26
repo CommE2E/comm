@@ -1,12 +1,16 @@
 use comm_lib::database::batch_operations::ExponentialBackoffConfig;
+use lapin::{options::BasicPublishOptions, BasicProperties};
 use lapin::{uri::AMQPUri, ConnectionProperties};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{debug, error, info, warn};
+use tunnelbroker_messages::MessageToDevice;
+use uuid;
 
-use crate::constants::error_types;
+use crate::constants::{error_types, CLIENT_RMQ_MSG_PRIORITY};
+use crate::database::DatabaseClient;
 use crate::CONFIG;
 
 static AMQP_URI: Lazy<AMQPUri> = Lazy::new(|| {
@@ -198,4 +202,45 @@ pub fn is_connection_error(err: &lapin::Error) -> bool {
 
 fn from_env(var_name: &str) -> Option<String> {
   std::env::var(var_name).ok().filter(|s| !s.is_empty())
+}
+
+pub async fn send_message_to_device(
+  database_client: &DatabaseClient,
+  amqp_channel: &AmqpChannel,
+  device_id: String,
+  payload: String,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+  debug!("Received message for {}", &device_id);
+
+  let client_message_id = uuid::Uuid::new_v4().to_string();
+
+  let message_id = database_client
+    .persist_message(&device_id, &payload, &client_message_id)
+    .await
+    .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+
+  let message_to_device = MessageToDevice {
+    device_id: device_id.clone(),
+    payload,
+    message_id,
+  };
+
+  let serialized_message = serde_json::to_string(&message_to_device)
+    .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+
+  amqp_channel
+    .get()
+    .await
+    .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?
+    .basic_publish(
+      "",
+      &device_id,
+      BasicPublishOptions::default(),
+      serialized_message.as_bytes(),
+      BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
+    )
+    .await
+    .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+
+  Ok(())
 }

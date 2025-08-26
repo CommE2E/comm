@@ -22,6 +22,8 @@ pub enum TokenConnectionError {
   Cancelled,
   #[display(fmt = "AMQP setup failed: {}", _0)]
   AmqpSetupFailed(String),
+  #[display(fmt = "Message parsing failed: {}", _0)]
+  MessageParsingFailed(String),
 }
 
 impl std::error::Error for TokenConnectionError {
@@ -43,5 +45,17 @@ impl From<tokio_tungstenite::tungstenite::Error> for TokenConnectionError {
 impl From<DBError> for TokenConnectionError {
   fn from(error: DBError) -> Self {
     TokenConnectionError::DatabaseError(error)
+  }
+}
+
+impl From<serde_json::Error> for TokenConnectionError {
+  fn from(error: serde_json::Error) -> Self {
+    TokenConnectionError::MessageParsingFailed(error.to_string())
+  }
+}
+
+impl From<Box<dyn std::error::Error + Send + Sync>> for TokenConnectionError {
+  fn from(error: Box<dyn std::error::Error + Send + Sync>) -> Self {
+    TokenConnectionError::MessageParsingFailed(error.to_string())
   }
 }
