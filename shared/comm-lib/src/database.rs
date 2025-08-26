@@ -703,10 +703,8 @@ fn calculate_attr_value_size_in_db(
     AttributeValue::Bs(set) => set.len(),
     AttributeValue::N(_) => NUMBER_BYTE_SIZE,
     AttributeValue::Ns(set) => set.len() * NUMBER_BYTE_SIZE,
-    AttributeValue::S(string) => string.as_bytes().len(),
-    AttributeValue::Ss(set) => {
-      set.iter().map(|string| string.as_bytes().len()).sum()
-    }
+    AttributeValue::S(string) => string.len(),
+    AttributeValue::Ss(set) => set.iter().map(|string| string.len()).sum(),
     _ => return Err(UnknownAttributeTypeError),
   };
 
@@ -717,7 +715,7 @@ pub fn calculate_size_in_db(
   value: &AttributeMap,
 ) -> Result<usize, UnknownAttributeTypeError> {
   value.iter().try_fold(0, |a, (attr, value)| {
-    Ok(a + attr.as_bytes().len() + calculate_attr_value_size_in_db(value)?)
+    Ok(a + attr.len() + calculate_attr_value_size_in_db(value)?)
   })
 }
 

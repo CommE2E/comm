@@ -27,6 +27,8 @@ pub const PUSH_SERVICE_REQUEST_TIMEOUT: Duration = Duration::from_secs(8);
 
 pub const FARCASTER_REQUEST_TIMEOUT: Duration = Duration::from_secs(8);
 pub const MEDIA_MIRROR_TIMEOUT: Duration = Duration::from_secs(5);
+pub const MESSAGE_TTL_AFTER_DELETION_REQUEST: chrono::Duration =
+  chrono::Duration::hours(24);
 
 pub mod dynamodb {
   // This table holds messages which could not be immediately delivered to
@@ -45,6 +47,7 @@ pub mod dynamodb {
     pub const PARTITION_KEY: &str = "deviceID";
     pub const DEVICE_ID: &str = "deviceID";
     pub const PAYLOAD: &str = "payload";
+    pub const EXPIRATION_TIME: &str = "expirationTimeUnix";
     pub const MESSAGE_ID: &str = "messageID";
     pub const SORT_KEY: &str = "messageID";
   }

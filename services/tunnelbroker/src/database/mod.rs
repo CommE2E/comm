@@ -14,7 +14,7 @@ use std::sync::Arc;
 use tracing::{debug, error, warn};
 
 use crate::constants::dynamodb::{device_tokens, undelivered_messages, users};
-use crate::constants::error_types;
+use crate::constants::{error_types, MESSAGE_TTL_AFTER_DELETION_REQUEST};
 
 pub mod message;
 pub mod message_id;
@@ -303,10 +303,6 @@ impl DatabaseClient {
     &self,
     device_id: &str,
   ) -> Result<(), Error> {
-    const MESSAGE_TTL_AFTER_DELETION_REQUEST: chrono::Duration =
-      chrono::Duration::hours(24);
-    const EXPIRATION_TIME: &str = "expirationTimeUnix";
-
     let messages = self.retrieve_messages(device_id).await.map_err(|e| {
       error!("DynamoDB client failed to retrieve messages: {:?}", e);
       Error::AwsSdk(e.into())
@@ -318,7 +314,10 @@ impl DatabaseClient {
     let update_requests = messages
       .into_iter()
       .map(|mut attrs| {
-        attrs.insert(EXPIRATION_TIME.to_string(), expiration_attr.clone());
+        attrs.insert(
+          undelivered_messages::EXPIRATION_TIME.to_string(),
+          expiration_attr.clone(),
+        );
         let put_request =
           PutRequest::builder().set_item(Some(attrs)).build().unwrap();
         WriteRequest::builder().put_request(put_request).build()

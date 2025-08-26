@@ -132,6 +132,5 @@ pub fn generate_random_olm_key() -> String {
   rand::thread_rng()
     .sample_iter(&Alphanumeric)
     .take(43)
-    .map(char::from)
     .collect()
 }

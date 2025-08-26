@@ -43,6 +43,7 @@ pub(crate) struct TokenConnection {
 }
 
 impl TokenConnection {
+  #[allow(clippy::too_many_arguments)]
   pub(crate) fn start(
     db: DatabaseClient,
     config: TokenDistributorConfig,
@@ -336,7 +337,7 @@ impl TokenConnection {
                           );
                         }
                       }
-                      FarcasterPayload::RefreshSelfDirectCastsInbox { payload, .. } => {
+                      FarcasterPayload::RefreshSelfDirectCastsInbox { .. } => {
                         debug!("Processing refresh-self-direct-casts-inbox message");
                       }
                       FarcasterPayload::Unseen { .. } => {
