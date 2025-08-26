@@ -381,7 +381,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         canEditThreadDescription: boolean,
         canEditThreadColor: boolean,
       ) => {
-        const canChangeAvatar = canEditThreadAvatar && canStartEditing;
+        const { canChangeSettings } = threadSpecs[threadInfo.type].protocol();
+
+        const canChangeAvatar =
+          canEditThreadAvatar && canStartEditing && canChangeSettings.avatar;
         const canChangeName = canEditThreadName && canStartEditing;
         const canChangeDescription =
           canEditThreadDescription && canStartEditing;
@@ -412,34 +415,39 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           title: 'Basics',
           categoryType: 'full',
         });
-        listData.push({
-          itemType: 'name',
-          key: 'name',
-          threadInfo,
-          nameEditValue,
-          canChangeSettings: canChangeName,
-        });
-        listData.push({
-          itemType: 'color',
-          key: 'color',
-          threadInfo,
-          colorEditValue,
-          canChangeSettings: canChangeColor,
-          navigate,
-          threadSettingsRouteKey: routeKey,
-        });
+        if (canChangeSettings.name) {
+          listData.push({
+            itemType: 'name',
+            key: 'name',
+            threadInfo,
+            nameEditValue,
+            canChangeSettings: canChangeName,
+          });
+        }
+        if (canChangeSettings.color) {
+          listData.push({
+            itemType: 'color',
+            key: 'color',
+            threadInfo,
+            colorEditValue,
+            canChangeSettings: canChangeColor,
+            navigate,
+            threadSettingsRouteKey: routeKey,
+          });
+        }
         listData.push({
           itemType: 'footer',
           key: 'basicsFooter',
           categoryType: 'full',
         });
 
-        if (
+        const shouldShowThreadDescription =
           (descriptionEditValue !== null &&
             descriptionEditValue !== undefined) ||
           threadInfo.description ||
-          canEditThreadDescription
-        ) {
+          canEditThreadDescription;
+
+        if (shouldShowThreadDescription && canChangeSettings.description) {
           listData.push({
             itemType: 'description',
             key: 'description',
