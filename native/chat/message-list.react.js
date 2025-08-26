@@ -8,14 +8,12 @@ import { createSelector } from 'reselect';
 
 import { chatMessageItemKey } from 'lib/shared/chat-message-item-utils.js';
 import { useFetchMessages } from 'lib/shared/message-utils.js';
-import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';
 import Message from './message.react.js';
-import RelationshipPrompt from './relationship-prompt.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {
   KeyboardContext,
@@ -196,24 +194,13 @@ class MessageList extends React.PureComponent<Props, State> {
   render(): React.Node {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? this.ListFooterComponent : undefined;
-    let relationshipPrompt = null;
-    if (threadTypeIsPersonal(this.props.threadInfo.type)) {
-      relationshipPrompt = (
-        <RelationshipPrompt
-          pendingPersonalThreadUserInfo={
-            this.props.route.params.pendingPersonalThreadUserInfo
-          }
-          threadInfo={this.props.threadInfo}
-        />
-      );
-    }
+
     return (
       <View
         style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
-        {relationshipPrompt}
         <ChatList
           navigation={this.props.navigation}
           inverted={true}
