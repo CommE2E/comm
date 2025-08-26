@@ -45,4 +45,10 @@ declare module '@react-navigation/elements' {
   declare export var HeaderHeightContext: React$Context<?number>;
   declare export function useHeaderHeight(): number;
 
+  type Layout = { +width: number, +height: number };
+  declare export function getDefaultHeaderHeight(
+    layout: Layout,
+    modalPresentation: boolean,
+    statusBarHeight: number,
+  ): number;
 }
