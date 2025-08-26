@@ -1043,13 +1043,12 @@ impl DatabaseClient {
       .item
       .map(DBIdentity::try_from)
       .transpose()
-      .map_err(|e| {
+      .inspect_err(|_| {
         error!(
           user_id = redact_sensitive_data(user_id),
           errorType = error_types::GENERIC_DB_LOG,
           "Database item is missing an identifier"
         );
-        e
       })
   }
 

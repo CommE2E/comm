@@ -11,7 +11,7 @@ use crate::Cipher;
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Login {
   state: Option<ServerLogin<Cipher>>,
-  #[serde(default = "OsRng::default", skip)]
+  #[serde(default, skip)]
   rng: OsRng,
   pub session_key: Option<Vec<u8>>,
 }

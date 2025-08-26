@@ -1,3 +1,5 @@
+#![allow(clippy::result_large_err)]
+
 use std::{
   collections::{HashMap, HashSet},
   sync::LazyLock,
@@ -31,7 +33,6 @@ use crate::{
     USERS_TABLE_PARTITION_KEY,
   },
   ddb_utils::is_transaction_conflict,
-  device_list::RawDeviceList,
   error::{DeviceListError, Error},
   grpc_services::{
     protos::{self, unauth::DeviceType},
@@ -158,25 +159,6 @@ pub struct DeviceListUpdate {
   pub last_primary_signature: Option<String>,
   /// Raw update payload to verify signatures
   pub raw_payload: String,
-}
-
-impl DeviceListUpdate {
-  pub fn new_unsigned(
-    devices: Vec<String>,
-  ) -> Result<Self, crate::error::Error> {
-    let timestamp = Utc::now();
-    let raw_list = RawDeviceList {
-      devices: devices.clone(),
-      timestamp: timestamp.timestamp_millis(),
-    };
-    Ok(Self {
-      devices,
-      timestamp,
-      current_primary_signature: None,
-      last_primary_signature: None,
-      raw_payload: serde_json::to_string(&raw_list)?,
-    })
-  }
 }
 
 impl DeviceRow {
