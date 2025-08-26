@@ -60,3 +60,15 @@ pub struct FarcasterAPIResponse {
   pub request_id: String,
   pub response: FarcasterAPIResponseData,
 }
+
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct NewFarcasterMessageClientMessagePayload {
+  pub message: String,
+}
+
+#[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]
+#[serde(tag = "type", remote = "Self", rename_all = "camelCase")]
+pub struct NewFarcasterMessageClientMessage {
+  pub payload: NewFarcasterMessageClientMessagePayload,
+}

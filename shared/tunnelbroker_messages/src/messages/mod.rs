@@ -27,7 +27,9 @@ pub use websocket_messages::{
 };
 
 use crate::bad_device_token::BadDeviceToken;
-use crate::messages::farcaster::{FarcasterAPIRequest, FarcasterAPIResponse};
+use crate::messages::farcaster::{
+  FarcasterAPIRequest, FarcasterAPIResponse, NewFarcasterMessageClientMessage,
+};
 use crate::notif::*;
 use serde::{Deserialize, Serialize};
 
@@ -63,6 +65,7 @@ pub enum TunnelbrokerToDeviceMessage {
   ConnectionInitializationResponse(ConnectionInitializationResponse),
   DeviceToTunnelbrokerRequestStatus(DeviceToTunnelbrokerRequestStatus),
   FarcasterAPIResponse(FarcasterAPIResponse),
+  NewFarcasterMessageClientMessage(NewFarcasterMessageClientMessage),
   MessageToDevice(MessageToDevice),
   BadDeviceToken(BadDeviceToken),
   Heartbeat(Heartbeat),

@@ -1,11 +1,14 @@
 use crate::amqp_client::amqp::AmqpConnection;
 use crate::database::DatabaseClient;
-use crate::farcaster::types::FarcasterMessage;
+use crate::farcaster::types::{
+  FarcasterMessage, RefreshDirectCastConversationPayload,
+};
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
 use lapin::{options::*, types::FieldTable, ExchangeKind};
+use grpc_clients::identity::protos::authenticated::PeersDeviceListsRequest;
 use std::time::Duration;
 use tokio::time::{interval, Instant};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
@@ -58,6 +61,9 @@ impl TokenConnection {
           TokenConnectionError::HeartbeatFailed(_) => "HeartbeatFailed",
           TokenConnectionError::Cancelled => "Cancelled",
           TokenConnectionError::AmqpSetupFailed(_) => "AmqpSetupFailed",
+          TokenConnectionError::MessageParsingFailed(_) => {
+            "MessageParsingFailed"
+          }
         };
 
         info!(
@@ -220,6 +226,8 @@ impl TokenConnection {
       self.config.ping_timeout.as_secs()
     );
 
+    let mut client = self.grpc_client.clone();
+
     loop {
       tokio::select! {
         // Handle AMQP messages and forward to WebSocket
@@ -259,9 +267,13 @@ impl TokenConnection {
 
                     match farcaster_msg.message_type.as_str() {
                       "refresh-direct-cast-conversation" => {
-                        debug!("Processing refresh-direct-cast-conversation message");
-                        if let Some(payload) = &farcaster_msg.payload {
-                          debug!("Conversation payload: {}", payload);
+                        // Extract raw message string from the original JSON
+                        let raw_message = farcaster_msg.payload.as_ref()
+                          .and_then(|p| p.get("message"))
+                          .map(|m| m.to_string());
+
+                        if let Err(e) = self.handle_refresh_direct_cast_conversation(farcaster_msg.payload.as_ref(), raw_message.as_deref(), &mut client).await {
+                          error!("Failed to handle refresh direct cast conversation: {:?}", e);
                         }
                       }
                       "refresh-self-direct-casts-inbox" => {
@@ -436,5 +448,76 @@ impl TokenConnection {
       topic_name, self.user_id
     );
     Ok(consumer)
+  }
+
+  async fn handle_refresh_direct_cast_conversation(
+    &self,
+    payload: Option<&serde_json::Value>,
+    raw_message: Option<&str>,
+    client: &mut ChainedInterceptedServicesAuthClient,
+  ) -> Result<(), TokenConnectionError> {
+    debug!(
+      "Handling refresh direct cast conversation for user: {}",
+      self.user_id
+    );
+
+    let (conversation_id, direct_cast_message) = match payload {
+      Some(payload_value) => {
+        match serde_json::from_value::<RefreshDirectCastConversationPayload>(
+          payload_value.clone(),
+        ) {
+          Ok(parsed_payload) => {
+            (parsed_payload.conversation_id, parsed_payload.message)
+          }
+          Err(e) => {
+            warn!(
+              "Failed to parse RefreshDirectCastConversation payload: {}",
+              e
+            );
+            return Err(TokenConnectionError::MessageParsingFailed(format!(
+              "Invalid payload: {}",
+              e
+            )));
+          }
+        }
+      }
+      None => {
+        warn!("No payload provided for refresh direct cast conversation");
+        return Err(TokenConnectionError::MessageParsingFailed(
+          "Missing payload".to_string(),
+        ));
+      }
+    };
+
+    debug!(
+      "Processing refresh for conversation ID: {}",
+      conversation_id
+    );
+
+    if let Some(raw_msg) = raw_message {
+      debug!("Raw message JSON: {}", raw_msg);
+    }
+
+    let request = PeersDeviceListsRequest {
+      user_ids: vec![self.user_id.clone()],
+    };
+    let user_devices_response = client
+      .get_device_lists_for_users(request)
+      .await
+      .expect("GetDeviceListsForUser RPC failed")
+      .into_inner();
+
+    let user_devices_option = user_devices_response
+      .users_devices_platform_details
+      .get(&self.user_id);
+    if let Some(user_devices) = user_devices_option {
+      for (device_id, platform_details) in
+        &user_devices.devices_platform_details
+      {
+        debug!("Found user device {} {:?}", device_id, platform_details);
+      }
+    }
+
+    Ok(())
   }
 }
