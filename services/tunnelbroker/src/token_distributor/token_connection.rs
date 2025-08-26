@@ -3,6 +3,7 @@ use crate::database::DatabaseClient;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
+use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
 use lapin::{options::*, types::FieldTable, ExchangeKind};
 use std::time::Duration;
 use tokio::time::{interval, Instant};
@@ -16,6 +17,7 @@ pub(crate) struct TokenConnection {
   user_id: String,
   token_data: String,
   amqp_connection: AmqpConnection,
+  grpc_client: ChainedInterceptedServicesAuthClient,
 }
 
 impl TokenConnection {
@@ -26,6 +28,7 @@ impl TokenConnection {
     token_data: String,
     amqp_connection: AmqpConnection,
     cancellation_token: CancellationToken,
+    grpc_client: ChainedInterceptedServicesAuthClient,
   ) {
     let connection = Self {
       db: db.clone(),
@@ -33,6 +36,7 @@ impl TokenConnection {
       user_id: user_id.clone(),
       token_data,
       amqp_connection,
+      grpc_client,
     };
 
     tokio::spawn(async move {
