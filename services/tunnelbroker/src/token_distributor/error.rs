@@ -22,6 +22,8 @@ pub enum TokenConnectionError {
   Cancelled,
   #[display(fmt = "AMQP setup failed: {}", _0)]
   AmqpSetupFailed(String),
+  #[display(fmt = "Message handling failed: {}", _0)]
+  MessageHandlingFailed(String),
 }
 
 impl std::error::Error for TokenConnectionError {
