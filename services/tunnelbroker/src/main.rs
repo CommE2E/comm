@@ -15,11 +15,20 @@ use crate::notifs::NotifClient;
 use crate::token_distributor::{TokenDistributor, TokenDistributorConfig};
 use amqp_client::amqp;
 use anyhow::{anyhow, Result};
+use comm_lib::auth::AuthService;
 use config::CONFIG;
 use constants::COMM_SERVICES_USE_JSON_LOGS;
+use grpc_clients::identity::authenticated::get_services_auth_client;
+use grpc_clients::identity::PlatformMetadata;
 use std::env;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
+
+// Identity service gRPC clients require a code version and device type.
+// We can supply some placeholder values for services for the time being, since
+// this metadata is only relevant for devices.
+const PLACEHOLDER_CODE_VERSION: u64 = 0;
+const DEVICE_TYPE: &str = "service";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -71,9 +80,22 @@ async fn main() -> Result<()> {
     farcaster_client.clone(),
   );
 
+  let auth_service = AuthService::new(&aws_config, &CONFIG.identity_endpoint);
+  let services_token = auth_service.get_services_token().await?;
+  let grpc_client = get_services_auth_client(
+    &CONFIG.identity_endpoint,
+    services_token.as_str().to_owned(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
+  )
+  .await?;
+
   let token_config = TokenDistributorConfig::default();
-  let mut token_distributor =
-    TokenDistributor::new(db_client.clone(), token_config, &amqp_connection);
+  let mut token_distributor = TokenDistributor::new(
+    db_client.clone(),
+    token_config,
+    &amqp_connection,
+    grpc_client,
+  );
 
   tokio::select! {
     grpc_result = grpc_server => {
