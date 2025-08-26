@@ -5,6 +5,7 @@ import { useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import genesis from 'lib/facts/genesis.js';
 import {
@@ -52,6 +53,7 @@ import {
   PinnedMessagesScreenRouteName,
   ThreadSettingsRouteName,
 } from '../navigation/route-names.js';
+import { useHeaderHeight } from '../navigation/use-header-height.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
@@ -79,6 +81,9 @@ const unboundStyles = {
   hiddenThreadContent: {
     height: 0,
     opacity: 0,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   bannersContainer: {
     zIndex: 2,
@@ -499,28 +504,36 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       );
     }
 
+    const headerHeight = useHeaderHeight();
+
     return (
       <MessageListContextProvider threadInfo={threadInfo}>
         <View style={styles.bannersContainer}>
           {pinnedCountBanner}
           {relationshipPrompt}
         </View>
-        <MessageListContainer
-          {...props}
-          usernameInputText={usernameInputText}
-          updateUsernameInput={updateUsernameInput}
-          userInfoInputArray={userInfoInputArray}
-          updateTagInput={updateTagInput}
-          resolveToUser={resolveToUser}
-          userSearchResults={userSearchResults}
-          threadInfo={threadInfo}
-          genesisThreadInfo={genesisThreadInfo}
-          messageListData={messageListData}
-          colors={colors}
-          styles={styles}
-          overlayContext={overlayContext}
-          measureMessages={measureMessages}
-        />
+        <KeyboardAvoidingView
+          behavior="translate-with-padding"
+          style={styles.keyboardAvoidingView}
+          keyboardVerticalOffset={headerHeight}
+        >
+          <MessageListContainer
+            {...props}
+            usernameInputText={usernameInputText}
+            updateUsernameInput={updateUsernameInput}
+            userInfoInputArray={userInfoInputArray}
+            updateTagInput={updateTagInput}
+            resolveToUser={resolveToUser}
+            userSearchResults={userSearchResults}
+            threadInfo={threadInfo}
+            genesisThreadInfo={genesisThreadInfo}
+            messageListData={messageListData}
+            colors={colors}
+            styles={styles}
+            overlayContext={overlayContext}
+            measureMessages={measureMessages}
+          />
+        </KeyboardAvoidingView>
       </MessageListContextProvider>
     );
   });
