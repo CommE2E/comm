@@ -15,7 +15,10 @@ import {
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils.js';
-import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsPersonal,
+} from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
@@ -31,6 +34,7 @@ import MessageListThreadSearch from './message-list-thread-search.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import MessageList from './message-list.react.js';
 import ParentThreadHeader from './parent-thread-header.react.js';
+import RelationshipPrompt from './relationship-prompt.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import {
@@ -69,6 +73,9 @@ const unboundStyles = {
   hiddenThreadContent: {
     height: 0,
     opacity: 0,
+  },
+  bannersContainer: {
+    zIndex: 2,
   },
 };
 
@@ -456,9 +463,24 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       colors.panelBackgroundLabel,
     ]);
 
+    let relationshipPrompt = null;
+    if (threadTypeIsPersonal(threadInfo.type)) {
+      relationshipPrompt = (
+        <RelationshipPrompt
+          pendingPersonalThreadUserInfo={
+            props.route.params.pendingPersonalThreadUserInfo
+          }
+          threadInfo={threadInfo}
+        />
+      );
+    }
+
     return (
       <MessageListContextProvider threadInfo={threadInfo}>
-        {pinnedCountBanner}
+        <View style={styles.bannersContainer}>
+          {pinnedCountBanner}
+          {relationshipPrompt}
+        </View>
         <MessageListContainer
           {...props}
           usernameInputText={usernameInputText}
