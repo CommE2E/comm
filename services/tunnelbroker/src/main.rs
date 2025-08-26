@@ -90,8 +90,12 @@ async fn main() -> Result<()> {
   .await?;
 
   let token_config = TokenDistributorConfig::default();
-  let mut token_distributor =
-    TokenDistributor::new(db_client.clone(), token_config, &amqp_connection, grpc_client);
+  let mut token_distributor = TokenDistributor::new(
+    db_client.clone(),
+    token_config,
+    &amqp_connection,
+    grpc_client,
+  );
 
   tokio::select! {
     grpc_result = grpc_server => {
