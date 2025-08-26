@@ -201,6 +201,7 @@ struct ProcessedReport {
   email: ReportEmail,
 }
 
+#[allow(clippy::result_large_err)]
 fn process_report(
   input: ReportInput,
   user_id: Option<String>,

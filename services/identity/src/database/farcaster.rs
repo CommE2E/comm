@@ -24,6 +24,7 @@ use tracing::{error, warn};
 pub struct FarcasterUserData(pub FarcasterUser);
 
 impl DatabaseClient {
+  #[allow(clippy::result_large_err)]
   #[tracing::instrument(skip_all)]
   pub async fn get_farcaster_users(
     &self,

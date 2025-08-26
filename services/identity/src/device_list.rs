@@ -331,7 +331,7 @@ pub mod validation {
     let previous_set: HashSet<_> = previous_device_list.iter().collect();
     let new_set: HashSet<_> = new_device_list.iter().collect();
 
-    return new_set.difference(&previous_set).count() == 1;
+    new_set.difference(&previous_set).count() == 1
   }
 
   /// Returns `true` if `new_device_list` contains exactly one fewer device
@@ -343,7 +343,7 @@ pub mod validation {
     let previous_set: HashSet<_> = previous_device_list.iter().collect();
     let new_set: HashSet<_> = new_device_list.iter().collect();
 
-    return previous_set.difference(&new_set).count() == 1;
+    previous_set.difference(&new_set).count() == 1
   }
 
   fn primary_device_changed(

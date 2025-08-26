@@ -24,6 +24,7 @@ pub struct FarcasterClient {
 }
 
 impl FarcasterClient {
+  #[allow(clippy::result_large_err)]
   pub fn new(
     farcaster_api_url: reqwest::Url,
     db_client: DatabaseClient,

@@ -1,4 +1,3 @@
-use aws_config::default_provider::retry_config;
 use aws_sdk_dynamodb::{
   operation::put_item::PutItemOutput,
   types::{

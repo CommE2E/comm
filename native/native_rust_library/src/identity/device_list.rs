@@ -160,7 +160,7 @@ async fn get_device_lists_for_users_helper(
     .collect();
 
   let result = PeersDeviceLists {
-    users_device_lists: users_device_lists,
+    users_device_lists,
     users_devices_platform_details: nested_users_devices_platform_details,
   };
 

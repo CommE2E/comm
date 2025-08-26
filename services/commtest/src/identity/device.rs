@@ -97,7 +97,6 @@ async fn register_user_device_with_device_list_and_farcaster(
   let username: String = rand::thread_rng()
     .sample_iter(&Alphanumeric)
     .take(7)
-    .map(char::from)
     .collect();
 
   let device_keys = keys.map(Cow::Borrowed).unwrap_or_default();
