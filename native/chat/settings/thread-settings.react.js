@@ -7,8 +7,9 @@ import type {
 } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, Platform, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
 
@@ -872,6 +873,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
+  renderScrollComponent(props): React.Node {
+    return (
+      <KeyboardAwareScrollView
+        {...props}
+        bottomOffset={50}
+        ScrollViewComponent={ScrollView}
+      />
+    );
+  }
+
   render(): React.Node {
     return (
       <View
@@ -887,6 +898,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
           indicatorStyle={this.props.indicatorStyle}
           initialNumToRender={20}
+          renderScrollComponent={this.renderScrollComponent}
         />
       </View>
     );
