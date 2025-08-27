@@ -7,6 +7,7 @@ import {
   threadSettingsNotificationsCopy,
   useThreadSettingsNotifications,
 } from 'lib/shared/thread-settings-notifications-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import EnumSettingsOption from '../../components/enum-settings-option.react.js';
@@ -218,6 +219,30 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     [notificationSettings],
   );
 
+  const notifCountOnlySetting = React.useMemo(() => {
+    if (!threadSpecs[threadInfo.type].protocol().supportsBackgroundNotifs) {
+      return null;
+    }
+    return (
+      <View style={styles.enumSettingsOptionContainer}>
+        <EnumSettingsOption
+          name={threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY}
+          enumValue={notificationSettings === 'notif-count-only'}
+          onEnumValuePress={onNotifCountOnlySelected}
+          description={notifCountOnlyDescription}
+          icon={notifCountOnlyIllustration}
+        />
+      </View>
+    );
+  }, [
+    notifCountOnlyDescription,
+    notifCountOnlyIllustration,
+    notificationSettings,
+    onNotifCountOnlySelected,
+    styles.enumSettingsOptionContainer,
+    threadInfo.type,
+  ]);
+
   const threadSettingsNotifications = React.useMemo(() => {
     return (
       <View style={styles.container}>
@@ -230,15 +255,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
             icon={allNotificationsIllustration}
           />
         </View>
-        <View style={styles.enumSettingsOptionContainer}>
-          <EnumSettingsOption
-            name={threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY}
-            enumValue={notificationSettings === 'notif-count-only'}
-            onEnumValuePress={onNotifCountOnlySelected}
-            description={notifCountOnlyDescription}
-            icon={notifCountOnlyIllustration}
-          />
-        </View>
+        {notifCountOnlySetting}
         <View style={styles.enumSettingsOptionContainer}>
           <EnumSettingsOption
             name={threadSettingsNotificationsCopy.MUTED}
@@ -257,9 +274,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     onHomeSelected,
     allNotificationsDescription,
     allNotificationsIllustration,
-    onNotifCountOnlySelected,
-    notifCountOnlyDescription,
-    notifCountOnlyIllustration,
+    notifCountOnlySetting,
     onMutedSelected,
     mutedDescription,
     mutedIllustration,

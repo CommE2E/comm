@@ -7,6 +7,7 @@ import {
   threadSettingsNotificationsCopy,
   useThreadSettingsNotifications,
 } from 'lib/shared/thread-settings-notifications-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 
 import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
@@ -105,6 +106,9 @@ function NotificationsModal(props: Props): React.Node {
 
   const isNotifyCountOnlySelected = notificationSettings === 'notif-count-only';
   const notifCountOnlyItem = React.useMemo(() => {
+    if (!threadSpecs[threadInfo.type].protocol().supportsBackgroundNotifs) {
+      return null;
+    }
     const icon = <BadgeNotifsIllustration />;
     return (
       <EnumSettingsOption
@@ -115,7 +119,7 @@ function NotificationsModal(props: Props): React.Node {
         onSelect={onNotifCountOnlySelected}
       />
     );
-  }, [isNotifyCountOnlySelected, onNotifCountOnlySelected]);
+  }, [isNotifyCountOnlySelected, onNotifCountOnlySelected, threadInfo]);
 
   const isMutedSelected = notificationSettings === 'muted';
   const backgroundItem = React.useMemo(() => {
