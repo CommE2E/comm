@@ -10,6 +10,7 @@ import genesis from 'lib/facts/genesis.js';
 import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import { useFetchConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -455,6 +456,20 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       styles.pinnedCountText,
       colors.panelBackgroundLabel,
     ]);
+
+    const prevActiveThreadID = React.useRef(threadInfo.id);
+    const farcasterFetchConversation = useFetchConversation();
+    React.useEffect(() => {
+      if (prevActiveThreadID !== threadInfo.id) {
+        threadSpecs[threadInfo.type]
+          .protocol()
+          .onOpenThread?.(
+            { threadID: threadInfo.id },
+            { farcasterFetchConversation },
+          );
+        prevActiveThreadID.current = threadInfo.id;
+      }
+    }, [farcasterFetchConversation, threadInfo.id, threadInfo.type]);
 
     return (
       <MessageListContextProvider threadInfo={threadInfo}>
