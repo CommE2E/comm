@@ -183,6 +183,9 @@ function AccountSettings(): React.Node {
   );
 
   const farcasterConversationsSync = useFarcasterConversationsSync();
+  const syncConversations = React.useCallback(() => {
+    return farcasterConversationsSync(Number.POSITIVE_INFINITY);
+  }, [farcasterConversationsSync]);
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
@@ -291,7 +294,7 @@ function AccountSettings(): React.Node {
           <ul>
             <li>
               <span>Farcaster DCs integration</span>
-              <Button variant="text" onClick={farcasterConversationsSync}>
+              <Button variant="text" onClick={syncConversations}>
                 <p className={css.buttonText}>Sync</p>
               </Button>
             </li>
