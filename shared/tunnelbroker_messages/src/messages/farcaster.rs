@@ -7,6 +7,7 @@ pub enum APIMethod {
   PUT,
   GET,
   POST,
+  STREAM,
 }
 
 #[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]

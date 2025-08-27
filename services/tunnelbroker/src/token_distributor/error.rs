@@ -20,6 +20,8 @@ pub enum TokenConnectionError {
   PingTimeout,
   #[display(fmt = "Connection cancelled")]
   Cancelled,
+  #[display(fmt = "AMQP setup failed: {}", _0)]
+  AmqpSetupFailed(String),
 }
 
 impl std::error::Error for TokenConnectionError {

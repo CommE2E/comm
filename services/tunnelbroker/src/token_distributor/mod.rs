@@ -2,6 +2,7 @@ mod config;
 mod error;
 mod token_connection;
 
+use crate::amqp_client::amqp::AmqpConnection;
 use crate::constants::error_types;
 use crate::database::DatabaseClient;
 pub(crate) use crate::token_distributor::config::TokenDistributorConfig;
@@ -17,10 +18,15 @@ pub struct TokenDistributor {
   db: DatabaseClient,
   config: TokenDistributorConfig,
   connections: HashMap<String, CancellationToken>,
+  amqp_connection: AmqpConnection,
 }
 
 impl TokenDistributor {
-  pub fn new(db: DatabaseClient, config: TokenDistributorConfig) -> Self {
+  pub fn new(
+    db: DatabaseClient,
+    config: TokenDistributorConfig,
+    amqp_connection: &AmqpConnection,
+  ) -> Self {
     info!(
       "Initializing TokenDistributor - max_connections: {}, \
       scan_interval: {}s, heartbeat_interval: {}s, heartbeat_timeout: {}s,\
@@ -46,6 +52,7 @@ impl TokenDistributor {
       db,
       config,
       connections: HashMap::new(),
+      amqp_connection: amqp_connection.clone(),
     }
   }
 
@@ -180,6 +187,7 @@ impl TokenDistributor {
             self.config.clone(),
             user_id.clone(),
             token_data,
+            self.amqp_connection.clone(),
             cancel_token.clone(),
           );
 
