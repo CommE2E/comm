@@ -1,7 +1,9 @@
+use crate::amqp_client::amqp::AmqpConnection;
 use crate::database::DatabaseClient;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
+use lapin::{options::*, types::FieldTable, ExchangeKind};
 use std::time::Duration;
 use tokio::time::{interval, Instant};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
@@ -13,6 +15,7 @@ pub(crate) struct TokenConnection {
   config: TokenDistributorConfig,
   user_id: String,
   token_data: String,
+  amqp_connection: AmqpConnection,
 }
 
 impl TokenConnection {
@@ -21,6 +24,7 @@ impl TokenConnection {
     config: TokenDistributorConfig,
     user_id: String,
     token_data: String,
+    amqp_connection: AmqpConnection,
     cancellation_token: CancellationToken,
   ) {
     let connection = Self {
@@ -28,6 +32,7 @@ impl TokenConnection {
       config: config.clone(),
       user_id: user_id.clone(),
       token_data,
+      amqp_connection,
     };
 
     tokio::spawn(async move {
@@ -47,6 +52,7 @@ impl TokenConnection {
           TokenConnectionError::TokenOwnershipLost => "TokenOwnershipLost",
           TokenConnectionError::HeartbeatFailed(_) => "HeartbeatFailed",
           TokenConnectionError::Cancelled => "Cancelled",
+          TokenConnectionError::AmqpSetupFailed(_) => "AmqpSetupFailed",
         };
 
         info!(
@@ -182,6 +188,22 @@ impl TokenConnection {
       self.user_id
     );
 
+    // Set up AMQP topic listener for farcaster messages
+    let topic_name = format!("farcaster_user_{}", self.user_id);
+    let mut amqp_consumer = match self.setup_amqp_consumer(&topic_name).await {
+      Ok(consumer) => consumer,
+      Err(e) => {
+        error!(
+          "Failed to setup AMQP consumer for user {}: {}",
+          self.user_id, e
+        );
+        return Err(TokenConnectionError::AmqpSetupFailed(format!(
+          "Failed to setup AMQP consumer: {}",
+          e
+        )));
+      }
+    };
+
     let mut heartbeat_interval = interval(self.config.heartbeat_interval);
     let mut last_ping = Instant::now(); // Track last ping time
     let ping_timeout = tokio::time::sleep(self.config.ping_timeout);
@@ -195,6 +217,32 @@ impl TokenConnection {
 
     loop {
       tokio::select! {
+        // Handle AMQP messages and forward to WebSocket
+        amqp_msg = amqp_consumer.next() => {
+          if let Some(delivery_result) = amqp_msg {
+            match delivery_result {
+              Ok(delivery) => {
+                let payload = String::from_utf8_lossy(&delivery.data);
+                debug!("Received AMQP message for user {}: {}", self.user_id, payload);
+
+                // Forward message to WebSocket
+                if let Err(e) = write.send(Message::Text(payload.to_string())).await {
+                  error!("Failed to forward AMQP message to WebSocket for user {}: {:?}", self.user_id, e);
+                } else {
+                  // Acknowledge the AMQP message
+                  if let Err(e) = delivery.ack(BasicAckOptions::default()).await {
+                    error!("Failed to acknowledge AMQP message for user {}: {:?}", self.user_id, e);
+                  }
+                  info!("Message {:?} sent", payload);
+                }
+              }
+              Err(e) => {
+                error!("AMQP consumer error for user {}: {:?}", self.user_id, e);
+              }
+            }
+          }
+        }
+
         msg = read.next() => {
           match msg {
             Some(Ok(msg)) => match msg {
@@ -294,5 +342,63 @@ impl TokenConnection {
         }
       }
     }
+  }
+
+  async fn setup_amqp_consumer(
+    &self,
+    topic_name: &str,
+  ) -> Result<lapin::Consumer, lapin::Error> {
+    let channel = self.amqp_connection.new_channel().await?;
+
+    // Declare exchange
+    channel
+      .exchange_declare(
+        topic_name,
+        ExchangeKind::Direct,
+        ExchangeDeclareOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+
+    // Declare queue with unique name for this connection
+    let queue_name = format!("{}_{}", topic_name, self.user_id);
+    let queue = channel
+      .queue_declare(
+        &queue_name,
+        QueueDeclareOptions {
+          auto_delete: true,
+          exclusive: true,
+          ..QueueDeclareOptions::default()
+        },
+        FieldTable::default(),
+      )
+      .await?;
+
+    // Bind queue to exchange
+    channel
+      .queue_bind(
+        queue.name().as_str(),
+        topic_name,
+        "",
+        QueueBindOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+
+    // Create consumer
+    let consumer = channel
+      .basic_consume(
+        queue.name().as_str(),
+        &format!("consumer_{}_{}", topic_name, self.user_id),
+        BasicConsumeOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+
+    debug!(
+      "AMQP consumer set up for topic: {} user: {}",
+      topic_name, self.user_id
+    );
+    Ok(consumer)
   }
 }

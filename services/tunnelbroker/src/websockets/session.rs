@@ -428,6 +428,25 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       };
     }
 
+    // Handle STREAM method separately
+    if matches!(
+      request.method,
+      tunnelbroker_messages::farcaster::APIMethod::STREAM
+    ) {
+      let response =
+        match self.farcaster_client.handle_stream_request(request).await {
+          Ok(()) => FarcasterAPIResponseData::Success(
+            "Message published to stream".to_string(),
+          ),
+          Err(err) => FarcasterAPIResponseData::Error(err.to_string()),
+        };
+
+      return FarcasterAPIResponse {
+        request_id,
+        response,
+      };
+    }
+
     let response = match self.farcaster_client.api_request(request).await {
       Ok((status, response)) => {
         if status.is_success() {
