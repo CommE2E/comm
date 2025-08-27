@@ -120,6 +120,13 @@ function ThreadSettingsGeneralTab(
     threadSettingsOperationInProgress,
   ]);
 
+  const canEditThreadDescription = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.EDIT_THREAD_DESCRIPTION,
+  );
+
+  const threadDescriptionInputDisabled = !canEditThreadDescription;
+
   const descriptionSection = React.useMemo(() => {
     if (
       !threadSpecs[threadInfo.type].protocol().supportedThreadSettings
@@ -135,13 +142,17 @@ function ThreadSettingsGeneralTab(
             value={queuedChanges.description ?? threadInfo.description ?? ''}
             placeholder="Chat description"
             onChange={onChangeDescription}
-            disabled={threadSettingsOperationInProgress}
+            disabled={
+              threadSettingsOperationInProgress ||
+              threadDescriptionInputDisabled
+            }
             rows={3}
           />
         </div>
       </div>
     );
   }, [
+    threadDescriptionInputDisabled,
     onChangeDescription,
     queuedChanges.description,
     threadInfo.description,
