@@ -186,7 +186,7 @@ type Props = {
   +onCreateDMThread: () => Promise<void>,
   +currentUserFID: ?string,
   +usingRestoreFlow: boolean,
-  +farcasterConversationsSync: () => Promise<void>,
+  +farcasterConversationsSync: (limit: number) => Promise<void>,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -562,7 +562,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   };
 
   onPressFarcasterConversationsSync = () => {
-    void this.props.farcasterConversationsSync();
+    void this.props.farcasterConversationsSync(Number.POSITIVE_INFINITY);
   };
 
   onPressDebugLogs = () => {
