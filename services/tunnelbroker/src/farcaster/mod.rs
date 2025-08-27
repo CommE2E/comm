@@ -1,6 +1,8 @@
+use crate::amqp_client::amqp::AmqpConnection;
 use crate::constants::FARCASTER_REQUEST_TIMEOUT;
 use crate::database::DatabaseClient;
 use crate::farcaster::error::Error::MissingFarcasterToken;
+use lapin::{BasicProperties, ExchangeKind};
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use tracing::{debug, error};
 use tunnelbroker_messages::farcaster::{APIMethod, FarcasterAPIRequest};
@@ -12,12 +14,14 @@ pub struct FarcasterClient {
   farcaster_api_url: reqwest::Url,
   http_client: reqwest::Client,
   db_client: DatabaseClient,
+  amqp_connection: AmqpConnection,
 }
 
 impl FarcasterClient {
   pub fn new(
     farcaster_api_url: reqwest::Url,
     db_client: DatabaseClient,
+    amqp_connection: &AmqpConnection,
   ) -> Result<Self, error::Error> {
     let http_client = reqwest::Client::builder()
       .timeout(FARCASTER_REQUEST_TIMEOUT)
@@ -27,6 +31,7 @@ impl FarcasterClient {
       farcaster_api_url,
       http_client,
       db_client,
+      amqp_connection: amqp_connection.clone(),
     })
   }
 
@@ -84,9 +89,51 @@ impl FarcasterClient {
         .post(url)
         .headers(headers)
         .body(request.payload),
+      APIMethod::STREAM => {
+        error!("STREAM method should be handled earlier,not in api_request");
+        return Err(error::Error::InvalidRequest);
+      }
     };
 
     let response = request_builder.send().await?;
     Ok((response.status(), response.text().await?))
+  }
+
+  pub async fn handle_stream_request(
+    &self,
+    request: FarcasterAPIRequest,
+  ) -> Result<(), error::Error> {
+    debug!("Handling STREAM request for user {}", request.user_id);
+
+    let topic_name = format!("farcaster_user_{}", request.user_id);
+
+    let channel = self.amqp_connection.new_channel().await?;
+
+    // Declare exchange
+    channel
+      .exchange_declare(
+        &topic_name,
+        ExchangeKind::Direct,
+        lapin::options::ExchangeDeclareOptions::default(),
+        lapin::types::FieldTable::default(),
+      )
+      .await?;
+
+    // Publish the stream message
+    channel
+      .basic_publish(
+        &topic_name,
+        "",
+        lapin::options::BasicPublishOptions::default(),
+        request.payload.as_bytes(),
+        BasicProperties::default(),
+      )
+      .await?;
+
+    debug!(
+      "Successfully published stream message to topic: {}",
+      topic_name
+    );
+    Ok(())
   }
 }
