@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { getConfig } from 'lib/utils/config.js';
 import {
   useCurrentUserFID,
   useCurrentUserSupportsDCs,
@@ -38,7 +39,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
 
   const unlinkFID = useUnlinkFID();
 
-  const onPressDisconnect = React.useCallback(async () => {
+  const unlink = React.useCallback(async () => {
     setIsLoadingUnlinkFID(true);
     try {
       await unlinkFID();
@@ -51,6 +52,29 @@ function FarcasterAccountSettings(props: Props): React.Node {
       setIsLoadingUnlinkFID(false);
     }
   }, [unlinkFID]);
+
+  const onPressDisconnect = React.useCallback(() => {
+    getConfig().showAlert(
+      'Disconnect Farcaster account',
+      'This will permanently remove all Farcaster threads and messages from' +
+        ' your account and backup. This action ' +
+        'cannot be undone. Are you sure you want to continue?',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {
+          text: 'Disconnect',
+          onPress: unlink,
+          style: 'destructive',
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
+  }, [unlink]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
