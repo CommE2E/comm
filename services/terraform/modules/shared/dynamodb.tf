@@ -206,7 +206,7 @@ resource "aws_dynamodb_table" "identity-users" {
     name               = "farcasterID-index"
     hash_key           = "farcasterID"
     projection_type    = "INCLUDE"
-    non_key_attributes = ["walletAddress", "username"]
+    non_key_attributes = ["walletAddress", "username", "farcasterDCsToken"]
   }
 
   global_secondary_index {

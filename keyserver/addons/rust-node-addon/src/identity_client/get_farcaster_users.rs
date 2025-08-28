@@ -25,6 +25,7 @@ pub async fn get_farcaster_users(
       user_id: farcaster_user.user_id,
       username: farcaster_user.username,
       farcaster_id: farcaster_user.farcaster_id,
+      supports_farcaster_dcs: farcaster_user.has_farcaster_dcs_token,
     })
     .collect();
 
@@ -40,4 +41,6 @@ pub struct FarcasterUser {
   pub username: String,
   #[napi(js_name = "farcasterID")]
   pub farcaster_id: String,
+  #[napi(js_name = "supportsFarcasterDCs")]
+  pub supports_farcaster_dcs: bool,
 }

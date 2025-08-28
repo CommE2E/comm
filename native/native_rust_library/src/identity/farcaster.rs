@@ -22,6 +22,8 @@ struct FarcasterUser {
   username: String,
   #[serde(rename = "farcasterID")]
   farcaster_id: String,
+  #[serde(rename = "supportsFarcasterDCs")]
+  supports_farcaster_dcs: bool,
 }
 
 pub mod ffi {
@@ -117,6 +119,7 @@ async fn get_farcaster_users_helper(
       user_id: farcaster_user.user_id,
       username: farcaster_user.username,
       farcaster_id: farcaster_user.farcaster_id,
+      supports_farcaster_dcs: farcaster_user.has_farcaster_dcs_token,
     })
     .collect();
 
