@@ -630,6 +630,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         userID: user.getUserId(),
         username: user.getUsername(),
         farcasterID: user.getFarcasterId(),
+        supportsFarcasterDCs: user.getHasFarcasterDcsToken(),
       });
     }
 

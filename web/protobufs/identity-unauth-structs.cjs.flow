@@ -674,6 +674,9 @@ declare export class FarcasterUser extends Message {
   getUsername(): string;
   setUsername(value: string): FarcasterUser;
 
+  getHasFarcasterDcsToken(): boolean;
+  setHasFarcasterDcsToken(value: boolean): FarcasterUser;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): FarcasterUserObject;
   static toObject(includeInstance: boolean, msg: FarcasterUser): FarcasterUserObject;
@@ -686,6 +689,7 @@ export type FarcasterUserObject = {
   userId: string,
   farcasterId: string,
   username: string,
+  hasFarcasterDcsToken: boolean,
 }
 
 export type DeviceType = 0 | 1 | 2 | 3 | 4 | 5;
