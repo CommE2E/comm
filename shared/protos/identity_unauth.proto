@@ -349,4 +349,5 @@ message FarcasterUser {
   string user_id = 1;
   string farcaster_id = 2;
   string username = 3;
+  bool has_farcaster_dcs_token = 4;
 }
