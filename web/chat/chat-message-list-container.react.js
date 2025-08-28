@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 
-import { useFetchConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
@@ -146,18 +146,18 @@ function ChatMessageListContainer(props: Props): React.Node {
   }, [inputState, isChatCreation, selectedUserInfos, threadInfo]);
 
   const prevActiveThreadID = React.useRef(activeChatThreadID);
-  const farcasterFetchConversation = useFetchConversation();
+  const farcasterRefreshConversation = useRefreshFarcasterConversation();
   React.useEffect(() => {
     if (prevActiveThreadID !== activeChatThreadID && activeChatThreadID) {
       threadSpecs[threadInfo.type]
         .protocol()
         .onOpenThread?.(
           { threadID: activeChatThreadID },
-          { farcasterFetchConversation },
+          { farcasterRefreshConversation },
         );
       prevActiveThreadID.current = activeChatThreadID;
     }
-  }, [farcasterFetchConversation, activeChatThreadID, threadInfo.type]);
+  }, [farcasterRefreshConversation, activeChatThreadID, threadInfo.type]);
 
   return connectDropTarget(
     <div className={containerStyle} ref={containerRef}>
