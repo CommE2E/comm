@@ -341,11 +341,14 @@ impl TryFrom<AttributeMap> for FarcasterUserData {
     };
     let farcaster_id =
       attrs.take_attr(USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME)?;
+    let farcaster_dcs_token: Option<String> =
+      attrs.take_attr(USERS_TABLE_FARCASTER_DCS_TOKEN_ATTRIBUTE_NAME)?;
 
     Ok(Self(FarcasterUser {
       user_id,
       username,
       farcaster_id,
+      has_farcaster_dcs_token: farcaster_dcs_token.is_some(),
     }))
   }
 }
