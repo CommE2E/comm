@@ -68,8 +68,8 @@ import { AutoJoinCommunityHandler } from './components/auto-join-community-handl
 import ColdStartTracker from './components/cold-start-tracker.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import DisplayCommunityDirectoryPromptHandler from './components/display-community-directory-prompt.react.js';
-import DMActivityHandler from './components/dm-activity-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
+import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ReportHandler from './components/report-handler.react.js';
@@ -417,7 +417,7 @@ function Root() {
                                                                 detectUnsupervisedBackgroundRef
                                                               }
                                                             />
-                                                            <DMActivityHandler />
+                                                            <NonKeyserverActivityHandler />
                                                             <VersionSupportedChecker />
                                                             <PlatformDetailsSynchronizer />
                                                             <PrekeysHandler />

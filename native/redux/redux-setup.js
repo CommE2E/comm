@@ -380,7 +380,7 @@ function fixUnreadActiveThread(
     !activeThread ||
     !state.threadStore.threadInfos[activeThread]?.currentUser.unread ||
     threadSpecs[state.threadStore.threadInfos[activeThread].type].protocol()
-      .threadActivityUpdatedByDMActivityHandler ||
+      .threadActivityUpdatedByActivityHandlerOnly ||
     (NativeAppState.currentState !== 'active' &&
       (appLastBecameInactive + 10000 >= Date.now() ||
         backgroundActionTypes.has(action.type)))
