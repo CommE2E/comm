@@ -29,6 +29,7 @@ import {
   identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { processDMOpsActionType } from 'lib/types/dm-ops.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
@@ -378,6 +379,8 @@ function fixUnreadActiveThread(
   if (
     !activeThread ||
     !state.threadStore.threadInfos[activeThread]?.currentUser.unread ||
+    threadSpecs[state.threadStore.threadInfos[activeThread].type].protocol()
+      .threadActivityUpdatedByDMActivityHandler ||
     (NativeAppState.currentState !== 'active' &&
       (appLastBecameInactive + 10000 >= Date.now() ||
         backgroundActionTypes.has(action.type)))
