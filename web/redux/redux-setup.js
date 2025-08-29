@@ -476,7 +476,7 @@ function validateStateAndQueueOpsProcessing(
     !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread &&
     !threadSpecs[state.threadStore.threadInfos[activeThread].type].protocol()
-      .threadActivityUpdatedByDMActivityHandler
+      .threadActivityUpdatedActivityHandlerOnly
   ) {
     // Makes sure a currently focused thread is never unread
     const activeThreadInfo = state.threadStore.threadInfos[activeThread];
