@@ -16,6 +16,7 @@ import {
   convertCalendarFilterToNewIDSchema,
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
+import { sharedMigrations } from 'lib/backup/persist-shared-migrations.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { convertQueuedDMOperationsStoreToAddOps } from 'lib/ops/dm-operations-store-ops.js';
 import type {
@@ -89,6 +90,7 @@ import {
   defaultAlertInfos,
   alertTypes,
 } from 'lib/types/alert-types.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
@@ -1705,6 +1707,13 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
         dmOperationStoreOperations:
           convertQueuedDMOperationsStoreToAddOps(queuedDMOperations),
       },
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [96]: (async (state: AppState) => {
+    const ops = await sharedMigrations[96](databaseIdentifier.MAIN);
+    return {
+      state,
+      ops,
     };
   }: MigrationFunction<NavInfo, AppState>),
 });

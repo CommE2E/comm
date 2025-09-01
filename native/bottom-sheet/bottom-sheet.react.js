@@ -52,6 +52,8 @@ function ForwardedBottomSheet(
       backdropComponent={BottomSheetBackdrop}
       onChange={onChange}
       enablePanDownToClose={true}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
     >
       {children}
     </GorhomBottomSheet>

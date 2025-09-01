@@ -11,10 +11,12 @@ import {
 } from 'lib/types/alert-types.js';
 import {
   useCurrentUserFID,
+  useCurrentUserSupportsDCs,
   useSetLocalFID,
 } from 'lib/utils/farcaster-utils.js';
 import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { ConnectFarcasterBottomSheetRouteName } from '../navigation/route-names.js';
@@ -28,6 +30,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
 
   const fid = useCurrentUserFID();
+  const currentUserSupportsDCs = useCurrentUserSupportsDCs();
 
   const setLocalFID = useSetLocalFID();
 
@@ -38,11 +41,16 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    const shouldShowForDCs = fid && !currentUserSupportsDCs;
+    const shouldShowForInitialConnection = !fid;
+
     if (
       !loggedIn ||
       !isActive ||
       shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) ||
-      connectFarcasterAlertInfo.coldStartCount < 2
+      connectFarcasterAlertInfo.coldStartCount < 2 ||
+      (!shouldShowForInitialConnection && !shouldShowForDCs) ||
+      !supportsFarcasterDCs
     ) {
       return;
     }
@@ -54,7 +62,9 @@ function ConnectFarcasterAlertHandler(): React.Node {
       // again. We set it here, rather than in the bottom sheet itself, to avoid
       // the scenario where the user connects their Farcaster account but we
       // accidentally overwrite the FID on close and set it to null.
-      setLocalFID(null);
+      if (!fid) {
+        setLocalFID(null);
+      }
       navigate(ConnectFarcasterBottomSheetRouteName);
 
       const payload: RecordAlertActionPayload = {
@@ -69,6 +79,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     })();
   }, [
     connectFarcasterAlertInfo,
+    currentUserSupportsDCs,
     dispatch,
     fid,
     isActive,
