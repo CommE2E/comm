@@ -174,10 +174,12 @@ function FarcasterAccountSettings(props: Props): React.Node {
   return React.useMemo(() => {
     if (showConnectDCs) {
       return (
-        <ConnectFarcasterDCs
-          onSuccess={onConnectDCsSuccess}
-          onCancel={onConnectDCsCancel}
-        />
+        <View style={styles.farcasterContainer}>
+          <ConnectFarcasterDCs
+            onSuccess={onConnectDCsSuccess}
+            onCancel={onConnectDCsCancel}
+          />
+        </View>
       );
     }
 
@@ -203,6 +205,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     showConnectDCs,
     styles.buttonContainer,
     styles.connectContainer,
+    styles.farcasterContainer,
     styles.promptContainer,
     styles.scrollViewContentContainer,
     webViewState,
@@ -210,6 +213,11 @@ function FarcasterAccountSettings(props: Props): React.Node {
 }
 
 const unboundStyles = {
+  farcasterContainer: {
+    flex: 1,
+    backgroundColor: 'panelBackground',
+    paddingBottom: 16,
+  },
   connectContainer: {
     flex: 1,
     backgroundColor: 'panelBackground',

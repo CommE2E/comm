@@ -6,6 +6,7 @@ import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import { sharedMigrations } from 'lib/backup/persist-shared-migrations.js';
 import { createReplaceThreadOperation } from 'lib/ops/create-replace-thread-operation.js';
 import { convertQueuedDMOperationsStoreToAddOps } from 'lib/ops/dm-operations-store-ops.js';
 import {
@@ -37,6 +38,7 @@ import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-t
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { unshimDMOperations } from 'lib/shared/unshim-utils.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
+import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { dmOperationTypes } from 'lib/types/dm-ops.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
@@ -914,6 +916,13 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
         dmOperationStoreOperations:
           convertQueuedDMOperationsStoreToAddOps(queuedDMOperations),
       },
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [96]: (async (state: AppState) => {
+    const ops = await sharedMigrations[96](databaseIdentifier.MAIN);
+    return {
+      state,
+      ops,
     };
   }: MigrationFunction<WebNavInfo, AppState>),
 };
