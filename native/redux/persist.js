@@ -1707,6 +1707,30 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       },
     };
   }: MigrationFunction<NavInfo, AppState>),
+  [96]: (async (state: AppState) => {
+    const updatedAlertStore = {
+      ...state.alertStore,
+      alertInfos: {
+        ...state.alertStore.alertInfos,
+        [alertTypes.CONNECT_FARCASTER]: defaultAlertInfo,
+      },
+    };
+
+    const syncedMetadataStoreOperations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation> =
+      [
+        createReplaceSyncedMetadataOperation(
+          syncedMetadataNames.ALERT_STORE,
+          JSON.stringify(updatedAlertStore),
+        ),
+      ];
+
+    return {
+      state,
+      ops: {
+        syncedMetadataStoreOperations,
+      },
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {
