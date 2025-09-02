@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
+import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   createPendingThread,
@@ -77,22 +77,9 @@ function useThreadInfoForPossiblyPendingThread(
     return state.navInfo.pendingThread;
   });
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
-  const checkUsersThickThreadSupport = useUsersSupportThickThreads();
 
-  const [allUsersSupportThickThreads, setAllUsersSupportThickThreads] =
-    React.useState(false);
-  React.useEffect(() => {
-    void (async () => {
-      const usersSupportingThickThreads = await checkUsersThickThreadSupport(
-        selectedUserInfos.map(user => user.id),
-      );
-      setAllUsersSupportThickThreads(
-        selectedUserInfos.every(userInfo =>
-          usersSupportingThickThreads.get(userInfo.id),
-        ),
-      );
-    })();
-  }, [checkUsersThickThreadSupport, selectedUserInfos]);
+  const { allUsersSupportThickThreads } =
+    useUsersSupportingProtocols(selectedUserInfos);
 
   const threadInfo = React.useMemo(() => {
     if (isChatCreation) {

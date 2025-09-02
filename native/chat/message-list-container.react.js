@@ -7,7 +7,10 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
-import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
+import {
+  useUsersSupportingProtocols,
+  useUsersSupportThickThreads,
+} from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
@@ -284,20 +287,8 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       useExistingThreadInfoFinder(baseThreadInfo);
 
     const checkUsersThickThreadSupport = useUsersSupportThickThreads();
-    const [allUsersSupportThickThreads, setAllUsersSupportThickThreads] =
-      React.useState(false);
-    React.useEffect(() => {
-      void (async () => {
-        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
-          userInfoInputArray.map(user => user.id),
-        );
-        setAllUsersSupportThickThreads(
-          userInfoInputArray.every(userInfo =>
-            usersSupportingThickThreads.get(userInfo.id),
-          ),
-        );
-      })();
-    }, [checkUsersThickThreadSupport, userInfoInputArray]);
+    const { allUsersSupportThickThreads } =
+      useUsersSupportingProtocols(userInfoInputArray);
 
     const isSearching = !!props.route.params.searching;
     const threadInfo = React.useMemo(
