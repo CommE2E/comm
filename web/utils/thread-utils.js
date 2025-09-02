@@ -78,7 +78,7 @@ function useThreadInfoForPossiblyPendingThread(
   });
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
 
-  const { allUsersSupportThickThreads } =
+  const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
     useUsersSupportingProtocols(selectedUserInfos);
 
   const threadInfo = React.useMemo(() => {
@@ -91,6 +91,7 @@ function useThreadInfoForPossiblyPendingThread(
         searching: true,
         userInfoInputArray: selectedUserInfos,
         allUsersSupportThickThreads,
+        allUsersSupportFarcasterThreads,
       });
     }
 
@@ -98,8 +99,10 @@ function useThreadInfoForPossiblyPendingThread(
       searching: false,
       userInfoInputArray: [],
       allUsersSupportThickThreads: true,
+      allUsersSupportFarcasterThreads: true,
     });
   }, [
+    allUsersSupportFarcasterThreads,
     allUsersSupportThickThreads,
     existingThreadInfoFinder,
     existingThreadInfoFinderForCreatingThread,

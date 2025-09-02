@@ -9,7 +9,10 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
+import {
+  useUsersSupportFarcasterDCs,
+  useUsersSupportThickThreads,
+} from 'lib/hooks/user-identities-hooks.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   usePotentialMemberItems,
@@ -92,6 +95,7 @@ function ChatThreadComposer(props: Props): React.Node {
   );
 
   const checkUsersThickThreadSupport = useUsersSupportThickThreads();
+  const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
 
   const onSelectUserFromSearch = React.useCallback(
     async (userListItem: UserListItem) => {
@@ -106,9 +110,14 @@ function ChatThreadComposer(props: Props): React.Node {
           username: userListItem.username,
         };
         const newUserInfoInputArray = user.id === viewerID ? [] : [newUserInfo];
-        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
-          newUserInfoInputArray.map(userInfo => userInfo.id),
-        );
+        const newUserIDs = newUserInfoInputArray.map(userInfo => userInfo.id);
+
+        const [usersSupportingThickThreads, usersSupportingFarcasterThreads] =
+          await Promise.all([
+            checkUsersThickThreadSupport(newUserIDs),
+            checkUsersFarcasterDCsSupport(newUserIDs),
+          ]);
+
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
@@ -116,6 +125,10 @@ function ChatThreadComposer(props: Props): React.Node {
             user.id === viewerID
               ? true
               : !!usersSupportingThickThreads.get(user.id),
+          allUsersSupportFarcasterThreads:
+            user.id === viewerID
+              ? false
+              : !!usersSupportingFarcasterThreads.get(user.id),
         });
         dispatch({
           type: updateNavInfoActionType,
@@ -137,12 +150,13 @@ function ChatThreadComposer(props: Props): React.Node {
       }
     },
     [
-      checkUsersThickThreadSupport,
-      dispatch,
       viewerID,
-      existingThreadInfoFinderForCreatingThread,
-      pushModal,
       userInfoInputArray,
+      checkUsersThickThreadSupport,
+      checkUsersFarcasterDCsSupport,
+      existingThreadInfoFinderForCreatingThread,
+      dispatch,
+      pushModal,
     ],
   );
 
