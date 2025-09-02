@@ -6,10 +6,9 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useENSName } from 'lib/hooks/ens-cache.js';
+import { useResolvedUsername } from 'lib/hooks/ens-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
-import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
@@ -36,8 +35,7 @@ function UserProfile(props: Props): React.Node {
 
   const userProfileThreadInfo = useUserProfileThreadInfo(userInfo);
 
-  const usernameText = stringForUserExplicit(userInfo);
-  const resolvedUsernameText = useENSName(usernameText);
+  const resolvedUsernameText = useResolvedUsername(userInfo);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
