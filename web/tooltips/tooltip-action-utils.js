@@ -6,7 +6,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/ens-cache.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type {
   ChatMessageInfoItem,
@@ -515,7 +515,7 @@ function useMessageTooltip({
   };
 }
 
-const useENSNamesOptions = { allAtOnce: true };
+const useResolvableNamesOptions = { allAtOnce: true };
 
 type UseReactionTooltipArgs = {
   +reaction: string,
@@ -530,7 +530,7 @@ function useReactionTooltip({
 }: UseReactionTooltipArgs): UseTooltipResult {
   const { users } = reactions[reaction];
 
-  const resolvedUsers = useENSNames(users, useENSNamesOptions);
+  const resolvedUsers = useResolvableNames(users, useResolvableNamesOptions);
 
   const showSeeMoreText = resolvedUsers.length > 5;
 

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/ens-cache.js';
 import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import {
   getRelationshipActionText,
@@ -48,7 +48,7 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo(
       () => [otherUserInfoFromRedux],
       [otherUserInfoFromRedux],
     );
-    const [otherUserInfo] = useENSNames(ensNames);
+    const [otherUserInfo] = useResolvableNames(ensNames);
 
     const updateRelationships = useUpdateRelationships();
     const updateRelationship = React.useCallback(
