@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
+import { useSortedENSResolvedUsers } from 'lib/hooks/names-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 
 import AddUsersListItem, {

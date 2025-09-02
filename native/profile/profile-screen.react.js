@@ -11,7 +11,7 @@ import {
   usePrimaryDeviceLogOut,
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
-import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useStringForUser } from 'lib/hooks/names-cache.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';

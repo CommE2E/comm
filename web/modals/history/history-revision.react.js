@@ -5,7 +5,7 @@ import dateFormat from 'dateformat';
 import * as React from 'react';
 import TimeAgo from 'react-timeago';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
@@ -48,7 +48,7 @@ export default function HistoryRevision(props: Props): React.Node {
     () => [authorUserInfo],
     [authorUserInfo],
   );
-  const [authorWithENSName] = useENSNames(authorUserInfos);
+  const [authorWithENSName] = useResolvableNames(authorUserInfos);
 
   const author = authorWithENSName?.username ? (
     <span className={css.entryUsername}>{authorWithENSName.username}</span>

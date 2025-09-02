@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
-import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useStringForUser } from 'lib/hooks/names-cache.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { chatMessageInfoItemTimestamp } from 'lib/shared/chat-message-item-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';

@@ -6,7 +6,7 @@ import { View, Text, Platform } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -389,7 +389,7 @@ function RelationshipList(props: Props): React.Node {
     userInfos,
   ]);
 
-  const displayUsers = useENSNames(usersWithoutENSNames);
+  const displayUsers = useResolvableNames(usersWithoutENSNames);
   const listData = React.useMemo(() => {
     let emptyItem;
     if (displayUsers.length === 0 && searchInputText === '') {
@@ -413,7 +413,7 @@ function RelationshipList(props: Props): React.Node {
   }, [displayUsers, verticalBounds, searchInputText]);
 
   const indicatorStyle = useIndicatorStyle();
-  const currentTagsWithENSNames = useENSNames(currentTags);
+  const currentTagsWithENSNames = useResolvableNames(currentTags);
   return (
     <View style={styles.container}>
       <View style={styles.tagInputContainer}>

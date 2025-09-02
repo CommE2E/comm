@@ -6,8 +6,8 @@ import * as React from 'react';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
-import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { useFarcasterUserAvatarURL } from 'lib/hooks/fc-cache.js';
+import { useENSAvatar } from 'lib/hooks/names-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 

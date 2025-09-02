@@ -11,7 +11,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
-import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useStringForUser } from 'lib/hooks/names-cache.js';
 import { useCheckIfPrimaryDevice } from 'lib/hooks/primary-device-hooks.js';
 import {
   dmOperationSpecificationTypes,

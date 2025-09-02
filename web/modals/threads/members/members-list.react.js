@@ -5,7 +5,7 @@ import _groupBy from 'lodash/fp/groupBy.js';
 import _toPairs from 'lodash/fp/toPairs.js';
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
   RelativeMemberInfo,
@@ -25,7 +25,7 @@ function ThreadMembersList(props: Props): React.Node {
   const [openMenu, setOpenMenu] = React.useState<?string>(null);
   const hasMembers = threadMembers.length > 0;
 
-  const threadMembersWithENSNames = useENSNames(threadMembers);
+  const threadMembersWithENSNames = useResolvableNames(threadMembers);
 
   const groupedByFirstLetterMembers = React.useMemo(
     () =>

@@ -9,8 +9,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useENSName } from 'lib/hooks/ens-cache.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
+import { useENSName } from 'lib/hooks/names-cache.js';
 import type { SIWEBackupData } from 'lib/types/backup-types.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-action-types.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -229,8 +229,8 @@ function AddUsersModal(props: Props): React.Node {
     }),
     [onPressAdd],
   );
-  const userSearchResultWithENSNames = useENSNames(userSearchResults);
-  const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
+  const userSearchResultWithENSNames = useResolvableNames(userSearchResults);
+  const userInfoInputArrayWithENSNames = useResolvableNames(userInfoInputArray);
   return (
     <Modal>
       <TagInput

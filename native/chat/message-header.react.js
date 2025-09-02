@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
-import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useStringForUser } from 'lib/hooks/names-cache.js';
 
 import { clusterEndHeight, avatarOffset } from './chat-constants.js';
 import type { DisplayType } from './timestamp.react.js';
