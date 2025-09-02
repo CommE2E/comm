@@ -8,7 +8,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/ens-cache.js';
 import { useUsersSupportThickThreads } from 'lib/hooks/user-identities-hooks.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -76,7 +76,7 @@ function ChatThreadComposer(props: Props): React.Node {
     includeServerSearchUsers: searchResults,
   });
 
-  const userListItemsWithENSNames = useENSNames(userListItems);
+  const userListItemsWithENSNames = useResolvableNames(userListItems);
 
   const { pushModal } = useModalContext();
 
@@ -221,7 +221,7 @@ function ChatThreadComposer(props: Props): React.Node {
     hideSearch('reset-active-thread-if-pending');
   }, [hideSearch]);
 
-  const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
+  const userInfoInputArrayWithENSNames = useResolvableNames(userInfoInputArray);
   const tagsList = React.useMemo(() => {
     if (!userInfoInputArrayWithENSNames?.length) {
       return null;
