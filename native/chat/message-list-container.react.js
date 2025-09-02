@@ -46,6 +46,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
+import SelectProtocolDropdown from '../components/select-protocol-dropdown.react.js';
 
 const unboundStyles = {
   pinnedCountBanner: {
@@ -159,31 +160,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     let searchComponent = null;
     if (searching) {
-      const { userInfoInputArray, genesisThreadInfo } = this.props;
-      let parentThreadHeader;
-      const protocol = threadSpecs[threadInfo.type].protocol();
-      const childThreadType = protocol.pendingThreadType(
-        userInfoInputArray.length,
-      );
-      const threadSearchHeaderShowsGenesis =
-        protocol.presentationDetails.threadSearchHeaderShowsGenesis;
-      if (!threadSearchHeaderShowsGenesis) {
-        parentThreadHeader = (
-          <ParentThreadHeader childThreadType={childThreadType} />
-        );
-      } else if (genesisThreadInfo) {
-        // It's technically possible for the client to be missing the Genesis
-        // ThreadInfo when it first opens up (before the server delivers it)
-        parentThreadHeader = (
-          <ParentThreadHeader
-            parentThreadInfo={genesisThreadInfo}
-            childThreadType={childThreadType}
-          />
-        );
-      }
+      const { userInfoInputArray } = this.props;
       searchComponent = (
         <>
-          {parentThreadHeader}
+          <SelectProtocolDropdown />
           <MessageListThreadSearch
             usernameInputText={this.props.usernameInputText}
             updateUsernameInput={this.props.updateUsernameInput}

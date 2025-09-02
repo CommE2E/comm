@@ -11,6 +11,7 @@ import UserAvatar from '../avatars/user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 import Alert from '../utils/alert.js';
+import ProtocolIcon from './protocol-icon.react.js';
 
 // eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem): number => {
@@ -71,6 +72,9 @@ class UserListUser extends React.PureComponent<Props> {
           {this.props.userInfo.username}
         </SingleLine>
         {notice}
+        {userInfo.supportedProtocols.map(protocol => (
+          <ProtocolIcon protocol={protocol} key={protocol} size={23} />
+        ))}
       </Button>
     );
   }
