@@ -69,7 +69,9 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray, viewerID],
   );
 
-  const searchResults = useSearchUsers(usernameInputText);
+  const searchResults = useSearchUsers(usernameInputText, {
+    searchFarcaster: supportsFarcasterDCs,
+  });
 
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
