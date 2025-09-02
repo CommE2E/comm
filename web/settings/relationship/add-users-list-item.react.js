@@ -10,6 +10,7 @@ import Checkbox from '../../components/checkbox.react.js';
 export type BaseAddUserInfo = {
   +id: string,
   +username?: ?string,
+  +farcasterUsername?: ?string,
   +isViewer?: ?boolean,
   ...
 };

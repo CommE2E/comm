@@ -14,7 +14,7 @@ import {
   changeThreadMemberRolesActionTypes,
   removeUsersFromThreadActionTypes,
 } from 'lib/actions/thread-action-types.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
@@ -257,7 +257,7 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
       )(state),
     );
 
-    const [memberInfo] = useENSNames([props.memberInfo]);
+    const [memberInfo] = useResolvableNames([props.memberInfo]);
 
     const colors = useColors();
     const styles = useStyles(unboundStyles);

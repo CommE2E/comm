@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/ens-cache.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
@@ -104,7 +104,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
     let separator = null;
     let userList = null;
     let userSelectionAdditionalStyles = styles.userSelectionLimitedHeight;
-    const userListItemsWithENSNames = useENSNames(userListItems);
+    const userListItemsWithENSNames = useResolvableNames(userListItems);
     if (isSearchResultVisible) {
       userList = (
         <View style={styles.userList}>
@@ -118,7 +118,8 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
       userSelectionAdditionalStyles = null;
     }
 
-    const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
+    const userInfoInputArrayWithENSNames =
+      useResolvableNames(userInfoInputArray);
     return (
       <>
         <View style={[styles.userSelection, userSelectionAdditionalStyles]}>
