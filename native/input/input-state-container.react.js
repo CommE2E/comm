@@ -38,6 +38,13 @@ import {
   combineLoadingStatuses,
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
+import {
+  useCreateFarcasterGroup,
+  type CreateFarcasterGroupInput,
+  type CreateFarcasterGroupResult,
+} from 'lib/shared/farcaster/farcaster-api.js';
+import type { FarcasterConversation } from 'lib/shared/farcaster/farcaster-conversation-types.js';
+import { useFetchConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { getNextLocalID } from 'lib/shared/id-utils.js';
 import { createMediaMessageInfo } from 'lib/shared/message-utils.js';
 import {
@@ -49,6 +56,7 @@ import {
   threadSpecs,
   threadTypeIsSidebar,
 } from 'lib/shared/threads/thread-specs.js';
+import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Media,
@@ -152,6 +160,13 @@ type Props = {
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
+  +createFarcasterGroup: (
+    input: CreateFarcasterGroupInput,
+  ) => Promise<CreateFarcasterGroupResult>,
+  +fetchConversation: (
+    conversationID: string,
+  ) => Promise<?FarcasterConversation>,
+  +auxUserStore: AuxUserStore,
   +invalidTokenLogOut: (source: string) => Promise<void>,
 };
 type State = {
@@ -569,6 +584,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           sourceMessageID: threadInfo.sourceMessageID,
           viewerID: this.props.viewerID,
           calendarQuery,
+          createFarcasterGroup: this.props.createFarcasterGroup,
+          farcasterFetchConversation: this.props.fetchConversation,
+          auxUserStore: this.props.auxUserStore,
         });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1679,6 +1697,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
     const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
+    const callCreateFarcasterGroup = useCreateFarcasterGroup();
+    const callFetchConversation = useFetchConversation();
+    const auxUserStore = useSelector(state => state.auxUserStore);
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
@@ -1699,6 +1720,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
         sendTextMessage={callSendTextMessage}
         newThinThread={callNewThinThread}
         newThickThread={callNewThickThread}
+        createFarcasterGroup={callCreateFarcasterGroup}
+        fetchConversation={callFetchConversation}
+        auxUserStore={auxUserStore}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
         staffCanSee={staffCanSee}
