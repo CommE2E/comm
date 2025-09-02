@@ -37,6 +37,13 @@ import {
 } from 'lib/hooks/upload-hooks.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import {
+  useCreateFarcasterGroup,
+  type CreateFarcasterGroupInput,
+  type CreateFarcasterGroupResult,
+} from 'lib/shared/farcaster/farcaster-api.js';
+import type { FarcasterConversation } from 'lib/shared/farcaster/farcaster-conversation-types.js';
+import { useFetchConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { getNextLocalID, localIDPrefix } from 'lib/shared/id-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
@@ -51,6 +58,7 @@ import {
   threadSpecs,
   threadTypeIsSidebar,
 } from 'lib/shared/threads/thread-specs.js';
+import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   MediaMission,
@@ -147,6 +155,13 @@ type Props = {
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
+  +createFarcasterGroup: (
+    input: CreateFarcasterGroupInput,
+  ) => Promise<CreateFarcasterGroupResult>,
+  +fetchConversation: (
+    conversationID: string,
+  ) => Promise<?FarcasterConversation>,
+  +auxUserStore: AuxUserStore,
   +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
@@ -591,6 +606,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           sourceMessageID: threadInfo.sourceMessageID,
           viewerID: this.props.viewerID,
           calendarQuery,
+          createFarcasterGroup: this.props.createFarcasterGroup,
+          farcasterFetchConversation: this.props.fetchConversation,
+          auxUserStore: this.props.auxUserStore,
         });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1671,6 +1689,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
     const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
+    const callCreateFarcasterGroup = useCreateFarcasterGroup();
+    const callFetchConversation = useFetchConversation();
+    const auxUserStore = useSelector(state => state.auxUserStore);
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
@@ -1707,6 +1728,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
         sendTextMessage={callSendTextMessage}
         newThinThread={callNewThinThread}
         newThickThread={callNewThickThread}
+        createFarcasterGroup={callCreateFarcasterGroup}
+        fetchConversation={callFetchConversation}
+        auxUserStore={auxUserStore}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         pushModal={modalContext.pushModal}
