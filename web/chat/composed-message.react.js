@@ -8,7 +8,7 @@ import {
   XCircle as XCircleIcon,
 } from 'react-feather';
 
-import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { useStringForUser } from 'lib/hooks/names-cache.js';
 import { type ComposableChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';

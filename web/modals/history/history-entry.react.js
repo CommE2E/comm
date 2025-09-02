@@ -8,7 +8,7 @@ import {
   restoreEntryActionTypes,
   useRestoreEntry,
 } from 'lib/actions/entry-actions.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
@@ -169,7 +169,7 @@ const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo(
     const dispatchActionPromise = useDispatchActionPromise();
 
     const { creator } = props.entryInfo;
-    const [creatorWithENSName] = useENSNames([creator]);
+    const [creatorWithENSName] = useResolvableNames([creator]);
 
     return (
       <HistoryEntry

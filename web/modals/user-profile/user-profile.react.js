@@ -4,9 +4,8 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
-import { useENSName } from 'lib/hooks/ens-cache.js';
+import { useResolvedUsername } from 'lib/hooks/names-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
-import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserProfileThreadInfo } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
@@ -27,8 +26,7 @@ function UserProfile(props: Props): React.Node {
 
   const { pushModal } = useModalContext();
 
-  const usernameText = stringForUserExplicit(userInfo);
-  const resolvedUsernameText = useENSName(usernameText);
+  const resolvedUsernameText = useResolvedUsername(userInfo);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 

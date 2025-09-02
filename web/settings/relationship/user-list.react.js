@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import type { AccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -59,7 +59,7 @@ export function UserList(props: UserListProps): React.Node {
     }
     return matchedUserInfos.sort(usersComparator);
   }, [userInfosArray, searchResult, searchText, userInfos, usersComparator]);
-  const usersWithENSNames = useENSNames<AccountUserInfo>(users);
+  const usersWithENSNames = useResolvableNames<AccountUserInfo>(users);
 
   const userRows = React.useMemo(() => {
     const UserRow = userRowComponent;

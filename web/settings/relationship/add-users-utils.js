@@ -3,7 +3,7 @@
 import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 
-import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
+import { useSortedENSResolvedUsers } from 'lib/hooks/names-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';

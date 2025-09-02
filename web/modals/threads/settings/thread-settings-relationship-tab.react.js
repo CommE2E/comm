@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { type RelationshipButton } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -19,7 +19,7 @@ type Props = {
 function ThreadSettingsRelationshipTab(props: Props): React.Node {
   const { relationshipButtons, otherUserInfo, setErrorMessage } = props;
   const userInfos = React.useMemo(() => [otherUserInfo], [otherUserInfo]);
-  const [otherUserInfoWithENSName] = useENSNames(userInfos);
+  const [otherUserInfoWithENSName] = useResolvableNames(userInfos);
   const buttons = React.useMemo(
     () =>
       relationshipButtons.map(action => (
