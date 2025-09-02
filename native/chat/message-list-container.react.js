@@ -8,6 +8,7 @@ import { Text, View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
 import {
+  useUsersSupportFarcasterDCs,
   useUsersSupportingProtocols,
   useUsersSupportThickThreads,
 } from 'lib/hooks/user-identities-hooks.js';
@@ -287,7 +288,8 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       useExistingThreadInfoFinder(baseThreadInfo);
 
     const checkUsersThickThreadSupport = useUsersSupportThickThreads();
-    const { allUsersSupportThickThreads } =
+    const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
+    const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
       useUsersSupportingProtocols(userInfoInputArray);
 
     const isSearching = !!props.route.params.searching;
@@ -297,8 +299,10 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           searching: isSearching,
           userInfoInputArray,
           allUsersSupportThickThreads,
+          allUsersSupportFarcasterThreads,
         }),
       [
+        allUsersSupportFarcasterThreads,
         allUsersSupportThickThreads,
         existingThreadInfoFinder,
         isSearching,
@@ -366,14 +370,24 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const resolveToUser = React.useCallback(
       async (user: AccountUserInfo) => {
         const newUserInfoInputArray = user.id === viewerID ? [] : [user];
-        const usersSupportingThickThreads = await checkUsersThickThreadSupport(
-          newUserInfoInputArray.map(userInfo => userInfo.id),
-        );
+        const newUserIDs = newUserInfoInputArray.map(userInfo => userInfo.id);
+        const [usersSupportingThickThreads, usersSupportingFarcasterThreads] =
+          await Promise.all([
+            checkUsersThickThreadSupport(newUserIDs),
+            checkUsersFarcasterDCsSupport(newUserIDs),
+          ]);
+
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
           allUsersSupportThickThreads:
-            user.id === viewerID || usersSupportingThickThreads.has(user.id),
+            user.id === viewerID
+              ? true
+              : !!usersSupportingThickThreads.get(user.id),
+          allUsersSupportFarcasterThreads:
+            user.id === viewerID
+              ? false
+              : !!usersSupportingFarcasterThreads.get(user.id),
         });
         invariant(
           resolvedThreadInfo,
@@ -384,10 +398,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         setParams({ searching: false, threadInfo: resolvedThreadInfo });
       },
       [
-        checkUsersThickThreadSupport,
         viewerID,
-        editInputMessage,
+        checkUsersThickThreadSupport,
+        checkUsersFarcasterDCsSupport,
         existingThreadInfoFinder,
+        editInputMessage,
         setParams,
       ],
     );
