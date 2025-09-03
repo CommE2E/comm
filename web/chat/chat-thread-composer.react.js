@@ -14,6 +14,7 @@ import {
   useUsersSupportThickThreads,
 } from 'lib/hooks/user-identities-hooks.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -27,6 +28,7 @@ import {
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 
 import css from './chat-thread-composer.css';
 import UserAvatar from '../avatars/user-avatar.react.js';
@@ -101,8 +103,11 @@ function ChatThreadComposer(props: Props): React.Node {
     async (userListItem: UserListItem) => {
       const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
+      const isFarcasterUser =
+        supportsFarcasterDCs && !!extractFIDFromUserID(user.id);
       if (
-        (notice === notFriendNotice || user.id === viewerID) &&
+        ((!isFarcasterUser && notice === notFriendNotice) ||
+          user.id === viewerID) &&
         userInfoInputArray.length === 0
       ) {
         const newUserInfo = {
