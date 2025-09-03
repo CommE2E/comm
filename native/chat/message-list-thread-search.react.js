@@ -4,8 +4,10 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 
 import { createTagInput } from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
@@ -67,7 +69,12 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
             return;
           }
         }
-        if (nonFriends.has(userInfo.id) || userInfo.id === viewerID) {
+        const isFarcasterUser =
+          supportsFarcasterDCs && !!extractFIDFromUserID(userInfo.id);
+        if (
+          (!isFarcasterUser && nonFriends.has(userInfo.id)) ||
+          userInfo.id === viewerID
+        ) {
           await resolveToUser(userInfo);
           return;
         }
