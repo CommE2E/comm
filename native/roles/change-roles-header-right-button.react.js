@@ -6,9 +6,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-action-types.js';
 import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useColors } from '../themes/colors.js';
@@ -26,8 +24,7 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
   invariant(selectedRole, 'Expected selected role to be defined');
   const navigation = useNavigation();
 
-  const callChangeThreadMemberRoles = useChangeThreadMemberRoles();
-  const dispatchActionPromise = useDispatchActionPromise();
+  const changeThreadMemberRoles = useChangeThreadMemberRoles();
 
   const { disabledButton, purpleLink } = useColors();
   const textStyle = React.useMemo(
@@ -44,24 +41,20 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
       return;
     }
 
-    void dispatchActionPromise(
-      changeThreadMemberRolesActionTypes,
-      callChangeThreadMemberRoles({
-        threadID: threadInfo.id,
-        memberIDs: [memberInfo.id],
-        newRole: selectedRole,
-      }),
-    );
+    void changeThreadMemberRoles({
+      threadInfo,
+      memberIDs: [memberInfo.id],
+      newRole: selectedRole,
+    });
 
     navigation.goBack();
   }, [
-    callChangeThreadMemberRoles,
-    dispatchActionPromise,
+    changeThreadMemberRoles,
     initialRole,
     memberInfo.id,
     navigation,
     selectedRole,
-    threadInfo.id,
+    threadInfo,
   ]);
 
   const saveButton = React.useMemo(() => {
