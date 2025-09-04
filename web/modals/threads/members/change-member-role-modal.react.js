@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-action-types.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';
@@ -14,7 +13,6 @@ import type {
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { values } from 'lib/utils/objects.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './change-member-role-modal.css';
 import UserAvatar from '../../../avatars/user-avatar.react.js';
@@ -32,8 +30,7 @@ type ChangeMemberRoleModalProps = {
 function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { memberInfo, threadInfo } = props;
   const { pushModal, popModal } = useModalContext();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadMemberRoles = useChangeThreadMemberRoles();
+  const changeThreadMemberRoles = useChangeThreadMemberRoles();
   const otherUsersButNoOtherAdminsValue = useSelector(
     otherUsersButNoOtherAdmins(threadInfo.id),
   );
@@ -86,26 +83,20 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
       return;
     }
 
-    const createChangeThreadMemberRolesPromise = () =>
-      callChangeThreadMemberRoles({
-        threadID: threadInfo.id,
-        memberIDs: [memberInfo.id],
-        newRole: selectedRole,
-      });
+    void changeThreadMemberRoles({
+      threadInfo,
+      memberIDs: [memberInfo.id],
+      newRole: selectedRole,
+    });
 
-    void dispatchActionPromise(
-      changeThreadMemberRolesActionTypes,
-      createChangeThreadMemberRolesPromise(),
-    );
     popModal();
   }, [
-    callChangeThreadMemberRoles,
-    dispatchActionPromise,
+    changeThreadMemberRoles,
     initialSelectedRole,
     memberInfo.id,
     popModal,
     selectedRole,
-    threadInfo.id,
+    threadInfo,
   ]);
 
   const primaryButton = React.useMemo(
