@@ -58,6 +58,7 @@ import {
   LinkedDevicesBottomSheetRouteName,
   QRAuthNavigatorRouteName,
   CommunityJoinerModalRouteName,
+  FarcasterSyncScreenRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import QRAuthNavigator from '../account/qr-auth/qr-auth-navigator.react.js';
@@ -77,6 +78,7 @@ import TagFarcasterChannelNavigator from '../community-settings/tag-farcaster-ch
 import CommunityJoinerModal from '../components/community-joiner-modal.react.js';
 import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-sheet.react.js';
 import DirectoryPromptBottomSheet from '../components/directory-prompt-bottom-sheet.react.js';
+import FarcasterSyncLoadingScreen from '../farcaster/farcaster-sync-loading-screen.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import KeyserverSelectionBottomSheet from '../profile/keyserver-selection-bottom-sheet.react.js';
@@ -213,6 +215,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={AuthRouteName}
         component={RegistrationNavigator}
+        options={disableGesturesScreenOptions}
+      />
+      <Root.Screen
+        name={FarcasterSyncScreenRouteName}
+        component={FarcasterSyncLoadingScreen}
         options={disableGesturesScreenOptions}
       />
       <Root.Screen

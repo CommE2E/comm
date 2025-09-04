@@ -66,6 +66,7 @@ import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import { AutoJoinCommunityHandler } from './components/auto-join-community-handler.react.js';
 import CommunitiesRefresher from './components/communities-refresher.react.js';
+import FarcasterSyncOverlay from './components/farcaster-sync-overlay.react.js';
 import LogOutIfMissingCSATHandler from './components/log-out-if-missing-csat-handler.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
@@ -228,16 +229,18 @@ class App extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       content = (
         <>
-          <WebEditThreadAvatarProvider>
-            <EditUserAvatarProvider>
-              <StaffContextProvider>
-                <MemberListSidebarProvider>
-                  {this.renderMainContent()}
-                  {this.props.modals}
-                </MemberListSidebarProvider>
-              </StaffContextProvider>
-            </EditUserAvatarProvider>
-          </WebEditThreadAvatarProvider>
+          <FarcasterSyncOverlay>
+            <WebEditThreadAvatarProvider>
+              <EditUserAvatarProvider>
+                <StaffContextProvider>
+                  <MemberListSidebarProvider>
+                    {this.renderMainContent()}
+                    {this.props.modals}
+                  </MemberListSidebarProvider>
+                </StaffContextProvider>
+              </EditUserAvatarProvider>
+            </WebEditThreadAvatarProvider>
+          </FarcasterSyncOverlay>
         </>
       );
     } else {
