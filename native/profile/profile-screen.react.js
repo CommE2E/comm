@@ -637,7 +637,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
     }, [checkIfPrimaryDevice]);
 
     const usingRestoreFlow = useIsRestoreFlowEnabled();
-    const farcasterConversationsSync = useFarcasterConversationsSync();
+    const syncFarcasterConversations = useFarcasterConversationsSync();
 
     return (
       <ProfileScreen
@@ -657,7 +657,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
         onCreateDMThread={onCreateDMThread}
         currentUserFID={currentUserID}
         usingRestoreFlow={usingRestoreFlow}
-        farcasterConversationsSync={farcasterConversationsSync}
+        farcasterConversationsSync={syncFarcasterConversations}
       />
     );
   },

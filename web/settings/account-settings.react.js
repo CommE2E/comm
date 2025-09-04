@@ -182,10 +182,10 @@ function AccountSettings(): React.Node {
     [pushModal],
   );
 
-  const farcasterConversationsSync = useFarcasterConversationsSync();
+  const syncFarcasterConversations = useFarcasterConversationsSync();
   const syncConversations = React.useCallback(() => {
-    return farcasterConversationsSync(Number.POSITIVE_INFINITY);
-  }, [farcasterConversationsSync]);
+    return syncFarcasterConversations(Number.POSITIVE_INFINITY);
+  }, [syncFarcasterConversations]);
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
