@@ -3,13 +3,11 @@
 import * as React from 'react';
 
 import { useRemoveUsersFromThread } from 'lib/hooks/thread-hooks.js';
-import { removeMemberFromThread } from 'lib/shared/thread-actions-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
   RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 import type { AppNavigationProp } from '../../navigation/app-navigator.react';
@@ -32,18 +30,15 @@ function useOnRemoveUser(
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
 ) {
   const { memberInfo, threadInfo } = route.params;
-  const boundRemoveUsersFromThread = useRemoveUsersFromThread();
-  const dispatchActionPromise = useDispatchActionPromise();
+  const removeUsersFromThread = useRemoveUsersFromThread();
 
   const onConfirmRemoveUser = React.useCallback(
     () =>
-      removeMemberFromThread(
+      void removeUsersFromThread({
         threadInfo,
-        memberInfo,
-        dispatchActionPromise,
-        boundRemoveUsersFromThread,
-      ),
-    [threadInfo, memberInfo, dispatchActionPromise, boundRemoveUsersFromThread],
+        memberIDs: [memberInfo.id],
+      }),
+    [threadInfo, memberInfo.id, removeUsersFromThread],
   );
 
   const userText = stringForUser(memberInfo);
