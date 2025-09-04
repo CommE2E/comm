@@ -164,6 +164,7 @@ export const RestorePasswordAccountScreenRouteName =
   'RestorePasswordAccountScreen';
 export const RestoreBackupScreenRouteName = 'RestoreBackupScreen';
 export const RestoreBackupErrorScreenRouteName = 'RestoreBackupErrorScreen';
+export const FarcasterSyncScreenRouteName = 'FarcasterSyncScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
@@ -226,6 +227,7 @@ export type RootParamList = {
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
   +QRAuthNavigator: void,
+  +FarcasterSyncScreen: void,
 };
 
 export type NUXTipRouteNames =

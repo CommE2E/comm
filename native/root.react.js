@@ -68,6 +68,7 @@ import { AutoJoinCommunityHandler } from './components/auto-join-community-handl
 import ColdStartTracker from './components/cold-start-tracker.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import DisplayCommunityDirectoryPromptHandler from './components/display-community-directory-prompt.react.js';
+import FarcasterSyncHandler from './components/farcaster-sync-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
@@ -322,6 +323,7 @@ function Root() {
       <HoldersHandler />
     </>
   );
+
   let navigation;
   if (initialState) {
     navigation = (
@@ -423,6 +425,7 @@ function Root() {
                                                             <PrekeysHandler />
                                                             <ReportHandler />
                                                             <FarcasterChannelPrefetchHandler />
+                                                            <FarcasterSyncHandler />
                                                             <AutoJoinCommunityHandler />
                                                             <SyncCommunityStoreHandler />
                                                             <InitialStateSharingHandler />
