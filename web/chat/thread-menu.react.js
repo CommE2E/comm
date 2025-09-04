@@ -6,7 +6,10 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { useLeaveThread } from 'lib/hooks/thread-hooks.js';
-import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
+import {
+  childThreadInfos,
+  otherUsersButNoOtherAdmins,
+} from 'lib/selectors/thread-selectors.js';
 import {
   threadIsChannel,
   useThreadHasPermission,
@@ -208,6 +211,9 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     popModal();
   }, [leaveThread, popModal, threadInfo]);
 
+  const otherUsersButNoOtherAdminsValue = useSelector(
+    otherUsersButNoOtherAdmins(threadInfo.id),
+  );
   const onClickLeaveThread = React.useCallback(
     () =>
       pushModal(
@@ -215,9 +221,16 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
           threadInfo={threadInfo}
           onClose={popModal}
           onConfirm={onConfirmLeaveThread}
+          otherUsersButNoOtherAdmins={otherUsersButNoOtherAdminsValue}
         />,
       ),
-    [popModal, onConfirmLeaveThread, pushModal, threadInfo],
+    [
+      pushModal,
+      threadInfo,
+      popModal,
+      onConfirmLeaveThread,
+      otherUsersButNoOtherAdminsValue,
+    ],
   );
 
   const canLeaveThread = useThreadHasPermission(
