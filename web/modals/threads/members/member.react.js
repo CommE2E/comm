@@ -5,7 +5,6 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useRemoveUsersFromThread } from 'lib/hooks/thread-hooks.js';
-import { removeMemberFromThread } from 'lib/shared/thread-actions-utils.js';
 import { useAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -13,7 +12,6 @@ import type {
   RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
@@ -53,18 +51,15 @@ function ThreadMember(props: Props): React.Node {
     [memberInfo.id, setOpenMenu],
   );
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const boundRemoveUsersFromThread = useRemoveUsersFromThread();
+  const removeUsersFromThread = useRemoveUsersFromThread();
 
   const onClickRemoveUser = React.useCallback(
     () =>
-      removeMemberFromThread(
+      void removeUsersFromThread({
         threadInfo,
-        memberInfo,
-        dispatchActionPromise,
-        boundRemoveUsersFromThread,
-      ),
-    [boundRemoveUsersFromThread, dispatchActionPromise, memberInfo, threadInfo],
+        memberIDs: [memberInfo.id],
+      }),
+    [removeUsersFromThread, memberInfo.id, threadInfo],
   );
 
   const onClickChangeRole = React.useCallback(() => {
