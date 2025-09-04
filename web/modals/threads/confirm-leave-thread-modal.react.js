@@ -13,9 +13,10 @@ type Props = {
   +threadInfo: ThreadInfo,
   +onClose: () => void,
   +onConfirm: () => void,
+  +otherUsersButNoOtherAdmins: boolean,
 };
 function ConfirmLeaveThreadModal(props: Props): React.Node {
-  const { threadInfo, onClose, onConfirm } = props;
+  const { threadInfo, onClose, onConfirm, otherUsersButNoOtherAdmins } = props;
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
   const primaryButton = React.useMemo(
@@ -40,6 +41,22 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
     ),
     [onClose],
   );
+
+  if (otherUsersButNoOtherAdmins) {
+    return (
+      <Modal
+        size="fit-content"
+        name="Need another admin"
+        icon="warning-circle"
+        withCloseButton={true}
+        onClose={onClose}
+      >
+        <div className={css.container}>
+          Make somebody else an admin before you leave!
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
