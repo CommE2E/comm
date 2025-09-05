@@ -111,6 +111,10 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name  = "COMM_SERVICES_USE_JSON_LOGS",
           value = local.comm_services_use_json_logs
+        },
+        {
+          name  = "REDACT_SENSITIVE_DATA",
+          value = local.is_staging ? "false" : "true"
         }
       ]
       secrets = [
