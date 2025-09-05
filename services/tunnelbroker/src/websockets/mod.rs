@@ -330,7 +330,9 @@ async fn accept_connection(
   session.close().await
 }
 
-async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
+async fn initiate_session<
+  S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+>(
   outgoing: SplitSink<WebSocketStream<S>, Message>,
   frame: Message,
   db_client: DatabaseClient,
