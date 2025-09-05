@@ -18,6 +18,7 @@ import UserProfileActionButtons from './user-profile-action-buttons.react.js';
 import UserProfileAvatarModal from './user-profile-avatar-modal.react.js';
 import css from './user-profile.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
+import ProtocolIcon from '../../components/protocol-icon.react.js';
 import SingleLine from '../../components/single-line.react.js';
 
 type Props = {
@@ -75,7 +76,8 @@ function UserProfile(props: Props): React.Node {
     }
     return (
       <div className={css.farcasterUsernameContainer}>
-        <p className={css.farcasterUsernameText}>Farcaster: {ensFCName}</p>
+        <ProtocolIcon protocol="Farcaster DC" size={20} marginHorizontal={0} />
+        <p className={css.farcasterUsernameText}>{ensFCName}</p>
       </div>
     );
   }, [farcasterUsername, resolvedUsernameText]);
