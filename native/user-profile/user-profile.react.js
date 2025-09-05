@@ -6,10 +6,14 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useResolvedUsername } from 'lib/hooks/names-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
-import type { UserInfo } from 'lib/types/user-types';
+import {
+  stringForUserExplicit,
+  ensNameForFarcasterUsername,
+} from 'lib/shared/user-utils.js';
+import type { ProfileUserInfo } from 'lib/types/user-types.js';
 import sleep from 'lib/utils/sleep.js';
 
 import UserProfileAvatar from './user-profile-avatar.react.js';
@@ -27,7 +31,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +userInfo: ?UserInfo,
+  +userInfo: ?ProfileUserInfo,
 };
 
 function UserProfile(props: Props): React.Node {
@@ -35,7 +39,32 @@ function UserProfile(props: Props): React.Node {
 
   const userProfileThreadInfo = useUserProfileThreadInfo(userInfo);
 
-  const resolvedUsernameText = useResolvedUsername(userInfo);
+  const [resolvedUserInfo] = useResolvableNames([userInfo]);
+  const resolvedUsernameText = stringForUserExplicit(resolvedUserInfo);
+
+  const farcasterUsername = resolvedUserInfo?.farcasterUsername;
+
+  const styles = useStyles(unboundStyles);
+
+  const farcasterUsernameElement = React.useMemo(() => {
+    if (!farcasterUsername) {
+      return null;
+    }
+    const ensFCName = ensNameForFarcasterUsername(farcasterUsername);
+    if (ensFCName === resolvedUsernameText) {
+      return null;
+    }
+    return (
+      <View style={styles.farcasterUsernameContainer}>
+        <Text style={styles.farcasterUsernameText}>Farcaster: {ensFCName}</Text>
+      </View>
+    );
+  }, [
+    farcasterUsername,
+    resolvedUsernameText,
+    styles.farcasterUsernameText,
+    styles.farcasterUsernameContainer,
+  ]);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
@@ -75,8 +104,6 @@ function UserProfile(props: Props): React.Node {
     userProfileRelationshipButtonHeight,
     userProfileThreadInfo,
   ]);
-
-  const styles = useStyles(unboundStyles);
 
   const menuButton = React.useMemo(() => {
     if (!userProfileThreadInfo) {
@@ -177,6 +204,7 @@ function UserProfile(props: Props): React.Node {
             {resolvedUsernameText}
           </SingleLine>
           {copyUsernameButton}
+          {farcasterUsernameElement}
         </View>
       </View>
       {messageButton}
@@ -201,6 +229,14 @@ const unboundStyles = {
   usernameText: {
     color: 'modalForegroundLabel',
     fontSize: 18,
+    fontWeight: '500',
+  },
+  farcasterUsernameContainer: {
+    paddingVertical: 8,
+  },
+  farcasterUsernameText: {
+    color: 'modalForegroundLabel',
+    fontSize: 14,
     fontWeight: '500',
   },
   copyUsernameContainer: {

@@ -4,10 +4,14 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
-import { useResolvedUsername } from 'lib/hooks/names-cache.js';
+import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
-import type { UserProfileThreadInfo } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
+import {
+  stringForUserExplicit,
+  ensNameForFarcasterUsername,
+} from 'lib/shared/user-utils.js';
+import type { UserProfileThreadInfo } from 'lib/types/thread-types.js';
+import type { ProfileUserInfo } from 'lib/types/user-types.js';
 import sleep from 'lib/utils/sleep.js';
 
 import UserProfileActionButtons from './user-profile-action-buttons.react.js';
@@ -17,7 +21,7 @@ import UserAvatar from '../../avatars/user-avatar.react.js';
 import SingleLine from '../../components/single-line.react.js';
 
 type Props = {
-  +userInfo: ?UserInfo,
+  +userInfo: ?ProfileUserInfo,
   +userProfileThreadInfo: ?UserProfileThreadInfo,
 };
 
@@ -26,7 +30,10 @@ function UserProfile(props: Props): React.Node {
 
   const { pushModal } = useModalContext();
 
-  const resolvedUsernameText = useResolvedUsername(userInfo);
+  const [resolvedUserInfo] = useResolvableNames([userInfo]);
+  const resolvedUsernameText = stringForUserExplicit(resolvedUserInfo);
+
+  const farcasterUsername = resolvedUserInfo?.farcasterUsername;
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
@@ -58,6 +65,21 @@ function UserProfile(props: Props): React.Node {
     );
   }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
 
+  const farcasterUsernameElement = React.useMemo(() => {
+    if (!farcasterUsername) {
+      return null;
+    }
+    const ensFCName = ensNameForFarcasterUsername(farcasterUsername);
+    if (ensFCName === resolvedUsernameText) {
+      return null;
+    }
+    return (
+      <div className={css.farcasterUsernameContainer}>
+        <p className={css.farcasterUsernameText}>Farcaster: {ensFCName}</p>
+      </div>
+    );
+  }, [farcasterUsername, resolvedUsernameText]);
+
   const userProfile = React.useMemo(
     () => (
       <div className={css.container}>
@@ -81,6 +103,7 @@ function UserProfile(props: Props): React.Node {
                 {!usernameCopied ? 'Copy username' : 'Username copied!'}
               </p>
             </div>
+            {farcasterUsernameElement}
           </div>
         </div>
         {actionButtons}
@@ -93,6 +116,7 @@ function UserProfile(props: Props): React.Node {
       userInfo?.id,
       usernameCopied,
       resolvedUsernameText,
+      farcasterUsernameElement,
     ],
   );
 
