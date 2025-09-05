@@ -312,8 +312,9 @@ pub mod cors {
 
 // Tracing
 
-pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
-pub const REDACT_SENSITIVE_DATA: &str = "REDACT_SENSITIVE_DATA";
+pub use comm_lib::constants::env_var::{
+  COMM_SERVICES_USE_JSON_LOGS, REDACT_SENSITIVE_DATA,
+};
 
 // Regex
 
@@ -333,7 +334,4 @@ pub const ONE_TIME_KEY_SIZE: usize = 43; // as defined in olm
 pub const MAX_ONE_TIME_KEYS: usize = 100; // as defined in olm
 
 // Comm staff
-pub mod staff {
-  pub const STAFF_USER_IDS: [&str; 1] = ["256"];
-  pub const AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: &str = "256";
-}
+pub use comm_lib::constants::staff;

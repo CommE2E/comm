@@ -16,7 +16,8 @@ pub const ENV_APNS_CONFIG: &str = "APNS_CONFIG";
 pub const ENV_FCM_CONFIG: &str = "FCM_CONFIG";
 pub const ENV_WEB_PUSH_CONFIG: &str = "WEB_PUSH_CONFIG";
 pub const ENV_WNS_CONFIG: &str = "WNS_CONFIG";
-pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
+pub const COMM_SERVICES_USE_JSON_LOGS: &str =
+  comm_lib::constants::env_var::COMM_SERVICES_USE_JSON_LOGS;
 
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;

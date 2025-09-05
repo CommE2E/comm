@@ -2,11 +2,11 @@ mod config;
 mod error;
 mod token_connection;
 
-use crate::amqp_client::amqp::AmqpConnection;
 use crate::constants::error_types;
 use crate::database::DatabaseClient;
 pub(crate) use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::token_connection::TokenConnection;
+use crate::{amqp_client::amqp::AmqpConnection, log::redact_sensitive_data};
 use comm_lib::database::Error;
 use futures_util::future;
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
@@ -167,7 +167,7 @@ impl TokenDistributor {
         Ok(true) => {
           info!(
             "Successfully claimed token for user: {} (claimed {}/{})",
-            user_id,
+            redact_sensitive_data(&user_id),
             claimed_count + 1,
             available_slots
           );
@@ -177,7 +177,7 @@ impl TokenDistributor {
             metricType = "TokenDistributor_TokenClaimed",
             metricValue = 1,
             instanceId = self.config.instance_id,
-            userId = user_id,
+            userId = redact_sensitive_data(&user_id),
             "Token successfully claimed"
           );
 
@@ -185,7 +185,10 @@ impl TokenDistributor {
           let cancel_token = CancellationToken::new();
 
           // Spawn TokenConnection task
-          info!("Starting WebSocket connection task for user: {}", user_id);
+          info!(
+            "Starting WebSocket connection task for user: {}",
+            redact_sensitive_data(&user_id)
+          );
           TokenConnection::start(
             self.db.clone(),
             self.config.clone(),
@@ -214,7 +217,8 @@ impl TokenDistributor {
         Err(e) => {
           warn!(
             "Database error while claiming token for user {}: {:?}",
-            user_id, e
+            redact_sensitive_data(&user_id),
+            e
           );
 
           // Emit token claim failure metric
@@ -222,7 +226,7 @@ impl TokenDistributor {
             metricType = "TokenDistributor_TokenClaimFailure",
             metricValue = 1,
             instanceId = self.config.instance_id,
-            userId = user_id,
+            userId = redact_sensitive_data(&user_id),
             "Token claim failed due to database error"
           );
         }
@@ -312,7 +316,7 @@ impl TokenDistributor {
               metricType = "TokenDistributor_TokenReleased",
               metricValue = 1,
               instanceId = instance_id,
-              userId = user_id_clone,
+              userId = redact_sensitive_data(&user_id_clone),
               "Token successfully released during shutdown"
             );
           }
@@ -322,7 +326,8 @@ impl TokenDistributor {
           Err(e) => {
             warn!(
               "Failed to release token for user {}: {:?}",
-              user_id_clone, e
+              redact_sensitive_data(&user_id_clone),
+              e
             );
           }
         }
