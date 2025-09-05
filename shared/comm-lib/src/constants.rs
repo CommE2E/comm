@@ -22,3 +22,16 @@ pub const GRPC_METADATA_SIZE_PER_MESSAGE: usize = 5;
 /// token in service requests.
 pub const DISABLE_CSAT_VERIFICATION_ENV_VAR: &str =
   "COMM_SERVICES_DISABLE_CSAT_VERIFICATION";
+
+pub mod env_var {
+  // Tracing
+
+  pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
+  pub const REDACT_SENSITIVE_DATA: &str = "REDACT_SENSITIVE_DATA";
+}
+
+// Comm staff
+pub mod staff {
+  pub const STAFF_USER_IDS: [&str; 1] = ["256"];
+  pub const AUTHORITATIVE_KEYSERVER_OWNER_USER_ID: &str = "256";
+}

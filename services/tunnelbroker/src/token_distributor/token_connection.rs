@@ -2,6 +2,7 @@ use crate::amqp_client::amqp::{
   send_message_to_device, AmqpChannel, AmqpConnection,
 };
 use crate::database::DatabaseClient;
+use crate::log::redact_sensitive_data;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use futures_util::{SinkExt, StreamExt};
@@ -55,11 +56,15 @@ impl TokenConnection {
         Ok(_) => {
           info!(
             "TokenConnection completed successfully for user: {}",
-            user_id
+            redact_sensitive_data(&user_id)
           );
         }
         Err(e) => {
-          error!("TokenConnection failed for user {}: {:?}", user_id, e);
+          error!(
+            "TokenConnection failed for user {}: {:?}",
+            redact_sensitive_data(&user_id),
+            e
+          );
 
           // Emit connection failure metric with specific error type
           let error_type = match &e {
@@ -86,7 +91,7 @@ impl TokenConnection {
             metricType = "TokenDistributor_ConnectionFailure",
             metricValue = 1,
             instanceId = config.instance_id,
-            userId = user_id,
+            userId = redact_sensitive_data(&user_id),
             errorType = error_type,
             "Connection failure occurred"
           );
@@ -97,7 +102,7 @@ impl TokenConnection {
           {
             warn!(
               "Failed to release token for user {} after connection failure: {:?}",
-              user_id,
+              redact_sensitive_data(&user_id),
               release_err
             );
           }
@@ -114,20 +119,23 @@ impl TokenConnection {
     self,
     cancellation_token: CancellationToken,
   ) -> Result<(), TokenConnectionError> {
-    info!("Starting connection for user: {}", self.user_id);
+    info!(
+      "Starting connection for user: {}",
+      redact_sensitive_data(&self.user_id)
+    );
 
     loop {
       tokio::select! {
         result = self.connect_and_maintain(&self.token_data, &cancellation_token) => {
           match result {
             Ok(_) => {
-              info!("Connection completed normally for user: {}", self.user_id);
+              info!("Connection completed normally for user: {}", redact_sensitive_data(&self.user_id));
               break;
             }
             Err(e) => {
               warn!(
                 "Socket connection failed for user {}, reason: {}",
-                self.user_id,
+                redact_sensitive_data(&self.user_id),
                 e
               );
 
@@ -151,14 +159,14 @@ impl TokenConnection {
                 Ok(false) => {
                   warn!(
                     "Lost token ownership for user {}, stopping reconnection attempts",
-                    self.user_id
+                   redact_sensitive_data(&self.user_id)
                   );
                   return Err(TokenConnectionError::TokenOwnershipLost);
                 }
                 Err(err) => {
                   error!(
                     "Failed to verify token ownership for user {}: {:?}, retrying in 5 seconds",
-                    self.user_id,
+                    redact_sensitive_data(&self.user_id),
                     err
                   );
                   tokio::time::sleep(Duration::from_secs(5)).await;
@@ -168,13 +176,16 @@ impl TokenConnection {
           }
         }
         _ = cancellation_token.cancelled() => {
-          info!("Connection cancelled for user: {}", self.user_id);
+          info!("Connection cancelled for user: {}", redact_sensitive_data(&self.user_id));
           return Err(TokenConnectionError::Cancelled);
         }
       }
     }
 
-    info!("TokenConnection ended for user: {}", self.user_id);
+    info!(
+      "TokenConnection ended for user: {}",
+      redact_sensitive_data(&self.user_id)
+    );
     Ok(())
   }
 
@@ -206,7 +217,7 @@ impl TokenConnection {
     if let Err(e) = write.send(Message::Text(auth_msg.to_string())).await {
       error!(
         "Failed to send auth message for user {}: {:?}, connection will be retried",
-        self.user_id,
+        redact_sensitive_data(&self.user_id),
         e
       );
       return Err(TokenConnectionError::AuthenticationFailed(format!(
@@ -217,7 +228,7 @@ impl TokenConnection {
 
     info!(
       "WebSocket connected and authenticated successfully for user: {}",
-      self.user_id
+      redact_sensitive_data(&self.user_id)
     );
 
     // Set up AMQP topic listener for farcaster messages
@@ -227,7 +238,8 @@ impl TokenConnection {
       Err(e) => {
         error!(
           "Failed to setup AMQP consumer for user {}: {}",
-          self.user_id, e
+          redact_sensitive_data(&self.user_id),
+          e
         );
         return Err(TokenConnectionError::AmqpSetupFailed(format!(
           "Failed to setup AMQP consumer: {}",
@@ -261,17 +273,17 @@ impl TokenConnection {
 
                 // Forward message to WebSocket
                 if let Err(e) = write.send(Message::Text(payload.to_string())).await {
-                  error!("Failed to forward AMQP message to WebSocket for user {}: {:?}", self.user_id, e);
+                  error!("Failed to forward AMQP message to WebSocket for user {}: {:?}", redact_sensitive_data(&self.user_id), e);
                 } else {
                   // Acknowledge the AMQP message
                   if let Err(e) = delivery.ack(BasicAckOptions::default()).await {
-                    error!("Failed to acknowledge AMQP message for user {}: {:?}", self.user_id, e);
+                    error!("Failed to acknowledge AMQP message for user {}: {:?}", redact_sensitive_data(&self.user_id), e);
                   }
                   info!("Message {:?} sent", payload);
                 }
               }
               Err(e) => {
-                error!("AMQP consumer error for user {}: {:?}", self.user_id, e);
+                error!("AMQP consumer error for user {}: {:?}", redact_sensitive_data(&self.user_id), e);
               }
             }
           }
@@ -294,7 +306,7 @@ impl TokenConnection {
                             metricType = "TokenDistributor_ConnectionFailure",
                             metricValue = 1,
                             instanceId = self.config.instance_id,
-                            userId = self.user_id,
+                            userId = redact_sensitive_data(&self.user_id),
                             errorType = "MessageHandlingFailed",
                             "Failed to handle refresh direct cast conversation: {:?}",
                             e
@@ -334,10 +346,10 @@ impl TokenConnection {
               Message::Close(close_frame) => {
                 let reason = if let Some(frame) = close_frame {
                   let msg = format!("code: {}, reason: {}", frame.code, frame.reason);
-                  error!("WebSocket closed for user {} - {}", self.user_id, msg);
+                  error!("WebSocket closed for user {} - {}", redact_sensitive_data(&self.user_id), msg);
                   msg
                 } else {
-                  error!("WebSocket closed for user {} without close frame", self.user_id);
+                  error!("WebSocket closed for user {} without close frame", redact_sensitive_data(&self.user_id));
                   "no close frame provided".to_string()
                 };
                 return Err(TokenConnectionError::WebSocketClosed(reason));
@@ -346,7 +358,7 @@ impl TokenConnection {
             Some(Err(e)) => {
               warn!(
                 "WebSocket protocol error for user {}: {:?}, connection will be restarted",
-                self.user_id,
+                redact_sensitive_data(&self.user_id),
                 e
               );
               return Err(TokenConnectionError::WebSocketConnection(e));
@@ -354,7 +366,7 @@ impl TokenConnection {
             None => {
               info!(
                 "WebSocket stream ended unexpectedly for user: {}, connection will be restarted",
-                self.user_id
+               redact_sensitive_data(&self.user_id)
               );
               return Err(TokenConnectionError::StreamEnded);
             }
@@ -370,14 +382,14 @@ impl TokenConnection {
             Ok(false) => {
               warn!(
                 "Lost token ownership for user: {} - another instance may have claimed it",
-                self.user_id
+               redact_sensitive_data(&self.user_id)
               );
               return Err(TokenConnectionError::TokenOwnershipLost);
             }
             Err(e) => {
               error!(
                 "Failed to update heartbeat for user {}: {:?}",
-                self.user_id,
+                redact_sensitive_data(&self.user_id),
                 e
               );
               return Err(TokenConnectionError::HeartbeatFailed(format!("Database error: {}", e)));
@@ -390,14 +402,14 @@ impl TokenConnection {
           let elapsed = last_ping.elapsed();
           error!(
             "Ping timeout for user: {} - no ping received for {}s, connection dead",
-            self.user_id, elapsed.as_secs()
+            redact_sensitive_data(&self.user_id), elapsed.as_secs()
           );
           return Err(TokenConnectionError::PingTimeout);
         }
 
         // Handle cancellation
         _ = cancellation_token.cancelled() => {
-          info!("Connection cancelled for user: {}, closing WebSocket", self.user_id);
+          info!("Connection cancelled for user: {}, closing WebSocket", redact_sensitive_data(&self.user_id));
 
           // Send close frame before terminating
           let _ = write.send(Message::Close(None)).await;

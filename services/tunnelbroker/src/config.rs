@@ -78,6 +78,10 @@ pub struct AppConfig {
   #[arg(env = "TOKEN_DISTRIBUTOR_PING_TIMEOUT")]
   #[arg(long, default_value_t = 60)]
   pub token_distributor_ping_timeout: u64,
+  /// Redact sensitive data
+  #[arg(long, global = true, default_value_t = false)]
+  #[arg(env = comm_lib::constants::env_var::REDACT_SENSITIVE_DATA)]
+  pub redact_sensitive_data: bool,
 }
 
 /// Stores configuration parsed from command-line arguments
