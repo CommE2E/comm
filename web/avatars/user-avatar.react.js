@@ -6,6 +6,7 @@ import {
   getAvatarForUser,
   useResolvedUserAvatar,
 } from 'lib/shared/avatar-utils.js';
+import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
@@ -31,9 +32,11 @@ function UserAvatar(props: Props): React.Node {
         farcasterID: currentUserFID,
       };
     } else {
+      const maybeFIDFromUserID = extractFIDFromUserID(userID);
       return {
         ...state.userStore.userInfos[userID],
-        farcasterID: state.auxUserStore.auxUserInfos[userID]?.fid,
+        farcasterID:
+          maybeFIDFromUserID ?? state.auxUserStore.auxUserInfos[userID]?.fid,
       };
     }
   });
