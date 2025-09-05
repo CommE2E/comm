@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
-import type { UserInfo } from 'lib/types/user-types.js';
+import type { ProfileUserInfo } from 'lib/types/user-types.js';
 
 import UserProfileMenu from './user-profile-menu.react.js';
 import UserProfile from './user-profile.react.js';
@@ -20,7 +20,7 @@ function UserProfileModal(props: Props): React.Node {
 
   const { popModal } = useModalContext();
 
-  const userInfo: ?UserInfo = useSelector(
+  const userInfo: ?ProfileUserInfo = useSelector(
     state => state.userStore.userInfos[userID],
   );
 

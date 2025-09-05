@@ -25,6 +25,16 @@
   font-weight: 500;
 }
 
+.farcasterUsernameContainer {
+  padding: 8px 0;
+}
+
+.farcasterUsernameText {
+  color: var(--text-background-primary-default);
+  font-size: var(--s-font-14);
+  font-weight: 500;
+}
+
 .copyUsernameContainer {
   display: flex;
   align-items: center;
