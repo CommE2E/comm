@@ -26,6 +26,7 @@ import UserProfileMenuButton from './user-profile-menu-button.react.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
+import ProtocolIcon from '../components/protocol-icon.react.js';
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -56,12 +57,18 @@ function UserProfile(props: Props): React.Node {
     }
     return (
       <View style={styles.farcasterUsernameContainer}>
-        <Text style={styles.farcasterUsernameText}>Farcaster: {ensFCName}</Text>
+        <ProtocolIcon
+          protocol="Farcaster DC"
+          size={20}
+          containerStyle={styles.farcasterIcon}
+        />
+        <Text style={styles.farcasterUsernameText}>{ensFCName}</Text>
       </View>
     );
   }, [
     farcasterUsername,
     resolvedUsernameText,
+    styles.farcasterIcon,
     styles.farcasterUsernameText,
     styles.farcasterUsernameContainer,
   ]);
@@ -233,11 +240,17 @@ const unboundStyles = {
   },
   farcasterUsernameContainer: {
     paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   farcasterUsernameText: {
     color: 'modalForegroundLabel',
     fontSize: 14,
     fontWeight: '500',
+  },
+  farcasterIcon: {
+    marginLeft: 0,
   },
   copyUsernameContainer: {
     flexDirection: 'row',

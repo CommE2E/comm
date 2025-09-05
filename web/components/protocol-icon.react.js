@@ -16,6 +16,7 @@ type Props = {
   +icon?: React.Node,
   +protocol?: ProtocolName,
   +size: number,
+  +style?: ?Partial<CSSStyle>,
 };
 
 function ProtocolIcon(props: Props): React.Node {
@@ -57,6 +58,7 @@ function ProtocolIcon(props: Props): React.Node {
         alignItems: 'center',
         marginLeft: 3,
         marginRight: 3,
+        ...props.style,
       }}
     >
       {iconComponent}
