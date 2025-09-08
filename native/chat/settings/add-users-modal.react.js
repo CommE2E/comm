@@ -10,6 +10,8 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useModifyFarcasterMembershipInput } from 'lib/shared/farcaster/farcaster-api.js';
+import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
@@ -78,6 +80,9 @@ function AddUsersModal(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const userInfoInputArrayEmpty = inputLength === 0;
   const addDMThreadMembers = useAddDMThreadMembers();
+  const modifyFarcasterMembership = useModifyFarcasterMembershipInput();
+  const refreshFarcasterConversation = useRefreshFarcasterConversation();
+  const auxUserStore = useSelector(state => state.auxUserStore);
 
   const onPressAdd = React.useCallback(async () => {
     if (userInfoInputArrayEmpty) {
@@ -91,6 +96,9 @@ function AddUsersModal(props: Props): React.Node {
           dmAddThreadMembers: addDMThreadMembers,
           changeThreadSettings: callChangeThreadSettings,
           dispatchActionPromise,
+          modifyFarcasterMembership,
+          refreshFarcasterConversation,
+          auxUserStore,
         },
       );
       close();
@@ -105,10 +113,13 @@ function AddUsersModal(props: Props): React.Node {
   }, [
     userInfoInputArrayEmpty,
     threadInfo,
-    dispatchActionPromise,
-    addDMThreadMembers,
     userInfoInputIDs,
+    addDMThreadMembers,
     callChangeThreadSettings,
+    dispatchActionPromise,
+    modifyFarcasterMembership,
+    refreshFarcasterConversation,
+    auxUserStore,
     close,
     onUnknownErrorAlertAcknowledged,
   ]);
