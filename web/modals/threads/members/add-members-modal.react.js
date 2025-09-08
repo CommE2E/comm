@@ -5,6 +5,8 @@ import * as React from 'react';
 import { useChangeThreadSettings } from 'lib/hooks/thread-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useModifyFarcasterMembershipInput } from 'lib/shared/farcaster/farcaster-api.js';
+import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
@@ -62,6 +64,9 @@ function AddMembersModalContent(props: Props): React.Node {
   const callChangeThreadSettings = useChangeThreadSettings();
   const addDMThreadMembers = useAddDMThreadMembers();
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const modifyFarcasterMembership = useModifyFarcasterMembershipInput();
+  const refreshFarcasterConversation = useRefreshFarcasterConversation();
+  const auxUserStore = useSelector(state => state.auxUserStore);
 
   const addUsers = React.useCallback(() => {
     const newMemberIDs = Array.from(pendingUsersToAdd.keys());
@@ -72,15 +77,21 @@ function AddMembersModalContent(props: Props): React.Node {
         dmAddThreadMembers: addDMThreadMembers,
         changeThreadSettings: callChangeThreadSettings,
         dispatchActionPromise,
+        modifyFarcasterMembership,
+        refreshFarcasterConversation,
+        auxUserStore,
       },
     );
     onClose();
   }, [
     addDMThreadMembers,
+    auxUserStore,
     callChangeThreadSettings,
     dispatchActionPromise,
+    modifyFarcasterMembership,
     onClose,
     pendingUsersToAdd,
+    refreshFarcasterConversation,
     threadInfo,
   ]);
 
