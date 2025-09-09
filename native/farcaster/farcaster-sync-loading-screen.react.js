@@ -24,7 +24,22 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
     props.navigation.goBack();
   }, [props.navigation]);
 
-  useFarcasterSync(handleComplete);
+  const { progress } = useFarcasterSync(handleComplete);
+
+  const progressValue = progress
+    ? progress.completed / progress.total
+    : undefined;
+
+  const phase = React.useMemo(() => {
+    if (!progress?.phase) {
+      return null;
+    }
+    const phaseText =
+      progress.phase === 'conversations'
+        ? 'Loading conversations...'
+        : 'Loading messages...';
+    return <Text style={styles.section}>{phaseText}</Text>;
+  }, [progress?.phase, styles.section]);
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
@@ -35,13 +50,24 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
       <Text style={styles.section}>
         This could take a while depending on how many conversations you have.
       </Text>
+      {phase}
       <View style={styles.progressContainer}>
-        <Progress.CircleSnail
-          indeterminate
-          color={colors.panelForegroundIcon}
-          size={100}
-          strokeCap="round"
-        />
+        {progress ? (
+          <Progress.Circle
+            progress={progressValue}
+            size={100}
+            color={colors.panelForegroundIcon}
+            strokeCap="round"
+            showsText
+          />
+        ) : (
+          <Progress.CircleSnail
+            indeterminate
+            color={colors.panelForegroundIcon}
+            size={100}
+            strokeCap="round"
+          />
+        )}
       </View>
     </SafeAreaView>
   );
