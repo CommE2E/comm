@@ -8,7 +8,29 @@ import css from './farcaster-sync-loading-screen.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 
 function FarcasterSyncLoadingScreen(): React.Node {
-  useFarcasterSync();
+  const { progress } = useFarcasterSync();
+
+  const progressComponent = React.useMemo(() => {
+    if (!progress) {
+      return null;
+    }
+    return (
+      <>
+        <p className={css.description}>
+          {progress.phase === 'conversations'
+            ? 'Loading conversations...'
+            : 'Loading messages...'}
+        </p>
+        <p className={css.description}>
+          {progress.completed} of {progress.total} (
+          {progress.total
+            ? Math.round((progress.completed / progress.total) * 100)
+            : 0}
+          %)
+        </p>
+      </>
+    );
+  }, [progress]);
 
   return (
     <div className={css.loadingContainer}>
@@ -24,6 +46,7 @@ function FarcasterSyncLoadingScreen(): React.Node {
               This could take a while depending on how many conversations you
               have.
             </p>
+            {progressComponent}
           </div>
           <div className={css.spinner}>
             <LoadingIndicator status="loading" size="x-large" />
