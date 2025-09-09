@@ -1,11 +1,3 @@
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 
-/*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-
-/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
-
 /*! scure-base - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-
-/*! scure-bip32 - MIT License (c) 2022 Patricio Palladino, Paul Miller (paulmillr.com) */
-
-/*! scure-bip39 - MIT License (c) 2022 Patricio Palladino, Paul Miller (paulmillr.com) */
