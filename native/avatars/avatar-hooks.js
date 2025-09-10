@@ -37,7 +37,7 @@ import { processMedia } from '../media/media-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
-import blobServiceUploadHandler from '../utils/blob-service-upload.js';
+import { blobServiceUploadHandler } from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function displayAvatarUpdateFailureAlert(): void {
