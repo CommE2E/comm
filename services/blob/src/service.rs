@@ -44,6 +44,7 @@ pub enum InviteLinkError {
 pub enum BlobServiceError {
   BlobNotFound,
   BlobAlreadyExists,
+  BlobIsNotMedia,
   DB(DBError),
   S3(S3Error),
   #[from(ignore)]
@@ -115,7 +116,6 @@ impl BlobService {
     &self,
     blob_hash: impl Into<String>,
   ) -> BlobServiceResult<BlobDownloadObject> {
-    // 1. Get S3 path
     let s3_path = match self.db.get_blob_item(blob_hash.into()).await {
       Ok(Some(BlobItemRow { s3_path, .. })) => Ok(s3_path),
       Ok(None) => {
@@ -124,13 +124,43 @@ impl BlobService {
       }
       Err(err) => Err(BlobServiceError::DB(err)),
     }?;
-    debug!("S3 path: {:?}", s3_path);
 
-    // 2. Get S3 object size
+    self.create_download_session(s3_path).await
+  }
+
+  pub async fn create_media_download(
+    &self,
+    media_id: &str,
+  ) -> BlobServiceResult<(BlobDownloadObject, MediaInfo)> {
+    let blob_hash = BlobInfo::from_bytes(media_id.as_bytes()).blob_hash;
+
+    let blob_item = match self.db.get_blob_item(blob_hash).await {
+      Ok(Some(item)) => Ok(item),
+      Ok(None) => {
+        debug!("Blob not found");
+        Err(BlobServiceError::BlobNotFound)
+      }
+      Err(err) => Err(BlobServiceError::DB(err)),
+    }?;
+
+    let Some(media_info) = blob_item.media_info else {
+      debug!("Blob is not media");
+      return Err(BlobServiceError::BlobIsNotMedia);
+    };
+
+    let download_session =
+      self.create_download_session(blob_item.s3_path).await?;
+    Ok((download_session, media_info))
+  }
+
+  async fn create_download_session(
+    &self,
+    s3_path: S3Path,
+  ) -> BlobServiceResult<BlobDownloadObject> {
     let blob_size = self.s3.get_object_size(&s3_path).await?;
+    debug!("S3 path: {:?}", s3_path);
     debug!("S3 object size: {} bytes", blob_size);
 
-    // 3. Create download session
     let session = BlobDownloadObject {
       s3_path,
       blob_size,

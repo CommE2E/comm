@@ -59,6 +59,10 @@ pub async fn run_http_server(
           .route(web::post().to(handlers::metadata::get_blob_sizes)),
       )
       .service(
+        web::resource("/media/{media_id}")
+          .route(web::get().to(handlers::media::get_media_handler)),
+      )
+      .service(
         web::resource("/media")
           .wrap(auth_middleware)
           .route(web::post().to(handlers::media::upload_media_handler)),
