@@ -23,6 +23,7 @@ export default function reduceNavInfo(
 
   const { activeChatThreadID } = state;
   if (activeChatThreadID) {
+    console.log('calling this man here');
     const pendingToRealizedThreadIDs =
       pendingToRealizedThreadIDsSelector(newThreadInfos);
     const realizedThreadID = pendingToRealizedThreadIDs.get(activeChatThreadID);

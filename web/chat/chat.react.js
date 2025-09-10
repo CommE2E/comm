@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
+import { ProtocolSelectionProvider } from 'lib/components/protocol-selection-provider.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
@@ -43,12 +44,12 @@ function Chat(): React.Node {
   const activeThreadID = useSelector(activeThreadSelector);
 
   return (
-    <>
+    <ProtocolSelectionProvider>
       {chatList}
       {messageList}
       {threadDraftUpdater}
       <MessageStorePruner activeThreadID={activeThreadID} />
-    </>
+    </ProtocolSelectionProvider>
   );
 }
 

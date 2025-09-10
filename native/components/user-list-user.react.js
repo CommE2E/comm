@@ -6,6 +6,7 @@ import { Text, Platform } from 'react-native';
 import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';
+import ProtocolIcon from './protocol-icon.react.js';
 import SingleLine from './single-line.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -71,6 +72,9 @@ class UserListUser extends React.PureComponent<Props> {
           {this.props.userInfo.username}
         </SingleLine>
         {notice}
+        {userInfo.supportedProtocols.map(protocol => (
+          <ProtocolIcon protocol={protocol} key={protocol} size={23} />
+        ))}
       </Button>
     );
   }
@@ -78,7 +82,13 @@ class UserListUser extends React.PureComponent<Props> {
   onSelect = () => {
     const { userInfo } = this.props;
     if (!userInfo.alert) {
-      const { alert, notice, disabled, ...accountUserInfo } = userInfo;
+      const {
+        alert,
+        notice,
+        disabled,
+        supportedProtocols,
+        ...accountUserInfo
+      } = userInfo;
       this.props.onSelect(accountUserInfo);
       return;
     }

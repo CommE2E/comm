@@ -33,13 +33,13 @@ const inputProps = {
 
 const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
   function MessageListThreadSearch({
-    usernameInputText,
-    updateUsernameInput,
-    userInfoInputArray,
-    updateTagInput,
-    resolveToUser,
-    userSearchResults,
-  }) {
+                                     usernameInputText,
+                                     updateUsernameInput,
+                                     userInfoInputArray,
+                                     updateTagInput,
+                                     resolveToUser,
+                                     userSearchResults,
+                                   }) {
     const styles = useStyles(unboundStyles);
 
     const [userListItems, nonFriends] = React.useMemo(() => {
@@ -54,7 +54,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
           userListItemsArr.push(searchResult);
           continue;
         }
-        nonFriendsSet.add(searchResult.id);
+        // nonFriendsSet.add(searchResult.id);
         const { alert, ...rest } = searchResult;
         userListItemsArr.push(rest);
       }
