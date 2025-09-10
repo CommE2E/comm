@@ -20,7 +20,7 @@ use crate::constants::{
   INVITE_LINK_BLOB_HASH_PREFIX, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
 };
 use crate::database::types::{
-  BlobItemInput, BlobItemRow, PrimaryKey, UncheckedKind,
+  BlobItemInput, BlobItemRow, MediaInfo, PrimaryKey, UncheckedKind,
 };
 use crate::database::DBError;
 use crate::s3::{Error as S3Error, S3Client, S3Path};
@@ -162,10 +162,11 @@ impl BlobService {
   pub async fn put_blob(
     &self,
     blob_hash: impl Into<String>,
+    media_info: Option<MediaInfo>,
     mut blob_data_stream: impl ByteStream,
   ) -> Result<(), BlobServiceError> {
     let blob_hash: String = blob_hash.into();
-    let blob_item = BlobItemInput::new(&blob_hash);
+    let blob_item = BlobItemInput::new(&blob_hash, media_info);
 
     if self.db.get_blob_item(&blob_hash).await?.is_some() {
       debug!("Blob already exists");
@@ -296,7 +297,7 @@ impl BlobService {
       let blob_size = match ddb_results.get(&blob_hash) {
         Some(ddb_size) => *ddb_size,
         None => {
-          let s3_path = BlobItemInput::new(&blob_hash).s3_path;
+          let s3_path = BlobItemInput::new(&blob_hash, None).s3_path;
           match self.s3.get_object_size(&s3_path).await {
             Ok(s3_size) => {
               updated_values.push((blob_hash.clone(), s3_size));

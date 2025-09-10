@@ -199,7 +199,7 @@ pub async fn upload_blob_handler(
     trace!("Stream done");
   };
 
-  service.put_blob(blob_hash, stream).await?;
+  service.put_blob(blob_hash, None, stream).await?;
   Ok(HttpResponse::NoContent().finish())
 }
 

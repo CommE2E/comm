@@ -33,6 +33,7 @@ pub mod db {
   pub const ATTR_S3_PATH: &str = "s3_path";
   pub const ATTR_UNCHECKED: &str = "unchecked";
   pub const ATTR_BLOB_SIZE: &str = "blob_size";
+  pub const ATTR_MEDIA_INFO: &str = "media_info";
 }
 
 // Environment variables
