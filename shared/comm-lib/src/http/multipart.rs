@@ -27,18 +27,12 @@ use tracing::warn;
 pub async fn get_text_field(
   multipart: &mut actix_multipart::Multipart,
 ) -> anyhow::Result<Option<(String, String)>, MultipartError> {
-  let Some(mut field): Option<Field> = multipart.try_next().await? else {
+  let Some(field): Option<Field> = multipart.try_next().await? else {
     return Ok(None);
   };
 
   let name = field.name().to_string();
-
-  let mut buf = Vec::new();
-  while let Some(chunk) = field.try_next().await? {
-    buf.extend_from_slice(&chunk);
-  }
-
-  let text = parse_bytes_to_string(buf)?;
+  let text = read_field_to_string(field).await?;
 
   Ok(Some((name, text)))
 }
@@ -75,6 +69,18 @@ pub async fn get_all_remaining_fields(
   }
 
   Ok(found_fields)
+}
+
+pub async fn read_field_to_string(
+  mut field: actix_multipart::Field,
+) -> Result<String, MultipartError> {
+  let mut buf = Vec::new();
+  while let Some(chunk) = field.try_next().await? {
+    buf.extend_from_slice(&chunk);
+  }
+
+  let text = parse_bytes_to_string(buf)?;
+  Ok(text)
 }
 
 pub fn parse_bytes_to_string(
