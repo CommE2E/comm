@@ -18,6 +18,7 @@ import {
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import {
   type BlobServiceUploadAction,
+  type PlaintextMediaUploadAction,
   type DeleteUploadInput,
   updateMultimediaMessageMediaActionType,
 } from 'lib/actions/upload-actions.js';
@@ -33,6 +34,7 @@ import {
 import { useNewThickThread, useNewThinThread } from 'lib/hooks/thread-hooks.js';
 import {
   useBlobServiceUpload,
+  usePlaintextMediaUpload,
   useDeleteUpload,
 } from 'lib/hooks/upload-hooks.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
@@ -139,6 +141,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +calendarQuery: () => CalendarQuery,
   +blobServiceUpload: BlobServiceUploadAction,
+  +plaintextMediaUpload: PlaintextMediaUploadAction,
   +deleteUpload: (input: DeleteUploadInput) => Promise<void>,
   +sendMultimediaMessage: (
     messageInfo: RawMultimediaMessageInfo,
@@ -812,27 +815,33 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     const { uri, file: fixedFile, mediaType, dimensions } = result;
 
-    let encryptionResponse;
-    const encryptionStart = Date.now();
-    try {
-      encryptionResponse = await encryptFile(fixedFile);
-    } catch (e) {
-      return {
-        steps,
-        result: {
-          success: false,
-          reason: 'encryption_exception',
-          time: Date.now() - encryptionStart,
-          exceptionMessage: getMessageForException(e),
-        },
-      };
-    }
-    const { result: encryptionResult, steps: encryptionSteps } =
-      encryptionResponse;
-    steps.push(...encryptionSteps);
+    const supportsEncryptedMultimedia =
+      threadSpecs[threadInfo.type].protocol().supportsEncryptedMultimedia;
 
-    if (!encryptionResult.success) {
-      return { steps, result: encryptionResult };
+    let encryptionResult;
+    if (supportsEncryptedMultimedia) {
+      let encryptionResponse;
+      const encryptionStart = Date.now();
+      try {
+        encryptionResponse = await encryptFile(fixedFile);
+      } catch (e) {
+        return {
+          steps,
+          result: {
+            success: false,
+            reason: 'encryption_exception',
+            time: Date.now() - encryptionStart,
+            exceptionMessage: getMessageForException(e),
+          },
+        };
+      }
+      const { steps: encryptionSteps } = encryptionResponse;
+      steps.push(...encryptionSteps);
+
+      encryptionResult = encryptionResponse.result;
+      if (!encryptionResult.success) {
+        return { steps, result: encryptionResult };
+      }
     }
 
     const { steps: thumbHashSteps, result: thumbHashResult } =
@@ -928,33 +937,50 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           this.handleAbortCallback(threadID, localID, abort),
       };
 
-      const { mediaType, blobHash, dimensions, thumbHash } = upload;
-      invariant(
-        mediaType === 'encrypted_photo' || mediaType === 'encrypted_video',
-        'uploaded media should be encrypted',
-      );
-      invariant(
-        encryptionKey && blobHash && dimensions,
-        'incomplete encrypted upload',
-      );
+      const supportsEncryptedMultimedia =
+        threadSpecs[threadInfo.type].protocol().supportsEncryptedMultimedia;
 
-      uploadResult = await this.props.blobServiceUpload({
-        uploadInput: {
-          blobInput: {
-            type: 'file',
-            file: upload.file,
+      if (supportsEncryptedMultimedia) {
+        const { mediaType, blobHash, dimensions, thumbHash } = upload;
+        invariant(
+          mediaType === 'encrypted_photo' || mediaType === 'encrypted_video',
+          'uploaded media should be encrypted',
+        );
+        invariant(
+          encryptionKey && blobHash && dimensions,
+          'incomplete encrypted upload',
+        );
+
+        uploadResult = await this.props.blobServiceUpload({
+          uploadInput: {
+            blobInput: {
+              type: 'file',
+              file: upload.file,
+            },
+            blobHash,
+            encryptionKey,
+            dimensions,
+            loop: false,
+            thumbHash,
           },
-          blobHash,
-          encryptionKey,
-          dimensions,
-          loop: false,
-          thumbHash,
-        },
-        keyserverOrThreadIDForMetadata: uploadMultimediaMetadataToKeyserver
-          ? threadID
-          : null,
-        callbacks,
-      });
+          keyserverOrThreadIDForMetadata: uploadMultimediaMetadataToKeyserver
+            ? threadID
+            : null,
+          callbacks,
+        });
+      } else {
+        const { mediaType, file, dimensions, thumbHash } = upload;
+        invariant(mediaType === 'photo', 'farcaster media cannot be encrypted');
+        uploadResult = await this.props.plaintextMediaUpload({
+          mediaInput: {
+            uploadInput: { type: 'file', file },
+            dimensions,
+            loop: false,
+            thumbHash,
+          },
+          callbacks,
+        });
+      }
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
       if (uploadExceptionMessage === 'invalid_csat') {
@@ -1683,6 +1709,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callBlobServiceUpload = useBlobServiceUpload();
+    const callPlaintextMediaUpload = usePlaintextMediaUpload();
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage =
       useInputStateContainerSendMultimediaMessage();
@@ -1723,6 +1750,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo(
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         blobServiceUpload={callBlobServiceUpload}
+        plaintextMediaUpload={callPlaintextMediaUpload}
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
