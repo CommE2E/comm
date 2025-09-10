@@ -30,17 +30,6 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
     ? progress.completed / progress.total
     : undefined;
 
-  const phase = React.useMemo(() => {
-    if (!progress?.phase) {
-      return null;
-    }
-    const phaseText =
-      progress.phase === 'conversations'
-        ? 'Loading conversations...'
-        : 'Loading messages...';
-    return <Text style={styles.section}>{phaseText}</Text>;
-  }, [progress?.phase, styles.section]);
-
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <Text style={styles.header}>Fetching Farcaster threads</Text>
@@ -50,7 +39,6 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
       <Text style={styles.section}>
         This could take a while depending on how many conversations you have.
       </Text>
-      {phase}
       <View style={styles.progressContainer}>
         {progress ? (
           <Progress.Circle

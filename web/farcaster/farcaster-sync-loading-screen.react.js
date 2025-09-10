@@ -16,11 +16,7 @@ function FarcasterSyncLoadingScreen(): React.Node {
     }
     return (
       <>
-        <p className={css.description}>
-          {progress.phase === 'conversations'
-            ? 'Loading conversations...'
-            : 'Loading messages...'}
-        </p>
+        <p className={css.description}>Loading conversations...</p>
         <p className={css.description}>
           {progress.completed} of {progress.total} (
           {Math.round((progress.completed / progress.total) * 100)}%)
