@@ -76,6 +76,10 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       debug!("Received request input error: {0:?} - {0}", err);
       ErrorBadRequest("bad request")
     }
+    BlobServiceError::BlobIsNotMedia => {
+      debug!("Tried to directly access a blob that was not a media");
+      ErrorBadRequest("bad request")
+    }
     BlobServiceError::InviteLinkError(invite_link_error) => {
       match invite_link_error {
         InviteLinkError::Offensive => {

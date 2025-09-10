@@ -1,4 +1,9 @@
 use actix_web::error::ErrorForbidden;
+use actix_web::error::{ErrorBadRequest, ErrorRangeNotSatisfiable};
+use actix_web::{
+  http::header::{ByteRangeSpec, Range},
+  web,
+};
 use comm_lib::auth::AuthorizationCredential;
 
 /// Validates given identifier variable and returns HTTP 400
@@ -28,4 +33,45 @@ pub fn verify_caller_is_service(
       "This endpoint can only be called by other services",
     )),
   }
+}
+
+/// Returns a tuple of first and last byte number (inclusive) represented by given range header.
+pub fn parse_range_header(
+  range_header: &Option<web::Header<Range>>,
+  file_size: u64,
+) -> actix_web::Result<(u64, u64)> {
+  let (range_start, range_end): (u64, u64) = match range_header {
+    Some(web::Header(Range::Bytes(ranges))) => {
+      if ranges.len() > 1 {
+        return Err(ErrorBadRequest("Multiple ranges not supported"));
+      }
+
+      match ranges[0] {
+        ByteRangeSpec::FromTo(start, end) => {
+          if end >= file_size || start > end {
+            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+          }
+          (start, end)
+        }
+        ByteRangeSpec::From(start) => {
+          if start >= file_size {
+            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+          }
+          (start, file_size - 1)
+        }
+        ByteRangeSpec::Last(length) => {
+          if length >= file_size {
+            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+          }
+          (file_size - length, file_size - 1)
+        }
+      }
+    }
+    Some(web::Header(Range::Unregistered(..))) => {
+      return Err(ErrorBadRequest("Use ranges registered at IANA"));
+    }
+    None => (0, file_size - 1),
+  };
+
+  Ok((range_start, range_end))
 }
