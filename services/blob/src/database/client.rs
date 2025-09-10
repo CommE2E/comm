@@ -108,11 +108,12 @@ impl DatabaseClient {
     &self,
     blob_hash: impl Into<String>,
     holder: impl Into<String>,
+    tags: &[String],
   ) -> DBResult<()> {
     let blob_hash: String = blob_hash.into();
     let holder: String = holder.into();
 
-    let indexed_tag = get_indexable_tag(&holder, &[]);
+    let indexed_tag = get_indexable_tag(&holder, tags);
 
     validate_holder(&holder)?;
     let mut item = HashMap::from([
@@ -120,6 +121,15 @@ impl DatabaseClient {
       (ATTR_HOLDER.to_string(), AttributeValue::S(holder)),
       (ATTR_UNCHECKED.to_string(), UncheckedKind::Holder.into()),
     ]);
+
+    if !tags.is_empty() {
+      item.insert(ATTR_TAGS.to_string(), AttributeValue::Ss(tags.to_vec()));
+    } else if let Some(single_tag) = &indexed_tag {
+      item.insert(
+        ATTR_TAGS.to_string(),
+        AttributeValue::Ss(vec![single_tag.to_string()]),
+      );
+    }
 
     if let Some(tag) = indexed_tag {
       item.insert(ATTR_INDEXED_TAG.to_string(), AttributeValue::S(tag));

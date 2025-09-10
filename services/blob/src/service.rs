@@ -224,11 +224,20 @@ impl BlobService {
     blob_hash: impl Into<String>,
     holder: impl Into<String>,
   ) -> BlobServiceResult<()> {
+    self.assign_holder_with_tags(blob_hash, holder, &[]).await
+  }
+
+  pub async fn assign_holder_with_tags(
+    &self,
+    blob_hash: impl Into<String>,
+    holder: impl Into<String>,
+    tags: &[String],
+  ) -> BlobServiceResult<()> {
     let blob_hash: String = blob_hash.into();
     trace!(blob_hash, "Attempting to assign holder");
     self
       .db
-      .put_holder_assignment(blob_hash.clone(), holder.into())
+      .put_holder_assignment(blob_hash.clone(), holder.into(), tags)
       .await?;
 
     trace!("Holder assigned.");
