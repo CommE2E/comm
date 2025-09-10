@@ -1462,6 +1462,8 @@ dependencies = [
  "tracing-actix-web",
  "tracing-futures",
  "tracing-subscriber",
+ "urlencoding",
+ "uuid",
 ]
 
 [[package]]
