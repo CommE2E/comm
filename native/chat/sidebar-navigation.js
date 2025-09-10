@@ -12,6 +12,7 @@ import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
 } from 'lib/shared/sidebar-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ChatMentionCandidates } from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';
@@ -42,6 +43,11 @@ function getUnresolvedSidebarThreadInfo(
   }
 
   const { threadInfo } = sourceMessage;
+
+  if (!threadSpecs[threadInfo.type].protocol().sidebarConfig) {
+    return null;
+  }
+
   const messageInfo = chatMessageItemEngagementTargetMessageInfo(sourceMessage);
   if (!messageInfo) {
     return null;
