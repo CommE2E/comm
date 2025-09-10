@@ -114,7 +114,7 @@ import { processMedia } from '../media/media-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { useSelector } from '../redux/redux-utils.js';
-import blobServiceUploadHandler from '../utils/blob-service-upload.js';
+import { blobServiceUploadHandler } from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type MediaIDs =
