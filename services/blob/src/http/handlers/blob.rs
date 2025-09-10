@@ -1,15 +1,13 @@
 use std::collections::HashSet;
 
 use crate::http::errors::handle_blob_service_error;
+use crate::http::utils::parse_range_header;
 use crate::service::BlobService;
 use crate::validate_identifier;
 
-use actix_web::error::{ErrorBadRequest, ErrorRangeNotSatisfiable};
+use actix_web::error::ErrorBadRequest;
 use actix_web::web::Bytes;
-use actix_web::{
-  http::header::{ByteRangeSpec, Range},
-  web, HttpResponse,
-};
+use actix_web::{http::header::Range, web, HttpResponse};
 use async_stream::try_stream;
 use base64::Engine;
 use comm_lib::blob::types::http::{
@@ -19,47 +17,6 @@ use comm_lib::http::multipart;
 use tokio_stream::StreamExt;
 use tracing::{debug, info, instrument, trace, warn};
 use tracing_futures::Instrument;
-
-/// Returns a tuple of first and last byte number (inclusive) represented by given range header.
-fn parse_range_header(
-  range_header: &Option<web::Header<Range>>,
-  file_size: u64,
-) -> actix_web::Result<(u64, u64)> {
-  let (range_start, range_end): (u64, u64) = match range_header {
-    Some(web::Header(Range::Bytes(ranges))) => {
-      if ranges.len() > 1 {
-        return Err(ErrorBadRequest("Multiple ranges not supported"));
-      }
-
-      match ranges[0] {
-        ByteRangeSpec::FromTo(start, end) => {
-          if end >= file_size || start > end {
-            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
-          }
-          (start, end)
-        }
-        ByteRangeSpec::From(start) => {
-          if start >= file_size {
-            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
-          }
-          (start, file_size - 1)
-        }
-        ByteRangeSpec::Last(length) => {
-          if length >= file_size {
-            return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
-          }
-          (file_size - length, file_size - 1)
-        }
-      }
-    }
-    Some(web::Header(Range::Unregistered(..))) => {
-      return Err(ErrorBadRequest("Use ranges registered at IANA"));
-    }
-    None => (0, file_size - 1),
-  };
-
-  Ok((range_start, range_end))
-}
 
 #[instrument(
   name = "get_blob",
