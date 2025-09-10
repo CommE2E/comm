@@ -1,7 +1,8 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_lib::database::{
-  parse_timestamp_attribute, AttributeTryInto, DBItemError, Value,
+  parse_timestamp_attribute, AttributeExtractor, AttributeMap,
+  AttributeTryInto, DBItemError, TryFromAttribute, Value,
 };
 use derive_more::Constructor;
 use std::collections::HashMap;
@@ -41,16 +42,71 @@ impl TryFrom<RawAttributes> for DBRow {
   }
 }
 
+#[derive(Debug)]
+pub struct MediaInfo {
+  pub content_type: Option<String>,
+  pub custom_metadata: Option<String>,
+}
+
+const MEDIA_INFO_CONTENT_TYPE: &str = "contentType";
+const MEDIA_INFO_CUSTOM_METADATA: &str = "customMetadata";
+
+impl From<MediaInfo> for AttributeValue {
+  fn from(value: MediaInfo) -> Self {
+    let mut attrs = HashMap::new();
+    if let Some(content_type) = value.content_type {
+      attrs.insert(
+        MEDIA_INFO_CONTENT_TYPE.to_string(),
+        AttributeValue::S(content_type),
+      );
+    }
+    if let Some(custom_metadata) = value.custom_metadata {
+      attrs.insert(
+        MEDIA_INFO_CUSTOM_METADATA.to_string(),
+        AttributeValue::S(custom_metadata),
+      );
+    }
+    AttributeValue::M(attrs)
+  }
+}
+
+impl TryFrom<AttributeMap> for MediaInfo {
+  type Error = comm_lib::database::DBItemError;
+
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
+    let content_type = attrs.take_attr(MEDIA_INFO_CONTENT_TYPE)?;
+    let custom_metadata = attrs.take_attr(MEDIA_INFO_CUSTOM_METADATA)?;
+    Ok(Self {
+      content_type,
+      custom_metadata,
+    })
+  }
+}
+
+impl TryFromAttribute for MediaInfo {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, comm_lib::database::DBItemError> {
+    AttributeMap::try_from_attr(attribute_name, attribute)
+      .and_then(MediaInfo::try_from)
+  }
+}
+
 /// Represents an input payload for inserting a blob item into the database.
 /// This contains only the business logic related attributes
 #[derive(Debug)]
 pub struct BlobItemInput {
   pub blob_hash: String,
   pub s3_path: S3Path,
+  pub media_info: Option<MediaInfo>,
 }
 
 impl BlobItemInput {
-  pub fn new(blob_hash: impl Into<String>) -> Self {
+  pub fn new(
+    blob_hash: impl Into<String>,
+    media_info: Option<MediaInfo>,
+  ) -> Self {
     let blob_hash: String = blob_hash.into();
     BlobItemInput {
       blob_hash: blob_hash.clone(),
@@ -58,6 +114,7 @@ impl BlobItemInput {
         bucket_name: CONFIG.s3_bucket_name.clone(),
         object_name: blob_hash,
       },
+      media_info,
     }
   }
 }
@@ -73,18 +130,15 @@ pub struct BlobItemRow {
   pub unchecked: bool,
   pub created_at: DateTime<Utc>,
   pub last_modified: DateTime<Utc>,
+  pub media_info: Option<MediaInfo>,
 }
 
 impl TryFrom<RawAttributes> for BlobItemRow {
   type Error = DBError;
 
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    let blob_hash = attributes
-      .remove(ATTR_BLOB_HASH)
-      .attr_try_into(ATTR_BLOB_HASH)?;
-    let s3_path: String = attributes
-      .remove(ATTR_S3_PATH)
-      .attr_try_into(ATTR_S3_PATH)?;
+    let blob_hash = attributes.take_attr(ATTR_BLOB_HASH)?;
+    let s3_path: String = attributes.take_attr(ATTR_S3_PATH)?;
     let created_at = parse_timestamp_attribute(
       ATTR_CREATED_AT,
       attributes.remove(ATTR_CREATED_AT),
@@ -96,12 +150,15 @@ impl TryFrom<RawAttributes> for BlobItemRow {
     let unchecked = is_raw_row_unchecked(&attributes, UncheckedKind::Blob)?;
     let s3_path = S3Path::from_full_path(&s3_path).map_err(DBError::from)?;
 
+    let media_info = attributes.take_attr(ATTR_MEDIA_INFO)?;
+
     Ok(BlobItemRow {
       blob_hash,
       s3_path,
       unchecked,
       created_at,
       last_modified,
+      media_info,
     })
   }
 }

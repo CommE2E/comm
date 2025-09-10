@@ -58,7 +58,7 @@ impl DatabaseClient {
     blob_item: BlobItemInput,
     blob_size: u64,
   ) -> DBResult<()> {
-    let item = HashMap::from([
+    let mut item = HashMap::from([
       (
         ATTR_BLOB_HASH.to_string(),
         AttributeValue::S(blob_item.blob_hash),
@@ -77,6 +77,10 @@ impl DatabaseClient {
         AttributeValue::N(blob_size.to_string()),
       ),
     ]);
+
+    if let Some(media_info) = blob_item.media_info {
+      item.insert(ATTR_MEDIA_INFO.to_string(), media_info.into());
+    }
 
     self.insert_item(item).await?;
     Ok(())
