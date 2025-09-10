@@ -86,6 +86,18 @@ pub mod http {
     pub instant_delete: bool,
   }
 
+  // Multimedia endpoint types
+
+  #[derive(Serialize, Deserialize, Debug)]
+  #[serde(rename_all = "camelCase")]
+  pub struct BlobUploadMultimediaResponse {
+    #[serde(rename = "mediaID")]
+    pub media_id: String,
+    pub blob_hash: String,
+    pub content_type: Option<String>,
+    pub metadata: Option<String>,
+  }
+
   // impls
   impl From<Vec<BlobInfo>> for RemoveHoldersRequest {
     fn from(requests: Vec<BlobInfo>) -> Self {

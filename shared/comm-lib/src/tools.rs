@@ -199,6 +199,13 @@ mod valid_identifier_tests {
   }
 
   #[test]
+  fn urlencoded_url_is_invalid() {
+    assert!(!is_valid_identifier(
+      "https%3A%2F%2Fexample.com%2Fpath%2Fto%2Fimage.jpg%3Ffoo%3Dbar%23baz"
+    ));
+  }
+
+  #[test]
   fn empty_is_invalid() {
     assert!(!is_valid_identifier(""));
   }
