@@ -1534,7 +1534,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 517;
+				CURRENT_PROJECT_VERSION = 518;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -1682,7 +1682,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 517;
+				CURRENT_PROJECT_VERSION = 518;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				HEADER_SEARCH_PATHS = (
@@ -1909,7 +1909,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 517;
+				CURRENT_PROJECT_VERSION = 518;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -1928,7 +1928,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.517;
+				MARKETING_VERSION = 1.0.518;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CFLAGS = (
@@ -1970,7 +1970,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 517;
+				CURRENT_PROJECT_VERSION = 518;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = H98Y8MH53M;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -1985,7 +1985,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.517;
+				MARKETING_VERSION = 1.0.518;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
