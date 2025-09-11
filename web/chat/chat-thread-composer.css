@@ -35,6 +35,12 @@ div.searchField {
   padding: 1rem;
 }
 
+div.protocolRow {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+
 .closeSearch {
   color: var(--thread-creation-close-search-color);
   margin: 0 8px;
@@ -76,4 +82,18 @@ div.userContainer {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+div.rightContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+div.protocolIcons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }

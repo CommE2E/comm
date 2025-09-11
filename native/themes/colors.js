@@ -160,6 +160,7 @@ export type Colors = $ReadOnly<{
   redIndicatorOuter: string,
   deletedMessageText: string,
   deletedMessageBackground: string,
+  selectProtocolDropdownBackground: string,
 }>;
 
 const light: Colors = Object.freeze({
@@ -269,6 +270,7 @@ const light: Colors = Object.freeze({
   redIndicatorOuter: designSystemColors.errorDark50,
   deletedMessageText: designSystemColors.shadesBlack60,
   deletedMessageBackground: designSystemColors.shadesWhite90,
+  selectProtocolDropdownBackground: designSystemColors.shadesWhite60,
 });
 
 const dark: Colors = Object.freeze({
@@ -378,6 +380,7 @@ const dark: Colors = Object.freeze({
   redIndicatorOuter: designSystemColors.errorDark90,
   deletedMessageText: designSystemColors.shadesWhite60,
   deletedMessageBackground: designSystemColors.shadesBlack90,
+  selectProtocolDropdownBackground: designSystemColors.shadesBlack75,
 });
 const colors = { light, dark };
 

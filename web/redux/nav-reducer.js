@@ -1,6 +1,9 @@
 // @flow
 
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import {
+  createPendingToRealizedThreadIDsSelectorMemoized,
+  pendingToRealizedThreadIDsSelector,
+} from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { RawThreadInfos } from 'lib/types/thread-types.js';

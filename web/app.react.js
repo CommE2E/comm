@@ -25,6 +25,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
+import { ProtocolSelectionProvider } from './components/protocol-selection-provider.react.js';
 import { SecondaryDeviceQRAuthContextProvider } from 'lib/components/secondary-device-qr-auth-context-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handler.react.js';
@@ -167,6 +168,7 @@ type Props = {
   +entriesLoadingStatus: LoadingStatus,
   +loggedIn: boolean,
   +activeThreadCurrentlyUnread: boolean,
+  +isChatCreationMode: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
   +modals: $ReadOnlyArray<React.Node>,
@@ -397,10 +399,12 @@ class App extends React.PureComponent<Props> {
       css['main-content-container-column'],
     );
     return (
-      <div className={mainContentClass}>
-        <Topbar />
-        <div className={css['main-content']}>{mainContent}</div>
-      </div>
+      <ProtocolSelectionProvider isSearching={this.props.isChatCreationMode}>
+        <div className={mainContentClass}>
+          <Topbar />
+          <div className={css['main-content']}>{mainContent}</div>
+        </div>
+      </ProtocolSelectionProvider>
     );
   }
 }
@@ -549,6 +553,9 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo(
       fetchEntriesLoadingStatus,
       updateCalendarQueryLoadingStatus,
     );
+    const isChatCreationMode = useSelector(
+      state => state.navInfo.chatMode === 'create',
+    );
 
     const baseLoggedIn = useSelector(isLoggedIn);
     const restorationHasFinished = useIsUserDataReady();
@@ -612,6 +619,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo(
                       activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
                       dispatch={dispatch}
                       modals={modals}
+                      isChatCreationMode={isChatCreationMode}
                     />
                   </SecondaryDeviceQRAuthContextProvider>
                   <DBOpsHandler />

@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -38,6 +39,7 @@ function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
 ): ?ThreadInfo {
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
+  const { selectedProtocol } = useProtocolSelection();
 
   const loggedInUserInfo = useLoggedInUserInfo();
   invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
@@ -65,6 +67,7 @@ function useThreadInfoForPossiblyPendingThread(
   );
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
     pendingPrivateThread.current,
+    selectedProtocol,
   );
 
   const baseThreadInfo = useSelector(state => {
