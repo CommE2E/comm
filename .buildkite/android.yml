@@ -4,7 +4,7 @@ steps:
       - 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
       - 'source /root/.cargo/env'
       - 'rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android'
-      - 'apt update && apt install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev pkg-config'
+      - 'apt update && apt install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev pkg-config python3-distutils python3-setuptools'
       - 'scripts/install_protobuf.sh'
       - 'yarn ci-cleaninstall'
       - 'cd native/android'
