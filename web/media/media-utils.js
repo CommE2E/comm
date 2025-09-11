@@ -260,9 +260,13 @@ function usePlaceholder(thumbHash: ?string, encryptionKey: ?string): ?string {
     }
 
     if (!encryptionKey) {
-      const binaryThumbHash = base64DecodeBuffer(thumbHash);
-      const placeholderImage = thumbHashToDataURL(binaryThumbHash);
-      setPlaceholder(placeholderImage);
+      try {
+        const binaryThumbHash = base64DecodeBuffer(thumbHash);
+        const placeholderImage = thumbHashToDataURL(binaryThumbHash);
+        setPlaceholder(placeholderImage);
+      } catch (e) {
+        console.warn('Failed to set placeholder thumbHash:', e);
+      }
       return;
     }
 
