@@ -168,7 +168,7 @@ resource "aws_ecs_service" "tunnelbroker" {
   task_definition      = aws_ecs_task_definition.tunnelbroker.arn
   force_new_deployment = true
 
-  desired_count = 2
+  desired_count = local.is_staging ? 2 : 5
 
   service_connect_configuration {
     enabled = true
