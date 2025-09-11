@@ -221,6 +221,7 @@ RUN yarn workspace rust-node-addon build
 #-------------------------------------------------------------------------------
 
 # Babel transpilation of keyserver src
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
