@@ -3,6 +3,7 @@
 #include "MessageSpecs/AddMembersMessageSpec.h"
 #include "MessageSpecs/ChangeRoleMessageSpec.h"
 #include "MessageSpecs/ChangeSettingsMessageSpec.h"
+#include "MessageSpecs/CompoundReactionMessageSpec.h"
 #include "MessageSpecs/CreateEntryMessageSpec.h"
 #include "MessageSpecs/CreateSidebarMessageSpec.h"
 #include "MessageSpecs/CreateSubThreadMessageSpec.h"
@@ -97,6 +98,9 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
            std::make_unique<RemoveMembersMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::DELETE_MESSAGE, std::make_unique<DeleteMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::COMPOUND_REACTION,
+           std::make_unique<CompoundReactionMessageSpec>()});
       return message_specs_initializer;
     }();
 
