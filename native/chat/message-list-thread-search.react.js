@@ -54,7 +54,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
           userListItemsArr.push(searchResult);
           continue;
         }
-        nonFriendsSet.add(searchResult.id);
+        // nonFriendsSet.add(searchResult.id);
         const { alert, ...rest } = searchResult;
         userListItemsArr.push(rest);
       }
