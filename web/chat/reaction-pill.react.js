@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import { useSendReaction } from './reaction-message-utils.js';
@@ -18,15 +19,15 @@ const availableReactionTooltipPositions = [
 
 type Props = {
   +reaction: string,
-  +messageID: ?string,
+  +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo,
   +reactions: ReactionInfo,
 };
 
 function ReactionPill(props: Props): React.Node {
-  const { reaction, messageID, threadInfo, reactions } = props;
+  const { reaction, messageInfo, threadInfo, reactions } = props;
 
-  const sendReaction = useSendReaction(messageID, threadInfo, reactions);
+  const sendReaction = useSendReaction(messageInfo, threadInfo, reactions);
 
   const onClickReaction = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {

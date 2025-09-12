@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useSendReactionBase } from 'lib/shared/reaction-utils.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import Alert from '../modals/alert.react.js';
@@ -15,7 +16,7 @@ import {
 import { getAppContainerPositionInfo } from '../utils/window-utils.js';
 
 function useSendReaction(
-  messageID: ?string,
+  messageInfo: ?MessageInfo,
   threadInfo: ThreadInfo,
   reactions: ReactionInfo,
 ): (reaction: string) => mixed {
@@ -30,7 +31,12 @@ function useSendReaction(
       ),
     [pushModal],
   );
-  return useSendReactionBase(messageID, threadInfo, reactions, showErrorAlert);
+  return useSendReactionBase(
+    messageInfo,
+    threadInfo,
+    reactions,
+    showErrorAlert,
+  );
 }
 
 type EmojiKeyboardPosition = {
