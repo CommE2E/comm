@@ -93,6 +93,11 @@ impl FarcasterClient {
         error!("STREAM method should be handled earlier, not in api_request");
         return Err(error::Error::InvalidRequest);
       }
+      APIMethod::DELETE => self
+        .http_client
+        .delete(url)
+        .headers(headers)
+        .body(request.payload),
     };
 
     let response = request_builder.send().await?;
