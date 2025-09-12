@@ -179,41 +179,41 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   `);
 
   const Loading = await loadingPromise;
-  await new Promise<void>((resolve, reject) => {
-    const {
-      pipe,
-    }: {
-      +pipe: (
-        destination: $Response,
-        options?: { +end?: boolean, ... },
-      ) => void,
-      ...
-    } = renderToPipeableStream(<Loading />, {
-      onShellReady() {
-        pipe(res, { end: false });
-      },
+
+  await new Promise((resolve, reject) => {
+    let didError = false;
+    const reactStream = renderToPipeableStream(<Loading />, {
       onAllReady() {
+        reactStream.pipe(res);
+        res.statusCode = didError ? 500 : 200;
+
+        // prettier-ignore
+        res.end(html`
+          </div>
+          <script>
+            var keyserverURL = "${keyserverURL}";
+            var baseURL = "${baseURL}";
+            var olmFilename = "${olmFilename}";
+            var commQueryExecutorFilename = "${commQueryExecutorFilename}";
+            var backupClientFilename = "${backupClientFilename}";
+            var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
+          </script>
+          <script src="${jsURL}"></script>
+        </body>
+      </html>
+        `);
+        console.log('Stream done');
         resolve();
       },
-      onError(error) {
-        reject(error);
+      onError(x) {
+        didError = true;
+        console.error('Stream error', x);
+        reject(x);
       },
     });
   });
-  res.end(html`
-    </div>
-    <script>
-          var keyserverURL = "${keyserverURL}";
-          var baseURL = "${baseURL}";
-          var olmFilename = "${olmFilename}";
-          var commQueryExecutorFilename = "${commQueryExecutorFilename}";
-          var backupClientFilename = "${backupClientFilename}";
-          var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
-        </script>
-        <script src="${jsURL}"></script>
-      </body>
-    </html>
-  `);
+
+  // await waitForStream(reactStream);
 }
 
 // On native, if this responder is called, it means that the app isn't
