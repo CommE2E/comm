@@ -28,6 +28,7 @@ enum class MessageType {
   TOGGLE_PIN = 21,
   UPDATE_RELATIONSHIP = 22,
   DELETE_MESSAGE = 23,
+  COMPOUND_REACTION = 24,
 };
 
 } // namespace comm
