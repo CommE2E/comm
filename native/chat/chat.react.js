@@ -25,7 +25,9 @@ import { StackView } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
+  Alert,
   Platform,
+  TouchableOpacity,
   View,
   useWindowDimensions,
   type MeasureOnSuccessCallback,
@@ -33,10 +35,13 @@ import {
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
+import { ProtocolSelectionProvider } from '../components/protocol-selection-provider.react.js';
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
@@ -69,6 +74,7 @@ import {
   nuxTip,
   NUXTipsContext,
 } from '../components/nux-tips-context.react.js';
+import ProtocolIcon from '../components/protocol-icon.react';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
@@ -105,6 +111,8 @@ import MessageSearch from '../search/message-search.react.js';
 import SearchHeader from '../search/search-header.react.js';
 import SearchMessagesButton from '../search/search-messages-button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs';
+import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols';
 
 const unboundStyles = {
   keyboardAvoidingView: {
@@ -177,14 +185,14 @@ export type ChatNavigationHelpers<ParamList: ParamListBase = ParamListBase> = {
 
 type ChatNavigatorProps = StackNavigatorProps<ChatNavigationHelpers<>>;
 function ChatNavigator({
-  initialRouteName,
-  children,
-  screenOptions,
-  defaultScreenOptions,
-  screenListeners,
-  id,
-  ...rest
-}: ChatNavigatorProps) {
+                         initialRouteName,
+                         children,
+                         screenOptions,
+                         defaultScreenOptions,
+                         screenListeners,
+                         id,
+                         ...rest
+                       }: ChatNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder<
     StackNavigationState,
     ChatRouterNavigationAction,
@@ -245,15 +253,75 @@ const header = (props: StackHeaderProps) => {
 
 const headerRightStyle = { flexDirection: 'row' };
 
+function MessageListHeaderRight({
+                                  threadInfo,
+                                  navigation,
+                                  areSettingsEnabled,
+                                  isSearching,
+                                  isSearchEmpty,
+                                }: {
+  +threadInfo: ThreadInfo,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +areSettingsEnabled: boolean,
+  +isSearching: boolean,
+  +isSearchEmpty: boolean,
+}) {
+  const { selectedProtocol } = useProtocolSelection();
+
+  const protocolIcon = React.useMemo(() => {
+    if (!isSearching || isSearchEmpty) {
+      return null;
+    }
+
+    const protocol =
+      selectedProtocol
+        ? getProtocolByName(selectedProtocol)
+        : threadSpecs[threadInfo.type].protocol();
+
+    if (!protocol) {
+      return null;
+    }
+
+    const handleProtocolPress = () => {
+      Alert.alert(protocol.protocolName, protocol.presentationDetails.description);
+    };
+
+    return (
+      <TouchableOpacity onPress={handleProtocolPress}>
+        <ProtocolIcon protocol={protocol.protocolName} size={30} />
+      </TouchableOpacity>
+    );
+  }, [selectedProtocol, threadInfo.id, threadInfo.type]);
+
+  if (areSettingsEnabled) {
+    return (
+      <View style={headerRightStyle}>
+        <SearchMessagesButton
+          threadInfo={threadInfo}
+          navigate={navigation.navigate}
+        />
+        <ThreadSettingsButton
+          threadInfo={threadInfo}
+          navigate={navigation.navigate}
+        />
+        {protocolIcon}
+      </View>
+    );
+  }
+
+  return <View style={headerRightStyle}>{protocolIcon}</View>;
+}
+
 const messageListOptions = ({
-  navigation,
-  route,
-}: {
+                              navigation,
+                              route,
+                            }: {
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
 }) => {
+  const isSearching = !!route.params.searching;
   const isSearchEmpty =
-    !!route.params.searching && route.params.threadInfo.members.length === 1;
+    isSearching && route.params.threadInfo.members.length === 1;
 
   const areSettingsEnabled =
     !threadIsPending(route.params.threadInfo.id) && !isSearchEmpty;
@@ -268,20 +336,15 @@ const messageListOptions = ({
         {...props}
       />
     ),
-    headerRight: areSettingsEnabled
-      ? () => (
-          <View style={headerRightStyle}>
-            <SearchMessagesButton
-              threadInfo={route.params.threadInfo}
-              navigate={navigation.navigate}
-            />
-            <ThreadSettingsButton
-              threadInfo={route.params.threadInfo}
-              navigate={navigation.navigate}
-            />
-          </View>
-        )
-      : undefined,
+    headerRight: () => (
+      <MessageListHeaderRight
+        threadInfo={route.params.threadInfo}
+        navigation={navigation}
+        areSettingsEnabled={areSettingsEnabled}
+        isSearching={isSearching}
+        isSearchEmpty={isSearchEmpty}
+      />
+    ),
     headerBackTitleVisible: false,
     headerTitleAlign: isSearchEmpty ? 'center' : 'left',
     headerLeftContainerStyle: { width: Platform.OS === 'ios' ? 32 : 40 },
@@ -293,8 +356,8 @@ const composeThreadOptions = {
   headerBackTitleVisible: false,
 };
 const threadSettingsOptions = ({
-  route,
-}: {
+                                 route,
+                               }: {
   +route: NavigationRoute<'ThreadSettings'>,
   ...
 }) => ({
@@ -330,8 +393,8 @@ const pinnedMessagesScreenOptions = {
   headerBackTitleVisible: false,
 };
 const threadSettingsNotificationsOptions = ({
-  route,
-}: {
+                                              route,
+                                            }: {
   +route: NavigationRoute<'ThreadSettingsNotifications'>,
   ...
 }) => ({
@@ -341,8 +404,8 @@ const threadSettingsNotificationsOptions = ({
   headerBackTitleVisible: false,
 });
 const changeRolesScreenOptions = ({
-  route,
-}: {
+                                    route,
+                                  }: {
   +route: NavigationRoute<'ChangeRolesScreen'>,
   ...
 }) => ({
@@ -367,10 +430,12 @@ const Chat = createChatNavigator<
   ChatNavigationHelpers<ScreenParamList>,
 >();
 
-const communityDrawerButtonOnLayout = () => {};
+const communityDrawerButtonOnLayout = () => {
+};
 
 type Props = {
   +navigation: TabNavigationProp<'Chat'>,
+  +route: NavigationRoute<'Chat'>,
   ...
 };
 export default function ChatComponent(props: Props): React.Node {
@@ -438,8 +503,8 @@ export default function ChatComponent(props: Props): React.Node {
 
   const chatThreadListOptions = React.useCallback(
     ({
-      navigation,
-    }: {
+       navigation,
+     }: {
       +navigation: ChatNavigationProp<'ChatThreadList'>,
       ...
     }) => ({
@@ -459,73 +524,75 @@ export default function ChatComponent(props: Props): React.Node {
   const activeThreadID = activeThreadSelector(navContext);
 
   return (
-    <View style={styles.view}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardAvoidingView}
-      >
-        <Chat.Navigator screenOptions={screenOptions}>
-          <Chat.Screen
-            name={ChatThreadListRouteName}
-            component={ChatThreadsComponent}
-            options={chatThreadListOptions}
-          />
-          <Chat.Screen
-            name={MessageListRouteName}
-            component={MessageListContainer}
-            options={messageListOptions}
-          />
-          <Chat.Screen
-            name={ComposeSubchannelRouteName}
-            component={ComposeSubchannel}
-            options={composeThreadOptions}
-          />
-          <Chat.Screen
-            name={ThreadSettingsRouteName}
-            component={ThreadSettings}
-            options={threadSettingsOptions}
-          />
-          <Chat.Screen
-            name={EmojiThreadAvatarCreationRouteName}
-            component={EmojiThreadAvatarCreation}
-            options={emojiAvatarCreationOptions}
-          />
-          <Chat.Screen
-            name={FullScreenThreadMediaGalleryRouteName}
-            component={FullScreenThreadMediaGallery}
-            options={fullScreenThreadMediaGalleryOptions}
-          />
-          <Chat.Screen
-            name={DeleteThreadRouteName}
-            component={DeleteThread}
-            options={deleteThreadOptions}
-          />
-          <Chat.Screen
-            name={PinnedMessagesScreenRouteName}
-            component={PinnedMessagesScreen}
-            options={pinnedMessagesScreenOptions}
-          />
-          <Chat.Screen
-            name={MessageSearchRouteName}
-            component={MessageSearch}
-            options={messageSearchOptions}
-          />
-          <Chat.Screen
-            name={ChangeRolesScreenRouteName}
-            component={ChangeRolesScreen}
-            options={changeRolesScreenOptions}
-          />
-          <Chat.Screen
-            name={ThreadSettingsNotificationsRouteName}
-            component={ThreadSettingsNotifications}
-            options={threadSettingsNotificationsOptions}
-          />
-        </Chat.Navigator>
-        <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
-        <ThreadScreenPruner />
-        <NUXHandler />
-        {draftUpdater}
-      </KeyboardAvoidingView>
-    </View>
+    <ProtocolSelectionProvider>
+      <View style={styles.view}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={styles.keyboardAvoidingView}
+        >
+          <Chat.Navigator screenOptions={screenOptions}>
+            <Chat.Screen
+              name={ChatThreadListRouteName}
+              component={ChatThreadsComponent}
+              options={chatThreadListOptions}
+            />
+            <Chat.Screen
+              name={MessageListRouteName}
+              component={MessageListContainer}
+              options={messageListOptions}
+            />
+            <Chat.Screen
+              name={ComposeSubchannelRouteName}
+              component={ComposeSubchannel}
+              options={composeThreadOptions}
+            />
+            <Chat.Screen
+              name={ThreadSettingsRouteName}
+              component={ThreadSettings}
+              options={threadSettingsOptions}
+            />
+            <Chat.Screen
+              name={EmojiThreadAvatarCreationRouteName}
+              component={EmojiThreadAvatarCreation}
+              options={emojiAvatarCreationOptions}
+            />
+            <Chat.Screen
+              name={FullScreenThreadMediaGalleryRouteName}
+              component={FullScreenThreadMediaGallery}
+              options={fullScreenThreadMediaGalleryOptions}
+            />
+            <Chat.Screen
+              name={DeleteThreadRouteName}
+              component={DeleteThread}
+              options={deleteThreadOptions}
+            />
+            <Chat.Screen
+              name={PinnedMessagesScreenRouteName}
+              component={PinnedMessagesScreen}
+              options={pinnedMessagesScreenOptions}
+            />
+            <Chat.Screen
+              name={MessageSearchRouteName}
+              component={MessageSearch}
+              options={messageSearchOptions}
+            />
+            <Chat.Screen
+              name={ChangeRolesScreenRouteName}
+              component={ChangeRolesScreen}
+              options={changeRolesScreenOptions}
+            />
+            <Chat.Screen
+              name={ThreadSettingsNotificationsRouteName}
+              component={ThreadSettingsNotifications}
+              options={threadSettingsNotificationsOptions}
+            />
+          </Chat.Navigator>
+          <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
+          <ThreadScreenPruner />
+          <NUXHandler />
+          {draftUpdater}
+        </KeyboardAvoidingView>
+      </View>
+    </ProtocolSelectionProvider>
   );
 }

@@ -10,8 +10,11 @@ import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
+import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
+import { keyserverThreadProtocol } from 'lib/shared/threads/protocols/keyserver-thread-protocol.js';
+import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
+import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -36,35 +39,41 @@ function useInfosForPendingThread(): InfosForPendingThread {
 
 function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
+  selectedProtocol: ?ProtocolName,
 ): ?ThreadInfo {
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();
   invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
 
-  const pendingPrivateThread = React.useRef(
-    createPendingThread({
+  const pendingPrivateThread = React.useMemo(() => {
+    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
+
+    return createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.PRIVATE,
+      threadType: protocol.pendingThreadType(1),
       members: [loggedInUserInfo],
-    }),
-  );
+      // protocol: selectedProtocol,
+    });
+  }, [loggedInUserInfo, selectedProtocol]);
 
   const newThreadID = 'pending/new_thread';
-  const pendingNewThread = React.useMemo(
-    () => ({
+  const pendingNewThread = React.useMemo(() => {
+    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
+    return {
       ...createPendingThread({
         viewerID: loggedInUserInfo.id,
-        threadType: threadTypes.PRIVATE,
+        threadType: protocol.pendingThreadType(1),
         members: [loggedInUserInfo],
         name: 'New thread',
       }),
       id: newThreadID,
-    }),
-    [loggedInUserInfo],
-  );
+    };
+  }, [loggedInUserInfo, selectedProtocol]);
+
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
-    pendingPrivateThread.current,
+    pendingPrivateThread,
+    selectedProtocol,
   );
 
   const baseThreadInfo = useSelector(state => {

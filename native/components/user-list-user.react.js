@@ -6,11 +6,13 @@ import { Text, Platform } from 'react-native';
 import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';
+import ProtocolIcon from './protocol-icon.react.js';
 import SingleLine from './single-line.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 import Alert from '../utils/alert.js';
+import CommLogo from '../vectors/comm-logo.react.js';
 
 // eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem): number => {
@@ -57,6 +59,15 @@ class UserListUser extends React.PureComponent<Props> {
     }
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
 
+    let icon = null;
+    if (userInfo.supportedProtocols.includes('Comm DM')) {
+      icon = <ProtocolIcon icon={<CommLogo />} size={23} />;
+    } else if (
+      userInfo.supportedProtocols.includes('Farcaster DC')
+    ) {
+      icon = <ProtocolIcon protocol="Farcaster DC" size={23} />;
+    }
+
     return (
       <Button
         onPress={this.onSelect}
@@ -71,6 +82,7 @@ class UserListUser extends React.PureComponent<Props> {
           {this.props.userInfo.username}
         </SingleLine>
         {notice}
+        {icon}
       </Button>
     );
   }
@@ -78,7 +90,13 @@ class UserListUser extends React.PureComponent<Props> {
   onSelect = () => {
     const { userInfo } = this.props;
     if (!userInfo.alert) {
-      const { alert, notice, disabled, ...accountUserInfo } = userInfo;
+      const {
+        alert,
+        notice,
+        disabled,
+        supportedProtocols,
+        ...accountUserInfo
+      } = userInfo;
       this.props.onSelect(accountUserInfo);
       return;
     }

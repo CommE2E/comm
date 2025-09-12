@@ -9,6 +9,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import ChatMessageListContainer from './chat-message-list-container.react.js';
 import ChatTabs from './chat-tabs.react.js';
 import { ThreadListProvider } from './thread-list-provider.js';
+import { ProtocolSelectionProvider } from '../components/protocol-selection-provider.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 
@@ -43,12 +44,12 @@ function Chat(): React.Node {
   const activeThreadID = useSelector(activeThreadSelector);
 
   return (
-    <>
+    <ProtocolSelectionProvider>
       {chatList}
       {messageList}
       {threadDraftUpdater}
       <MessageStorePruner activeThreadID={activeThreadID} />
-    </>
+    </ProtocolSelectionProvider>
   );
 }
 

@@ -61,6 +61,11 @@ function canonicalURLFromReduxState(
           navInfo.selectedUserList?.map(({ id }) => id)?.join('+') ?? '';
         const potentiallyTrailingSlash = users.length > 0 ? '/' : '';
         newURL += `thread/new/${users}${potentiallyTrailingSlash}`;
+        // if (navInfo.selectedProtocol) {
+        //   newURL += `thread/new/${navInfo.selectedProtocol}/${users}${potentiallyTrailingSlash}`;
+        // } else {
+        //   newURL += `thread/new/${users}${potentiallyTrailingSlash}`;
+        // }
       } else {
         const activeChatThreadID = navInfo.activeChatThreadID;
         if (activeChatThreadID) {
@@ -155,6 +160,10 @@ function navInfoFromURL(
   } else {
     newNavInfo.loginMethod = 'form';
   }
+
+  // if (urlInfo.selectedProtocol) {
+  //   newNavInfo.selectedProtocol = urlInfo.selectedProtocol;
+  // }
 
   return newNavInfo;
 }

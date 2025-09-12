@@ -6,6 +6,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import genesis from 'lib/facts/genesis.js';
 import {
   useUsersSupportFarcasterDCs,
@@ -36,8 +37,8 @@ import {
 import MessageListThreadSearch from './message-list-thread-search.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import MessageList from './message-list.react.js';
-import ParentThreadHeader from './parent-thread-header.react.js';
 import ContentLoading from '../components/content-loading.react.js';
+import SelectProtocolDropdown from '../components/select-protocol-dropdown.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import {
   OverlayContext,
@@ -164,31 +165,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     let searchComponent = null;
     if (searching) {
-      const { userInfoInputArray, genesisThreadInfo } = this.props;
-      let parentThreadHeader;
-      const protocol = threadSpecs[threadInfo.type].protocol();
-      const childThreadType = protocol.pendingThreadType(
-        userInfoInputArray.length,
-      );
-      const threadSearchHeaderShowsGenesis =
-        protocol.presentationDetails.threadSearchHeaderShowsGenesis;
-      if (!threadSearchHeaderShowsGenesis) {
-        parentThreadHeader = (
-          <ParentThreadHeader childThreadType={childThreadType} />
-        );
-      } else if (genesisThreadInfo) {
-        // It's technically possible for the client to be missing the Genesis
-        // ThreadInfo when it first opens up (before the server delivers it)
-        parentThreadHeader = (
-          <ParentThreadHeader
-            parentThreadInfo={genesisThreadInfo}
-            childThreadType={childThreadType}
-          />
-        );
-      }
+      const { userInfoInputArray } = this.props;
       searchComponent = (
         <>
-          {parentThreadHeader}
+          <SelectProtocolDropdown />
           <MessageListThreadSearch
             usernameInputText={this.props.usernameInputText}
             updateUsernameInput={this.props.updateUsernameInput}
@@ -258,6 +238,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
       $ReadOnlyArray<AccountUserInfo>,
     >([]);
+    const { setUserInfoInput, selectedProtocol, setSearching } = useProtocolSelection();
+    React.useEffect(
+      () => {setUserInfoInput?.(userInfoInputArray)} ,
+      [setUserInfoInput, userInfoInputArray],
+    );
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
 
@@ -287,8 +272,10 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       props.route.params.threadInfo,
     );
 
-    const existingThreadInfoFinder =
-      useExistingThreadInfoFinder(baseThreadInfo);
+    const existingThreadInfoFinder = useExistingThreadInfoFinder(
+      baseThreadInfo,
+      selectedProtocol,
+    );
 
     const checkUsersThickThreadSupport = useUsersSupportThickThreads();
     const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
@@ -296,6 +283,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       useUsersSupportingProtocols(userInfoInputArray);
 
     const isSearching = !!props.route.params.searching;
+
+    React.useEffect(() => {
+      setSearching?.(isSearching);
+      return () => {setSearching?.(false)}
+    }, [isSearching, setSearching]);
     const threadInfo = React.useMemo(
       () =>
         existingThreadInfoFinder({
@@ -473,9 +465,9 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         threadSpecs[threadInfo.type]
           .protocol()
           .onOpenThread?.(
-            { threadID: threadInfo.id },
-            { farcasterRefreshConversation },
-          );
+          { threadID: threadInfo.id },
+          { farcasterRefreshConversation },
+        );
         prevActiveThreadID.current = threadInfo.id;
       }
     }, [farcasterRefreshConversation, threadInfo.id, threadInfo.type]);
