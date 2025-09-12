@@ -179,41 +179,39 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   `);
 
   const Loading = await loadingPromise;
-  await new Promise<void>((resolve, reject) => {
-    const {
-      pipe,
-    }: {
-      +pipe: (
-        destination: $Response,
-        options?: { +end?: boolean, ... },
-      ) => void,
-      ...
-    } = renderToPipeableStream(<Loading />, {
-      onShellReady() {
-        pipe(res, { end: false });
-      },
-      onAllReady() {
-        resolve();
-      },
-      onError(error) {
-        reject(error);
-      },
-    });
+
+  await new Promise((resolve, reject) => {
+    let didError = false;
+    const { pipe }: { pipe: ($Response, options?: { end: boolean }) => mixed } =
+      renderToPipeableStream(<Loading />, {
+        onAllReady() {
+          pipe(res);
+          res.statusCode = didError ? 500 : 200;
+
+          // prettier-ignore
+          res.end(html`
+            </div>
+            <script>
+              var keyserverURL = "${keyserverURL}";
+              var baseURL = "${baseURL}";
+              var olmFilename = "${olmFilename}";
+              var commQueryExecutorFilename = "${commQueryExecutorFilename}";
+              var backupClientFilename = "${backupClientFilename}";
+              var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
+            </script>
+            <script src="${jsURL}"></script>
+          </body>
+        </html>
+          `);
+          resolve();
+        },
+        onError(x) {
+          didError = true;
+          console.error('Stream error', x);
+          reject(x);
+        },
+      });
   });
-  res.end(html`
-    </div>
-    <script>
-          var keyserverURL = "${keyserverURL}";
-          var baseURL = "${baseURL}";
-          var olmFilename = "${olmFilename}";
-          var commQueryExecutorFilename = "${commQueryExecutorFilename}";
-          var backupClientFilename = "${backupClientFilename}";
-          var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
-        </script>
-        <script src="${jsURL}"></script>
-      </body>
-    </html>
-  `);
 }
 
 // On native, if this responder is called, it means that the app isn't

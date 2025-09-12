@@ -229,37 +229,6 @@ async function landingResponder(req: $Request, res: $Response) {
   // We remove trailing slash for `react-router`
   const routerBasename = basePath.replace(/\/$/, '');
   const clientPath = routerBasename + req.url;
-  await new Promise<void>((resolve, reject) => {
-    const {
-      pipe,
-    }: {
-      +pipe: (
-        destination: $Response,
-        options?: { +end?: boolean, ... },
-      ) => void,
-      ...
-    } = renderToPipeableStream(
-      <LandingSSR
-        url={clientPath}
-        basename={routerBasename}
-        siweNonce={siweNonce}
-        siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
-        siweMessageType={siweMessageType}
-        siweMessageIssuedAt={siweMessageIssuedAt}
-      />,
-      {
-        onShellReady() {
-          pipe(res, { end: false });
-        },
-        onAllReady() {
-          resolve();
-        },
-        onError(error) {
-          reject(error);
-        },
-      },
-    );
-  });
 
   const siweNonceString = siweNonce ? `"${siweNonce}"` : 'null';
   const siwePrimaryIdentityPublicKeyString = siwePrimaryIdentityPublicKey
@@ -271,17 +240,47 @@ async function landingResponder(req: $Request, res: $Response) {
   const siweMessageIssuedAtString = siweMessageIssuedAt
     ? `"${siweMessageIssuedAt}"`
     : 'null';
-  // prettier-ignore
-  res.end(html`</div>
-        <script>var routerBasename = "${routerBasename}";</script>
-        <script>var siweNonce = ${siweNonceString};</script>
-        <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
-        <script>var siweMessageType = ${siweMessageTypeString};</script>
-        <script>var siweMessageIssuedAt = ${siweMessageIssuedAtString};</script>
-        <script src="${jsURL}"></script>
-      </body>
-    </html>
-  `);
+
+  await new Promise((resolve, reject) => {
+    let didError = false;
+    const { pipe }: { pipe: ($Response, options?: { end: boolean }) => mixed } =
+      renderToPipeableStream(
+        <LandingSSR
+          url={clientPath}
+          basename={routerBasename}
+          siweNonce={siweNonce}
+          siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
+          siweMessageType={siweMessageType}
+          siweMessageIssuedAt={siweMessageIssuedAt}
+        />,
+        {
+          onAllReady() {
+            pipe(res, { end: false });
+            res.statusCode = didError ? 500 : 200;
+
+            // prettier-ignore
+            res.end(html`
+              </div>
+              <script>var routerBasename = "${routerBasename}";</script>
+              <script>var siweNonce = ${siweNonceString};</script>
+              <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
+              <script>var siweMessageType = ${siweMessageTypeString};</script>
+              <script>var siweMessageIssuedAt = ${siweMessageIssuedAtString};</script>
+              <script src="${jsURL}"></script>
+            </body>
+          </html>
+            `);
+
+            resolve();
+          },
+          onError(x) {
+            didError = true;
+            console.error('Stream error', x);
+            reject(x);
+          },
+        },
+      );
+  });
 }
 
 export default landingHandler;
