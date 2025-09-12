@@ -18,7 +18,7 @@ import {
 
 import { getMessageForException } from './utils.js';
 import { type LandingSSRProps } from '../landing/landing-ssr.react.js';
-import { waitForStream } from '../utils/json-stream.js';
+import { writeReadableStreamToResponse } from '../utils/readable-stream.js';
 import { getAndAssertLandingURLFacts } from '../utils/urls.js';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -114,8 +114,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-// eslint-disable-next-line react/no-deprecated
-const { renderToNodeStream } = ReactDOMServer;
+const { renderToReadableStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
   const siweNonce = req.header('siwe-nonce');
@@ -231,7 +230,7 @@ async function landingResponder(req: $Request, res: $Response) {
   // We remove trailing slash for `react-router`
   const routerBasename = basePath.replace(/\/$/, '');
   const clientPath = routerBasename + req.url;
-  const reactStream = renderToNodeStream(
+  const reactStream = renderToReadableStream(
     <LandingSSR
       url={clientPath}
       basename={routerBasename}
@@ -241,8 +240,7 @@ async function landingResponder(req: $Request, res: $Response) {
       siweMessageIssuedAt={siweMessageIssuedAt}
     />,
   );
-  reactStream.pipe(res, { end: false });
-  await waitForStream(reactStream);
+  await writeReadableStreamToResponse(reactStream, res);
 
   const siweNonceString = siweNonce ? `"${siweNonce}"` : 'null';
   const siwePrimaryIdentityPublicKeyString = siwePrimaryIdentityPublicKey

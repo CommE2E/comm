@@ -13,15 +13,14 @@ import stores from 'lib/facts/stores.js';
 import { inviteSecretRegex } from 'lib/shared/invite-links-constants.js';
 import getTitle from 'web/title/get-title.js';
 
-import { waitForStream } from '../utils/json-stream.js';
+import { writeReadableStreamToResponse } from '../utils/readable-stream.js';
 import {
   getAndAssertKeyserverURLFacts,
   getAppURLFactsFromRequestURL,
   getWebAppURLFacts,
 } from '../utils/urls.js';
 
-// eslint-disable-next-line react/no-deprecated
-const { renderToNodeStream } = ReactDOMServer;
+const { renderToReadableStream } = ReactDOMServer;
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -181,10 +180,8 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   `);
 
   const Loading = await loadingPromise;
-  const reactStream = renderToNodeStream(<Loading />);
-  reactStream.pipe(res, { end: false });
-
-  await waitForStream(reactStream);
+  const reactStream = renderToReadableStream(<Loading />);
+  await writeReadableStreamToResponse(reactStream, res);
   res.end(html`
     </div>
     <script>
