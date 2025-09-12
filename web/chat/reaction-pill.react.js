@@ -43,7 +43,7 @@ function ReactionPill(props: Props): React.Node {
   });
 
   const reactionInfo = reactions[reaction];
-  const numOfReacts = reactionInfo.users.length;
+  const numOfReacts = reactionInfo.count;
 
   const reactionClassName = classNames({
     [css.reactionContainer]: true,
