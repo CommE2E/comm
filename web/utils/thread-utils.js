@@ -4,14 +4,15 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
+import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
+import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
+import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -36,35 +37,39 @@ function useInfosForPendingThread(): InfosForPendingThread {
 
 function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
+  selectedProtocol: ?ProtocolName,
 ): ?ThreadInfo {
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();
   invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
 
-  const pendingPrivateThread = React.useRef(
-    createPendingThread({
+  const pendingPrivateThread = React.useMemo(() => {
+    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
+    return createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.PRIVATE,
+      threadType: protocol.pendingThreadType(1),
       members: [loggedInUserInfo],
-    }),
-  );
+    });
+  }, [loggedInUserInfo, selectedProtocol]);
 
   const newThreadID = 'pending/new_thread';
-  const pendingNewThread = React.useMemo(
-    () => ({
+  const pendingNewThread = React.useMemo(() => {
+    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
+    return {
       ...createPendingThread({
         viewerID: loggedInUserInfo.id,
-        threadType: threadTypes.PRIVATE,
+        threadType: protocol.pendingThreadType(1),
         members: [loggedInUserInfo],
         name: 'New thread',
       }),
       id: newThreadID,
-    }),
-    [loggedInUserInfo],
-  );
+    };
+  }, [loggedInUserInfo, selectedProtocol]);
+
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
-    pendingPrivateThread.current,
+    pendingPrivateThread,
+    selectedProtocol,
   );
 
   const baseThreadInfo = useSelector(state => {
@@ -76,10 +81,10 @@ function useThreadInfoForPossiblyPendingThread(
     }
     return state.navInfo.pendingThread;
   });
-  const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
-
-  const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
-    useUsersSupportingProtocols(selectedUserInfos);
+  const existingThreadInfoFinder = useExistingThreadInfoFinder(
+    baseThreadInfo,
+    selectedProtocol,
+  );
 
   const threadInfo = React.useMemo(() => {
     if (isChatCreation) {
@@ -90,20 +95,14 @@ function useThreadInfoForPossiblyPendingThread(
       return existingThreadInfoFinderForCreatingThread({
         searching: true,
         userInfoInputArray: selectedUserInfos,
-        allUsersSupportThickThreads,
-        allUsersSupportFarcasterThreads,
       });
     }
 
     return existingThreadInfoFinder({
       searching: false,
       userInfoInputArray: [],
-      allUsersSupportThickThreads: true,
-      allUsersSupportFarcasterThreads: true,
     });
   }, [
-    allUsersSupportFarcasterThreads,
-    allUsersSupportThickThreads,
     existingThreadInfoFinder,
     existingThreadInfoFinderForCreatingThread,
     isChatCreation,

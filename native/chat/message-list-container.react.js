@@ -7,6 +7,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import genesis from 'lib/facts/genesis.js';
 import {
   useUsersSupportFarcasterDCs,
@@ -21,10 +22,7 @@ import {
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils.js';
-import {
-  threadSpecs,
-  threadTypeIsPersonal,
-} from 'lib/shared/threads/thread-specs.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
@@ -43,6 +41,7 @@ import MessageList from './message-list.react.js';
 import ParentThreadHeader from './parent-thread-header.react.js';
 import RelationshipPrompt from './relationship-prompt.react.js';
 import ContentLoading from '../components/content-loading.react.js';
+import SelectProtocolDropdown from '../components/select-protocol-dropdown.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import {
   OverlayContext,
@@ -176,31 +175,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     let searchComponent = null;
     if (searching) {
-      const { userInfoInputArray, genesisThreadInfo } = this.props;
-      let parentThreadHeader;
-      const protocol = threadSpecs[threadInfo.type].protocol();
-      const childThreadType = protocol.pendingThreadType(
-        userInfoInputArray.length,
-      );
-      const threadSearchHeaderShowsGenesis =
-        protocol.presentationDetails.threadSearchHeaderShowsGenesis;
-      if (!threadSearchHeaderShowsGenesis) {
-        parentThreadHeader = (
-          <ParentThreadHeader childThreadType={childThreadType} />
-        );
-      } else if (genesisThreadInfo) {
-        // It's technically possible for the client to be missing the Genesis
-        // ThreadInfo when it first opens up (before the server delivers it)
-        parentThreadHeader = (
-          <ParentThreadHeader
-            parentThreadInfo={genesisThreadInfo}
-            childThreadType={childThreadType}
-          />
-        );
-      }
+      const { userInfoInputArray } = this.props;
       searchComponent = (
         <>
-          {parentThreadHeader}
+          <SelectProtocolDropdown />
           <MessageListThreadSearch
             usernameInputText={this.props.usernameInputText}
             updateUsernameInput={this.props.updateUsernameInput}
@@ -270,6 +248,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
       $ReadOnlyArray<AccountUserInfo>,
     >([]);
+    const { setUserInfoInput, selectedProtocol, setSearching } = useProtocolSelection();
+    React.useEffect(
+      () => {setUserInfoInput?.(userInfoInputArray)} ,
+      [setUserInfoInput, userInfoInputArray],
+    );
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
 
@@ -299,26 +282,24 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       props.route.params.threadInfo,
     );
 
-    const existingThreadInfoFinder =
-      useExistingThreadInfoFinder(baseThreadInfo);
+    const existingThreadInfoFinder = useExistingThreadInfoFinder(
+      baseThreadInfo,
+      selectedProtocol,
+    );
 
-    const checkUsersThickThreadSupport = useUsersSupportThickThreads();
-    const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
-    const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
-      useUsersSupportingProtocols(userInfoInputArray);
+     const isSearching = !!props.route.params.searching;
+    React.useEffect(() => {
+      setSearching?.(isSearching);
+      return () => {setSearching?.(false)}
+    }, [isSearching, setSearching]);
 
-    const isSearching = !!props.route.params.searching;
     const threadInfo = React.useMemo(
       () =>
         existingThreadInfoFinder({
           searching: isSearching,
           userInfoInputArray,
-          allUsersSupportThickThreads,
-          allUsersSupportFarcasterThreads,
         }),
       [
-        allUsersSupportFarcasterThreads,
-        allUsersSupportThickThreads,
         existingThreadInfoFinder,
         isSearching,
         userInfoInputArray,
@@ -385,24 +366,10 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const resolveToUser = React.useCallback(
       async (user: AccountUserInfo) => {
         const newUserInfoInputArray = user.id === viewerID ? [] : [user];
-        const newUserIDs = newUserInfoInputArray.map(userInfo => userInfo.id);
-        const [usersSupportingThickThreads, usersSupportingFarcasterThreads] =
-          await Promise.all([
-            checkUsersThickThreadSupport(newUserIDs),
-            checkUsersFarcasterDCsSupport(newUserIDs),
-          ]);
 
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
-          allUsersSupportThickThreads:
-            user.id === viewerID
-              ? true
-              : !!usersSupportingThickThreads.get(user.id),
-          allUsersSupportFarcasterThreads:
-            user.id === viewerID
-              ? false
-              : !!usersSupportingFarcasterThreads.get(user.id),
         });
         invariant(
           resolvedThreadInfo,
@@ -414,8 +381,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       },
       [
         viewerID,
-        checkUsersThickThreadSupport,
-        checkUsersFarcasterDCsSupport,
         existingThreadInfoFinder,
         editInputMessage,
         setParams,

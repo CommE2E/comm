@@ -7,14 +7,12 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
-import {
-  useUsersSupportFarcasterDCs,
-  useUsersSupportThickThreads,
-} from 'lib/hooks/user-identities-hooks.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
+import { protocolNames } from 'lib/shared/protocol-names.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -25,16 +23,20 @@ import {
   threadIsPending,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
+import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
 
 import css from './chat-thread-composer.css';
+import CommLogo from '../assets/comm-logo.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 import Label from '../components/label.react.js';
+import ProtocolIcon from '../components/protocol-icon.react.js';
 import Search from '../components/search.react.js';
+import SelectProtocolDropdown from '../components/select-protocol-dropdown.react.js';
 import type { InputState } from '../input/input-state.js';
 import Alert from '../modals/alert.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -52,6 +54,7 @@ type ActiveThreadBehavior =
 
 function ChatThreadComposer(props: Props): React.Node {
   const { userInfoInputArray, threadID, inputState } = props;
+  const { selectedProtocol } = useProtocolSelection();
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
@@ -87,19 +90,20 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const { pushModal } = useModalContext();
 
-  const pendingPrivateThread = React.useRef(
-    createPendingThread({
-      viewerID,
-      threadType: threadTypes.PRIVATE,
-      members: [loggedInUserInfo],
-    }),
-  );
-  const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
-    pendingPrivateThread.current,
-  );
+  const pendingPrivateThread = React.useMemo(() => {
+    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
 
-  const checkUsersThickThreadSupport = useUsersSupportThickThreads();
-  const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
+    return createPendingThread({
+      viewerID,
+      threadType: protocol.pendingThreadType(userInfoInputArray.length),
+      members: [loggedInUserInfo],
+    });
+  }, [loggedInUserInfo, selectedProtocol, userInfoInputArray.length, viewerID]);
+
+  const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
+    pendingPrivateThread,
+    selectedProtocol,
+  );
 
   const onSelectUserFromSearch = React.useCallback(
     async (userListItem: UserListItem) => {
@@ -117,25 +121,10 @@ function ChatThreadComposer(props: Props): React.Node {
           username: userListItem.username,
         };
         const newUserInfoInputArray = user.id === viewerID ? [] : [newUserInfo];
-        const newUserIDs = newUserInfoInputArray.map(userInfo => userInfo.id);
-
-        const [usersSupportingThickThreads, usersSupportingFarcasterThreads] =
-          await Promise.all([
-            checkUsersThickThreadSupport(newUserIDs),
-            checkUsersFarcasterDCsSupport(newUserIDs),
-          ]);
 
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
-          allUsersSupportThickThreads:
-            user.id === viewerID
-              ? true
-              : !!usersSupportingThickThreads.get(user.id),
-          allUsersSupportFarcasterThreads:
-            user.id === viewerID
-              ? false
-              : !!usersSupportingFarcasterThreads.get(user.id),
         });
         dispatch({
           type: updateNavInfoActionType,
@@ -159,8 +148,6 @@ function ChatThreadComposer(props: Props): React.Node {
     [
       viewerID,
       userInfoInputArray,
-      checkUsersThickThreadSupport,
-      checkUsersFarcasterDCsSupport,
       existingThreadInfoFinderForCreatingThread,
       dispatch,
       pushModal,
@@ -195,6 +182,18 @@ function ChatThreadComposer(props: Props): React.Node {
 
     const userItems = userListItemsWithENSNames.map(
       (userSearchResult: UserListItem) => {
+        let icon = null;
+        if (
+          userSearchResult.supportedProtocols.includes(protocolNames.COMM_DM)
+        ) {
+          icon = <ProtocolIcon icon={<CommLogo />} size={23} />;
+        } else if (
+          userSearchResult.supportedProtocols.includes(
+            protocolNames.FARCASTER_DC,
+          )
+        ) {
+          icon = <ProtocolIcon protocol="Farcaster DC" size={23} />;
+        }
         return (
           <li key={userSearchResult.id} className={css.searchResultsItem}>
             <Button
@@ -206,7 +205,10 @@ function ChatThreadComposer(props: Props): React.Node {
                 <UserAvatar size="S" userID={userSearchResult.id} />
                 <div className={css.userName}>{userSearchResult.username}</div>
               </div>
-              <div className={css.userInfo}>{userSearchResult.notice}</div>
+              <div className={css.rightContainer}>
+                <div className={css.userInfo}>{userSearchResult.notice}</div>
+                <div className={css.protocolIcons}>{icon}</div>
+              </div>
             </Button>
           </li>
         );
@@ -215,10 +217,10 @@ function ChatThreadComposer(props: Props): React.Node {
 
     return <ul className={css.searchResultsContainer}>{userItems}</ul>;
   }, [
-    onSelectUserFromSearch,
-    userInfoInputArray.length,
     userListItemsWithENSNames,
     usernameInputText,
+    userInfoInputArray.length,
+    onSelectUserFromSearch,
   ]);
 
   const hideSearch = React.useCallback(
@@ -271,6 +273,9 @@ function ChatThreadComposer(props: Props): React.Node {
 
   return (
     <div className={threadSearchContainerStyles}>
+      <div className={css.protocolRow}>
+        <SelectProtocolDropdown />
+      </div>
       <div className={css.searchRow}>
         <div className={css.searchField}>
           <Search

@@ -26,7 +26,8 @@ export type CommIcons =
   | 'link_plus-outline'
   | 'user-filled'
   | 'user-edit'
-  | 'farcaster-outline';
+  | 'farcaster-outline'
+  | 'farcaster';
 
 type CommIconProps = {
   +icon: CommIcons,
