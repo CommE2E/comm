@@ -8,6 +8,7 @@ pub enum APIMethod {
   GET,
   POST,
   STREAM,
+  DELETE,
 }
 
 #[derive(Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug)]
