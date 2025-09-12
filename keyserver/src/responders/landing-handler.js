@@ -18,7 +18,6 @@ import {
 
 import { getMessageForException } from './utils.js';
 import { type LandingSSRProps } from '../landing/landing-ssr.react.js';
-import { writeReadableStreamToResponse } from '../utils/readable-stream.js';
 import { getAndAssertLandingURLFacts } from '../utils/urls.js';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -114,7 +113,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-const { renderToReadableStream } = ReactDOMServer;
+const { renderToPipeableStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
   const siweNonce = req.header('siwe-nonce');
@@ -230,17 +229,37 @@ async function landingResponder(req: $Request, res: $Response) {
   // We remove trailing slash for `react-router`
   const routerBasename = basePath.replace(/\/$/, '');
   const clientPath = routerBasename + req.url;
-  const reactStream = renderToReadableStream(
-    <LandingSSR
-      url={clientPath}
-      basename={routerBasename}
-      siweNonce={siweNonce}
-      siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
-      siweMessageType={siweMessageType}
-      siweMessageIssuedAt={siweMessageIssuedAt}
-    />,
-  );
-  await writeReadableStreamToResponse(reactStream, res);
+  await new Promise<void>((resolve, reject) => {
+    const {
+      pipe,
+    }: {
+      +pipe: (
+        destination: $Response,
+        options?: { +end?: boolean, ... },
+      ) => void,
+      ...
+    } = renderToPipeableStream(
+      <LandingSSR
+        url={clientPath}
+        basename={routerBasename}
+        siweNonce={siweNonce}
+        siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
+        siweMessageType={siweMessageType}
+        siweMessageIssuedAt={siweMessageIssuedAt}
+      />,
+      {
+        onShellReady() {
+          pipe(res, { end: false });
+        },
+        onAllReady() {
+          resolve();
+        },
+        onError(error) {
+          reject(error);
+        },
+      },
+    );
+  });
 
   const siweNonceString = siweNonce ? `"${siweNonce}"` : 'null';
   const siwePrimaryIdentityPublicKeyString = siwePrimaryIdentityPublicKey

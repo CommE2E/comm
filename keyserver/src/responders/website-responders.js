@@ -13,14 +13,13 @@ import stores from 'lib/facts/stores.js';
 import { inviteSecretRegex } from 'lib/shared/invite-links-constants.js';
 import getTitle from 'web/title/get-title.js';
 
-import { writeReadableStreamToResponse } from '../utils/readable-stream.js';
 import {
   getAndAssertKeyserverURLFacts,
   getAppURLFactsFromRequestURL,
   getWebAppURLFacts,
 } from '../utils/urls.js';
 
-const { renderToReadableStream } = ReactDOMServer;
+const { renderToPipeableStream } = ReactDOMServer;
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -180,8 +179,27 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   `);
 
   const Loading = await loadingPromise;
-  const reactStream = renderToReadableStream(<Loading />);
-  await writeReadableStreamToResponse(reactStream, res);
+  await new Promise<void>((resolve, reject) => {
+    const {
+      pipe,
+    }: {
+      +pipe: (
+        destination: $Response,
+        options?: { +end?: boolean, ... },
+      ) => void,
+      ...
+    } = renderToPipeableStream(<Loading />, {
+      onShellReady() {
+        pipe(res, { end: false });
+      },
+      onAllReady() {
+        resolve();
+      },
+      onError(error) {
+        reject(error);
+      },
+    });
+  });
   res.end(html`
     </div>
     <script>
