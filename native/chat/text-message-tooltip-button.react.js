@@ -109,7 +109,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
     messageInfo,
   );
 
-  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
+  const sendReaction = useSendReaction(messageInfo, threadInfo, reactions);
 
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState<boolean>(false);
   const openEmojiPicker = React.useCallback(() => {
