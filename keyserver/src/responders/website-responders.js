@@ -190,19 +190,19 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
 
           // prettier-ignore
           res.end(html`
-          </div>
-          <script>
-            var keyserverURL = "${keyserverURL}";
-            var baseURL = "${baseURL}";
-            var olmFilename = "${olmFilename}";
-            var commQueryExecutorFilename = "${commQueryExecutorFilename}";
-            var backupClientFilename = "${backupClientFilename}";
-            var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
-          </script>
-          <script src="${jsURL}"></script>
-        </body>
-      </html>
-        `);
+            </div>
+            <script>
+              var keyserverURL = "${keyserverURL}";
+              var baseURL = "${baseURL}";
+              var olmFilename = "${olmFilename}";
+              var commQueryExecutorFilename = "${commQueryExecutorFilename}";
+              var backupClientFilename = "${backupClientFilename}";
+              var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
+            </script>
+            <script src="${jsURL}"></script>
+          </body>
+        </html>
+          `);
           resolve();
         },
         onError(x) {

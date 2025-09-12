@@ -259,16 +259,17 @@ async function landingResponder(req: $Request, res: $Response) {
             res.statusCode = didError ? 500 : 200;
 
             // prettier-ignore
-            res.end(html`</div>
-            <script>var routerBasename = "${routerBasename}";</script>
-            <script>var siweNonce = ${siweNonceString};</script>
-            <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
-            <script>var siweMessageType = ${siweMessageTypeString};</script>
-            <script>var siweMessageIssuedAt = ${siweMessageIssuedAtString};</script>
-            <script src="${jsURL}"></script>
+            res.end(html`
+              </div>
+              <script>var routerBasename = "${routerBasename}";</script>
+              <script>var siweNonce = ${siweNonceString};</script>
+              <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
+              <script>var siweMessageType = ${siweMessageTypeString};</script>
+              <script>var siweMessageIssuedAt = ${siweMessageIssuedAtString};</script>
+              <script src="${jsURL}"></script>
             </body>
-            </html>
-          `);
+          </html>
+            `);
 
             resolve();
           },
