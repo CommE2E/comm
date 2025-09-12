@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useSendReactionBase } from 'lib/shared/reaction-utils.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -25,12 +26,12 @@ function showReactionErrorAlert() {
 }
 
 function useSendReaction(
-  messageID: ?string,
+  messageInfo: ?MessageInfo,
   threadInfo: ThreadInfo,
   reactions: ReactionInfo,
 ): (reaction: string) => mixed {
   return useSendReactionBase(
-    messageID,
+    messageInfo,
     threadInfo,
     reactions,
     showReactionErrorAlert,
