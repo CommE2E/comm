@@ -94,7 +94,7 @@ function DummyInlineEngagementNode(
     }
 
     return Object.keys(reactions).map(reaction => {
-      const numOfReacts = reactions[reaction].users.length;
+      const numOfReacts = reactions[reaction].count;
       return (
         <View
           key={reaction}
@@ -293,7 +293,7 @@ function InlineEngagement(props: Props): React.Node {
 
     return Object.keys(reactions).map(reaction => {
       const reactionInfo = reactions[reaction];
-      const numOfReacts = reactionInfo.users.length;
+      const numOfReacts = reactionInfo.count;
 
       const style = reactionInfo.viewerReacted
         ? [...reactionStyle, styles.reactionsContainerSelected]
