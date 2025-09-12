@@ -88,12 +88,12 @@ function InlineEngagement(props: Props): React.Node {
       <ReactionPill
         key={reaction}
         reaction={reaction}
-        messageID={messageInfo.id}
+        messageInfo={messageInfo}
         threadInfo={threadInfo}
         reactions={reactions}
       />
     ));
-  }, [reactions, deleted, messageInfo.id, threadInfo]);
+  }, [reactions, deleted, messageInfo, threadInfo]);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,

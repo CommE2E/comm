@@ -81,7 +81,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
   );
 
   const sendReaction = useSendReaction(
-    engagementTargetMessageInfo?.id,
+    engagementTargetMessageInfo,
     threadInfo,
     reactions,
   );

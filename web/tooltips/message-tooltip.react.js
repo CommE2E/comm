@@ -173,7 +173,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   const engagementTargetMessageInfo =
     chatMessageItemEngagementTargetMessageInfo(item);
   const sendReaction = useSendReaction(
-    engagementTargetMessageInfo?.id,
+    engagementTargetMessageInfo,
     threadInfo,
     reactions,
   );
