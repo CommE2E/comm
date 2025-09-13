@@ -6096,6 +6096,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tunnelbroker_messages",
+ "urlencoding",
  "uuid",
  "web-push",
 ]

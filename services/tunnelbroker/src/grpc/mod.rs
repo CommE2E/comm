@@ -108,6 +108,12 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
       .await
       .map_err(|_| tonic::Status::failed_precondition("unexpected error"))?;
 
+    self
+      .client
+      .mark_messages_to_device_for_deletion(&message.device_id)
+      .await
+      .map_err(|_| tonic::Status::failed_precondition("unexpected error"))?;
+
     let response = tonic::Response::new(Empty {});
     Ok(response)
   }
