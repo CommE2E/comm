@@ -98,6 +98,17 @@ pub mod http {
     pub metadata: Option<String>,
   }
 
+  #[derive(Debug, serde::Serialize, serde::Deserialize)]
+  pub struct MirroredMediaInfo {
+    pub url: String,
+    pub original_metadata: String,
+  }
+
+  #[derive(Debug, serde::Serialize, serde::Deserialize)]
+  pub struct MirrorMultimediaRequest {
+    pub medias: Vec<MirroredMediaInfo>,
+  }
+
   // impls
   impl From<Vec<BlobInfo>> for RemoveHoldersRequest {
     fn from(requests: Vec<BlobInfo>) -> Self {
