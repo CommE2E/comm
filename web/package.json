@@ -51,7 +51,7 @@
     "@fortawesome/fontawesome-svg-core": "1.2.25",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
-    "@fortawesome/react-fontawesome": "0.1.5",
+    "@fortawesome/react-fontawesome": "0.2.6",
     "@rainbow-me/rainbowkit": "^2.0.7",
     "@tanstack/react-query": "^5.28.9",
     "basscss": "8.0.2",
