@@ -14,7 +14,9 @@ pub use reqwest::StatusCode;
 pub use reqwest::Url;
 
 use crate::{
-  auth::{AuthorizationCredential, UserIdentity},
+  auth::{
+    AuthService, AuthServiceError, AuthorizationCredential, UserIdentity,
+  },
   blob::types::http::{
     AssignHolderRequest, AssignHolderResponse, RemoveHolderRequest,
     RemoveHoldersRequest,
@@ -27,7 +29,8 @@ use crate::{
 use super::types::{
   http::{
     AssignHoldersRequest, AssignHoldersResponse, BlobSizesRequest,
-    BlobSizesResponse, RemoveHoldersResponse,
+    BlobSizesResponse, MirrorMultimediaRequest, MirroredMediaInfo,
+    RemoveHoldersResponse,
   },
   BlobInfo,
 };
@@ -68,6 +71,38 @@ pub enum BlobServiceError {
 impl From<MaxRetriesExceededError> for BlobServiceError {
   fn from(_: MaxRetriesExceededError) -> Self {
     Self::MaxRetriesExceeded
+  }
+}
+
+/// Service-to-service token authenticated [`BlobServiceClient`].
+/// Authentication is performed lazily each time when
+/// [`S2SAuthedBlobClient::auth()`] is called.
+#[cfg(feature = "aws")]
+#[derive(Clone)]
+pub struct S2SAuthedBlobClient {
+  blob_client: BlobServiceClient,
+  auth_service: AuthService,
+}
+
+impl S2SAuthedBlobClient {
+  pub fn new(
+    auth_service: &AuthService,
+    blob_service_url: reqwest::Url,
+  ) -> Self {
+    Self {
+      blob_client: BlobServiceClient::new(blob_service_url),
+      auth_service: auth_service.clone(),
+    }
+  }
+
+  pub fn unauth(&self) -> BlobServiceClient {
+    self.blob_client.clone()
+  }
+
+  pub async fn auth(&self) -> Result<BlobServiceClient, AuthServiceError> {
+    let token = self.auth_service.get_services_token().await?;
+    let blob_client = self.blob_client.with_authentication(token.into());
+    Ok(blob_client)
   }
 }
 
@@ -538,6 +573,38 @@ impl BlobServiceClient {
         warn!("Failed to revoke holder: {0:?} - {0}", err);
       }
     });
+  }
+
+  pub async fn mirror_multimedia(
+    &self,
+    medias: Vec<MirroredMediaInfo>,
+  ) -> BlobResult<()> {
+    self.ensure_caller_is_service("mirror_multimedia")?;
+    debug!("Mirror multimedia request");
+
+    let url = self
+      .blob_service_url
+      .join("/media/mirror")
+      .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
+
+    let payload = MirrorMultimediaRequest { medias };
+    trace!("Request payload: {:?}", payload);
+
+    let response = self
+      .request(Method::POST, url)?
+      .json(&payload)
+      .send()
+      .await?;
+
+    if !response.status().is_success() {
+      return error_response_result(response).await;
+    }
+
+    debug!(
+      "Request successful. Mirrored {} multimedia.",
+      payload.medias.len()
+    );
+    Ok(())
   }
 }
 
