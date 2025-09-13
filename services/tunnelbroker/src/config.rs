@@ -34,6 +34,14 @@ pub struct AppConfig {
   #[arg(env = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+  /// Blob service URL
+  #[arg(env = "BLOB_SERVICE_URL")]
+  #[arg(long, default_value = "http://localhost:50053")]
+  pub blob_service_url: reqwest::Url,
+  /// Blob service public URL
+  #[arg(env = "BLOB_SERVICE_PUBLIC_URL")]
+  #[arg(long, default_value = "http://localhost:50053")]
+  pub blob_service_public_url: reqwest::Url,
   /// APNs secrets
   #[arg(env = ENV_APNS_CONFIG)]
   #[arg(long)]

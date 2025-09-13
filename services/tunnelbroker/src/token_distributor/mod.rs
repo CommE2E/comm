@@ -7,6 +7,7 @@ use crate::database::DatabaseClient;
 pub(crate) use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::token_connection::TokenConnection;
 use crate::{amqp_client::amqp::AmqpConnection, log::redact_sensitive_data};
+use comm_lib::auth::AuthService;
 use comm_lib::database::Error;
 use futures_util::future;
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
@@ -21,6 +22,7 @@ pub struct TokenDistributor {
   connections: HashMap<String, CancellationToken>,
   amqp_connection: AmqpConnection,
   grpc_client: ChainedInterceptedServicesAuthClient,
+  auth_service: AuthService,
 }
 
 impl TokenDistributor {
@@ -29,6 +31,7 @@ impl TokenDistributor {
     config: TokenDistributorConfig,
     amqp_connection: &AmqpConnection,
     grpc_client: ChainedInterceptedServicesAuthClient,
+    auth_service: &AuthService,
   ) -> Self {
     info!(
       "Initializing TokenDistributor - max_connections: {}, \
@@ -57,6 +60,7 @@ impl TokenDistributor {
       connections: HashMap::new(),
       amqp_connection: amqp_connection.clone(),
       grpc_client,
+      auth_service: auth_service.clone(),
     }
   }
 
@@ -197,6 +201,7 @@ impl TokenDistributor {
             self.amqp_connection.clone(),
             cancel_token.clone(),
             self.grpc_client.clone(),
+            &self.auth_service,
           );
 
           // Store the cancellation token

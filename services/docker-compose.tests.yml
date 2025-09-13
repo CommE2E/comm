@@ -42,6 +42,8 @@ services:
     restart: on-failure
     env_file: test-commons.env
     environment:
+      BLOB_SERVICE_URL: 'http://blob-server:50053'
+      BLOB_SERVICE_PUBLIC_URL: 'http://blob-server:50053'
       COMM_TUNNELBROKER_IDENTITY_ENDPOINT: 'http://identity-server:50054'
       AMQP_URI: 'amqp://comm:comm@rabbitmq:5672'
       RUST_LOG: tunnelbroker=trace
@@ -61,7 +63,7 @@ services:
     image: blob
     pull_policy: build
     # Until blob cleanup is supported in tests, enable auto-deletion
-    command: [ 'blob', 'server', '--instant-delete' ]
+    command: ['blob', 'server', '--instant-delete']
     platform: '${PLATFORM:-linux/amd64}'
     env_file: test-commons.env
     environment:

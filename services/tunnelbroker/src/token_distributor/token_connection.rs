@@ -1,10 +1,15 @@
 use crate::amqp_client::amqp::{
   send_message_to_device, AmqpChannel, AmqpConnection,
 };
+use crate::config::CONFIG;
+use crate::constants::MEDIA_MIRROR_TIMEOUT;
 use crate::database::DatabaseClient;
 use crate::log::redact_sensitive_data;
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
+use comm_lib::auth::AuthService;
+use comm_lib::blob::client::S2SAuthedBlobClient;
+use comm_lib::blob::types::http::MirroredMediaInfo;
 use futures_util::{SinkExt, StreamExt};
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
 use grpc_clients::identity::protos::auth::PeersDeviceListsRequest;
@@ -15,7 +20,7 @@ use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, trace, warn};
 use tunnelbroker_messages::farcaster::{
-  FarcasterMessage, FarcasterPayload, NewFarcasterMessage,
+  DirectCastMessage, FarcasterMessage, FarcasterPayload, NewFarcasterMessage,
   RefreshDirectCastConversationPayload,
 };
 
@@ -27,6 +32,7 @@ pub(crate) struct TokenConnection {
   amqp_connection: AmqpConnection,
   grpc_client: ChainedInterceptedServicesAuthClient,
   amqp_channel: AmqpChannel,
+  blob_client: S2SAuthedBlobClient,
 }
 
 impl TokenConnection {
@@ -38,6 +44,7 @@ impl TokenConnection {
     amqp_connection: AmqpConnection,
     cancellation_token: CancellationToken,
     grpc_client: ChainedInterceptedServicesAuthClient,
+    auth_service: &AuthService,
   ) {
     let connection = Self {
       db: db.clone(),
@@ -47,6 +54,10 @@ impl TokenConnection {
       amqp_connection: amqp_connection.clone(),
       grpc_client,
       amqp_channel: AmqpChannel::new(&amqp_connection),
+      blob_client: S2SAuthedBlobClient::new(
+        auth_service,
+        CONFIG.blob_service_url.clone(),
+      ),
     };
 
     tokio::spawn(async move {
@@ -489,12 +500,27 @@ impl TokenConnection {
     );
 
     let conversation_id = &payload.conversation_id;
-    let direct_cast_message = &payload.message;
 
     debug!(
       "Processing refresh for conversation ID: {}",
       conversation_id
     );
+
+    let mut direct_cast_message = payload.message.clone();
+    if let Some(medias) = replace_media_urls(&mut direct_cast_message) {
+      if let Err(err) = self.mirror_media_to_blob(medias).await {
+        if matches!(err, crate::farcaster::error::Error::Timeout) {
+          info!(
+            "Timeout when mirroring multimedia. Falling back to originals."
+          );
+        } else {
+          warn!("Failed to mirror multimedia to blob: {err:?}");
+        }
+        direct_cast_message = payload.message.clone();
+      }
+    } else {
+      direct_cast_message = payload.message.clone();
+    }
 
     let request = PeersDeviceListsRequest {
       user_ids: vec![self.user_id.clone()],
@@ -514,7 +540,7 @@ impl TokenConnection {
       .users_devices_platform_details
       .get(&self.user_id);
     let message = NewFarcasterMessage {
-      message: direct_cast_message.clone(),
+      message: direct_cast_message,
     };
     if let Some(user_devices) = user_devices_option {
       for (device_id, platform_details) in
@@ -544,4 +570,67 @@ impl TokenConnection {
 
     Ok(())
   }
+
+  async fn mirror_media_to_blob(
+    &self,
+    medias: Vec<MirroredMediaInfo>,
+  ) -> Result<(), crate::farcaster::error::Error> {
+    if medias.is_empty() {
+      return Ok(());
+    }
+    let blob_client = self.blob_client.clone();
+    let task = tokio::spawn(async move {
+      blob_client.auth().await?.mirror_multimedia(medias).await?;
+      Ok::<_, crate::farcaster::error::Error>(())
+    });
+
+    match tokio::time::timeout(MEDIA_MIRROR_TIMEOUT, task).await {
+      Ok(Ok(task_result)) => task_result,
+      _ => Ok(()),
+    }
+  }
+}
+
+fn replace_media_urls(
+  message: &mut DirectCastMessage,
+) -> Option<Vec<MirroredMediaInfo>> {
+  let media_base_url = CONFIG.blob_service_public_url.join("media/").ok()?;
+
+  let mut found_medias: Vec<MirroredMediaInfo> = Vec::new();
+
+  let medias = message
+    .extra
+    .get_mut("metadata")
+    .and_then(|metadata| metadata.get_mut("medias"))
+    .and_then(|m| m.as_array_mut())?;
+
+  for media in medias {
+    let original_media = media.clone();
+    let Some(url) = media.get_mut("staticRaster") else {
+      continue;
+    };
+    let Some(original_url) = url.as_str() else {
+      continue;
+    };
+    if original_url.starts_with(media_base_url.as_str()) {
+      continue;
+    }
+
+    let original_metadata = serde_json::to_string(&original_media).ok()?;
+    found_medias.push(MirroredMediaInfo {
+      url: original_url.to_string(),
+      original_metadata,
+    });
+
+    let urlencoded_original = urlencoding::encode(original_url);
+    let new_url = media_base_url.join(&urlencoded_original).ok()?.to_string();
+    tracing::trace!(
+      "Replaced media URL '{}' with '{}'",
+      original_url,
+      &new_url
+    );
+    *url = serde_json::Value::String(new_url);
+  }
+
+  Some(found_medias)
 }

@@ -109,6 +109,14 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
           value = local.identity_local_url
         },
         {
+          name  = "BLOB_SERVICE_URL",
+          value = local.blob_local_url
+        },
+        {
+          name  = "BLOB_SERVICE_PUBLIC_URL",
+          value = "https://${local.blob_service_domain_name}"
+        },
+        {
           name  = "COMM_SERVICES_USE_JSON_LOGS",
           value = local.comm_services_use_json_logs
         },
