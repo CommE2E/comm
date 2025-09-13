@@ -37,7 +37,7 @@
     "@fortawesome/free-brands-svg-icons": "5.15.4",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
-    "@fortawesome/react-fontawesome": "0.1.5",
+    "@fortawesome/react-fontawesome": "0.2.6",
     "@lottiefiles/lottie-interactivity": "^1.6.2",
     "@lottiefiles/lottie-player": "^2.0.2",
     "@rainbow-me/rainbowkit": "^2.0.7",
