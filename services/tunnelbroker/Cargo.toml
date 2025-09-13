@@ -11,8 +11,9 @@ homepage.workspace = true
 anyhow = { workspace = true }
 clap = { workspace = true, features = ["derive", "env"] }
 comm-lib = { path = "../../shared/comm-lib", features = [
-    "aws",
-    "grpc_clients",
+  "aws",
+  "blob-client",
+  "grpc_clients",
 ] }
 futures-util = { workspace = true }
 grpc_clients = { path = "../../shared/grpc_clients" }
@@ -33,13 +34,14 @@ chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 jsonwebtoken = "9.3.0"
 web-push = { version = "0.11.0", features = [
-    "hyper-client",
+  "hyper-client",
 ], default-features = false }
 reqwest = { workspace = true, features = ["json", "native-tls", "rustls-tls"] }
 serde.workspace = true
 tokio-executor-trait = "2.1"
 tokio-reactor-trait = "1.1"
 tokio-util = { workspace = true }
+urlencoding = { workspace = true }
 
 [build-dependencies]
 tonic-build = "0.8"

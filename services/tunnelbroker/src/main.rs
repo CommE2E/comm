@@ -59,6 +59,8 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
+  let auth_service =
+    comm_lib::auth::AuthService::new(&aws_config, &CONFIG.identity_endpoint);
   let amqp_connection = amqp::AmqpConnection::connect()
     .await
     .expect("Failed to create AMQP connection");
@@ -70,6 +72,7 @@ async fn main() -> Result<()> {
     farcaster_api_url,
     db_client.clone(),
     &amqp_connection,
+    &auth_service,
   )
   .expect("Unable to create Farcaster client");
 
