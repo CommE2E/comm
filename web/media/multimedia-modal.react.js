@@ -79,9 +79,10 @@ function MultimediaModal(props: Props): React.Node {
         uri={uri}
         thumbnailSource={{ thumbnailURI }}
         thumbHashDataURL={placeholderImage}
+        dimensions={dimensions}
       />
     );
-  }, [media, placeholderImage]);
+  }, [media, placeholderImage, dimensions]);
 
   const encryptedMultimedia = React.useMemo(() => {
     if (media.type !== 'encrypted_photo' && media.type !== 'encrypted_video') {
