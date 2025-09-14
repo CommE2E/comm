@@ -50,6 +50,7 @@ type Props = {
   +containerHeight: number,
   +queueModeActive: boolean,
   +isQueued: boolean,
+  +allowQueue: boolean,
   +setMediaQueued: (media: MediaLibrarySelection, isQueued: boolean) => void,
   +sendMedia: (media: MediaLibrarySelection) => void,
   +isFocused: boolean,
@@ -179,6 +180,20 @@ function MediaGalleryMedia(props: Props): React.Node {
 
   let buttons = null;
   if (!queueModeActive) {
+    let enqueueButton = null;
+    if (props.allowQueue) {
+      enqueueButton = (
+        <TouchableOpacity
+          onPress={onPressEnqueue}
+          style={styles.enqueueButton}
+          activeOpacity={0.6}
+          disabled={!active}
+        >
+          <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
+          <Text style={styles.buttonText}>Queue</Text>
+        </TouchableOpacity>
+      );
+    }
     buttons = (
       <>
         <TouchableOpacity
@@ -190,15 +205,7 @@ function MediaGalleryMedia(props: Props): React.Node {
           <Icon name="send" style={styles.buttonIcon} />
           <Text style={styles.buttonText}>Send</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onPressEnqueue}
-          style={styles.enqueueButton}
-          activeOpacity={0.6}
-          disabled={!active}
-        >
-          <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
-          <Text style={styles.buttonText}>Queue</Text>
-        </TouchableOpacity>
+        {enqueueButton}
       </>
     );
   }
