@@ -22,6 +22,7 @@ import {
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
@@ -252,14 +253,18 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       if (!hasPermission) {
         return;
       }
+      const { supportsSendingVideos } =
+        threadSpecs[this.props.threadInfo.type].protocol();
+
+      const supportedMediaTypes = supportsSendingVideos
+        ? [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video]
+        : [MediaLibrary.MediaType.photo];
+
       const { assets, endCursor, hasNextPage } =
         await MediaLibrary.getAssetsAsync({
           first: 20,
           after,
-          mediaType: [
-            MediaLibrary.MediaType.photo,
-            MediaLibrary.MediaType.video,
-          ],
+          mediaType: supportedMediaTypes,
           sortBy: [MediaLibrary.SortBy.modificationTime],
         });
 
@@ -351,10 +356,17 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
   openNativePicker = async () => {
     try {
+      const { canSendMultipleMedia, supportsSendingVideos } =
+        threadSpecs[this.props.threadInfo.type].protocol();
+
+      const mediaTypes = supportsSendingVideos
+        ? ['images', 'videos']
+        : 'images';
+
       const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes,
         allowsEditing: false,
-        allowsMultipleSelection: true,
+        allowsMultipleSelection: canSendMultipleMedia,
         // maximum quality is 1 - it disables compression
         quality: 1,
         // we don't want to compress videos at this point
@@ -444,11 +456,15 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const { uri } = row.item;
     const isQueued = !!(queuedMediaURIs && queuedMediaURIs.has(uri));
     const { queueModeActive } = this;
+    const { canSendMultipleMedia } =
+      threadSpecs[this.props.threadInfo.type].protocol();
+
     return (
       <MediaGalleryMedia
         selection={row.item}
         containerHeight={containerHeight}
         queueModeActive={queueModeActive}
+        allowQueue={canSendMultipleMedia}
         isQueued={isQueued}
         setMediaQueued={this.setMediaQueued}
         sendMedia={this.sendSingleMedia}

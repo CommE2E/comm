@@ -34,6 +34,7 @@ import {
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -205,7 +206,6 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
-
     let joinButton = null;
     if (
       !isMember &&
@@ -311,6 +311,9 @@ class ChatInputBar extends React.PureComponent<Props> {
       this.props.currentUserIsVoiced ||
       (this.props.threadCreationInProgress && defaultMembersAreVoiced)
     ) {
+      const { canSendMultipleMedia } =
+        threadSpecs[this.props.threadInfo.type].protocol();
+
       content = (
         <div className={css.inputBarWrapper}>
           <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
@@ -319,7 +322,7 @@ class ChatInputBar extends React.PureComponent<Props> {
               onChange={this.onMultimediaFileChange}
               ref={this.multimediaInputRef}
               accept={allowedMimeTypeString}
-              multiple
+              multiple={canSendMultipleMedia}
             />
             <SWMansionIcon
               icon="image-1"
