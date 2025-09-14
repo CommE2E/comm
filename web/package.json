@@ -99,6 +99,7 @@
     "thumbhash": "^0.1.1",
     "tinycolor2": "^1.4.1",
     "uuid": "^3.4.0",
+    "video.js": "^8.23.4",
     "viem": "^2.9.5",
     "visibilityjs": "^2.0.2",
     "wagmi": "^2.5.18"

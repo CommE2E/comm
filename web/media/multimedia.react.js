@@ -177,6 +177,7 @@ function Multimedia(props: Props): React.Node {
         thumbnailSource={{ thumbnailURI }}
         thumbHashDataURL={placeholderImage}
         elementStyle={elementStyle}
+        dimensions={dimensions}
       />
     );
   } else if (
