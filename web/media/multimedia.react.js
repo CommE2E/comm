@@ -145,21 +145,28 @@ function Multimedia(props: Props): React.Node {
   const placeholderImage = usePlaceholder(thumbHash, thumbHashEncryptionKey);
 
   const { dimensions } = mediaSource;
-  const elementStyle = React.useMemo(() => {
+  const [elementStyle, calculatedDimensions] = React.useMemo(() => {
     if (!dimensions) {
-      return undefined;
+      return [undefined, undefined];
     }
     const { width, height } = dimensions;
+    const aspectRatio = width / height;
+
     // Resize the image to fit in max width while preserving aspect ratio
     const calculatedWidth =
-      Math.min(MAX_THUMBNAIL_HEIGHT, height) * (width / height);
-    return {
-      background: placeholderImage
-        ? `center / cover url(${placeholderImage})`
-        : undefined,
-      width: `${calculatedWidth}px`,
-      aspectRatio: `${width} / ${height}`,
-    };
+      Math.min(MAX_THUMBNAIL_HEIGHT, height) * aspectRatio;
+    const calculatedHeight = calculatedWidth / aspectRatio;
+
+    return [
+      {
+        background: placeholderImage
+          ? `center / cover url(${placeholderImage})`
+          : undefined,
+        width: `${calculatedWidth}px`,
+        aspectRatio: `${width} / ${height}`,
+      },
+      { width: calculatedWidth, height: calculatedHeight },
+    ];
   }, [dimensions, placeholderImage]);
 
   // Media element is the actual image or video element (or encrypted version)
@@ -177,6 +184,7 @@ function Multimedia(props: Props): React.Node {
         thumbnailSource={{ thumbnailURI }}
         thumbHashDataURL={placeholderImage}
         elementStyle={elementStyle}
+        dimensions={calculatedDimensions}
       />
     );
   } else if (
