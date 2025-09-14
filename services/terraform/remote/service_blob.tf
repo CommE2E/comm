@@ -1,5 +1,5 @@
 locals {
-  blob_service_image_tag      = local.is_staging ? "1.3.1" : "1.3.1"
+  blob_service_image_tag      = local.is_staging ? "1.4.0" : "1.3.1"
   blob_service_container_name = "blob-service-server"
   blob_service_server_image   = "commapp/blob-server:${local.blob_service_image_tag}"
 
