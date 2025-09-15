@@ -14,13 +14,17 @@ import {
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import {
+  farcasterThreadTypeValidator,
+  type ThreadType,
+} from 'lib/types/thread-types-enum.js';
 import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
   UserListItem,
 } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -149,6 +153,13 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
     [previouslySelectedUsers, threadInfo.members, viewerID],
   );
 
+  const isFarcasterDCsIntegrationEnabled =
+    useIsFarcasterDCsIntegrationEnabled();
+  const isFarcasterThread = farcasterThreadTypeValidator.is(threadInfo.type);
+  const searchUsersResult = useSearchUsers(searchText, {
+    searchFarcaster: isFarcasterDCsIntegrationEnabled && isFarcasterThread,
+    skipCommUsers: true,
+  });
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: searchText,
@@ -158,6 +169,7 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType: threadInfo.type,
+    includeServerSearchUsers: isFarcasterThread ? searchUsersResult : undefined,
   });
 
   const userInfos = React.useMemo(() => {

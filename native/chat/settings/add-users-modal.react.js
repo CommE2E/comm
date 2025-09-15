@@ -16,8 +16,10 @@ import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { farcasterThreadTypeValidator } from 'lib/types/thread-types-enum.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';
@@ -187,6 +189,13 @@ function AddUsersModal(props: Props): React.Node {
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
   );
+  const isFarcasterDCsIntegrationEnabled =
+    useIsFarcasterDCsIntegrationEnabled();
+  const isFarcasterThread = farcasterThreadTypeValidator.is(threadInfo.type);
+  const searchUsersResult = useSearchUsers(searchText, {
+    searchFarcaster: isFarcasterDCsIntegrationEnabled && isFarcasterThread,
+    skipCommUsers: true,
+  });
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
@@ -196,6 +205,7 @@ function AddUsersModal(props: Props): React.Node {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType: threadInfo.type,
+    includeServerSearchUsers: isFarcasterThread ? searchUsersResult : undefined,
   });
 
   const onChangeTagInput = React.useCallback(
