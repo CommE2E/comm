@@ -1,9 +1,9 @@
 // @flow
 
+import SimpleMarkdown from '@khanacademy/simple-markdown';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
-import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import { chatMentionRegex } from 'lib/shared/mention-utils.js';

@@ -1,8 +1,8 @@
 // @flow
 
+import SimpleMarkdown from '@khanacademy/simple-markdown';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
-import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import { chatMentionRegex } from 'lib/shared/mention-utils.js';
@@ -81,6 +81,13 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       // match end of blockQuote by either \n\n or end of string
       match: SharedMarkdown.matchBlockQuote(SharedMarkdown.blockQuoteRegex),
       parse: SharedMarkdown.parseBlockQuote,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => (
+        <blockquote key={state.key}>{output(node.content, state)}</blockquote>
+      ),
     },
     spoiler: {
       order: SimpleMarkdown.defaultRules.paragraph.order - 1,
@@ -103,14 +110,57 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         <MarkdownSpoiler key={state.key} text={output(node.content, state)} />
       ),
     },
-    inlineCode: SimpleMarkdown.defaultRules.inlineCode,
-    em: SimpleMarkdown.defaultRules.em,
-    strong: SimpleMarkdown.defaultRules.strong,
-    del: SimpleMarkdown.defaultRules.del,
-    u: SimpleMarkdown.defaultRules.u,
+    inlineCode: {
+      ...SimpleMarkdown.defaultRules.inlineCode,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <code key={state.key}>{output(node.content, state)}</code>,
+    },
+    em: {
+      ...SimpleMarkdown.defaultRules.em,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <em key={state.key}>{output(node.content, state)}</em>,
+    },
+    strong: {
+      ...SimpleMarkdown.defaultRules.strong,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <strong key={state.key}>{output(node.content, state)}</strong>,
+    },
+    del: {
+      ...SimpleMarkdown.defaultRules.del,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <del key={state.key}>{output(node.content, state)}</del>,
+    },
+    u: {
+      ...SimpleMarkdown.defaultRules.u,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <u key={state.key}>{output(node.content, state)}</u>,
+    },
     heading: {
       ...SimpleMarkdown.defaultRules.heading,
       match: SimpleMarkdown.blockRegex(SharedMarkdown.headingRegex),
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => {
+        const Tag = `h${node.level}`;
+        return <Tag key={state.key}>{output(node.content, state)}</Tag>;
+      },
     },
     mailto: SimpleMarkdown.defaultRules.mailto,
     codeBlock: {
@@ -119,6 +169,18 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       parse: (capture: SharedMarkdown.Capture) => ({
         content: capture[0].replace(/^ {4}/gm, ''),
       }),
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => {
+        const className = node.lang ? `markdown-code-${node.lang}` : undefined;
+        return (
+          <pre key={state.key}>
+            <code className={className}>{node.content}</code>
+          </pre>
+        );
+      },
     },
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
@@ -148,6 +210,24 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.list,
       match: SharedMarkdown.matchList,
       parse: SharedMarkdown.parseList,
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => {
+        const items = node.items.map((item, i) => (
+          <li key={i}>{output(item, state)}</li>
+        ));
+        if (node.ordered) {
+          return (
+            <ol key={state.key} start={node.start}>
+              {items}
+            </ol>
+          );
+        } else {
+          return <ul key={state.key}>{items}</ul>;
+        }
+      },
     },
     escape: SimpleMarkdown.defaultRules.escape,
   };

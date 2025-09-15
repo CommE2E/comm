@@ -1,8 +1,8 @@
 // @flow
 
+import SimpleMarkdown from '@khanacademy/simple-markdown';
 import classNames from 'classnames';
 import * as React from 'react';
-import * as SimpleMarkdown from 'simple-markdown';
 
 import css from './markdown.css';
 import type { MarkdownRules } from './rules.react.js';

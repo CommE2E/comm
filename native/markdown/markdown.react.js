@@ -1,9 +1,9 @@
 // @flow
 
+import SimpleMarkdown from '@khanacademy/simple-markdown';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import * as SimpleMarkdown from 'simple-markdown';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
 

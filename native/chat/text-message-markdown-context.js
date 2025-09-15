@@ -1,7 +1,7 @@
 // @flow
 
+import SimpleMarkdown from '@khanacademy/simple-markdown';
 import * as React from 'react';
-import * as SimpleMarkdown from 'simple-markdown';
 
 import { messageKey } from 'lib/shared/id-utils.js';
 import type { ASTNode, SingleASTNode } from 'lib/shared/markdown.js';
