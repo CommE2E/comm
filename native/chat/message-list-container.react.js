@@ -11,7 +11,8 @@ import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js
 import genesis from 'lib/facts/genesis.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
-import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { useFarcasterThreadRefresher } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -434,19 +435,12 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       colors.panelBackgroundLabel,
     ]);
 
-    const prevActiveThreadID = React.useRef(threadInfo.id);
-    const farcasterRefreshConversation = useRefreshFarcasterConversation();
-    React.useEffect(() => {
-      if (prevActiveThreadID !== threadInfo.id) {
-        threadSpecs[threadInfo.type]
-          .protocol()
-          .onOpenThread?.(
-            { threadID: threadInfo.id },
-            { farcasterRefreshConversation },
-          );
-        prevActiveThreadID.current = threadInfo.id;
-      }
-    }, [farcasterRefreshConversation, threadInfo.id, threadInfo.type]);
+    const isAppForegrounded = useIsAppForegrounded();
+    useFarcasterThreadRefresher(
+      threadInfo.id,
+      threadInfo.type,
+      isAppForegrounded,
+    );
 
     let relationshipPrompt = null;
     if (threadTypeIsPersonal(threadInfo.type)) {
