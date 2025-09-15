@@ -32,7 +32,13 @@ div.searchRow {
 
 div.searchField {
   flex-grow: 1;
-  padding: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+}
+
+div.protocolRow {
+  padding: 1rem 1rem 0.5rem 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .closeSearch {
@@ -76,4 +82,18 @@ div.userContainer {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+div.rightContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+div.protocolIcons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
