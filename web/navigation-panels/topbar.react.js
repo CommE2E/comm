@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 
 import AppSwitcher from './app-switcher.react.js';
 import NavStateInfoBar from './nav-state-info-bar.react.js';
@@ -31,7 +32,11 @@ function Topbar(): React.Node {
   );
 
   const activeChatThreadID = useDrawerSelectedThreadID();
-  const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
+  const { selectedProtocol } = useProtocolSelection();
+  const threadInfo = useThreadInfoForPossiblyPendingThread(
+    activeChatThreadID,
+    selectedProtocol,
+  );
 
   return (
     <>
