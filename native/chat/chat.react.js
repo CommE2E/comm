@@ -68,6 +68,7 @@ import {
   nuxTip,
   NUXTipsContext,
 } from '../components/nux-tips-context.react.js';
+import { ProtocolSelectionProvider } from '../components/protocol-selection-provider.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
@@ -458,68 +459,70 @@ export default function ChatComponent(props: Props): React.Node {
   const activeThreadID = activeThreadSelector(navContext);
 
   return (
-    <View style={styles.view}>
-      <Chat.Navigator screenOptions={screenOptions}>
-        <Chat.Screen
-          name={ChatThreadListRouteName}
-          component={ChatThreadsComponent}
-          options={chatThreadListOptions}
-        />
-        <Chat.Screen
-          name={MessageListRouteName}
-          component={MessageListContainer}
-          options={messageListOptions}
-        />
-        <Chat.Screen
-          name={ComposeSubchannelRouteName}
-          component={ComposeSubchannel}
-          options={composeThreadOptions}
-        />
-        <Chat.Screen
-          name={ThreadSettingsRouteName}
-          component={ThreadSettings}
-          options={threadSettingsOptions}
-        />
-        <Chat.Screen
-          name={EmojiThreadAvatarCreationRouteName}
-          component={EmojiThreadAvatarCreation}
-          options={emojiAvatarCreationOptions}
-        />
-        <Chat.Screen
-          name={FullScreenThreadMediaGalleryRouteName}
-          component={FullScreenThreadMediaGallery}
-          options={fullScreenThreadMediaGalleryOptions}
-        />
-        <Chat.Screen
-          name={DeleteThreadRouteName}
-          component={DeleteThread}
-          options={deleteThreadOptions}
-        />
-        <Chat.Screen
-          name={PinnedMessagesScreenRouteName}
-          component={PinnedMessagesScreen}
-          options={pinnedMessagesScreenOptions}
-        />
-        <Chat.Screen
-          name={MessageSearchRouteName}
-          component={MessageSearch}
-          options={messageSearchOptions}
-        />
-        <Chat.Screen
-          name={ChangeRolesScreenRouteName}
-          component={ChangeRolesScreen}
-          options={changeRolesScreenOptions}
-        />
-        <Chat.Screen
-          name={ThreadSettingsNotificationsRouteName}
-          component={ThreadSettingsNotifications}
-          options={threadSettingsNotificationsOptions}
-        />
-      </Chat.Navigator>
-      <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
-      <ThreadScreenPruner />
-      <NUXHandler />
-      {draftUpdater}
-    </View>
+    <ProtocolSelectionProvider>
+      <View style={styles.view}>
+        <Chat.Navigator screenOptions={screenOptions}>
+          <Chat.Screen
+            name={ChatThreadListRouteName}
+            component={ChatThreadsComponent}
+            options={chatThreadListOptions}
+          />
+          <Chat.Screen
+            name={MessageListRouteName}
+            component={MessageListContainer}
+            options={messageListOptions}
+          />
+          <Chat.Screen
+            name={ComposeSubchannelRouteName}
+            component={ComposeSubchannel}
+            options={composeThreadOptions}
+          />
+          <Chat.Screen
+            name={ThreadSettingsRouteName}
+            component={ThreadSettings}
+            options={threadSettingsOptions}
+          />
+          <Chat.Screen
+            name={EmojiThreadAvatarCreationRouteName}
+            component={EmojiThreadAvatarCreation}
+            options={emojiAvatarCreationOptions}
+          />
+          <Chat.Screen
+            name={FullScreenThreadMediaGalleryRouteName}
+            component={FullScreenThreadMediaGallery}
+            options={fullScreenThreadMediaGalleryOptions}
+          />
+          <Chat.Screen
+            name={DeleteThreadRouteName}
+            component={DeleteThread}
+            options={deleteThreadOptions}
+          />
+          <Chat.Screen
+            name={PinnedMessagesScreenRouteName}
+            component={PinnedMessagesScreen}
+            options={pinnedMessagesScreenOptions}
+          />
+          <Chat.Screen
+            name={MessageSearchRouteName}
+            component={MessageSearch}
+            options={messageSearchOptions}
+          />
+          <Chat.Screen
+            name={ChangeRolesScreenRouteName}
+            component={ChangeRolesScreen}
+            options={changeRolesScreenOptions}
+          />
+          <Chat.Screen
+            name={ThreadSettingsNotificationsRouteName}
+            component={ThreadSettingsNotifications}
+            options={threadSettingsNotificationsOptions}
+          />
+        </Chat.Navigator>
+        <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
+        <ThreadScreenPruner />
+        <NUXHandler />
+        {draftUpdater}
+      </View>
+    </ProtocolSelectionProvider>
   );
 }

@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
@@ -32,7 +33,11 @@ function ChatMessageListContainer(props: Props): React.Node {
   const { activeChatThreadID } = props;
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
-  const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
+  const { selectedProtocol } = useProtocolSelection();
+  const threadInfo = useThreadInfoForPossiblyPendingThread(
+    activeChatThreadID,
+    selectedProtocol,
+  );
   invariant(threadInfo, 'ThreadInfo should be set');
 
   const dispatch = useDispatch();
