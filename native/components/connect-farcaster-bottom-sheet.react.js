@@ -10,7 +10,7 @@ import {
   useCurrentUserFID,
   useCurrentUserSupportsDCs,
 } from 'lib/utils/farcaster-utils.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -46,6 +46,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   const fid = useCurrentUserFID();
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
+  const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
   const tryLinkFID = useTryLinkFID();
 
@@ -62,7 +63,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         setIsLoadingLinkFID(false);
       }
     },
-    [tryLinkFID],
+    [tryLinkFID, supportsFarcasterDCs],
   );
 
   const bottomSheetContext = React.useContext(BottomSheetContext);
@@ -87,7 +88,14 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         setShowConnectDCs(true);
       }
     }
-  }, [fid, goBack, isAppForegrounded, currentUserSupportsDCs, showConnectDCs]);
+  }, [
+    fid,
+    goBack,
+    isAppForegrounded,
+    currentUserSupportsDCs,
+    showConnectDCs,
+    supportsFarcasterDCs,
+  ]);
 
   const onPressConnect = React.useCallback(() => {
     setIsLoadingLinkFID(true);

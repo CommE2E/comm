@@ -31,7 +31,7 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import {
-  supportsFarcasterDCs,
+  useIsFarcasterDCsIntegrationEnabled,
   useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
@@ -187,6 +187,7 @@ type Props = {
   +currentUserFID: ?string,
   +usingRestoreFlow: boolean,
   +farcasterConversationsSync: (limit: number) => Promise<void>,
+  +supportsFarcasterDCs: boolean,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -285,7 +286,7 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
     let farcaster;
-    if (staffCanSee && supportsFarcasterDCs) {
+    if (staffCanSee && this.props.supportsFarcasterDCs) {
       farcaster = (
         <>
           <ProfileRow
@@ -638,6 +639,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
 
     const usingRestoreFlow = useIsRestoreFlowEnabled();
     const syncFarcasterConversations = useFarcasterConversationsSync();
+    const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
     return (
       <ProfileScreen
@@ -658,6 +660,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
         currentUserFID={currentUserID}
         usingRestoreFlow={usingRestoreFlow}
         farcasterConversationsSync={syncFarcasterConversations}
+        supportsFarcasterDCs={supportsFarcasterDCs}
       />
     );
   },

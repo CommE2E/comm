@@ -28,7 +28,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
 import { ChatInputBar } from './chat-input-bar.react.js';
@@ -272,6 +272,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     >([]);
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+    const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
     const serverSearchResults = useSearchUsers(usernameInputText, {
       searchFarcaster: supportsFarcasterDCs,

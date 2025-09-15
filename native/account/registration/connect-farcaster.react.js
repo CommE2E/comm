@@ -7,7 +7,7 @@ import { NeynarClientContext } from 'lib/components/neynar-client-provider.react
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { BaseFCAvatarInfo } from 'lib/utils/farcaster-helpers.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { siweNonceExpired } from './ethereum-utils.js';
@@ -49,6 +49,9 @@ function ConnectFarcaster(prop: Props): React.Node {
   const { navigate } = navigation;
   const userSelections = route.params?.userSelections;
 
+  const isFarcasterDCsIntegrationEnabled =
+    useIsFarcasterDCsIntegrationEnabled();
+
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
   const {
@@ -66,7 +69,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     (fid?: ?string, farcasterAvatarURL: ?string) => {
       setWebViewState('closed');
 
-      if (fid && supportsFarcasterDCs) {
+      if (fid && isFarcasterDCsIntegrationEnabled) {
         navigate<'ConnectFarcasterDCs'>({
           name: 'ConnectFarcasterDCs',
           params: {
@@ -130,6 +133,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       ethereumAccount,
       userSelections,
       setCachedSelections,
+      isFarcasterDCsIntegrationEnabled,
     ],
   );
 

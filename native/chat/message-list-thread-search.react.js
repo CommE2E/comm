@@ -7,7 +7,7 @@ import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import { createTagInput } from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
@@ -41,6 +41,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
     userSearchResults,
   }) {
     const styles = useStyles(unboundStyles);
+    const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
     const [userListItems, nonFriends] = React.useMemo(() => {
       const nonFriendsSet = new Set<string>();
@@ -89,6 +90,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
         resolveToUser,
         updateUsernameInput,
         viewerID,
+        supportsFarcasterDCs,
       ],
     );
 

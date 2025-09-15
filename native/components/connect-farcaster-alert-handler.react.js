@@ -16,7 +16,7 @@ import {
 } from 'lib/utils/farcaster-utils.js';
 import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { ConnectFarcasterBottomSheetRouteName } from '../navigation/route-names.js';
@@ -31,6 +31,8 @@ function ConnectFarcasterAlertHandler(): React.Node {
 
   const fid = useCurrentUserFID();
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
+  const isFarcasterDCsIntegrationEnabled =
+    useIsFarcasterDCsIntegrationEnabled();
 
   const setLocalFID = useSetLocalFID();
 
@@ -50,7 +52,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
       shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) ||
       connectFarcasterAlertInfo.coldStartCount < 2 ||
       (!shouldShowForInitialConnection && !shouldShowForDCs) ||
-      !supportsFarcasterDCs
+      !isFarcasterDCsIntegrationEnabled
     ) {
       return;
     }
@@ -82,6 +84,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     currentUserSupportsDCs,
     dispatch,
     fid,
+    isFarcasterDCsIntegrationEnabled,
     isActive,
     loggedIn,
     navigate,

@@ -9,7 +9,7 @@ import {
   useCurrentUserSupportsDCs,
   useUnlinkFID,
 } from 'lib/utils/farcaster-utils.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import ConnectFarcasterDCs from './connect-farcaster-dcs.react.js';
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -32,6 +32,7 @@ type Props = {
 function FarcasterAccountSettings(props: Props): React.Node {
   const fid = useCurrentUserFID();
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
+  const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
   const styles = useStyles(unboundStyles);
 
@@ -156,6 +157,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     disconnectButtonVariant,
     fid,
     currentUserSupportsDCs,
+    supportsFarcasterDCs,
     onPressConnectFarcaster,
     onPressDisconnect,
     onPressConnectDCs,
@@ -169,7 +171,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
       return 'disconnect_or_connect_DC';
     }
     return 'disconnect';
-  }, [fid, currentUserSupportsDCs]);
+  }, [fid, currentUserSupportsDCs, supportsFarcasterDCs]);
 
   return React.useMemo(() => {
     if (showConnectDCs) {
