@@ -116,7 +116,7 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
-      ) => <code key={state.key}>{output(node.content, state)}</code>,
+      ) => <code key={state.key}>{node.content}</code>,
     },
     em: {
       ...SimpleMarkdown.defaultRules.em,
