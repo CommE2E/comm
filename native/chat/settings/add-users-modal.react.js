@@ -12,11 +12,16 @@ import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selector
 import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
 import { useModifyFarcasterMembershipInput } from 'lib/shared/farcaster/farcaster-api.js';
 import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
-import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
+import {
+  usePotentialMemberItems,
+  useSearchUsers,
+} from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { farcasterThreadTypeValidator } from 'lib/types/thread-types-enum.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
+import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
@@ -187,6 +192,12 @@ function AddUsersModal(props: Props): React.Node {
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
   );
+  const farcasterDCsEnabled = useCurrentUserSupportsDCs();
+  const isFarcasterThread = farcasterThreadTypeValidator.is(threadInfo.type);
+  const searchUsersResult = useSearchUsers(usernameInputText, {
+    searchFarcaster: farcasterDCsEnabled && isFarcasterThread,
+    skipCommUsers: true,
+  });
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
@@ -196,6 +207,7 @@ function AddUsersModal(props: Props): React.Node {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType: threadInfo.type,
+    includeServerSearchUsers: isFarcasterThread ? searchUsersResult : undefined,
   });
 
   const onChangeTagInput = React.useCallback(
