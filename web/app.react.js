@@ -70,6 +70,7 @@ import FarcasterSyncOverlay from './components/farcaster-sync-overlay.react.js';
 import LogOutIfMissingCSATHandler from './components/log-out-if-missing-csat-handler.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
+import { ProtocolSelectionProvider } from './components/protocol-selection-provider.react.js';
 import MinVersionHandler from './components/version-handler.react.js';
 import { olmAPI } from './crypto/olm-api.js';
 import { sqliteAPI } from './database/sqlite-api.js';
@@ -400,10 +401,12 @@ class App extends React.PureComponent<Props> {
       css['main-content-container-column'],
     );
     return (
-      <div className={mainContentClass}>
-        <Topbar />
-        <div className={css['main-content']}>{mainContent}</div>
-      </div>
+      <ProtocolSelectionProvider>
+        <div className={mainContentClass}>
+          <Topbar />
+          <div className={css['main-content']}>{mainContent}</div>
+        </div>
+      </ProtocolSelectionProvider>
     );
   }
 }
