@@ -7,9 +7,8 @@ import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
-import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { useFarcasterThreadRefresher } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -20,6 +19,7 @@ import ChatThreadComposer from './chat-thread-composer.react.js';
 import ThreadTopBar from './thread-top-bar.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useThreadInfoForPossiblyPendingThread,
   useInfosForPendingThread,
@@ -150,19 +150,12 @@ function ChatMessageListContainer(props: Props): React.Node {
     );
   }, [inputState, isChatCreation, selectedUserInfos, threadInfo]);
 
-  const prevActiveThreadID = React.useRef(activeChatThreadID);
-  const farcasterRefreshConversation = useRefreshFarcasterConversation();
-  React.useEffect(() => {
-    if (prevActiveThreadID !== activeChatThreadID && activeChatThreadID) {
-      threadSpecs[threadInfo.type]
-        .protocol()
-        .onOpenThread?.(
-          { threadID: activeChatThreadID },
-          { farcasterRefreshConversation },
-        );
-      prevActiveThreadID.current = activeChatThreadID;
-    }
-  }, [farcasterRefreshConversation, activeChatThreadID, threadInfo.type]);
+  const windowActive = useSelector(state => state.windowActive);
+  useFarcasterThreadRefresher(
+    activeChatThreadID,
+    threadInfo.type,
+    windowActive,
+  );
 
   return connectDropTarget(
     <div className={containerStyle} ref={containerRef}>

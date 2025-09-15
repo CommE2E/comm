@@ -43,6 +43,7 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { FarcasterMessageFetchingProvider } from 'lib/shared/farcaster/farcaster-message-fetching-context.js';
 import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
 import type { SecondaryTunnelbrokerConnection } from 'lib/tunnelbroker/secondary-tunnelbroker-connection.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -235,8 +236,10 @@ class App extends React.PureComponent<Props> {
               <EditUserAvatarProvider>
                 <StaffContextProvider>
                   <MemberListSidebarProvider>
-                    {this.renderMainContent()}
-                    {this.props.modals}
+                    <FarcasterMessageFetchingProvider>
+                      {this.renderMainContent()}
+                      {this.props.modals}
+                    </FarcasterMessageFetchingProvider>
                   </MemberListSidebarProvider>
                 </StaffContextProvider>
               </EditUserAvatarProvider>
