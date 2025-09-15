@@ -1,0 +1,86 @@
+.container {
+  background-color: var(--inputField-background-secondary-default);
+  position: relative;
+  width: 100%;
+}
+
+.bordersWithOptions {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.bordersWithoutOptions {
+  border-radius: 10px;
+}
+
+.dropdownHeader {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.dropdownOption {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.dropdownOption:hover {
+  background-color: var(--dropdown-option-hover-bg);
+  border-radius: 8px;
+}
+
+.optionContent {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+.selectedOption {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+.optionsContainer {
+  background-color: var(--inputField-background-secondary-default);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  position: absolute;
+  top: 47px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.text {
+  font-size: 16px;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+.protocolName {
+  margin-left: 8px;
+  font-size: 16px;
+  color: var(--fg);
+}
+
+.chevron {
+  color: var(--fg);
+}
+
+.disabled {
+  cursor: not-allowed;
+}
+
+.disabled .dropdownHeader {
+  cursor: not-allowed;
+}
