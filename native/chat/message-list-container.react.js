@@ -7,12 +7,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import genesis from 'lib/facts/genesis.js';
-import {
-  useUsersSupportFarcasterDCs,
-  useUsersSupportingProtocols,
-  useUsersSupportThickThreads,
-} from 'lib/hooks/user-identities-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
@@ -270,6 +266,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
       $ReadOnlyArray<AccountUserInfo>,
     >([]);
+    const { setUserInfoInput, selectedProtocol, setSearching } =
+      useProtocolSelection();
+    React.useEffect(() => {
+      setUserInfoInput?.(userInfoInputArray);
+    }, [setUserInfoInput, userInfoInputArray]);
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
     const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
@@ -300,30 +301,26 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       props.route.params.threadInfo,
     );
 
-    const existingThreadInfoFinder =
-      useExistingThreadInfoFinder(baseThreadInfo);
-
-    const checkUsersThickThreadSupport = useUsersSupportThickThreads();
-    const checkUsersFarcasterDCsSupport = useUsersSupportFarcasterDCs();
-    const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
-      useUsersSupportingProtocols(userInfoInputArray);
+    const existingThreadInfoFinder = useExistingThreadInfoFinder(
+      baseThreadInfo,
+      selectedProtocol,
+    );
 
     const isSearching = !!props.route.params.searching;
+    React.useEffect(() => {
+      setSearching?.(isSearching);
+      return () => {
+        setSearching?.(false);
+      };
+    }, [isSearching, setSearching]);
+
     const threadInfo = React.useMemo(
       () =>
         existingThreadInfoFinder({
           searching: isSearching,
           userInfoInputArray,
-          allUsersSupportThickThreads,
-          allUsersSupportFarcasterThreads,
         }),
-      [
-        allUsersSupportFarcasterThreads,
-        allUsersSupportThickThreads,
-        existingThreadInfoFinder,
-        isSearching,
-        userInfoInputArray,
-      ],
+      [existingThreadInfoFinder, isSearching, userInfoInputArray],
     );
     invariant(
       threadInfo,
@@ -386,24 +383,9 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const resolveToUser = React.useCallback(
       async (user: AccountUserInfo) => {
         const newUserInfoInputArray = user.id === viewerID ? [] : [user];
-        const newUserIDs = newUserInfoInputArray.map(userInfo => userInfo.id);
-        const [usersSupportingThickThreads, usersSupportingFarcasterThreads] =
-          await Promise.all([
-            checkUsersThickThreadSupport(newUserIDs),
-            checkUsersFarcasterDCsSupport(newUserIDs),
-          ]);
-
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
-          allUsersSupportThickThreads:
-            user.id === viewerID
-              ? true
-              : !!usersSupportingThickThreads.get(user.id),
-          allUsersSupportFarcasterThreads:
-            user.id === viewerID
-              ? false
-              : !!usersSupportingFarcasterThreads.get(user.id),
         });
         invariant(
           resolvedThreadInfo,
@@ -413,14 +395,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         setBaseThreadInfo(resolvedThreadInfo);
         setParams({ searching: false, threadInfo: resolvedThreadInfo });
       },
-      [
-        viewerID,
-        checkUsersThickThreadSupport,
-        checkUsersFarcasterDCsSupport,
-        existingThreadInfoFinder,
-        editInputMessage,
-        setParams,
-      ],
+      [viewerID, existingThreadInfoFinder, editInputMessage, setParams],
     );
 
     const messageListData = useNativeMessageListData({
