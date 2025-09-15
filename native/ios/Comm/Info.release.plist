@@ -23,11 +23,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.519</string>
+	<string>1.0.520</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>519</string>
+	<string>520</string>
 	<key>CFBundleURLTypes</key>
   <array>
   	<dict>
