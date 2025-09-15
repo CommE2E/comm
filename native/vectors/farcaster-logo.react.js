@@ -3,12 +3,16 @@
 import * as React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-function FarcasterLogo(): React.Node {
-  const farcasterLogo = React.useMemo(
+type Props = {
+  +size?: number,
+};
+
+function FarcasterLogo({ size = 200 }: Props): React.Node {
+  return React.useMemo(
     () => (
       <Svg
-        width="200"
-        height="200"
+        width={size}
+        height={size}
         viewBox="0 0 1000 1000"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -27,10 +31,8 @@ function FarcasterLogo(): React.Node {
         />
       </Svg>
     ),
-    [],
+    [size],
   );
-
-  return farcasterLogo;
 }
 
 export default FarcasterLogo;
