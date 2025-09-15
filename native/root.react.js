@@ -52,6 +52,7 @@ import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
+import { FarcasterMessageFetchingProvider } from 'lib/shared/farcaster/farcaster-message-fetching-context.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
@@ -340,7 +341,9 @@ function Root() {
                 <GlobalSearchIndexProvider>
                   <NUXTipsContextProvider>
                     <BackupHandlerContextProvider>
-                      <RootNavigator />
+                      <FarcasterMessageFetchingProvider>
+                        <RootNavigator />
+                      </FarcasterMessageFetchingProvider>
                     </BackupHandlerContextProvider>
                   </NUXTipsContextProvider>
                 </GlobalSearchIndexProvider>
