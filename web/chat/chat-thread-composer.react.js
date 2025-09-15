@@ -28,7 +28,7 @@ import {
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { supportsFarcasterDCs } from 'lib/utils/services-utils.js';
+import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import css from './chat-thread-composer.css';
 import UserAvatar from '../avatars/user-avatar.react.js';
@@ -69,8 +69,11 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray, viewerID],
   );
 
+  const isFarcasterDCsIntegrationEnabled =
+    useIsFarcasterDCsIntegrationEnabled();
+
   const searchResults = useSearchUsers(usernameInputText, {
-    searchFarcaster: supportsFarcasterDCs,
+    searchFarcaster: isFarcasterDCsIntegrationEnabled,
   });
 
   const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
@@ -81,6 +84,7 @@ function ChatThreadComposer(props: Props): React.Node {
     auxUserInfos,
     excludeUserIDs,
     includeServerSearchUsers: searchResults,
+    isFarcasterDCsIntegrationEnabled,
   });
 
   const userListItemsWithENSNames = useResolvableNames(userListItems);
@@ -106,7 +110,7 @@ function ChatThreadComposer(props: Props): React.Node {
       const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
       const isFarcasterUser =
-        supportsFarcasterDCs && !!extractFIDFromUserID(user.id);
+        isFarcasterDCsIntegrationEnabled && !!extractFIDFromUserID(user.id);
       if (
         ((!isFarcasterUser && notice === notFriendNotice) ||
           user.id === viewerID) &&
@@ -164,6 +168,7 @@ function ChatThreadComposer(props: Props): React.Node {
       existingThreadInfoFinderForCreatingThread,
       dispatch,
       pushModal,
+      isFarcasterDCsIntegrationEnabled,
     ],
   );
 

@@ -29,7 +29,7 @@ import {
 } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
-  supportsFarcasterDCs,
+  useIsFarcasterDCsIntegrationEnabled,
   useIsRestoreFlowEnabled,
 } from 'lib/utils/services-utils.js';
 
@@ -64,6 +64,7 @@ function AccountSettings(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const checkIfPrimaryDevice = useCheckIfPrimaryDevice();
   const usingRestoreFlow = useIsRestoreFlowEnabled();
+  const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
   const logOutUser = React.useCallback(async () => {
     // if web is primary device, we're on legacy flow
     const isPrimaryDevice = await checkIfPrimaryDevice();
