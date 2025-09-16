@@ -1,10 +1,10 @@
 terraform {
   backend "s3" {
-    region         = "us-east-2"
-    key            = "terraform.tfstate"
-    bucket         = "commapp-terraform"
-    dynamodb_table = "terraform-lock"
-    encrypt        = true
+    region       = "us-east-2"
+    key          = "terraform.tfstate"
+    bucket       = "commapp-terraform"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 
