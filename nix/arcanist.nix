@@ -4,24 +4,26 @@
 , fetchFromGitHub
 , installShellFiles
 , makeWrapper
-, php80
+, php81
 , python3
 , which
 }:
 
 stdenv.mkDerivation {
   pname = "arcanist";
-  version = "20220517";
+  version = "20230530";
 
   src = fetchFromGitHub {
     owner = "phacility";
     repo = "arcanist";
-    rev = "85c953ebe4a6fef332158fd757d97c5a58682d3a";
-    sha256 = "0x847fw74mzrbhzpgc4iqgvs6dsf4svwfa707dsbxi78fn2lxbl7";
+    rev = "e50d1bc4eabac9c37e3220e9f3fb8e37ae20b957";
+    sha256 = "13hng5xjn4whg1ichgk36lspmmmd9fdsv8a8mj5hq05fl2qx3qdv";
   };
 
+  patches = [ ./arcanist-php81-fix.patch ];
+
   # These need to be in PATH during the build
-  nativeBuildInputs = [ php80 python3 installShellFiles makeWrapper ];
+  nativeBuildInputs = [ php81 python3 installShellFiles makeWrapper ];
 
   # Since we are exporting a script, we do not need to do an actual "build"
   doBuild = false;
@@ -42,8 +44,8 @@ stdenv.mkDerivation {
     # See https://github.com/NixOS/nixpkgs/issues/93609 for related issue.
     cat << WRAPPER > $out/bin/arc
     #!$shell -e
-    export PATH=${lib.makeBinPath [ python3 php80 which]}''${PATH:+':'}\$PATH
-    exec ${php80}/bin/php $out/libexec/arcanist/bin/arc "\$@"
+    export PATH=${lib.makeBinPath [ python3 php81 which]}''${PATH:+':'}\$PATH
+    exec ${php81}/bin/php $out/libexec/arcanist/bin/arc "\$@"
     WRAPPER
 
     chmod +x $out/bin/arc
