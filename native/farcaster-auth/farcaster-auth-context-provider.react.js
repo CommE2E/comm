@@ -8,7 +8,9 @@ import {
   FarcasterAuthContext,
   type SignedMessage,
 } from 'lib/components/farcaster-auth-context.js';
+import { farcasterSignerTimeout } from 'lib/shared/timeouts.js';
 import { createFarcasterDCsAuthMessage } from 'lib/utils/farcaster-utils.js';
+import sleep from 'lib/utils/sleep.js';
 
 import bundledScript from './dist/farcaster-signer.bundle.js.raw';
 import type { WebViewMessageEvent } from '../types/web-view-types.js';
@@ -85,11 +87,18 @@ function FarcasterAuthContextProvider(props: Props): React.Node {
           reject,
         });
       });
+
+      const timeoutPromise = (async () => {
+        await sleep(farcasterSignerTimeout);
+        throw new Error('Signing timed out');
+      })();
+
       setAuthParams({
         message: authMessage,
         mnemonic: input.walletMnemonic,
       });
-      return promise;
+
+      return Promise.race([promise, timeoutPromise]);
     },
     [promiseHandlers],
   );
