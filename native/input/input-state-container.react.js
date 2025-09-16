@@ -595,6 +595,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           createFarcasterGroup: this.props.createFarcasterGroup,
           farcasterFetchConversation: this.props.fetchConversation,
           auxUserStore: this.props.auxUserStore,
+          dispatch: this.props.dispatch,
         });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
