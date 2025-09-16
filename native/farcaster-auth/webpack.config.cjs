@@ -16,7 +16,25 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-flow'],
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    ios: '10.0',
+                    android: '5.0',
+                    chrome: '55',
+                    safari: '10.1',
+                  },
+                  // Don't transform async/await
+                  exclude: [
+                    '@babel/plugin-transform-async-to-generator',
+                    '@babel/plugin-transform-regenerator',
+                  ],
+                },
+              ],
+              '@babel/preset-flow',
+            ],
             plugins: ['@babel/plugin-transform-flow-strip-types'],
           },
         },
