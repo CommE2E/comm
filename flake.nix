@@ -5,7 +5,6 @@
     utils.url = "github:numtide/flake-utils";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nixpkgs-grpc-web.url = "github:NixOS/nixpkgs/9957cd48326fe8dbd52fdc50dd2502307f188b0d";
-    # Do not update, used for EOL versions of mariaDB and arcanist+php8.0
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
 
@@ -31,12 +30,17 @@
       in
         import nixpkgs-unstable {
           inherit system;
-          config.allowUnfree = true;
+          config = {
+            allowUnfree = true;
+            permittedInsecurePackages = [
+              "olm-3.2.16"
+            ];
+          };
           overlays = overlays ++ [
             # Re-introduce older packages that were removed in latest nixpkgs
             (_: _: {
               emscripten = oldNixpkgs.emscripten; # Changed signficantly
-              php80 = oldNixpkgs.php80; # Used for arcanist
+              php81 = oldNixpkgs.php81; # Used for arcanist
             })
           ];
         };
