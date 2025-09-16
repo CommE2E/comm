@@ -18,6 +18,7 @@
 , emscripten
 , folly
 , fmt
+, git
 , glog
 , grpc
 , jq
@@ -53,6 +54,7 @@ mkShell {
   # programs which are meant to be executed should go here
   nativeBuildInputs = [
     # generic development or tools
+    git
     arcanist
     awscli2
     jq
@@ -111,14 +113,9 @@ mkShell {
     olm # needed for CryptoTools
     sqlite # needed for sqlite database
     openssl # needed for grpc
-  ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-    CoreFoundation
-    CoreServices
-    Security
-    # required until https://github.com/seanmonstar/reqwest/issues/2006 is resolved
-    SystemConfiguration
+  ] ++ lib.optionals stdenv.isDarwin [
     libiconv  # identity service
-  ]);
+  ];
 
   JAVA_HOME = openjdk11.passthru.home;
 
