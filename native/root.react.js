@@ -43,7 +43,6 @@ import SyncCommunityStoreHandler from 'lib/components/sync-community-store-handl
 import { UserIdentityCacheProvider } from 'lib/components/user-identity-cache.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { HoldersHandler } from 'lib/handlers/holders-handler.react.js';
-import { InitialStateSharingHandler } from 'lib/handlers/initial-state-sharing-handler.react.js';
 import { RestoreBackupHandler } from 'lib/handlers/restore-backup-handler.react.js';
 import { SyncCurrentUserInfoHandler } from 'lib/handlers/sync-current-user-info-handler.react.js';
 import { SyncStoreVersionHandler } from 'lib/handlers/sync-store-version-handler.react.js';
@@ -428,7 +427,6 @@ function Root() {
                                                             <FarcasterSyncHandler />
                                                             <AutoJoinCommunityHandler />
                                                             <SyncCommunityStoreHandler />
-                                                            <InitialStateSharingHandler />
                                                             <SecondaryDevicesBackupHandler />
                                                           </PersistedStateGate>
                                                           {navigation}
