@@ -13,8 +13,6 @@ prev:
   # add packages meant for just this repository
   amqp-cpp = prev.callPackage ./amqp-cpp.nix { };
 
-  arcanist = final.callPackage ./arcanist.nix { };
-
   better-prompt = prev.callPackage ./better-prompt.nix { };
 
   # c-ares is used to bootstrap curl, so cmake is not available in the default

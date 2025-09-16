@@ -5,7 +5,6 @@
     utils.url = "github:numtide/flake-utils";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nixpkgs-grpc-web.url = "github:NixOS/nixpkgs/9957cd48326fe8dbd52fdc50dd2502307f188b0d";
-    # Do not update, used for EOL versions of mariaDB and arcanist+php8.0
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
 
@@ -36,7 +35,6 @@
             # Re-introduce older packages that were removed in latest nixpkgs
             (_: _: {
               emscripten = oldNixpkgs.emscripten; # Changed signficantly
-              php80 = oldNixpkgs.php80; # Used for arcanist
             })
           ];
         };
