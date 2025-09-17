@@ -34,10 +34,8 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <Text style={styles.header}>Fetching Farcaster conversations</Text>
       <Text style={styles.section}>
-        We’re fetching all your Farcaster conversations and messages.
-      </Text>
-      <Text style={styles.section}>
-        This could take a while depending on how many conversations you have.
+        Comm is fetching all of your Farcaster messages so they can be backed
+        up. This can take a while, depending on how many conversations you have.
       </Text>
       <View style={styles.progressContainer}>
         {progress ? (
