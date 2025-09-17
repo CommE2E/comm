@@ -142,6 +142,9 @@ mkShell {
     wait "$mariadb_pid" "$redis_pid"
 
     ${../scripts}/install_homebrew_macos.sh
+
+    # Nix overrides $DEVELOPER_DIR, which breaks xcrun / xcodebuild
+    unset DEVELOPER_DIR
   '' + ''
 
     # Render default configuration for keyserver
