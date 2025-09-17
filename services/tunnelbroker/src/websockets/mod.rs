@@ -3,7 +3,7 @@ pub mod session;
 use crate::amqp::AmqpConnection;
 use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
-use crate::notifs::NotifClient;
+use crate::notifs::SessionNotifClient;
 use crate::websockets::session::SessionError;
 use crate::FarcasterClient;
 use crate::CONFIG;
@@ -43,7 +43,7 @@ struct WebsocketService {
   addr: SocketAddr,
   amqp: AmqpConnection,
   db_client: DatabaseClient,
-  notif_client: NotifClient,
+  notif_client: SessionNotifClient,
   farcaster_client: FarcasterClient,
 }
 
@@ -113,7 +113,6 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 pub async fn run_server(
   db_client: DatabaseClient,
   amqp_connection: &AmqpConnection,
-  notif_client: NotifClient,
   farcaster_client: FarcasterClient,
 ) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
@@ -128,6 +127,7 @@ pub async fn run_server(
 
   while let Ok((stream, addr)) = listener.accept().await {
     let amqp = amqp_connection.clone();
+    let notif_client = SessionNotifClient::new(db_client.clone());
     let connection = http
       .serve_connection(
         stream,
@@ -135,7 +135,7 @@ pub async fn run_server(
           amqp,
           db_client: db_client.clone(),
           addr,
-          notif_client: notif_client.clone(),
+          notif_client,
           farcaster_client: farcaster_client.clone(),
         },
       )
@@ -180,7 +180,7 @@ async fn accept_connection(
   addr: SocketAddr,
   db_client: DatabaseClient,
   amqp_connection: AmqpConnection,
-  notif_client: NotifClient,
+  notif_client: SessionNotifClient,
   farcaster_client: FarcasterClient,
 ) {
   debug!("Incoming connection from: {}", addr);
@@ -337,7 +337,7 @@ async fn initiate_session<
   frame: Message,
   db_client: DatabaseClient,
   amqp: AmqpConnection,
-  notif_client: NotifClient,
+  notif_client: SessionNotifClient,
   farcaster_client: FarcasterClient,
 ) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
   let device_info = match get_device_info_from_frame(frame).await {

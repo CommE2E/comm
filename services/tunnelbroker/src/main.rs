@@ -12,7 +12,6 @@ pub mod token_distributor;
 pub mod websockets;
 
 use crate::farcaster::FarcasterClient;
-use crate::notifs::NotifClient;
 use crate::token_distributor::{TokenDistributor, TokenDistributorConfig};
 use amqp_client::amqp;
 use anyhow::{anyhow, Result};
@@ -65,8 +64,6 @@ async fn main() -> Result<()> {
     .await
     .expect("Failed to create AMQP connection");
 
-  let notif_client = NotifClient::new(db_client.clone());
-
   let farcaster_api_url = CONFIG.farcaster_api_url.clone();
   let farcaster_client = FarcasterClient::new(
     farcaster_api_url,
@@ -80,18 +77,23 @@ async fn main() -> Result<()> {
   let websocket_server = websockets::run_server(
     db_client.clone(),
     &amqp_connection,
-    notif_client.clone(),
     farcaster_client.clone(),
   );
 
   let auth_service = AuthService::new(&aws_config, &CONFIG.identity_endpoint);
-  let services_token = auth_service.get_services_token().await?;
+  let services_token =
+    auth_service.get_services_token().await.inspect_err(|err| {
+      tracing::error!("Failed to get services auth token: {:?}", err);
+    })?;
   let grpc_client = get_services_auth_client(
     &CONFIG.identity_endpoint,
     services_token.as_str().to_owned(),
     PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
-  .await?;
+  .await
+  .inspect_err(|err| {
+    tracing::error!("Failed to create Identity gRPC client: {:?}", err);
+  })?;
 
   let token_config = TokenDistributorConfig::default();
   let mut token_distributor = TokenDistributor::new(
