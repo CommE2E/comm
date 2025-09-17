@@ -38,7 +38,7 @@ pub enum AndroidMessagePriority {
 }
 
 impl AndroidMessagePriority {
-  pub fn from_str(value: &str) -> Option<Self> {
+  pub fn from_raw(value: &str) -> Option<Self> {
     match value {
       "NORMAL" => Some(AndroidMessagePriority::Normal),
       "HIGH" => Some(AndroidMessagePriority::High),
