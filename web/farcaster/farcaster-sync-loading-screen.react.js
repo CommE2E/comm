@@ -36,11 +36,9 @@ function FarcasterSyncLoadingScreen(): React.Node {
             <h2 className={css.header}>Fetching Farcaster conversations</h2>
             <div className={css.separator} />
             <p className={css.description}>
-              We’re fetching all your Farcaster conversations and messages.
-            </p>
-            <p className={css.description}>
-              This could take a while depending on how many conversations you
-              have.
+              Comm is fetching all of your Farcaster messages so they can be
+              backed up. This can take a while, depending on how many
+              conversations you have.
             </p>
             {progressComponent}
           </div>
