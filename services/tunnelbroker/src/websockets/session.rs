@@ -18,7 +18,7 @@ use tracing::{debug, error, info, trace};
 use crate::amqp_client::AmqpClient;
 use crate::database::{self, DatabaseClient};
 use crate::farcaster::FarcasterClient;
-use crate::notifs::NotifClient;
+use crate::notifs::SessionNotifClient;
 use crate::{farcaster, identity};
 use tunnelbroker_messages::farcaster::{
   FarcasterAPIRequest, FarcasterAPIResponse, FarcasterAPIResponseData,
@@ -46,7 +46,7 @@ pub struct WebsocketSession<S> {
   pub device_info: DeviceInfo,
   // Each websocket has an AMQP connection associated with a particular device
   amqp_client: AmqpClient,
-  notif_client: NotifClient,
+  notif_client: SessionNotifClient,
   farcaster_client: FarcasterClient,
 }
 
@@ -168,7 +168,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send + 'static> WebsocketSession<S> {
     db_client: DatabaseClient,
     device_info: DeviceInfo,
     amqp: AmqpConnection,
-    notif_client: NotifClient,
+    notif_client: SessionNotifClient,
     farcaster_client: FarcasterClient,
   ) -> Result<Self, super::ErrorWithStreamHandle<S>> {
     let amqp_client =
