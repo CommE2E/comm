@@ -3,9 +3,12 @@ use crate::amqp_client::utils::BasicMessageSender;
 use crate::config::CONFIG;
 use crate::constants::MEDIA_MIRROR_TIMEOUT;
 use crate::database::DatabaseClient;
+use crate::farcaster::FarcasterClient;
 use crate::log::redact_sensitive_data;
+use crate::notifs::{GenericNotifClient, NotifRecipientDescriptor};
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
+use crate::token_distributor::notif_utils::prepare_notif_payload;
 use comm_lib::auth::AuthService;
 use comm_lib::blob::client::S2SAuthedBlobClient;
 use comm_lib::blob::types::http::MirroredMediaInfo;
@@ -32,6 +35,8 @@ pub(crate) struct TokenConnection {
   grpc_client: ChainedInterceptedServicesAuthClient,
   message_sender: BasicMessageSender,
   blob_client: S2SAuthedBlobClient,
+  farcaster_client: FarcasterClient,
+  notif_client: GenericNotifClient,
 }
 
 impl TokenConnection {
@@ -44,6 +49,7 @@ impl TokenConnection {
     cancellation_token: CancellationToken,
     grpc_client: ChainedInterceptedServicesAuthClient,
     auth_service: &AuthService,
+    farcaster_client: FarcasterClient,
   ) {
     let message_sender =
       BasicMessageSender::new(&db, AmqpChannel::new(&amqp_connection));
@@ -59,6 +65,8 @@ impl TokenConnection {
         auth_service,
         CONFIG.blob_service_url.clone(),
       ),
+      farcaster_client,
+      notif_client: GenericNotifClient::new(db.clone(), message_sender.clone()),
       message_sender,
     };
 
@@ -502,6 +510,18 @@ impl TokenConnection {
     );
 
     let conversation_id = &payload.conversation_id;
+    let conversation = self
+      .farcaster_client
+      .fetch_conversation(&self.user_id, conversation_id)
+      .await
+      .map_err(|e| {
+        TokenConnectionError::MessageHandlingFailed(format!(
+          "Failed to fetch conversation details: {e:?}",
+        ))
+      })?;
+    let current_user_fid = extract_fid_from_dcs_token(&self.token_data);
+    let notif =
+      prepare_notif_payload(payload, &conversation, current_user_fid.as_ref());
 
     debug!(
       "Processing refresh for conversation ID: {}",
@@ -538,21 +558,45 @@ impl TokenConnection {
       })?
       .into_inner();
 
-    let user_devices_option = user_devices_response
+    let Some(user_devices) = user_devices_response
       .users_devices_platform_details
-      .get(&self.user_id);
+      .get(&self.user_id)
+    else {
+      return Ok(());
+    };
+
     let message = NewFarcasterMessage {
       message: direct_cast_message,
     };
-    if let Some(user_devices) = user_devices_option {
-      let message_payload = serde_json::to_string(&message).map_err(|e| {
-        TokenConnectionError::MessageHandlingFailed(format!(
-          "Failed to serialize: {}",
-          e
-        ))
-      })?;
+    let message_payload = serde_json::to_string(&message).map_err(|e| {
+      TokenConnectionError::MessageHandlingFailed(format!(
+        "Failed to serialize: {}",
+        e
+      ))
+    })?;
 
-      for device_id in user_devices.devices_platform_details.keys() {
+    for (device_id, platform_details) in &user_devices.devices_platform_details
+    {
+      let notif_future = async || {
+        let Some(notif_payload) = &notif else {
+          return;
+        };
+        let target = NotifRecipientDescriptor {
+          platform: platform_details.device_type().into(),
+          device_id: device_id.to_string(),
+        };
+        if let Err(err) = self
+          .notif_client
+          .send_notif(notif_payload.clone(), target)
+          .await
+        {
+          if !err.is_invalid_token() {
+            tracing::error!("Failed to send Farcaster notif: {:?}", err);
+          }
+        }
+      };
+
+      let message_future = async || {
         self
           .message_sender
           .simple_send_message_to_device(device_id, message_payload.clone())
@@ -562,8 +606,11 @@ impl TokenConnection {
               "Failed to send a message: {}",
               e
             ))
-          })?;
-      }
+          })
+      };
+
+      let (message_result, _) = tokio::join!(message_future(), notif_future());
+      message_result?;
     }
 
     Ok(())
@@ -631,4 +678,22 @@ fn replace_media_urls(
   }
 
   Some(found_medias)
+}
+
+/// Farcaster DCs token string has specific format, from which we can extract
+/// authenticated user's FID.
+/// The pattern is as follows: `fc_dc_${FID}_remainingtokenvalue`
+fn extract_fid_from_dcs_token(fc_dcs_token: &str) -> Option<String> {
+  const PREFIX: &str = "fc_dc_";
+  const SEP: &str = "_";
+
+  let stripped = fc_dcs_token.strip_prefix(PREFIX)?;
+  let (fid, _rest) = stripped.split_once(SEP)?;
+
+  let is_valid = fid.chars().all(|c: char| c.is_ascii_digit());
+  if !is_valid {
+    return None;
+  }
+
+  Some(fid.to_string())
 }
