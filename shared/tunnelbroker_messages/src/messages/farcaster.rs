@@ -64,6 +64,19 @@ pub struct FarcasterAPIResponse {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct DirectCastUser {
+  pub fid: u64,
+  pub display_name: String,
+  pub username: String,
+  pub pfp: Option<ProfilePicture>,
+
+  // NOTE: This is not a full payload, some fields were omitted
+  #[serde(flatten)]
+  pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SenderContext {
   pub display_name: String,
   pub fid: u64,
@@ -82,6 +95,20 @@ pub struct ProfilePicture {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum DirectCastMessageType {
+  Text,
+  GroupNameChange,
+  GroupMembershipAddition,
+  GroupMembershipRemoval,
+  PinMessage,
+  MessageTtlChange,
+  RichAnnouncement,
+  #[serde(untagged)]
+  Other(String),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DirectCastMessage {
   pub conversation_id: String,
@@ -90,7 +117,7 @@ pub struct DirectCastMessage {
   pub sender_fid: u64,
   pub server_timestamp: u64,
   #[serde(rename = "type")]
-  pub message_type: String,
+  pub message_type: DirectCastMessageType,
   pub is_deleted: bool,
   pub sender_context: SenderContext,
   pub reactions: Vec<serde_json::Value>,
@@ -99,6 +126,25 @@ pub struct DirectCastMessage {
   pub mentions: Vec<serde_json::Value>,
   #[serde(flatten)]
   pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct DirectCastConversation {
+  pub conversation_id: String,
+  pub name: Option<String>,
+  pub muted: bool,
+  pub participants: Vec<DirectCastUser>,
+
+  // NOTE: This is not a full payload, some fields were omitted
+  #[serde(flatten)]
+  pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+impl DirectCastConversation {
+  pub fn participant(&self, fid: u64) -> Option<&DirectCastUser> {
+    self.participants.iter().find(|u| u.fid == fid)
+  }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -181,8 +227,7 @@ mod tests {
             "displayName":"Kamil",
             "fid":946308,
             "pfp":{
-              "url":"https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/\
-                   5ea8b176-f90d-4bcc-480b-5c903b0c7700/rectcrop3",
+              "url":"https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/5ea8b176-f90d-4bcc-480b-5c903b0c7700/rectcrop3",
               "verified":false
             },
             "username":"kamilswm"
@@ -210,6 +255,10 @@ mod tests {
       } => {
         assert_eq!(refresh_payload.conversation_id, "efa192faf954b2f8");
         assert_eq!(refresh_payload.message.message, "Test");
+        assert_eq!(
+          refresh_payload.message.message_type,
+          DirectCastMessageType::Text
+        );
         assert_eq!(refresh_payload.message.sender_fid, 946308);
         assert_eq!(
           refresh_payload.message.sender_context.display_name,
@@ -234,7 +283,7 @@ mod tests {
             message_id: "msg456".to_string(),
             sender_fid: 123,
             server_timestamp: 1000000,
-            message_type: "text".to_string(),
+            message_type: DirectCastMessageType::Text,
             is_deleted: false,
             sender_context: SenderContext {
               display_name: "Test User".to_string(),
@@ -279,6 +328,7 @@ mod tests {
       FarcasterPayload::RefreshDirectCastConversation { payload, .. } => {
         assert_eq!(payload.conversation_id, "test123");
         assert_eq!(payload.message.message, "Hello");
+        assert_eq!(payload.message.message_type, DirectCastMessageType::Text);
       }
       _ => panic!("Expected RefreshDirectCastConversation payload"),
     }
@@ -323,5 +373,22 @@ mod tests {
       }
       _ => panic!("Expected RefreshSelfDirectCastsInbox payload"),
     }
+  }
+
+  #[test]
+  fn test_deserialize_message_type() {
+    let known_type_str = "\"group_name_change\"";
+    let unknown_type_str = "\"fancy_message\"";
+
+    let known_type: DirectCastMessageType =
+      serde_json::from_str(known_type_str).unwrap();
+    let unknown_type: DirectCastMessageType =
+      serde_json::from_str(unknown_type_str).unwrap();
+
+    assert_eq!(known_type, DirectCastMessageType::GroupNameChange);
+    assert_eq!(
+      unknown_type,
+      DirectCastMessageType::Other("fancy_message".to_string())
+    );
   }
 }
