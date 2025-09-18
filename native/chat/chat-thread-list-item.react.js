@@ -21,6 +21,7 @@ import SingleLine from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
 type Props = {
   +data: ChatThreadItem,
@@ -135,17 +136,27 @@ function ChatThreadListItem({
   const iconStyle = data.threadInfo.currentUser.unread
     ? styles.iconUnread
     : styles.iconRead;
-  const iconName =
+  const nativeChatThreadListIcon =
     threadSpecs[data.threadInfo.type].protocol().presentationDetails
       .nativeChatThreadListIcon;
+
+  let iconComponent;
+  if (nativeChatThreadListIcon === 'farcaster') {
+    iconComponent = (
+      <View style={styles.farcasterIcon}>
+        <FarcasterLogo size={8} />
+      </View>
+    );
+  } else {
+    const iconName = nativeChatThreadListIcon === 'lock' ? 'lock' : 'server';
+    iconComponent = <Icon name={iconName} size={12} style={iconStyle} />;
+  }
 
   const threadDetails = React.useMemo(
     () => (
       <View style={styles.threadDetails}>
         <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Icon name={iconName} size={12} style={iconStyle} />
-          </View>
+          <View style={styles.iconContainer}>{iconComponent}</View>
           <ThreadAncestorsLabel threadInfo={data.threadInfo} />
         </View>
         <View style={styles.row}>
@@ -160,9 +171,8 @@ function ChatThreadListItem({
       </View>
     ),
     [
-      iconStyle,
+      iconComponent,
       data.threadInfo,
-      iconName,
       lastActivity,
       lastActivityStyle,
       resolvedThreadInfo.uiName,
@@ -297,6 +307,15 @@ const unboundStyles = {
   },
   iconUnread: {
     color: 'listForegroundLabel',
+  },
+  farcasterIcon: {
+    backgroundColor: '#855DCD',
+    borderRadius: 6,
+    width: 12,
+    height: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.7,
   },
 };
 

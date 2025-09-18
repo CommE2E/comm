@@ -297,6 +297,20 @@ img.arrow {
   padding: 7px 6px 2px 0;
 }
 
+.farcasterIconBackground {
+  padding: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  background-color: #855dcd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-bottom: -3px;
+}
+
 .header {
   display: flex;
   flex-direction: row;
