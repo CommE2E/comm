@@ -8,7 +8,9 @@ use comm_lib::blob::types::http::MirroredMediaInfo;
 use lapin::{BasicProperties, ExchangeKind};
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use tracing::{debug, info, warn};
-use tunnelbroker_messages::farcaster::{APIMethod, FarcasterAPIRequest};
+use tunnelbroker_messages::farcaster::{
+  APIMethod, DirectCastConversation, FarcasterAPIRequest,
+};
 
 pub mod error;
 
@@ -42,6 +44,39 @@ impl FarcasterClient {
         CONFIG.blob_service_url.clone(),
       ),
     })
+  }
+
+  pub async fn fetch_conversation(
+    &self,
+    caling_user_id: &str,
+    conversation_id: &str,
+  ) -> Result<DirectCastConversation, error::Error> {
+    debug!(
+      "Fetching FC conversation details for conversationId={}",
+      conversation_id
+    );
+    let (status, response_text) = self
+      .api_request(FarcasterAPIRequest {
+        request_id: uuid::Uuid::new_v4().to_string(),
+        user_id: caling_user_id.to_string(),
+        api_version: "v2".to_string(),
+        endpoint: "direct-cast-conversation".to_string(),
+        method: APIMethod::GET,
+        payload: format!("conversationId={conversation_id}"),
+      })
+      .await?;
+    if !status.is_success() {
+      return Err(status.into());
+    }
+
+    let mut response_value: serde_json::Value =
+      serde_json::from_str(&response_text)?;
+    let conversation_value = response_value["result"]["conversation"].take();
+
+    let converstion: DirectCastConversation =
+      serde_json::from_value(conversation_value)?;
+
+    Ok(converstion)
   }
 
   pub async fn api_request(
