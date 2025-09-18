@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-native-reanimated/android/src/main/cpp/reanimated/android/NativeProxy.cpp b/node_modules/react-native-reanimated/android/src/main/cpp/reanimated/android/NativeProxy.cpp
-index eae3989..432745a 100644
+index 0726b31..b44c0d7 100644
 --- a/node_modules/react-native-reanimated/android/src/main/cpp/reanimated/android/NativeProxy.cpp
 +++ b/node_modules/react-native-reanimated/android/src/main/cpp/reanimated/android/NativeProxy.cpp
-@@ -416,6 +416,10 @@ void NativeProxy::progressLayoutAnimation(
+@@ -411,6 +411,10 @@ void NativeProxy::progressLayoutAnimation(
        tag, newPropsJNI, isSharedTransition);
  }
  
@@ -13,7 +13,7 @@ index eae3989..432745a 100644
  PlatformDepMethodsHolder NativeProxy::getPlatformDependentMethods() {
  #ifdef RCT_NEW_ARCH_ENABLED
    // nothing
-@@ -455,14 +459,7 @@ PlatformDepMethodsHolder NativeProxy::getPlatformDependentMethods() {
+@@ -450,14 +454,7 @@ PlatformDepMethodsHolder NativeProxy::getPlatformDependentMethods() {
    auto progressLayoutAnimation =
        bindThis(&NativeProxy::progressLayoutAnimation);
  
