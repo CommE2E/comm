@@ -102,6 +102,7 @@ async fn main() -> Result<()> {
     &amqp_connection,
     grpc_client,
     &auth_service,
+    farcaster_client.clone(),
   );
 
   tokio::select! {
