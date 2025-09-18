@@ -1,9 +1,11 @@
 mod config;
 mod error;
+mod notif_utils;
 mod token_connection;
 
 use crate::constants::error_types;
 use crate::database::DatabaseClient;
+use crate::farcaster::FarcasterClient;
 pub(crate) use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::token_connection::TokenConnection;
 use crate::{amqp_client::amqp::AmqpConnection, log::redact_sensitive_data};
@@ -23,6 +25,7 @@ pub struct TokenDistributor {
   amqp_connection: AmqpConnection,
   grpc_client: ChainedInterceptedServicesAuthClient,
   auth_service: AuthService,
+  farcaster_client: FarcasterClient,
 }
 
 impl TokenDistributor {
@@ -32,6 +35,7 @@ impl TokenDistributor {
     amqp_connection: &AmqpConnection,
     grpc_client: ChainedInterceptedServicesAuthClient,
     auth_service: &AuthService,
+    farcaster_client: FarcasterClient,
   ) -> Self {
     info!(
       "Initializing TokenDistributor - max_connections: {}, \
@@ -61,6 +65,7 @@ impl TokenDistributor {
       amqp_connection: amqp_connection.clone(),
       grpc_client,
       auth_service: auth_service.clone(),
+      farcaster_client,
     }
   }
 
@@ -202,6 +207,7 @@ impl TokenDistributor {
             cancel_token.clone(),
             self.grpc_client.clone(),
             &self.auth_service,
+            self.farcaster_client.clone(),
           );
 
           // Store the cancellation token
