@@ -42,7 +42,7 @@ index c0ebf7e..b3ee4c5 100644
      }
      getDevServerUrlOrAssert(options = {}) {
 diff --git a/node_modules/@expo/cli/build/src/utils/scheme.js b/node_modules/@expo/cli/build/src/utils/scheme.js
-index a1a78ca..b0f9626 100644
+index 5ae91c4..9abb63a 100644
 --- a/node_modules/@expo/cli/build/src/utils/scheme.js
 +++ b/node_modules/@expo/cli/build/src/utils/scheme.js
 @@ -133,7 +133,9 @@ function sortLongest(obj) {
