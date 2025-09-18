@@ -2,9 +2,8 @@ mod proto {
   tonic::include_proto!("tunnelbroker");
 }
 
-use crate::amqp_client::amqp::{
-  send_message_to_device, AmqpChannel, AmqpConnection, SendMessageError,
-};
+use crate::amqp_client::amqp::{AmqpChannel, AmqpConnection};
+use crate::amqp_client::utils::{send_message_to_device, SendMessageError};
 use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, CONFIG};
@@ -44,6 +43,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
       &self.amqp_channel,
       message.device_id,
       message.payload,
+      None,
     )
     .await
     .map_err(|e| match e {
