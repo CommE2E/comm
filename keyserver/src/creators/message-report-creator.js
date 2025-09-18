@@ -1,7 +1,7 @@
 // @flow
 
 import bots from 'lib/facts/bots.js';
-import { createMessageQuote } from 'lib/shared/message-utils.js';
+import { createMessageQuote } from 'lib/shared/markdown.js';
 import { type MessageReportCreationRequest } from 'lib/types/message-report-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
