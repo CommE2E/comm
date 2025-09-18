@@ -153,7 +153,9 @@ impl TokenDistributor {
     }
 
     let mut claimed_count = 0;
-    for (user_id, token_data) in orphaned_tokens {
+    for token_info in orphaned_tokens {
+      let user_id = token_info.user_id.clone();
+
       if claimed_count >= available_slots {
         info!(
           "Reached maximum connections limit ({}), stopping token claiming",
@@ -198,11 +200,11 @@ impl TokenDistributor {
             "Starting WebSocket connection task for user: {}",
             redact_sensitive_data(&user_id)
           );
+
           TokenConnection::start(
             self.db.clone(),
             self.config.clone(),
-            user_id.clone(),
-            token_data,
+            token_info,
             self.amqp_connection.clone(),
             cancel_token.clone(),
             self.grpc_client.clone(),
@@ -211,7 +213,7 @@ impl TokenDistributor {
           );
 
           // Store the cancellation token
-          self.connections.insert(user_id.clone(), cancel_token);
+          self.connections.insert(user_id, cancel_token);
           claimed_count += 1;
           info!(
             "Active connections: {}/{}",
