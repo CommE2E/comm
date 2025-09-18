@@ -13,7 +13,7 @@ import {
 
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
-import { createMessageReply } from 'lib/shared/message-utils.js';
+import { createMessageReply } from 'lib/shared/markdown.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
 import {
