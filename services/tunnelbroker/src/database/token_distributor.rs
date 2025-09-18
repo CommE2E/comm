@@ -3,15 +3,21 @@ use crate::database::DatabaseClient;
 use comm_lib::aws::ddb::operation::update_item::UpdateItemError;
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::database::shared_tables::farcaster_tokens;
-use comm_lib::database::{AttributeMap, Error};
+use comm_lib::database::{AttributeExtractor, AttributeMap, Error};
 use futures_util::TryFutureExt;
 use tracing::{debug, error};
+
+pub struct TokenEntryInfo {
+  pub user_id: String,
+  pub token_data: String,
+  pub fid: String,
+}
 
 impl DatabaseClient {
   pub async fn scan_orphaned_tokens(
     &self,
     timeout_threshold: u64,
-  ) -> Result<Vec<(String, String)>, Error> {
+  ) -> Result<Vec<TokenEntryInfo>, Error> {
     debug!(
       "Starting scan for orphaned tokens - timeout_threshold: {}",
       timeout_threshold
@@ -69,19 +75,17 @@ impl DatabaseClient {
 
     fn process_items(
       items: impl IntoIterator<Item = AttributeMap>,
-    ) -> impl Iterator<Item = (String, String)> {
-      items.into_iter().filter_map(|item| {
-        if let (
-          Some(AttributeValue::S(user_id)),
-          Some(AttributeValue::S(token_data_str)),
-        ) = (
-          item.get(farcaster_tokens::PARTITION_KEY),
-          item.get(farcaster_tokens::FARCASTER_DCS_TOKEN),
-        ) {
-          Some((user_id.to_string(), token_data_str.to_string()))
-        } else {
-          None
-        }
+    ) -> impl Iterator<Item = TokenEntryInfo> {
+      items.into_iter().filter_map(|mut item| {
+        let user_id = item.take_attr(farcaster_tokens::PARTITION_KEY).ok()?;
+        let token_data =
+          item.take_attr(farcaster_tokens::FARCASTER_DCS_TOKEN).ok()?;
+        let fid = item.take_attr(farcaster_tokens::FARCASTER_ID).ok()?;
+        Some(TokenEntryInfo {
+          user_id,
+          token_data,
+          fid,
+        })
       })
     }
 
