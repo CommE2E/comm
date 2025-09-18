@@ -4,7 +4,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { createMessageReply } from 'lib/shared/message-utils.js';
+import { createMessageReply } from 'lib/shared/markdown.js';
 import { useDeleteMessage } from 'lib/utils/delete-message-utils.js';
 
 import { MessageEditingContext } from './message-editing-context.react.js';

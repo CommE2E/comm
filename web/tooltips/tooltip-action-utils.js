@@ -17,7 +17,7 @@ import {
   chatMessageItemEngagementTargetMessageInfo,
 } from 'lib/shared/chat-message-item-utils.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
-import { createMessageReply } from 'lib/shared/message-utils.js';
+import { createMessageReply } from 'lib/shared/markdown.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/sidebar-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
