@@ -24,6 +24,7 @@ import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
+import CommIcon from '../comm-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
   useOnClickThread,
@@ -132,8 +133,29 @@ function ChatThreadListItem(props: Props): React.Node {
     threadSpecs[threadInfo.type].protocol().presentationDetails;
 
   const iconClass = unread ? css.iconUnread : css.iconRead;
-  const icon =
-    presentationDetails.webChatThreadListIcon === 'lock' ? lock : server;
+  const webChatThreadListIcon = presentationDetails.webChatThreadListIcon;
+
+  let icon;
+  if (webChatThreadListIcon === 'farcaster') {
+    icon = (
+      <div className={css.farcasterIconBackground}>
+        <CommIcon icon="farcaster" size={12} color="#fff" />
+      </div>
+    );
+  } else {
+    let iconComponent;
+    if (webChatThreadListIcon === 'lock') {
+      iconComponent = (
+        <FontAwesomeIcon size="xs" className={iconClass} icon={lock} />
+      );
+    } else {
+      iconComponent = (
+        <FontAwesomeIcon size="xs" className={iconClass} icon={server} />
+      );
+    }
+    icon = <div className={css.iconWrapper}>{iconComponent}</div>;
+  }
+
   const breadCrumbs = presentationDetails.threadAncestorLabel(ancestorPath);
 
   return (
@@ -147,9 +169,7 @@ function ChatThreadListItem(props: Props): React.Node {
         </div>
         <div className={css.threadButton}>
           <div className={css.header}>
-            <div className={css.iconWrapper}>
-              <FontAwesomeIcon size="xs" className={iconClass} icon={icon} />
-            </div>
+            {icon}
             <p className={breadCrumbsClassName}>{breadCrumbs}</p>
           </div>
           <div className={css.threadRow}>
