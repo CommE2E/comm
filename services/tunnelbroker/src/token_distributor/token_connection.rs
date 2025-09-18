@@ -1,6 +1,5 @@
-use crate::amqp_client::amqp::{
-  send_message_to_device, AmqpChannel, AmqpConnection,
-};
+use crate::amqp_client::amqp::{AmqpChannel, AmqpConnection};
+use crate::amqp_client::utils::BasicMessageSender;
 use crate::config::CONFIG;
 use crate::constants::MEDIA_MIRROR_TIMEOUT;
 use crate::database::DatabaseClient;
@@ -13,6 +12,7 @@ use comm_lib::blob::types::http::MirroredMediaInfo;
 use futures_util::{SinkExt, StreamExt};
 use grpc_clients::identity::authenticated::ChainedInterceptedServicesAuthClient;
 use grpc_clients::identity::protos::auth::PeersDeviceListsRequest;
+use grpc_clients::identity::DeviceType;
 use lapin::{options::*, types::FieldTable, ExchangeKind};
 use std::time::Duration;
 use tokio::time::{interval, Instant};
@@ -31,7 +31,7 @@ pub(crate) struct TokenConnection {
   token_data: String,
   amqp_connection: AmqpConnection,
   grpc_client: ChainedInterceptedServicesAuthClient,
-  amqp_channel: AmqpChannel,
+  message_sender: BasicMessageSender,
   blob_client: S2SAuthedBlobClient,
 }
 
@@ -46,6 +46,9 @@ impl TokenConnection {
     grpc_client: ChainedInterceptedServicesAuthClient,
     auth_service: &AuthService,
   ) {
+    let message_sender =
+      BasicMessageSender::new(&db, AmqpChannel::new(&amqp_connection));
+
     let connection = Self {
       db: db.clone(),
       config: config.clone(),
@@ -53,11 +56,11 @@ impl TokenConnection {
       token_data,
       amqp_connection: amqp_connection.clone(),
       grpc_client,
-      amqp_channel: AmqpChannel::new(&amqp_connection),
       blob_client: S2SAuthedBlobClient::new(
         auth_service,
         CONFIG.blob_service_url.clone(),
       ),
+      message_sender,
     };
 
     tokio::spawn(async move {
@@ -543,28 +546,35 @@ impl TokenConnection {
       message: direct_cast_message,
     };
     if let Some(user_devices) = user_devices_option {
-      for (device_id, platform_details) in
-        &user_devices.devices_platform_details
-      {
-        let payload = serde_json::to_string(&message).map_err(|e| {
-          TokenConnectionError::MessageHandlingFailed(format!(
-            "Failed to serialize: {}",
-            e
-          ))
-        })?;
-        send_message_to_device(
-          &self.db,
-          &self.amqp_channel,
-          device_id.to_string(),
-          payload,
-        )
-        .await
-        .map_err(|e| {
-          TokenConnectionError::MessageHandlingFailed(format!(
-            "Failed to send a message: {}",
-            e
-          ))
-        })?;
+      let message_payload = serde_json::to_string(&message).map_err(|e| {
+        TokenConnectionError::MessageHandlingFailed(format!(
+          "Failed to serialize: {}",
+          e
+        ))
+      })?;
+
+      // Filter out keyservers
+      let device_ids = user_devices.devices_platform_details.iter().filter_map(
+        |(device_id, platform_details)| {
+          if platform_details.device_type() == DeviceType::Keyserver {
+            None
+          } else {
+            Some(device_id)
+          }
+        },
+      );
+
+      for device_id in device_ids {
+        self
+          .message_sender
+          .simple_send_message_to_device(device_id, message_payload.clone())
+          .await
+          .map_err(|e| {
+            TokenConnectionError::MessageHandlingFailed(format!(
+              "Failed to send a message: {}",
+              e
+            ))
+          })?;
       }
     }
 
