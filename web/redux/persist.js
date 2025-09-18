@@ -925,6 +925,13 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
       ops,
     };
   }: MigrationFunction<WebNavInfo, AppState>),
+  [97]: (async (state: AppState) => {
+    const ops = await sharedMigrations[97](databaseIdentifier.MAIN);
+    return {
+      state,
+      ops,
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
 };
 
 const persistConfig: PersistConfig = {
