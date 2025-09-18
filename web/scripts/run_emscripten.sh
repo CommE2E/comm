@@ -118,7 +118,6 @@ fi
 
 EMCC_FLAGS=(
   # WASM files and bindings
-  --memory-init-file 0
   -s WASM=1
   -s ALLOW_MEMORY_GROWTH=1
   -s ALLOW_TABLE_GROWTH=1
