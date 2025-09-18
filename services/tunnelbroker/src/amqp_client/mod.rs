@@ -17,6 +17,7 @@ use tracing::{debug, error, warn};
 use tunnelbroker_messages::{MessageToDevice, MessageToDeviceRequest};
 
 pub mod amqp;
+pub mod utils;
 
 pub struct AmqpClient {
   db_client: DatabaseClient,
