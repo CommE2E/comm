@@ -118,7 +118,6 @@ fi
 
 EMCC_FLAGS=(
   # WASM files and bindings
-  --memory-init-file 0
   -s WASM=1
   -s ALLOW_MEMORY_GROWTH=1
   -s ALLOW_TABLE_GROWTH=1
@@ -132,7 +131,6 @@ EMCC_FLAGS=(
   -s NODEJS_CATCH_REJECTION=0
   -s WASM_ASYNC_COMPILATION=0
   -s EXPORT_ES6=1
-  -s USE_ES6_IMPORT_META=0
   -s MODULARIZE=1
 
   # optimization
