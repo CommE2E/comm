@@ -37,7 +37,7 @@ class UserList extends React.PureComponent<Props> {
   }
 
   static keyExtractor = (userInfo: UserListItem): string => {
-    return userInfo.id;
+    return `${userInfo.id}:${userInfo.username}`;
   };
 
   renderItem = (row: { +item: UserListItem, ... }): React.Node => {
