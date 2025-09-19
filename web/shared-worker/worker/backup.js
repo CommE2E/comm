@@ -15,16 +15,17 @@ import {
   completeRootKey,
   storeVersion,
 } from '../../redux/persist-constants.js';
+import { createSQLiteQueryExecutor } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import {
   ENCRYPTED_SQLITE_RESTORE_DATABASE_PATH,
   SQLITE_RESTORE_DATABASE_PATH,
 } from '../utils/constants.js';
 import { importDatabaseContent } from '../utils/db-utils.js';
+import type { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
 async function restoreBackup(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   dbModule: EmscriptenModule,
   authMetadata: AuthMetadata,
   backupID: string,
@@ -65,7 +66,8 @@ async function restoreBackup(
       `${storeVersion ?? -1}`,
     );
 
-    const restoredQueryExecutor = new dbModule.SQLiteQueryExecutor(
+    const restoredQueryExecutor = createSQLiteQueryExecutor(
+      dbModule,
       SQLITE_RESTORE_DATABASE_PATH,
       true,
     );

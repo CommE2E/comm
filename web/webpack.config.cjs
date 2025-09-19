@@ -34,6 +34,7 @@ const baseBrowserConfig = {
       crypto: false,
       fs: false,
       path: false,
+      module: false,
     },
   },
 };
@@ -111,6 +112,7 @@ const baseWebWorkersConfig = {
       crypto: false,
       fs: false,
       path: false,
+      module: false,
     },
   },
 };
@@ -119,7 +121,7 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'shared-worker/_generated/comm_query_executor.wasm',
+        from: 'shared-worker/_generated/comm-query-executor.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
     ],
@@ -156,12 +158,12 @@ const prodWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'shared-worker/_generated/comm_query_executor.wasm',
+        from: 'shared-worker/_generated/comm-query-executor.wasm',
         to: path.join(
           __dirname,
           'dist',
           'webworkers',
-          'comm_query_executor.[contenthash:12].wasm',
+          'comm-query-executor.[contenthash:12].wasm',
         ),
       },
     ],
