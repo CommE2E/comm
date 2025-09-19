@@ -11,7 +11,7 @@ export const SQLITE_STAMPED_USER_ID_KEY = 'current_user_id';
 export const DATABASE_WORKER_PATH = 'worker/database';
 export const WORKERS_MODULES_DIR_PATH = '/compiled/webworkers';
 
-export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm_query_executor.wasm';
+export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm-query-executor.wasm';
 export const DEFAULT_BACKUP_CLIENT_FILENAME = 'backup-client-wasm_bg.wasm';
 
 export const DEFAULT_OLM_FILENAME = 'olm.wasm';

@@ -1,6 +1,6 @@
 // @flow
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -13,14 +13,14 @@ describe('redux-persist storage engine queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
