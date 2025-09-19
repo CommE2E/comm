@@ -200,7 +200,10 @@ function ChatThreadComposer(props: Props): React.Node {
           icon = <ProtocolIcon protocol="Farcaster DC" size={23} />;
         }
         return (
-          <li key={userSearchResult.id} className={css.searchResultsItem}>
+          <li
+            key={`${userSearchResult.id}:${userSearchResult.username}`}
+            className={css.searchResultsItem}
+          >
             <Button
               variant="text"
               onClick={() => onSelectUserFromSearch(userSearchResult)}
