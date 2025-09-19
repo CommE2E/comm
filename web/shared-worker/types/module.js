@@ -1,7 +1,14 @@
 // @flow
 
+import type { ClientDBIntegrityThreadHash } from 'lib/ops/integrity-store-ops.js';
+import type {
+  OutboundP2PMessage,
+  InboundP2PMessage,
+} from 'lib/types/sqlite-types.js';
+
 import type { FS } from './file-system.js';
 import type { SQLiteQueryExecutorType } from './sqlite-query-executor.js';
+import type { EmscriptenVector } from '../utils/vector-utils.js';
 
 interface WebAssembly$Module {}
 
@@ -80,4 +87,18 @@ declare export class EmscriptenModule {
   SQLiteQueryExecutor: SQLiteQueryExecutorType;
   SQLiteBackup: SQLiteBackupType;
   getExceptionMessage(exceptionPtr: number): string;
+
+  // Vector constructors from Emscripten bindings
+  StringVector: Class<EmscriptenVector<string>>;
+  OutboundP2PMessageVector: Class<EmscriptenVector<OutboundP2PMessage>>;
+  InboundP2PMessageVector: Class<EmscriptenVector<InboundP2PMessage>>;
+  MessageStoreThreadVector: Class<
+    EmscriptenVector<{
+      +id: string,
+      +startReached: number,
+    }>,
+  >;
+  IntegrityThreadHashVector: Class<
+    EmscriptenVector<ClientDBIntegrityThreadHash>,
+  >;
 }

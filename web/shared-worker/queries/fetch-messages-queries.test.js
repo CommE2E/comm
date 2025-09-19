@@ -5,7 +5,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import type {
   MessageEntity,
   WebMessage,
@@ -24,12 +24,12 @@ describe('Fetch messages queries', () => {
   const thickThreadType: ThreadType = threadTypes.PERSONAL;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
 
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -39,21 +39,21 @@ describe('Fetch messages queries', () => {
       {
         id: threadID,
         type: threadType,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: 'ffffff',
         creationTime: BigInt(1000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '{}',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 0,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       threadSpecs[threadType].protocol().dataIsBackedUp,
     );
@@ -62,7 +62,7 @@ describe('Fetch messages queries', () => {
     for (let i = 0; i < 50; i++) {
       const message: WebMessage = {
         id: i.toString(),
-        localID: null,
+        localID: undefined,
         thread: threadID,
         user: userID,
         type: messageTypes.TEXT,
@@ -81,21 +81,21 @@ describe('Fetch messages queries', () => {
       {
         id: thickThreadID,
         type: thickThreadType,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: 'ffffff',
         creationTime: BigInt(2000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '{}',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 0,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       threadSpecs[thickThreadType].protocol().dataIsBackedUp,
     );
@@ -104,7 +104,7 @@ describe('Fetch messages queries', () => {
     for (let i = 0; i < 10; i++) {
       const message: WebMessage = {
         id: `thick-${i}`,
-        localID: null,
+        localID: undefined,
         thread: thickThreadID,
         user: userID,
         type: messageTypes.TEXT,
@@ -126,11 +126,11 @@ describe('Fetch messages queries', () => {
   function assertMessageEqual(message: MessageEntity, id: number) {
     const expected: WebMessage = {
       id: id.toString(),
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: userID,
       type: messageTypes.TEXT,
-      futureType: null,
+      futureType: 0,
       content: `text-${id}`,
       time: BigInt(id),
     };

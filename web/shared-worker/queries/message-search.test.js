@@ -3,7 +3,7 @@
 import { getProtocolByThreadID } from 'lib/shared/threads/protocols/thread-protocols.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import type { WebMessage } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
@@ -14,8 +14,8 @@ describe('Message search queries', () => {
   let dbModule;
 
   const userID = '111';
-  const futureType = null;
-  const localID = null;
+  const futureType = undefined;
+  const localID = undefined;
 
   const testCases = [
     {
@@ -29,14 +29,14 @@ describe('Message search queries', () => {
   ];
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -65,7 +65,7 @@ describe('Message search queries', () => {
         !!getProtocolByThreadID(threadID)?.dataIsBackedUp,
       );
       queryExecutor.updateMessageSearchIndex(id, id, text);
-      const result = queryExecutor.searchMessages('test', threadID, null, null);
+      const result = queryExecutor.searchMessages('test', threadID, undefined, undefined);
       expect(result.length).toBe(1);
       expect(result[0].message).toStrictEqual(message);
     });
@@ -104,7 +104,7 @@ describe('Message search queries', () => {
         !!getProtocolByThreadID(threadID)?.dataIsBackedUp,
       );
       queryExecutor.updateMessageSearchIndex(id2, id2, text2);
-      const result = queryExecutor.searchMessages('test', threadID, null, null);
+      const result = queryExecutor.searchMessages('test', threadID, undefined, undefined);
       expect(result.length).toBe(2);
     });
 
@@ -143,7 +143,7 @@ describe('Message search queries', () => {
         !!getProtocolByThreadID(threadID)?.dataIsBackedUp,
       );
       queryExecutor.updateMessageSearchIndex(id2, id2, text2);
-      const result = queryExecutor.searchMessages('test', threadID, null, null);
+      const result = queryExecutor.searchMessages('test', threadID, undefined, undefined);
       expect(result.length).toBe(1);
       expect(result[0].message).toStrictEqual(matchingMessage);
     });
@@ -183,7 +183,7 @@ describe('Message search queries', () => {
         !!getProtocolByThreadID(threadID)?.dataIsBackedUp,
       );
       queryExecutor.updateMessageSearchIndex(id1, id2, text2);
-      const result = queryExecutor.searchMessages('test', threadID, null, null);
+      const result = queryExecutor.searchMessages('test', threadID, undefined, undefined);
 
       expect(result.length).toBe(2);
       expect(result[0].message).toStrictEqual(matchingMessage);
@@ -375,7 +375,7 @@ describe('Message search queries', () => {
       );
       queryExecutor.updateMessageSearchIndex(id2, id2, text);
 
-      const result = queryExecutor.searchMessages(text, threadID, null, null);
+      const result = queryExecutor.searchMessages(text, threadID, undefined, undefined);
       expect(result.length).toBe(2);
       expect(result[0].message).toStrictEqual(firstMessage);
       expect(result[1].message).toStrictEqual(secondMessage);

@@ -5,7 +5,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -15,14 +15,14 @@ describe('getInitialMessages queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -41,21 +41,21 @@ describe('getInitialMessages queries', () => {
       {
         id,
         type,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: 'ffffff',
         creationTime: BigInt(creationTime),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '{}',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 0,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       threadSpecs[type].protocol().dataIsBackedUp,
     );
@@ -72,12 +72,12 @@ describe('getInitialMessages queries', () => {
     queryExecutor.replaceMessage(
       {
         id,
-        localID: null,
+        localID: undefined,
         thread: threadID,
         user: '1',
         type,
         futureType: null,
-        content,
+        content: content === null ? undefined : content,
         time: BigInt(time),
       },
       threadSpecs[threadType].protocol().dataIsBackedUp,
@@ -410,7 +410,7 @@ describe('getInitialMessages queries', () => {
 
     const results = queryExecutor.getInitialMessages();
     expect(results.length).toBe(3);
-    expect(results[0].message.content).toBe(null);
+    expect(results[0].message.content).toBe(undefined);
     expect(results[1].message.content).toBe('');
     expect(results[2].message.content).toBe('Valid content');
   });

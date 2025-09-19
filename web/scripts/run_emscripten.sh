@@ -18,7 +18,7 @@ OUTPUT_DIR="${SCRIPT_DIR}/../shared-worker/_generated/"
 
 # files
 SQLITE_SOURCE="${SQLITE_DIR}sqlite3.c"
-SQLITE_BITCODE_FILE="${SQLITE_DIR}sqlite3.bc"
+SQLITE_BITCODE_FILE="${SQLITE_DIR}sqlite3.o"
 OUTPUT_FILE_NAME="comm-query-executor"
 OUTPUT_FILE="${OUTPUT_DIR}${OUTPUT_FILE_NAME}.js"
 
@@ -118,7 +118,6 @@ fi
 
 EMCC_FLAGS=(
   # WASM files and bindings
-  --memory-init-file 0
   -s WASM=1
   -s ALLOW_MEMORY_GROWTH=1
   -s ALLOW_TABLE_GROWTH=1
@@ -132,7 +131,6 @@ EMCC_FLAGS=(
   -s NODEJS_CATCH_REJECTION=0
   -s WASM_ASYNC_COMPILATION=0
   -s EXPORT_ES6=1
-  -s USE_ES6_IMPORT_META=0
   -s MODULARIZE=1
 
   # optimization

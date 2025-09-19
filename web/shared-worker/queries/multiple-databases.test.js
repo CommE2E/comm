@@ -3,7 +3,7 @@
 import { getProtocolByThreadID } from 'lib/shared/threads/protocols/thread-protocols.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import type { WebMessage } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
@@ -19,22 +19,19 @@ describe('Multiple databases', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    mainQueryExecutor = new dbModule.SQLiteQueryExecutor(MAIN_FILE_PATH, false);
+    mainQueryExecutor = createSQLiteQueryExecutor(dbModule, MAIN_FILE_PATH, false);
     if (!mainQueryExecutor) {
       throw new Error('Main SQLiteQueryExecutor is missing');
     }
 
-    backupQueryExecutor = new dbModule.SQLiteQueryExecutor(
-      BACKUP_FILE_PATH,
-      false,
-    );
+    backupQueryExecutor = createSQLiteQueryExecutor(dbModule, BACKUP_FILE_PATH, false);
     if (!backupQueryExecutor) {
       throw new Error('Backup SQLiteQueryExecutor is missing');
     }
@@ -75,7 +72,7 @@ describe('Multiple databases', () => {
     );
 
     // should not copy content that is not in `tablesAllowlist`
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
     expect(mainQueryExecutor.getMetadata(METADATA_KEY)).toBe(
       METADATA_DEFAULT_VALUE_MAIN,
     );
@@ -92,7 +89,7 @@ describe('Multiple databases', () => {
     draft = mainQueryExecutor.getAllDrafts().find(d => d.key === draftKey);
     expect(draft).toBeUndefined();
 
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
     // present in backup
     draft = backupQueryExecutor.getAllDrafts().find(d => d.key === draftKey);
     expect(draft?.text).toBe(draftContent);
@@ -108,7 +105,7 @@ describe('Multiple databases', () => {
     mainQueryExecutor.updateDraft(draftKey, mainDraftContent);
     backupQueryExecutor.updateDraft(draftKey, backupDraftContent);
 
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
 
     const mainDraft = mainQueryExecutor
       .getAllDrafts()
@@ -124,18 +121,12 @@ describe('Multiple databases', () => {
 
   it('returns correct database version', () => {
     const migratedFilePath = 'migrated.sqlite';
-    const migratedQueryExecutor = new dbModule.SQLiteQueryExecutor(
-      migratedFilePath,
-      false,
-    );
+    const migratedQueryExecutor = createSQLiteQueryExecutor(dbModule, migratedFilePath, false);
     expect(migratedQueryExecutor.getDatabaseVersion()).toBeGreaterThan(0);
     clearSensitiveData(dbModule, migratedFilePath, migratedQueryExecutor);
 
     const notMigratedFilePath = 'not-migrated.sqlite';
-    const notMigratedQueryExecutor = new dbModule.SQLiteQueryExecutor(
-      notMigratedFilePath,
-      true,
-    );
+    const notMigratedQueryExecutor = createSQLiteQueryExecutor(dbModule, notMigratedFilePath, true);
     expect(notMigratedQueryExecutor.getDatabaseVersion()).toBe(0);
     clearSensitiveData(dbModule, notMigratedFilePath, notMigratedQueryExecutor);
   });
@@ -147,11 +138,11 @@ describe('Multiple databases', () => {
 
     const message: WebMessage = {
       id: messageID,
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.TEXT,
-      futureType: null,
+      futureType: undefined,
       content: messageContent,
       time: BigInt(123),
     };
@@ -166,20 +157,20 @@ describe('Multiple databases', () => {
     let searchResults = mainQueryExecutor.searchMessages(
       'Hello',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(0);
 
     // Copy content from backup to main
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
 
     // Verify message is now searchable in main database
     searchResults = mainQueryExecutor.searchMessages(
       'Hello',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(1);
     expect(searchResults[0].message.id).toBe(messageID);
@@ -197,22 +188,22 @@ describe('Multiple databases', () => {
 
     const originalMessage: WebMessage = {
       id: originalMessageID,
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.TEXT,
-      futureType: null,
+      futureType: undefined,
       content: 'Original content',
       time: BigInt(100),
     };
 
     const editMessage: WebMessage = {
       id: editMessageID,
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.EDIT_MESSAGE,
-      futureType: null,
+      futureType: undefined,
       content: editContent,
       time: BigInt(200),
     };
@@ -228,15 +219,15 @@ describe('Multiple databases', () => {
     );
 
     // Copy content from backup to main
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
 
     // Verify edit message is searchable
     // Should find the edit and original message content
     const searchResults = mainQueryExecutor.searchMessages(
       'edited',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(2);
     expect(searchResults[0].message.id).toBe(originalMessageID);
@@ -250,11 +241,11 @@ describe('Multiple databases', () => {
     // First, add a TEXT message that gets indexed
     const textMessage: WebMessage = {
       id: messageID,
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.TEXT,
-      futureType: null,
+      futureType: undefined,
       content: 'This message will be deleted',
       time: BigInt(100),
     };
@@ -273,18 +264,18 @@ describe('Multiple databases', () => {
     let searchResults = mainQueryExecutor.searchMessages(
       'deleted',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(1);
 
     const deleteMessage: WebMessage = {
       id: 'delete-message-id',
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.DELETE_MESSAGE,
-      futureType: null,
+      futureType: undefined,
       content: JSON.stringify({ targetMessageID: messageID }),
       time: BigInt(300),
     };
@@ -296,14 +287,14 @@ describe('Multiple databases', () => {
 
     // Copy content from backup to main
     // This should remove the search index entry
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
 
     // Verify message is no longer searchable
     searchResults = mainQueryExecutor.searchMessages(
       'deleted',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(0);
   });
@@ -315,11 +306,11 @@ describe('Multiple databases', () => {
     // Add original TEXT message that gets indexed
     const originalMessage: WebMessage = {
       id: originalMessageID,
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.TEXT,
-      futureType: null,
+      futureType: undefined,
       content: 'Original message to edit',
       time: BigInt(100),
     };
@@ -332,11 +323,11 @@ describe('Multiple databases', () => {
     // Add EDIT_MESSAGE with invalid JSON
     const invalidEditMessage: WebMessage = {
       id: 'invalid-edit-id',
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.EDIT_MESSAGE,
-      futureType: null,
+      futureType: undefined,
       content: 'invalid json { broken',
       time: BigInt(200),
     };
@@ -344,11 +335,11 @@ describe('Multiple databases', () => {
     // Add DELETE_MESSAGE with invalid JSON
     const invalidDeleteMessage: WebMessage = {
       id: 'invalid-delete-id',
-      localID: null,
+      localID: undefined,
       thread: threadID,
       user: '111',
       type: messageTypes.DELETE_MESSAGE,
-      futureType: null,
+      futureType: undefined,
       content: 'also invalid json } broken',
       time: BigInt(300),
     };
@@ -365,15 +356,15 @@ describe('Multiple databases', () => {
     // Copy content - should not fail despite invalid
     // JSON in EDIT/DELETE messages
     expect(() => {
-      mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+      mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
     }).not.toThrow();
 
     // Original message should still be searchable (invalid EDIT/DELETE ignored)
     const searchResults = mainQueryExecutor.searchMessages(
       'Original',
       threadID,
-      null,
-      null,
+      undefined,
+      undefined,
     );
     expect(searchResults.length).toBe(1);
     expect(searchResults[0].message.id).toBe(originalMessageID);
@@ -416,7 +407,7 @@ describe('Multiple databases', () => {
     expect(mainOperations.length).toBe(0);
 
     // Copy content from backup to main
-    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, null);
+    mainQueryExecutor.copyContentFromDatabase(BACKUP_FILE_PATH, undefined);
 
     // Verify operations were copied to main database
     mainOperations = mainQueryExecutor.getQueuedDMOperations();

@@ -11,13 +11,13 @@ import {
   workerResponseMessageTypes,
 } from '../../types/worker-types.js';
 import type { EmscriptenModule } from '../types/module.js';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { initOpaque } from '../utils/opaque-utils.js';
+import type { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
 let identityClient: ?IdentityServiceClientWrapper = null;
 
 async function processAppIdentityClientRequest(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   dbModule: EmscriptenModule,
   platformDetails: PlatformDetails,
   message: WorkerRequestMessage,
