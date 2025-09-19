@@ -6,7 +6,7 @@ import {
 } from 'lib/ops/integrity-store-ops.js';
 import type { ThreadHashes } from 'lib/types/integrity-types.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -30,14 +30,14 @@ describe('Integrity Store queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }

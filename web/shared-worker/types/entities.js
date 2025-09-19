@@ -5,24 +5,28 @@ import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
 import type { Media, WebMessage } from './sqlite-query-executor.js';
 
+function nullToUndefined<T>(value: ?T): T | void {
+  return value === null ? undefined : value;
+}
+
 export type WebClientDBThreadInfo = {
   +id: string,
   +type: number,
-  +name: ?string,
-  +avatar: ?string,
-  +description: ?string,
+  +name: string | void,
+  +avatar: string | void,
+  +description: string | void,
   +color: string,
   +creationTime: bigint,
-  +parentThreadID: ?string,
-  +containingThreadID: ?string,
-  +community: ?string,
+  +parentThreadID: string | void,
+  +containingThreadID: string | void,
+  +community: string | void,
   +members: string,
   +roles: string,
   +currentUser: string,
-  +sourceMessageID: ?string,
+  +sourceMessageID: string | void,
   +repliesCount: number,
   +pinnedCount: number,
-  +timestamps: ?string,
+  +timestamps: string | void,
 };
 
 function clientDBThreadInfoToWebThread(
@@ -31,21 +35,21 @@ function clientDBThreadInfoToWebThread(
   return {
     id: info.id,
     type: info.type,
-    name: info.name,
-    avatar: info.avatar,
-    description: info.description,
+    name: nullToUndefined(info.name),
+    avatar: nullToUndefined(info.avatar),
+    description: nullToUndefined(info.description),
     color: info.color,
     creationTime: BigInt(Number(info.creationTime)),
-    parentThreadID: info.parentThreadID,
-    containingThreadID: info.containingThreadID,
-    community: info.community,
+    parentThreadID: nullToUndefined(info.parentThreadID),
+    containingThreadID: nullToUndefined(info.containingThreadID),
+    community: nullToUndefined(info.community),
     members: info.members,
     roles: info.roles,
     currentUser: info.currentUser,
     sourceMessageID: info.sourceMessageID,
     repliesCount: info.repliesCount,
     pinnedCount: info.pinnedCount || 0,
-    timestamps: info.timestamps,
+    timestamps: nullToUndefined(info.timestamps),
   };
 }
 
@@ -86,14 +90,14 @@ function clientDBMessageInfoToWebMessage(messageInfo: ClientDBMessageInfo): {
   return {
     message: {
       id: messageInfo.id,
-      localID: messageInfo.local_id,
+      localID: nullToUndefined(messageInfo.local_id),
       thread: messageInfo.thread,
       user: messageInfo.user,
       type: Number(messageInfo.type),
       futureType: messageInfo.future_type
         ? Number(messageInfo.future_type)
-        : null,
-      content: messageInfo.content,
+        : undefined,
+      content: nullToUndefined(messageInfo.content),
       time: BigInt(Number(messageInfo.time)),
     },
     medias:

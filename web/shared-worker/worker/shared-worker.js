@@ -42,9 +42,8 @@ import {
   workerOlmAPIRequests,
 } from '../../types/worker-types.js';
 import { workerIdentityClientRequests } from '../../types/worker-types.js';
-import { getDatabaseModule } from '../db-module.js';
+import { createSQLiteQueryExecutor, getDatabaseModule } from '../db-module.js';
 import { webMessageToClientDBMessageInfo } from '../types/entities.js';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
   SQLITE_STAMPED_USER_ID_KEY,
@@ -60,6 +59,7 @@ import {
   exportDatabaseContent,
   importDatabaseContent,
 } from '../utils/db-utils.js';
+import type { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
 localforage.config(localforageConfig);
 
@@ -80,9 +80,13 @@ async function initDatabase(
     return;
   }
 
-  const newModule = dbModule
-    ? dbModule
-    : getDatabaseModule(commQueryExecutorFilename, webworkerModulesFilePath);
+  let newModule = dbModule;
+  if (!newModule) {
+    newModule = await getDatabaseModule(
+      commQueryExecutorFilename,
+      webworkerModulesFilePath,
+    );
+  }
   if (!dbModule) {
     setDBModule(newModule);
   }
@@ -121,7 +125,7 @@ async function initDatabase(
     console.info('Creating fresh database');
   }
   setSQLiteQueryExecutor(
-    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH, false),
+    createSQLiteQueryExecutor(newModule, COMM_SQLITE_DATABASE_PATH, false),
   );
 
   // Restored database
@@ -155,7 +159,7 @@ async function initDatabase(
     );
 
     setSQLiteQueryExecutor(
-      new newModule.SQLiteQueryExecutor(SQLITE_RESTORE_DATABASE_PATH, false),
+      createSQLiteQueryExecutor(newModule, SQLITE_RESTORE_DATABASE_PATH, false),
       databaseIdentifier.RESTORED,
     );
   } else {
@@ -243,7 +247,7 @@ async function persist() {
 function getSQLiteQueryExecutorOrThrow(
   id: DatabaseIdentifier,
   message: WorkerRequestMessage,
-): SQLiteQueryExecutor {
+): SQLiteQueryExecutorWrapper {
   const executor = getSQLiteQueryExecutor(id);
   if (!executor) {
     throw new Error(
@@ -392,8 +396,8 @@ async function processAppRequest(
     const messageEntities = sqliteQueryExecutor.searchMessages(
       message.query,
       message.threadID,
-      message.timestampCursor,
-      message.messageIDCursor,
+      message.timestampCursor ?? undefined,
+      message.messageIDCursor ?? undefined,
     );
     return {
       type: workerResponseMessageTypes.GET_MESSAGES,
@@ -600,7 +604,7 @@ async function processAppRequest(
       sqliteQueryExecutor.beginTransaction();
       messageIDs = sqliteQueryExecutor.resetOutboundP2PMessagesForDevice(
         message.deviceID,
-        message.newDeviceID,
+        message.newDeviceID ?? undefined,
       );
       sqliteQueryExecutor.commitTransaction();
     } catch (e) {
@@ -624,7 +628,7 @@ async function processAppRequest(
   ) {
     sqliteQueryExecutor.copyContentFromDatabase(
       SQLITE_RESTORE_DATABASE_PATH,
-      null,
+      undefined,
     );
 
     // Copying is the final step of the restore, we don't need it anymore, so we

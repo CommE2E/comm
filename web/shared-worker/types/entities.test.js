@@ -24,9 +24,9 @@ const clientDBThreadInfo: ClientDBThreadInfo = {
   repliesCount: 0,
   containingThreadID: '1',
   community: '1',
-  avatar: null,
+  avatar: undefined,
   pinnedCount: 0,
-  timestamps: null,
+  timestamps: undefined,
 };
 
 const clientDBThreadInfoWithAvatar: ClientDBThreadInfo = {
