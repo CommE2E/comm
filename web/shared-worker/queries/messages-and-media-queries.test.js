@@ -2,7 +2,7 @@
 
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -12,26 +12,26 @@ describe('Message and media store queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
     queryExecutor.replaceMessage(
       {
         id: '1',
-        localID: null,
+        localID: undefined,
         thread: '1',
         user: '1',
         type: 0,
         futureType: null,
-        content: null,
+        content: undefined,
         time: BigInt(0),
       },
       false,
@@ -39,12 +39,12 @@ describe('Message and media store queries', () => {
     queryExecutor.replaceMessage(
       {
         id: '2',
-        localID: null,
+        localID: undefined,
         thread: '1',
         user: '1',
         type: 0,
         futureType: null,
-        content: null,
+        content: undefined,
         time: BigInt(0),
       },
       false,
@@ -52,12 +52,12 @@ describe('Message and media store queries', () => {
     queryExecutor.replaceMessage(
       {
         id: '3',
-        localID: null,
+        localID: undefined,
         thread: '2',
         user: '1',
         type: 0,
         futureType: 5,
-        content: null,
+        content: undefined,
         time: BigInt(0),
       },
       false,
@@ -110,21 +110,21 @@ describe('Message and media store queries', () => {
       {
         id: '1',
         type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: 'ffffff',
         creationTime: BigInt(1),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '{}',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 0,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );
@@ -132,21 +132,21 @@ describe('Message and media store queries', () => {
       {
         id: '2',
         type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: 'ffffff',
         creationTime: BigInt(1),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '{}',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 0,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );

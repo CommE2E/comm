@@ -1,6 +1,6 @@
 // @flow
 
-import { getDatabaseModule } from './db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from './db-module.js';
 import { clearSensitiveData, exportDatabaseContent } from './utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -10,14 +10,14 @@ const TEST_VAL = 'b';
 
 describe('Database Module', () => {
   it('should construct a Database', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
     expect(queryExecutor).not.toBe(undefined);
   });
 
   it('should handle clearing sensitive data', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
 
     expect(() => exportDatabaseContent(module, FILE_PATH)).not.toThrow();
     expect(() => queryExecutor.setMetadata(TEST_KEY, TEST_VAL)).not.toThrow();
@@ -32,8 +32,8 @@ describe('Database Module', () => {
 
 describe('Database transactions', () => {
   it('should commit transaction', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
     queryExecutor.beginTransaction();
     queryExecutor.setMetadata(TEST_KEY, TEST_VAL);
     queryExecutor.commitTransaction();
@@ -41,8 +41,8 @@ describe('Database transactions', () => {
   });
 
   it('should rollback transaction', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
     queryExecutor.beginTransaction();
     queryExecutor.setMetadata(TEST_KEY, TEST_VAL);
     queryExecutor.rollbackTransaction();
@@ -50,15 +50,15 @@ describe('Database transactions', () => {
   });
 
   it('should throw when beginning transaction twice', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
     queryExecutor.beginTransaction();
     expect(() => queryExecutor.beginTransaction()).toThrow();
   });
 
   it('should throw when commit/rollback without beginning transaction', async () => {
-    const module = getDatabaseModule();
-    const queryExecutor = new module.SQLiteQueryExecutor(FILE_PATH, false);
+    const module = await getDatabaseModule();
+    const queryExecutor = createSQLiteQueryExecutor(module, FILE_PATH, false);
     expect(() => queryExecutor.commitTransaction()).toThrow();
     expect(() => queryExecutor.rollbackTransaction()).toThrow();
   });

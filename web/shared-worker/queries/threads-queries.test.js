@@ -1,6 +1,6 @@
 // @flow
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -10,14 +10,14 @@ describe('Threads queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -26,21 +26,21 @@ describe('Threads queries', () => {
       {
         id: '1',
         type: 1,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: '1',
         creationTime: BigInt(1),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '1',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 1,
         pinnedCount: 1,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );
@@ -48,21 +48,21 @@ describe('Threads queries', () => {
       {
         id: '2',
         type: 1,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: '1',
         creationTime: BigInt(1),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '1',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 1,
         pinnedCount: 1,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );
@@ -70,21 +70,21 @@ describe('Threads queries', () => {
       {
         id: '3',
         type: 1,
-        name: null,
-        avatar: null,
-        description: null,
+        name: undefined,
+        avatar: undefined,
+        description: undefined,
         color: '1',
         creationTime: BigInt(1),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '1',
         roles: '1',
         currentUser: '1',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 1,
         pinnedCount: 1,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );
@@ -94,20 +94,20 @@ describe('Threads queries', () => {
         id: 'backup1',
         type: 1,
         name: 'Backup Thread 1',
-        avatar: null,
-        description: null,
+        avatar: undefined,
+        description: undefined,
         color: 'ff0000',
         creationTime: BigInt(2000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '2',
         roles: '2',
         currentUser: '2',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 2,
         pinnedCount: 1,
-        timestamps: null,
+        timestamps: undefined,
       },
       true,
     );
@@ -116,20 +116,20 @@ describe('Threads queries', () => {
         id: 'backup2',
         type: 1,
         name: 'Backup Thread 2',
-        avatar: null,
-        description: null,
+        avatar: undefined,
+        description: undefined,
         color: '00ff00',
         creationTime: BigInt(3000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '3',
         roles: '3',
         currentUser: '3',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 3,
         pinnedCount: 2,
-        timestamps: null,
+        timestamps: undefined,
       },
       true,
     );
@@ -164,7 +164,8 @@ describe('Threads queries', () => {
   });
 
   it('should remove subset of threads from both tables', () => {
-    queryExecutor.removeThreads(['2', 'backup1']);
+    const threadsToRemove = ['2', 'backup1'];
+    queryExecutor.removeThreads(threadsToRemove);
     const threads = queryExecutor.getAllThreads();
     expect(threads.length).toBe(3); // 5 - 2 = 3
 
@@ -184,20 +185,20 @@ describe('Threads queries', () => {
         id: 'new_regular',
         type: 1,
         name: 'New Regular Thread',
-        avatar: null,
-        description: null,
+        avatar: undefined,
+        description: undefined,
         color: 'ff00ff',
         creationTime: BigInt(4000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '4',
         roles: '4',
         currentUser: '4',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 4,
         pinnedCount: 0,
-        timestamps: null,
+        timestamps: undefined,
       },
       false,
     );
@@ -208,20 +209,20 @@ describe('Threads queries', () => {
         id: 'new_backup',
         type: 1,
         name: 'New Backup Thread',
-        avatar: null,
-        description: null,
+        avatar: undefined,
+        description: undefined,
         color: '00ffff',
         creationTime: BigInt(5000),
-        parentThreadID: null,
-        containingThreadID: null,
-        community: null,
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
         members: '5',
         roles: '5',
         currentUser: '5',
-        sourceMessageID: null,
+        sourceMessageID: undefined,
         repliesCount: 5,
         pinnedCount: 3,
-        timestamps: null,
+        timestamps: undefined,
       },
       true,
     );

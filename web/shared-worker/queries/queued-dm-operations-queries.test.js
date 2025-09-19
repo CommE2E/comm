@@ -2,10 +2,10 @@
 
 import type { ClientDBQueuedDMOperation } from 'lib/ops/dm-operations-store-ops.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
-import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
+import { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
 const FILE_PATH = 'test.sqlite';
 
@@ -34,18 +34,18 @@ const TEST_OPERATION_3: ClientDBQueuedDMOperation = {
 };
 
 describe('Queued DM Operations queries', () => {
-  let queryExecutor: ?SQLiteQueryExecutor = null;
+  let queryExecutor: ?SQLiteQueryExecutorWrapper = null;
   let dbModule: ?EmscriptenModule = null;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }

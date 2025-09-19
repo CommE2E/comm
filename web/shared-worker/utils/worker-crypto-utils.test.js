@@ -12,7 +12,7 @@ import {
   generateCryptoKey,
   importJWKKey,
 } from '../../crypto/aes-gcm-crypto-utils.js';
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 
 const TAG_LENGTH = 16;
 const IV_LENGTH = 12;
@@ -27,8 +27,9 @@ describe('database encryption utils', () => {
   let cryptoKey;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
-    sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor(
+    dbModule = await getDatabaseModule();
+    sqliteQueryExecutor = createSQLiteQueryExecutor(
+      dbModule,
       'test.sqlite',
       false,
     );
@@ -78,7 +79,11 @@ describe('database encryption utils', () => {
 
     importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
 
-    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite', false);
+    const executor = createSQLiteQueryExecutor(
+      dbModule,
+      'new-file.sqlite',
+      false,
+    );
 
     expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });
@@ -100,7 +105,11 @@ describe('database encryption utils', () => {
 
     importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
 
-    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite', false);
+    const executor = createSQLiteQueryExecutor(
+      dbModule,
+      'new-file.sqlite',
+      false,
+    );
 
     expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });

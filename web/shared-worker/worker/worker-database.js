@@ -7,14 +7,14 @@ import {
 import type { PlatformDetails } from 'lib/types/device-types.js';
 
 import type { EmscriptenModule } from '../types/module.js';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
+import type { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
-let mainQueryExecutor: ?SQLiteQueryExecutor = null;
-let restoredQueryExecutor: ?SQLiteQueryExecutor = null;
+let mainQueryExecutor: ?SQLiteQueryExecutorWrapper = null;
+let restoredQueryExecutor: ?SQLiteQueryExecutorWrapper = null;
 
 function getSQLiteQueryExecutor(
   id: DatabaseIdentifier = databaseIdentifier.MAIN,
-): ?SQLiteQueryExecutor {
+): ?SQLiteQueryExecutorWrapper {
   if (id === databaseIdentifier.RESTORED) {
     return restoredQueryExecutor;
   }
@@ -22,7 +22,7 @@ function getSQLiteQueryExecutor(
 }
 
 function setSQLiteQueryExecutor(
-  newSQLiteQueryExecutor: ?SQLiteQueryExecutor,
+  newSQLiteQueryExecutor: ?SQLiteQueryExecutorWrapper,
   id: DatabaseIdentifier = databaseIdentifier.MAIN,
 ) {
   if (id === databaseIdentifier.RESTORED) {
