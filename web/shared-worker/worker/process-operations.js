@@ -31,7 +31,7 @@ import {
   clientDBMessageInfoToWebMessage,
 } from '../types/entities.js';
 import type { EmscriptenModule } from '../types/module.js';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
+import type { SQLiteQueryExecutorWrapper } from '../utils/sql-query-executor-wrapper.js';
 
 function getProcessingStoreOpsExceptionMessage(
   e: mixed,
@@ -43,7 +43,7 @@ function getProcessingStoreOpsExceptionMessage(
   return getMessageForException(e) ?? 'unknown error';
 }
 function processDraftStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -74,7 +74,7 @@ function processDraftStoreOperations(
 }
 
 function processReportStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -105,7 +105,7 @@ function processReportStoreOperations(
 }
 
 function processThreadStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -138,7 +138,7 @@ function processThreadStoreOperations(
 }
 
 function processKeyserverStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBKeyserverStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -173,7 +173,7 @@ function processKeyserverStoreOperations(
 }
 
 function processCommunityStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBCommunityStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -204,7 +204,7 @@ function processCommunityStoreOperations(
 }
 
 function processIntegrityStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBIntegrityStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -235,7 +235,7 @@ function processIntegrityStoreOperations(
 }
 
 function processSyncedMetadataStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -266,7 +266,7 @@ function processSyncedMetadataStoreOperations(
 }
 
 function processMessageStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -338,7 +338,7 @@ function processMessageStoreOperations(
 }
 
 function processUserStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -366,7 +366,7 @@ function processUserStoreOperations(
 }
 
 function processDBStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   storeOperations: ClientDBStoreOperations,
   module: EmscriptenModule,
 ) {
@@ -517,7 +517,7 @@ function processDBStoreOperations(
 }
 
 function processAuxUserStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBAuxUserStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -548,7 +548,7 @@ function processAuxUserStoreOperations(
 }
 
 function processThreadActivityStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -585,7 +585,7 @@ function processThreadActivityStoreOperations(
 }
 
 function processEntryStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBEntryStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -616,7 +616,7 @@ function processEntryStoreOperations(
 }
 
 function processMessageSearchStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBMessageSearchStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -647,7 +647,7 @@ function processMessageSearchStoreOperations(
 }
 
 function processDMOperationStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBDMOperationStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -690,7 +690,7 @@ function processDMOperationStoreOperations(
 }
 
 function processHolderStoreOperations(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
   operations: $ReadOnlyArray<ClientDBHolderStoreOperation>,
   module: EmscriptenModule,
 ) {
@@ -721,7 +721,7 @@ function processHolderStoreOperations(
 }
 
 function getClientStoreFromQueryExecutor(
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
 ): ClientDBStore {
   return {
     drafts: sqliteQueryExecutor.getAllDrafts(),

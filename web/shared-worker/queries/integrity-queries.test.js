@@ -1,12 +1,9 @@
 // @flow
 
-import {
-  integrityStoreOpsHandlers,
-  convertIntegrityThreadHashesToClientDBIntegrityThreadHashes,
-} from 'lib/ops/integrity-store-ops.js';
+import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import type { ThreadHashes } from 'lib/types/integrity-types.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -30,23 +27,19 @@ describe('Integrity Store queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
 
-    queryExecutor.replaceIntegrityThreadHashes(
-      convertIntegrityThreadHashesToClientDBIntegrityThreadHashes(
-        TEST_THREAD_HASHES_1,
-      ),
-    );
+    queryExecutor.replaceIntegrityThreadHashesFromMap(TEST_THREAD_HASHES_1);
   });
 
   afterEach(() => {
@@ -60,11 +53,7 @@ describe('Integrity Store queries', () => {
   });
 
   it('should update two thread hashes and add a new thread hash', () => {
-    queryExecutor?.replaceIntegrityThreadHashes(
-      convertIntegrityThreadHashesToClientDBIntegrityThreadHashes(
-        TEST_THREAD_HASHES_UPDATE,
-      ),
-    );
+    queryExecutor?.replaceIntegrityThreadHashesFromMap(TEST_THREAD_HASHES_UPDATE);
 
     const threadHashes = queryExecutor?.getAllIntegrityThreadHashes();
     if (!threadHashes) {

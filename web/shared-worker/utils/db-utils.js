@@ -3,15 +3,15 @@
 import { detect as detectBrowser } from 'detect-browser';
 
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
+import type { SQLiteQueryExecutorWrapper } from './sql-query-executor-wrapper.js';
 import type { EmscriptenModule } from '../types/module.js';
-import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 const browser = detectBrowser();
 
 function clearSensitiveData(
   dbModule: EmscriptenModule,
   path: string,
-  sqliteQueryExecutor: SQLiteQueryExecutor,
+  sqliteQueryExecutor: SQLiteQueryExecutorWrapper,
 ) {
   sqliteQueryExecutor.delete();
   dbModule.FS.unlink(path);
