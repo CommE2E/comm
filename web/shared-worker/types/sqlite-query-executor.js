@@ -12,6 +12,7 @@ import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-ops.js';
 import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
+import type { WebClientDBMessageStoreThread } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 import type { ClientDBHolderItem } from 'lib/types/holder-types.js';
@@ -22,15 +23,16 @@ import type {
 } from 'lib/types/sqlite-types.js';
 
 import { type WebClientDBThreadInfo } from './entities.js';
+import type { EmscriptenVector } from '../utils/vector-utils.js';
 
 export type WebMessage = {
   +id: string,
-  +localID: ?string,
+  +localID: string | void,
   +thread: string,
   +user: string,
   +type: number,
-  +futureType: ?number,
-  +content: ?string,
+  +futureType: number | void,
+  +content: string | void,
   +time: bigint,
 };
 
@@ -49,9 +51,9 @@ export type OlmPersistSession = {
   +version: number,
 };
 
-export type MessageEntity = {
+export type RawMessageEntity = {
   +message: WebMessage,
-  +medias: $ReadOnlyArray<Media>,
+  +medias: EmscriptenVector<Media>,
 };
 
 declare export class SQLiteQueryExecutor {
@@ -61,37 +63,34 @@ declare export class SQLiteQueryExecutor {
 
   updateDraft(key: string, text: string): void;
   moveDraft(oldKey: string, newKey: string): boolean;
-  getAllDrafts(): ClientDBDraftInfo[];
+  getAllDrafts(): EmscriptenVector<ClientDBDraftInfo>;
   removeAllDrafts(): void;
-  removeDrafts(ids: $ReadOnlyArray<string>): void;
+  removeDrafts(ids: EmscriptenVector<string>): void;
 
-  getInitialMessages(): $ReadOnlyArray<MessageEntity>;
+  getInitialMessages(): EmscriptenVector<RawMessageEntity>;
   fetchMessages(
     threadID: string,
     limit: number,
     offset: number,
-  ): $ReadOnlyArray<MessageEntity>;
+  ): EmscriptenVector<RawMessageEntity>;
   removeAllMessages(): void;
-  removeMessages(ids: $ReadOnlyArray<string>): void;
-  removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
+  removeMessages(ids: EmscriptenVector<string>): void;
+  removeMessagesForThreads(threadIDs: EmscriptenVector<string>): void;
   replaceMessage(message: WebMessage, backupItem: boolean): void;
   rekeyMessage(from: string, to: string): void;
   removeAllMedia(): void;
-  removeMediaForThreads(threadIDs: $ReadOnlyArray<string>): void;
-  removeMediaForMessages(msgIDs: $ReadOnlyArray<string>): void;
+  removeMediaForThreads(threadIDs: EmscriptenVector<string>): void;
+  removeMediaForMessages(msgIDs: EmscriptenVector<string>): void;
   removeMediaForMessage(msgID: string): void;
   replaceMedia(media: Media, backupItem: boolean): void;
   rekeyMediaContainers(from: string, to: string): void;
 
   replaceMessageStoreThreads(
-    threads: $ReadOnlyArray<{ +id: string, +startReached: number }>,
+    threads: EmscriptenVector<WebClientDBMessageStoreThread>,
     backupItem: boolean,
   ): void;
-  removeMessageStoreThreads($ReadOnlyArray<string>): void;
-  getAllMessageStoreThreads(): $ReadOnlyArray<{
-    +id: string,
-    +startReached: number,
-  }>;
+  removeMessageStoreThreads(EmscriptenVector<string>): void;
+  getAllMessageStoreThreads(): EmscriptenVector<WebClientDBMessageStoreThread>;
   removeAllMessageStoreThreads(): void;
 
   setMetadata(entryName: string, data: string): void;
@@ -99,79 +98,79 @@ declare export class SQLiteQueryExecutor {
   getMetadata(entryName: string): string;
 
   replaceReport(report: ClientDBReport): void;
-  removeReports(ids: $ReadOnlyArray<string>): void;
+  removeReports(ids: EmscriptenVector<string>): void;
   removeAllReports(): void;
-  getAllReports(): ClientDBReport[];
+  getAllReports(): EmscriptenVector<ClientDBReport>;
 
   setPersistStorageItem(key: string, item: string): void;
   removePersistStorageItem(key: string): void;
   getPersistStorageItem(key: string): string;
 
   replaceUser(userInfo: ClientDBUserInfo): void;
-  removeUsers(ids: $ReadOnlyArray<string>): void;
+  removeUsers(ids: EmscriptenVector<string>): void;
   removeAllUsers(): void;
-  getAllUsers(): ClientDBUserInfo[];
+  getAllUsers(): EmscriptenVector<ClientDBUserInfo>;
 
   replaceThread(thread: WebClientDBThreadInfo, backupItem: boolean): void;
-  removeThreads(ids: $ReadOnlyArray<string>): void;
+  removeThreads(ids: EmscriptenVector<string>): void;
   removeAllThreads(): void;
-  getAllThreads(): WebClientDBThreadInfo[];
+  getAllThreads(): EmscriptenVector<WebClientDBThreadInfo>;
 
   replaceKeyserver(keyserverInfo: ClientDBKeyserverInfo): void;
-  removeKeyservers(ids: $ReadOnlyArray<string>): void;
+  removeKeyservers(ids: EmscriptenVector<string>): void;
   removeAllKeyservers(): void;
-  getAllKeyservers(): ClientDBKeyserverInfo[];
+  getAllKeyservers(): EmscriptenVector<ClientDBKeyserverInfo>;
 
   replaceCommunity(communityInfo: ClientDBCommunityInfo): void;
-  removeCommunities(ids: $ReadOnlyArray<string>): void;
+  removeCommunities(ids: EmscriptenVector<string>): void;
   removeAllCommunities(): void;
-  getAllCommunities(): ClientDBCommunityInfo[];
+  getAllCommunities(): EmscriptenVector<ClientDBCommunityInfo>;
 
   replaceIntegrityThreadHashes(
-    threadHashes: $ReadOnlyArray<ClientDBIntegrityThreadHash>,
+    threadHashes: EmscriptenVector<ClientDBIntegrityThreadHash>,
   ): void;
-  removeIntegrityThreadHashes(ids: $ReadOnlyArray<string>): void;
+  removeIntegrityThreadHashes(ids: EmscriptenVector<string>): void;
   removeAllIntegrityThreadHashes(): void;
-  getAllIntegrityThreadHashes(): ClientDBIntegrityThreadHash[];
+  getAllIntegrityThreadHashes(): EmscriptenVector<ClientDBIntegrityThreadHash>;
 
   replaceSyncedMetadataEntry(
     syncedMetadataEntry: ClientDBSyncedMetadataEntry,
   ): void;
-  removeSyncedMetadata(names: $ReadOnlyArray<string>): void;
+  removeSyncedMetadata(names: EmscriptenVector<string>): void;
   removeAllSyncedMetadata(): void;
-  getAllSyncedMetadata(): ClientDBSyncedMetadataEntry[];
+  getAllSyncedMetadata(): EmscriptenVector<ClientDBSyncedMetadataEntry>;
   replaceAuxUserInfo(auxUserInfo: ClientDBAuxUserInfo): void;
-  removeAuxUserInfos(ids: $ReadOnlyArray<string>): void;
+  removeAuxUserInfos(ids: EmscriptenVector<string>): void;
   removeAllAuxUserInfos(): void;
-  getAllAuxUserInfos(): ClientDBAuxUserInfo[];
+  getAllAuxUserInfos(): EmscriptenVector<ClientDBAuxUserInfo>;
   getSingleAuxUserInfo(userID: string): ?ClientDBAuxUserInfo;
 
   replaceThreadActivityEntry(
     threadActivityEntry: ClientDBThreadActivityEntry,
     backupItem: boolean,
   ): void;
-  removeThreadActivityEntries(ids: $ReadOnlyArray<string>): void;
+  removeThreadActivityEntries(ids: EmscriptenVector<string>): void;
   removeAllThreadActivityEntries(): void;
-  getAllThreadActivityEntries(): ClientDBThreadActivityEntry[];
+  getAllThreadActivityEntries(): EmscriptenVector<ClientDBThreadActivityEntry>;
 
   replaceEntry(entryInfo: ClientDBEntryInfo, backupItem: boolean): void;
-  removeEntries(ids: $ReadOnlyArray<string>): void;
+  removeEntries(ids: EmscriptenVector<string>): void;
   removeAllEntries(): void;
-  getAllEntries(): $ReadOnlyArray<ClientDBEntryInfo>;
+  getAllEntries(): EmscriptenVector<ClientDBEntryInfo>;
 
   replaceMessageStoreLocalMessageInfo(
     localMessageInfo: ClientDBLocalMessageInfo,
     backupItem: boolean,
   ): void;
-  removeMessageStoreLocalMessageInfos(ids: $ReadOnlyArray<string>): void;
+  removeMessageStoreLocalMessageInfos(ids: EmscriptenVector<string>): void;
   removeAllMessageStoreLocalMessageInfos(): void;
-  getAllMessageStoreLocalMessageInfos(): ClientDBLocalMessageInfo[];
+  getAllMessageStoreLocalMessageInfos(): EmscriptenVector<ClientDBLocalMessageInfo>;
 
   replaceDMOperation(operation: ClientDBDMOperation): void;
   removeAllDMOperations(): void;
-  removeDMOperations(ids: $ReadOnlyArray<string>): void;
-  getAllDMOperations(): $ReadOnlyArray<ClientDBDMOperation>;
-  getDMOperationsByType(type: string): $ReadOnlyArray<ClientDBDMOperation>;
+  removeDMOperations(ids: EmscriptenVector<string>): void;
+  getAllDMOperations(): EmscriptenVector<ClientDBDMOperation>;
+  getDMOperationsByType(type: string): EmscriptenVector<ClientDBDMOperation>;
 
   beginTransaction(): void;
   commitTransaction(): void;
@@ -180,21 +179,24 @@ declare export class SQLiteQueryExecutor {
   getContentAccountID(): number;
   getNotifsAccountID(): number;
   getOlmPersistAccountData(accountID: number): ?string;
-  getOlmPersistSessionsData(): $ReadOnlyArray<OlmPersistSession>;
+  getOlmPersistSessionsData(): EmscriptenVector<OlmPersistSession>;
   storeOlmPersistAccount(accountID: number, accountData: string): void;
   storeOlmPersistSession(session: OlmPersistSession): void;
 
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
-  copyContentFromDatabase(databasePath: string, encryptionKey: ?string): void;
+  copyContentFromDatabase(
+    databasePath: string,
+    encryptionKey?: string | void,
+  ): void;
 
-  addOutboundP2PMessages(messages: $ReadOnlyArray<OutboundP2PMessage>): void;
+  addOutboundP2PMessages(messages: EmscriptenVector<OutboundP2PMessage>): void;
   removeOutboundP2PMessage(confirmedMessageID: string, deviceID: string): void;
   removeAllOutboundP2PMessages(deviceID: string): void;
   getOutboundP2PMessagesByID(
-    ids: $ReadOnlyArray<string>,
-  ): $ReadOnlyArray<OutboundP2PMessage>;
-  getUnsentOutboundP2PMessages(): $ReadOnlyArray<OutboundP2PMessage>;
+    ids: EmscriptenVector<string>,
+  ): EmscriptenVector<OutboundP2PMessage>;
+  getUnsentOutboundP2PMessages(): EmscriptenVector<OutboundP2PMessage>;
   setCiphertextForOutboundP2PMessage(
     messageID: string,
     deviceID: string,
@@ -203,17 +205,17 @@ declare export class SQLiteQueryExecutor {
   markOutboundP2PMessageAsSent(messageID: string, deviceID: string): void;
   resetOutboundP2PMessagesForDevice(
     deviceID: string,
-    newDeviceID: ?string,
-  ): $ReadOnlyArray<string>;
+    newDeviceID?: string | void,
+  ): EmscriptenVector<string>;
 
   addInboundP2PMessage(message: InboundP2PMessage): void;
-  getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
-  removeInboundP2PMessages(ids: $ReadOnlyArray<string>): void;
+  getAllInboundP2PMessage(): EmscriptenVector<InboundP2PMessage>;
+  removeInboundP2PMessages(ids: EmscriptenVector<string>): void;
   getInboundP2PMessagesByID(
-    ids: $ReadOnlyArray<string>,
-  ): $ReadOnlyArray<InboundP2PMessage>;
+    ids: EmscriptenVector<string>,
+  ): EmscriptenVector<InboundP2PMessage>;
 
-  getRelatedMessages(id: string): $ReadOnlyArray<MessageEntity>;
+  getRelatedMessages(id: string): EmscriptenVector<RawMessageEntity>;
 
   updateMessageSearchIndex(
     originalMessageID: string,
@@ -224,21 +226,21 @@ declare export class SQLiteQueryExecutor {
   searchMessages(
     query: string,
     threadID: string,
-    timestampCursor: ?string,
-    messageIDCursor: ?string,
-  ): $ReadOnlyArray<MessageEntity>;
+    timestampCursor?: string | void,
+    messageIDCursor?: string | void,
+  ): EmscriptenVector<RawMessageEntity>;
 
   getDatabaseVersion(): number;
   getSyncedMetadata(entryName: string): ?string;
 
   replaceHolder(holder: ClientDBHolderItem): void;
-  removeHolders(hashes: $ReadOnlyArray<string>): void;
-  getHolders(): $ReadOnlyArray<ClientDBHolderItem>;
+  removeHolders(hashes: EmscriptenVector<string>): void;
+  getHolders(): EmscriptenVector<ClientDBHolderItem>;
 
   addQueuedDMOperation(operation: ClientDBQueuedDMOperation): void;
   removeQueuedDMOperationsOlderThan(timestamp: string): void;
   clearQueuedDMOperations(queueType: string, queueKey: string): void;
-  getQueuedDMOperations(): $ReadOnlyArray<ClientDBQueuedDMOperation>;
+  getQueuedDMOperations(): EmscriptenVector<ClientDBQueuedDMOperation>;
 
   removeLocalMessageInfos(includeNonLocalMessages: boolean): void;
 

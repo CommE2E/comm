@@ -28,6 +28,36 @@ std::string getExceptionMessage(int exceptionPtr) {
 }
 
 EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
+  register_optional<std::string>();
+  register_optional<int>();
+  register_optional<double>();
+  register_optional<bool>();
+  register_optional<AuxUserInfo>();
+
+  register_vector<std::string>("StringVector");
+  register_vector<EntryInfo>("EntryInfoVector");
+  register_vector<InboundP2PMessage>("InboundP2PMessageVector");
+  register_vector<OutboundP2PMessage>("OutboundP2PMessageVector");
+  register_vector<Draft>("DraftVector");
+  register_vector<Report>("ReportVector");
+  register_vector<UserInfo>("UserInfoVector");
+  register_vector<KeyserverInfo>("KeyserverInfoVector");
+  register_vector<MessageStoreThread>("MessageStoreThreadVector");
+  register_vector<CommunityInfo>("CommunityInfoVector");
+  register_vector<IntegrityThreadHash>("IntegrityThreadHashVector");
+  register_vector<SyncedMetadataEntry>("SyncedMetadataEntryVector");
+  register_vector<AuxUserInfo>("AuxUserInfoVector");
+  register_vector<ThreadActivityEntry>("ThreadActivityEntryVector");
+  register_vector<LocalMessageInfo>("LocalMessageInfoVector");
+  register_vector<DMOperation>("DMOperationVector");
+  register_vector<Thread>("ThreadVector");
+  register_vector<Message>("MessageVector");
+  register_vector<Media>("MediaVector");
+  register_vector<MessageEntity>("MessageEntityVector");
+  register_vector<OlmPersistSession>("OlmPersistSessionVector");
+  register_vector<Holder>("HolderVector");
+  register_vector<QueuedDMOperation>("QueuedDMOperationVector");
+
   function("getExceptionMessage", &getExceptionMessage);
 
   value_object<Draft>("Draft")
@@ -380,87 +410,3 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
 }
 
 } // namespace comm
-
-namespace emscripten {
-namespace internal {
-
-template <typename T, typename Allocator>
-struct BindingType<std::vector<T, Allocator>> {
-  using ValBinding = BindingType<val>;
-  using WireType = ValBinding::WireType;
-
-  static WireType toWireType(const std::vector<T, Allocator> &vec) {
-    std::vector<val> valVec(vec.begin(), vec.end());
-    return BindingType<val>::toWireType(val::array(valVec));
-  }
-
-  static std::vector<T, Allocator> fromWireType(WireType value) {
-    return vecFromJSArray<T>(ValBinding::fromWireType(value));
-  }
-};
-
-template <typename T>
-struct TypeID<
-    T,
-    typename std::enable_if_t<std::is_same<
-        typename Canonicalized<T>::type,
-        std::vector<
-            typename Canonicalized<T>::type::value_type,
-            typename Canonicalized<T>::type::allocator_type>>::value>> {
-  static constexpr TYPEID get() {
-    return TypeID<val>::get();
-  }
-};
-
-template <typename T> struct TypeID<std::optional<T>> {
-  static constexpr TYPEID get() {
-    return LightTypeID<val>::get();
-  }
-};
-
-template <typename T> struct TypeID<const std::optional<T>> {
-  static constexpr TYPEID get() {
-    return LightTypeID<val>::get();
-  }
-};
-
-template <typename T> struct TypeID<std::optional<T> &> {
-  static constexpr TYPEID get() {
-    return LightTypeID<val>::get();
-  }
-};
-
-template <typename T> struct TypeID<std::optional<T> &&> {
-  static constexpr TYPEID get() {
-    return LightTypeID<val>::get();
-  }
-};
-
-template <typename T> struct TypeID<const std::optional<T> &> {
-  static constexpr TYPEID get() {
-    return LightTypeID<val>::get();
-  }
-};
-
-template <typename T> struct BindingType<std::optional<T>> {
-  using ValBinding = BindingType<val>;
-  using WireType = ValBinding::WireType;
-
-  static WireType toWireType(std::optional<T> const &opt) {
-    if (!opt.has_value()) {
-      return ValBinding::toWireType(val::null());
-    }
-    return ValBinding::toWireType(val(opt.value()));
-  }
-
-  static std::optional<T> fromWireType(WireType value) {
-    val convertedVal = ValBinding::fromWireType(value);
-    if (convertedVal.isNull() || convertedVal.isUndefined()) {
-      return std::nullopt;
-    }
-    return std::make_optional<T>(convertedVal.as<T>());
-  }
-};
-
-} // namespace internal
-} // namespace emscripten

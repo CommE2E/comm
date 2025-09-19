@@ -2,7 +2,7 @@
 
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
-import { getDatabaseModule } from '../db-module.js';
+import { getDatabaseModule, createSQLiteQueryExecutor } from '../db-module.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -12,14 +12,14 @@ describe('getRelatedMessages queries', () => {
   let dbModule;
 
   beforeAll(async () => {
-    dbModule = getDatabaseModule();
+    dbModule = await getDatabaseModule();
   });
 
   beforeEach(() => {
     if (!dbModule) {
       throw new Error('Database module is missing');
     }
-    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH, false);
+    queryExecutor = createSQLiteQueryExecutor(dbModule, FILE_PATH, false);
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
@@ -36,12 +36,12 @@ describe('getRelatedMessages queries', () => {
     targetMessageID?: string,
     time: number = 1000,
   ): void => {
-    let messageContent = null;
+    let messageContent: string | void = undefined;
 
     if (content) {
       messageContent = content;
     } else if (!targetMessageID) {
-      messageContent = null;
+      messageContent = undefined;
     } else if (type === messageTypes.REACTION) {
       messageContent = JSON.stringify({
         targetMessageID,
@@ -77,11 +77,11 @@ describe('getRelatedMessages queries', () => {
     return queryExecutor.replaceMessage(
       {
         id,
-        localID: null,
+        localID: undefined,
         thread: '1',
         user: '1',
         type,
-        futureType: null,
+        futureType: undefined,
         content: messageContent,
         time: BigInt(time),
       },
@@ -107,11 +107,11 @@ describe('getRelatedMessages queries', () => {
     queryExecutor.replaceMessage(
       {
         id: 'malformed',
-        localID: null,
+        localID: undefined,
         thread: '1',
         user: '1',
         type: messageTypes.REACTION,
-        futureType: null,
+        futureType: undefined,
         content: 'invalid json{',
         time: BigInt(1000),
       },
@@ -340,11 +340,11 @@ describe('getRelatedMessages queries', () => {
     queryExecutor.replaceMessage(
       {
         id: 'sidebar1',
-        localID: null,
+        localID: undefined,
         thread: '1',
         user: '1',
         type: messageTypes.SIDEBAR_SOURCE,
-        futureType: null,
+        futureType: undefined,
         content: sidebarContent,
         time: BigInt(1000),
       },
