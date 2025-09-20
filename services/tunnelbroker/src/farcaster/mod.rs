@@ -95,6 +95,11 @@ impl FarcasterClient {
     else {
       return Ok((status, response_text));
     };
+
+    if medias.is_empty() {
+      return Ok((status, response_text));
+    }
+
     info!(
       "Found {} medias in payload. Attempting to mirror them to Blob Service.",
       medias.len()
