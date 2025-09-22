@@ -3,6 +3,7 @@
 import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { View } from 'react-native';
+import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
@@ -14,6 +15,7 @@ type Props = {
   +icon?: React.Node,
   +protocol?: ProtocolName,
   +size: number,
+  +containerStyle?: ?ViewStyleProp,
 };
 
 function ProtocolIcon(props: Props): React.Node {
@@ -23,7 +25,7 @@ function ProtocolIcon(props: Props): React.Node {
   const protocolIcon = getProtocolByName(props.protocol)?.presentationDetails
     ?.protocolIcon;
   const iconSize = props.size * 0.65;
-  let containerStyle = styles.container;
+  let containerStyle = props.containerStyle ?? styles.container;
   if (props.icon) {
     containerStyle = styles.container;
     iconComponent = props.icon;
@@ -33,7 +35,7 @@ function ProtocolIcon(props: Props): React.Node {
     iconComponent = <Icon name="server" size={iconSize} style={styles.icon} />;
   } else if (protocolIcon === 'farcaster') {
     iconComponent = <FarcasterLogo size={iconSize} />;
-    containerStyle = styles.farcasterContainer;
+    containerStyle = [styles.farcasterContainer, props.containerStyle];
   }
 
   const viewStyle = React.useMemo(
