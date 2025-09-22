@@ -76,15 +76,56 @@ void SQLiteConnectionManager::restoreFromBackupLog(
             getOperationResult,
             "Failed to extract operation from log iterator.");
 
+        std::string conflictReasonStr;
+        switch (conflictReason) {
+          case SQLITE_CHANGESET_DATA:
+            conflictReasonStr = "DATA";
+            break;
+          case SQLITE_CHANGESET_NOTFOUND:
+            conflictReasonStr = "NOTFOUND";
+            break;
+          case SQLITE_CHANGESET_CONFLICT:
+            conflictReasonStr = "CONFLICT";
+            break;
+          case SQLITE_CHANGESET_CONSTRAINT:
+            conflictReasonStr = "CONSTRAINT";
+            break;
+          case SQLITE_CHANGESET_FOREIGN_KEY:
+            conflictReasonStr = "FOREIGN_KEY";
+            break;
+          default:
+            conflictReasonStr =
+                "UNKNOWN(" + std::to_string(conflictReason) + ")";
+            break;
+        }
+
+        std::string operationTypeStr;
+        switch (operationType) {
+          case SQLITE_INSERT:
+            operationTypeStr = "INSERT";
+            break;
+          case SQLITE_DELETE:
+            operationTypeStr = "DELETE";
+            break;
+          case SQLITE_UPDATE:
+            operationTypeStr = "UPDATE";
+            break;
+          default:
+            operationTypeStr = "UNKNOWN(" + std::to_string(operationType) + ")";
+            break;
+        }
+
         std::stringstream conflictMessage;
-        conflictMessage << "Conflict of type " << conflictReason
-                        << " occurred for operation of type " << operationType
-                        << " for table " << tableName
-                        << " during backup log application";
+        conflictMessage << "CONFLICT: " << conflictReasonStr << " conflict"
+                        << " for " << operationTypeStr << " operation"
+                        << " on table '" << (tableName ? tableName : "NULL")
+                        << "' (columns: " << columnsNumber << ")";
         Logger::log(conflictMessage.str());
 
-        if (operationType == SQLITE_INSERT &&
-            conflictReason == SQLITE_CHANGESET_CONFLICT) {
+        if ((operationType == SQLITE_INSERT &&
+             conflictReason == SQLITE_CHANGESET_CONFLICT) ||
+            (operationType == SQLITE_DELETE &&
+             conflictReason == SQLITE_CHANGESET_DATA)) {
           return SQLITE_CHANGESET_REPLACE;
         }
 
