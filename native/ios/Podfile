@@ -83,5 +83,20 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
     end
-  end 
+  end
+
+  # Fix for fmt library compatibility with Xcode 26
+  # Add missing #include <utility> for std::declval
+  fmt_base_path = "#{installer.sandbox.pod_dir('fmt')}/include/fmt/base.h"
+  if File.exist?(fmt_base_path)
+    content = File.read(fmt_base_path)
+    unless content.include?('#  include <utility>      // std::declval')
+      content.gsub!(
+        '#  include <type_traits>  // std::enable_if',
+        "#  include <type_traits>  // std::enable_if\n#  include <utility>      // std::declval"
+      )
+      File.write(fmt_base_path, content)
+      puts "Applied fmt/base.h fix for Xcode 26 compatibility"
+    end
+  end
 end
