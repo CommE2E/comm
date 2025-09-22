@@ -2,10 +2,16 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
+import {
+  TextInput as BaseTextInput,
+  View,
+  StyleSheet,
+  findNodeHandle,
+  NativeModules,
+} from 'react-native';
 
 import type { ClearableTextInputProps } from './clearable-text-input.js';
-import TextInput from './text-input.react.js';
+import NativeTextInput from './native-text-input.react.js';
 import type { TextInputKeyPressEvent } from '../types/react-native.js';
 
 type State = {
@@ -96,24 +102,27 @@ class ClearableTextInput extends React.PureComponent<
     };
 
   async getValueAndReset(): Promise<string> {
+    const viewTag = findNodeHandle(this.currentTextInput);
+    const res =
+      await NativeModules.NativeTextInputView.getValueAndReset(viewTag);
+
     // We are doing something very naughty here, which is that we are
     // constructing a fake nativeEvent. We are certainly not including all the
     // fields that the type is expected to have, which is why we need to
     // any-type it. We know this is okay because the code that uses
     // ClearableTextInput only accesses event.nativeEvent.selection
-    const fakeSelectionEvent: any = {
-      nativeEvent: { selection: { end: 0, start: 0 } },
-    };
-    this.props.onSelectionChange?.(fakeSelectionEvent);
+    // const fakeSelectionEvent: any = {
+    //   nativeEvent: { selection: { end: 0, start: 0 } },
+    // };
+    // this.props.onSelectionChange?.(fakeSelectionEvent);
 
-    this.props.onChangeText('');
+    // this.props.onChangeText('');
 
-    const { value } = this.props;
     if (!this.focused) {
-      return value;
+      return res;
     }
     return await new Promise(resolve => {
-      this.pendingMessage = { value, resolve };
+      this.pendingMessage = { value: res, resolve };
       this.setState(prevState => ({
         textInputKey: prevState.textInputKey + 1,
       }));
@@ -140,21 +149,9 @@ class ClearableTextInput extends React.PureComponent<
     const { textInputRef, ...props } = this.props;
 
     const textInputs = [];
-    if (this.state.textInputKey > 0) {
-      textInputs.push(
-        <TextInput
-          {...props}
-          style={[props.style, styles.invisibleTextInput]}
-          onChangeText={this.onOldInputChangeText}
-          onKeyPress={this.onOldInputKeyPress}
-          onBlur={this.onOldInputBlur}
-          onFocus={this.onOldInputFocus}
-          key={this.state.textInputKey - 1}
-        />,
-      );
-    }
+
     textInputs.push(
-      <TextInput
+      <NativeTextInput
         {...props}
         onFocus={this.onFocus}
         onBlur={this.onBlur}

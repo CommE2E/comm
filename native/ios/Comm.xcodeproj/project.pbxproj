@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -406,6 +406,10 @@
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4434EDD22E81405E0018C2B6 /* NativeTextInput */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = NativeTextInput; path = Comm/NativeTextInput; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -439,6 +443,7 @@
 		13B07FAE1A68108700A75B9A /* Comm */ = {
 			isa = PBXGroup;
 			children = (
+				4434EDD22E81405E0018C2B6 /* NativeTextInput */,
 				71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
@@ -981,6 +986,9 @@
 			);
 			dependencies = (
 				724995D827B4103A00323FCE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4434EDD22E81405E0018C2B6 /* NativeTextInput */,
 			);
 			name = Comm;
 			productName = "Hello World";

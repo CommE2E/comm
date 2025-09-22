@@ -994,68 +994,66 @@ function ConnectedChatInputBarBase({
     );
     const threadColor = `#${threadInfo.color}`;
     return (
-      <TouchableWithoutFeedback onPress={dismissKeyboard}>
-        <View style={styles.inputContainer}>
-          <AnimatedView style={expandoButtonsStyle}>
-            <View style={expandoButtonsViewStyle}>
-              {buttonsExpanded ? expandoButton : null}
-              <TouchableOpacity onPress={showMediaGallery} activeOpacity={0.4}>
-                <AnimatedView style={cameraRollIconStyle}>
-                  <SWMansionIcon
-                    name="image-1"
-                    size={28}
-                    color={`#${threadInfo.color}`}
-                  />
-                </AnimatedView>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={openCamera}
-                activeOpacity={0.4}
-                disabled={!buttonsExpanded}
-              >
-                <AnimatedView style={cameraIconStyle}>
-                  <SWMansionIcon
-                    name="camera"
-                    size={28}
-                    color={`#${threadInfo.color}`}
-                  />
-                </AnimatedView>
-              </TouchableOpacity>
-              {buttonsExpanded ? null : expandoButton}
-            </View>
-          </AnimatedView>
-          <SelectableTextInput
-            allowImagePasteForThreadID={threadInfo.id}
-            value={text}
-            onChangeText={updateText}
-            selection={selectionState.selection}
-            onUpdateSyncedSelectionData={setSelectionState}
-            placeholder="Send a message..."
-            placeholderTextColor={colors.listInputButton}
-            multiline={true}
-            style={styles.textInput}
-            textInputRef={setTextInputRef}
-            clearableTextInputRef={setClearableTextInputRef}
-            ref={selectableTextInputRef}
-            selectionColor={`#${threadInfo.color}`}
-          />
-          <AnimatedView style={sendButtonContainerStyle}>
-            <TouchableOpacity
-              onPress={onSend}
-              activeOpacity={0.4}
-              style={styles.sendButton}
-              disabled={trimMessage(text) === ''}
-            >
-              <Icon
-                name="send"
-                size={25}
-                style={styles.sendIcon}
-                color={threadColor}
-              />
+      <View style={styles.inputContainer}>
+        <AnimatedView style={expandoButtonsStyle}>
+          <View style={expandoButtonsViewStyle}>
+            {buttonsExpanded ? expandoButton : null}
+            <TouchableOpacity onPress={showMediaGallery} activeOpacity={0.4}>
+              <AnimatedView style={cameraRollIconStyle}>
+                <SWMansionIcon
+                  name="image-1"
+                  size={28}
+                  color={`#${threadInfo.color}`}
+                />
+              </AnimatedView>
             </TouchableOpacity>
-          </AnimatedView>
-        </View>
-      </TouchableWithoutFeedback>
+            <TouchableOpacity
+              onPress={openCamera}
+              activeOpacity={0.4}
+              disabled={!buttonsExpanded}
+            >
+              <AnimatedView style={cameraIconStyle}>
+                <SWMansionIcon
+                  name="camera"
+                  size={28}
+                  color={`#${threadInfo.color}`}
+                />
+              </AnimatedView>
+            </TouchableOpacity>
+            {buttonsExpanded ? null : expandoButton}
+          </View>
+        </AnimatedView>
+        <SelectableTextInput
+          allowImagePasteForThreadID={threadInfo.id}
+          value={text}
+          onChangeText={updateText}
+          selection={selectionState.selection}
+          onUpdateSyncedSelectionData={setSelectionState}
+          placeholder="Send a message..."
+          placeholderTextColor={colors.listInputButton}
+          multiline={true}
+          style={styles.textInput}
+          textInputRef={setTextInputRef}
+          clearableTextInputRef={setClearableTextInputRef}
+          ref={selectableTextInputRef}
+          selectionColor={`#${threadInfo.color}`}
+        />
+        <AnimatedView style={sendButtonContainerStyle}>
+          <TouchableOpacity
+            onPress={onSend}
+            activeOpacity={0.4}
+            style={styles.sendButton}
+            disabled={trimMessage(text) === ''}
+          >
+            <Icon
+              name="send"
+              size={25}
+              style={styles.sendIcon}
+              color={threadColor}
+            />
+          </TouchableOpacity>
+        </AnimatedView>
+      </View>
     );
   };
 

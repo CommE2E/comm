@@ -513,7 +513,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           {relationshipPrompt}
         </View>
         <KeyboardAvoidingView
-          behavior="translate-with-padding"
+          behavior="padding"
           style={styles.keyboardAvoidingView}
           keyboardVerticalOffset={headerHeight}
         >
