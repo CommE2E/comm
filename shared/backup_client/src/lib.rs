@@ -254,9 +254,7 @@ impl BackupClient {
               attachments,
             };
           }
-          LogWSResponse::LogDownload { .. } => {
-            Err(Error::LogMissing)?;
-          }
+          LogWSResponse::LogDownload { .. } => return,
           LogWSResponse::LogDownloadFinished {
             last_log_id: Some(log_id),
           } if log_id == expected_log_id => {
