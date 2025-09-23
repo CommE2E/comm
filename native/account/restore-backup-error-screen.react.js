@@ -147,7 +147,7 @@ function RestorationFailedView(props: RestorationFailedViewProps): React.Node {
       <AuthButtonContainer>
         <PrimaryButton
           onPress={onPressTryAgain}
-          label="Try again"
+          label="Log out and try again"
           variant="enabled"
         />
         <PrimaryButton
