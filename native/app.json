@@ -1,5 +1,6 @@
 {
-  "name": "Comm",
-  "displayName": "Comm",
-  "expo": {}
+  "expo": {
+    "name": "Comm",
+    "displayName": "Comm"
+  }
 }
