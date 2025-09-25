@@ -7,7 +7,8 @@ import './config.js';
 
 import { AppRegistry } from 'react-native';
 
-import { name as appName } from './app.json';
+import { expo } from './app.json';
 import Root from './root.react.js';
 
+const appName = expo.name;
 AppRegistry.registerComponent(appName, () => Root);
