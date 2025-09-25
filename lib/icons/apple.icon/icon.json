@@ -20,7 +20,7 @@
           "image-name": "transparent.svg",
           "name": "transparent",
           "position": {
-            "scale": 0.65,
+            "scale": 0.55,
             "translation-in-points": [0, 0]
           }
         }
