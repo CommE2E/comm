@@ -3,6 +3,7 @@ const { PluginBase } = require('@electron-forge/plugin-base');
 const fs = require('fs-extra');
 const { request } = require('gaxios');
 const klaw = require('klaw');
+const { execFileSync } = require('node:child_process');
 const path = require('path');
 
 const transformDirectoryWithBabel = async (dirPath, outDirPath) => {
@@ -115,9 +116,40 @@ if (process.env?.ENV === 'dev') {
   };
 }
 
+const macIconPackage = path.resolve(__dirname, '../lib/icons/apple.icon');
+const macIconOutDir = path.resolve(__dirname, 'build', 'macos-assets');
+const macIconCarPath = path.join(macIconOutDir, 'Assets.car');
+const macIconPartialPlist = path.join(macIconOutDir, 'PartialInfo.plist');
+
+async function compileMacAppIcon() {
+  if (!fs.existsSync(macIconPackage)) {
+    throw new Error(`App icon not found at ${macIconPackage}`);
+  }
+  await fs.ensureDir(macIconOutDir);
+  execFileSync('xcrun', [
+    'actool',
+    macIconPackage,
+    '--compile',
+    macIconOutDir,
+    '--platform',
+    'macosx',
+    '--app-icon',
+    'apple',
+    '--include-all-app-icons',
+    '--minimum-deployment-target',
+    '11.0',
+    '--output-partial-info-plist',
+    macIconPartialPlist,
+  ]);
+  if (!fs.existsSync(macIconCarPath)) {
+    throw new Error('actool finished but Assets.car was not generated');
+  }
+}
+
 module.exports = {
   packagerConfig: {
     name: 'Comm',
+    // Legacy .icns file for DMG icon and older macOS. Replaced by .icon dir
     icon: 'icons/icon',
     ignore: [
       'src',
@@ -128,6 +160,11 @@ module.exports = {
       'addons',
     ],
     appBundleId: 'app.comm.macos',
+    extraResource: ['build/macos-assets/Assets.car'],
+    extendInfo: {
+      CFBundleIconName: 'apple', // Modern .icon dir
+      CFBundleIconFile: 'icon.icns', // Legacy .icns file
+    },
     ...signingOptions.packagerMacos,
   },
   makers: [
@@ -183,6 +220,10 @@ module.exports = {
             '`yarn clean-build` or remove previous builds artifacts: ' +
             '"out/Comm-darwin-x64" and/or "out/Comm-darwin-arm64"\n',
         );
+      }
+
+      if (platform === 'darwin') {
+        await compileMacAppIcon();
       }
 
       if (platform === 'win32') {

@@ -11,11 +11,11 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "dev": "cross-env ENV=dev electron-forge start",
-    "package": "electron-forge package",
-    "package-dev": "cross-env ENV=dev electron-forge package",
-    "make": "electron-forge make",
-    "make-dev": "cross-env ENV=dev electron-forge make",
+    "dev": "PATH=/usr/bin:/bin:\"$PATH\" cross-env ENV=dev electron-forge start",
+    "package": "PATH=/usr/bin:/bin:\"$PATH\" electron-forge package",
+    "package-dev": "PATH=/usr/bin:/bin:\"$PATH\" cross-env ENV=dev electron-forge package",
+    "make": "PATH=/usr/bin:/bin:\"$PATH\" electron-forge make",
+    "make-dev": "PATH=/usr/bin:/bin:\"$PATH\" cross-env ENV=dev electron-forge make",
     "clean": "rm -rf assets/ && rm -rf dist/ && yarn clean-build && rm -rf node_modules/",
     "clean-build": "rm -rf out/"
   },
