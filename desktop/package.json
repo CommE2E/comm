@@ -16,6 +16,7 @@
     "package-dev": "PATH=/usr/bin:/bin:\"$PATH\" cross-env ENV=dev electron-forge package",
     "make": "PATH=/usr/bin:/bin:\"$PATH\" electron-forge make",
     "make-dev": "PATH=/usr/bin:/bin:\"$PATH\" cross-env ENV=dev electron-forge make",
+    "make-windows": "electron-forge make",
     "clean": "rm -rf assets/ && rm -rf dist/ && yarn clean-build && rm -rf node_modules/",
     "clean-build": "rm -rf out/"
   },

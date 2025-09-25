@@ -38,7 +38,7 @@ jobs:
           WINDOWS_CERTIFICATE: ${{github.workspace}}\windows_certificate.pfx
           WINDOWS_PASSWORD: ${{secrets.WINDOWS_PASSWORD}}
         working-directory: './desktop'
-        run: yarn make
+        run: yarn make-windows
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
