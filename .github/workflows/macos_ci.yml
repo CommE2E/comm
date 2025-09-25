@@ -57,6 +57,9 @@ jobs:
         working-directory: ./scripts
         run: sudo ./install_protobuf.sh
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
