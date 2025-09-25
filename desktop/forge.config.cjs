@@ -160,7 +160,7 @@ module.exports = {
       'addons',
     ],
     appBundleId: 'app.comm.macos',
-    extraResource: ['build/macos-assets/Assets.car'],
+    extraResource: process.platform === 'darwin' ? [macIconCarPath] : [],
     extendInfo: {
       CFBundleIconName: 'apple', // Modern .icon dir
       CFBundleIconFile: 'icon.icns', // Legacy .icns file
