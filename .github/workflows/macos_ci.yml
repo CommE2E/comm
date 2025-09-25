@@ -55,12 +55,10 @@ jobs:
 
           # import provisioning profile from secrets
           echo -n "$MACOS_PROVISIONPROFILE_BASE64" | base64 --decode -o $PROVISIONPROFILE_PATH
+
       - name: sudo ./install_protobuf.sh
         working-directory: ./scripts
         run: sudo ./install_protobuf.sh
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
