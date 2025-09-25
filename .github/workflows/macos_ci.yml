@@ -20,13 +20,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - uses: ruby/setup-ruby@v1
         with:
-          python-version: 3.12
+          ruby-version: '3.3'
+          bundler-cache: true
 
-      - name: Fix node-gyp
-        run: python -m pip install packaging setuptools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.5'
+          cache: 'yarn'
 
       - name: Install Developer certificate
         env:
