@@ -528,11 +528,8 @@ impl TokenConnection {
             "Failed to fetch conversation details: {e:?}",
           ))
         })?;
-      let notif = prepare_notif_payload(
-        payload,
-        &conversation,
-        Some(&self.token_info.fid),
-      );
+      let notif =
+        prepare_notif_payload(payload, &conversation, &self.token_info.fid);
       Ok::<_, TokenConnectionError>(notif)
     };
 

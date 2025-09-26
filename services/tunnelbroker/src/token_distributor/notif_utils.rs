@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use tunnelbroker_messages::farcaster::{
   DirectCastConversation, DirectCastMessageType,
   RefreshDirectCastConversationPayload,
@@ -8,7 +10,7 @@ use crate::notifs::GenericNotifPayload;
 pub fn prepare_notif_payload(
   payload: &RefreshDirectCastConversationPayload,
   conversation: &DirectCastConversation,
-  recipient_fid: Option<&String>,
+  recipient_fid: &str,
 ) -> Option<GenericNotifPayload> {
   let RefreshDirectCastConversationPayload {
     conversation_id,
@@ -17,7 +19,6 @@ pub fn prepare_notif_payload(
   } = payload;
 
   if conversation.muted {
-    // TODO: badge only?
     return None;
   }
   if message.message_type != DirectCastMessageType::Text {
@@ -25,7 +26,7 @@ pub fn prepare_notif_payload(
   }
 
   // Don't send a notif from self
-  if recipient_fid.is_some_and(|fid| *fid == message.sender_fid.to_string()) {
+  if recipient_fid == message.sender_fid.to_string() {
     return None;
   }
 
@@ -35,27 +36,30 @@ pub fn prepare_notif_payload(
   let has_videos =
     message_metadata.is_some_and(|metadata| metadata["videos"].is_array());
 
+  let sender_name = conversation
+    .participant(message.sender_fid)
+    .map(|u| u.display_name.as_str());
   let title = conversation
     .name
     .as_deref()
-    .or_else(|| {
-      conversation
-        .participant(message.sender_fid)
-        .map(|u| u.display_name.as_str())
-    })
-    .unwrap_or("Farcaster");
+    .or(sender_name)
+    .unwrap_or("Farcaster DC");
 
-  let body = if has_photos {
-    "[Photo message]"
+  let body: Cow<str> = if has_photos {
+    sender_name
+      .map(|author| format!("{author} sent a photo").into())
+      .unwrap_or("[Photo message]".into())
   } else if has_videos {
-    "[Video message]"
+    sender_name
+      .map(|author| format!("{author} sent a video").into())
+      .unwrap_or("[Video message]".into())
   } else {
-    message.message.as_str()
+    Cow::Borrowed(message.message.as_str())
   };
 
   Some(GenericNotifPayload {
     title: trim_text(title, 100),
-    body: trim_text(body, 300),
+    body: trim_text(&body, 300),
     thread_id: format!("FARCASTER#{}", conversation_id),
   })
 }
