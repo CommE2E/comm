@@ -28,6 +28,7 @@ import {
   arrayToIntegrityThreadHashVector,
   arrayToOutboundP2PMessageVector,
   arrayToMessageStoreThreadVector,
+  uint8ArrayToByteVector,
 } from './vector-utils.js';
 import type { WebClientDBThreadInfo } from '../types/entities.js';
 import type { EmscriptenModule } from '../types/module.js';
@@ -515,7 +516,8 @@ class SQLiteQueryExecutorWrapper {
 
   // Database operations
   restoreFromBackupLog(backupLog: Uint8Array): void {
-    this.rawExecutor.restoreFromBackupLog(backupLog);
+    const byteVector = uint8ArrayToByteVector(backupLog, this.dbModule);
+    this.rawExecutor.restoreFromBackupLog(byteVector);
   }
 
   copyContentFromDatabase(

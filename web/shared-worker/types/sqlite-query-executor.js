@@ -183,7 +183,7 @@ declare export class SQLiteQueryExecutor {
   storeOlmPersistAccount(accountID: number, accountData: string): void;
   storeOlmPersistSession(session: OlmPersistSession): void;
 
-  restoreFromBackupLog(backupLog: Uint8Array): void;
+  restoreFromBackupLog(backupLog: EmscriptenVector<number>): void;
 
   copyContentFromDatabase(
     databasePath: string,

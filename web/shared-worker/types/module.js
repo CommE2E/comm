@@ -91,6 +91,7 @@ declare export class EmscriptenModule {
 
   // Vector constructors from Emscripten bindings
   StringVector: Class<EmscriptenVector<string>>;
+  ByteVector: Class<EmscriptenVector<number>>;
   OutboundP2PMessageVector: Class<EmscriptenVector<OutboundP2PMessage>>;
   InboundP2PMessageVector: Class<EmscriptenVector<InboundP2PMessage>>;
   MessageStoreThreadVector: Class<

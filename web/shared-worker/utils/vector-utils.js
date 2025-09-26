@@ -94,10 +94,26 @@ function arrayToMessageStoreThreadVector(
   return vector;
 }
 
+function uint8ArrayToByteVector(
+  array: Uint8Array,
+  dbModule: EmscriptenModule,
+): EmscriptenVector<number> {
+  if (!dbModule || !dbModule.ByteVector) {
+    throw new Error('Database module or ByteVector not available');
+  }
+
+  const vector = new dbModule.ByteVector();
+  for (const byte of array) {
+    vector.push_back(byte);
+  }
+  return vector;
+}
+
 export {
   vectorToArray,
   arrayToStringVector,
   arrayToIntegrityThreadHashVector,
   arrayToOutboundP2PMessageVector,
   arrayToMessageStoreThreadVector,
+  uint8ArrayToByteVector,
 };
