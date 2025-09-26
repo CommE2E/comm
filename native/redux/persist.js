@@ -1723,6 +1723,19 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       ops,
     };
   }: MigrationFunction<NavInfo, AppState>),
+  [98]: (async (state: AppState) => ({
+    state: {
+      ...state,
+      alertStore: {
+        ...state.alertStore,
+        alertInfos: {
+          ...state.alertStore.alertInfos,
+          [alertTypes.CONNECT_FARCASTER_DCS]: defaultAlertInfo,
+        },
+      },
+    },
+    ops: {},
+  }): MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {
