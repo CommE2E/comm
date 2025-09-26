@@ -35,6 +35,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   register_optional<AuxUserInfo>();
 
   register_vector<std::string>("StringVector");
+  register_vector<std::uint8_t>("ByteVector");
   register_vector<EntryInfo>("EntryInfoVector");
   register_vector<InboundP2PMessage>("InboundP2PMessageVector");
   register_vector<OutboundP2PMessage>("OutboundP2PMessageVector");
