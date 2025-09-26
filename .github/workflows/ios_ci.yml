@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     name: Build and archive iOS app
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - name: Checkout
@@ -72,6 +72,16 @@ jobs:
 
       - name: Fix node-gyp
         run: python -m pip install packaging setuptools
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.5'
+          cache: 'yarn'
 
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
