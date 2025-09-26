@@ -1723,6 +1723,13 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
       ops,
     };
   }: MigrationFunction<NavInfo, AppState>),
+  [98]: (async (state: AppState) => {
+    const ops = await sharedMigrations[98](databaseIdentifier.MAIN);
+    return {
+      state,
+      ops,
+    };
+  }: MigrationFunction<NavInfo, AppState>),
 });
 
 const persistConfig = {
