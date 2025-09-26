@@ -81,19 +81,19 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const isAppForegrounded = useIsAppForegrounded();
 
   React.useEffect(() => {
-    if (fid && isAppForegrounded) {
-      if (currentUserSupportsDCs || !supportsFarcasterDCs) {
-        goBack();
-      } else if (supportsFarcasterDCs && !showConnectDCs) {
-        setShowConnectDCs(true);
-      }
+    if (!fid || !isAppForegrounded) {
+      return;
     }
+    if (currentUserSupportsDCs || !supportsFarcasterDCs) {
+      goBack();
+      return;
+    }
+    setShowConnectDCs(true);
   }, [
     fid,
     goBack,
     isAppForegrounded,
     currentUserSupportsDCs,
-    showConnectDCs,
     supportsFarcasterDCs,
   ]);
 
