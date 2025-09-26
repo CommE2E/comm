@@ -39,41 +39,60 @@ function ConnectFarcasterAlertHandler(): React.Node {
   const connectFarcasterAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER],
   );
+  const connectFarcasterDCsAlertInfo = useSelector(
+    state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER_DCS],
+  );
 
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    const shouldShowForDCs = fid && !currentUserSupportsDCs;
-    const shouldShowForInitialConnection = !fid;
+    const shouldShowForDCs =
+      isFarcasterDCsIntegrationEnabled && fid && !currentUserSupportsDCs;
+    const shouldShowForInitialConnection = fid === undefined;
 
+    if (!loggedIn || !isActive) {
+      return;
+    }
+
+    let reasonToShow: void | 'initial_connection' | 'dcs';
     if (
-      !loggedIn ||
-      !isActive ||
-      shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) ||
-      connectFarcasterAlertInfo.coldStartCount < 2 ||
-      (!shouldShowForInitialConnection && !shouldShowForDCs) ||
-      !isFarcasterDCsIntegrationEnabled
+      shouldShowForInitialConnection &&
+      !shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid) &&
+      connectFarcasterAlertInfo.coldStartCount >= 2
     ) {
+      reasonToShow = 'initial_connection';
+    } else if (
+      shouldShowForDCs &&
+      !shouldSkipConnectFarcasterAlert(connectFarcasterDCsAlertInfo, fid)
+    ) {
+      reasonToShow = 'dcs';
+    }
+
+    if (!reasonToShow) {
       return;
     }
 
     void (async () => {
       await sleep(1000);
 
-      // We set the local FID to null to prevent the prompt from being displayed
-      // again. We set it here, rather than in the bottom sheet itself, to avoid
-      // the scenario where the user connects their Farcaster account but we
-      // accidentally overwrite the FID on close and set it to null.
-      if (!fid) {
+      // If the user hasn't been prompted to connect Farcaster yet, then their
+      // FID will be undefined. We set it to null here to avoid a race
+      // condition. If they reject the prompt, then it will be the same result.
+      // But if they accept the prompt, this avoids a race if they accept and
+      // then close out of the bottom sheet.
+      if (fid === undefined) {
         setLocalFID(null);
       }
+
       navigate(ConnectFarcasterBottomSheetRouteName);
 
       const payload: RecordAlertActionPayload = {
-        alertType: alertTypes.CONNECT_FARCASTER,
+        alertType:
+          reasonToShow === 'dcs'
+            ? alertTypes.CONNECT_FARCASTER_DCS
+            : alertTypes.CONNECT_FARCASTER,
         time: Date.now(),
       };
-
       dispatch({
         type: recordAlertActionType,
         payload,
@@ -81,6 +100,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     })();
   }, [
     connectFarcasterAlertInfo,
+    connectFarcasterDCsAlertInfo,
     currentUserSupportsDCs,
     dispatch,
     fid,
