@@ -72,7 +72,11 @@ function ComposeSubchannel(props: Props): React.Node {
   const waitingOnThreadIDRef = React.useRef<?string>();
 
   const { threadType, parentThreadInfo } = props.route.params;
-  const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
+
+  const userInfoInputIDs = React.useMemo(
+    () => userInfoInputArray.map(userInfo => userInfo.id),
+    [userInfoInputArray],
+  );
   const callNewThinThread = useNewThinThread();
   const calendarQuery = useCalendarQuery();
   const newChatThreadAction = React.useCallback(async () => {
