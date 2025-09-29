@@ -263,28 +263,30 @@ class App extends React.PureComponent<Props> {
               <MessageSearchStateProvider>
                 <ChatMentionContextProvider>
                   <GlobalSearchIndexProvider>
-                    <FocusHandler />
-                    <VisibilityHandler />
-                    <PolicyAcknowledgmentHandler />
-                    <PushNotificationsHandler />
-                    <InviteLinkHandler />
-                    <InviteLinksRefresher />
-                    <CommunitiesRefresher />
-                    <MinVersionHandler />
-                    <PlatformDetailsSynchronizer />
-                    <LogOutIfMissingCSATHandler />
-                    <UserInfosHandler />
-                    <TunnelbrokerDeviceTokenHandler />
-                    <SyncStoreVersionHandler />
-                    <SyncCurrentUserInfoHandler />
-                    <RestoreBackupHandler />
-                    <FarcasterChannelPrefetchHandler />
-                    <FarcasterDataHandler />
-                    <AutoJoinCommunityHandler />
-                    <SyncCommunityStoreHandler />
-                    <NonKeyserverActivityHandler />
-                    <HoldersHandler />
-                    {content}
+                    <ProtocolSelectionProvider>
+                      <FocusHandler />
+                      <VisibilityHandler />
+                      <PolicyAcknowledgmentHandler />
+                      <PushNotificationsHandler />
+                      <InviteLinkHandler />
+                      <InviteLinksRefresher />
+                      <CommunitiesRefresher />
+                      <MinVersionHandler />
+                      <PlatformDetailsSynchronizer />
+                      <LogOutIfMissingCSATHandler />
+                      <UserInfosHandler />
+                      <TunnelbrokerDeviceTokenHandler />
+                      <SyncStoreVersionHandler />
+                      <SyncCurrentUserInfoHandler />
+                      <RestoreBackupHandler />
+                      <FarcasterChannelPrefetchHandler />
+                      <FarcasterDataHandler />
+                      <AutoJoinCommunityHandler />
+                      <SyncCommunityStoreHandler />
+                      <NonKeyserverActivityHandler />
+                      <HoldersHandler />
+                      {content}
+                    </ProtocolSelectionProvider>
                   </GlobalSearchIndexProvider>
                 </ChatMentionContextProvider>
               </MessageSearchStateProvider>
@@ -404,12 +406,10 @@ class App extends React.PureComponent<Props> {
       css['main-content-container-column'],
     );
     return (
-      <ProtocolSelectionProvider>
-        <div className={mainContentClass}>
-          <Topbar />
-          <div className={css['main-content']}>{mainContent}</div>
-        </div>
-      </ProtocolSelectionProvider>
+      <div className={mainContentClass}>
+        <Topbar />
+        <div className={css['main-content']}>{mainContent}</div>
+      </div>
     );
   }
 }
