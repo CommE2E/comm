@@ -3,7 +3,10 @@
 import * as React from 'react';
 
 import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
-import { useResolvedThreadAvatar } from 'lib/shared/avatar-utils.js';
+import {
+  useResolvedThreadAvatar,
+  useDisplayUserForThread,
+} from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser, getCommunity } from 'lib/shared/thread-utils.js';
 import {
   threadTypeIsPersonal,
@@ -50,20 +53,14 @@ function ThreadAvatar(props: Props): React.Node {
     displayUserIDForThread = getSingleOtherUser(threadInfo, viewerID);
   }
 
-  const displayUser = useSelector(state => {
-    if (!displayUserIDForThread) {
-      return null;
-    }
+  const userInfos = useSelector(state => state.userStore.userInfos);
+  const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
 
-    const userBase = state.userStore.userInfos[displayUserIDForThread];
-    const farcasterID =
-      state.auxUserStore.auxUserInfos[displayUserIDForThread]?.fid;
-
-    return {
-      ...userBase,
-      farcasterID,
-    };
-  });
+  const displayUser = useDisplayUserForThread(
+    displayUserIDForThread,
+    userInfos,
+    auxUserInfos,
+  );
 
   const resolvedThreadAvatar = useResolvedThreadAvatar(avatarInfo, {
     userProfileInfo: displayUser,
