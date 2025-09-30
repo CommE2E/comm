@@ -12,6 +12,7 @@ import {
   getRelationshipDispatchAction,
 } from 'lib/shared/relationship-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
+import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type TraditionalRelationshipAction,
@@ -88,8 +89,7 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo(
     const { panelIosHighlightUnderlay } = colors;
 
     const styles = useStyles(unboundStyles);
-    const otherUserInfoUsername = otherUserInfo.username;
-    invariant(otherUserInfoUsername, 'Other user username should be specified');
+    const otherUserInfoUsername = stringForUserExplicit(otherUserInfo);
 
     const relationshipButtonText = React.useMemo(
       () =>
