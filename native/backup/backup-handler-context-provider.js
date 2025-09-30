@@ -253,9 +253,11 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         usingRestoreFlow && !currentDeviceList.curPrimarySignature;
       const shouldUploadUserKeys = isPrimary && !latestBackupInfo;
 
-      // App has UserKeys backup, but without UserData and this is first
-      // ever upload.
-      const firstUserDataUpload = restoreBackupState.status === 'no_backup';
+      // App has UserKeys backup, but without UserData, and this is the first
+      // ever compaction upload (after restore or registration).
+      const firstUserDataUpload =
+        restoreBackupState.status === 'no_backup' ||
+        restoreBackupState.status === 'user_data_restore_completed';
 
       // When previous upload failed, device should restart it.
       const userDataUploadFailed =
