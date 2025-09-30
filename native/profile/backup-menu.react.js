@@ -149,11 +149,24 @@ function BackupMenu(props: Props): React.Node {
     userIdentifier,
   ]);
 
+  const restoreBackupState = useSelector(state => state.restoreBackupState);
+  const restoreBackupStateStr = React.useMemo(
+    () => JSON.stringify(restoreBackupState, null, 2),
+    [restoreBackupState],
+  );
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollViewContentContainer}
       style={styles.scrollView}
     >
+      <Text style={styles.header}>RESTORE BACKUP STATE</Text>
+      <View style={styles.section}>
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>{restoreBackupStateStr}</Text>
+        </View>
+      </View>
+
       <Text style={styles.header}>ACTIONS</Text>
       <View style={styles.section}>
         <Button
