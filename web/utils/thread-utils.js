@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
@@ -42,9 +41,11 @@ function useThreadInfoForPossiblyPendingThread(
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();
-  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
 
   const pendingThread = React.useMemo(() => {
+    if (!loggedInUserInfo) {
+      return null;
+    }
     const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
     return createPendingThread({
       viewerID: loggedInUserInfo.id,
@@ -55,6 +56,9 @@ function useThreadInfoForPossiblyPendingThread(
 
   const newThreadID = 'pending/new_thread';
   const pendingNewThread = React.useMemo(() => {
+    if (!loggedInUserInfo) {
+      return null;
+    }
     const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
     return {
       ...createPendingThread({
