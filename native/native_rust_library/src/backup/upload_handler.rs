@@ -169,15 +169,19 @@ pub fn start_handler_routine(
   Ok(async move {
     println!("Backup handler task id={task_id} started.");
     'task_loop: loop {
+      println!("BACKUP_LOG: Attempting to establish WebSocket connection");
       let logs_upload_stream = tokio::select!(
         result = backup_client.upload_logs(&user_identity) => result,
         _ = cancel_token.cancelled() => { break 'task_loop; }
       );
       let (tx, rx) = match logs_upload_stream {
-        Ok(ws) => ws,
+        Ok(ws) => {
+          println!("BACKUP_LOG: WebSocket connection established successfully");
+          ws
+        }
         Err(err) => {
           println!(
-            "Backup handler error when estabilishing connection: '{err:?}'"
+            "BACKUP_LOG: Failed to establish WebSocket connection: '{err:?}'"
           );
           tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
           continue;
@@ -197,14 +201,27 @@ pub fn start_handler_routine(
           _ = cancel_token.cancelled() => { break 'task_loop; }
         };
 
-        println!("Backup handler error: '{err:?}'");
+        println!("BACKUP_LOG: Backup handler error occurred: '{err:?}'");
         match err {
           BackupHandlerError::BackupError(_)
           | BackupHandlerError::WSClosed
-          | BackupHandlerError::LockError => break,
+          | BackupHandlerError::LockError => {
+            println!(
+              "BACKUP_LOG: Connection error, breaking to restart connection"
+            );
+            break;
+          }
           BackupHandlerError::IoError(_)
-          | BackupHandlerError::CxxException(_) => continue,
-          BackupHandlerError::FromUtf8Error(_) => break,
+          | BackupHandlerError::CxxException(_) => {
+            println!(
+              "BACKUP_LOG: IO/CXX error, continuing with current connection"
+            );
+            continue;
+          }
+          BackupHandlerError::FromUtf8Error(_) => {
+            println!("BACKUP_LOG: UTF8 error, breaking to restart connection");
+            break;
+          }
         }
       }
 
@@ -212,9 +229,9 @@ pub fn start_handler_routine(
         _ = tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY) => (),
         _ = cancel_token.cancelled() => { break 'task_loop; }
       );
-      println!("Retrying backup log upload");
+      println!("BACKUP_LOG: Retrying backup log upload after delay");
     }
-    println!("Backup handler task id={task_id} stopped.");
+    println!("BACKUP_LOG: Backup handler task id={task_id} stopped.");
   })
 }
 
@@ -250,15 +267,28 @@ async fn watch_and_upload_files(
         // handled when we iterate over the corresponding files with the
         // main content
         if additional_data.is_some() {
+          println!("BACKUP_LOG: Skipping attachment file - path={:?}", path);
           continue;
         }
 
         match log_id {
-          Some(id) => logs.push((path, backup_id, id)),
+          Some(id) => {
+            println!(
+              "BACKUP_LOG: Found log file - backupID={}, logID={}, path={:?}",
+              backup_id, id, path
+            );
+            logs.push((path, backup_id, id));
+          }
           None => {
+            println!(
+              "BACKUP_LOG: Found compaction file - backupID={}, path={:?}",
+              backup_id, path
+            );
             compaction_ids.insert(backup_id);
           }
         }
+      } else {
+        println!("BACKUP_LOG: Skipping unrecognized file - path={:?}", path);
       }
     }
 
@@ -268,13 +298,19 @@ async fn watch_and_upload_files(
 
     for (path, backup_id, log_id) in logs {
       if logs_waiting_for_confirmation.lock().await.contains(&path) {
+        println!("BACKUP_LOG: Skipping already processing file - backupID={}, logID={}, path={:?}", backup_id, log_id, path);
         continue;
       }
-      log::upload_files(tx, backup_id, log_id).await?;
+      println!(
+        "BACKUP_LOG: Starting upload - backupID={}, logID={}, path={:?}",
+        backup_id, log_id, path
+      );
+      log::upload_files(tx, backup_id.clone(), log_id).await?;
       logs_waiting_for_confirmation
         .lock()
         .await
         .insert(path.clone());
+      println!("BACKUP_LOG: Log sent, added to waiting confirmation - backupID={}, logID={}", backup_id, log_id);
     }
 
     TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
@@ -290,16 +326,32 @@ async fn delete_confirmed_logs(
   while let Some(LogUploadConfirmation { backup_id, log_id }) =
     rx.next().await.transpose()?
   {
+    println!(
+      "BACKUP_LOG: Received upload confirmation - backupID={}, logID={}",
+      backup_id, log_id
+    );
+
     let path =
       get_backup_log_file_path(&backup_id, &log_id.to_string(), false)?;
-    logs_waiting_for_confirmation
+    let was_removed = logs_waiting_for_confirmation
       .lock()
       .await
       .remove(&PathBuf::from(path));
 
+    if was_removed {
+      println!("BACKUP_LOG: Removed from waiting confirmation set - backupID={}, logID={}", backup_id, log_id);
+    } else {
+      println!("BACKUP_LOG: WARNING: Confirmation received but log not in waiting set - backupID={}, logID={}", backup_id, log_id);
+    }
+
+    println!(
+      "BACKUP_LOG: Starting file cleanup - backupID={}, logID={}",
+      backup_id, log_id
+    );
     tokio::spawn(log::cleanup_files(backup_id, log_id));
   }
 
+  println!("BACKUP_LOG: WebSocket closed, exiting confirmation handler");
   Err(BackupHandlerError::WSClosed)
 }
 
@@ -311,41 +363,126 @@ pub mod compaction {
     user_identity: &UserIdentity,
     backup_id: String,
   ) -> Result<(), BackupHandlerError> {
+    println!(
+      "BACKUP_LOG: Starting compaction upload - backupID={}",
+      backup_id
+    );
+
     let user_data_path = get_backup_file_path(&backup_id, false, false)?;
     let user_data = match tokio::fs::read(&user_data_path).await {
-      Ok(data) => Some(data),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
+      Ok(data) => {
+        println!(
+          "BACKUP_LOG: User data file read - backupID={}, size={}, path={}",
+          backup_id,
+          data.len(),
+          user_data_path
+        );
+        Some(data)
+      }
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: User data file not found - backupID={}, path={}",
+          backup_id, user_data_path
+        );
+        None
+      }
+      Err(err) => {
+        println!("BACKUP_LOG: Error reading user data file - backupID={}, path={}, error={:?}", backup_id, user_data_path, err);
+        return Err(err.into());
+      }
     };
     let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
     let user_keys = match tokio::fs::read(&user_keys_path).await {
-      Ok(data) => Some(data),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
+      Ok(data) => {
+        println!(
+          "BACKUP_LOG: User keys file read - backupID={}, size={}, path={}",
+          backup_id,
+          data.len(),
+          user_keys_path
+        );
+        Some(data)
+      }
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: User keys file not found - backupID={}, path={}",
+          backup_id, user_keys_path
+        );
+        None
+      }
+      Err(err) => {
+        println!("BACKUP_LOG: Error reading user keys file - backupID={}, path={}, error={:?}", backup_id, user_keys_path, err);
+        return Err(err.into());
+      }
     };
 
     let attachments_path = get_backup_file_path(&backup_id, true, false)?;
     let attachments = match tokio::fs::read(&attachments_path).await {
-      Ok(data) => data.lines().collect::<Result<_, _>>()?,
-      Err(err) if err.kind() == ErrorKind::NotFound => Vec::new(),
-      Err(err) => return Err(err.into()),
+      Ok(data) => {
+        let lines: Vec<_> = data.lines().collect::<Result<_, _>>()?;
+        println!(
+          "BACKUP_LOG: Attachments file read - backupID={}, lines={}, path={}",
+          backup_id,
+          lines.len(),
+          attachments_path
+        );
+        lines
+      }
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: Attachments file not found - backupID={}, path={}",
+          backup_id, attachments_path
+        );
+        Vec::new()
+      }
+      Err(err) => {
+        println!("BACKUP_LOG: Error reading attachments file - backupID={}, path={}, error={:?}", backup_id, attachments_path, err);
+        return Err(err.into());
+      }
     };
 
     let siwe_backup_msg_path = get_siwe_backup_message_path(&backup_id)?;
     let siwe_backup_msg = match tokio::fs::read(&siwe_backup_msg_path).await {
       Ok(data) => match String::from_utf8(data) {
-        Ok(valid_string) => Some(valid_string),
-        Err(err) => return Err(err.into()),
+        Ok(valid_string) => {
+          println!("BACKUP_LOG: SIWE backup message read - backupID={}, size={}, path={}", backup_id, valid_string.len(), siwe_backup_msg_path);
+          Some(valid_string)
+        }
+        Err(err) => {
+          println!("BACKUP_LOG: Error parsing SIWE backup message as UTF8 - backupID={}, path={}, error={:?}", backup_id, siwe_backup_msg_path, err);
+          return Err(err.into());
+        }
       },
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: SIWE backup message not found - backupID={}, path={}",
+          backup_id, siwe_backup_msg_path
+        );
+        None
+      }
+      Err(err) => {
+        println!("BACKUP_LOG: Error reading SIWE backup message - backupID={}, path={}, error={:?}", backup_id, siwe_backup_msg_path, err);
+        return Err(err.into());
+      }
     };
 
     let db_version_path = get_backup_file_path(&backup_id, false, true)?;
     let db_version = match tokio::fs::read_to_string(&db_version_path).await {
-      Ok(data) => data.parse::<u16>().ok(),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
-      Err(err) => return Err(err.into()),
+      Ok(data) => {
+        let parsed_version = data.parse::<u16>().ok();
+        println!("BACKUP_LOG: DB version file read - backupID={}, version={:?}, path={}", backup_id, parsed_version, db_version_path);
+        parsed_version
+      }
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: DB version file not found - backupID={}, path={}",
+          backup_id, db_version_path
+        );
+        None
+      }
+      Err(err) => {
+        println!("BACKUP_LOG: Error reading DB version file - backupID={}, path={}, error={:?}", backup_id, db_version_path, err);
+        return Err(err.into());
+      }
     };
 
     let version_info = backup_client::BackupVersionInfo {
@@ -363,12 +500,36 @@ pub mod compaction {
       version_info,
     };
 
+    println!(
+      "BACKUP_LOG: Starting compaction upload to backup service - backupID={}",
+      backup_id
+    );
     let result = backup_client
       .upload_backup(user_identity, backup_data)
       .await
       .map_err(|e| e.to_string());
 
+    match &result {
+      Ok(()) => println!(
+        "BACKUP_LOG: Compaction upload succeeded - backupID={}",
+        backup_id
+      ),
+      Err(err) => println!(
+        "BACKUP_LOG: Compaction upload failed - backupID={}, error={}",
+        backup_id, err
+      ),
+    }
+
+    println!(
+      "BACKUP_LOG: Starting compaction file cleanup - backupID={}",
+      backup_id
+    );
     cleanup_files(backup_id.clone()).await;
+
+    println!(
+      "BACKUP_LOG: Resolving compaction upload promise - backupID={}",
+      backup_id
+    );
     compaction_upload_promises::resolve(&backup_id, result);
 
     Ok(())
@@ -382,6 +543,11 @@ pub mod compaction {
     }
   }
   pub async fn cleanup_files(backup_id: String) {
+    println!(
+      "BACKUP_LOG: Starting compaction files cleanup - backupID={}",
+      backup_id
+    );
+
     let backup_files_cleanup = async {
       let paths_to_remove = vec![
         get_backup_file_path(&backup_id, false, false)?,
@@ -391,9 +557,16 @@ pub mod compaction {
         get_siwe_backup_message_path(&backup_id)?,
       ];
 
+      println!(
+        "BACKUP_LOG: Will remove {} compaction files - backupID={}",
+        paths_to_remove.len(),
+        backup_id
+      );
+
       for path in paths_to_remove {
-        if let Err(e) = remove_file_if_exists(&path).await {
-          println!("Error occurred while removing a file: {:?}", e);
+        match remove_file_if_exists(&path).await {
+          Ok(()) => println!("BACKUP_LOG: Compaction file removed - backupID={}, path={}", backup_id, path),
+          Err(e) => println!("BACKUP_LOG: Error removing compaction file - backupID={}, path={}, error={:?}", backup_id, path, e),
         }
       }
 
@@ -401,7 +574,12 @@ pub mod compaction {
     };
 
     if let Err(err) = backup_files_cleanup.await {
-      println!("Error when cleaning up the backup files: {:?}", err);
+      println!("BACKUP_LOG: Error during compaction files cleanup - backupID={}, error={:?}", backup_id, err);
+    } else {
+      println!(
+        "BACKUP_LOG: Compaction files cleanup completed - backupID={}",
+        backup_id
+      );
     }
   }
 }
@@ -419,45 +597,99 @@ mod log {
     let log_id_string = log_id.to_string();
     let content_path =
       get_backup_log_file_path(&backup_id, &log_id_string, false)?;
+
+    println!(
+      "BACKUP_LOG: Reading file content - backupID={}, logID={}, path={}",
+      backup_id, log_id, content_path
+    );
     let content = tokio::fs::read(&content_path).await?;
+    println!(
+      "BACKUP_LOG: File content read - backupID={}, logID={}, size={}",
+      backup_id,
+      log_id,
+      content.len()
+    );
 
     let attachments_path =
       get_backup_log_file_path(&backup_id, &log_id_string, true)?;
     let attachments = match tokio::fs::read(&attachments_path).await {
-      Ok(data) => Some(data.lines().collect::<Result<_, _>>()?),
-      Err(err) if err.kind() == ErrorKind::NotFound => None,
+      Ok(data) => {
+        let lines: Vec<_> = data.lines().collect::<Result<_, _>>()?;
+        println!(
+          "BACKUP_LOG: Attachments file read - backupID={}, logID={}, lines={}",
+          backup_id,
+          log_id,
+          lines.len()
+        );
+        Some(lines)
+      }
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        println!(
+          "BACKUP_LOG: No attachments file found - backupID={}, logID={}",
+          backup_id, log_id
+        );
+        None
+      }
       Err(err) => return Err(err.into()),
     };
 
     let log_data = UploadLogRequest {
-      backup_id,
+      backup_id: backup_id.clone(),
       log_id,
       content,
       attachments,
     };
+
+    println!(
+      "BACKUP_LOG: Sending log data via WebSocket - backupID={}, logID={}",
+      backup_id, log_id
+    );
     tx.send(log_data.clone()).await?;
+    println!(
+      "BACKUP_LOG: Log data sent successfully - backupID={}, logID={}",
+      backup_id, log_id
+    );
 
     Ok(())
   }
 
   pub async fn cleanup_files(backup_id: String, log_id: usize) {
     let backup_files_cleanup = async {
-      let log_id = log_id.to_string();
+      let log_id_string = log_id.to_string();
 
-      let path = get_backup_log_file_path(&backup_id, &log_id, false)?;
+      let path = get_backup_log_file_path(&backup_id, &log_id_string, false)?;
+      println!(
+        "BACKUP_LOG: Deleting main log file - backupID={}, logID={}, path={}",
+        backup_id, log_id, path
+      );
       tokio::fs::remove_file(&path).await?;
+      println!(
+        "BACKUP_LOG: Main log file deleted - backupID={}, logID={}",
+        backup_id, log_id
+      );
 
       let attachments_path =
-        get_backup_log_file_path(&backup_id, &log_id, true)?;
+        get_backup_log_file_path(&backup_id, &log_id_string, true)?;
       match tokio::fs::remove_file(&attachments_path).await {
-        Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
-        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+        Ok(()) => {
+          println!("BACKUP_LOG: Attachments file deleted - backupID={}, logID={}, path={}", backup_id, log_id, attachments_path);
+          Result::<_, Box<dyn Error>>::Ok(())
+        }
+        Err(err) if err.kind() == ErrorKind::NotFound => {
+          println!(
+            "BACKUP_LOG: No attachments file to delete - backupID={}, logID={}",
+            backup_id, log_id
+          );
+          Ok(())
+        }
         Err(err) => Err(err.into()),
       }
     };
 
     if let Err(err) = backup_files_cleanup.await {
-      println!("{err:?}");
+      println!("BACKUP_LOG: ERROR during file cleanup - backupID={}, logID={}, error={:?}", backup_id, log_id, err);
+    } else {
+      println!("BACKUP_LOG: File cleanup completed successfully - backupID={}, logID={}", backup_id, log_id);
     }
   }
 }

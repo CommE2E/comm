@@ -304,14 +304,26 @@ void DatabaseManager::captureBackupLogForLastOperation() {
     logID = "1";
   }
 
+  Logger::log(
+      "BACKUP_LOG: Starting log generation - backupID=" + backupID +
+      ", logID=" + logID);
+
   bool newLogCreated =
       DatabaseManager::mainConnectionManager->captureNextLog(backupID, logID);
   if (!newLogCreated) {
+    Logger::log(
+        "BACKUP_LOG: No changes detected, skipping log generation - backupID=" +
+        backupID + ", logID=" + logID);
     return;
   }
 
+  int nextLogID = std::stoi(logID) + 1;
   DatabaseManager::getQueryExecutor().setMetadata(
-      "logID", std::to_string(std::stoi(logID) + 1));
+      "logID", std::to_string(nextLogID));
+
+  Logger::log(
+      "BACKUP_LOG: Log generated successfully - backupID=" + backupID +
+      ", logID=" + logID + ", nextLogID=" + std::to_string(nextLogID));
 }
 
 void DatabaseManager::triggerBackupFileUpload() {
