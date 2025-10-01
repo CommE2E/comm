@@ -51,6 +51,8 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
 
     thread_local SQLiteQueryExecutor restoredQueryExecutor(
         DatabaseManager::restoredConnectionManager, true);
+    restoredQueryExecutor.setConnectionManager(
+        DatabaseManager::restoredConnectionManager);
     return restoredQueryExecutor;
   }
 
