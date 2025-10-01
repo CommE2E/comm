@@ -51,6 +51,8 @@ DatabaseManager::getQueryExecutor(DatabaseIdentifier id) {
 
     thread_local SQLiteQueryExecutor restoredQueryExecutor(
         DatabaseManager::restoredConnectionManager, true);
+    restoredQueryExecutor.setConnectionManager(
+        DatabaseManager::restoredConnectionManager);
     return restoredQueryExecutor;
   }
 
@@ -480,6 +482,8 @@ void DatabaseManager::restoreFromMainCompaction(
     std::string maxVersion) {
   SQLiteBackup::validateMainCompaction(
       mainCompactionPath, mainCompactionEncryptionKey);
+  Logger::log("restoreFromMainCompaction ");
+  Logger::log(mainCompactionEncryptionKey);
   CommSecureStore::set(CommSecureStore::restoredBackupPath, mainCompactionPath);
   CommSecureStore::set(
       CommSecureStore::restoredBackupDataKey, mainCompactionEncryptionKey);
