@@ -53,12 +53,19 @@ void NativeSQLiteConnectionManager::persistLog(
       PlatformSpecificTools::getBackupLogFilePath(backupID, logID, false);
   std::string tempFilePath = finalFilePath + "_tmp";
 
+  Logger::log(
+      "BACKUP_LOG: Starting file write - backupID=" + backupID +
+      ", logID=" + logID + ", size=" + std::to_string(patchsetSize) +
+      ", path=" + finalFilePath);
+
   std::ofstream tempFile(
       tempFilePath, std::ofstream::out | std::ofstream::trunc);
 
   if (!tempFile.is_open()) {
     std::string errorMessage{
-        "Failed to open temporary file when persisting log"};
+        "BACKUP_LOG: Failed to open temporary file when persisting log - "
+        "backupID=" +
+        backupID + ", logID=" + logID + ", path=" + tempFilePath};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
@@ -80,15 +87,24 @@ void NativeSQLiteConnectionManager::persistLog(
 
   if (std::rename(tempFilePath.c_str(), finalFilePath.c_str())) {
     std::string errorMessage{
-        "Failed to rename complete log file from temporary path to target when "
-        "persisting log"};
+        "BACKUP_LOG: Failed to rename complete log file from temporary path to "
+        "target when persisting log - backupID=" +
+        backupID + ", logID=" + logID + ", tempPath=" + tempFilePath +
+        ", finalPath=" + finalFilePath};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
 
+  Logger::log(
+      "BACKUP_LOG: File written successfully - backupID=" + backupID +
+      ", logID=" + logID + ", path=" + finalFilePath);
+
   std::vector<std::string> attachments =
       getAttachmentsFromLog(patchsetPtr, patchsetSize);
   if (attachments.empty()) {
+    Logger::log(
+        "BACKUP_LOG: No attachments found - backupID=" + backupID +
+        ", logID=" + logID);
     return;
   }
 
@@ -96,12 +112,19 @@ void NativeSQLiteConnectionManager::persistLog(
       PlatformSpecificTools::getBackupLogFilePath(backupID, logID, true);
   std::string tempAttachmentsPath = finalAttachmentsPath + "_tmp";
 
+  Logger::log(
+      "BACKUP_LOG: Starting attachment file write - backupID=" + backupID +
+      ", logID=" + logID + ", attachments=" +
+      std::to_string(attachments.size()) + ", path=" + finalAttachmentsPath);
+
   std::ofstream tempAttachmentsFile(
       tempAttachmentsPath, std::ofstream::out | std::ofstream::trunc);
 
   if (!tempAttachmentsFile.is_open()) {
     std::string errorMessage{
-        "Failed to open temporary log attachments file when persisting log"};
+        "BACKUP_LOG: Failed to open temporary log attachments file when "
+        "persisting log - backupID=" +
+        backupID + ", logID=" + logID + ", path=" + tempAttachmentsPath};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
@@ -113,11 +136,18 @@ void NativeSQLiteConnectionManager::persistLog(
 
   if (std::rename(tempAttachmentsPath.c_str(), finalAttachmentsPath.c_str())) {
     std::string errorMessage{
-        "Failed to rename complete log attachments file from temporary path to "
-        "target path when persisting log"};
+        "BACKUP_LOG: Failed to rename complete log attachments file from "
+        "temporary path to target path when persisting log - backupID=" +
+        backupID + ", logID=" + logID + ", tempPath=" + tempAttachmentsPath +
+        ", finalPath=" + finalAttachmentsPath};
     Logger::log(errorMessage);
     throw std::runtime_error(errorMessage);
   }
+
+  Logger::log(
+      "BACKUP_LOG: Attachment file written successfully - backupID=" +
+      backupID + ", logID=" + logID + ", attachments=" +
+      std::to_string(attachments.size()) + ", path=" + finalAttachmentsPath);
 }
 
 std::vector<std::string> NativeSQLiteConnectionManager::getAttachmentsFromLog(
