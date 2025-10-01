@@ -80,6 +80,11 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(
   }
 }
 
+void SQLiteQueryExecutor::setConnectionManager(
+    std::shared_ptr<SQLiteConnectionManager> connectionManager) {
+  this->connectionManager = std::move(connectionManager);
+}
+
 sqlite3 *SQLiteQueryExecutor::getConnection() const {
   this->connectionManager->initializeConnection();
   return this->connectionManager->getConnection();

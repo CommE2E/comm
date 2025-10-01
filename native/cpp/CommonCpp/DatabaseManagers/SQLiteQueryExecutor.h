@@ -37,6 +37,8 @@ public:
       bool skipMigration = false);
   ~SQLiteQueryExecutor();
 
+  void setConnectionManager(
+      std::shared_ptr<SQLiteConnectionManager> connectionManager);
   void migrate() const override;
 
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
