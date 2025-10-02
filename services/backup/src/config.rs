@@ -26,6 +26,14 @@ pub struct AppConfig {
   #[arg(env = "REMOVE_OLD_BACKUPS")]
   #[arg(long, default_value_t = false)]
   pub remove_old_backups: bool,
+  /// WebSocket frame size limit
+  #[arg(env = "WS_FRAME_SIZE")]
+  #[arg(long, default_value_t = 1_073_741_824)]
+  pub ws_frame_size: usize,
+  /// Log size threshold for warning logs
+  #[arg(env = "LOG_SIZE_THRESHOLD_FOR_LOGGING")]
+  #[arg(long, default_value_t = 10_485_760)]
+  pub log_size_threshold_for_logging: usize,
 }
 
 /// Stores configuration parsed from command-line arguments
