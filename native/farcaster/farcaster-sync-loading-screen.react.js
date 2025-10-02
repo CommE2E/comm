@@ -33,10 +33,34 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <Text style={styles.header}>Fetching Farcaster conversations</Text>
-      <Text style={styles.section}>
-        Comm is fetching all of your Farcaster messages so they can be backed
-        up. This can take a while, depending on how many conversations you have.
-      </Text>
+      <View style={styles.listContainer}>
+        <View style={styles.listItem}>
+          <Text style={styles.listNumber}>1.</Text>
+          <Text style={styles.listText}>
+            <Text style={styles.bold}>Fetching in progress</Text>: Comm is
+            fetching all of your Farcaster messages so they can be backed up.
+            This can take a while, depending on how many chats you have.
+          </Text>
+        </View>
+        <View style={styles.listItem}>
+          <Text style={styles.listNumber}>2.</Text>
+          <Text style={styles.listText}>
+            <Text style={styles.bold}>No E2E encryption</Text>: Please note that
+            Farcaster messages are not end-to-end encrypted, which means the
+            Farcaster team can see them. For better security, consider using
+            Comm DMs.
+          </Text>
+        </View>
+        <View style={styles.listItem}>
+          <Text style={styles.listNumber}>3.</Text>
+          <Text style={styles.listText}>
+            <Text style={styles.bold}>Manual refresh</Text>: If you ever notice
+            any missing messages, you can manually refresh all Farcaster chats
+            from your profile screen, or refresh an individual chat from its
+            settings.
+          </Text>
+        </View>
+      </View>
       <View style={styles.progressContainer}>
         {progress ? (
           <Progress.Circle
@@ -73,12 +97,29 @@ const unboundStyles = {
     color: 'panelForegroundLabel',
     paddingBottom: 16,
   },
-  section: {
+  listContainer: {
+    paddingBottom: 16,
+  },
+  listItem: {
+    flexDirection: 'row',
+    paddingBottom: 12,
+  },
+  listNumber: {
     fontFamily: 'Arial',
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
-    paddingBottom: 16,
+    marginRight: 4,
+  },
+  listText: {
+    flexShrink: 1,
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+  },
+  bold: {
+    fontWeight: 'bold',
   },
   progressContainer: {
     flexGrow: 1,

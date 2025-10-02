@@ -12,7 +12,7 @@ div.loadingContainer {
 }
 
 div.loading {
-  width: 380px;
+  width: 600px;
   min-height: 438px;
   background: var(--auth-modal-bg);
   border: var(--auth-modal-border-color) solid 1px;
@@ -48,8 +48,25 @@ p.description {
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
   color: var(--fg);
-  margin: 5px 0;
+  margin: 8px 0;
   font-weight: var(--normal);
+}
+
+ol.list {
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-text);
+  color: var(--fg);
+  margin: 8px 0;
+  padding-left: 12px;
+}
+
+li.listItem {
+  font-weight: var(--normal);
+  margin-bottom: 12px;
+}
+
+li.listItem:last-child {
+  margin-bottom: 0;
 }
 
 div.separator {
