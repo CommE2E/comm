@@ -40,6 +40,16 @@ function FarcasterSyncLoadingScreen(): React.Node {
               backed up. This can take a while, depending on how many
               conversations you have.
             </p>
+            <p className={css.description}>
+              Please note that Farcaster messages are not end-to-end encrypted,
+              which means the Farcaster team can see them. For better security,
+              consider using Comm DMs.
+            </p>
+            <p className={css.description}>
+              If you notice any missing messages, you can manually refresh
+              conversations from the settings page, or refresh individual
+              threads from their thread settings.
+            </p>
             {progressComponent}
           </div>
           <div className={css.spinner}>
