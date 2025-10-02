@@ -34,8 +34,20 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <Text style={styles.header}>Fetching Farcaster conversations</Text>
       <Text style={styles.section}>
-        Comm is fetching all of your Farcaster messages so they can be backed
-        up. This can take a while, depending on how many conversations you have.
+        1. <Text style={styles.bold}>Fetching in progress</Text>: Comm is
+        fetching all of your Farcaster messages so they can be backed up. This
+        can take a while, depending on how many chats you have.
+      </Text>
+      <Text style={styles.section}>
+        2. <Text style={styles.bold}>No E2E encryption</Text>: Please note that
+        Farcaster messages are not end-to-end encrypted, which means the
+        Farcaster team can see them. For better security, consider using Comm
+        DMs.
+      </Text>
+      <Text style={styles.section}>
+        3. <Text style={styles.bold}>Manual refresh</Text>: If you ever notice
+        any missing messages, you can manually refresh all Farcaster chats from
+        your profile screen, or refresh an individual chat from its settings.
       </Text>
       <View style={styles.progressContainer}>
         {progress ? (
@@ -79,6 +91,9 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
+  },
+  bold: {
+    fontWeight: 'bold',
   },
   progressContainer: {
     flexGrow: 1,
