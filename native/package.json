@@ -30,6 +30,7 @@
     "@babel/core": "^7.28.3",
     "@babel/node": "^7.28.0",
     "@babel/preset-flow": "^7.27.1",
+    "@react-native-community/cli": "^20.0.2",
     "@redux-devtools/cli": "4.0.3",
     "babel-jest": "^29.7.0",
     "babel-plugin-inline-import": "^3.0.0",
