@@ -14,6 +14,7 @@ type MenuItemPropsBase = {
   +onClick?: () => mixed,
   +text: string,
   +dangerous?: boolean,
+  +disabled?: boolean,
 };
 export type MenuItemProps =
   | {
@@ -26,7 +27,7 @@ export type MenuItemProps =
     };
 
 function MenuItem(props: MenuItemProps): React.Node {
-  const { onClick, icon, iconComponent, text, dangerous } = props;
+  const { onClick, icon, iconComponent, text, dangerous, disabled } = props;
 
   const itemClasses = classNames(css.menuAction, {
     [css.menuActionDangerous]: dangerous,
@@ -38,7 +39,7 @@ function MenuItem(props: MenuItemProps): React.Node {
   }
 
   return (
-    <Button className={itemClasses} onClick={onClick}>
+    <Button className={itemClasses} onClick={onClick} disabled={disabled}>
       <div className={css.menuActionIcon}>{menuItemIcon}</div>
       <div>{text}</div>
     </Button>
