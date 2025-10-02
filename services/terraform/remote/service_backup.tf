@@ -67,8 +67,8 @@ resource "aws_ecs_task_definition" "backup_service" {
   task_role_arn            = aws_iam_role.backup_service.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "bridge"
-  cpu                      = "256"
-  memory                   = "256"
+  cpu                      = "1024"
+  memory                   = "4096"
   requires_compatibilities = ["EC2"]
 
   # Set this to true if you want to keep old revisions
