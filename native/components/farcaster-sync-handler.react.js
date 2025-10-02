@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { useIsUserDataReady } from 'lib/hooks/backup-hooks.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { useLightweightSyncOnAppStart } from 'lib/shared/farcaster/farcaster-hooks.js';
 import {
   useCurrentUserSupportsDCs,
   useFarcasterDCsLoaded,
@@ -25,6 +26,8 @@ function FarcasterSyncHandler(): React.Node {
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
   const farcasterDCsLoaded = useFarcasterDCsLoaded();
   const currentRouteName = useCurrentLeafRouteName();
+
+  useLightweightSyncOnAppStart();
 
   React.useEffect(() => {
     if (!navContext) {
