@@ -31,10 +31,7 @@ class ThumbhashModule : Module() {
 
   private fun generateThumbHash(photoURI: Uri): String {
     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      // For API >= 28 we can use the ImageDecoder API which is more modern
-      // and allows to resize bitmap to desired size while loading the file
-      val source = ImageDecoder.createSource(this.contentResolver, photoURI)
-      ImageDecoder.decodeBitmap(source, this.decoderListener)
+      decodeBitmapApi28(photoURI)
     } else {
       // For older devices, we use the BitmapFactory thing which is less
       // flexible, but at least we can request for the ARGB_8888 to avoid
@@ -59,8 +56,11 @@ class ThumbhashModule : Module() {
   // endregion
 
   @RequiresApi(Build.VERSION_CODES.P)
-  private val decoderListener =
-    ImageDecoder.OnHeaderDecodedListener { imageDecoder, imageInfo, _ ->
+  private fun decodeBitmapApi28(photoURI: Uri): Bitmap {
+    // For API >= 28 we can use the ImageDecoder API which is more modern
+    // and allows to resize bitmap to desired size while loading the file
+    val source = ImageDecoder.createSource(this.contentResolver, photoURI)
+    return ImageDecoder.decodeBitmap(source) { imageDecoder, imageInfo, _ ->
       val (w, h) = imageInfo.size
       val newWidth = THUMB_SIZE * w / max(w, h)
       val newHeight = THUMB_SIZE * h / max(w, h)
@@ -68,6 +68,7 @@ class ThumbhashModule : Module() {
       imageDecoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
       imageDecoder.setTargetSize(newWidth, newHeight)
     }
+  }
 
   private val contentResolver: ContentResolver
     get() = requireNotNull(this.appContext.reactContext) {
