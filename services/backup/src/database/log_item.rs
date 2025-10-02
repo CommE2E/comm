@@ -1,4 +1,5 @@
-use crate::constants::{log_table::attr, LOG_BACKUP_ID_SEPARATOR};
+use crate::constants::{error_types, log_table::attr, LOG_BACKUP_ID_SEPARATOR};
+use crate::CONFIG;
 use aws_sdk_dynamodb::types::AttributeValue;
 use comm_lib::{
   blob::{
@@ -13,7 +14,7 @@ use comm_lib::{
   },
 };
 use std::collections::HashMap;
-use tracing::debug;
+use tracing::{debug, error};
 
 #[derive(Clone, Debug)]
 pub struct LogItem {
@@ -39,6 +40,21 @@ impl LogItem {
       log_id = ?self.log_id,
       "Log content exceeds DDB item size limit, moving to blob storage"
     );
+
+    // Check if log size exceeds threshold for logging
+    if let Ok(log_size) = calculate_size_in_db(&self.clone().into()) {
+      if log_size > CONFIG.log_size_threshold_for_logging {
+        error!(
+          errorType = error_types::WS_ERROR,
+          "Large log detected - backupID={}, logID={}, size={} bytes ({:.1} MB)",
+          self.backup_id,
+          self.log_id,
+          log_size,
+          log_size as f64 / 1_048_576.0
+        );
+      }
+    }
+
     self.content.move_to_blob(blob_client).await
   }
 

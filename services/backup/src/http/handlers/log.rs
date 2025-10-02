@@ -1,4 +1,5 @@
-use crate::constants::{error_types, WS_FRAME_SIZE};
+use crate::config::CONFIG;
+use crate::constants::error_types;
 use crate::database::{log_item::LogItem, DatabaseClient};
 use actix::fut::ready;
 use actix::{Actor, ActorContext, ActorFutureExt, AsyncContext, StreamHandler};
@@ -43,7 +44,7 @@ pub async fn handle_ws(
     &req,
     stream,
   )
-  .frame_size(WS_FRAME_SIZE)
+  .frame_size(CONFIG.ws_frame_size)
   .start()
 }
 
