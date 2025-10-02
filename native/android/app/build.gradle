@@ -290,8 +290,8 @@ android {
         applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 533
-        versionName '1.0.533'
+        versionCode 534
+        versionName '1.0.534'
         multiDexEnabled true
     }
 
