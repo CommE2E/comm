@@ -30,7 +30,7 @@ Next, you’ll want to ensure that the Comm project is configured with a valid T
 
 ### JDK
 
-We’ll need the Java Development Kit (JDK) for Android development. While the Nix development environment provides JDK 11 when you run `nix develop`, development with Android Studio occurs outside of the Nix environment, and as such will require a standalone install.
+We’ll need the Java Development Kit (JDK) for Android development. While the Nix development environment provides JDK 17 when you run `nix develop`, development with Android Studio occurs outside of the Nix environment, and as such will require a standalone install.
 
 We’re using [SDKMAN!](https://sdkman.io/) to manage our JDK installation. Run the following to install SDKMAN!:
 
@@ -46,10 +46,10 @@ source ~/.bash_profile
 
 You can run `sdk version` to see if SDKMAN! was installed properly.
 
-Run the following to install Azul Zulu 11 with SDKMAN!:
+Run the following to install Azul Zulu 17 with SDKMAN!:
 
 ```
-sdk install java 11.0.13-zulu
+sdk install java 17.0.16-zulu
 ```
 
 SDKMAN! takes care of setting up the `$JAVA_HOME` environment variable to point to the newly installed JDK. You can verify this by running `echo $JAVA_HOME`.
@@ -61,7 +61,7 @@ Start by downloading and installing [Android Studio](https://developer.android.c
 You’ll be prompted to select a JDK installation. If your SDKMAN!-sourced JDK doesn’t appear in the dropdown, you can find the absolute path to your installed JDK with the following command:
 
 ```
-sdk home java 11.0.13-zulu
+sdk home java 17.0.16-zulu
 ```
 
 Make sure you check the boxes for the following:
@@ -81,15 +81,15 @@ Make sure you check the boxes for the following:
 
 ### Android SDK
 
-Android Studio installs the latest Android SDK by default, but since React Native uses the Android 11 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, from More Actions → SDK Manager. If you already have a project open, you can access it from Tools → SDK Manager.
+Android Studio installs the latest Android SDK by default, but since React Native uses the Android 15 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, from More Actions → SDK Manager. If you already have a project open, you can access it from Tools → SDK Manager.
 
-Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 11 (R)” section, and make sure the following subsections are checked:
+Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 15.0” section, and make sure the following subsections are checked:
 
-- `Android SDK Platform 30`
+- `Android SDK Platform 35`
 
 #### Intel x86-64:
 
-- `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
+- `Google Play Intel x86_64 Atom System Image`
 
 #### Apple silicon:
 
@@ -99,7 +99,7 @@ Next, select the “SDK Tools” tab, and check the box for “Show Package Deta
 
 - Android SDK Build-Tools
 - NDK
-- CMake version 3.18.1
+- CMake
 
 To finish the SDK Manager step, click “Apply” to download and install everything you’ve selected.
 
