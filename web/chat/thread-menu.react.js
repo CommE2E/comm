@@ -10,6 +10,8 @@ import {
   childThreadInfos,
   otherUsersButNoOtherAdmins,
 } from 'lib/selectors/thread-selectors.js';
+import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { conversationIDFromFarcasterThreadID } from 'lib/shared/id-utils.js';
 import {
   threadIsChannel,
   useThreadHasPermission,
@@ -46,6 +48,43 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   const { pushModal, popModal } = useModalContext();
   const { threadInfo } = props;
   const { onPromoteSidebar, canPromoteSidebar } = usePromoteSidebar(threadInfo);
+
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const supportsThreadRefreshing =
+    threadSpecs[threadInfo.type].protocol().supportsThreadRefreshing;
+
+  const refreshFarcasterConversationHook = useRefreshFarcasterConversation();
+  const onClickRefresh = React.useCallback(async () => {
+    if (isRefreshing) {
+      return;
+    }
+    setIsRefreshing(true);
+    try {
+      const conversationID = conversationIDFromFarcasterThreadID(threadInfo.id);
+      await refreshFarcasterConversationHook(
+        conversationID,
+        Number.POSITIVE_INFINITY,
+      );
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, threadInfo.id, refreshFarcasterConversationHook]);
+
+  const refreshItem = React.useMemo(() => {
+    if (!supportsThreadRefreshing) {
+      return null;
+    }
+    return (
+      <MenuItem
+        key="refresh"
+        text={isRefreshing ? 'Refreshing...' : 'Refresh thread'}
+        icon="refresh"
+        onClick={onClickRefresh}
+        disabled={isRefreshing}
+      />
+    );
+  }, [supportsThreadRefreshing, isRefreshing, onClickRefresh]);
 
   const onClickSettings = React.useCallback(
     () => pushModal(<ThreadSettingsModal threadID={threadInfo.id} />),
@@ -303,6 +342,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       notificationsItem,
       membersItem,
       threadMediaGalleryItem,
+      refreshItem,
       sidebarItem,
       viewSubchannelsItem,
       createSubchannelsItem,
@@ -316,6 +356,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     notificationsItem,
     membersItem,
     threadMediaGalleryItem,
+    refreshItem,
     sidebarItem,
     viewSubchannelsItem,
     promoteSidebar,

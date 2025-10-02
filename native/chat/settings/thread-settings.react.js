@@ -31,6 +31,8 @@ import {
   childThreadInfos,
   threadInfoSelector,
 } from 'lib/selectors/thread-selectors.js';
+import { useRefreshFarcasterConversation } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { conversationIDFromFarcasterThreadID } from 'lib/shared/id-utils.js';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   getSingleOtherUser,
@@ -84,6 +86,7 @@ import ThreadSettingsName from './thread-settings-name.react.js';
 import ThreadSettingsParent from './thread-settings-parent.react.js';
 import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react.js';
 import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react.js';
+import ThreadSettingsRefresh from './thread-settings-refresh.react.js';
 import ThreadSettingsVisibility from './thread-settings-visibility.react.js';
 import ThreadAncestors from '../../components/thread-ancestors.react.js';
 import {
@@ -234,7 +237,7 @@ type ChatSettingsItem =
       +verticalBounds: ?VerticalBounds,
     }
   | {
-      +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
+      +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread' | 'refresh',
       +key: string,
       +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
@@ -296,6 +299,7 @@ type Props = {
   +canDeleteThread: boolean,
   +canManageInviteLinks: boolean,
   +inviteLinkExists: boolean,
+  +refreshFarcasterConversation: (threadID: string) => Promise<void>,
 };
 type State = {
   +numMembersShowing: number,
@@ -758,6 +762,17 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       ) => {
         const buttons = [];
 
+        const supportsThreadRefreshing =
+          threadSpecs[threadInfo.type].protocol().supportsThreadRefreshing;
+        if (supportsThreadRefreshing) {
+          buttons.push({
+            itemType: 'refresh',
+            key: 'refresh',
+            threadInfo,
+            navigate,
+          });
+        }
+
         if (this.props.canPromoteSidebar) {
           buttons.push({
             itemType: 'promoteSidebar',
@@ -1055,6 +1070,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           buttonStyle={item.buttonStyle}
         />
       );
+    } else if (item.itemType === 'refresh') {
+      return <ThreadSettingsRefresh onPress={this.onPressRefresh} />;
     } else if (item.itemType === 'deleteThread') {
       return (
         <ThreadSettingsDeleteThread
@@ -1151,6 +1168,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     this.props.navigation.navigate(FullScreenThreadMediaGalleryRouteName, {
       threadInfo: this.props.threadInfo,
     });
+  };
+
+  onPressRefresh = async () => {
+    const { refreshFarcasterConversation, threadInfo } = this.props;
+    await refreshFarcasterConversation(threadInfo.id);
   };
 }
 
@@ -1347,6 +1369,19 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo(
       );
     }, [callFetchPrimaryLinks, dispatchActionPromise, isCommunityRoot]);
 
+    const refreshFarcasterConversationHook = useRefreshFarcasterConversation();
+    const refreshFarcasterConversation = React.useCallback(
+      async (farcasterThreadID: string) => {
+        const conversationID =
+          conversationIDFromFarcasterThreadID(farcasterThreadID);
+        await refreshFarcasterConversationHook(
+          conversationID,
+          Number.POSITIVE_INFINITY,
+        );
+      },
+      [refreshFarcasterConversationHook],
+    );
+
     return (
       <ThreadSettings
         {...props}
@@ -1371,6 +1406,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo(
         canDeleteThread={canDeleteThread}
         canManageInviteLinks={canManageLinks}
         inviteLinkExists={!!inviteLink}
+        refreshFarcasterConversation={refreshFarcasterConversation}
       />
     );
   },
