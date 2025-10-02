@@ -18,7 +18,6 @@ import {
   type OutboundDMOperationSpecification,
 } from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
-import { useFarcasterConversationsSync } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { DMCreateThreadOperation } from 'lib/types/dm-ops.js';
@@ -27,6 +26,7 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
+import { useSetFarcasterDCsLoaded } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   useIsFarcasterDCsIntegrationEnabled,
@@ -183,10 +183,10 @@ function AccountSettings(): React.Node {
     [pushModal],
   );
 
-  const syncFarcasterConversations = useFarcasterConversationsSync();
-  const syncConversations = React.useCallback(() => {
-    return syncFarcasterConversations(Number.POSITIVE_INFINITY);
-  }, [syncFarcasterConversations]);
+  const setDCsLoaded = useSetFarcasterDCsLoaded();
+  const syncFarcasterConversations = React.useCallback(() => {
+    setDCsLoaded(false);
+  }, [setDCsLoaded]);
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
@@ -287,16 +287,16 @@ function AccountSettings(): React.Node {
   }
 
   let farcaster;
-  if (staffCanSee && supportsFarcasterDCs) {
+  if (supportsFarcasterDCs) {
     farcaster = (
       <div className={css.preferencesContainer}>
-        <h4 className={css.preferencesHeader}>Farcaster menu</h4>
+        <h4 className={css.preferencesHeader}>Farcaster</h4>
         <div className={css.content}>
           <ul>
             <li>
-              <span>Farcaster DCs integration</span>
-              <Button variant="text" onClick={syncConversations}>
-                <p className={css.buttonText}>Sync</p>
+              <span>Farcaster conversations</span>
+              <Button variant="text" onClick={syncFarcasterConversations}>
+                <p className={css.buttonText}>Synchronize</p>
               </Button>
             </li>
           </ul>
