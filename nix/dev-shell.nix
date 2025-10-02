@@ -29,7 +29,7 @@
 , mariadb-up
 , nodejs
 , olm
-, openjdk11
+, openjdk17
 , openssl
 , pkg-config
 , protobuf3_21
@@ -64,7 +64,7 @@ mkShell {
     emscripten
 
     # android
-    openjdk11
+    openjdk17
 
     # node development
     mariadb
@@ -117,7 +117,7 @@ mkShell {
     libiconv  # identity service
   ];
 
-  JAVA_HOME = openjdk11.passthru.home;
+  JAVA_HOME = openjdk17.passthru.home;
 
   # shell commands to be ran upon entering shell
   shellHook = ''
