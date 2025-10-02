@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useLightweightSyncOnAppStart } from 'lib/shared/farcaster/farcaster-hooks.js';
 import {
   useCurrentUserSupportsDCs,
   useFarcasterDCsLoaded,
@@ -20,6 +21,8 @@ function FarcasterSyncOverlay(props: Props): React.Node {
 
   const isFullSyncInProgress =
     currentUserSupportsDCs && farcasterDCsLoaded === false;
+
+  useLightweightSyncOnAppStart();
 
   const style = React.useMemo(() => {
     if (!isFullSyncInProgress) {
