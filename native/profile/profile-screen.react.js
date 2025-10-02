@@ -20,12 +20,14 @@ import {
   dmOperationSpecificationTypes,
 } from 'lib/shared/dm-ops/dm-op-types.js';
 import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
-import { useFarcasterConversationsSync } from 'lib/shared/farcaster/farcaster-hooks.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import type { DMCreateThreadOperation } from 'lib/types/dm-ops';
 import { thickThreadTypes } from 'lib/types/thread-types-enum.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import {
+  useCurrentUserFID,
+  useSetFarcasterDCsLoaded,
+} from 'lib/utils/farcaster-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -186,7 +188,7 @@ type Props = {
   +onCreateDMThread: () => Promise<void>,
   +currentUserFID: ?string,
   +usingRestoreFlow: boolean,
-  +farcasterConversationsSync: (limit: number) => Promise<void>,
+  +farcasterConversationsSync: () => void,
   +supportsFarcasterDCs: boolean,
 };
 
@@ -286,11 +288,11 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
     let farcaster;
-    if (staffCanSee && this.props.supportsFarcasterDCs) {
+    if (this.props.supportsFarcasterDCs) {
       farcaster = (
         <>
           <ProfileRow
-            content="Farcaster DCs integration sync"
+            content="Synchronize Farcaster conversations"
             onPress={this.onPressFarcasterConversationsSync}
           />
         </>
@@ -563,7 +565,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   };
 
   onPressFarcasterConversationsSync = () => {
-    void this.props.farcasterConversationsSync(Number.POSITIVE_INFINITY);
+    void this.props.farcasterConversationsSync();
   };
 
   onPressDebugLogs = () => {
@@ -638,7 +640,10 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
     }, [checkIfPrimaryDevice]);
 
     const usingRestoreFlow = useIsRestoreFlowEnabled();
-    const syncFarcasterConversations = useFarcasterConversationsSync();
+    const setDCsLoaded = useSetFarcasterDCsLoaded();
+    const syncFarcasterConversations = React.useCallback(() => {
+      setDCsLoaded(false);
+    }, [setDCsLoaded]);
     const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
     return (
