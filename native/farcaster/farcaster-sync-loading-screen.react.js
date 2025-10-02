@@ -37,6 +37,16 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
         Comm is fetching all of your Farcaster messages so they can be backed
         up. This can take a while, depending on how many conversations you have.
       </Text>
+      <Text style={styles.section}>
+        Please note that Farcaster messages are not end-to-end encrypted, which
+        means the Farcaster team can see them. For better security, consider
+        using Comm DMs.
+      </Text>
+      <Text style={styles.section}>
+        If you notice any missing messages, you can manually refresh
+        conversations from your profile screen, or refresh individual threads
+        from their thread settings.
+      </Text>
       <View style={styles.progressContainer}>
         {progress ? (
           <Progress.Circle
