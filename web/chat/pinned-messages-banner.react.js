@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ChevronRight } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
@@ -31,6 +32,14 @@ function PinnedMessagesBanner(props: Props): React.Node {
   }, [pushModal, inputState, threadInfo]);
 
   const pinnedMessagesBanner = React.useMemo(() => {
+    const isPinningDisabled =
+      threadSpecs[threadInfo.type].protocol().temporarilyDisabledFeatures
+        ?.pinningMessages;
+
+    if (isPinningDisabled) {
+      return null;
+    }
+
     const bannerText =
       !!threadInfo.pinnedCount &&
       pinnedMessageCountText(threadInfo.pinnedCount);
@@ -47,7 +56,7 @@ function PinnedMessagesBanner(props: Props): React.Node {
         </a>
       </div>
     );
-  }, [pushThreadPinsModal, threadInfo.pinnedCount]);
+  }, [pushThreadPinsModal, threadInfo.pinnedCount, threadInfo.type]);
 
   return pinnedMessagesBanner;
 }
