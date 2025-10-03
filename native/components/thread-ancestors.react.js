@@ -9,8 +9,8 @@ import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import Button from './button.react.js';
-import CommunityPill from './community-pill.react.js';
 import ThreadPill from './thread-pill.react.js';
+import TopLevelThreadPill from './top-level-thread-pill.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
@@ -47,7 +47,7 @@ function ThreadAncestors(props: Props): React.Node {
       const isLastThread = idx === ancestorThreads.length - 1;
       const pill =
         idx === 0 ? (
-          <CommunityPill community={ancestorThreadInfo} />
+          <TopLevelThreadPill threadInfo={ancestorThreadInfo} />
         ) : (
           <ThreadPill threadInfo={ancestorThreadInfo} />
         );
