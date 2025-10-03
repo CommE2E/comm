@@ -9,8 +9,8 @@ import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Button from '../components/button.react.js';
-import CommunityPill from '../components/community-pill.react.js';
 import ThreadVisibility from '../components/thread-visibility.react.js';
+import TopLevelThreadPill from '../components/top-level-thread-pill.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -38,7 +38,7 @@ function ParentThreadHeader(props: Props): React.Node {
       <>
         <Text style={styles.within}>within</Text>
         <Button onPress={onPressParentThread}>
-          <CommunityPill community={parentThreadInfo} />
+          <TopLevelThreadPill threadInfo={parentThreadInfo} />
         </Button>
       </>
     );
