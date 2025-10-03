@@ -6,6 +6,7 @@ import { Text, View } from 'react-native';
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
+import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
@@ -63,17 +64,22 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
     }, [userSearchResults, userInfoInputArray]);
 
     const viewerID = useSelector(state => state.currentUserInfo?.id);
+    const findExistingUserForFid = useFindExistingUserForFid();
     const onUserSelect = React.useCallback(
-      async (userInfo: AccountUserInfo) => {
+      async (selectedUserInfo: AccountUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
-          if (userInfo.id === existingUserInfo.id) {
+          if (selectedUserInfo.id === existingUserInfo.id) {
             return;
           }
         }
-        const isFarcasterUser =
-          supportsFarcasterDCs && !!extractFIDFromUserID(userInfo.id);
+        const isFarcasterOnlyUser =
+          supportsFarcasterDCs && !!extractFIDFromUserID(selectedUserInfo.id);
+        let userInfo: AccountUserInfo = selectedUserInfo;
+        if (isFarcasterOnlyUser) {
+          userInfo = findExistingUserForFid(userInfo) ?? userInfo;
+        }
         if (
-          (!isFarcasterUser && nonFriends.has(userInfo.id)) ||
+          (!isFarcasterOnlyUser && nonFriends.has(userInfo.id)) ||
           userInfo.id === viewerID
         ) {
           await resolveToUser(userInfo);
@@ -84,13 +90,14 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
         updateTagInput(newUserInfoInputArray);
       },
       [
-        userInfoInputArray,
-        nonFriends,
-        updateTagInput,
-        resolveToUser,
-        updateUsernameInput,
-        viewerID,
         supportsFarcasterDCs,
+        nonFriends,
+        viewerID,
+        userInfoInputArray,
+        updateUsernameInput,
+        updateTagInput,
+        findExistingUserForFid,
+        resolveToUser,
       ],
     );
 
