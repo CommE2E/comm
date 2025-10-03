@@ -7,6 +7,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { getCommunity } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 import type {
   ThreadInfo,
@@ -116,6 +117,10 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
+  const isChangingAvatarDisabled =
+    threadSpecs[threadInfo.type].protocol().temporarilyDisabledFeatures
+      ?.changingThreadAvatar;
+
   let spinner;
   if (threadAvatarSaveInProgress) {
     spinner = (
@@ -125,11 +130,13 @@ function EditThreadAvatar(props: Props): React.Node {
     );
   }
 
+  const isDisabled = disabled || isChangingAvatarDisabled;
+
   return (
-    <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
+    <TouchableOpacity onPress={showAvatarActionSheet} disabled={isDisabled}>
       <ThreadAvatar threadInfo={threadInfo} size="XL" />
       {spinner}
-      {!disabled ? <EditAvatarBadge /> : null}
+      {!isDisabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
   );
 }

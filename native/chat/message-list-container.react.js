@@ -18,7 +18,10 @@ import {
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils.js';
-import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsPersonal,
+} from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
@@ -405,7 +408,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     }, [props.navigation, threadInfo]);
 
     const pinnedCountBanner = React.useMemo(() => {
-      if (!bannerText) {
+      const isPinningDisabled =
+        threadSpecs[threadInfo.type].protocol().temporarilyDisabledFeatures
+          ?.pinningMessages;
+
+      if (isPinningDisabled || !bannerText) {
         return null;
       }
 
@@ -430,6 +437,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       styles.pinnedCountBanner,
       styles.pinnedCountText,
       colors.panelBackgroundLabel,
+      threadInfo.type,
     ]);
 
     const isAppForegrounded = useIsAppForegrounded();

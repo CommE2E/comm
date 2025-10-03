@@ -28,14 +28,17 @@ function EditThreadAvatar(props: Props): React.Node {
     threadInfo,
     threadPermissions.EDIT_THREAD_AVATAR,
   );
-  const threadSupportAvatarEdit =
-    threadSpecs[threadInfo.type].protocol().supportedThreadSettings.avatar;
+  const protocol = threadSpecs[threadInfo.type].protocol();
+  const threadSupportAvatarEdit = protocol.supportedThreadSettings.avatar;
+  const isChangingAvatarDisabled =
+    protocol.temporarilyDisabledFeatures?.changingThreadAvatar;
 
   let editThreadAvatarMenu;
   if (
     canEditThreadAvatar &&
     !threadAvatarSaveInProgress &&
-    threadSupportAvatarEdit
+    threadSupportAvatarEdit &&
+    !isChangingAvatarDisabled
   ) {
     editThreadAvatarMenu = <EditThreadAvatarMenu threadInfo={threadInfo} />;
   }
