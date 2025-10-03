@@ -25,6 +25,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
+import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
@@ -109,22 +110,29 @@ function ChatThreadComposer(props: Props): React.Node {
     selectedProtocol,
   );
 
+  const findExistingUserForFid = useFindExistingUserForFid();
   const onSelectUserFromSearch = React.useCallback(
     async (userListItem: UserListItem) => {
-      const { alert, notice, disabled, ...user } = userListItem;
+      const { alert, notice, disabled, supportedProtocols, ...user } =
+        userListItem;
       setUsernameInputText('');
-      const isFarcasterUser =
-        isFarcasterDCsIntegrationEnabled && !!extractFIDFromUserID(user.id);
+      const fid = extractFIDFromUserID(user.id);
+      const isFarcasterOnlyUser = isFarcasterDCsIntegrationEnabled && !!fid;
+      let selectedUser: AccountUserInfo = user;
+      if (isFarcasterOnlyUser) {
+        selectedUser = findExistingUserForFid(user) ?? selectedUser;
+      }
       if (
-        ((!isFarcasterUser && notice === notFriendNotice) ||
+        ((!isFarcasterOnlyUser && notice === notFriendNotice) ||
           user.id === viewerID) &&
         userInfoInputArray.length === 0
       ) {
         const newUserInfo = {
-          id: userListItem.id,
-          username: userListItem.username,
+          id: selectedUser.id,
+          username: selectedUser.username,
         };
-        const newUserInfoInputArray = user.id === viewerID ? [] : [newUserInfo];
+        const newUserInfoInputArray =
+          selectedUser.id === viewerID ? [] : [newUserInfo];
 
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
@@ -142,7 +150,7 @@ function ChatThreadComposer(props: Props): React.Node {
         dispatch({
           type: updateNavInfoActionType,
           payload: {
-            selectedUserList: [...userInfoInputArray, user],
+            selectedUserList: [...userInfoInputArray, selectedUser],
           },
         });
       } else {
@@ -150,12 +158,13 @@ function ChatThreadComposer(props: Props): React.Node {
       }
     },
     [
+      isFarcasterDCsIntegrationEnabled,
       viewerID,
       userInfoInputArray,
+      findExistingUserForFid,
       existingThreadInfoFinderForCreatingThread,
       dispatch,
       pushModal,
-      isFarcasterDCsIntegrationEnabled,
     ],
   );
 
