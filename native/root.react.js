@@ -73,6 +73,7 @@ import { FeatureFlagsProvider } from './components/feature-flags-provider.react.
 import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
+import { ProtocolSelectionProvider } from './components/protocol-selection-provider.react.js';
 import ReportHandler from './components/report-handler.react.js';
 import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
@@ -341,7 +342,9 @@ function Root() {
                   <NUXTipsContextProvider>
                     <BackupHandlerContextProvider>
                       <FarcasterMessageFetchingProvider>
-                        <RootNavigator />
+                        <ProtocolSelectionProvider>
+                          <RootNavigator />
+                        </ProtocolSelectionProvider>
                       </FarcasterMessageFetchingProvider>
                     </BackupHandlerContextProvider>
                   </NUXTipsContextProvider>
