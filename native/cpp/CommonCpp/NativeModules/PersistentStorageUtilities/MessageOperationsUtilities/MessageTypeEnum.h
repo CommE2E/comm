@@ -29,6 +29,7 @@ enum class MessageType {
   UPDATE_RELATIONSHIP = 22,
   DELETE_MESSAGE = 23,
   COMPOUND_REACTION = 24,
+  PLAIN = 25,
 };
 
 } // namespace comm

@@ -16,6 +16,7 @@
 #include "MessageSpecs/LeaveThreadMessageSpec.h"
 #include "MessageSpecs/MessageSpec.h"
 #include "MessageSpecs/MultimediaMessageSpec.h"
+#include "MessageSpecs/PlainMessageSpec.h"
 #include "MessageSpecs/ReactionMessageSpec.h"
 #include "MessageSpecs/RemoveMembersMessageSpec.h"
 #include "MessageSpecs/RestoreEntryMessageSpec.h"
@@ -101,6 +102,8 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
       message_specs_initializer.insert(
           {MessageType::COMPOUND_REACTION,
            std::make_unique<CompoundReactionMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::PLAIN, std::make_unique<PlainMessageSpec>()});
       return message_specs_initializer;
     }();
 
