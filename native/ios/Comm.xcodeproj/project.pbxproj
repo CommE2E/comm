@@ -364,6 +364,7 @@
 		CB38F2BD286C6C970010535C /* MultimediaMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MultimediaMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/MultimediaMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
+		CB38F2C0286C6C980010535C /* PlainMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlainMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/PlainMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3CCAFF2B7246F400793640 /* NativeSQLiteConnectionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeSQLiteConnectionManager.h; sourceTree = "<group>"; };
 		CB3CCB002B7246F400793640 /* NativeSQLiteConnectionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeSQLiteConnectionManager.cpp; sourceTree = "<group>"; };
@@ -874,6 +875,7 @@
 				CB38F2BB286C6C970010535C /* EditEntryMessageSpec.h */,
 				CB38F2B7286C6C970010535C /* MessageSpec.h */,
 				CB38F2BD286C6C970010535C /* MultimediaMessageSpec.h */,
+				CB38F2C0286C6C980010535C /* PlainMessageSpec.h */,
 				7F446E2229C3AF3800670288 /* ReactionMessageSpec.h */,
 				CB38F2B6286C6C970010535C /* RestoreEntryMessageSpec.h */,
 				CB38F2B3286C6C970010535C /* TextMessageSpec.h */,
