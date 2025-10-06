@@ -77,7 +77,10 @@ function AddUsersModal(props: Props): React.Node {
   }, [goBackOnce]);
 
   const callChangeThreadSettings = useChangeThreadSettings();
-  const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
+  const userInfoInputIDs = React.useMemo(
+    () => userInfoInputArray.map(userInfo => userInfo.id),
+    [userInfoInputArray],
+  );
   const { route } = props;
   const { threadInfo } = route.params;
 
