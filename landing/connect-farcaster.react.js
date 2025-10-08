@@ -5,10 +5,14 @@ import * as React from 'react';
 
 import type { FarcasterWebViewMessage } from 'lib/types/farcaster-types.js';
 
+const optimismRpcUrl = process.env.COMM_ALCHEMY_KEY
+  ? `https://opt-mainnet.g.alchemy.com/v2/${process.env.COMM_ALCHEMY_KEY}`
+  : 'https://mainnet.optimism.io';
+
 const config = {
   domain: 'Comm',
-  siweURL: 'https://comm.app/connect-farcaster',
-  rpcURL: 'https://mainnet.optimism.io',
+  siweUri: 'https://comm.app/connect-farcaster',
+  rpcUrl: optimismRpcUrl,
   relay: 'https://relay.farcaster.xyz',
   redirectUrl: 'comm://back-from-warpcast',
 };
@@ -18,7 +22,7 @@ function postMessageToNativeWebView(message: FarcasterWebViewMessage) {
 }
 
 type OnSuccessCallbackArgs = {
-  fid: string,
+  +fid: string,
 };
 function onSuccessCallback({ fid }: OnSuccessCallbackArgs) {
   postMessageToNativeWebView({
