@@ -26,8 +26,8 @@ use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, trace, warn};
 use tunnelbroker_messages::farcaster::{
-  DirectCastMessage, FarcasterMessage, FarcasterPayload, NewFarcasterMessage,
-  RefreshDirectCastConversationPayload,
+  DirectCastMessage, FarcasterInboxStatus, FarcasterMessage, FarcasterPayload,
+  NewFarcasterMessage, RefreshDirectCastConversationPayload,
 };
 
 pub(crate) struct TokenConnection {
@@ -341,7 +341,17 @@ impl TokenConnection {
                         debug!("Processing refresh-self-direct-casts-inbox message");
                       }
                       FarcasterPayload::Unseen { .. } => {
-                        debug!("Processing unseen message");
+                        if let Err(e) = self.handle_unseen_message(&mut client).await {
+                          info!(
+                            metricType = "TokenDistributor_ConnectionFailure",
+                            metricValue = 1,
+                            instanceId = self.config.instance_id,
+                            userId = redact_sensitive_data(user_id),
+                            errorType = "MessageHandlingFailed",
+                            "Failed to handle unseen message: {:?}",
+                            e
+                          );
+                        }
                       }
                     }
                   }
@@ -653,6 +663,64 @@ impl TokenConnection {
       })
       .collect();
     Ok(result)
+  }
+
+  async fn handle_unseen_message(
+    &self,
+    client: &mut ChainedInterceptedServicesAuthClient,
+  ) -> Result<(), TokenConnectionError> {
+    let conversations = self
+      .farcaster_client
+      .fetch_inbox(&self.token_info.user_id)
+      .await
+      .map_err(|e| {
+        TokenConnectionError::MessageHandlingFailed(format!(
+          "Failed to fetch inbox: {e:?}",
+        ))
+      })?;
+
+    let mut unread_conversation_ids = Vec::new();
+    let mut read_conversation_ids = Vec::new();
+
+    for conversation in conversations {
+      if conversation.viewer_context.unread_count > 0
+        || conversation.viewer_context.manually_marked_unread
+      {
+        unread_conversation_ids.push(conversation.conversation_id);
+      } else {
+        read_conversation_ids.push(conversation.conversation_id);
+      }
+    }
+
+    let inbox_status = FarcasterInboxStatus {
+      unread_conversation_ids,
+      read_conversation_ids,
+    };
+
+    let message_payload =
+      serde_json::to_string(&inbox_status).map_err(|e| {
+        TokenConnectionError::MessageHandlingFailed(format!(
+          "Failed to serialize inbox status: {}",
+          e
+        ))
+      })?;
+
+    let recipient_devices = self.get_self_user_device_list(client).await?;
+
+    for (device_id, _) in &recipient_devices {
+      self
+        .message_sender
+        .simple_send_message_to_device(device_id, message_payload.clone())
+        .await
+        .map_err(|e| {
+          TokenConnectionError::MessageHandlingFailed(format!(
+            "Failed to send inbox status message: {}",
+            e
+          ))
+        })?;
+    }
+
+    Ok(())
   }
 
   async fn mirror_media_to_blob(
