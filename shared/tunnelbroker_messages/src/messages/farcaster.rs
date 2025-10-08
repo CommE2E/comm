@@ -141,6 +141,29 @@ pub struct DirectCastConversation {
   pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FarcasterInboxViewerContext {
+  pub category: String,
+  pub last_read_at: u64,
+  pub muted: bool,
+  pub manually_marked_unread: bool,
+  pub pinned: bool,
+  pub unread_count: u64,
+  pub unread_mentions_count: u64,
+  #[serde(flatten)]
+  pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FarcasterInboxConversation {
+  pub conversation_id: String,
+  pub viewer_context: FarcasterInboxViewerContext,
+  #[serde(flatten)]
+  pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
 impl DirectCastConversation {
   pub fn participant(&self, fid: u64) -> Option<&DirectCastUser> {
     self.participants.iter().find(|u| u.fid == fid)
@@ -203,6 +226,15 @@ pub struct FarcasterMessage {
 #[serde(tag = "type", remote = "Self", rename_all = "camelCase")]
 pub struct NewFarcasterMessage {
   pub message: DirectCastMessage,
+}
+
+#[derive(
+  Serialize, Deserialize, TagAwareDeserialize, PartialEq, Debug, Clone,
+)]
+#[serde(tag = "type", remote = "Self", rename_all = "camelCase")]
+pub struct FarcasterInboxStatus {
+  pub unread_conversation_ids: Vec<String>,
+  pub read_conversation_ids: Vec<String>,
 }
 
 #[cfg(test)]
