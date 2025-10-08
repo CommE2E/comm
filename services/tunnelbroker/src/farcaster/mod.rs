@@ -10,6 +10,7 @@ use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use tracing::{debug, info, warn};
 use tunnelbroker_messages::farcaster::{
   APIMethod, DirectCastConversation, FarcasterAPIRequest,
+  FarcasterInboxConversation,
 };
 
 pub mod error;
@@ -78,6 +79,65 @@ impl FarcasterClient {
       serde_json::from_value(conversation_value)?;
 
     Ok(converstion)
+  }
+
+  pub async fn fetch_inbox(
+    &self,
+    calling_user_id: &str,
+  ) -> Result<Vec<FarcasterInboxConversation>, error::Error> {
+    debug!("Fetching FC inbox for user={}", calling_user_id);
+
+    let mut all_conversations = Vec::new();
+    let mut cursor: Option<String> = None;
+
+    loop {
+      let payload = if let Some(ref cursor_value) = cursor {
+        format!("limit=50&cursor={}", cursor_value)
+      } else {
+        "limit=50".to_string()
+      };
+
+      let (status, response_text) = self
+        .api_request(FarcasterAPIRequest {
+          request_id: uuid::Uuid::new_v4().to_string(),
+          user_id: calling_user_id.to_string(),
+          api_version: "v2".to_string(),
+          endpoint: "direct-cast-inbox".to_string(),
+          method: APIMethod::GET,
+          payload,
+        })
+        .await?;
+
+      if !status.is_success() {
+        return Err(status.into());
+      }
+
+      let response_value: serde_json::Value =
+        serde_json::from_str(&response_text)?;
+
+      let conversations: Vec<FarcasterInboxConversation> =
+        serde_json::from_value(
+          response_value["result"]["conversations"].clone(),
+        )?;
+
+      all_conversations.extend(conversations);
+
+      cursor = response_value["next"]["cursor"]
+        .as_str()
+        .map(|s| s.to_string());
+
+      if cursor.is_none() {
+        break;
+      }
+    }
+
+    debug!(
+      "Fetched {} conversations from inbox for user={}",
+      all_conversations.len(),
+      calling_user_id
+    );
+
+    Ok(all_conversations)
   }
 
   pub async fn api_request(
