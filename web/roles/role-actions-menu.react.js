@@ -8,6 +8,7 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   roleIsAdminRole,
   roleIsDefaultRole,
+  roleIsInviteeRole,
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
 import type {
@@ -78,7 +79,7 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
   const menuItems = React.useMemo(() => {
     const availableOptions = [];
 
-    if (!roleIsAdminRole(existingRole)) {
+    if (!roleIsAdminRole(existingRole) && !roleIsInviteeRole(existingRole)) {
       availableOptions.push(
         <MenuItem
           key="Edit role"
@@ -90,7 +91,11 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
       );
     }
 
-    if (!roleIsAdminRole(existingRole) && !roleIsDefaultRole(existingRole)) {
+    if (
+      !roleIsAdminRole(existingRole) &&
+      !roleIsDefaultRole(existingRole) &&
+      !roleIsInviteeRole(existingRole)
+    ) {
       availableOptions.push(
         <MenuItem
           key="Delete role"
