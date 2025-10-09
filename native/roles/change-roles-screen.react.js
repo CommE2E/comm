@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-action-types.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
-import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
+import { roleIsAdminRole, roleIsInviteeRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   RelativeMemberInfo,
@@ -55,10 +55,12 @@ function ChangeRolesScreen(props: Props): React.Node {
   const [selectedRole, setSelectedRole] = React.useState<string>(role);
   const roleOptions = React.useMemo(
     () =>
-      values(threadInfo.roles).map(threadRole => ({
-        id: threadRole.id,
-        name: threadRole.name,
-      })),
+      values(threadInfo.roles)
+        .filter(r => !roleIsInviteeRole(r))
+        .map(threadRole => ({
+          id: threadRole.id,
+          name: threadRole.name,
+        })),
     [threadInfo.roles],
   );
   const selectedRoleName = React.useMemo(
