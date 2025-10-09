@@ -58,6 +58,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String KEYSERVER_ID_KEY = "keyserverID";
   private static final String SENDER_DEVICE_ID_KEY = "senderDeviceID";
   private static final String MESSAGE_TYPE_KEY = "type";
+  private static final String FARCASTER_BADGE_KEY = "farcasterBadge";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
   private static final Map<Integer, String> NOTIF_PRIORITY_VERBOSE =
@@ -68,6 +69,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String MMKV_KEY_SEPARATOR = ".";
   private static final String MMKV_KEYSERVER_PREFIX = "KEYSERVER";
   private static final String MMKV_UNREAD_COUNT_SUFFIX = "UNREAD_COUNT";
+  private static final String MMKV_FARCASTER_KEY = "FARCASTER";
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
@@ -299,6 +301,22 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       }
       CommMMKV.setInt(
           senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
+    }
+
+    if ("1".equals(message.getData().get(FARCASTER_BADGE_KEY)) &&
+        message.getData().get(BADGE_KEY) != null) {
+      String farcasterBadge = message.getData().get(BADGE_KEY);
+      try {
+        int farcasterBadgeCount = Integer.parseInt(farcasterBadge);
+        String farcasterUnreadCountKey = String.join(
+            MMKV_KEY_SEPARATOR,
+            MMKV_KEYSERVER_PREFIX,
+            MMKV_FARCASTER_KEY,
+            MMKV_UNREAD_COUNT_SUFFIX);
+        CommMMKV.setInt(farcasterUnreadCountKey, farcasterBadgeCount);
+      } catch (NumberFormatException e) {
+        Log.w("COMM", "Invalid Farcaster badge count", e);
+      }
     }
 
     if (message.getData().get(SENDER_DEVICE_ID_KEY) != null &&

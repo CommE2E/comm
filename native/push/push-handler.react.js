@@ -362,9 +362,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     let unreadThickThreadIDs: $ReadOnlyArray<string>;
     try {
       [queriedKeyserverData, unreadThickThreadIDs] = await Promise.all([
-        commCoreModule.getKeyserverDataFromNotifStorage(notifsStorageQueries),
+        commCoreModule.getDataFromNotifStorage(notifsStorageQueries),
         handleUnreadThickThreadIDsInNotifsStorage,
-        commCoreModule.updateKeyserverDataInNotifStorage(notifStorageUpdates),
+        commCoreModule.updateDataInNotifStorage(notifStorageUpdates),
       ]);
     } catch (e) {
       if (__DEV__) {
@@ -386,6 +386,20 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     totalUnreadCount += unreadThickThreadIDs.length;
+
+    let farcasterUnreadCount = 0;
+    try {
+      const farcasterData =
+        await commCoreModule.getDataFromNotifStorage(['FARCASTER']);
+      if (farcasterData.length > 0) {
+        farcasterUnreadCount = farcasterData[0].unreadCount;
+      }
+    } catch (e) {
+      console.error('Failed to get Farcaster unread count:', e);
+    }
+
+    totalUnreadCount += farcasterUnreadCount;
+
     if (Platform.OS === 'ios') {
       CommIOSNotifications.setBadgesCount(totalUnreadCount);
     } else if (Platform.OS === 'android') {
@@ -398,7 +412,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.props.thinThreadsUnreadCount,
     );
     try {
-      await commCoreModule.removeKeyserverDataFromNotifStorage(
+      await commCoreModule.removeDataFromNotifStorage(
         keyserversDataToRemove,
       );
     } catch (e) {

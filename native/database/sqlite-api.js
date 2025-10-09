@@ -59,7 +59,7 @@ const sqliteAPI: SQLiteAPI = {
       const promises = [];
       if (keyserversToRemoveFromNotifsStore.length > 0) {
         promises.push(
-          commCoreModule.removeKeyserverDataFromNotifStorage(
+          commCoreModule.removeDataFromNotifStorage(
             keyserversToRemoveFromNotifsStore,
           ),
         );

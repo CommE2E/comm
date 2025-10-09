@@ -100,6 +100,17 @@ self.addEventListener('push', (event: PushEvent) => {
 
   event.waitUntil(
     (async () => {
+      if (data.farcasterBadge === '1' && data.badgeOnly === '1') {
+        const farcasterBadgeCount = parseInt(data.badge, 10) || 0;
+        // Use the same key format as queryNotifsUnreadCountStorage
+        // KEYSERVER:FARCASTER:unreadCount
+        await localforage.setItem(
+          'keyserver:FARCASTER:unreadCount',
+          farcasterBadgeCount,
+        );
+        return;
+      }
+
       let plainTextData: PlainTextWebNotification;
       let decryptionResult: PlainTextWebNotification | WebNotifDecryptionError;
 
