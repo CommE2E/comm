@@ -7,7 +7,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useChangeThreadMemberRoles } from 'lib/hooks/thread-hooks.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
-import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
+import { roleIsAdminRole, roleIsInviteeRole } from 'lib/shared/thread-utils.js';
 import type {
   RelativeMemberInfo,
   ThreadInfo,
@@ -37,10 +37,12 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
 
   const roleOptions = React.useMemo(
     () =>
-      values(threadInfo.roles).map(role => ({
-        id: role.id,
-        name: role.name,
-      })),
+      values(threadInfo.roles)
+        .filter(r => !roleIsInviteeRole(r))
+        .map(role => ({
+          id: role.id,
+          name: role.name,
+        })),
     [threadInfo.roles],
   );
 
