@@ -66,9 +66,18 @@ pub struct NotifRecipientDescriptor {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct GenericNotifPayload {
-  pub title: String,
-  pub body: String,
-  pub thread_id: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub title: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub body: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub thread_id: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub badge: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub badge_only: Option<bool>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub farcaster_badge: Option<bool>,
 }
 
 enum APNsTopic {
@@ -135,35 +144,65 @@ impl GenericNotifPayload {
       apns_collapse_id: None,
     };
 
-    let payload = json!({
+    let mut payload_obj = json!({
       "aps": {
-        "alert": {
-          "title": self.title,
-          "body": self.body,
-        },
-        "thread-id": self.thread_id,
-        "sound": "default",
         "mutable-content": 1
       },
     });
 
+    // Only add alert if we have title or body
+    if self.title.is_some() || self.body.is_some() {
+      payload_obj["aps"]["alert"] = json!({
+        "title": self.title.unwrap_or_default(),
+        "body": self.body.unwrap_or_default(),
+      });
+      payload_obj["aps"]["sound"] = json!("default");
+    }
+
+    if let Some(thread_id) = self.thread_id {
+      payload_obj["aps"]["thread-id"] = json!(thread_id);
+    }
+    if let Some(badge) = self.badge {
+      payload_obj["badge"] = json!(badge);
+    }
+    if let Some(badge_only) = self.badge_only {
+      payload_obj["badgeOnly"] = json!(if badge_only { "1" } else { "0" });
+    }
+    if let Some(farcaster_badge) = self.farcaster_badge {
+      payload_obj["farcasterBadge"] =
+        json!(if farcaster_badge { "1" } else { "0" });
+    }
+
     APNsNotif {
       device_token: device_token.to_string(),
       headers,
-      payload: serde_json::to_string(&payload).unwrap(),
+      payload: serde_json::to_string(&payload_obj).unwrap(),
     }
   }
 
   fn into_fcm(self, device_token: &str) -> FCMMessage {
     use super::fcm::firebase_message::{AndroidConfig, AndroidMessagePriority};
 
-    let data = json!({
+    let mut data = json!({
       "id": uuid::Uuid::new_v4().to_string(),
-      "title": self.title,
-      "body": self.body,
-      "threadID": self.thread_id,
-      "badgeOnly": "0",
+      "badgeOnly": if self.badge_only.unwrap_or(false) { "1" } else { "0" },
     });
+
+    if let Some(title) = self.title {
+      data["title"] = json!(title);
+    }
+    if let Some(body) = self.body {
+      data["body"] = json!(body);
+    }
+    if let Some(thread_id) = self.thread_id {
+      data["threadID"] = json!(thread_id);
+    }
+    if let Some(badge) = self.badge {
+      data["badge"] = json!(badge);
+    }
+    if let Some(farcaster_badge) = self.farcaster_badge {
+      data["farcasterBadge"] = json!(if farcaster_badge { "1" } else { "0" });
+    }
 
     FCMMessage {
       data,
@@ -177,12 +216,29 @@ impl GenericNotifPayload {
   fn into_web_push(self, device_token: &str) -> WebPushNotif {
     use crate::notifs::web_push::WebPushNotif;
 
-    let payload = json!({
+    let mut payload = json!({
       "id": uuid::Uuid::new_v4().to_string(),
-      "title": self.title,
-      "body": self.body,
-      "threadID": self.thread_id,
     });
+
+    if let Some(title) = self.title {
+      payload["title"] = json!(title);
+    }
+    if let Some(body) = self.body {
+      payload["body"] = json!(body);
+    }
+    if let Some(thread_id) = self.thread_id {
+      payload["threadID"] = json!(thread_id);
+    }
+    if let Some(badge) = self.badge {
+      payload["badge"] = json!(badge);
+    }
+    if let Some(badge_only) = self.badge_only {
+      payload["badgeOnly"] = json!(if badge_only { "1" } else { "0" });
+    }
+    if let Some(farcaster_badge) = self.farcaster_badge {
+      payload["farcasterBadge"] =
+        json!(if farcaster_badge { "1" } else { "0" });
+    }
 
     WebPushNotif {
       device_token: device_token.to_string(),
@@ -191,11 +247,27 @@ impl GenericNotifPayload {
   }
 
   fn into_wns(self, device_token: &str) -> WNSNotif {
-    let payload = json!({
-      "title": self.title,
-      "body": self.body,
-      "threadID": self.thread_id,
-    });
+    let mut payload = json!({});
+
+    if let Some(title) = self.title {
+      payload["title"] = json!(title);
+    }
+    if let Some(body) = self.body {
+      payload["body"] = json!(body);
+    }
+    if let Some(thread_id) = self.thread_id {
+      payload["threadID"] = json!(thread_id);
+    }
+    if let Some(badge) = self.badge {
+      payload["badge"] = json!(badge);
+    }
+    if let Some(badge_only) = self.badge_only {
+      payload["badgeOnly"] = json!(if badge_only { "1" } else { "0" });
+    }
+    if let Some(farcaster_badge) = self.farcaster_badge {
+      payload["farcasterBadge"] =
+        json!(if farcaster_badge { "1" } else { "0" });
+    }
 
     WNSNotif {
       device_token: device_token.to_string(),

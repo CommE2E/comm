@@ -14,6 +14,7 @@ import {
   WEB_NOTIFS_SERVICE_UTILS_KEY,
   type WebNotifsServiceUtilsData,
   type WebNotifDecryptionError,
+  updateNotifsUnreadCountStorage,
 } from './notif-crypto-utils.js';
 import { persistAuthMetadata } from './services-client.js';
 import { localforageConfig } from '../shared-worker/utils/constants.js';
@@ -100,6 +101,14 @@ self.addEventListener('push', (event: PushEvent) => {
 
   event.waitUntil(
     (async () => {
+      if (data.farcasterBadge === '1' && data.badgeOnly === '1') {
+        const farcasterBadgeCount = parseInt(data.badge, 10) || 0;
+        await updateNotifsUnreadCountStorage({
+          FARCASTER: farcasterBadgeCount,
+        });
+        return;
+      }
+
       let plainTextData: PlainTextWebNotification;
       let decryptionResult: PlainTextWebNotification | WebNotifDecryptionError;
 
