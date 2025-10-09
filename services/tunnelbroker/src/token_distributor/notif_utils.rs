@@ -58,9 +58,12 @@ pub fn prepare_notif_payload(
   };
 
   Some(GenericNotifPayload {
-    title: trim_text(title, 100),
-    body: trim_text(&body, 300),
-    thread_id: format!("FARCASTER#{}", conversation_id),
+    title: Some(trim_text(title, 100)),
+    body: Some(trim_text(&body, 300)),
+    thread_id: Some(format!("FARCASTER#{}", conversation_id)),
+    badge: None,
+    badge_only: None,
+    farcaster_badge: None,
   })
 }
 

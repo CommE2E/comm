@@ -6,7 +6,9 @@ use crate::database::token_distributor::TokenEntryInfo;
 use crate::database::DatabaseClient;
 use crate::farcaster::FarcasterClient;
 use crate::log::redact_sensitive_data;
-use crate::notifs::{GenericNotifClient, NotifRecipientDescriptor};
+use crate::notifs::{
+  GenericNotifClient, GenericNotifPayload, NotifRecipientDescriptor,
+};
 use crate::token_distributor::config::TokenDistributorConfig;
 use crate::token_distributor::error::TokenConnectionError;
 use crate::token_distributor::notif_utils::prepare_notif_payload;
@@ -341,7 +343,7 @@ impl TokenConnection {
                         debug!("Processing refresh-self-direct-casts-inbox message");
                       }
                       FarcasterPayload::Unseen { .. } => {
-                        if let Err(e) = self.handle_unseen_message(&mut client).await {
+                        if let Err(e) = self.handle_unseen_message(&farcaster_msg, &mut client).await {
                           info!(
                             metricType = "TokenDistributor_ConnectionFailure",
                             metricValue = 1,
@@ -667,8 +669,24 @@ impl TokenConnection {
 
   async fn handle_unseen_message(
     &self,
+    farcaster_msg: &FarcasterMessage,
     client: &mut ChainedInterceptedServicesAuthClient,
   ) -> Result<(), TokenConnectionError> {
+    let inbox_count = if let Some(data_str) = &farcaster_msg.data {
+      match serde_json::from_str::<serde_json::Value>(data_str) {
+        Ok(data_json) => data_json
+          .get("inboxCount")
+          .and_then(|v| v.as_u64())
+          .map(|v| v as i32),
+        Err(e) => {
+          warn!("Failed to parse unseen message data: {}", e);
+          None
+        }
+      }
+    } else {
+      None
+    };
+
     let conversations = self
       .farcaster_client
       .fetch_inbox(&self.token_info.user_id)
@@ -707,6 +725,38 @@ impl TokenConnection {
 
     let recipient_devices = self.get_self_user_device_list(client).await?;
 
+    if let Some(count) = inbox_count {
+      for (device_id, platform_details) in &recipient_devices {
+        let Ok(platform) = platform_details.device_type().try_into() else {
+          continue;
+        };
+
+        let target = NotifRecipientDescriptor {
+          platform,
+          device_id: device_id.to_string(),
+        };
+
+        // Send badge-only notification using GenericNotifPayload
+        let badge_payload = GenericNotifPayload {
+          title: None,
+          body: None,
+          thread_id: None,
+          badge: Some(count.to_string()),
+          badge_only: Some(true),
+          farcaster_badge: Some(true),
+        };
+
+        if let Err(err) =
+          self.notif_client.send_notif(badge_payload, target).await
+        {
+          if !err.is_invalid_token() {
+            tracing::error!("Failed to send Farcaster badge notif: {:?}", err);
+          }
+        }
+      }
+    }
+
+    // Send inbox status messages to all devices
     for (device_id, _) in &recipient_devices {
       self
         .message_sender

@@ -116,15 +116,15 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value isNotificationsSessionInitializedWithDevices(
       jsi::Runtime &rt,
       jsi::Array deviceIDs) override;
-  virtual jsi::Value updateKeyserverDataInNotifStorage(
+  virtual jsi::Value updateDataInNotifStorage(
       jsi::Runtime &rt,
-      jsi::Array keyserversData) override;
-  virtual jsi::Value removeKeyserverDataFromNotifStorage(
+      jsi::Array data) override;
+  virtual jsi::Value removeDataFromNotifStorage(
       jsi::Runtime &rt,
-      jsi::Array keyserverIDsToDelete) override;
-  virtual jsi::Value getKeyserverDataFromNotifStorage(
+      jsi::Array idsToDelete) override;
+  virtual jsi::Value getDataFromNotifStorage(
       jsi::Runtime &rt,
-      jsi::Array keyserverIDs) override;
+      jsi::Array ids) override;
   virtual jsi::Value updateUnreadThickThreadsInNotifsStorage(
       jsi::Runtime &rt,
       jsi::Array unreadThickThreadIDs) override;
