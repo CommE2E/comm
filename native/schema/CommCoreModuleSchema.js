@@ -79,14 +79,14 @@ interface Spec extends TurboModule {
   +isNotificationsSessionInitializedWithDevices: (
     deviceIDs: $ReadOnlyArray<string>,
   ) => Promise<{ +[deviceID: string]: boolean }>;
-  +updateKeyserverDataInNotifStorage: (
-    keyserversData: $ReadOnlyArray<{ +id: string, +unreadCount: number }>,
+  +updateDataInNotifStorage: (
+    data: $ReadOnlyArray<{ +id: string, +unreadCount: number }>,
   ) => Promise<void>;
-  +removeKeyserverDataFromNotifStorage: (
-    keyserverIDsToDelete: $ReadOnlyArray<string>,
+  +removeDataFromNotifStorage: (
+    idsToDelete: $ReadOnlyArray<string>,
   ) => Promise<void>;
-  +getKeyserverDataFromNotifStorage: (
-    keyserverIDs: $ReadOnlyArray<string>,
+  +getDataFromNotifStorage: (
+    ids: $ReadOnlyArray<string>,
   ) => Promise<$ReadOnlyArray<{ +id: string, +unreadCount: number }>>;
   +updateUnreadThickThreadsInNotifsStorage: (
     unreadThickThreadIDs: $ReadOnlyArray<string>,

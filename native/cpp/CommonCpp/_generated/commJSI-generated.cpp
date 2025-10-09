@@ -66,14 +66,14 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isDeviceNotifica
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->isNotificationsSessionInitializedWithDevices(rt, args[0].asObject(rt).asArray(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateKeyserverDataInNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateKeyserverDataInNotifStorage(rt, args[0].asObject(rt).asArray(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDataInNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateDataInNotifStorage(rt, args[0].asObject(rt).asArray(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeKeyserverDataFromNotifStorage(rt, args[0].asObject(rt).asArray(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeDataFromNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeDataFromNotifStorage(rt, args[0].asObject(rt).asArray(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getKeyserverDataFromNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getKeyserverDataFromNotifStorage(rt, args[0].asObject(rt).asArray(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDataFromNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDataFromNotifStorage(rt, args[0].asObject(rt).asArray(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateUnreadThickThreadsInNotifsStorage(rt, args[0].asObject(rt).asArray(rt));
@@ -270,9 +270,9 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["isNotificationsSessionInitialized"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitialized};
   methodMap_["isDeviceNotificationsSessionInitialized"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isDeviceNotificationsSessionInitialized};
   methodMap_["isNotificationsSessionInitializedWithDevices"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitializedWithDevices};
-  methodMap_["updateKeyserverDataInNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateKeyserverDataInNotifStorage};
-  methodMap_["removeKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeKeyserverDataFromNotifStorage};
-  methodMap_["getKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getKeyserverDataFromNotifStorage};
+  methodMap_["updateDataInNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDataInNotifStorage};
+  methodMap_["removeDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeDataFromNotifStorage};
+  methodMap_["getDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDataFromNotifStorage};
   methodMap_["updateUnreadThickThreadsInNotifsStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateUnreadThickThreadsInNotifsStorage};
   methodMap_["getUnreadThickThreadIDsFromNotifsStorage"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUnreadThickThreadIDsFromNotifsStorage};
   methodMap_["initializeContentOutboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentOutboundSession};
