@@ -31,7 +31,7 @@ function useBadgeHandler() {
       const unreadCountUpdates: {
         [keyserverID: string]: number,
       } = {};
-      const unreadCountQueries: Array<string> = [];
+      const unreadCountQueries: Array<string> = ['FARCASTER'];
 
       for (const keyserverID in thinThreadsUnreadCount) {
         if (connection[keyserverID]?.status !== 'connected') {
@@ -76,6 +76,7 @@ function useBadgeHandler() {
       }
 
       totalUnreadCount += unreadThickThreadIDs.length;
+
       document.title = getTitle(totalUnreadCount);
       electron?.setBadge(totalUnreadCount === 0 ? null : totalUnreadCount);
     })();
