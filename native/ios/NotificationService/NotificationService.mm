@@ -24,12 +24,14 @@ NSString *const blobHolderKey = @"blobHolder";
 NSString *const encryptionKeyLabel = @"encryptionKey";
 NSString *const needsSilentBadgeUpdateKey = @"needsSilentBadgeUpdate";
 NSString *const notificationIdKey = @"notificationId";
+NSString *const farcasterBadgeKey = @"farcasterBadge";
 
 // Those and future MMKV-related constants should match
 // similar constants in CommNotificationsHandler.java
 const std::string mmkvKeySeparator = ".";
 const std::string mmkvKeyserverPrefix = "KEYSERVER";
 const std::string mmkvUnreadCountSuffix = "UNREAD_COUNT";
+const std::string mmkvFarcasterKey = "FARCASTER";
 
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -529,6 +531,16 @@ std::string joinStrings(
         senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
   }
 
+  if (content.userInfo[farcasterBadgeKey] &&
+      [content.userInfo[farcasterBadgeKey] isEqualToString:@"1"] &&
+      content.userInfo[@"badge"]) {
+    int farcasterBadgeCount = [content.userInfo[@"badge"] intValue];
+    std::string farcasterUnreadCountKey = joinStrings(
+        mmkvKeySeparator,
+        {mmkvKeyserverPrefix, mmkvFarcasterKey, mmkvUnreadCountSuffix});
+    comm::CommMMKV::setInt(farcasterUnreadCountKey, farcasterBadgeCount);
+  }
+
   if (content.userInfo[senderDeviceIDKey] && content.userInfo[threadIDKey] &&
       [self isRescind:content.userInfo]) {
     comm::CommMMKV::removeElementFromStringSet(
@@ -541,7 +553,7 @@ std::string joinStrings(
         std::string([content.userInfo[threadIDKey] UTF8String]));
   }
 
-  // calculate unread counts from keyservers
+  // calculate unread counts from keyservers and Farcaster
   int totalUnreadCount = 0;
   std::vector<std::string> allKeys = comm::CommMMKV::getAllKeys();
   for (const auto &key : allKeys) {
