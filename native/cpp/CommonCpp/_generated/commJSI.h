@@ -37,9 +37,9 @@ public:
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
   virtual jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
   virtual jsi::Value isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, jsi::Array deviceIDs) = 0;
-  virtual jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) = 0;
-  virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
-  virtual jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) = 0;
+  virtual jsi::Value updateDataInNotifStorage(jsi::Runtime &rt, jsi::Array data) = 0;
+  virtual jsi::Value removeDataFromNotifStorage(jsi::Runtime &rt, jsi::Array idsToDelete) = 0;
+  virtual jsi::Value getDataFromNotifStorage(jsi::Runtime &rt, jsi::Array ids) = 0;
   virtual jsi::Value updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, jsi::Array unreadThickThreadIDs) = 0;
   virtual jsi::Value getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
@@ -254,29 +254,29 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isNotificationsSessionInitializedWithDevices, jsInvoker_, instance_, std::move(deviceIDs));
     }
-    jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) override {
+    jsi::Value updateDataInNotifStorage(jsi::Runtime &rt, jsi::Array data) override {
       static_assert(
-          bridging::getParameterCount(&T::updateKeyserverDataInNotifStorage) == 2,
-          "Expected updateKeyserverDataInNotifStorage(...) to have 2 parameters");
+          bridging::getParameterCount(&T::updateDataInNotifStorage) == 2,
+          "Expected updateDataInNotifStorage(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::updateKeyserverDataInNotifStorage, jsInvoker_, instance_, std::move(keyserversData));
+          rt, &T::updateDataInNotifStorage, jsInvoker_, instance_, std::move(data));
     }
-    jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) override {
+    jsi::Value removeDataFromNotifStorage(jsi::Runtime &rt, jsi::Array idsToDelete) override {
       static_assert(
-          bridging::getParameterCount(&T::removeKeyserverDataFromNotifStorage) == 2,
-          "Expected removeKeyserverDataFromNotifStorage(...) to have 2 parameters");
+          bridging::getParameterCount(&T::removeDataFromNotifStorage) == 2,
+          "Expected removeDataFromNotifStorage(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::removeKeyserverDataFromNotifStorage, jsInvoker_, instance_, std::move(keyserverIDsToDelete));
+          rt, &T::removeDataFromNotifStorage, jsInvoker_, instance_, std::move(idsToDelete));
     }
-    jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) override {
+    jsi::Value getDataFromNotifStorage(jsi::Runtime &rt, jsi::Array ids) override {
       static_assert(
-          bridging::getParameterCount(&T::getKeyserverDataFromNotifStorage) == 2,
-          "Expected getKeyserverDataFromNotifStorage(...) to have 2 parameters");
+          bridging::getParameterCount(&T::getDataFromNotifStorage) == 2,
+          "Expected getDataFromNotifStorage(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getKeyserverDataFromNotifStorage, jsInvoker_, instance_, std::move(keyserverIDs));
+          rt, &T::getDataFromNotifStorage, jsInvoker_, instance_, std::move(ids));
     }
     jsi::Value updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, jsi::Array unreadThickThreadIDs) override {
       static_assert(
