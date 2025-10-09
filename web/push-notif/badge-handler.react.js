@@ -5,6 +5,7 @@ import * as React from 'react';
 import { allConnectionInfosSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   thinThreadsUnreadCountSelector,
+  unreadFarcasterThreadIDsSelector,
   unreadThickThreadIDsSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -25,13 +26,16 @@ function useBadgeHandler() {
 
   const { socketState: tunnelbrokerSocketState } = useTunnelbroker();
   const currentUnreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
+  const unreadFarcasterThreadIDs = useSelector(
+    unreadFarcasterThreadIDsSelector,
+  );
 
   React.useEffect(() => {
     void (async () => {
       const unreadCountUpdates: {
         [keyserverID: string]: number,
       } = {};
-      const unreadCountQueries: Array<string> = [];
+      const unreadCountQueries: Array<string> = ['FARCASTER'];
 
       for (const keyserverID in thinThreadsUnreadCount) {
         if (connection[keyserverID]?.status !== 'connected') {
@@ -40,6 +44,7 @@ function useBadgeHandler() {
         }
         unreadCountUpdates[keyserverID] = thinThreadsUnreadCount[keyserverID];
       }
+      unreadCountUpdates['FARCASTER'] = unreadFarcasterThreadIDs.length;
 
       let queriedUnreadCounts: { +[keyserverID: string]: ?number } = {};
       let unreadThickThreadIDs: $ReadOnlyArray<string> = [];
@@ -76,6 +81,7 @@ function useBadgeHandler() {
       }
 
       totalUnreadCount += unreadThickThreadIDs.length;
+
       document.title = getTitle(totalUnreadCount);
       electron?.setBadge(totalUnreadCount === 0 ? null : totalUnreadCount);
     })();
@@ -84,6 +90,7 @@ function useBadgeHandler() {
     currentUnreadThickThreadIDs,
     thinThreadsUnreadCount,
     connection,
+    unreadFarcasterThreadIDs.length,
   ]);
 }
 

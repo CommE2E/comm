@@ -26,6 +26,7 @@ import {
   threadInfoSelector,
   thinThreadsUnreadCountSelector,
   unreadThickThreadIDsSelector,
+  unreadFarcasterThreadIDsSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
@@ -102,6 +103,7 @@ type Props = {
   // Redux state
   +thinThreadsUnreadCount: { +[keyserverID: string]: number },
   +unreadThickThreadIDs: $ReadOnlyArray<string>,
+  +farcasterUnreadCount: number,
   +connection: { +[keyserverID: string]: ?ConnectionInfo },
   +deviceTokens: {
     +[keyserverID: string]: ?string,
@@ -326,6 +328,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     const currentTunnelbrokerConnectionStatus =
       this.props.tunnelbrokerSocketState.connected;
 
+    const currentFarcasterUnreadCount = this.props.farcasterUnreadCount;
+
     const notifStorageUpdates: Array<{
       +id: string,
       +unreadCount: number,
@@ -343,6 +347,10 @@ class PushHandler extends React.PureComponent<Props, State> {
         unreadCount: curThinUnreadCounts[keyserverID],
       });
     }
+    notifStorageUpdates.push({
+      id: 'FARCASTER',
+      unreadCount: currentFarcasterUnreadCount,
+    });
 
     let queriedKeyserverData: $ReadOnlyArray<{
       +id: string,
@@ -362,9 +370,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     let unreadThickThreadIDs: $ReadOnlyArray<string>;
     try {
       [queriedKeyserverData, unreadThickThreadIDs] = await Promise.all([
-        commCoreModule.getKeyserverDataFromNotifStorage(notifsStorageQueries),
+        commCoreModule.getDataFromNotifStorage(notifsStorageQueries),
         handleUnreadThickThreadIDsInNotifsStorage,
-        commCoreModule.updateKeyserverDataInNotifStorage(notifStorageUpdates),
+        commCoreModule.updateDataInNotifStorage(notifStorageUpdates),
       ]);
     } catch (e) {
       if (__DEV__) {
@@ -386,6 +394,21 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     totalUnreadCount += unreadThickThreadIDs.length;
+
+    let farcasterUnreadCount = 0;
+    try {
+      const farcasterData = await commCoreModule.getDataFromNotifStorage([
+        'FARCASTER',
+      ]);
+      if (farcasterData.length > 0) {
+        farcasterUnreadCount = farcasterData[0].unreadCount;
+      }
+    } catch (e) {
+      console.error('Failed to get Farcaster unread count:', e);
+    }
+
+    totalUnreadCount += farcasterUnreadCount;
+
     if (Platform.OS === 'ios') {
       CommIOSNotifications.setBadgesCount(totalUnreadCount);
     } else if (Platform.OS === 'android') {
@@ -398,9 +421,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.props.thinThreadsUnreadCount,
     );
     try {
-      await commCoreModule.removeKeyserverDataFromNotifStorage(
-        keyserversDataToRemove,
-      );
+      await commCoreModule.removeDataFromNotifStorage(keyserversDataToRemove);
     } catch (e) {
       if (__DEV__) {
         Alert.alert(
@@ -811,6 +832,9 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo(
     const activeThread = activeMessageListSelector(navContext);
     const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
     const unreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
+    const unreadFarcasterThreadIDs = useSelector(
+      unreadFarcasterThreadIDsSelector,
+    );
     const connection = useSelector(allConnectionInfosSelector);
     const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
@@ -851,6 +875,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo(
         rootContext={rootContext}
         localToken={localToken}
         tunnelbrokerSocketState={tunnelbrokerSocketState}
+        farcasterUnreadCount={unreadFarcasterThreadIDs.length}
       />
     );
   },
