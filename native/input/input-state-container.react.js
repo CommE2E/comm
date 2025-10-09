@@ -157,12 +157,14 @@ type Props = {
     messageInfo: RawMultimediaMessageInfo,
     sidebarCreation: boolean,
     isLegacy: boolean,
+    threadCreation: boolean,
   ) => Promise<SendMultimediaMessagePayload>,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
     sidebarCreation: boolean,
+    threadCreation: boolean,
   ) => Promise<SendMessagePayload>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
@@ -329,7 +331,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!threadIsPending(messageInfo.threadID)) {
       void this.props.dispatchActionPromise(
         sendMultimediaMessageActionTypes,
-        this.sendMultimediaMessageAction(messageInfo),
+        this.sendMultimediaMessageAction(messageInfo, false),
         undefined,
         messageInfo,
       );
@@ -384,7 +386,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     };
     void this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
-      this.sendMultimediaMessageAction(newMessageInfo),
+      this.sendMultimediaMessageAction(newMessageInfo, true),
       undefined,
       newMessageInfo,
     );
@@ -392,6 +394,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendMultimediaMessageAction(
     messageInfo: RawMultimediaMessageInfo,
+    threadCreation: boolean,
   ): Promise<SendMessagePayload> {
     const { localID, threadID } = messageInfo;
     invariant(
@@ -405,6 +408,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         messageInfo,
         sidebarCreation,
         false,
+        threadCreation,
       );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
@@ -496,6 +500,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           messageInfo,
           inputThreadInfo,
           parentThreadInfo,
+          false,
         ),
         undefined,
         messageInfo,
@@ -564,6 +569,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         newMessageInfo,
         newThreadInfo,
         parentThreadInfo,
+        true,
       ),
       undefined,
       newMessageInfo,
@@ -606,6 +612,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
+    threadCreation: boolean,
   ): Promise<SendMessagePayload> {
     const { localID } = messageInfo;
     invariant(
@@ -621,6 +628,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         threadInfo,
         parentThreadInfo,
         sidebarCreation,
+        threadCreation,
       );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
