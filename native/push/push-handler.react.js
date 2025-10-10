@@ -347,10 +347,6 @@ class PushHandler extends React.PureComponent<Props, State> {
         unreadCount: curThinUnreadCounts[keyserverID],
       });
     }
-    notifStorageUpdates.push({
-      id: 'FARCASTER',
-      unreadCount: currentFarcasterUnreadCount,
-    });
 
     let queriedKeyserverData: $ReadOnlyArray<{
       +id: string,
@@ -367,13 +363,34 @@ class PushHandler extends React.PureComponent<Props, State> {
       return await commCoreModule.getUnreadThickThreadIDsFromNotifsStorage();
     })();
 
-    let unreadThickThreadIDs: $ReadOnlyArray<string>;
-    try {
-      [queriedKeyserverData, unreadThickThreadIDs] = await Promise.all([
-        commCoreModule.getDataFromNotifStorage(notifsStorageQueries),
-        handleUnreadThickThreadIDsInNotifsStorage,
-        commCoreModule.updateDataInNotifStorage(notifStorageUpdates),
+    const handleUnreadFarcasterInNotifsStorage = (async () => {
+      if (currentTunnelbrokerConnectionStatus) {
+        const farcasterEntry = {
+          id: 'FARCASTER',
+          unreadCount: currentFarcasterUnreadCount,
+        };
+        await commCoreModule.updateDataInNotifStorage([farcasterEntry]);
+        return currentFarcasterUnreadCount;
+      }
+      const farcasterData = await commCoreModule.getDataFromNotifStorage([
+        'FARCASTER',
       ]);
+      if (farcasterData.length > 0) {
+        return farcasterData[0].unreadCount;
+      }
+      return 0;
+    })();
+
+    let unreadThickThreadIDs: $ReadOnlyArray<string>;
+    let farcasterUnreadCount: number;
+    try {
+      [queriedKeyserverData, unreadThickThreadIDs, farcasterUnreadCount] =
+        await Promise.all([
+          commCoreModule.getDataFromNotifStorage(notifsStorageQueries),
+          handleUnreadThickThreadIDsInNotifsStorage,
+          handleUnreadFarcasterInNotifsStorage,
+          commCoreModule.updateDataInNotifStorage(notifStorageUpdates),
+        ]);
     } catch (e) {
       if (__DEV__) {
         Alert.alert(
@@ -394,19 +411,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     totalUnreadCount += unreadThickThreadIDs.length;
-
-    let farcasterUnreadCount = 0;
-    try {
-      const farcasterData = await commCoreModule.getDataFromNotifStorage([
-        'FARCASTER',
-      ]);
-      if (farcasterData.length > 0) {
-        farcasterUnreadCount = farcasterData[0].unreadCount;
-      }
-    } catch (e) {
-      console.error('Failed to get Farcaster unread count:', e);
-    }
-
     totalUnreadCount += farcasterUnreadCount;
 
     if (Platform.OS === 'ios') {
