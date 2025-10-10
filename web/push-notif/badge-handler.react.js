@@ -20,6 +20,8 @@ import electron from '../electron.js';
 import { useSelector } from '../redux/redux-utils.js';
 import getTitle from '../title/get-title.js';
 
+const FARCASTER_NOTIF_KEY = 'FARCASTER';
+
 function useBadgeHandler() {
   const connection = useSelector(allConnectionInfosSelector);
   const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
@@ -30,57 +32,78 @@ function useBadgeHandler() {
     unreadFarcasterThreadIDsSelector,
   );
 
-  React.useEffect(() => {
-    void (async () => {
-      const unreadCountUpdates: {
+  const handleUnreadThinThreadIDsInNotifsStorage =
+    React.useCallback(async () => {
+      const keyserverUnreadCountsToUpdate: {
         [keyserverID: string]: number,
       } = {};
-      const unreadCountQueries: Array<string> = ['FARCASTER'];
-
+      const keyserverUnreadCountsToQuery: Array<string> = [];
       for (const keyserverID in thinThreadsUnreadCount) {
         if (connection[keyserverID]?.status !== 'connected') {
-          unreadCountQueries.push(keyserverID);
-          continue;
+          keyserverUnreadCountsToQuery.push(keyserverID);
+        } else {
+          keyserverUnreadCountsToUpdate[keyserverID] =
+            thinThreadsUnreadCount[keyserverID];
         }
-        unreadCountUpdates[keyserverID] = thinThreadsUnreadCount[keyserverID];
       }
-      unreadCountUpdates['FARCASTER'] = unreadFarcasterThreadIDs.length;
 
-      let queriedUnreadCounts: { +[keyserverID: string]: ?number } = {};
-      let unreadThickThreadIDs: $ReadOnlyArray<string> = [];
-
-      const handleUnreadThickThreadIDsInNotifsStoragePromise = (async () => {
-        if (tunnelbrokerSocketState.connected) {
-          await updateNotifsUnreadThickThreadIDsStorage({
-            type: 'set',
-            threadIDs: currentUnreadThickThreadIDs,
-            forceWrite: true,
-          });
-          return currentUnreadThickThreadIDs;
-        }
-        return getNotifsUnreadThickThreadIDs();
-      })();
-
-      [queriedUnreadCounts, unreadThickThreadIDs] = await Promise.all([
-        queryNotifsUnreadCountStorage(unreadCountQueries),
-        handleUnreadThickThreadIDsInNotifsStoragePromise,
-        updateNotifsUnreadCountStorage(unreadCountUpdates),
+      const [queriedUnreadCounts] = await Promise.all([
+        queryNotifsUnreadCountStorage(keyserverUnreadCountsToQuery),
+        updateNotifsUnreadCountStorage(keyserverUnreadCountsToUpdate),
       ]);
 
       let totalUnreadCount = 0;
-      for (const keyserverID in unreadCountUpdates) {
-        totalUnreadCount += unreadCountUpdates[keyserverID];
-      }
-
-      for (const keyserverID in queriedUnreadCounts) {
-        if (!queriedUnreadCounts[keyserverID]) {
+      for (const keyserverID in thinThreadsUnreadCount) {
+        if (queriedUnreadCounts[keyserverID]) {
+          totalUnreadCount += queriedUnreadCounts[keyserverID];
+        } else if (thinThreadsUnreadCount[keyserverID]) {
           totalUnreadCount += thinThreadsUnreadCount[keyserverID];
-          continue;
         }
-        totalUnreadCount += queriedUnreadCounts[keyserverID];
       }
 
-      totalUnreadCount += unreadThickThreadIDs.length;
+      return totalUnreadCount;
+    }, [connection, thinThreadsUnreadCount]);
+
+  const handleUnreadThickThreadIDsInNotifsStorage =
+    React.useCallback(async () => {
+      if (tunnelbrokerSocketState.isAuthorized) {
+        await updateNotifsUnreadThickThreadIDsStorage({
+          type: 'set',
+          threadIDs: currentUnreadThickThreadIDs,
+          forceWrite: true,
+        });
+        return currentUnreadThickThreadIDs.length;
+      }
+      const result = await getNotifsUnreadThickThreadIDs();
+      return result.length;
+    }, [currentUnreadThickThreadIDs, tunnelbrokerSocketState.isAuthorized]);
+
+  const handleUnreadFarcasterThreadIDsInNotifsStorage =
+    React.useCallback(async () => {
+      if (tunnelbrokerSocketState.isAuthorized) {
+        const unreadFarcasterThreads = unreadFarcasterThreadIDs.length;
+        await updateNotifsUnreadCountStorage({
+          FARCASTER: unreadFarcasterThreads,
+        });
+        return unreadFarcasterThreads;
+      }
+      const result = await queryNotifsUnreadCountStorage([FARCASTER_NOTIF_KEY]);
+      return result[FARCASTER_NOTIF_KEY] ?? 0;
+    }, [tunnelbrokerSocketState.isAuthorized, unreadFarcasterThreadIDs.length]);
+
+  React.useEffect(() => {
+    void (async () => {
+      const [unreadThinThreads, unreadThickThreads, unreadFarcasterThreads] =
+        await Promise.all([
+          handleUnreadThinThreadIDsInNotifsStorage(),
+          handleUnreadThickThreadIDsInNotifsStorage(),
+          handleUnreadFarcasterThreadIDsInNotifsStorage(),
+        ]);
+
+      const totalUnreadCountResult =
+        unreadThinThreads + unreadThickThreads + unreadFarcasterThreads;
+      const totalUnreadCount =
+        typeof totalUnreadCountResult === 'number' ? totalUnreadCountResult : 0;
 
       document.title = getTitle(totalUnreadCount);
       electron?.setBadge(totalUnreadCount === 0 ? null : totalUnreadCount);
@@ -91,6 +114,9 @@ function useBadgeHandler() {
     thinThreadsUnreadCount,
     connection,
     unreadFarcasterThreadIDs.length,
+    handleUnreadThinThreadIDsInNotifsStorage,
+    handleUnreadThickThreadIDsInNotifsStorage,
+    handleUnreadFarcasterThreadIDsInNotifsStorage,
   ]);
 }
 
