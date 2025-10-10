@@ -25,6 +25,13 @@ namespace comm {
 
 using namespace facebook::react;
 
+// Those and future MMKV-related constants should match
+// similar constants in NotificationService.mm and CommNotificationsHandler.java
+const std::string MMKV_KEY_SEPARATOR = ".";
+const std::string MMKV_KEYSERVER_PREFIX = "KEYSERVER";
+const std::string MMKV_UNREAD_COUNT_SUFFIX = "UNREAD_COUNT";
+const std::string MMKV_FARCASTER_ID = "FARCASTER";
+
 jsi::Value CommCoreModule::updateDraft(
     jsi::Runtime &rt,
     jsi::String key,
@@ -1335,7 +1342,14 @@ CommCoreModule::updateDataInNotifStorage(jsi::Runtime &rt, jsi::Array data) {
   for (auto idx = 0; idx < data.size(rt); idx++) {
     auto dataItem = data.getValueAtIndex(rt, idx).asObject(rt);
     std::string id = dataItem.getProperty(rt, "id").asString(rt).utf8(rt);
-    std::string storageKey = "KEYSERVER." + id + ".UNREAD_COUNT";
+    std::string storageKey;
+    if (id == MMKV_FARCASTER_ID) {
+      storageKey =
+          MMKV_FARCASTER_ID + MMKV_KEY_SEPARATOR + MMKV_UNREAD_COUNT_SUFFIX;
+    } else {
+      storageKey = MMKV_KEYSERVER_PREFIX + MMKV_KEY_SEPARATOR + id +
+          MMKV_KEY_SEPARATOR + MMKV_UNREAD_COUNT_SUFFIX;
+    }
 
     int unreadCount = dataItem.getProperty(rt, "unreadCount").asNumber();
     dataVectorCpp.push_back({storageKey, unreadCount});
@@ -1368,7 +1382,14 @@ jsi::Value CommCoreModule::removeDataFromNotifStorage(
   std::vector<std::string> keysToDeleteCpp{};
   for (auto idx = 0; idx < idsToDelete.size(rt); idx++) {
     std::string id = idsToDelete.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
-    std::string storageKey = "KEYSERVER." + id + ".UNREAD_COUNT";
+    std::string storageKey;
+    if (id == MMKV_FARCASTER_ID) {
+      storageKey =
+          MMKV_FARCASTER_ID + MMKV_KEY_SEPARATOR + MMKV_UNREAD_COUNT_SUFFIX;
+    } else {
+      storageKey = MMKV_KEYSERVER_PREFIX + MMKV_KEY_SEPARATOR + id +
+          MMKV_KEY_SEPARATOR + MMKV_UNREAD_COUNT_SUFFIX;
+    }
     keysToDeleteCpp.push_back(storageKey);
   }
 
@@ -1406,7 +1427,14 @@ CommCoreModule::getDataFromNotifStorage(jsi::Runtime &rt, jsi::Array ids) {
 
         try {
           for (const auto &id : idsCpp) {
-            std::string storageKey = "KEYSERVER." + id + ".UNREAD_COUNT";
+            std::string storageKey;
+            if (id == MMKV_FARCASTER_ID) {
+              storageKey = MMKV_FARCASTER_ID + MMKV_KEY_SEPARATOR +
+                  MMKV_UNREAD_COUNT_SUFFIX;
+            } else {
+              storageKey = MMKV_KEYSERVER_PREFIX + MMKV_KEY_SEPARATOR + id +
+                  MMKV_KEY_SEPARATOR + MMKV_UNREAD_COUNT_SUFFIX;
+            }
             std::optional<int> unreadCount = CommMMKV::getInt(storageKey, -1);
 
             if (!unreadCount.has_value()) {

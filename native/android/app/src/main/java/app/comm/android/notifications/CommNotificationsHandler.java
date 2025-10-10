@@ -309,10 +309,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       try {
         int farcasterBadgeCount = Integer.parseInt(farcasterBadge);
         String farcasterUnreadCountKey = String.join(
-            MMKV_KEY_SEPARATOR,
-            MMKV_KEYSERVER_PREFIX,
-            MMKV_FARCASTER_KEY,
-            MMKV_UNREAD_COUNT_SUFFIX);
+            MMKV_KEY_SEPARATOR, MMKV_FARCASTER_KEY, MMKV_UNREAD_COUNT_SUFFIX);
         CommMMKV.setInt(farcasterUnreadCountKey, farcasterBadgeCount);
       } catch (NumberFormatException e) {
         Log.w("COMM", "Invalid Farcaster badge count", e);
@@ -348,6 +345,14 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       }
 
       totalUnreadCount += unreadCount;
+    }
+
+    // calculate unread count from Farcaster
+    String farcasterUnreadCountKey = String.join(
+        MMKV_KEY_SEPARATOR, MMKV_FARCASTER_KEY, MMKV_UNREAD_COUNT_SUFFIX);
+    Integer farcasterUnreadCount = CommMMKV.getInt(farcasterUnreadCountKey, -1);
+    if (farcasterUnreadCount != null) {
+      totalUnreadCount += farcasterUnreadCount;
     }
 
     totalUnreadCount +=

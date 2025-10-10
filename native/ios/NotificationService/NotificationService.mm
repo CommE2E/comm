@@ -536,8 +536,7 @@ std::string joinStrings(
       content.userInfo[@"badge"]) {
     int farcasterBadgeCount = [content.userInfo[@"badge"] intValue];
     std::string farcasterUnreadCountKey = joinStrings(
-        mmkvKeySeparator,
-        {mmkvKeyserverPrefix, mmkvFarcasterKey, mmkvUnreadCountSuffix});
+        mmkvKeySeparator, {mmkvFarcasterKey, mmkvUnreadCountSuffix});
     comm::CommMMKV::setInt(farcasterUnreadCountKey, farcasterBadgeCount);
   }
 
@@ -553,7 +552,7 @@ std::string joinStrings(
         std::string([content.userInfo[threadIDKey] UTF8String]));
   }
 
-  // calculate unread counts from keyservers and Farcaster
+  // calculate unread counts from keyservers
   int totalUnreadCount = 0;
   std::vector<std::string> allKeys = comm::CommMMKV::getAllKeys();
   for (const auto &key : allKeys) {
@@ -572,6 +571,15 @@ std::string joinStrings(
       continue;
     }
     totalUnreadCount += unreadCount.value();
+  }
+
+  // calculate unread count from Farcaster
+  std::string farcasterUnreadCountKey =
+      joinStrings(mmkvKeySeparator, {mmkvFarcasterKey, mmkvUnreadCountSuffix});
+  std::optional<int> farcasterUnreadCount =
+      comm::CommMMKV::getInt(farcasterUnreadCountKey, -1);
+  if (farcasterUnreadCount.has_value()) {
+    totalUnreadCount += farcasterUnreadCount.value();
   }
 
   // calculate unread counts from thick threads
