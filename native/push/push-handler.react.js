@@ -325,8 +325,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     const curConnections = this.props.connection;
 
     const currentUnreadThickThreads = this.props.unreadThickThreadIDs;
-    const currentTunnelbrokerConnectionStatus =
-      this.props.tunnelbrokerSocketState.connected;
+    const isTunnelbrokerAuthorized =
+      this.props.tunnelbrokerSocketState.connected &&
+      this.props.tunnelbrokerSocketState.isAuthorized;
 
     const currentFarcasterUnreadCount = this.props.farcasterUnreadCount;
 
@@ -354,7 +355,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }> = [];
 
     const handleUnreadThickThreadIDsInNotifsStorage = (async () => {
-      if (currentTunnelbrokerConnectionStatus) {
+      if (isTunnelbrokerAuthorized) {
         await commCoreModule.updateUnreadThickThreadsInNotifsStorage(
           currentUnreadThickThreads,
         );
@@ -364,7 +365,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     })();
 
     const handleUnreadFarcasterInNotifsStorage = (async () => {
-      if (currentTunnelbrokerConnectionStatus) {
+      if (isTunnelbrokerAuthorized) {
         const farcasterEntry = {
           id: 'FARCASTER',
           unreadCount: currentFarcasterUnreadCount,
