@@ -135,26 +135,25 @@ function ChatThreadListItem(props: Props): React.Node {
   const iconClass = unread ? css.iconUnread : css.iconRead;
   const webChatThreadListIcon = presentationDetails.webChatThreadListIcon;
 
-  let icon;
+  let iconComponent;
+  let iconWrapperClass;
   if (webChatThreadListIcon === 'farcaster') {
-    icon = (
-      <div className={css.farcasterIconBackground}>
-        <CommIcon icon="farcaster" size={12} color="#fff" />
-      </div>
+    iconComponent = (
+      <CommIcon icon="farcaster" size={16} className={iconClass} />
     );
+    iconWrapperClass = css.farcasterIconWrapper;
+  } else if (webChatThreadListIcon === 'lock') {
+    iconComponent = (
+      <FontAwesomeIcon size="xs" className={iconClass} icon={lock} />
+    );
+    iconWrapperClass = css.iconWrapper;
   } else {
-    let iconComponent;
-    if (webChatThreadListIcon === 'lock') {
-      iconComponent = (
-        <FontAwesomeIcon size="xs" className={iconClass} icon={lock} />
-      );
-    } else {
-      iconComponent = (
-        <FontAwesomeIcon size="xs" className={iconClass} icon={server} />
-      );
-    }
-    icon = <div className={css.iconWrapper}>{iconComponent}</div>;
+    iconComponent = (
+      <FontAwesomeIcon size="xs" className={iconClass} icon={server} />
+    );
+    iconWrapperClass = css.iconWrapper;
   }
+  const icon = <div className={iconWrapperClass}>{iconComponent}</div>;
 
   const breadCrumbs = presentationDetails.threadAncestorLabel(ancestorPath);
 
