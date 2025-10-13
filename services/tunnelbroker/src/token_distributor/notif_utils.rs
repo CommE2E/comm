@@ -21,6 +21,9 @@ pub fn prepare_notif_payload(
   if conversation.muted {
     return None;
   }
+  if conversation.viewer_context.category == "request" {
+    return None;
+  }
   if message.message_type != DirectCastMessageType::Text {
     return None;
   }

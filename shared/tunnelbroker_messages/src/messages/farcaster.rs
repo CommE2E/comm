@@ -130,11 +130,21 @@ pub struct DirectCastMessage {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct DirectCastConversationViewerContext {
+  pub category: String,
+
+  #[serde(flatten)]
+  pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DirectCastConversation {
   pub conversation_id: String,
   pub name: Option<String>,
   pub muted: bool,
   pub participants: Vec<DirectCastUser>,
+  pub viewer_context: DirectCastConversationViewerContext,
 
   // NOTE: This is not a full payload, some fields were omitted
   #[serde(flatten)]
