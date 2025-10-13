@@ -534,11 +534,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send + 'static> WebsocketSession<S> {
 }
 
 fn should_ignore_error(err: &hyper_tungstenite::tungstenite::Error) -> bool {
+  use hyper_tungstenite::tungstenite::error::ProtocolError;
   use hyper_tungstenite::tungstenite::Error as E;
   use std::io::ErrorKind;
 
   match err {
     E::ConnectionClosed | E::AlreadyClosed => true,
+    E::Protocol(ProtocolError::SendAfterClosing) => true,
     E::Io(io_error) => match io_error.kind() {
       // The operation failed because a pipe was closed.
       ErrorKind::BrokenPipe => true,
