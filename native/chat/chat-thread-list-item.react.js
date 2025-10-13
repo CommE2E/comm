@@ -142,21 +142,28 @@ function ChatThreadListItem({
 
   let iconComponent;
   if (nativeChatThreadListIcon === 'farcaster') {
+    const farcasterIconColor = data.threadInfo.currentUser.unread
+      ? colors.listForegroundLabel
+      : colors.listForegroundTertiaryLabel;
     iconComponent = (
       <View style={styles.farcasterIcon}>
-        <FarcasterLogo size={8} />
+        <FarcasterLogo size={12} color={farcasterIconColor} />
       </View>
     );
   } else {
     const iconName = nativeChatThreadListIcon === 'lock' ? 'lock' : 'server';
-    iconComponent = <Icon name={iconName} size={12} style={iconStyle} />;
+    iconComponent = (
+      <View style={styles.iconContainer}>
+        <Icon name={iconName} size={12} style={iconStyle} />
+      </View>
+    );
   }
 
   const threadDetails = React.useMemo(
     () => (
       <View style={styles.threadDetails}>
         <View style={styles.header}>
-          <View style={styles.iconContainer}>{iconComponent}</View>
+          {iconComponent}
           <ThreadAncestorsLabel threadInfo={data.threadInfo} />
         </View>
         <View style={styles.row}>
@@ -177,7 +184,6 @@ function ChatThreadListItem({
       lastActivityStyle,
       resolvedThreadInfo.uiName,
       styles.header,
-      styles.iconContainer,
       styles.row,
       styles.threadDetails,
       threadNameStyle,
@@ -309,13 +315,7 @@ const unboundStyles = {
     color: 'listForegroundLabel',
   },
   farcasterIcon: {
-    backgroundColor: '#855DCD',
-    borderRadius: 6,
-    width: 12,
-    height: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.7,
+    marginRight: 3,
   },
 };
 
