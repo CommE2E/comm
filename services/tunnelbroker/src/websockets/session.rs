@@ -542,6 +542,8 @@ fn should_ignore_error(err: &hyper_tungstenite::tungstenite::Error) -> bool {
     E::Io(io_error) => match io_error.kind() {
       // The operation failed because a pipe was closed.
       ErrorKind::BrokenPipe => true,
+      // The connection was reset by the remote server.
+      ErrorKind::ConnectionReset => true,
       _ => false,
     },
     _ => false,
