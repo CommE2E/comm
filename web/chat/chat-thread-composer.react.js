@@ -55,7 +55,7 @@ type ActiveThreadBehavior =
 
 function ChatThreadComposer(props: Props): React.Node {
   const { userInfoInputArray, threadID, inputState } = props;
-  const { selectedProtocol } = useProtocolSelection();
+  const { selectedProtocol, setSelectedProtocol } = useProtocolSelection();
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
@@ -121,6 +121,7 @@ function ChatThreadComposer(props: Props): React.Node {
       let selectedUser: AccountUserInfo = user;
       if (isFarcasterOnlyUser) {
         selectedUser = findExistingUserForFid(user) ?? selectedUser;
+        setSelectedProtocol(protocolNames.FARCASTER_DC);
       }
       if (
         ((!isFarcasterOnlyUser && notice === notFriendNotice) ||
@@ -165,6 +166,7 @@ function ChatThreadComposer(props: Props): React.Node {
       existingThreadInfoFinderForCreatingThread,
       dispatch,
       pushModal,
+      setSelectedProtocol,
     ],
   );
 
