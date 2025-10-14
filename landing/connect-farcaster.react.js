@@ -48,15 +48,66 @@ function ConnectFarcaster(): React.Node {
   const messageSentRef = React.useRef<boolean>(false);
   const authenticated = isSuccess && validSignature;
 
+  const prevValsRef = React.useRef<{ +[key: string]: mixed }>({
+    authenticated,
+    isError,
+    reconnect,
+    channelToken,
+    connect,
+    signIn,
+    url,
+  });
+  const runRef = React.useRef(0);
   React.useEffect(() => {
+    const newVals: { +[key: string]: mixed } = {
+      authenticated,
+      isError,
+      reconnect,
+      channelToken,
+      connect,
+      signIn,
+      url,
+    };
+    const keysChanged = [];
+    for (const key in newVals) {
+      if (newVals[key] !== prevValsRef.current[key]) {
+        keysChanged.push(key);
+      }
+    }
+    prevValsRef.current = newVals;
+
+    const effectRunReason =
+      `effect #${runRef.current++} ran ` +
+      `due to changes in ${JSON.stringify(keysChanged)}`;
+
     if (authenticated) {
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log: `skipped effect because authenticated. ${effectRunReason}`,
+      });
       return;
     }
+
     if (isError) {
       messageSentRef.current = false;
       reconnect();
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log: `effect ran reconnect before signIn due to error. ${effectRunReason}`,
+      });
     } else if (!channelToken) {
       connect();
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log:
+          'effect ran connect before signIn due to no channelToken. ' +
+          effectRunReason,
+      });
+    } else {
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log: `effect ran signIn on its own. ${effectRunReason}`,
+      });
     }
 
     signIn();
@@ -65,8 +116,19 @@ function ConnectFarcaster(): React.Node {
       messageSentRef.current = true;
 
       postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log: `effect posted ${url.toString()}. ${effectRunReason}`,
+      });
+      postMessageToNativeWebView({
         type: 'farcaster_url',
         url: url.toString(),
+      });
+    } else if (url) {
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log:
+          `effect skipped posting ${url.toString()} because already ` +
+          `posted. ${effectRunReason}`,
       });
     }
   }, [authenticated, isError, reconnect, channelToken, connect, signIn, url]);

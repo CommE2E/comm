@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Linking } from 'react-native';
 import WebView from 'react-native-webview';
 
+import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import type { FarcasterWebViewMessage } from 'lib/types/farcaster-types.js';
 
 import type { WebViewMessageEvent } from '../types/web-view-types.js';
@@ -25,6 +26,7 @@ type Props = {
 function FarcasterWebView(props: Props): React.Node {
   const { onSuccess, webViewState } = props;
 
+  const { addLog } = useDebugLogs();
   const handleMessage = React.useCallback(
     (event: WebViewMessageEvent) => {
       const data: FarcasterWebViewMessage = JSON.parse(event.nativeEvent.data);
@@ -33,9 +35,15 @@ function FarcasterWebView(props: Props): React.Node {
         void Linking.openURL(data.url);
       } else if (data.type === 'farcaster_data') {
         onSuccess(data.fid);
+      } else if (data.type === 'farcaster_log') {
+        addLog(
+          'Farcaster: log from SIWF page',
+          data.log,
+          new Set([logTypes.FARCASTER]),
+        );
       }
     },
-    [onSuccess],
+    [onSuccess, addLog],
   );
 
   const webView = React.useMemo(() => {
