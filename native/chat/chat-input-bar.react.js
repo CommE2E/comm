@@ -1069,22 +1069,23 @@ function ConnectedChatInputBarBase({
 
   if (!isMember && currentUserCanJoin && !threadCreationInProgress) {
     let buttonContent;
+    const useDarkColor = !colorIsDark(threadInfo.color);
     if (joinThreadLoadingStatus === 'loading') {
       buttonContent = (
         <ActivityIndicator
           size="small"
-          color="white"
+          color={useDarkColor ? 'black' : 'white'}
           style={styles.joinThreadLoadingIndicator}
         />
       );
     } else {
-      const textStyle = colorIsDark(threadInfo.color)
-        ? styles.joinButtonTextLight
-        : styles.joinButtonTextDark;
+      const textStyle = useDarkColor
+        ? styles.joinButtonTextDark
+        : styles.joinButtonTextLight;
       buttonContent = (
         <View style={styles.joinButtonContent}>
           <SWMansionIcon name="plus" style={textStyle} />
-          <Text style={textStyle}>Join Chat</Text>
+          <Text style={textStyle}>Join chat</Text>
         </View>
       );
     }
