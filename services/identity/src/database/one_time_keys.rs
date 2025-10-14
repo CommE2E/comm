@@ -28,6 +28,7 @@ use crate::{
     OlmAccountType,
   },
   error::{consume_error, Error},
+  log::redact_sensitive_data,
   olm::is_valid_olm_key,
 };
 
@@ -335,12 +336,40 @@ impl DatabaseClient {
           let retryable_codes =
             HashSet::from([CONDITIONAL_CHECK_FAILED, TRANSACTION_CONFLICT]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
-            info!("Encountered transaction conflict while uploading one-time keys - retrying");
+            let error_code = dynamo_db_error.to_string();
+            if error_code.contains(CONDITIONAL_CHECK_FAILED) {
+              info!(
+                user_id = redact_sensitive_data(user_id),
+                device_id = redact_sensitive_data(device_id),
+                error_type = "conditional_check_failed",
+                error_details = %dynamo_db_error,
+                "Conditional check failed while uploading one-time keys - retrying"
+              );
+            } else if error_code.contains(TRANSACTION_CONFLICT) {
+              info!(
+                user_id = redact_sensitive_data(user_id),
+                device_id = redact_sensitive_data(device_id),
+                error_type = "transaction_conflict",
+                error_details = %dynamo_db_error,
+                "Transaction conflict while uploading one-time keys - retrying"
+              );
+            } else {
+              info!(
+                user_id = redact_sensitive_data(user_id),
+                device_id = redact_sensitive_data(device_id),
+                error_type = "retryable_error",
+                error_details = %dynamo_db_error,
+                "Retryable error while uploading one-time keys - retrying"
+              );
+            }
             exponential_backoff.sleep_and_retry().await?;
           } else {
             error!(
               errorType = error_types::OTK_DB_LOG,
-              "One-time key upload transaction failed: {:?}", dynamo_db_error
+              user_id = redact_sensitive_data(user_id),
+              device_id = redact_sensitive_data(device_id),
+              "One-time key upload transaction failed after retries: {:?}",
+              dynamo_db_error
             );
             return Err(Error::AwsSdk(dynamo_db_error));
           }
