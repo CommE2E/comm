@@ -3,8 +3,10 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
+import { protocolNames } from 'lib/shared/protocol-names.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
 import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
@@ -65,6 +67,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
 
     const viewerID = useSelector(state => state.currentUserInfo?.id);
     const findExistingUserForFid = useFindExistingUserForFid();
+    const { setSelectedProtocol } = useProtocolSelection();
     const onUserSelect = React.useCallback(
       async (selectedUserInfo: AccountUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
@@ -77,6 +80,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
         let userInfo: AccountUserInfo = selectedUserInfo;
         if (isFarcasterOnlyUser) {
           userInfo = findExistingUserForFid(userInfo) ?? userInfo;
+          setSelectedProtocol(protocolNames.FARCASTER_DC);
         }
         if (
           (!isFarcasterOnlyUser && nonFriends.has(userInfo.id)) ||
@@ -98,6 +102,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
         updateTagInput,
         findExistingUserForFid,
         resolveToUser,
+        setSelectedProtocol,
       ],
     );
 
