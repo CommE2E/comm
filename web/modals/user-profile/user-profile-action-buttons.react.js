@@ -4,6 +4,7 @@ import { faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import { isFarcasterUserID } from 'lib/shared/id-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 
@@ -28,7 +29,8 @@ function UserProfileActionButtons(props: Props): React.Node {
   const userProfileActionButtons = React.useMemo(() => {
     if (
       !otherUserInfo ||
-      otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND
+      otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND ||
+      isFarcasterUserID(otherUserInfo.id)
     ) {
       return <UserProfileMessageButton threadInfo={threadInfo} />;
     }
