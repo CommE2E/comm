@@ -88,7 +88,6 @@ function ChatThreadComposer(props: Props): React.Node {
     auxUserInfos,
     excludeUserIDs,
     includeServerSearchUsers: searchResults,
-    isFarcasterDCsIntegrationEnabled,
   });
 
   const userListItemsWithENSNames = useResolvableNames(userListItems);
