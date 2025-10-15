@@ -54,6 +54,7 @@ import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camera-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
+import type { DebugLogsScreenParams } from '../profile/debug-logs-screen.react.js';
 import type { KeyserverSelectionBottomSheetParams } from '../profile/keyserver-selection-bottom-sheet.react.js';
 import type { LinkedDevicesBottomSheetParams } from '../profile/linked-devices-bottom-sheet.react.js';
 import type { UserRelationshipTooltipModalParams } from '../profile/user-relationship-tooltip-modal.react.js';
@@ -317,7 +318,7 @@ export type ProfileParamList = {
   +KeyserverSelectionList: void,
   +AddKeyserver: void,
   +FarcasterAccountSettings: void,
-  +DebugLogsScreen: void,
+  +DebugLogsScreen: DebugLogsScreenParams,
 };
 
 export type CalendarParamList = {

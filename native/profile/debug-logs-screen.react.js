@@ -17,14 +17,31 @@ import PrimaryButton from '../components/primary-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
+export type DebugLogsScreenParams = {
+  +logsFilter?: $ReadOnlySet<LogType>,
+};
+
 type Props = {
   +navigation: ProfileNavigationProp<'DebugLogsScreen'>,
   +route: NavigationRoute<'DebugLogsScreen'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function DebugLogsScreen(props: Props): React.Node {
-  const { logs, clearLogs, logsFilter, setFilter } = useDebugLogs();
+  const { logs, clearLogs, logsFilter, setFilter, replaceFilter } =
+    useDebugLogs();
+
+  const initialLogsFilter = props.route.params?.logsFilter;
+  React.useEffect(() => {
+    if (!initialLogsFilter) {
+      return undefined;
+    }
+    replaceFilter(initialLogsFilter);
+    return () => {
+      replaceFilter(logsFilter);
+    };
+    // We want this effect to run exactly once, when this component is mounted
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const copyLogs = React.useCallback(() => {
     Clipboard.setString(JSON.stringify(logs, null, 2));
