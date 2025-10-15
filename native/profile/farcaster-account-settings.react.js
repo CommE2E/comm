@@ -57,9 +57,8 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const onPressDisconnect = React.useCallback(() => {
     getConfig().showAlert(
       'Disconnect Farcaster account',
-      'This will permanently remove all Farcaster threads and messages from' +
-        ' your account and backup. This action ' +
-        'cannot be undone. Are you sure you want to continue?',
+      'This will remove all Farcaster conversations and messages from your ' +
+        'backup. Are you sure you want to continue?',
       [
         {
           text: 'No',
