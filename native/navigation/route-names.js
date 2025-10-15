@@ -349,6 +349,7 @@ export type AuthParamList = {
   +RestoreBackupScreen: RestoreBackupScreenParams,
   +RestoreBackupErrorScreen: RestoreBackupErrorScreenParams,
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
+  +DebugLogsScreen: DebugLogsScreenParams,
 };
 
 export type InviteLinkParamList = {

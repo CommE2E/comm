@@ -62,7 +62,9 @@ import {
   RestoreBackupErrorScreenRouteName,
   RestoreSIWEBackupRouteName,
   ConnectFarcasterDCsRouteName,
+  DebugLogsScreenRouteName,
 } from '../../navigation/route-names.js';
+import DebugLogsScreen from '../../profile/debug-logs-screen.react.js';
 import QRAuthProgressScreen from '../qr-auth-progress-screen.react.js';
 import QRCodeScreen from '../qr-code-screen.react.js';
 import RestoreBackupErrorScreen from '../restore-backup-error-screen.react.js';
@@ -149,6 +151,10 @@ const disableGesturesScreenOptions = {
 
 const cameraScreenOptions = {
   headerShown: false,
+};
+
+const debugLogsScreenOptions = {
+  headerTransparent: false,
 };
 
 type Props = {
@@ -246,6 +252,11 @@ function AuthComponent(props: Props): React.Node {
       <Auth.Screen
         name={ConnectFarcasterDCsRouteName}
         component={ConnectFarcasterDCs}
+      />
+      <Auth.Screen
+        name={DebugLogsScreenRouteName}
+        component={DebugLogsScreen}
+        options={debugLogsScreenOptions}
       />
     </Auth.Navigator>
   );
