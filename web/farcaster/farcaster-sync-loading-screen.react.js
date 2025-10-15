@@ -16,14 +16,23 @@ function FarcasterSyncLoadingScreen(): React.Node {
     }
     return (
       <>
-        <p className={css.description}>Loading conversations...</p>
         <p className={css.description}>
-          {progress.completed} of {progress.total} (
-          {progress.total
-            ? Math.round((progress.completed / progress.total) * 100)
+          {progress.completedConversations} of{' '}
+          {progress.totalNumberOfConversations} (
+          {progress.totalNumberOfConversations
+            ? Math.round(
+                (progress.completedConversations /
+                  progress.totalNumberOfConversations) *
+                  100,
+              )
             : 0}
-          %)
+          %) conversations fetched
         </p>
+        {progress.completedMessages ? (
+          <p className={css.description}>
+            {progress.completedMessages.toLocaleString()} messages fetched
+          </p>
+        ) : null}
       </>
     );
   }, [progress]);
