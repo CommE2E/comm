@@ -17,7 +17,10 @@ import {
   threadIsPending,
   threadOtherMembers,
 } from 'lib/shared/thread-utils.js';
-import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsPersonal,
+} from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import { defaultMaxTextAreaHeight, editBoxHeight } from './chat-constants.js';
@@ -293,7 +296,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     const messages = messageListData.map(this.renderItem);
 
     let relationshipPrompt = null;
-    if (threadTypeIsPersonal(threadInfo.type)) {
+    if (
+      threadTypeIsPersonal(threadInfo.type) &&
+      threadSpecs[threadInfo.type].protocol().supportsRelationships
+    ) {
       const otherMembers = threadOtherMembers(
         threadInfo.members,
         this.props.viewerID,
