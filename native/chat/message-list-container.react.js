@@ -448,7 +448,10 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     );
 
     let relationshipPrompt = null;
-    if (threadTypeIsPersonal(threadInfo.type)) {
+    if (
+      threadTypeIsPersonal(threadInfo.type) &&
+      threadSpecs[threadInfo.type].protocol().supportsRelationships
+    ) {
       relationshipPrompt = (
         <RelationshipPrompt
           pendingPersonalThreadUserInfo={

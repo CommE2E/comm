@@ -800,7 +800,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           });
         }
 
-        if (threadInfo && threadTypeIsPersonal(threadInfo.type) && viewerID) {
+        if (
+          threadInfo &&
+          threadTypeIsPersonal(threadInfo.type) &&
+          viewerID &&
+          threadSpecs[threadInfo.type].protocol().supportsRelationships
+        ) {
           const otherMemberID = getSingleOtherUser(threadInfo, viewerID);
           if (otherMemberID) {
             const otherUserInfo = userInfos[otherMemberID];

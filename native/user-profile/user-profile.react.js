@@ -7,6 +7,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
+import { isFarcasterUserID } from 'lib/shared/id-utils.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
 import {
@@ -184,7 +185,9 @@ function UserProfile(props: Props): React.Node {
   const relationshipButton = React.useMemo(() => {
     if (
       !userProfileThreadInfo ||
-      relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
+      relationshipBlockedInEitherDirection(userInfo?.relationshipStatus) ||
+      !userInfo?.id ||
+      isFarcasterUserID(userInfo.id)
     ) {
       return null;
     }
@@ -199,7 +202,7 @@ function UserProfile(props: Props): React.Node {
         }
       />
     );
-  }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
+  }, [userInfo?.relationshipStatus, userProfileThreadInfo, userInfo?.id]);
 
   return (
     <View style={styles.container}>

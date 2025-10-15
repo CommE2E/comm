@@ -16,7 +16,10 @@ import {
   threadUIName,
   useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
-import { threadTypeIsPersonal } from 'lib/shared/threads/thread-specs.js';
+import {
+  threadSpecs,
+  threadTypeIsPersonal,
+} from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -95,7 +98,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo(
       if (
         !otherUserInfo ||
         !threadInfo?.type ||
-        !threadTypeIsPersonal(threadInfo.type)
+        !threadTypeIsPersonal(threadInfo.type) ||
+        !threadSpecs[threadInfo.type].protocol().supportsRelationships
       ) {
         return ([]: RelationshipButton[]);
       }
