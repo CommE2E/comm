@@ -13,7 +13,7 @@ div.loadingContainer {
 
 div.loading {
   width: 600px;
-  min-height: 438px;
+  min-height: 60vh;
   background: var(--auth-modal-bg);
   border: var(--auth-modal-border-color) solid 1px;
   border-radius: 12px;
