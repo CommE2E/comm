@@ -27,7 +27,7 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
   const { progress } = useFarcasterSync(handleComplete);
 
   const progressValue = progress
-    ? progress.completed / progress.total
+    ? progress.completedConversations / progress.totalNumberOfConversations
     : undefined;
 
   return (
@@ -63,13 +63,36 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
       </View>
       <View style={styles.progressContainer}>
         {progress ? (
-          <Progress.Circle
-            progress={progressValue}
-            size={100}
-            color={colors.panelForegroundIcon}
-            strokeCap="round"
-            showsText
-          />
+          <>
+            <Progress.Circle
+              progress={progressValue}
+              size={100}
+              color={colors.panelForegroundIcon}
+              strokeCap="round"
+              showsText
+            />
+            <View>
+              <Text style={styles.progressText}>
+                {progress.completedConversations} of{' '}
+                {progress.totalNumberOfConversations} (
+                {progress.totalNumberOfConversations
+                  ? Math.round(
+                      (progress.completedConversations /
+                        progress.totalNumberOfConversations) *
+                        100,
+                    )
+                  : 0}
+                %) conversations fetched
+              </Text>
+            </View>
+            <View>
+              <Text style={styles.progressText}>
+                {progress.completedMessages
+                  ? `${progress.completedMessages.toLocaleString()} messages fetched`
+                  : null}
+              </Text>
+            </View>
+          </>
         ) : (
           <Progress.CircleSnail
             indeterminate
@@ -125,6 +148,13 @@ const unboundStyles = {
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  progressText: {
+    marginTop: 16,
+    fontFamily: 'Arial',
+    fontSize: 15,
+    color: 'panelForegroundSecondaryLabel',
+    textAlign: 'center',
   },
 };
 
