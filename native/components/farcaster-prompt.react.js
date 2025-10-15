@@ -1,8 +1,12 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
+import { logTypes } from 'lib/components/debug-logs-context.js';
+
+import { DebugLogsScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
@@ -57,12 +61,22 @@ function FarcasterPrompt(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const { navigate } = useNavigation();
+  const onLogoLongPress = React.useCallback(() => {
+    navigate({
+      name: DebugLogsScreenRouteName,
+      params: { logsFilter: new Set([logTypes.FARCASTER]) },
+    });
+  }, [navigate]);
+
   let farcasterLogo = null;
   if (displayLogo) {
     farcasterLogo = (
-      <View style={styles.farcasterLogoContainer}>
-        <FarcasterLogo />
-      </View>
+      <TouchableWithoutFeedback onLongPress={onLogoLongPress}>
+        <View style={styles.farcasterLogoContainer}>
+          <FarcasterLogo />
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 
