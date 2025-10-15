@@ -6,7 +6,7 @@ use crate::notifs::fcm::FCMClient;
 use crate::notifs::web_push::{WebPushClient, WebPushNotif};
 use crate::notifs::wns::{WNSClient, WNSNotif};
 use ::web_push::WebPushError;
-use tracing::{error, info};
+use tracing::{error, trace};
 
 #[derive(derive_more::From)]
 pub enum Notif {
@@ -64,7 +64,7 @@ macro_rules! create_client {
     let created_client = match $config {
       Some(config) => match $client::new(&config) {
         Ok(client_instance) => {
-          info!("{} client created successfully", $name);
+          trace!("{} client created successfully", $name);
           Some(client_instance)
         }
         Err(err) => {
