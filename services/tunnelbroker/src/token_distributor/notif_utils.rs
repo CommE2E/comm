@@ -41,7 +41,7 @@ pub fn prepare_notif_payload(
 
   let sender_name = conversation
     .participant(message.sender_fid)
-    .map(|u| u.display_name.as_str());
+    .map(|u| u.username.as_deref().unwrap_or(&u.display_name));
   let title = conversation
     .name
     .as_deref()
