@@ -614,7 +614,11 @@ impl TokenConnection {
       let message_future = async || {
         self
           .message_sender
-          .simple_send_message_to_device(device_id, message_payload.clone())
+          .simple_send_message_to_device(
+            device_id,
+            message_payload.clone(),
+            true,
+          )
           .await
           .map_err(|e| {
             TokenConnectionError::MessageHandlingFailed(format!(
@@ -760,7 +764,11 @@ impl TokenConnection {
     for (device_id, _) in &recipient_devices {
       self
         .message_sender
-        .simple_send_message_to_device(device_id, message_payload.clone())
+        .simple_send_message_to_device(
+          device_id,
+          message_payload.clone(),
+          false,
+        )
         .await
         .map_err(|e| {
           TokenConnectionError::MessageHandlingFailed(format!(
