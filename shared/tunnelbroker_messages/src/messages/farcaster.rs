@@ -67,7 +67,7 @@ pub struct FarcasterAPIResponse {
 pub struct DirectCastUser {
   pub fid: u64,
   pub display_name: String,
-  pub username: String,
+  pub username: Option<String>,
   pub pfp: Option<ProfilePicture>,
 
   // NOTE: This is not a full payload, some fields were omitted
