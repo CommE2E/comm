@@ -240,7 +240,7 @@ impl AmqpClient {
     if let Err(amqp_session_error) = publish_result {
       self
         .db_client
-        .delete_message(&self.device_info.device_id, &message_id)
+        .delete_message(&message_request.device_id, &message_id)
         .await
         .expect("Error deleting message");
       return Err(amqp_session_error);
