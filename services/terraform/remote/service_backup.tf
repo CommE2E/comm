@@ -12,6 +12,9 @@ locals {
   # URL accessible by other services in the same Service Connect namespace
   # This renders to 'http://backup-service:50052'
   backup_local_url = "http://${local.backup_sc_dns_name}:${local.backup_service_container_http_port}"
+  
+  # Fargate-specific URL for Fargate services to communicate with Fargate backup service
+  backup_fargate_url = "http://${local.backup_sc_dns_name}-fargate:${local.backup_service_container_http_port}"
 }
 
 resource "aws_ecs_task_definition" "backup_service" {
@@ -182,8 +185,31 @@ resource "aws_lb_listener" "backup_service_https" {
   certificate_arn   = data.aws_acm_certificate.backup_service.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.backup_service_http.arn
+    type = "forward"
+
+    # Production: Simple forwarding (unchanged)
+    target_group_arn = local.is_staging ? null : aws_lb_target_group.backup_service_http.arn
+
+    # Staging: Weighted forwarding  
+    dynamic "forward" {
+      for_each = local.is_staging ? [1] : []
+      content {
+        target_group {
+          arn    = aws_lb_target_group.backup_service_http.arn
+          weight = 100 # 100% EC2
+        }
+
+        target_group {
+          arn    = aws_lb_target_group.backup_service_http_fargate[0].arn
+          weight = 0 # 0% Fargate
+        }
+        
+        stickiness {
+          enabled  = false
+          duration = 10
+        }
+      }
+    }
   }
 
   lifecycle {
