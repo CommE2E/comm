@@ -26,7 +26,7 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
-import { useSetFarcasterDCsLoaded } from 'lib/utils/farcaster-utils.js';
+import { useSetFarcasterDCsSyncStatus } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   useIsFarcasterDCsIntegrationEnabled,
@@ -183,10 +183,10 @@ function AccountSettings(): React.Node {
     [pushModal],
   );
 
-  const setDCsLoaded = useSetFarcasterDCsLoaded();
+  const { setLoaded } = useSetFarcasterDCsSyncStatus();
   const syncFarcasterConversations = React.useCallback(() => {
-    setDCsLoaded(false);
-  }, [setDCsLoaded]);
+    setLoaded(false);
+  }, [setLoaded]);
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;

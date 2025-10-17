@@ -26,7 +26,7 @@ import { thickThreadTypes } from 'lib/types/thread-types-enum.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
   useCurrentUserFID,
-  useSetFarcasterDCsLoaded,
+  useSetFarcasterDCsSyncStatus,
 } from 'lib/utils/farcaster-utils.js';
 import {
   useDispatchActionPromise,
@@ -640,10 +640,10 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo(
     }, [checkIfPrimaryDevice]);
 
     const usingRestoreFlow = useIsRestoreFlowEnabled();
-    const setDCsLoaded = useSetFarcasterDCsLoaded();
+    const { setLoaded } = useSetFarcasterDCsSyncStatus();
     const syncFarcasterConversations = React.useCallback(() => {
-      setDCsLoaded(false);
-    }, [setDCsLoaded]);
+      setLoaded(false);
+    }, [setLoaded]);
     const supportsFarcasterDCs = useIsFarcasterDCsIntegrationEnabled();
 
     return (
