@@ -6,7 +6,9 @@ import * as Progress from 'react-native-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useFarcasterSync } from 'lib/shared/farcaster/farcaster-hooks.js';
+import { useCancelFarcasterDCsSync } from 'lib/utils/farcaster-utils.js';
 
+import PrimaryButton from '../components/primary-button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
@@ -25,6 +27,7 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
   }, [props.navigation]);
 
   const { progress } = useFarcasterSync(handleComplete);
+  const cancelSync = useCancelFarcasterDCsSync();
 
   const progressValue = progress
     ? progress.completedConversations / progress.totalNumberOfConversations
@@ -32,67 +35,76 @@ function FarcasterSyncLoadingScreen(props: Props): React.Node {
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
-      <Text style={styles.header}>Fetching Farcaster conversations</Text>
-      <View style={styles.listContainer}>
-        <View style={styles.listItem}>
-          <Text style={styles.listNumber}>1.</Text>
-          <Text style={styles.listText}>
-            <Text style={styles.bold}>Fetching in progress</Text>: Comm is
-            fetching all of your Farcaster messages so they can be backed up.
-            This can take a while, depending on how many chats you have.
-          </Text>
+      <View style={styles.contentContainer}>
+        <Text style={styles.header}>Fetching Farcaster conversations</Text>
+        <View style={styles.listContainer}>
+          <View style={styles.listItem}>
+            <Text style={styles.listNumber}>1.</Text>
+            <Text style={styles.listText}>
+              <Text style={styles.bold}>Fetching in progress</Text>: Comm is
+              fetching all of your Farcaster messages so they can be backed up.
+              This can take a while, depending on how many chats you have.
+            </Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.listNumber}>2.</Text>
+            <Text style={styles.listText}>
+              <Text style={styles.bold}>No E2E encryption</Text>: Please note
+              that Farcaster messages are not end-to-end encrypted, which means
+              the Farcaster team can see them. For better security, consider
+              using Comm DMs.
+            </Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.listNumber}>3.</Text>
+            <Text style={styles.listText}>
+              <Text style={styles.bold}>Manual refresh</Text>: If you ever
+              notice any missing messages, you can manually refresh all
+              Farcaster chats from your profile screen, or refresh an individual
+              chat from its settings.
+            </Text>
+          </View>
         </View>
-        <View style={styles.listItem}>
-          <Text style={styles.listNumber}>2.</Text>
-          <Text style={styles.listText}>
-            <Text style={styles.bold}>No E2E encryption</Text>: Please note that
-            Farcaster messages are not end-to-end encrypted, which means the
-            Farcaster team can see them. For better security, consider using
-            Comm DMs.
-          </Text>
-        </View>
-        <View style={styles.listItem}>
-          <Text style={styles.listNumber}>3.</Text>
-          <Text style={styles.listText}>
-            <Text style={styles.bold}>Manual refresh</Text>: If you ever notice
-            any missing messages, you can manually refresh all Farcaster chats
-            from your profile screen, or refresh an individual chat from its
-            settings.
-          </Text>
+        <View style={styles.progressContainer}>
+          {progress ? (
+            <>
+              <Progress.Circle
+                progress={progressValue}
+                size={100}
+                color={colors.panelForegroundIcon}
+                strokeCap="round"
+                showsText
+              />
+              <View>
+                <Text style={styles.progressText}>
+                  {progress.completedConversations} of{' '}
+                  {progress.totalNumberOfConversations} conversations fetched
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.progressText}>
+                  {progress.completedMessages
+                    ? `${progress.completedMessages.toLocaleString()} messages fetched`
+                    : null}
+                </Text>
+              </View>
+            </>
+          ) : (
+            <Progress.CircleSnail
+              indeterminate
+              color={colors.panelForegroundIcon}
+              size={100}
+              strokeCap="round"
+            />
+          )}
         </View>
       </View>
-      <View style={styles.progressContainer}>
-        {progress ? (
-          <>
-            <Progress.Circle
-              progress={progressValue}
-              size={100}
-              color={colors.panelForegroundIcon}
-              strokeCap="round"
-              showsText
-            />
-            <View>
-              <Text style={styles.progressText}>
-                {progress.completedConversations} of{' '}
-                {progress.totalNumberOfConversations} conversations fetched
-              </Text>
-            </View>
-            <View>
-              <Text style={styles.progressText}>
-                {progress.completedMessages
-                  ? `${progress.completedMessages.toLocaleString()} messages fetched`
-                  : null}
-              </Text>
-            </View>
-          </>
-        ) : (
-          <Progress.CircleSnail
-            indeterminate
-            color={colors.panelForegroundIcon}
-            size={100}
-            strokeCap="round"
-          />
-        )}
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          onPress={cancelSync}
+          label="Cancel fetching"
+          variant="outline"
+        />
       </View>
     </SafeAreaView>
   );
@@ -104,8 +116,11 @@ const unboundStyles = {
   container: {
     flex: 1,
     backgroundColor: 'panelBackground',
-    justifyContent: 'space-between',
+  },
+  contentContainer: {
+    flex: 1,
     padding: 16,
+    justifyContent: 'space-between',
   },
   header: {
     fontSize: 24,
@@ -147,6 +162,10 @@ const unboundStyles = {
     fontSize: 15,
     color: 'panelForegroundSecondaryLabel',
     textAlign: 'center',
+  },
+  buttonContainer: {
+    marginVertical: 8,
+    marginHorizontal: 16,
   },
 };
 
