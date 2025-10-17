@@ -14,6 +14,9 @@ locals {
 
   # Used for other services to connect to Tunnelbroker gRPC endpoint
   tunnelbroker_local_grpc_url = "http://${local.tunnelbroker_config.local_dns_name}:${local.tunnelbroker_config.grpc_port}"
+  
+  # Fargate-specific URL for Fargate services to communicate with Fargate tunnelbroker
+  tunnelbroker_fargate_grpc_url = "http://${local.tunnelbroker_config.local_dns_name}-fargate:${local.tunnelbroker_config.grpc_port}"
 
   # utility locals
   tunnelbroker_docker_image = "${local.tunnelbroker_config.docker_image}:${local.tunnelbroker_config.docker_tag}"
@@ -316,12 +319,35 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
   certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_ws.arn
+    type = "forward"
+
+    # Production: Simple forwarding (unchanged)
+    target_group_arn = local.is_staging ? null : aws_lb_target_group.tunnelbroker_ws.arn
+
+    # Staging: Weighted forwarding  
+    dynamic "forward" {
+      for_each = local.is_staging ? [1] : []
+      content {
+        target_group {
+          arn    = aws_lb_target_group.tunnelbroker_ws.arn
+          weight = 100 # Switch back to 100% EC2
+        }
+
+        target_group {
+          arn    = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
+          weight = 0 # Switch back to 0% Fargate
+        }
+        
+        stickiness {
+          enabled  = false
+          duration = 10
+        }
+      }
+    }
   }
 
   lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
+    # ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
     replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws]
   }
 }
@@ -335,12 +361,27 @@ resource "aws_lb_listener" "tunnelbroker_grpc" {
   certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_grpc.arn
+    type = "forward"
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.tunnelbroker_grpc.arn
+        weight = 100 # 100% EC2
+      }
+
+      target_group {
+        arn    = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
+        weight = 0 # 0% Fargate
+      }
+      
+      stickiness {
+        enabled  = false
+        duration = 10
+      }
+    }
   }
 
   lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
+    # ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
     replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc]
   }
 }
