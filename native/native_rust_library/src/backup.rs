@@ -54,7 +54,10 @@ pub mod ffi {
     pickle_key: String,
     pickled_account: String,
     siwe_backup_msg: String,
-    use_random_keys: bool,
+    // When true we are creating a full backup (user_keys + user_data), so new
+    // encryption keys are generated and the user_keys file should stay hidden
+    // until the main compaction is ready.
+    new_user_data_compaction: bool,
   ) -> Result<(String, String), String> {
     let backup_data_key =
       generate_backup_data_key().map_err(|e| e.to_string())?;
@@ -66,10 +69,13 @@ pub mod ffi {
       backup_secret,
       pickle_key,
       pickled_account,
-      Some(&backup_data_key).filter(|_| use_random_keys).cloned(),
-      Some(&backup_log_data_key)
-        .filter(|_| use_random_keys)
+      Some(&backup_data_key)
+        .filter(|_| new_user_data_compaction)
         .cloned(),
+      Some(&backup_log_data_key)
+        .filter(|_| new_user_data_compaction)
+        .cloned(),
+      new_user_data_compaction,
     )
     .await
     .map_err(|err| err.to_string());
@@ -128,6 +134,15 @@ pub mod ffi {
           compaction_promise_id,
         );
         handle_backup_creation_error(backup_id.clone(), err.to_string());
+        return;
+      }
+
+      if let Err(err) = finalize_user_keys_compaction(&backup_id).await {
+        handle_string_result_as_callback(
+          Err::<String, _>(err.clone()),
+          compaction_promise_id,
+        );
+        handle_backup_creation_error(backup_id.clone(), err);
         return;
       }
 
@@ -351,6 +366,7 @@ pub async fn create_user_keys_compaction(
   pickled_account: String,
   backup_data_key: Option<String>,
   backup_log_data_key: Option<String>,
+  use_temporary_file: bool,
 ) -> Result<(), Box<dyn Error>> {
   let encrypted_user_keys = get_encrypted_user_keys(
     backup_id.clone(),
@@ -362,10 +378,31 @@ pub async fn create_user_keys_compaction(
   )
   .await?;
 
-  let user_keys_file = get_backup_user_keys_file_path(&backup_id)?;
+  let user_keys_final_path = get_backup_user_keys_file_path(&backup_id)?;
+  let user_keys_file = if use_temporary_file {
+    format!("{}{}", user_keys_final_path, USER_KEYS_PENDING_SUFFIX)
+  } else {
+    user_keys_final_path
+  };
+
   tokio::fs::write(user_keys_file, encrypted_user_keys).await?;
 
   Ok(())
+}
+
+const USER_KEYS_PENDING_SUFFIX: &str = ".pending";
+
+// Moves the user-keys file produced during prepare_user_keys_backup to its
+// final location once the main compaction has been created.
+async fn finalize_user_keys_compaction(backup_id: &str) -> Result<(), String> {
+  let final_path =
+    get_backup_user_keys_file_path(backup_id).map_err(|err| err.to_string())?;
+  let pending_path = format!("{}{}", final_path, USER_KEYS_PENDING_SUFFIX);
+  match tokio::fs::rename(&pending_path, &final_path).await {
+    Ok(()) => Ok(()),
+    Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(()),
+    Err(err) => Err(err.to_string()),
+  }
 }
 
 pub async fn create_ephemeral_user_keys_compaction(
