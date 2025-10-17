@@ -324,6 +324,14 @@ pub mod compaction {
       Err(err) => return Err(err.into()),
     };
 
+    if user_data.is_some() && user_keys.is_none() {
+      println!(
+        "Backup handler upload skipping backup_id={} because user_data is ready but user_keys are pending",
+        backup_id,
+      );
+      return Ok(());
+    }
+
     let attachments_path = get_backup_file_path(&backup_id, true, false)?;
     let attachments = match tokio::fs::read(&attachments_path).await {
       Ok(data) => data.lines().collect::<Result<_, _>>()?,
