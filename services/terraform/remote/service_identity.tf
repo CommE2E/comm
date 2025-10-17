@@ -291,12 +291,12 @@ resource "aws_lb_listener" "identity_service_ws" {
       content {
         target_group {
           arn    = aws_lb_target_group.identity_service_ws.arn
-          weight = 100 # 100% EC2
+          weight = 0 # 0% EC2
         }
 
         target_group {
           arn    = aws_lb_target_group.identity_service_ws_fargate[0].arn
-          weight = 0 # 0% Fargate
+          weight = 100 # 100% Fargate
         }
 
         stickiness {
@@ -332,12 +332,12 @@ resource "aws_lb_listener" "identity_service_grpc" {
       content {
         target_group {
           arn    = aws_lb_target_group.identity_service_grpc.arn
-          weight = 100 # Start with 100% EC2
+          weight = 0 # 0% EC2
         }
 
         target_group {
           arn    = aws_lb_target_group.identity_service_grpc_fargate[0].arn
-          weight = 0 # Start with 0% Fargate
+          weight = 100 # 100% Fargate
         }
 
         stickiness {
