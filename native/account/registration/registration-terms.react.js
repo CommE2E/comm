@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, View, Image, Linking } from 'react-native';
 
 import type { SignedMessage } from 'lib/types/siwe-types.js';
-import { useSetFarcasterDCsLoaded } from 'lib/utils/farcaster-utils.js';
+import { useSetFarcasterDCsSyncStatus } from 'lib/utils/farcaster-utils.js';
 
 import type { AuthNavigationProp } from './auth-navigator.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -105,7 +105,7 @@ function RegistrationTerms(props: Props): React.Node {
     );
   }, [setCachedSelections, navigateToConnectEthereum]);
 
-  const setFarcasterDCsLoaded = useSetFarcasterDCsLoaded();
+  const { setLoaded } = useSetFarcasterDCsSyncStatus();
   const onProceed = React.useCallback(async () => {
     setRegistrationInProgress(true);
     try {
@@ -115,7 +115,7 @@ function RegistrationTerms(props: Props): React.Node {
         onNonceExpired,
       });
       if (userSelections.farcasterDCsToken) {
-        setFarcasterDCsLoaded(false);
+        setLoaded(false);
       }
     } finally {
       setRegistrationInProgress(false);
@@ -125,7 +125,7 @@ function RegistrationTerms(props: Props): React.Node {
     userSelections,
     clearCachedSelections,
     onNonceExpired,
-    setFarcasterDCsLoaded,
+    setLoaded,
   ]);
 
   usePreventUserFromLeavingScreen(registrationInProgress);

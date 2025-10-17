@@ -9,6 +9,7 @@ import { useLightweightSyncOnAppStart } from 'lib/shared/farcaster/farcaster-hoo
 import {
   useCurrentUserSupportsDCs,
   useFarcasterDCsLoaded,
+  useFarcasterDCsSyncCanceled,
 } from 'lib/utils/farcaster-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 
@@ -25,6 +26,7 @@ function FarcasterSyncHandler(): React.Node {
 
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
   const farcasterDCsLoaded = useFarcasterDCsLoaded();
+  const isFarcasterSyncCanceled = useFarcasterDCsSyncCanceled();
   const currentRouteName = useCurrentLeafRouteName();
 
   useLightweightSyncOnAppStart();
@@ -40,7 +42,8 @@ function FarcasterSyncHandler(): React.Node {
       fullyLoggedIn &&
       currentUserSupportsDCs &&
       farcasterDCsLoaded === false &&
-      currentRouteName !== FarcasterSyncScreenRouteName
+      currentRouteName !== FarcasterSyncScreenRouteName &&
+      !isFarcasterSyncCanceled
     ) {
       dispatch(
         CommonActions.navigate({
@@ -55,6 +58,7 @@ function FarcasterSyncHandler(): React.Node {
     farcasterDCsLoaded,
     currentRouteName,
     fullyLoggedIn,
+    isFarcasterSyncCanceled,
   ]);
 
   return null;
