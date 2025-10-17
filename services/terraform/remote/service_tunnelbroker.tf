@@ -330,12 +330,12 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
       content {
         target_group {
           arn    = aws_lb_target_group.tunnelbroker_ws.arn
-          weight = 100 # Switch back to 100% EC2
+          weight = 0 # 0% EC2
         }
 
         target_group {
           arn    = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
-          weight = 0 # Switch back to 0% Fargate
+          weight = 100 # 100% Fargate
         }
 
         stickiness {
@@ -365,12 +365,12 @@ resource "aws_lb_listener" "tunnelbroker_grpc" {
     forward {
       target_group {
         arn    = aws_lb_target_group.tunnelbroker_grpc.arn
-        weight = 100 # 100% EC2
+        weight = 0 # Switch to 0% EC2
       }
 
       target_group {
         arn    = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
-        weight = 0 # 0% Fargate
+        weight = 100 # Switch to 100% Fargate
       }
 
       stickiness {

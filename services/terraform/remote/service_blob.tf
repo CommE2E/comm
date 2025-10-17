@@ -199,12 +199,12 @@ resource "aws_lb_listener" "blob_service_https" {
       content {
         target_group {
           arn    = aws_lb_target_group.blob_service_http.arn
-          weight = 100 # 100% EC2
+          weight = 0 # 0% EC2
         }
 
         target_group {
           arn    = aws_lb_target_group.blob_service_http_fargate[0].arn
-          weight = 0 # 0% Fargate
+          weight = 100 # 100% Fargate
         }
 
         stickiness {
