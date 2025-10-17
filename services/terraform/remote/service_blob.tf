@@ -12,6 +12,9 @@ locals {
   # This renders to 'http://blob-service:50053'
   blob_local_url = "http://${local.blob_sc_dns_name}:${local.blob_service_container_http_port}"
 
+  # Fargate-specific URL for Fargate services to communicate with Fargate blob service
+  blob_fargate_url = "http://${local.blob_sc_dns_name}-fargate:${local.blob_service_container_http_port}"
+
   blob_service_container_grpc_port = 50051
   blob_service_grpc_public_port    = 50053
   blob_service_domain_name         = "blob.${local.root_domain}"
@@ -185,8 +188,31 @@ resource "aws_lb_listener" "blob_service_https" {
   certificate_arn   = data.aws_acm_certificate.blob_service.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.blob_service_http.arn
+    type = "forward"
+
+    # Production: Simple forwarding (unchanged)
+    target_group_arn = local.is_staging ? null : aws_lb_target_group.blob_service_http.arn
+
+    # Staging: Weighted forwarding  
+    dynamic "forward" {
+      for_each = local.is_staging ? [1] : []
+      content {
+        target_group {
+          arn    = aws_lb_target_group.blob_service_http.arn
+          weight = 100 # 100% EC2
+        }
+
+        target_group {
+          arn    = aws_lb_target_group.blob_service_http_fargate[0].arn
+          weight = 0 # 0% Fargate
+        }
+
+        stickiness {
+          enabled  = false
+          duration = 10
+        }
+      }
+    }
   }
 
   lifecycle {
