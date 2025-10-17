@@ -6,6 +6,7 @@ import { useLightweightSyncOnAppStart } from 'lib/shared/farcaster/farcaster-hoo
 import {
   useCurrentUserSupportsDCs,
   useFarcasterDCsLoaded,
+  useFarcasterDCsSyncCanceled,
 } from 'lib/utils/farcaster-utils.js';
 
 import FarcasterSyncLoadingScreen from '../farcaster/farcaster-sync-loading-screen.react.js';
@@ -17,10 +18,13 @@ type Props = {
 function FarcasterSyncOverlay(props: Props): React.Node {
   const { children } = props;
   const farcasterDCsLoaded = useFarcasterDCsLoaded();
+  const isFarcasterSyncCanceled = useFarcasterDCsSyncCanceled();
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
 
   const isFullSyncInProgress =
-    currentUserSupportsDCs && farcasterDCsLoaded === false;
+    currentUserSupportsDCs &&
+    farcasterDCsLoaded === false &&
+    !isFarcasterSyncCanceled;
 
   useLightweightSyncOnAppStart();
 
