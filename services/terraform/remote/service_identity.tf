@@ -15,6 +15,9 @@ locals {
   # URL accessible by other services in the same Service Connect namespace
   # This renders to e.g. 'http://identity-service:50054'
   identity_local_url = "http://${local.identity_sc_dns_name}:${local.identity_service_container_grpc_port}"
+  
+  # Fargate-specific URL for Fargate services to communicate with Fargate identity service
+  identity_fargate_url = "http://${local.identity_sc_dns_name}-fargate:${local.identity_service_container_grpc_port}"
 
   # Port that is exposed to the public SSL endpoint (appended to domain name)
   identity_service_grpc_public_port = 50054
@@ -277,8 +280,31 @@ resource "aws_lb_listener" "identity_service_ws" {
   certificate_arn   = data.aws_acm_certificate.identity_service.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.identity_service_ws.arn
+    type = "forward"
+
+    # Production: Simple forwarding (unchanged)
+    target_group_arn = local.is_staging ? null : aws_lb_target_group.identity_service_ws.arn
+
+    # Staging: Weighted forwarding  
+    dynamic "forward" {
+      for_each = local.is_staging ? [1] : []
+      content {
+        target_group {
+          arn    = aws_lb_target_group.identity_service_ws.arn
+          weight = 100 # 100% EC2
+        }
+
+        target_group {
+          arn    = aws_lb_target_group.identity_service_ws_fargate[0].arn
+          weight = 0 # 0% Fargate
+        }
+        
+        stickiness {
+          enabled  = false
+          duration = 10
+        }
+      }
+    }
   }
 
   lifecycle {
@@ -295,8 +321,31 @@ resource "aws_lb_listener" "identity_service_grpc" {
   certificate_arn   = data.aws_acm_certificate.identity_service.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.identity_service_grpc.arn
+    type = "forward"
+
+    # Production: Simple forwarding (unchanged)
+    target_group_arn = local.is_staging ? null : aws_lb_target_group.identity_service_grpc.arn
+
+    # Staging: Weighted forwarding  
+    dynamic "forward" {
+      for_each = local.is_staging ? [1] : []
+      content {
+        target_group {
+          arn    = aws_lb_target_group.identity_service_grpc.arn
+          weight = 100 # Start with 100% EC2
+        }
+
+        target_group {
+          arn    = aws_lb_target_group.identity_service_grpc_fargate[0].arn
+          weight = 0 # Start with 0% Fargate
+        }
+        
+        stickiness {
+          enabled  = true
+          duration = 10
+        }
+      }
+    }
   }
 
   lifecycle {
