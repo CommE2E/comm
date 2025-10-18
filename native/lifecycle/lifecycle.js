@@ -18,7 +18,7 @@ if (Platform.OS === 'android') {
 }
 
 function addLifecycleListener(
-  listener: (state: ?LifecycleState) => void,
+  listener: (state: ?(LifecycleState | 'unknown')) => void,
 ): EventSubscription {
   if (Platform.OS === 'android') {
     return addAndroidLifecycleListener(listener);
@@ -27,10 +27,10 @@ function addLifecycleListener(
   return NativeAppState.addEventListener('change', listener);
 }
 
-function getCurrentLifecycleState(): ?string {
+function getCurrentLifecycleState(): ?(LifecycleState | 'unknown') {
   return Platform.OS === 'android'
     ? currentLifecycleStatus
-    : NativeAppState.currentState;
+    : (NativeAppState.currentState: any);
 }
 
 export { addLifecycleListener, getCurrentLifecycleState };
