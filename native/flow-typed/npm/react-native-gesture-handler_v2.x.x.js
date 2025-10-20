@@ -659,10 +659,57 @@ interface HandlerStateChangeEventPayload extends GestureEventPayload {
   oldState: $Values<typeof State>;
 }
 
-declare type GestureStateChangeEvent<GestureStateChangeEventPayloadT> =
+declare export type GestureStateChangeEvent<GestureStateChangeEventPayloadT> =
   HandlerStateChangeEventPayload & GestureStateChangeEventPayloadT;
 
+declare export type TouchData = {
+  +id: number,
+  +x: number,
+  +y: number,
+  +absoluteX: number,
+  +absoluteY: number,
+};
+
+declare export const TouchEventType: {
+  +UNDETERMINED: 0,
+  +TOUCHES_DOWN: 1,
+  +TOUCHES_MOVE: 2,
+  +TOUCHES_UP: 3,
+  +TOUCHES_CANCELLED: 4,
+};
+
+declare export const PointerType: {
+  +TOUCH: 0,
+  +STYLUS: 1,
+  +MOUSE: 2,
+  +KEY: 3,
+  +OTHER: 4,
+};
+
+declare export type GestureTouchEvent = {
+  +handlerTag: number,
+  +numberOfTouches: number,
+  +state: $Values<typeof State>,
+  +eventType: $Values<typeof TouchEventType>,
+  +allTouches: $ReadOnlyArray<TouchData>,
+  +changedTouches: $ReadOnlyArray<TouchData>,
+  +pointerType: $Values<typeof PointerType>,
+};
+
+declare export type GestureStateManagerType = {
+  +begin: () => void,
+  +activate: () => void,
+  +fail: () => void,
+  +end: () => void,
+};
+
+type TouchEventHandlerType = (
+  event: GestureTouchEvent,
+  stateManager: GestureStateManagerType,
+) => void;
+
 declare class BaseGesture<EventPayloadT> {
+  enabled(isEnabled: boolean): this;
   onBegin(
     callback: (event: GestureStateChangeEvent<EventPayloadT>) => void,
   ): this;
@@ -681,16 +728,20 @@ declare class BaseGesture<EventPayloadT> {
       success: boolean,
     ) => void,
   ): this;
+  onTouchesDown(callback: TouchEventHandlerType): this;
+  onTouchesMove(callback: TouchEventHandlerType): this;
+  onTouchesUp(callback: TouchEventHandlerType): this;
+  onTouchesCancelled(callback: TouchEventHandlerType): this;
   initialize(): void;
   toGestureArray(): Array<GestureType>;
   prepare(): void;
 }
 
 declare type TapGestureHandlerEventPayload = {
-  x: number,
-  y: number,
-  absoluteX: number,
-  absoluteY: number,
+  +x: number,
+  +y: number,
+  +absoluteX: number,
+  +absoluteY: number,
 };
 
 declare export class TapGesture
@@ -703,6 +754,21 @@ declare export class TapGesture
   maxDelay(delay: number): this;
   maxDeltaX(delta: number): this;
   maxDeltaY(delta: number): this;
+}
+
+declare type LongPressGestureHandlerEventPayload = {
+  +x: number,
+  +y: number,
+  +absoluteX: number,
+  +absoluteY: number,
+  +duration: number,
+};
+
+declare export class LongPressGesture
+  extends BaseGesture<LongPressGestureHandlerEventPayload>
+{
+  maxDistance(maxDist: number): this;
+  minDuration(duration: number): this;
 }
 
 declare type GestureUpdateEvent<GestureEventPayloadT> = GestureEventPayload &
@@ -721,19 +787,19 @@ declare class ContinousBaseGesture<EventPayloadT, EventChangePayloadT>
 }
 
 declare type PanGestureChangeEventPayload = {
-  changeX: number,
-  changeY: number,
+  +changeX: number,
+  +changeY: number,
 };
 
 declare type PanGestureHandlerEventPayload = {
-  x: number,
-  y: number,
-  absoluteX: number,
-  absoluteY: number,
-  translationX: number,
-  translationY: number,
-  velocityX: number,
-  velocityY: number,
+  +x: number,
+  +y: number,
+  +absoluteX: number,
+  +absoluteY: number,
+  +translationX: number,
+  +translationY: number,
+  +velocityX: number,
+  +velocityY: number,
 };
 
 declare class PanGesture
@@ -766,14 +832,14 @@ declare class PanGesture
 }
 
 declare type PinchGestureChangeEventPayload = {
-  scaleChange: number,
+  +scaleChange: number,
 };
 
 declare type PinchGestureHandlerEventPayload = {
-  scale: number,
-  focalX: number,
-  focalY: number,
-  velocity: number,
+  +scale: number,
+  +focalX: number,
+  +focalY: number,
+  +velocity: number,
 };
 
 declare class PinchGesture
@@ -830,6 +896,7 @@ interface GestureDetectorProps {
 
 declare const GestureObject: {|
   +Tap: () => TapGesture,
+  +LongPress: () => LongPressGesture,
   +Pan: () => PanGesture,
   +Pinch: () => PinchGesture,
   +Exclusive: (...gestures: $ReadOnlyArray<Gesture>) => ExclusiveGesture,
