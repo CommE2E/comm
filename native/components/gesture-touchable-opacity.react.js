@@ -2,17 +2,10 @@
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import {
-  LongPressGestureHandler,
-  TapGestureHandler,
-  State as GestureState,
-  type LongPressGestureEvent,
-  type TapGestureEvent,
-} from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   useSharedValue,
-  useAnimatedGestureHandler,
   runOnJS,
   withTiming,
   useAnimatedStyle,
@@ -44,10 +37,7 @@ type Props = {
   +overlay?: React.Node,
   +disabled?: boolean,
 };
-function ForwardedGestureTouchableOpacity(
-  props: Props,
-  ref: React.RefSetter<TapGestureHandler>,
-) {
+function GestureTouchableOpacity(props: Props): React.Node {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
   const onPress = React.useCallback(() => {
     innerOnPress && innerOnPress();
@@ -59,85 +49,70 @@ function ForwardedGestureTouchableOpacity(
 
   const { stickyActive, disabled } = props;
   const activeValue = useSharedValueForBoolean(!!stickyActive);
-  const disabledValue = useSharedValueForBoolean(!!disabled);
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
 
-  const longPressState = useSharedValue<$Values<typeof GestureState>>(
-    GestureState.UNDETERMINED,
-  );
-  const tapState = useSharedValue<$Values<typeof GestureState>>(
-    GestureState.UNDETERMINED,
-  );
-  const longPressEvent = useAnimatedGestureHandler<LongPressGestureEvent>(
-    {
-      onStart: () => {
-        longPressState.value = GestureState.BEGAN;
-      },
-      onActive: () => {
-        longPressState.value = GestureState.ACTIVE;
-        if (disabledValue.value) {
-          return;
-        }
+  const gesturePending = useSharedValue(false);
+  const longPressGesture = React.useMemo(() => {
+    if (!innerOnLongPress) {
+      return null;
+    }
+    return Gesture.LongPress()
+      .enabled(!disabled)
+      .minDuration(370)
+      .maxDistance(50)
+      .onBegin(() => {
+        gesturePending.value = true;
+      })
+      .onStart(() => {
         if (stickyActiveEnabled) {
           activeValue.value = true;
         }
         runOnJS(onLongPress)();
-      },
-      onEnd: () => {
-        longPressState.value = GestureState.END;
-      },
-      onFail: () => {
-        longPressState.value = GestureState.FAILED;
-      },
-      onCancel: () => {
-        longPressState.value = GestureState.CANCELLED;
-      },
-      onFinish: () => {
-        longPressState.value = GestureState.END;
-      },
-    },
-    [stickyActiveEnabled, onLongPress],
-  );
-  const tapEvent = useAnimatedGestureHandler<TapGestureEvent>(
-    {
-      onStart: () => {
-        tapState.value = GestureState.BEGAN;
-      },
-      onActive: () => {
-        tapState.value = GestureState.ACTIVE;
-      },
-      onEnd: () => {
-        tapState.value = GestureState.END;
-        if (disabledValue.value) {
-          return;
-        }
-        if (stickyActiveEnabled) {
-          activeValue.value = true;
-        }
-        runOnJS(onPress)();
-      },
-      onFail: () => {
-        tapState.value = GestureState.FAILED;
-      },
-      onCancel: () => {
-        tapState.value = GestureState.CANCELLED;
-      },
-      onFinish: () => {
-        tapState.value = GestureState.END;
-      },
-    },
-    [stickyActiveEnabled, onPress],
+      })
+      .onTouchesCancelled(() => {
+        gesturePending.value = false;
+      })
+      .onFinalize(() => {
+        gesturePending.value = false;
+      });
+  }, [
+    disabled,
+    activeValue,
+    innerOnLongPress,
+    onLongPress,
+    stickyActiveEnabled,
+    gesturePending,
+  ]);
+
+  const tapGesture = React.useMemo(
+    () =>
+      Gesture.Tap()
+        .enabled(!disabled)
+        .maxDuration(100000)
+        .maxDistance(50)
+        .onBegin(() => {
+          gesturePending.value = true;
+        })
+        .onEnd(() => {
+          if (stickyActiveEnabled) {
+            activeValue.value = true;
+          }
+          runOnJS(onPress)();
+        })
+        .onTouchesCancelled(() => {
+          gesturePending.value = false;
+        })
+        .onFinalize(() => {
+          gesturePending.value = false;
+        }),
+    [disabled, activeValue, onPress, stickyActiveEnabled, gesturePending],
   );
 
   const curOpacity = useSharedValue(1);
 
   const transformStyle = useAnimatedStyle(() => {
-    const gestureActive =
-      longPressState.value === GestureState.ACTIVE ||
-      tapState.value === GestureState.BEGAN ||
-      tapState.value === GestureState.ACTIVE ||
-      activeValue.value;
+    const gestureActive = gesturePending.value || activeValue.value;
     if (gestureActive) {
       curOpacity.value = withTiming(activeOpacity, pressAnimationSpec);
     } else {
@@ -158,42 +133,28 @@ function ForwardedGestureTouchableOpacity(
     return { flex };
   }, [props.style]);
 
-  const tapHandler = (
-    <TapGestureHandler
-      onHandlerStateChange={tapEvent}
-      maxDurationMs={100000}
-      maxDist={50}
-      ref={ref}
-    >
+  const composedGesture = React.useMemo(() => {
+    if (!longPressGesture) {
+      return tapGesture;
+    }
+    return Gesture.Exclusive(longPressGesture, tapGesture);
+  }, [longPressGesture, tapGesture]);
+
+  const childrenWrapperView = React.useMemo(
+    () => [transformStyle, props.style, props.animatedStyle],
+    [transformStyle, props.style, props.animatedStyle],
+  );
+
+  return (
+    <GestureDetector gesture={composedGesture}>
       <Animated.View style={fillStyle}>
-        <Animated.View
-          style={[transformStyle, props.style, props.animatedStyle]}
-        >
+        <Animated.View style={childrenWrapperView}>
           {props.children}
         </Animated.View>
         {props.overlay}
       </Animated.View>
-    </TapGestureHandler>
-  );
-  if (!innerOnLongPress) {
-    return tapHandler;
-  }
-
-  return (
-    <LongPressGestureHandler
-      onHandlerStateChange={longPressEvent}
-      minDurationMs={370}
-      maxDist={50}
-    >
-      <Animated.View style={fillStyle}>{tapHandler}</Animated.View>
-    </LongPressGestureHandler>
+    </GestureDetector>
   );
 }
-
-const GestureTouchableOpacity: React.ComponentType<Props> = React.forwardRef<
-  Props,
-  TapGestureHandler,
->(ForwardedGestureTouchableOpacity);
-GestureTouchableOpacity.displayName = 'GestureTouchableOpacity';
 
 export default GestureTouchableOpacity;
