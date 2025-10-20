@@ -4,17 +4,16 @@ import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { View } from 'react-native';
 import {
-  PanGestureHandler,
+  Gesture,
+  GestureDetector,
   type PanGestureEvent,
 } from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedGestureHandler,
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
   withSpring,
   interpolate,
-  cancelAnimation,
   Extrapolate,
   type SharedValue,
   type WithSpringConfig,
@@ -176,6 +175,7 @@ type Props = {
 };
 function SwipeableMessage(props: Props): React.Node {
   const { isViewer, triggerReply, triggerSidebar } = props;
+  const gestureEnabled = !!(triggerReply || triggerSidebar);
   const secondaryActionExists = triggerReply && triggerSidebar;
 
   const onPassPrimaryThreshold = React.useCallback(() => {
@@ -204,63 +204,72 @@ function SwipeableMessage(props: Props): React.Node {
   }, [triggerReply, triggerSidebar]);
 
   const translateX = useSharedValue(0);
-  const swipeEvent = useAnimatedGestureHandler<PanGestureEvent>(
-    {
-      onStart: (event: Partial<PanGestureEvent>, ctx: { [string]: mixed }) => {
-        ctx.translationAtStart = translateX.value;
-        cancelAnimation(translateX);
-      },
+  const translationAtStart = useSharedValue(0);
+  const prevPastPrimaryThreshold = useSharedValue(false);
+  const prevPastSecondaryThreshold = useSharedValue(false);
+  const panGesture = React.useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(gestureEnabled)
+        .maxPointers(1)
+        .activeOffsetX(panGestureHandlerActiveOffsetX)
+        .failOffsetX(isViewer ? 5 : -5)
+        .failOffsetY(panGestureHandlerFailOffsetY)
+        .onStart(() => {
+          translationAtStart.value = translateX.value;
+          prevPastPrimaryThreshold.value = false;
+          prevPastSecondaryThreshold.value = false;
+        })
+        .onChange((event: PanGestureEvent) => {
+          const translationX =
+            translationAtStart.value + (event.translationX ?? 0);
+          const baseActiveTranslation = isViewer
+            ? Math.min(translationX, 0)
+            : Math.max(translationX, 0);
+          translateX.value = dividePastDistance(
+            baseActiveTranslation,
+            primaryThreshold,
+            2,
+          );
 
-      onActive: (event: Partial<PanGestureEvent>, ctx: { [string]: mixed }) => {
-        const { translationAtStart } = ctx;
-        if (typeof translationAtStart !== 'number') {
-          throw new Error('translationAtStart should be number');
-        }
-        const translationX = translationAtStart + (event.translationX ?? 0);
-        const baseActiveTranslation = isViewer
-          ? Math.min(translationX, 0)
-          : Math.max(translationX, 0);
-        translateX.value = dividePastDistance(
-          baseActiveTranslation,
-          primaryThreshold,
-          2,
-        );
+          const absValue = Math.abs(translateX.value);
+          const pastPrimaryThreshold = absValue >= primaryThreshold;
+          if (pastPrimaryThreshold && !prevPastPrimaryThreshold.value) {
+            runOnJS(onPassPrimaryThreshold)();
+          }
+          prevPastPrimaryThreshold.value = pastPrimaryThreshold;
 
-        const absValue = Math.abs(translateX.value);
-        const pastPrimaryThreshold = absValue >= primaryThreshold;
-        if (pastPrimaryThreshold && !ctx.prevPastPrimaryThreshold) {
-          runOnJS(onPassPrimaryThreshold)();
-        }
-        ctx.prevPastPrimaryThreshold = pastPrimaryThreshold;
+          const pastSecondaryThreshold = absValue >= secondaryThreshold;
+          if (pastSecondaryThreshold && !prevPastSecondaryThreshold.value) {
+            runOnJS(onPassSecondaryThreshold)();
+          }
+          prevPastSecondaryThreshold.value = pastSecondaryThreshold;
+        })
+        .onEnd((event: PanGestureEvent) => {
+          const absValue = Math.abs(translateX.value);
+          if (absValue >= secondaryThreshold && secondaryActionExists) {
+            runOnJS(secondaryAction)();
+          } else if (absValue >= primaryThreshold) {
+            runOnJS(primaryAction)();
+          }
 
-        const pastSecondaryThreshold = absValue >= secondaryThreshold;
-        if (pastSecondaryThreshold && !ctx.prevPastSecondaryThreshold) {
-          runOnJS(onPassSecondaryThreshold)();
-        }
-        ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
-      },
-
-      onEnd: (event: Partial<PanGestureEvent>) => {
-        const absValue = Math.abs(translateX.value);
-        if (absValue >= secondaryThreshold && secondaryActionExists) {
-          runOnJS(secondaryAction)();
-        } else if (absValue >= primaryThreshold) {
-          runOnJS(primaryAction)();
-        }
-
-        translateX.value = withSpring(
-          0,
-          makeSpringConfig(event.velocityX ?? 0),
-        );
-      },
-    },
+          const velocityX = Number.isFinite(event.velocityX)
+            ? event.velocityX
+            : 0;
+          translateX.value = withSpring(0, makeSpringConfig(velocityX));
+        }),
     [
       isViewer,
+      gestureEnabled,
       onPassPrimaryThreshold,
       onPassSecondaryThreshold,
       primaryAction,
       secondaryAction,
       secondaryActionExists,
+      translateX,
+      translationAtStart,
+      prevPastPrimaryThreshold,
+      prevPastSecondaryThreshold,
     ],
   );
 
@@ -274,8 +283,9 @@ function SwipeableMessage(props: Props): React.Node {
   const { contentStyle, children } = props;
 
   const panGestureHandlerStyle = React.useMemo(
-    () => [contentStyle, transformContentStyle],
-    [contentStyle, transformContentStyle],
+    () =>
+      gestureEnabled ? [contentStyle, transformContentStyle] : contentStyle,
+    [gestureEnabled, contentStyle, transformContentStyle],
   );
 
   const threadColor = `#${props.threadColor}`;
@@ -340,30 +350,16 @@ function SwipeableMessage(props: Props): React.Node {
     [isViewer, threadColor, translateX],
   );
 
-  const panGestureHandler = React.useMemo(
+  const gestureContent = React.useMemo(
     () => (
-      <PanGestureHandler
-        maxPointers={1}
-        activeOffsetX={panGestureHandlerActiveOffsetX}
-        onGestureEvent={swipeEvent}
-        failOffsetX={isViewer ? 5 : -5}
-        failOffsetY={panGestureHandlerFailOffsetY}
-        key="gesture"
-      >
+      <GestureDetector gesture={panGesture} key="gesture">
         <Animated.View style={panGestureHandlerStyle}>{children}</Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
     ),
-    [children, isViewer, panGestureHandlerStyle, swipeEvent],
+    [panGesture, panGestureHandlerStyle, children],
   );
 
   const swipeableMessage = React.useMemo(() => {
-    if (!triggerReply && !triggerSidebar) {
-      return (
-        <PanGestureHandler enabled={false}>
-          <Animated.View style={contentStyle}>{children}</Animated.View>
-        </PanGestureHandler>
-      );
-    }
     const snakes: Array<React.Node> = [];
     if (triggerReply) {
       snakes.push(replySwipeSnake);
@@ -373,12 +369,10 @@ function SwipeableMessage(props: Props): React.Node {
     } else if (triggerSidebar) {
       snakes.push(sidebarSwipeSnakeWithoutReplySwipeSnake);
     }
-    snakes.push(panGestureHandler);
+    snakes.push(gestureContent);
     return snakes;
   }, [
-    children,
-    contentStyle,
-    panGestureHandler,
+    gestureContent,
     replySwipeSnake,
     sidebarSwipeSnakeWithReplySwipeSnake,
     sidebarSwipeSnakeWithoutReplySwipeSnake,
