@@ -663,6 +663,7 @@ declare type GestureStateChangeEvent<GestureStateChangeEventPayloadT> =
   HandlerStateChangeEventPayload & GestureStateChangeEventPayloadT;
 
 declare class BaseGesture<EventPayloadT> {
+  enabled(isEnabled: boolean): this;
   onBegin(
     callback: (event: GestureStateChangeEvent<EventPayloadT>) => void,
   ): this;
