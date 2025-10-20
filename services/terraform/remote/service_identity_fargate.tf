@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
           name          = local.identity_sc_port_name
           containerPort = local.identity_service_container_grpc_port
           protocol      = "tcp"
-          appProtocol   = "grpc"
+          # Leave empty for mixed HTTP/gRPC traffic
         },
         {
           name          = local.identity_sc_ws_port_name
