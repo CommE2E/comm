@@ -482,8 +482,8 @@ function FullScreenViewModal(props: Props) {
       }
       const targetScale = roundedCurScale.value > 1 ? 1 : 3;
 
-      const tapXDiff = x - centerX.value - curX.value;
-      const tapYDiff = y - centerY.value - curY.value;
+      const tapXDiff = centerX.value + curX.value - x;
+      const tapYDiff = centerY.value + curY.value - y;
       const tapXPercent = tapXDiff / imageWidth.value / curScale.value;
       const tapYPercent = tapYDiff / imageHeight.value / curScale.value;
 
