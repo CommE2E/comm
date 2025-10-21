@@ -22,7 +22,7 @@ resource "aws_cloudwatch_log_metric_filter" "blob_error_filters" {
 
   name           = "Blob${each.value.name}ErrorCount"
   pattern        = "{ $.level = \"ERROR\" && $.fields.errorType = \"${each.value.pattern}\" }"
-  log_group_name = "/ecs/blob-service-task-def"
+  log_group_name = local.is_staging ? "/ecs/blob-service-fargate-task-def" : "/ecs/blob-service-task-def"
 
   metric_transformation {
     name      = "Blob${each.value.name}ErrorCount"
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
   alarm_description   = "Alarm when Blob service memory utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = aws_ecs_service.blob_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate[0].name : aws_ecs_service.blob_service.name
   }
   alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }
@@ -76,7 +76,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_cpu_utilization" {
   alarm_description   = "Alarm when Blob service CPU utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = aws_ecs_service.blob_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate[0].name : aws_ecs_service.blob_service.name
   }
   alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }

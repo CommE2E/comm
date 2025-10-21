@@ -2,13 +2,13 @@ locals {
   error_reports_subscribed_email = "error-reports@comm.app"
 
   service_log_groups = {
-    Backup         = { name = "Backup", log_group_name = "/ecs/backup-service-task-def" },
-    Blob           = { name = "Blob", log_group_name = "/ecs/blob-service-task-def" },
+    Backup         = { name = "Backup", log_group_name = local.is_staging ? "/ecs/backup-service-fargate-task-def" : "/ecs/backup-service-task-def" },
+    Blob           = { name = "Blob", log_group_name = local.is_staging ? "/ecs/blob-service-fargate-task-def" : "/ecs/blob-service-task-def" },
     ElectronUpdate = { name = "ElectronUpdate", log_group_name = "/ecs/electron-update-task-def" },
     FeatureFlags   = { name = "FeatureFlags", log_group_name = "/ecs/feature-flags-task-def" },
-    Identity       = { name = "Identity", log_group_name = "/ecs/identity-service-task-def" },
+    Identity       = { name = "Identity", log_group_name = local.is_staging ? "/ecs/identity-service-fargate-task-def" : "/ecs/identity-service-task-def" },
     Reports        = { name = "Reports", log_group_name = "/ecs/reports-service-task-def" },
-    Tunnelbroker   = { name = "Tunnelbroker", log_group_name = "/ecs/tunnelbroker-task-def" }
+    Tunnelbroker   = { name = "Tunnelbroker", log_group_name = local.is_staging ? "/ecs/tunnelbroker-fargate-task-def" : "/ecs/tunnelbroker-task-def" }
   }
 }
 
