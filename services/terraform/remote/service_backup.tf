@@ -87,7 +87,7 @@ resource "aws_ecs_service" "backup_service" {
   task_definition      = aws_ecs_task_definition.backup_service.arn
   force_new_deployment = true
 
-  desired_count = 1
+  desired_count = 0
   lifecycle {
     ignore_changes = [desired_count]
   }
