@@ -311,7 +311,6 @@ function Root() {
       <KeyserverReachabilityHandler />
       <DimensionsUpdater />
       <ConnectivityUpdater />
-      <ThemeHandler />
       <OrientationHandler />
       <IntegrityHandler />
       <AccessTokenHandler />
@@ -434,6 +433,7 @@ function Root() {
                                                             <AutoJoinCommunityHandler />
                                                             <SyncCommunityStoreHandler />
                                                             <SecondaryDevicesBackupHandler />
+                                                            <ThemeHandler />
                                                           </PersistedStateGate>
                                                           {navigation}
                                                         </RegistrationContextProvider>
