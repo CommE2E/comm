@@ -594,8 +594,9 @@ void SQLiteQueryExecutor::replaceThread(const Thread &thread, bool backupItem)
       "("
       " id, type, name, description, color, creation_time, parent_thread_id,"
       " containing_thread_id, community, members, roles, current_user,"
-      " source_message_id, replies_count, avatar, pinned_count, timestamps) "
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      " source_message_id, replies_count, avatar, pinned_count, timestamps,"
+      " pinned_message_ids) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   replaceEntity<Thread>(this->getConnection(), replaceThreadSQL, thread);
 };

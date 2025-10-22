@@ -52,6 +52,7 @@ describe('Fetch messages queries', () => {
         repliesCount: 0,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       threadSpecs[threadType].protocol().dataIsBackedUp,
     );
@@ -94,6 +95,7 @@ describe('Fetch messages queries', () => {
         repliesCount: 0,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       threadSpecs[thickThreadType].protocol().dataIsBackedUp,
     );

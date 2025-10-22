@@ -82,6 +82,12 @@ jsi::Array ThreadStore::parseDBDataStore(
       jsiThread.setProperty(rt, "timestamps", timestamps);
     }
 
+    if (thread.pinned_message_ids.has_value()) {
+      auto pinnedMessageIDs =
+          jsi::String::createFromUtf8(rt, thread.pinned_message_ids.value());
+      jsiThread.setProperty(rt, "pinnedMessageIDs", pinnedMessageIDs);
+    }
+
     jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
   }
   return jsiThreads;
@@ -181,6 +187,15 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
       std::optional<std::string> timestamps = maybeTimestamps.isString()
           ? std::optional<std::string>(maybeTimestamps.asString(rt).utf8(rt))
           : std::nullopt;
+
+      jsi::Value maybePinnedMessageIDs =
+          threadObj.getProperty(rt, "pinnedMessageIDs");
+      std::optional<std::string> pinnedMessageIDs =
+          maybePinnedMessageIDs.isString()
+          ? std::optional<std::string>(
+                maybePinnedMessageIDs.asString(rt).utf8(rt))
+          : std::nullopt;
+
       bool isBackedUp = op.getProperty(rt, "isBackedUp").asBool();
 
       Thread thread{
@@ -200,7 +215,8 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
           repliesCount,
           avatar,
           pinnedCount,
-          timestamps};
+          timestamps,
+          pinnedMessageIDs};
 
       threadStoreOps.push_back(std::make_unique<ReplaceThreadOperation>(
           std::move(thread), isBackedUp));
