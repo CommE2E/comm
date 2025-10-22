@@ -3,3 +3,17 @@
   font-size: small;
   margin-bottom: 24px;
 }
+
+.buttonContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 18.5px;
+}
+
+.buttonTextLoading {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
