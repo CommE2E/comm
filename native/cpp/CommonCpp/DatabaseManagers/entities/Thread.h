@@ -27,6 +27,7 @@ struct Thread {
   std::optional<std::string> avatar;
   int pinned_count;
   std::optional<std::string> timestamps;
+  std::optional<std::string> pinned_message_ids;
 
   static Thread fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return Thread{
@@ -47,6 +48,7 @@ struct Thread {
         getOptionalStringFromSQLRow(sqlRow, idx + 14),
         getIntFromSQLRow(sqlRow, idx + 15),
         getOptionalStringFromSQLRow(sqlRow, idx + 16),
+        getOptionalStringFromSQLRow(sqlRow, idx + 17),
     };
   }
 
@@ -67,7 +69,8 @@ struct Thread {
     bindIntToSQL(replies_count, sql, idx + 13);
     bindOptionalStringToSQL(avatar, sql, idx + 14);
     bindIntToSQL(pinned_count, sql, idx + 15);
-    return bindOptionalStringToSQL(timestamps, sql, idx + 16);
+    bindOptionalStringToSQL(timestamps, sql, idx + 16);
+    return bindOptionalStringToSQL(pinned_message_ids, sql, idx + 17);
   }
 };
 
