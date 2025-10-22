@@ -4,11 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { toggleMessagePinActionTypes } from 'lib/actions/message-actions.js';
-import { useToggleMessagePin } from 'lib/hooks/message-hooks.js';
-import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import MessageResult from './message-result.react.js';
 import Button from '../components/button.react.js';
@@ -34,8 +31,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { messageInfo, isPinned } = item;
   const styles = useStyles(unboundStyles);
 
-  const callToggleMessagePin = useToggleMessagePin();
-  const dispatchActionPromise = useDispatchActionPromise();
+  const pinMessageAction = usePinMessageAction();
 
   const modalInfo = React.useMemo(() => {
     if (isPinned) {
@@ -61,26 +57,17 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     };
   }, [isPinned, styles.pinButton, styles.removePinButton]);
 
-  const createToggleMessagePinPromise = React.useCallback(async () => {
-    invariant(messageInfo.id, 'messageInfo.id should be defined');
-    const result = await callToggleMessagePin({
-      messageID: messageInfo.id,
-      action: modalInfo.action,
-    });
-    return ({
-      newMessageInfos: result.newMessageInfos,
-      threadID: result.threadID,
-    }: { +newMessageInfos: $ReadOnlyArray<RawMessageInfo>, +threadID: string });
-  }, [callToggleMessagePin, messageInfo.id, modalInfo.action]);
-
   const onPress = React.useCallback(() => {
-    void dispatchActionPromise(
-      toggleMessagePinActionTypes,
-      createToggleMessagePinPromise(),
-    );
-
+    invariant(messageInfo.id, 'messageInfo.id should be defined');
+    void pinMessageAction(messageInfo.id, threadInfo, modalInfo.action);
     navigation.goBack();
-  }, [createToggleMessagePinPromise, dispatchActionPromise, navigation]);
+  }, [
+    pinMessageAction,
+    messageInfo.id,
+    threadInfo,
+    modalInfo.action,
+    navigation,
+  ]);
 
   const onCancel = React.useCallback(() => {
     navigation.goBack();
