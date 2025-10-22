@@ -31,6 +31,8 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { messageInfo, isPinned } = item;
   const styles = useStyles(unboundStyles);
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const pinMessageAction = usePinMessageAction();
 
   const modalInfo = React.useMemo(() => {
@@ -41,6 +43,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         confirmationText:
           'Are you sure you want to remove this pinned message?',
         buttonText: 'Remove Pinned Message',
+        buttonVariant: 'danger',
       };
     }
 
@@ -52,13 +55,20 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         'currently viewing. To unpin a message, select the pinned messages ' +
         'icon in the channel.',
       buttonText: 'Pin Message',
+      buttonVariant: 'enabled',
     };
   }, [isPinned]);
 
-  const onPress = React.useCallback(() => {
-    invariant(messageInfo.id, 'messageInfo.id should be defined');
-    void pinMessageAction(messageInfo.id, threadInfo.id, modalInfo.action);
-    navigation.goBack();
+  const onPress = React.useCallback(async () => {
+    const messageID = messageInfo.id;
+    invariant(messageID, 'messageInfo.id should be defined');
+    setIsLoading(true);
+    try {
+      await pinMessageAction(messageID, threadInfo.id, modalInfo.action);
+      navigation.goBack();
+    } finally {
+      setIsLoading(false);
+    }
   }, [
     pinMessageAction,
     messageInfo.id,
@@ -89,7 +99,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         <PrimaryButton
           onPress={onPress}
           label={modalInfo.buttonText}
-          variant="enabled"
+          variant={isLoading ? 'loading' : modalInfo.buttonVariant}
         />
         <PrimaryButton onPress={onCancel} label="Cancel" variant="outline" />
       </View>
@@ -118,9 +128,6 @@ const unboundStyles = {
     marginBottom: 0,
     height: 72,
     paddingHorizontal: 16,
-  },
-  textColor: {
-    color: 'modalButtonLabel',
   },
 };
 
