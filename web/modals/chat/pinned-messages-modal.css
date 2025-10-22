@@ -21,6 +21,7 @@ hr.separator {
 }
 
 .loadingIndicator {
+  margin-top: 16px;
   text-align: center;
 }
 

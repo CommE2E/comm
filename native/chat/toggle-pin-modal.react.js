@@ -8,8 +8,8 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import MessageResult from './message-result.react.js';
-import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
+import PrimaryButton from '../components/primary-button.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -41,7 +41,6 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         confirmationText:
           'Are you sure you want to remove this pinned message?',
         buttonText: 'Remove Pinned Message',
-        buttonStyle: styles.removePinButton,
       };
     }
 
@@ -53,9 +52,8 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         'currently viewing. To unpin a message, select the pinned messages ' +
         'icon in the channel.',
       buttonText: 'Pin Message',
-      buttonStyle: styles.pinButton,
     };
-  }, [isPinned, styles.pinButton, styles.removePinButton]);
+  }, [isPinned]);
 
   const onPress = React.useCallback(() => {
     invariant(messageInfo.id, 'messageInfo.id should be defined');
@@ -88,12 +86,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         scrollable={true}
       />
       <View style={styles.buttonsContainer}>
-        <Button style={modalInfo.buttonStyle} onPress={onPress}>
-          <Text style={styles.textColor}>{modalInfo.buttonText}</Text>
-        </Button>
-        <Button style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.textColor}>Cancel</Text>
-        </Button>
+        <PrimaryButton
+          onPress={onPress}
+          label={modalInfo.buttonText}
+          variant="enabled"
+        />
+        <PrimaryButton onPress={onCancel} label="Cancel" variant="outline" />
       </View>
     </Modal>
   );
@@ -120,26 +118,6 @@ const unboundStyles = {
     marginBottom: 0,
     height: 72,
     paddingHorizontal: 16,
-  },
-  removePinButton: {
-    borderRadius: 5,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'vibrantRedButton',
-  },
-  pinButton: {
-    borderRadius: 5,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'purpleButton',
-  },
-  cancelButton: {
-    borderRadius: 5,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   textColor: {
     color: 'modalButtonLabel',
