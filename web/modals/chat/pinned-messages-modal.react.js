@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import { fetchPinnedMessageActionTypes } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useFetchPinnedMessages } from 'lib/hooks/message-hooks.js';
 import {
   type ChatMessageInfoItem,
   messageListData,
@@ -19,6 +18,7 @@ import {
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
+import { useFetchPinnedMessagesAction } from 'lib/utils/pin-message-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './pinned-messages-modal.css';
@@ -43,7 +43,7 @@ function PinnedMessagesModal(props: Props): React.Node {
     $ReadOnlyArray<RawMessageInfo>,
   >([]);
 
-  const callFetchPinnedMessages = useFetchPinnedMessages();
+  const fetchPinnedMessagesAction = useFetchPinnedMessagesAction();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const userInfos = useSelector(state => state.userStore.userInfos);
@@ -53,11 +53,11 @@ function PinnedMessagesModal(props: Props): React.Node {
     void dispatchActionPromise(
       fetchPinnedMessageActionTypes,
       (async () => {
-        const result = await callFetchPinnedMessages({ threadID });
+        const result = await fetchPinnedMessagesAction(threadInfo);
         setRawMessageResults(result.pinnedMessages);
       })(),
     );
-  }, [dispatchActionPromise, callFetchPinnedMessages, threadID]);
+  }, [dispatchActionPromise, fetchPinnedMessagesAction, threadInfo]);
 
   const translatedMessageResults = React.useMemo(() => {
     const threadInfos = { [threadID]: threadInfo };
