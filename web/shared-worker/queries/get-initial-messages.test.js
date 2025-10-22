@@ -56,6 +56,7 @@ describe('getInitialMessages queries', () => {
         repliesCount: 0,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       threadSpecs[type].protocol().dataIsBackedUp,
     );

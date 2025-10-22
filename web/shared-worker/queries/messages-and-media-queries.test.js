@@ -125,6 +125,7 @@ describe('Message and media store queries', () => {
         repliesCount: 0,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );
@@ -147,6 +148,7 @@ describe('Message and media store queries', () => {
         repliesCount: 0,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );

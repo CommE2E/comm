@@ -41,6 +41,7 @@ describe('Threads queries', () => {
         repliesCount: 1,
         pinnedCount: 1,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );
@@ -63,6 +64,7 @@ describe('Threads queries', () => {
         repliesCount: 1,
         pinnedCount: 1,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );
@@ -85,6 +87,7 @@ describe('Threads queries', () => {
         repliesCount: 1,
         pinnedCount: 1,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );
@@ -108,6 +111,7 @@ describe('Threads queries', () => {
         repliesCount: 2,
         pinnedCount: 1,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       true,
     );
@@ -130,6 +134,7 @@ describe('Threads queries', () => {
         repliesCount: 3,
         pinnedCount: 2,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       true,
     );
@@ -198,6 +203,7 @@ describe('Threads queries', () => {
         repliesCount: 4,
         pinnedCount: 0,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       false,
     );
@@ -222,6 +228,7 @@ describe('Threads queries', () => {
         repliesCount: 5,
         pinnedCount: 3,
         timestamps: undefined,
+        pinnedMessageIDs: undefined,
       },
       true,
     );
@@ -234,5 +241,175 @@ describe('Threads queries', () => {
 
     expect(newRegular?.name).toBe('New Regular Thread');
     expect(newBackup?.name).toBe('New Backup Thread');
+  });
+
+  it('should write and read pinnedMessageIDs correctly for regular threads', () => {
+    const pinnedMessageIDs = '["msg1","msg2","msg3"]';
+
+    queryExecutor.replaceThread(
+      {
+        id: 'thread_with_pinned',
+        type: 1,
+        name: 'Thread with Pinned Messages',
+        avatar: undefined,
+        description: undefined,
+        color: 'aabbcc',
+        creationTime: BigInt(6000),
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
+        members: '1',
+        roles: '1',
+        currentUser: '1',
+        sourceMessageID: undefined,
+        repliesCount: 0,
+        pinnedCount: 3,
+        timestamps: undefined,
+        pinnedMessageIDs,
+      },
+      false,
+    );
+
+    const threads = queryExecutor.getAllThreads();
+    const threadWithPinned = threads.find(t => t.id === 'thread_with_pinned');
+
+    expect(threadWithPinned).toBeDefined();
+    expect(threadWithPinned?.pinnedMessageIDs).toBe(pinnedMessageIDs);
+    expect(threadWithPinned?.pinnedCount).toBe(3);
+  });
+
+  it('should write and read pinnedMessageIDs correctly for backup threads', () => {
+    const pinnedMessageIDs = '["backup_msg1","backup_msg2"]';
+
+    queryExecutor.replaceThread(
+      {
+        id: 'backup_thread_with_pinned',
+        type: 1,
+        name: 'Backup Thread with Pinned Messages',
+        avatar: undefined,
+        description: undefined,
+        color: 'ddeeff',
+        creationTime: BigInt(7000),
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
+        members: '2',
+        roles: '2',
+        currentUser: '2',
+        sourceMessageID: undefined,
+        repliesCount: 0,
+        pinnedCount: 2,
+        timestamps: undefined,
+        pinnedMessageIDs,
+      },
+      true,
+    );
+
+    const threads = queryExecutor.getAllThreads();
+    const backupThreadWithPinned = threads.find(
+      t => t.id === 'backup_thread_with_pinned',
+    );
+
+    expect(backupThreadWithPinned).toBeDefined();
+    expect(backupThreadWithPinned?.pinnedMessageIDs).toBe(pinnedMessageIDs);
+    expect(backupThreadWithPinned?.pinnedCount).toBe(2);
+  });
+
+  it('should handle undefined pinnedMessageIDs correctly', () => {
+    queryExecutor.replaceThread(
+      {
+        id: 'thread_no_pinned',
+        type: 1,
+        name: 'Thread without Pinned Messages',
+        avatar: undefined,
+        description: undefined,
+        color: '112233',
+        creationTime: BigInt(8000),
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
+        members: '1',
+        roles: '1',
+        currentUser: '1',
+        sourceMessageID: undefined,
+        repliesCount: 0,
+        pinnedCount: 0,
+        timestamps: undefined,
+        pinnedMessageIDs: undefined,
+      },
+      false,
+    );
+
+    const threads = queryExecutor.getAllThreads();
+    const threadNoPinned = threads.find(t => t.id === 'thread_no_pinned');
+
+    expect(threadNoPinned).toBeDefined();
+    expect(threadNoPinned?.pinnedMessageIDs).toBeUndefined();
+    expect(threadNoPinned?.pinnedCount).toBe(0);
+  });
+
+  it('should update pinnedMessageIDs when replacing existing thread', () => {
+    const initialPinnedMessageIDs = '["msg1","msg2"]';
+    const updatedPinnedMessageIDs = '["msg1","msg2","msg3","msg4"]';
+
+    // Create initial thread
+    queryExecutor.replaceThread(
+      {
+        id: 'updatable_thread',
+        type: 1,
+        name: 'Updatable Thread',
+        avatar: undefined,
+        description: undefined,
+        color: '445566',
+        creationTime: BigInt(9000),
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
+        members: '1',
+        roles: '1',
+        currentUser: '1',
+        sourceMessageID: undefined,
+        repliesCount: 0,
+        pinnedCount: 2,
+        timestamps: undefined,
+        pinnedMessageIDs: initialPinnedMessageIDs,
+      },
+      false,
+    );
+
+    let threads = queryExecutor.getAllThreads();
+    let thread = threads.find(t => t.id === 'updatable_thread');
+    expect(thread?.pinnedMessageIDs).toBe(initialPinnedMessageIDs);
+    expect(thread?.pinnedCount).toBe(2);
+
+    // Update thread with new pinned messages
+    queryExecutor.replaceThread(
+      {
+        id: 'updatable_thread',
+        type: 1,
+        name: 'Updatable Thread',
+        avatar: undefined,
+        description: undefined,
+        color: '445566',
+        creationTime: BigInt(9000),
+        parentThreadID: undefined,
+        containingThreadID: undefined,
+        community: undefined,
+        members: '1',
+        roles: '1',
+        currentUser: '1',
+        sourceMessageID: undefined,
+        repliesCount: 0,
+        pinnedCount: 4,
+        timestamps: undefined,
+        pinnedMessageIDs: updatedPinnedMessageIDs,
+      },
+      false,
+    );
+
+    threads = queryExecutor.getAllThreads();
+    thread = threads.find(t => t.id === 'updatable_thread');
+    expect(thread?.pinnedMessageIDs).toBe(updatedPinnedMessageIDs);
+    expect(thread?.pinnedCount).toBe(4);
   });
 });
