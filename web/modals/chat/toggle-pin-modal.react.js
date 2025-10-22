@@ -3,15 +3,12 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { toggleMessagePinActionTypes } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useToggleMessagePin } from 'lib/hooks/message-hooks.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
-import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import css from './toggle-pin-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
@@ -28,8 +25,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { isPinned } = item;
   const { popModal } = useModalContext();
 
-  const callToggleMessagePin = useToggleMessagePin();
-  const dispatchActionPromise = useDispatchActionPromise();
+  const pinMessageAction = usePinMessageAction();
 
   const modalInfo = React.useMemo(() => {
     if (isPinned) {
@@ -74,34 +70,21 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     chatMessageItemEngagementTargetMessageInfo(item);
   const engagementTargetMessageID = engagementTargetMessageInfo?.id;
   const onClick = React.useCallback(() => {
-    const createToggleMessagePinPromise = async () => {
-      invariant(
-        engagementTargetMessageID,
-        'engagement target messageID should be defined',
-      );
-      const result = await callToggleMessagePin({
-        messageID: engagementTargetMessageID,
-        action: modalInfo.action,
-      });
-      return ({
-        newMessageInfos: result.newMessageInfos,
-        threadID: result.threadID,
-      }: {
-        +newMessageInfos: $ReadOnlyArray<RawMessageInfo>,
-        +threadID: string,
-      });
-    };
-
-    void dispatchActionPromise(
-      toggleMessagePinActionTypes,
-      createToggleMessagePinPromise(),
+    invariant(
+      engagementTargetMessageID,
+      'engagement target messageID should be defined',
+    );
+    void pinMessageAction(
+      engagementTargetMessageID,
+      threadInfo,
+      modalInfo.action,
     );
     popModal();
   }, [
-    modalInfo,
-    callToggleMessagePin,
-    dispatchActionPromise,
+    modalInfo.action,
+    pinMessageAction,
     engagementTargetMessageID,
+    threadInfo,
     popModal,
   ]);
 
