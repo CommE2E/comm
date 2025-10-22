@@ -5,7 +5,6 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { useFetchPinnedMessages } from 'lib/hooks/message-hooks.js';
 import {
   type ChatMessageInfoItem,
   messageListData,
@@ -17,6 +16,7 @@ import {
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { useFetchPinnedMessagesAction } from 'lib/utils/pin-message-utils.js';
 
 import { useHeightMeasurer } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react';
@@ -55,15 +55,15 @@ function PinnedMessagesScreen(props: Props): React.Node {
     React.useState<?VerticalBounds>();
   const scrollViewContainerRef = React.useRef<?React.ElementRef<typeof View>>();
 
-  const callFetchPinnedMessages = useFetchPinnedMessages();
+  const fetchPinnedMessagesAction = useFetchPinnedMessagesAction();
   const userInfos = useSelector(state => state.userStore.userInfos);
 
   React.useEffect(() => {
     void (async () => {
-      const result = await callFetchPinnedMessages({ threadID });
+      const result = await fetchPinnedMessagesAction(threadInfo);
       setRawMessageResults(result.pinnedMessages);
     })();
-  }, [callFetchPinnedMessages, threadID]);
+  }, [fetchPinnedMessagesAction, threadInfo]);
 
   const translatedMessageResults = React.useMemo(() => {
     const threadInfos = { [threadID]: threadInfo };
