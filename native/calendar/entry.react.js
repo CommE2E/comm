@@ -170,12 +170,14 @@ const unboundStyles = {
   textInput: {
     fontFamily: 'System',
     fontSize: 16,
-    left: ((Platform.OS === 'android' ? 9.8 : 10): number),
     margin: 0,
-    padding: 0,
     position: 'absolute',
-    right: 10,
-    top: ((Platform.OS === 'android' ? 4.8 : 0.5): number),
+    left: 0,
+    right: 0,
+    top: 0,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: ((Platform.OS === 'android' ? 2 : 4.7): number),
   },
 };
 
