@@ -549,15 +549,12 @@ pub mod batch_operations {
         }
         Err(error) => {
           let error: DynamoDBError = error.into();
-          if !matches!(
-            error,
-            DynamoDBError::ProvisionedThroughputExceededException(_)
-          ) {
+          if !is_retryable_dynamodb_error(&error) {
             tracing::error!("BatchGetItem failed: {0:?} - {0}", error);
             return Err(error.into());
           }
 
-          tracing::warn!("Provisioned capacity exceeded!");
+          tracing::warn!("Retryable DynamoDB error: {}", error);
           if !config.retry_on_provisioned_capacity_exceeded {
             return Err(error.into());
           }
@@ -637,12 +634,12 @@ pub mod batch_operations {
           }
         }
         Err(error) => {
-          if !is_provisioned_capacity_exceeded(&error) {
+          if !is_retryable_batch_write_error(&error) {
             tracing::error!("BatchWriteItem failed: {0:?} - {0}", error);
             return Err(super::Error::AwsSdk(error.into()));
           }
 
-          tracing::warn!("Provisioned capacity exceeded!");
+          tracing::warn!("Retryable BatchWriteItem error: {}", error);
           if !config.retry_on_provisioned_capacity_exceeded {
             return Err(super::Error::AwsSdk(error.into()));
           }
@@ -657,9 +654,18 @@ pub mod batch_operations {
     Ok(())
   }
 
-  /// Check if transaction failed due to
-  /// `ProvisionedThroughputExceededException` exception
-  fn is_provisioned_capacity_exceeded(
+  /// Check if DynamoDB error is retryable with exponential backoff
+  pub fn is_retryable_dynamodb_error(err: &DynamoDBError) -> bool {
+    matches!(
+      err,
+      DynamoDBError::ProvisionedThroughputExceededException(_)
+        | DynamoDBError::ThrottlingException(_)
+        | DynamoDBError::RequestLimitExceeded(_)
+    )
+  }
+
+  /// Check if BatchWriteItem error is retryable with exponential backoff
+  pub fn is_retryable_batch_write_error(
     err: &SdkError<BatchWriteItemError>,
   ) -> bool {
     let SdkError::ServiceError(service_error) = err else {
@@ -668,6 +674,8 @@ pub mod batch_operations {
     matches!(
       service_error.err(),
       BatchWriteItemError::ProvisionedThroughputExceededException(_)
+        | BatchWriteItemError::ThrottlingException(_)
+        | BatchWriteItemError::RequestLimitExceeded(_)
     )
   }
 }
