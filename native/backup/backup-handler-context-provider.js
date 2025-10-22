@@ -269,10 +269,13 @@ function BackupHandlerContextProvider(props: Props): React.Node {
         restoreBackupState.status === 'user_data_backup_failed';
 
       // Allow compaction only when UserData restoration is completed,
-      // or after the previous compaction has finished uploading.
+      // after the previous compaction has finished uploading,
+      // or User Key upload is finished.
       const userDataCompactionPossible =
         restoreBackupState.status === 'user_data_restore_completed' ||
-        restoreBackupState.status === 'user_data_backup_success';
+        restoreBackupState.status === 'user_data_backup_success' ||
+        (restoreBackupState.status === 'user_keys_backup_success' &&
+          restoreBackupState.payload?.source === 'upload');
 
       // Check if another compaction is needed, but only when the
       // device is in a state where this is possible.
@@ -338,7 +341,7 @@ function BackupHandlerContextProvider(props: Props): React.Node {
     performMigrationToNewFlow,
     performUserDataUpload,
     performUserKeysUpload,
-    restoreBackupState.status,
+    restoreBackupState,
     showAlertToStaff,
     socketState.isAuthorized,
     startBackupHandler,
