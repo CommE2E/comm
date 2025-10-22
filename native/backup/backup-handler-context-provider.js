@@ -251,7 +251,12 @@ function BackupHandlerContextProvider(props: Props): React.Node {
       step = 'computing conditions';
       const shouldDoMigration =
         usingRestoreFlow && !currentDeviceList.curPrimarySignature;
-      const shouldUploadUserKeys = isPrimary && !latestBackupInfo;
+
+      const userKeyUploadFailed =
+        restoreBackupState.status === 'user_keys_backup_failed' ||
+        restoreBackupState.status === 'user_keys_backup_started';
+      const shouldUploadUserKeys =
+        isPrimary && (!latestBackupInfo || userKeyUploadFailed);
 
       // App has UserKeys backup, but without UserData, and this is the first
       // ever compaction upload (after restore or registration).
