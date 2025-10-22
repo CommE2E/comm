@@ -125,7 +125,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("repliesCount", &Thread::replies_count)
       .field("avatar", &Thread::avatar)
       .field("pinnedCount", &Thread::pinned_count)
-      .field("timestamps", &Thread::timestamps);
+      .field("timestamps", &Thread::timestamps)
+      .field("pinnedMessageIDs", &Thread::pinned_message_ids);
 
   value_object<Message>("WebMessage")
       .field("id", &Message::id)

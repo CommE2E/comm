@@ -27,6 +27,7 @@ export type WebClientDBThreadInfo = {
   +repliesCount: number,
   +pinnedCount: number,
   +timestamps: string | void,
+  +pinnedMessageIDs: string | void,
 };
 
 function clientDBThreadInfoToWebThread(
@@ -50,6 +51,7 @@ function clientDBThreadInfoToWebThread(
     repliesCount: info.repliesCount,
     pinnedCount: info.pinnedCount || 0,
     timestamps: nullToUndefined(info.timestamps),
+    pinnedMessageIDs: nullToUndefined(info.pinnedMessageIDs),
   };
 }
 
@@ -78,6 +80,12 @@ function webThreadToClientDBThreadInfo(
     result = {
       ...result,
       sourceMessageID: thread.sourceMessageID,
+    };
+  }
+  if (thread.pinnedMessageIDs) {
+    result = {
+      ...result,
+      pinnedMessageIDs: thread.pinnedMessageIDs,
     };
   }
   return result;

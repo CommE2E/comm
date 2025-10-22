@@ -861,7 +861,8 @@ bool create_backup_tables(sqlite3 *db) {
       "  replies_count INTEGER NOT NULL,"
       "  avatar TEXT,"
       "  pinned_count INTEGER NOT NULL DEFAULT 0,"
-      "  timestamps TEXT"
+      "  timestamps TEXT,"
+      "  pinned_message_ids TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS backup_message_store_threads ("
@@ -935,6 +936,31 @@ bool create_queued_dm_operations_table(sqlite3 *db) {
   return SQLiteSchema::createTable(db, query, "queued_dm_operations");
 }
 
+bool add_pinned_message_ids_column_to_threads(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE threads"
+      "  ADD COLUMN pinned_message_ids TEXT;"
+      "ALTER TABLE backup_threads"
+      "  ADD COLUMN pinned_message_ids TEXT;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error adding pinned_message_ids column to threads table: "
+               << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 SQLiteMigrations SQLiteSchema::migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -983,6 +1009,7 @@ SQLiteMigrations SQLiteSchema::migrations{
      {55, {convert_target_message_to_standard_column, true}},
      {56, {create_backup_tables, true}},
      {57, {create_holders_table, true}},
-     {58, {create_queued_dm_operations_table, true}}}};
+     {58, {create_queued_dm_operations_table, true}},
+     {59, {add_pinned_message_ids_column_to_threads, true}}}};
 
 } // namespace comm
