@@ -1,9 +1,12 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
+import { useUserDataRestoreContext } from 'lib/backup/user-data-restore-context.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { SignedMessage } from 'lib/types/siwe-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useFullBackupSupportEnabled } from 'lib/utils/services-utils.js';
@@ -66,12 +69,17 @@ function RestoreBackupScreen(props: Props): React.Node {
   const performV1Login = useV1Login();
   const fullBackupSupport = useFullBackupSupportEnabled();
 
-  const restoreHasStarted = useSelector(
-    state => state.restoreBackupState.status !== 'no_backup',
-  );
+  const restoreBackupState = useSelector(state => state.restoreBackupState);
+
+  const restoreHasStarted = restoreBackupState.status !== 'no_backup';
+  const restoreFailedToStart =
+    restoreBackupState.status === 'user_keys_backup_success' &&
+    restoreBackupState.payload?.source === 'auth';
 
   // Only start restoration if we have the necessary data
   const shouldStartRestore = !!primaryRestoreInfo;
+
+  const inProgress = React.useRef(false);
 
   React.useEffect(() => {
     const removeListener = props.navigation.addListener('beforeRemove', e => {
@@ -87,6 +95,7 @@ function RestoreBackupScreen(props: Props): React.Node {
         return;
       }
       const { userIdentifier, credentials } = primaryRestoreInfo;
+      inProgress.current = true;
 
       let step;
       const setStep = (newStep: string) => {
@@ -165,6 +174,8 @@ function RestoreBackupScreen(props: Props): React.Node {
             returnNavAction,
           },
         });
+      } finally {
+        inProgress.current = false;
       }
     })();
     return removeListener;
@@ -172,6 +183,47 @@ function RestoreBackupScreen(props: Props): React.Node {
     // update when shouldStartRestore changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldStartRestore]);
+
+  const { userDataRestore, isRestoring } = useUserDataRestoreContext();
+  const client = React.useContext(IdentityClientContext);
+  invariant(client, 'Identity context should be set');
+  const getAuthMetadata = client.getAuthMetadata;
+
+  React.useEffect(() => {
+    if (inProgress.current) {
+      return;
+    }
+    void (async () => {
+      inProgress.current = true;
+      if (!restoreFailedToStart || isRestoring) {
+        inProgress.current = false;
+        return;
+      }
+
+      try {
+        const { userID, accessToken } = await getAuthMetadata();
+        if (!userID || !accessToken) {
+          inProgress.current = false;
+          return;
+        }
+        const backupData = await commCoreModule.getQRAuthBackupData();
+        await userDataRestore(true, userID, accessToken, backupData);
+      } catch (e) {
+        const messageForException = getMessageForException(e);
+        console.log(
+          `Backup restore restart error: ${messageForException ?? 'unknown error'}`,
+        );
+      } finally {
+        inProgress.current = false;
+      }
+    })();
+  }, [
+    fullBackupSupport,
+    getAuthMetadata,
+    isRestoring,
+    restoreFailedToStart,
+    userDataRestore,
+  ]);
 
   return (
     <AuthContainer>
