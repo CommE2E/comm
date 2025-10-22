@@ -13,6 +13,7 @@ import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 import css from './toggle-pin-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import MessageResult from '../../components/message-result.react.js';
+import LoadingIndicator from '../../loading-indicator.react.js';
 import Modal from '../modal.react.js';
 
 type TogglePinModalProps = {
@@ -24,6 +25,8 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { item, threadInfo } = props;
   const { isPinned } = item;
   const { popModal } = useModalContext();
+
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const pinMessageAction = usePinMessageAction();
 
@@ -69,17 +72,22 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const engagementTargetMessageInfo =
     chatMessageItemEngagementTargetMessageInfo(item);
   const engagementTargetMessageID = engagementTargetMessageInfo?.id;
-  const onClick = React.useCallback(() => {
+  const onClick = React.useCallback(async () => {
     invariant(
       engagementTargetMessageID,
       'engagement target messageID should be defined',
     );
-    void pinMessageAction(
-      engagementTargetMessageID,
-      threadInfo.id,
-      modalInfo.action,
-    );
-    popModal();
+    setIsLoading(true);
+    try {
+      await pinMessageAction(
+        engagementTargetMessageID,
+        threadInfo.id,
+        modalInfo.action,
+      );
+      popModal();
+    } finally {
+      setIsLoading(false);
+    }
   }, [
     threadInfo.id,
     modalInfo.action,
@@ -88,17 +96,34 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     popModal,
   ]);
 
+  const buttonContent = React.useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className={css.buttonContent}>
+          <span className={css.buttonTextLoading}>{modalInfo.buttonText}</span>
+          <LoadingIndicator status="loading" size="small" />
+        </div>
+      );
+    }
+    return (
+      <div className={css.buttonContent}>
+        <span>{modalInfo.buttonText}</span>
+      </div>
+    );
+  }, [isLoading, modalInfo.buttonText]);
+
   const primaryButton = React.useMemo(
     () => (
       <Button
         variant="filled"
         buttonColor={modalInfo.buttonColor}
         onClick={onClick}
+        disabled={isLoading}
       >
-        {modalInfo.buttonText}
+        {buttonContent}
       </Button>
     ),
-    [modalInfo.buttonColor, modalInfo.buttonText, onClick],
+    [modalInfo.buttonColor, buttonContent, onClick, isLoading],
   );
 
   const secondaryButton = React.useMemo(
