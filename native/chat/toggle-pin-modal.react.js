@@ -8,8 +8,8 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import MessageResult from './message-result.react.js';
-import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
+import PrimaryButton from '../components/primary-button.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -88,12 +88,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         scrollable={true}
       />
       <View style={styles.buttonsContainer}>
-        <Button style={modalInfo.buttonStyle} onPress={onPress}>
-          <Text style={styles.textColor}>{modalInfo.buttonText}</Text>
-        </Button>
-        <Button style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.textColor}>Cancel</Text>
-        </Button>
+        <PrimaryButton
+          onPress={onPress}
+          label={modalInfo.buttonText}
+          variant="enabled"
+        />
+        <PrimaryButton onPress={onCancel} label="Cancel" variant="outline" />
       </View>
     </Modal>
   );
@@ -127,19 +127,6 @@ const unboundStyles = {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'vibrantRedButton',
-  },
-  pinButton: {
-    borderRadius: 5,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'purpleButton',
-  },
-  cancelButton: {
-    borderRadius: 5,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   textColor: {
     color: 'modalButtonLabel',
