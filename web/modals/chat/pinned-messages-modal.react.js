@@ -125,7 +125,7 @@ function PinnedMessagesModal(props: Props): React.Node {
   );
 
   const messageResultsToDisplay = React.useMemo(() => {
-    if (modifiedItems.length === 0) {
+    if (modifiedItems.length === 0 && loadingStatus !== 'loading') {
       return (
         <div className={css.noPinnedMessages}>
           No pinned messages in this thread.
@@ -142,7 +142,7 @@ function PinnedMessagesModal(props: Props): React.Node {
       />
     ));
     return <>{items}</>;
-  }, [modifiedItems, threadInfo]);
+  }, [loadingStatus, modifiedItems, threadInfo]);
 
   const loadingIndicator = React.useMemo(() => {
     if (loadingStatus === 'loading') {
