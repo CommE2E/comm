@@ -88,7 +88,8 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  replies_count INTEGER NOT NULL,"
       "  avatar TEXT,"
       "  pinned_count INTEGER NOT NULL DEFAULT 0,"
-      "  timestamps TEXT"
+      "  timestamps TEXT,"
+      "  pinned_message_ids TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS backup_threads ("
@@ -108,7 +109,8 @@ bool SQLiteSchema::createSchema(sqlite3 *db) {
       "  replies_count INTEGER NOT NULL,"
       "  avatar TEXT,"
       "  pinned_count INTEGER NOT NULL DEFAULT 0,"
-      "  timestamps TEXT"
+      "  timestamps TEXT,"
+      "  pinned_message_ids TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
