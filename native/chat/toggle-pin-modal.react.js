@@ -59,12 +59,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
 
   const onPress = React.useCallback(() => {
     invariant(messageInfo.id, 'messageInfo.id should be defined');
-    void pinMessageAction(messageInfo.id, threadInfo, modalInfo.action);
+    void pinMessageAction(messageInfo.id, threadInfo.id, modalInfo.action);
     navigation.goBack();
   }, [
     pinMessageAction,
     messageInfo.id,
-    threadInfo,
+    threadInfo.id,
     modalInfo.action,
     navigation,
   ]);

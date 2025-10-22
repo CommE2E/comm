@@ -76,15 +76,15 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     );
     void pinMessageAction(
       engagementTargetMessageID,
-      threadInfo,
+      threadInfo.id,
       modalInfo.action,
     );
     popModal();
   }, [
+    threadInfo.id,
     modalInfo.action,
     pinMessageAction,
     engagementTargetMessageID,
-    threadInfo,
     popModal,
   ]);
 
