@@ -27,7 +27,7 @@ resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
 
   name           = "Identity${each.value.name}ErrorCount"
   pattern        = "{ $.level = \"ERROR\" && $.fields.errorType = \"${each.value.pattern}\" }"
-  log_group_name = local.is_staging ? "/ecs/identity-service-fargate-task-def" : "/ecs/identity-service-task-def"
+  log_group_name = "/ecs/identity-service-fargate-task-def"
 
   metric_transformation {
     name      = "Identity${each.value.name}ErrorCount"
