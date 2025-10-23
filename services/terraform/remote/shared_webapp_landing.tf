@@ -1,5 +1,5 @@
 locals {
-  keyserver_image_tag = "1.0.203"
+  keyserver_image_tag = "1.0.204"
   keyserver_image     = "commapp/keyserver:${local.keyserver_image_tag}"
 
   shared_keyserver_environment_vars = {
