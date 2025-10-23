@@ -7,6 +7,14 @@ use tunnelbroker_messages::farcaster::{
 
 use crate::notifs::GenericNotifPayload;
 
+fn ens_name_for_farcaster_username(farcaster_username: &str) -> String {
+  if farcaster_username.ends_with(".eth") {
+    farcaster_username.to_string()
+  } else {
+    format!("{}.fcast.id", farcaster_username)
+  }
+}
+
 pub fn prepare_notif_payload(
   payload: &RefreshDirectCastConversationPayload,
   conversation: &DirectCastConversation,
@@ -39,21 +47,24 @@ pub fn prepare_notif_payload(
   let has_videos =
     message_metadata.is_some_and(|metadata| metadata["videos"].is_array());
 
-  let sender_name = conversation
-    .participant(message.sender_fid)
-    .map(|u| u.username.as_deref().unwrap_or(&u.display_name));
+  let sender_name = conversation.participant(message.sender_fid).map(|u| {
+    let raw_name = u.username.as_deref().unwrap_or(&u.display_name);
+    ens_name_for_farcaster_username(raw_name)
+  });
   let title = conversation
     .name
     .as_deref()
-    .or(sender_name)
+    .or(sender_name.as_deref())
     .unwrap_or("Farcaster DC");
 
   let body: Cow<str> = if has_photos {
     sender_name
+      .as_ref()
       .map(|author| format!("{author} sent a photo").into())
       .unwrap_or("[Photo message]".into())
   } else if has_videos {
     sender_name
+      .as_ref()
       .map(|author| format!("{author} sent a video").into())
       .unwrap_or("[Video message]".into())
   } else {
