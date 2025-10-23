@@ -321,27 +321,21 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
   default_action {
     type = "forward"
 
-    # Production: Simple forwarding (unchanged)
-    target_group_arn = local.is_staging ? null : aws_lb_target_group.tunnelbroker_ws.arn
+    # Weighted forwarding for both environments
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.tunnelbroker_ws.arn
+        weight = 0 # 0% EC2
+      }
 
-    # Staging: Weighted forwarding  
-    dynamic "forward" {
-      for_each = local.is_staging ? [1] : []
-      content {
-        target_group {
-          arn    = aws_lb_target_group.tunnelbroker_ws.arn
-          weight = 0 # 0% EC2
-        }
+      target_group {
+        arn    = aws_lb_target_group.tunnelbroker_ws_fargate.arn
+        weight = 100 # 100% Fargate
+      }
 
-        target_group {
-          arn    = aws_lb_target_group.tunnelbroker_ws_fargate.arn
-          weight = 100 # 100% Fargate
-        }
-
-        stickiness {
-          enabled  = false
-          duration = 10
-        }
+      stickiness {
+        enabled  = false
+        duration = 10
       }
     }
   }
