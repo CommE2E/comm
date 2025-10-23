@@ -80,6 +80,7 @@ import InputStateContainer from './input/input-state-container.react.js';
 import InviteLinkHandler from './invite-links/invite-link-handler.react.js';
 import InviteLinksRefresher from './invite-links/invite-links-refresher.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
+import { getDefaultTextMessageRules } from './markdown/rules.react.js';
 import { MenuProvider } from './menu-provider.react.js';
 import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
@@ -144,6 +145,7 @@ registerConfig({
   showAlert: (title: string, message: string) =>
     window.alert(`${title}: ${message}`),
   isStaffRelease: isDev,
+  getDefaultTextMessageRules,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');

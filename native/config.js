@@ -9,6 +9,7 @@ import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './acc
 import { authoritativeKeyserverID } from './authoritative-keyserver.js';
 import { olmAPI } from './crypto/olm-api.js';
 import { sqliteAPI } from './database/sqlite-api.js';
+import { getDefaultTextMessageRules } from './markdown/rules.react.js';
 import encryptedNotifUtilsAPI from './push/encrypted-notif-utils-api.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 import Alert from './utils/alert.js';
@@ -56,4 +57,5 @@ registerConfig({
     Alert.alert(title, message, alertButtons, alertOptions);
   },
   isStaffRelease: __DEV__ || isStaffRelease,
+  getDefaultTextMessageRules,
 });
