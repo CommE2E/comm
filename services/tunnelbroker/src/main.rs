@@ -5,7 +5,6 @@ pub mod database;
 pub mod error;
 pub mod farcaster;
 pub mod grpc;
-pub mod identity;
 pub mod log;
 pub mod notifs;
 pub mod token_distributor;

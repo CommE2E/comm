@@ -9,6 +9,8 @@ use hyper_tungstenite::{tungstenite::Message, WebSocketStream};
 use lapin::message::Delivery;
 use std::sync::Arc;
 
+use grpc_clients::identity::unauthenticated::client as identity_client;
+
 use reqwest::Url;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
@@ -16,10 +18,11 @@ use tokio::sync::Mutex;
 use tracing::{debug, error, info, trace};
 
 use crate::amqp_client::AmqpClient;
+use crate::config::CONFIG;
 use crate::database::{self, DatabaseClient};
+use crate::farcaster;
 use crate::farcaster::FarcasterClient;
 use crate::notifs::SessionNotifClient;
-use crate::{farcaster, identity};
 use tunnelbroker_messages::farcaster::{
   FarcasterAPIRequest, FarcasterAPIResponse, FarcasterAPIResponseData,
   FarcasterAPIResponseError,
@@ -94,10 +97,20 @@ pub async fn handle_first_message_from_device(
 
       // Authenticate device
       debug!("Authenticating device: {}", &session_info.device_id);
-      let auth_request = identity::verify_user_access_token(
+
+      // Identity service gRPC clients require a code version and device type.
+      // We can supply some placeholder values for services for the time being, since
+      // this metadata is only relevant for devices.
+      const PLACEHOLDER_CODE_VERSION: u64 = 0;
+      const DEVICE_TYPE: &str = "service";
+
+      let auth_request = identity_client::verify_user_access_token(
+        &CONFIG.identity_endpoint,
         &session_info.user_id,
         &device_info.device_id,
         &session_info.access_token,
+        PLACEHOLDER_CODE_VERSION,
+        DEVICE_TYPE.to_string(),
       )
       .await;
 
