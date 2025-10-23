@@ -1,6 +1,5 @@
-# Fargate task definition (staging only)
+# Fargate task definition
 resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
-  count  = local.is_staging ? 1 : 0
   family = "tunnelbroker-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -91,21 +90,20 @@ resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
   task_role_arn            = aws_iam_role.services_ddb_full_access.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = local.is_staging ? "256" : "512"
+  memory                   = local.is_staging ? "512" : "1024"
   requires_compatibilities = ["FARGATE"]
 
   skip_destroy = true
 }
 
-# Fargate ECS Service (staging only)
+# Fargate ECS Service
 resource "aws_ecs_service" "tunnelbroker_fargate" {
-  count       = local.is_staging ? 1 : 0
   name        = "tunnelbroker-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.tunnelbroker_fargate[0].arn
+  task_definition      = aws_ecs_task_definition.tunnelbroker_fargate.arn
   force_new_deployment = true
 
   network_configuration {
@@ -132,14 +130,14 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
   # Websocket
   load_balancer {
-    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
+    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate.arn
     container_name   = local.tunnelbroker_config.container_name
     container_port   = local.tunnelbroker_config.websocket_port
   }
 
   # gRPC (only exists in staging)
   load_balancer {
-    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
+    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
     container_name   = local.tunnelbroker_config.container_name
     container_port   = local.tunnelbroker_config.grpc_port
   }
@@ -154,9 +152,8 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
   }
 }
 
-# Fargate WebSocket target group (staging only)
+# Fargate WebSocket target group
 resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
-  count            = local.is_staging ? 1 : 0
   name             = "tunnelbroker-ws-fargate-tg"
   port             = local.tunnelbroker_config.websocket_port
   protocol         = "HTTP"
@@ -175,9 +172,8 @@ resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
   }
 }
 
-# Fargate gRPC target group (staging only)
+# Fargate gRPC target group
 resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
-  count            = local.is_staging ? 1 : 0
   name             = "tunnelbroker-grpc-fargate-tg"
   port             = local.tunnelbroker_config.grpc_port
   protocol         = "HTTP"
@@ -192,15 +188,15 @@ resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
   }
 }
 
-# Auto-scaling for Fargate service (staging only)
+# Auto-scaling for Fargate service
 module "tunnelbroker_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = local.is_staging
-  service_name     = local.is_staging ? aws_ecs_service.tunnelbroker_fargate[0].name : ""
+  create_resources = true
+  service_name     = aws_ecs_service.tunnelbroker_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = 1
+  min_capacity  = local.is_staging ? 1 : 2
   max_capacity  = 8
   cpu_target    = 30.0
   memory_target = 40.0

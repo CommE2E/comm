@@ -65,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_memory_utilization" {
   namespace           = "AWS/ECS"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate[0].name : aws_ecs_service.tunnelbroker.name
+    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate.name : aws_ecs_service.tunnelbroker.name
   }
 }
 
@@ -83,6 +83,6 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_cpu_utilization" {
   namespace           = "AWS/ECS"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate[0].name : aws_ecs_service.tunnelbroker.name
+    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate.name : aws_ecs_service.tunnelbroker.name
   }
 }

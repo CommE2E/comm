@@ -203,7 +203,7 @@ resource "aws_lb_listener" "blob_service_https" {
         }
 
         target_group {
-          arn    = aws_lb_target_group.blob_service_http_fargate[0].arn
+          arn    = aws_lb_target_group.blob_service_http_fargate.arn
           weight = 100 # 100% Fargate
         }
 
