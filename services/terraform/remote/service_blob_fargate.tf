@@ -1,6 +1,5 @@
-# Fargate task definition (staging only)
+# Fargate task definition
 resource "aws_ecs_task_definition" "blob_service_fargate" {
-  count  = local.is_staging ? 1 : 0
   family = "blob-service-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -47,21 +46,20 @@ resource "aws_ecs_task_definition" "blob_service_fargate" {
   task_role_arn            = aws_iam_role.services_ddb_full_access.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = local.is_staging ? "256" : "512"
+  memory                   = local.is_staging ? "512" : "1024"
   requires_compatibilities = ["FARGATE"]
 
   skip_destroy = true
 }
 
-# Fargate ECS Service (staging only)
+# Fargate ECS Service
 resource "aws_ecs_service" "blob_service_fargate" {
-  count       = local.is_staging ? 1 : 0
   name        = "blob-service-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.blob_service_fargate[0].arn
+  task_definition      = aws_ecs_task_definition.blob_service_fargate.arn
   force_new_deployment = true
 
   network_configuration {
@@ -88,7 +86,7 @@ resource "aws_ecs_service" "blob_service_fargate" {
 
   # HTTP
   load_balancer {
-    target_group_arn = aws_lb_target_group.blob_service_http_fargate[0].arn
+    target_group_arn = aws_lb_target_group.blob_service_http_fargate.arn
     container_name   = local.blob_service_container_name
     container_port   = local.blob_service_container_http_port
   }
@@ -103,9 +101,8 @@ resource "aws_ecs_service" "blob_service_fargate" {
   }
 }
 
-# Fargate HTTP target group (staging only)
+# Fargate HTTP target group
 resource "aws_lb_target_group" "blob_service_http_fargate" {
-  count       = local.is_staging ? 1 : 0
   name        = "blob-service-http-fargate-tg"
   port        = local.blob_service_container_http_port
   protocol    = "HTTP"
@@ -123,12 +120,12 @@ resource "aws_lb_target_group" "blob_service_http_fargate" {
   }
 }
 
-# Auto-scaling for Fargate service (staging only)
+# Auto-scaling for Fargate service
 module "blob_service_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = local.is_staging
-  service_name     = local.is_staging ? aws_ecs_service.blob_service_fargate[0].name : ""
+  create_resources = true
+  service_name     = aws_ecs_service.blob_service_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
   min_capacity  = 1
