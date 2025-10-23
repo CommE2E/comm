@@ -59,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_memory_utilization" {
   alarm_description   = "Alarm when Blob service memory utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate[0].name : aws_ecs_service.blob_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate.name : aws_ecs_service.blob_service.name
   }
   alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }
@@ -76,7 +76,7 @@ resource "aws_cloudwatch_metric_alarm" "blob_cpu_utilization" {
   alarm_description   = "Alarm when Blob service CPU utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate[0].name : aws_ecs_service.blob_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.blob_service_fargate.name : aws_ecs_service.blob_service.name
   }
   alarm_actions = [aws_sns_topic.blob_error_topic.arn]
 }
