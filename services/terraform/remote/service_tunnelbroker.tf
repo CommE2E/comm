@@ -334,7 +334,7 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
         }
 
         target_group {
-          arn    = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
+          arn    = aws_lb_target_group.tunnelbroker_ws_fargate.arn
           weight = 100 # 100% Fargate
         }
 
@@ -369,7 +369,7 @@ resource "aws_lb_listener" "tunnelbroker_grpc" {
       }
 
       target_group {
-        arn    = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
+        arn    = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
         weight = 100 # Switch to 100% Fargate
       }
 

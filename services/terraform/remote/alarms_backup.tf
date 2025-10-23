@@ -59,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "backup_memory_utilization" {
   alarm_description   = "Alarm when Backup service memory utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate[0].name : aws_ecs_service.backup_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate.name : aws_ecs_service.backup_service.name
   }
   alarm_actions = [aws_sns_topic.backup_error_topic.arn]
 }
@@ -76,7 +76,7 @@ resource "aws_cloudwatch_metric_alarm" "backup_cpu_utilization" {
   alarm_description   = "Alarm when Backup service CPU utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate[0].name : aws_ecs_service.backup_service.name
+    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate.name : aws_ecs_service.backup_service.name
   }
   alarm_actions = [aws_sns_topic.backup_error_topic.arn]
 }

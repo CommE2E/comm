@@ -200,7 +200,7 @@ resource "aws_lb_listener" "backup_service_https" {
         }
 
         target_group {
-          arn    = aws_lb_target_group.backup_service_http_fargate[0].arn
+          arn    = aws_lb_target_group.backup_service_http_fargate.arn
           weight = 100 # 100% Fargate
         }
 

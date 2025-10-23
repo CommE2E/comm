@@ -1,6 +1,5 @@
-# Fargate task definition (staging only)
+# Fargate task definition
 resource "aws_ecs_task_definition" "identity_service_fargate" {
-  count  = local.is_staging ? 1 : 0
   family = "identity-service-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -79,21 +78,20 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
   task_role_arn            = aws_iam_role.services_ddb_full_access.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = local.is_staging ? "256" : "512"
+  memory                   = local.is_staging ? "512" : "2048"
   requires_compatibilities = ["FARGATE"]
 
   skip_destroy = true
 }
 
-# Fargate ECS Service (staging only)
+# Fargate ECS Service
 resource "aws_ecs_service" "identity_service_fargate" {
-  count       = local.is_staging ? 1 : 0
   name        = "identity-service-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.identity_service_fargate[0].arn
+  task_definition      = aws_ecs_task_definition.identity_service_fargate.arn
   force_new_deployment = true
 
   network_configuration {
@@ -120,14 +118,14 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
   # WebSocket
   load_balancer {
-    target_group_arn = aws_lb_target_group.identity_service_ws_fargate[0].arn
+    target_group_arn = aws_lb_target_group.identity_service_ws_fargate.arn
     container_name   = local.identity_service_container_name
     container_port   = local.identity_service_container_ws_port
   }
 
   # gRPC
   load_balancer {
-    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate[0].arn
+    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate.arn
     container_name   = local.identity_service_container_name
     container_port   = local.identity_service_container_grpc_port
   }
@@ -145,9 +143,8 @@ resource "aws_ecs_service" "identity_service_fargate" {
   enable_ecs_managed_tags = true
 }
 
-# Fargate gRPC target group (staging only)
+# Fargate gRPC target group
 resource "aws_lb_target_group" "identity_service_grpc_fargate" {
-  count            = local.is_staging ? 1 : 0
   name             = "identity-service-grpc-fargate-tg"
   port             = local.identity_service_container_grpc_port
   protocol         = "HTTP"
@@ -173,9 +170,8 @@ resource "aws_lb_target_group" "identity_service_grpc_fargate" {
   }
 }
 
-# Fargate WebSocket target group (staging only)
+# Fargate WebSocket target group
 resource "aws_lb_target_group" "identity_service_ws_fargate" {
-  count            = local.is_staging ? 1 : 0
   name             = "identity-service-ws-fargate-tg"
   port             = local.identity_service_container_ws_port
   protocol         = "HTTP"
@@ -194,15 +190,15 @@ resource "aws_lb_target_group" "identity_service_ws_fargate" {
   }
 }
 
-# Auto-scaling for Fargate service (staging only)
+# Auto-scaling for Fargate service
 module "identity_service_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = local.is_staging
-  service_name     = local.is_staging ? aws_ecs_service.identity_service_fargate[0].name : ""
+  create_resources = true
+  service_name     = aws_ecs_service.identity_service_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = 1
+  min_capacity  = local.is_staging ? 1 : 2
   max_capacity  = 6
   cpu_target    = 35.0
   memory_target = 45.0
