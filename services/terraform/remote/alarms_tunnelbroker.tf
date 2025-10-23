@@ -27,7 +27,7 @@ resource "aws_cloudwatch_log_metric_filter" "tunnelbroker_error_filters" {
 
   name           = "Tunnelbroker${each.value.name}ErrorCount"
   pattern        = "{ $.level = \"ERROR\" && $.fields.errorType = \"${each.value.pattern}\" }"
-  log_group_name = local.is_staging ? "/ecs/tunnelbroker-fargate-task-def" : "/ecs/tunnelbroker-task-def"
+  log_group_name = "/ecs/tunnelbroker-fargate-task-def"
 
   metric_transformation {
     name      = "Tunnelbroker${each.value.name}ErrorCount"
@@ -65,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_memory_utilization" {
   namespace           = "AWS/ECS"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate.name : aws_ecs_service.tunnelbroker.name
+    ServiceName = aws_ecs_service.tunnelbroker_fargate.name
   }
 }
 
@@ -83,6 +83,6 @@ resource "aws_cloudwatch_metric_alarm" "tunnelbroker_cpu_utilization" {
   namespace           = "AWS/ECS"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.tunnelbroker_fargate.name : aws_ecs_service.tunnelbroker.name
+    ServiceName = aws_ecs_service.tunnelbroker_fargate.name
   }
 }

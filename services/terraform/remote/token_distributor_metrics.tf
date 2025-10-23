@@ -18,7 +18,7 @@ resource "aws_cloudwatch_log_metric_filter" "token_distributor_metrics" {
 
   name           = "TokenDistributor${each.value.name}"
   pattern        = "{ $.fields.metricType = \"${each.value.pattern}\" }"
-  log_group_name = local.is_staging ? "/ecs/tunnelbroker-fargate-task-def" : "/ecs/tunnelbroker-task-def"
+  log_group_name = "/ecs/tunnelbroker-fargate-task-def"
 
   metric_transformation {
     name      = "TokenDistributor${each.value.name}"
