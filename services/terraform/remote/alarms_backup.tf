@@ -22,7 +22,7 @@ resource "aws_cloudwatch_log_metric_filter" "backup_error_filters" {
 
   name           = "Backup${each.value.name}ErrorCount"
   pattern        = "{ $.level = \"ERROR\" && $.fields.errorType = \"${each.value.pattern}\" }"
-  log_group_name = local.is_staging ? "/ecs/backup-service-fargate-task-def" : "/ecs/backup-service-task-def"
+  log_group_name = "/ecs/backup-service-fargate-task-def"
 
   metric_transformation {
     name      = "Backup${each.value.name}ErrorCount"
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "backup_memory_utilization" {
   alarm_description   = "Alarm when Backup service memory utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate.name : aws_ecs_service.backup_service.name
+    ServiceName = aws_ecs_service.backup_service_fargate.name
   }
   alarm_actions = [aws_sns_topic.backup_error_topic.arn]
 }
@@ -76,7 +76,7 @@ resource "aws_cloudwatch_metric_alarm" "backup_cpu_utilization" {
   alarm_description   = "Alarm when Backup service CPU utilization exceeds 90%"
   dimensions = {
     ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = local.is_staging ? aws_ecs_service.backup_service_fargate.name : aws_ecs_service.backup_service.name
+    ServiceName = aws_ecs_service.backup_service_fargate.name
   }
   alarm_actions = [aws_sns_topic.backup_error_topic.arn]
 }
