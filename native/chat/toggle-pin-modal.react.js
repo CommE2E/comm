@@ -4,7 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import MessageResult from './message-result.react.js';
@@ -34,6 +36,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const pinMessageAction = usePinMessageAction();
+  const { addLog } = useDebugLogs();
 
   const modalInfo = React.useMemo(() => {
     if (isPinned) {
@@ -66,6 +69,17 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     try {
       await pinMessageAction(messageID, threadInfo.id, modalInfo.action);
       navigation.goBack();
+    } catch (error) {
+      addLog(
+        `Failed to ${modalInfo.action} message`,
+        JSON.stringify({
+          messageID,
+          threadID: threadInfo.id,
+          action: modalInfo.action,
+          error: getMessageForException(error),
+        }),
+        new Set([logTypes.ERROR]),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +89,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     threadInfo.id,
     modalInfo.action,
     navigation,
+    addLog,
   ]);
 
   const onCancel = React.useCallback(() => {

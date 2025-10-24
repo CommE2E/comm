@@ -3,11 +3,13 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { logTypes, useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { chatMessageItemEngagementTargetMessageInfo } from 'lib/shared/chat-message-item-utils.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { usePinMessageAction } from 'lib/utils/pin-message-utils.js';
 
 import css from './toggle-pin-modal.css';
@@ -29,6 +31,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const pinMessageAction = usePinMessageAction();
+  const { addLog } = useDebugLogs();
 
   const modalInfo = React.useMemo(() => {
     if (isPinned) {
@@ -85,6 +88,17 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         modalInfo.action,
       );
       popModal();
+    } catch (error) {
+      addLog(
+        `Failed to ${modalInfo.action} message`,
+        JSON.stringify({
+          messageID: engagementTargetMessageID,
+          threadID: threadInfo.id,
+          action: modalInfo.action,
+          error: getMessageForException(error),
+        }),
+        new Set([logTypes.ERROR]),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -94,6 +108,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     pinMessageAction,
     engagementTargetMessageID,
     popModal,
+    addLog,
   ]);
 
   const buttonContent = React.useMemo(() => {
