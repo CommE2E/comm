@@ -6,7 +6,7 @@ import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { setCustomServerActionType } from 'lib/actions/custom-server-actions.js';
-import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
+import { useRemoveKeyserver } from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -96,13 +96,9 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
 
   const dispatch = useDispatch();
 
-  const onDeleteKeyserver = React.useCallback(() => {
-    dispatch({
-      type: removeKeyserverActionType,
-      payload: {
-        keyserverAdminUserID: keyserverAdminUserInfo.id,
-      },
-    });
+  const removeKeyserver = useRemoveKeyserver();
+  const onDeleteKeyserver = React.useCallback(async () => {
+    await removeKeyserver(keyserverAdminUserInfo.id);
 
     if (staffCanSee) {
       dispatch({
@@ -116,6 +112,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     keyserverAdminUserInfo.id,
     keyserverInfo.urlPrefix,
     staffCanSee,
+    removeKeyserver,
   ]);
 
   const onPressRemoveKeyserver = React.useCallback(() => {
@@ -137,7 +134,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     );
   }, [onDeleteKeyserver]);
 
-  const removeKeyserver = React.useMemo(() => {
+  const removeKeyserverContent = React.useMemo(() => {
     if (keyserverInfo.connection.status !== 'connected') {
       return (
         <>
@@ -206,7 +203,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
           </View>
           <Text style={styles.keyserverURLText}>{keyserverInfo.urlPrefix}</Text>
         </View>
-        {removeKeyserver}
+        {removeKeyserverContent}
       </View>
     </BottomSheet>
   );

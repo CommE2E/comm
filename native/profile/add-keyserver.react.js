@@ -4,12 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
-import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
+import {
+  useAddKeyserver,
+  useIsKeyserverURLValid,
+} from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import TextInput from '../components/text-input.react.js';
@@ -40,8 +41,6 @@ type Props = {
 function AddKeyserver(props: Props): React.Node {
   const { goBack, setOptions } = useNavigation();
 
-  const dispatch = useDispatch();
-
   const staffCanSee = useStaffCanSee();
 
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
@@ -59,6 +58,7 @@ function AddKeyserver(props: Props): React.Node {
 
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(urlInput);
 
+  const addKeyserver = useAddKeyserver();
   const onPressSave = React.useCallback(async () => {
     if (!currentUserID || !urlInput) {
       return;
@@ -80,17 +80,18 @@ function AddKeyserver(props: Props): React.Node {
     setStatus(keyserverCheckStatusInactive);
 
     const newKeyserverInfo: KeyserverInfo = defaultKeyserverInfo(urlInput);
-
-    dispatch({
-      type: addKeyserverActionType,
-      payload: {
-        keyserverAdminUserID: keyserverVersionData.ownerID,
-        newKeyserverInfo,
-      },
-    });
+    if (keyserverVersionData.ownerID) {
+      await addKeyserver(keyserverVersionData.ownerID, newKeyserverInfo);
+    }
 
     goBack();
-  }, [currentUserID, dispatch, goBack, isKeyserverURLValidCallback, urlInput]);
+  }, [
+    currentUserID,
+    addKeyserver,
+    goBack,
+    isKeyserverURLValidCallback,
+    urlInput,
+  ]);
 
   const buttonDisabled = !urlInput || status.status === 'loading';
   React.useEffect(() => {

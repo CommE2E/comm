@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 
-import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
+import {
+  useAddKeyserver,
+  useIsKeyserverURLValid,
+} from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './add-keyserver-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
@@ -33,8 +34,6 @@ const keyserverCheckStatusVersionError = {
 function AddKeyserverModal(): React.Node {
   const { popModal } = useModalContext();
 
-  const dispatch = useDispatch();
-
   const staffCanSee = useStaffCanSee();
 
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
@@ -54,6 +53,7 @@ function AddKeyserverModal(): React.Node {
   );
 
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(keyserverURL);
+  const addKeyserver = useAddKeyserver();
 
   const onClickAddKeyserver = React.useCallback(async () => {
     if (!currentUserID || !keyserverURL) {
@@ -76,20 +76,15 @@ function AddKeyserverModal(): React.Node {
     setStatus(keyserverCheckStatusInactive);
 
     const newKeyserverInfo: KeyserverInfo = defaultKeyserverInfo(keyserverURL);
-
-    dispatch({
-      type: addKeyserverActionType,
-      payload: {
-        keyserverAdminUserID: keyserverVersionData.ownerID,
-        newKeyserverInfo,
-      },
-    });
+    if (keyserverVersionData.ownerID) {
+      await addKeyserver(keyserverVersionData.ownerID, newKeyserverInfo);
+    }
 
     popModal();
   }, [
     currentUserID,
-    dispatch,
     keyserverURL,
+    addKeyserver,
     popModal,
     isKeyserverURLValidCallback,
   ]);
