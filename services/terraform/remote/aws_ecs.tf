@@ -31,7 +31,7 @@ data "aws_ami" "al2_x86_ecs" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-2.0.20231024-x86_64-ebs"]
+    values = ["amzn2-ami-ecs-hvm-*-x86_64-ebs"]
   }
 }
 
@@ -46,6 +46,10 @@ resource "aws_launch_template" "ecs_services" {
   name_prefix   = "services-ecs-ec2-"
   image_id      = data.aws_ami.al2_x86_ecs.id
   instance_type = "t3.xlarge"
+
+  lifecycle {
+    ignore_changes = [image_id]
+  }
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
