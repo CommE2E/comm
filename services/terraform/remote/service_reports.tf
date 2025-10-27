@@ -44,13 +44,13 @@ resource "aws_ecs_task_definition" "reports_service" {
         },
         {
           name  = "BLOB_SERVICE_URL",
-          value = local.blob_local_url
+          value = local.blob_fargate_url
           # If this ever fails, we can fallback to blob public URL:
           # "https://${local.blob_service_domain_name}"
         },
         {
           name  = "IDENTITY_SERVICE_ENDPOINT",
-          value = local.identity_local_url
+          value = local.identity_fargate_url
         },
         {
           name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
