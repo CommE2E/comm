@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
+import type { ReplyParameters } from 'lib/types/message-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
@@ -39,6 +40,7 @@ export type InputState = {
     threadInfo: ThreadInfo,
   ) => Promise<void>,
   +editInputMessage: (params: EditInputBarMessageParameters) => void,
+  +replyToMessage: (params: ReplyParameters) => void,
   +addEditInputMessageListener: (
     (params: EditInputBarMessageParameters) => void,
   ) => void,

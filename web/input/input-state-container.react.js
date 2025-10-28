@@ -74,6 +74,7 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
   type SendMultimediaMessagePayload,
+  type ReplyParameters,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
@@ -155,6 +156,7 @@ type Props = {
     parentThreadInfo: ?ThreadInfo,
     sidebarCreation: boolean,
     threadCreation: boolean,
+    reply?: ?ReplyParameters,
   ) => Promise<SendMessagePayload>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
@@ -180,6 +182,7 @@ type WritableState = {
   },
   textCursorPositions: { [threadID: string]: number },
   typeaheadState: TypeaheadState,
+  reply: ?ReplyParameters,
 };
 type State = $ReadOnly<WritableState>;
 
@@ -202,6 +205,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       close: null,
       accept: null,
     },
+    reply: null,
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations: Map<
@@ -690,7 +694,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 threadInfo,
                 assignedUploads[localMessageID],
               ),
-            addReply: (message: string) => this.addReply(message),
+            addReply: (params: ReplyParameters) => this.addReply(params),
             addReplyListener: this.addReplyListener,
             removeReplyListener: this.removeReplyListener,
             registerSendCallback: this.props.registerSendCallback,
@@ -1420,6 +1424,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const sidebarCreation =
       this.pendingSidebarCreationMessageLocalIDs.has(localID);
 
+    const reply = this.state.reply;
+
     try {
       const result = await this.props.sendTextMessage(
         messageInfo,
@@ -1427,8 +1433,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         parentThreadInfo,
         sidebarCreation,
         threadCreation,
+        reply,
       );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
+      this.setState({ reply: null });
       return result;
     } catch (e) {
       if (e instanceof SendMessageError) {
@@ -1659,8 +1667,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     void this.uploadFiles(threadInfo, uploadsToRetry);
   }
 
-  addReply = (message: string) => {
-    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
+  addReply = (params: ReplyParameters) => {
+    this.replyCallbacks.forEach(addReplyCallback =>
+      addReplyCallback(params.messagePrefix),
+    );
+    this.setState({ reply: params });
   };
 
   addReplyListener = (callbackReply: (message: string) => void) => {
