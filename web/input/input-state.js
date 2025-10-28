@@ -8,6 +8,7 @@ import {
   type MediaMissionStep,
   type MediaType,
 } from 'lib/types/media-types.js';
+import type { ReplyParameters } from 'lib/types/message-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type {
   RelativeMemberInfo,
@@ -80,7 +81,7 @@ export type BaseInputState = {
     localMessageID: string,
     threadInfo: ThreadInfo,
   ) => void,
-  +addReply: (text: string) => void,
+  +addReply: (params: ReplyParameters) => void,
   +addReplyListener: ((message: string) => void) => void,
   +removeReplyListener: ((message: string) => void) => void,
   +registerSendCallback: (() => mixed) => void,

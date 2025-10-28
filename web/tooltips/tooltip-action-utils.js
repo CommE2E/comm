@@ -17,6 +17,7 @@ import {
   chatMessageItemEngagementTargetMessageInfo,
 } from 'lib/shared/chat-message-item-utils.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
+import { messageID } from 'lib/shared/id-utils.js';
 import { createMessageReply } from 'lib/shared/markdown.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/sidebar-utils.js';
@@ -209,7 +210,10 @@ function useMessageTooltipReplyAction(
       if (!messageInfo.text) {
         return;
       }
-      addReply(createMessageReply(messageInfo.text));
+      addReply({
+        targetMessageID: messageID(messageInfo),
+        messagePrefix: createMessageReply(messageInfo.text),
+      });
     };
     return {
       actionButtonContent: buttonContent,
