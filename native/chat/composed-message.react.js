@@ -13,6 +13,7 @@ import {
 
 import { chatMessageItemHasEngagement } from 'lib/shared/chat-message-item-utils.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
+import { messageID } from 'lib/shared/id-utils.js';
 import { createMessageReply } from 'lib/shared/markdown.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
@@ -159,15 +160,15 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo(
       sendFailed,
     ]);
 
-    const editInputMessage = inputState?.editInputMessage;
     const reply = React.useCallback(() => {
-      invariant(editInputMessage, 'editInputMessage should be set in reply');
+      invariant(inputState, 'Input state should be set in reply');
       invariant(item.messageInfo.text, 'text should be set in reply');
-      editInputMessage({
-        message: createMessageReply(item.messageInfo.text),
-        mode: 'prepend',
+      const messagePrefix = createMessageReply(item.messageInfo.text);
+      inputState.replyToMessage({
+        targetMessageID: messageID(item.messageInfo),
+        messagePrefix,
       });
-    }, [editInputMessage, item.messageInfo.text]);
+    }, [inputState, item.messageInfo]);
 
     const triggerReply =
       swipeOptions === 'reply' || swipeOptions === 'both' ? reply : undefined;

@@ -73,6 +73,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
+  type ReplyParameters,
   type SendMessagePayload,
   type SendMultimediaMessagePayload,
 } from 'lib/types/message-types.js';
@@ -165,6 +166,7 @@ type Props = {
     parentThreadInfo: ?ThreadInfo,
     sidebarCreation: boolean,
     threadCreation: boolean,
+    reply?: ?ReplyParameters,
   ) => Promise<SendMessagePayload>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
@@ -181,11 +183,13 @@ type Props = {
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
+  +reply: ?ReplyParameters,
 };
 
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
+    reply: null,
   };
   sendCallbacks: Array<() => void> = [];
   activeURIs: Map<string, ActiveURI> = new Map();
@@ -436,6 +440,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         sendTextMessage: this.sendTextMessage,
         sendMultimediaMessage: this.sendMultimediaMessage,
         editInputMessage: this.editInputMessage,
+        replyToMessage: this.replyToMessage,
         addEditInputMessageListener: this.addEditInputMessageListener,
         removeEditInputMessageListener: this.removeEditInputMessageListener,
         messageHasUploadFailure: this.messageHasUploadFailure,
@@ -622,6 +627,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const sidebarCreation =
       this.pendingSidebarCreationMessageLocalIDs.has(localID);
 
+    const reply = this.state.reply;
+
     try {
       const result = await this.props.sendTextMessage(
         messageInfo,
@@ -629,8 +636,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         parentThreadInfo,
         sidebarCreation,
         threadCreation,
+        reply,
       );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
+      this.setState({ reply: null });
       return result;
     } catch (e) {
       if (e instanceof SendMessageError) {
@@ -1369,6 +1378,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.editInputBarCallbacks.forEach(addEditInputBarCallback =>
       addEditInputBarCallback(params),
     );
+  };
+
+  replyToMessage = (params: ReplyParameters) => {
+    this.editInputMessage({
+      message: params.messagePrefix,
+      mode: 'prepend',
+    });
+    this.setState({
+      reply: params,
+    });
   };
 
   addEditInputMessageListener = (

@@ -38,6 +38,7 @@ import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { ReplyParameters } from 'lib/types/message-types.js';
 import type {
   ThreadInfo,
   RawThreadInfo,
@@ -427,7 +428,8 @@ class ChatInputBar extends React.PureComponent<Props> {
     );
   };
 
-  focusAndUpdateText = (text: string) => {
+  focusAndUpdateText = (params: ReplyParameters) => {
+    const text = params.messagePrefix;
     // We need to call focus() first on Safari, otherwise the cursor
     // ends up at the start instead of the end for some reason
     const { textarea } = this;

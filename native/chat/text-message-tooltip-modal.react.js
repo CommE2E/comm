@@ -4,6 +4,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { messageID } from 'lib/shared/id-utils.js';
 import { createMessageReply } from 'lib/shared/markdown.js';
 import { useDeleteMessage } from 'lib/utils/delete-message-utils.js';
 
@@ -51,11 +52,17 @@ function TooltipMenu(
       'inputState should be set in TextMessageTooltipModal.onPressReply',
     );
     navigateToThread({ threadInfo });
-    inputState.editInputMessage({
-      message: createMessageReply(text),
-      mode: 'prepend',
+    inputState.replyToMessage({
+      targetMessageID: messageID(route.params.item.messageInfo),
+      messagePrefix: createMessageReply(text),
     });
-  }, [inputState, navigateToThread, threadInfo, text]);
+  }, [
+    inputState,
+    navigateToThread,
+    route.params.item.messageInfo,
+    text,
+    threadInfo,
+  ]);
   const renderReplyIcon = React.useCallback(
     (style: TextStyle) => <CommIcon name="reply" style={style} size={12} />,
     [],
