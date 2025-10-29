@@ -30,15 +30,12 @@ function EditThreadAvatar(props: Props): React.Node {
   );
   const protocol = threadSpecs[threadInfo.type].protocol();
   const threadSupportAvatarEdit = protocol.supportedThreadSettings.avatar;
-  const isChangingAvatarDisabled =
-    protocol.temporarilyDisabledFeatures?.changingThreadAvatar;
 
   let editThreadAvatarMenu;
   if (
     canEditThreadAvatar &&
     !threadAvatarSaveInProgress &&
-    threadSupportAvatarEdit &&
-    !isChangingAvatarDisabled
+    threadSupportAvatarEdit
   ) {
     editThreadAvatarMenu = <EditThreadAvatarMenu threadInfo={threadInfo} />;
   }

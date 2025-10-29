@@ -140,7 +140,11 @@ function EditThreadAvatarMenu(props: Props): React.Node {
   );
 
   const menuItems = React.useMemo(() => {
-    const items = [emojiMenuItem, imageMenuItem];
+    const items = [];
+    if (threadSpecs[threadInfo.type].protocol().supportsEmojiThreadAvatars) {
+      items.push(emojiMenuItem);
+    }
+    items.push(imageMenuItem);
     if (communityInfo?.farcasterChannelID) {
       items.push(farcasterMenuItem);
     }
@@ -155,6 +159,7 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     imageMenuItem,
     removeMenuItem,
     threadInfo.avatar,
+    threadInfo.type,
   ]);
 
   return (

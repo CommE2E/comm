@@ -443,7 +443,7 @@ function useSelectFromGalleryAndUpdateThreadAvatar(): (
   return selectFromGalleryAndUpdateThreadAvatar;
 }
 
-type ShowAvatarActionSheetOptions = {
+export type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'farcaster' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
