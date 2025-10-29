@@ -6,9 +6,15 @@
 #include "olm/account.hh"
 #include "olm/session.hh"
 
+#include "lib.rs.h"
+#ifndef ANDROID
+#include "vodozemac_bindings.rs.h"
+#endif
+
 #include <folly/dynamic.h>
 #include <folly/json.h>
 #include <ctime>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -20,11 +26,8 @@ namespace crypto {
 const std::string SESSION_DOES_NOT_EXIST_ERROR{"SESSION_DOES_NOT_EXIST"};
 const std::string INVALID_SESSION_VERSION_ERROR{"INVALID_SESSION_VERSION"};
 
-CryptoModule::CryptoModule() {
-  this->createAccount();
-}
-
-CryptoModule::CryptoModule(std::string secretKey, Persist persist) {
+CryptoModule::CryptoModule(std::string secretKey, Persist persist)
+    : secretKey(secretKey) {
   if (persist.isEmpty()) {
     this->createAccount();
   } else {

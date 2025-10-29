@@ -11,6 +11,27 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { getMessageForException } from '../responders/utils.js';
 
+// Import vodozemac dynamically since it uses CommonJS exports
+let vodozemacModule = null;
+async function getVodozemacModule() {
+  if (!vodozemacModule) {
+    vodozemacModule = await import(
+      '../../../vodozemac-wasm/wasm/node/vodozemac.js'
+    );
+  }
+  return vodozemacModule;
+}
+
+// Helper function to get 32-byte pickle key for vodozemac
+function getVodozemacPickleKey(picklingKey: string): Uint8Array {
+  const fullKeyBytes = new TextEncoder().encode(picklingKey);
+  // NOTE: vodozemac works only with 32-byte keys.
+  // We have sessions pickled with 64-byte keys. Additionally, this key
+  // is used in backup, so it can't simply be migrated. Instead, we're going
+  // to just use the first 32 bytes of the existing secret key.
+  return fullKeyBytes.slice(0, 32);
+}
+
 export type PickledOlmAccount = {
   +picklingKey: string,
   +pickledAccount: string,
@@ -67,18 +88,31 @@ export type PickledOlmSession = {
 };
 async function unpickleSessionAndUseCallback<T>(
   pickledOlmSession: PickledOlmSession,
-  callback: (session: OlmSession) => Promise<T> | T,
+  callback: (session: any) => Promise<T> | T, // Using 'any' since vodozemac session has different interface
 ): Promise<{ +result: T, +pickledOlmSession: PickledOlmSession }> {
   const { picklingKey, pickledSession } = pickledOlmSession;
 
-  await olm.init();
+  const { Session: VodozemacSession } = await getVodozemacModule();
 
-  const session = new olm.Session();
-  session.unpickle(picklingKey, pickledSession);
+  const fullKeyBytes = new TextEncoder().encode(picklingKey);
+  // NOTE: vodozemac works only with 32-byte keys.
+  // We have sessions pickled with 64-byte keys. Additionally, this key
+  // is used in backup, so it can't simply be migrated. Instead, we're going
+  // to just use the first 32 bytes of the existing secret key.
+  const pickleKeyBytes = fullKeyBytes.slice(0, 32);
+
+  let session;
+  try {
+    // First try vodozemac native format
+    session = VodozemacSession.from_pickle(pickledSession, pickleKeyBytes);
+  } catch (e) {
+    // Fall back to libolm format
+    session = VodozemacSession.from_libolm_pickle(pickledSession, fullKeyBytes);
+  }
 
   try {
     const result = await callback(session);
-    const updatedSession = session.pickle(picklingKey);
+    const updatedSession = session.pickle(pickleKeyBytes);
     return {
       result,
       pickledOlmSession: {

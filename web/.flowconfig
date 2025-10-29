@@ -3,6 +3,7 @@
 
 [include]
 ../lib
+../vodozemac-wasm
 
 [libs]
 ../lib/flow-typed

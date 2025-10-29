@@ -10,7 +10,19 @@ mod argon2_tools;
 mod backup;
 mod constants;
 mod identity;
+pub mod session;
 mod utils;
+
+// Import vodozemac functions for wrapper implementations
+// use vodozemac_bindings::{
+//   decrypt_with_vodozemac as vz_decrypt,
+//   encrypt_with_vodozemac as vz_encrypt,
+//   encrypt_with_vodozemac2 as vz_encrypt2,
+//   encrypt_with_vodozemac3 as vz_encrypt3
+// };
+
+// Import local session types
+use session::{VodozemacSession, EncryptResult, session_from_pickle};
 
 use crate::argon2_tools::compute_backup_key_str;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
@@ -37,6 +49,7 @@ lazy_static! {
 
 // ffi uses
 use backup::ffi::*;
+// Removed vodozemac functions - now in separate vodozemac_bindings library
 use identity::ffi::*;
 use utils::future_manager::ffi::*;
 
@@ -368,6 +381,35 @@ mod ffi {
       promise_id: u32,
     );
 
+    // Vodozemac crypto functions (wrapper implementations)
+    #[cfg(target_os = "android")]
+    type VodozemacSession;
+    #[cfg(target_os = "android")]
+    type EncryptResult;
+    #[cfg(target_os = "android")]
+    fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
+    #[cfg(target_os = "android")]
+    fn encrypted_message(self: &EncryptResult) -> String;
+    #[cfg(target_os = "android")]
+    fn message_type(self: &EncryptResult) -> u32;
+    #[cfg(target_os = "android")]
+    fn encrypt(
+      self: &mut VodozemacSession,
+      plaintext: &str,
+    ) -> Result<Box<EncryptResult>>;
+    #[cfg(target_os = "android")]
+    fn decrypt(
+      self: &mut VodozemacSession,
+      encrypted_message: String,
+      message_type: u32,
+    ) -> Result<String>;
+
+    #[cfg(target_os = "android")]
+    pub fn session_from_pickle(
+      session_state: String,
+      session_key: String,
+    ) -> Result<Box<VodozemacSession>>;
+
     // Argon2
     #[cxx_name = "compute_backup_key"]
     fn compute_backup_key_str(
@@ -565,6 +607,7 @@ mod ffi {
     fn reject_future(future_id: usize, error: String);
   }
 }
+
 
 #[derive(Debug, derive_more::Display)]
 pub struct StringError(String);

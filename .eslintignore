@@ -9,6 +9,7 @@ web/node_modules
 web/opaque-ke-wasm/pkg
 web/shared-worker/_generated
 web/backup-client-wasm/wasm/backup-client-wasm.js
+vodozemac-wasm/wasm/web/vodozemac.js
 keyserver/app_compiled
 keyserver/landing_compiled
 keyserver/dist

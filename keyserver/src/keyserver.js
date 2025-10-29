@@ -66,10 +66,16 @@ import {
   getWebAppURLFacts,
   getWebAppCorsConfig,
 } from './utils/urls.js';
+// Note: vodozemac WASM module uses CommonJS exports, imported dynamically
 
 const shouldDisplayQRCodeInTerminal = false;
 
 void (async () => {
+  // Load vodozemac WASM module dynamically since it uses CommonJS exports
+  const vodozemacModule = await import(
+    '../../vodozemac-wasm/wasm/node/vodozemac.js'
+  );
+
   const [webAppCorsConfig] = await Promise.all([
     getWebAppCorsConfig(),
     olm.init(),

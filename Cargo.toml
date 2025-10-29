@@ -9,6 +9,7 @@ members = [
     "shared/*",
     # Other packages
     "keyserver/addons/rust-node-addon",
+    "vodozemac-wasm"
 ]
 
 exclude = [
@@ -25,6 +26,7 @@ exclude = [
     "web/backup-client-wasm",
     "web/opaque-ke-wasm",
     "native/native_rust_library",
+    "native/vodozemac_bindings",
     "services/.idea",
     "shared/.idea",
 ]

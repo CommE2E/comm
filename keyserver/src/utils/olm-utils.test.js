@@ -310,6 +310,10 @@ describe('olm.Account', () => {
 
     createSession(aliceSession, aliceAccount, bobAccount, false, false);
     expect(testRatchet(aliceSession, bobSession, bobAccount, 100)).toBeTrue;
+
+    const key =
+      'Lp1NeFlVatfM8UUtgn3A9yC5iakrRXpu1HAFDOtc24x7nQlFJTyNydQltNHuiMoH';
+    console.log(aliceSession.pickle(key));
   });
 
   it('should not encrypt and decrypt if prekey is not signed correctly', async () => {
@@ -333,5 +337,69 @@ describe('olm.Account', () => {
     expect(createSessionWithoutOTK(aliceSession, aliceAccount, bobAccount))
       .toBeTrue;
     expect(testRatchet(aliceSession, bobSession, bobAccount, 100)).toBeTrue;
+  });
+
+  it('should pickle session with OLM and unpickle/decrypt with vodozemac', async () => {
+    await olm.init();
+
+    // Load vodozemac WASM module
+    const vodozemacModule = await import(
+      '../../../vodozemac-wasm/wasm/node/vodozemac.js'
+    );
+    const { Session: VodozemacSession, OlmMessage } = vodozemacModule;
+
+    // Create OLM accounts and session
+    const aliceAccount = initAccount();
+    const bobAccount = initAccount();
+    const aliceSession = new olm.Session();
+    const bobSession = new olm.Session();
+
+    // Create session between Alice and Bob
+    createSession(aliceSession, aliceAccount, bobAccount);
+
+    // Test initial message exchange to establish the session
+    const testMessage = 'Hello from OLM!';
+    const encrypted = aliceSession.encrypt(testMessage);
+    expect(encrypted.type).toEqual(0); // PreKey message
+
+    bobSession.create_inbound(bobAccount, encrypted.body);
+    bobAccount.remove_one_time_keys(bobSession);
+    const decrypted = bobSession.decrypt(encrypted.type, encrypted.body);
+    expect(decrypted).toEqual(testMessage);
+
+    // Pickle the Bob's session with OLM
+    const pickleKey = 'test_pickle_key_1234567890123456789012';
+    const pickledSession = bobSession.pickle(pickleKey);
+
+    // Unpickle the session with vodozemac using 32-byte key
+    const getVodozemacPickleKey = (key: string): Uint8Array => {
+      const fullKeyBytes = new TextEncoder().encode(key);
+      return fullKeyBytes.slice(0, 32);
+    };
+    const pickleKeyBytes = getVodozemacPickleKey(pickleKey);
+    const vodozemacSession = VodozemacSession.from_libolm_pickle(
+      pickledSession,
+      pickleKeyBytes,
+    );
+
+    // Send another message from Alice (this will be a normal message, type 1)
+    const secondMessage = 'Second message from OLM!';
+    const secondEncrypted = aliceSession.encrypt(secondMessage);
+    expect(secondEncrypted.type).toEqual(0);
+
+    // Decrypt using vodozemac
+    const olmMessage = new OlmMessage(
+      secondEncrypted.type,
+      new TextEncoder().encode(secondEncrypted.body),
+    );
+    const vodozemacDecrypted = vodozemacSession.decrypt(olmMessage);
+    const vodozemacDecryptedString = new TextDecoder().decode(
+      vodozemacDecrypted,
+    );
+
+    expect(vodozemacDecryptedString).toEqual(secondMessage);
+
+    // Verify session ID matches
+    expect(vodozemacSession.session_id).toEqual(bobSession.session_id());
   });
 });

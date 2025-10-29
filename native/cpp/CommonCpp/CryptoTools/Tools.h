@@ -23,7 +23,7 @@ struct Keys {
 };
 
 struct EncryptedData {
-  OlmBuffer message;
+  std::string message;
   size_t messageType;
   std::optional<int> sessionVersion;
 };

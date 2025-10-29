@@ -1,6 +1,6 @@
 // @flow
 
-import type { EncryptResult, Session as OlmSession } from '@commapp/olm';
+import type { EncryptResult } from '@commapp/olm';
 
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
@@ -11,6 +11,14 @@ import { unpickleSessionAndUseCallback } from '../utils/olm-objects.js';
 
 const maxOlmSessionUpdateAttemptTime = 30000;
 const olmSessionUpdateRetryDelay = 50;
+
+// Helper function to convert vodozemac OlmMessage to OLM EncryptResult format
+function vodozemacMessageToEncryptResult(olmMessage: any): EncryptResult {
+  return {
+    type: olmMessage.message_type,
+    body: new TextDecoder().decode(olmMessage.ciphertext),
+  };
+}
 
 type OlmEncryptionResult = {
   +encryptedMessages: { +[string]: EncryptResult },
@@ -54,11 +62,13 @@ async function encryptAndUpdateOlmSession(
         picklingKey,
         pickledSession,
       },
-      (olmSession: OlmSession) => {
+      (vodozemacSession: any) => {
         for (const messageName in messagesToEncrypt) {
-          encryptedMessages[messageName] = olmSession.encrypt(
+          const olmMessage = vodozemacSession.encrypt(
             messagesToEncrypt[messageName],
           );
+          encryptedMessages[messageName] =
+            vodozemacMessageToEncryptResult(olmMessage);
         }
       },
     );

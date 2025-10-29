@@ -137,6 +137,14 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
+        from: '../vodozemac-wasm/wasm/web/vodozemac_bg.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
         from: 'backup-client-wasm/wasm/backup-client-wasm_bg.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
