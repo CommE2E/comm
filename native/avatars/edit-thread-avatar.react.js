@@ -15,6 +15,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import {
+  type ShowAvatarActionSheetOptions,
   useNativeSetThreadAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useShowAvatarActionSheet,
@@ -87,11 +88,19 @@ function EditThreadAvatar(props: Props): React.Node {
   );
 
   const actionSheetConfig = React.useMemo(() => {
-    const configOptions = [
-      { id: 'emoji', onPress: navigateToThreadEmojiAvatarCreation },
+    const configOptions: Array<ShowAvatarActionSheetOptions> = [];
+
+    if (threadSpecs[threadInfo.type].protocol().supportsEmojiThreadAvatars) {
+      configOptions.push({
+        id: 'emoji',
+        onPress: navigateToThreadEmojiAvatarCreation,
+      });
+    }
+
+    configOptions.push(
       { id: 'image', onPress: selectFromGallery },
       { id: 'camera', onPress: navigateToCamera },
-    ];
+    );
 
     if (communityInfo?.farcasterChannelID) {
       configOptions.push({
@@ -106,20 +115,17 @@ function EditThreadAvatar(props: Props): React.Node {
 
     return configOptions;
   }, [
-    navigateToCamera,
-    navigateToThreadEmojiAvatarCreation,
-    removeAvatar,
-    selectFromGallery,
+    threadInfo.type,
     threadInfo.avatar,
+    selectFromGallery,
+    navigateToCamera,
     communityInfo?.farcasterChannelID,
+    navigateToThreadEmojiAvatarCreation,
     setFarcasterThreadAvatar,
+    removeAvatar,
   ]);
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
-
-  const isChangingAvatarDisabled =
-    threadSpecs[threadInfo.type].protocol().temporarilyDisabledFeatures
-      ?.changingThreadAvatar;
 
   let spinner;
   if (threadAvatarSaveInProgress) {
@@ -130,13 +136,11 @@ function EditThreadAvatar(props: Props): React.Node {
     );
   }
 
-  const isDisabled = disabled || isChangingAvatarDisabled;
-
   return (
-    <TouchableOpacity onPress={showAvatarActionSheet} disabled={isDisabled}>
+    <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
       <ThreadAvatar threadInfo={threadInfo} size="XL" />
       {spinner}
-      {!isDisabled ? <EditAvatarBadge /> : null}
+      {!disabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
   );
 }
