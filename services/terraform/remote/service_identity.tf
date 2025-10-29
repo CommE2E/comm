@@ -147,7 +147,7 @@ resource "aws_ecs_service" "identity_service" {
   task_definition      = aws_ecs_task_definition.identity_service.arn
   force_new_deployment = true
 
-  desired_count = local.is_staging ? 0 : 2
+  desired_count = 0
 
   # Expose Identity service to other services in the cluster
   service_connect_configuration {
