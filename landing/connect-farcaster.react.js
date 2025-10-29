@@ -131,7 +131,10 @@ function ConnectFarcaster(): React.Node {
           `posted. ${effectRunReason}`,
       });
     }
-  }, [authenticated, isError, reconnect, channelToken, connect, signIn, url]);
+    // We exclude signIn below because it leads to rerunning the hook
+    // constantly, which we suspect is breaking SIWF for some users
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, isError, reconnect, channelToken, connect, url]);
 
   return null;
 }
