@@ -76,8 +76,7 @@ NotificationsCryptoModule::deserializeCryptoModule(
   for (auto &sessionKeyValuePair : persistJSON["sessions"].items()) {
     std::string targetUserID = sessionKeyValuePair.first.asString();
     std::string sessionData = sessionKeyValuePair.second.asString();
-    sessions[targetUserID] = {
-        std::vector<uint8_t>(sessionData.begin(), sessionData.end()), 1};
+    sessions[targetUserID] = {sessionData, 1};
   }
   return std::make_unique<crypto::CryptoModule>(
       picklingKey, crypto::Persist({account, sessions}));
@@ -92,9 +91,7 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
   folly::dynamic sessions = folly::dynamic::object;
   for (auto &sessionKeyValuePair : persist.sessions) {
     std::string targetUserID = sessionKeyValuePair.first;
-    crypto::OlmBuffer sessionData = sessionKeyValuePair.second.buffer;
-    sessions[targetUserID] =
-        std::string(sessionData.begin(), sessionData.end());
+    sessions[targetUserID] = sessionKeyValuePair.second.buffer;
   }
 
   std::string account =
@@ -166,9 +163,7 @@ void NotificationsCryptoModule::setNewSynchronizationValue() {
 std::string NotificationsCryptoModule::serializeNotificationsSession(
     std::shared_ptr<crypto::Session> session,
     std::string picklingKey) {
-  crypto::OlmBuffer pickledSessionBytes = session->storeAsB64(picklingKey);
-  std::string pickledSession =
-      std::string{pickledSessionBytes.begin(), pickledSessionBytes.end()};
+  std::string pickledSession = session->storeAsB64(picklingKey);
   folly::dynamic serializedSessionJson = folly::dynamic::object(
       "session", pickledSession)("picklingKey", picklingKey);
   return folly::toJson(serializedSessionJson);

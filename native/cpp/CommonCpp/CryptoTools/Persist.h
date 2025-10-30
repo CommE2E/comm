@@ -9,7 +9,7 @@ namespace comm {
 namespace crypto {
 
 struct SessionPersist {
-  OlmBuffer buffer;
+  std::string buffer;
   int version;
 };
 

@@ -17,9 +17,10 @@ class CryptoModule {
 
   OlmBuffer accountBuffer;
 
-  std::unordered_map<std::string, std::shared_ptr<Session>> sessions = {};
+  std::unordered_map<std::string, std::string> sessions = {};
 
   Keys keys;
+  std::string secretKey;
 
   OlmAccount *getOlmAccount();
   void createAccount();
@@ -34,7 +35,6 @@ class CryptoModule {
   OlmBuffer pickleAccount(const std::string &secretKey);
 
 public:
-  CryptoModule();
   CryptoModule(std::string secretKey, Persist persist);
 
   // CryptoModule's accountBuffer cannot be safely copied
