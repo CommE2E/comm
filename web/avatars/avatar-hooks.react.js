@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
+import {
+  useBlobServiceUpload,
+  usePlaintextMediaUpload,
+} from 'lib/hooks/upload-hooks.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -12,14 +15,18 @@ import { validateFile } from '../media/media-utils.js';
 
 type AvatarMediaUploadOptions = {
   +uploadMetadataToKeyserver?: boolean,
+  +supportsEncryption?: boolean,
 };
 
 function useUploadAvatarMedia(
   options: AvatarMediaUploadOptions = {},
 ): File => Promise<UpdateUserAvatarRequest> {
-  const { uploadMetadataToKeyserver = true } = options;
+  const { uploadMetadataToKeyserver = true, supportsEncryption = true } =
+    options;
 
   const callBlobServiceUpload = useBlobServiceUpload();
+  const callPlaintextMediaUpload = usePlaintextMediaUpload();
+
   const uploadAvatarMedia = React.useCallback(
     async (file: File): Promise<UpdateUserAvatarRequest> => {
       const validatedFile = await validateFile(file);
@@ -28,6 +35,25 @@ function useUploadAvatarMedia(
         throw new Error('Avatar media validation failed.');
       }
       const { file: fixedFile, dimensions } = result;
+
+      if (!supportsEncryption) {
+        const uploadResult = await callPlaintextMediaUpload({
+          mediaInput: {
+            uploadInput: { type: 'file', file: fixedFile },
+            dimensions,
+            loop: false,
+            thumbHash: null,
+          },
+          callbacks: {},
+        });
+
+        return {
+          type: 'non_keyserver_image',
+          blobURI: uploadResult.uri,
+          thumbHash: null,
+          encryptionKey: '',
+        };
+      }
 
       const encryptionResponse = await encryptFile(fixedFile);
       const { result: encryptionResult } = encryptionResponse;
@@ -77,7 +103,12 @@ function useUploadAvatarMedia(
         encryptionKey,
       };
     },
-    [callBlobServiceUpload, uploadMetadataToKeyserver],
+    [
+      callBlobServiceUpload,
+      callPlaintextMediaUpload,
+      uploadMetadataToKeyserver,
+      supportsEncryption,
+    ],
   );
   return uploadAvatarMedia;
 }
