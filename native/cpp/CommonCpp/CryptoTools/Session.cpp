@@ -107,7 +107,7 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
   return session;
 }
 
-OlmBuffer Session::storeAsB64(const std::string &secretKey) {
+std::string Session::storeAsB64(const std::string &secretKey) {
   size_t pickleLength = ::olm_pickle_session_length(this->getOlmSession());
   OlmBuffer pickle(pickleLength);
   size_t res = ::olm_pickle_session(
@@ -119,7 +119,7 @@ OlmBuffer Session::storeAsB64(const std::string &secretKey) {
   if (pickleLength != res) {
     throw std::runtime_error("error pickleSession => ::olm_pickle_session");
   }
-  return pickle;
+  return std::string(pickle.begin(), pickle.end());
 }
 
 std::unique_ptr<Session>

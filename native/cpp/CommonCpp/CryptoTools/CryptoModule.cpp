@@ -20,11 +20,8 @@ namespace crypto {
 const std::string SESSION_DOES_NOT_EXIST_ERROR{"SESSION_DOES_NOT_EXIST"};
 const std::string INVALID_SESSION_VERSION_ERROR{"INVALID_SESSION_VERSION"};
 
-CryptoModule::CryptoModule() {
-  this->createAccount();
-}
-
-CryptoModule::CryptoModule(std::string secretKey, Persist persist) {
+CryptoModule::CryptoModule(std::string secretKey, Persist persist)
+    : secretKey(secretKey) {
   if (persist.isEmpty()) {
     this->createAccount();
   } else {
@@ -325,7 +322,8 @@ void CryptoModule::initializeInboundForReceivingSession(
       encryptedMessage,
       idKeys);
   newSession->setVersion(sessionVersion);
-  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
+  std::string pickledSession = newSession->storeAsB64(this->secretKey);
+  this->sessions.insert(make_pair(targetDeviceId, pickledSession));
 }
 
 int CryptoModule::initializeOutboundForSendingSession(
@@ -351,7 +349,8 @@ int CryptoModule::initializeOutboundForSendingSession(
       preKeySignature,
       oneTimeKey);
   newSession->setVersion(newSessionVersion);
-  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
+  std::string pickledSession = newSession->storeAsB64(this->secretKey);
+  this->sessions.insert(make_pair(targetDeviceId, pickledSession));
   return newSessionVersion;
 }
 
@@ -361,7 +360,9 @@ bool CryptoModule::hasSessionFor(const std::string &targetDeviceId) {
 
 std::shared_ptr<Session>
 CryptoModule::getSessionByDeviceId(const std::string &deviceId) {
-  return this->sessions.at(deviceId);
+  const std::string &pickledSession = this->sessions.at(deviceId);
+  OlmBuffer sessionBuffer(pickledSession.begin(), pickledSession.end());
+  return Session::restoreFromB64(this->secretKey, sessionBuffer);
 }
 
 void CryptoModule::removeSessionByDeviceId(const std::string &deviceId) {
@@ -392,10 +393,13 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
   persist.account = this->pickleAccount(secretKey);
 
-  std::unordered_map<std::string, std::shared_ptr<Session>>::iterator it;
+  std::unordered_map<std::string, std::string>::iterator it;
   for (it = this->sessions.begin(); it != this->sessions.end(); ++it) {
-    OlmBuffer buffer = it->second->storeAsB64(secretKey);
-    SessionPersist sessionPersist{buffer, it->second->getVersion()};
+    // Sessions are already pickled as strings, just need to get version
+    OlmBuffer sessionBuffer(it->second.begin(), it->second.end());
+    std::shared_ptr<Session> session =
+        Session::restoreFromB64(secretKey, sessionBuffer);
+    SessionPersist sessionPersist{it->second, session->getVersion()};
     persist.sessions.insert(make_pair(it->first, sessionPersist));
   }
 
@@ -426,10 +430,8 @@ void CryptoModule::restoreFromB64(
 
   std::unordered_map<std::string, SessionPersist>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
-    std::unique_ptr<Session> session =
-        session->restoreFromB64(secretKey, it->second.buffer);
-    session->setVersion(it->second.version);
-    this->sessions.insert(make_pair(it->first, move(session)));
+    // Store directly as pickled string
+    this->sessions.insert(make_pair(it->first, it->second.buffer));
   }
 }
 
@@ -439,7 +441,12 @@ EncryptedData CryptoModule::encrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-  return this->sessions.at(targetDeviceId)->encrypt(content);
+  std::shared_ptr<Session> session = this->getSessionByDeviceId(targetDeviceId);
+  EncryptedData result = session->encrypt(content);
+  // Store the updated session back as pickled string
+  std::string pickledSession = session->storeAsB64(this->secretKey);
+  this->sessions[targetDeviceId] = pickledSession;
+  return result;
 }
 
 std::string CryptoModule::decrypt(
@@ -448,12 +455,16 @@ std::string CryptoModule::decrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-  auto session = this->sessions.at(targetDeviceId);
+  std::shared_ptr<Session> session = this->getSessionByDeviceId(targetDeviceId);
   if (encryptedData.sessionVersion.has_value() &&
       encryptedData.sessionVersion.value() < session->getVersion()) {
     throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
   }
-  return session->decrypt(encryptedData);
+  std::string result = session->decrypt(encryptedData);
+  // Store the updated session back as pickled string
+  std::string pickledSession = session->storeAsB64(this->secretKey);
+  this->sessions[targetDeviceId] = pickledSession;
+  return result;
 }
 
 std::string CryptoModule::signMessage(const std::string &message) {
