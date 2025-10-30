@@ -6,9 +6,11 @@ import * as React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types';
+import { isDev } from 'lib/utils/dev-utils.js';
 
 import { userProfileMenuButtonHeight } from './user-profile-constants.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -43,6 +45,8 @@ function UserProfileMenuButton(props: Props): React.Node {
 
   const menuButtonRef = React.useRef<?React.ElementRef<typeof View>>();
 
+  const isCurrentUserStaff = useIsCurrentUserStaff();
+
   const visibleTooltipActionEntryIDs = React.useMemo(() => {
     const result = [];
 
@@ -60,8 +64,12 @@ function UserProfileMenuButton(props: Props): React.Node {
       result.push('block');
     }
 
+    if (isCurrentUserStaff || isDev) {
+      result.push('reset-ratchet');
+    }
+
     return result;
-  }, [otherUserInfo?.relationshipStatus]);
+  }, [isCurrentUserStaff, otherUserInfo?.relationshipStatus]);
 
   const onPressMenuButton = React.useCallback(() => {
     invariant(

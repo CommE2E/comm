@@ -1,13 +1,20 @@
 // @flow
 
-import { faUserMinus, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEraser,
+  faUserMinus,
+  faUserShield,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
+import { useResetRatchetState } from 'lib/hooks/peer-list-hooks.js';
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
@@ -20,12 +27,16 @@ const blockIcon = <FontAwesomeIcon icon={faUserShield} />;
 
 const unblockIcon = <FontAwesomeIcon icon={faUserShield} />;
 
+const resetIcon = <FontAwesomeIcon icon={faEraser} />;
+
 type Props = {
   +threadInfo: ThreadInfo,
 };
 
 function UserProfileMenu(props: Props): React.Node {
   const { threadInfo } = props;
+
+  const isCurrentUserStaff = useIsCurrentUserStaff();
 
   const {
     otherUserInfo,
@@ -69,6 +80,24 @@ function UserProfileMenu(props: Props): React.Node {
     [unblockUser],
   );
 
+  const reset = useResetRatchetState();
+  const resetRatchetStateAction = React.useCallback(
+    async () => reset(otherUserInfo?.id),
+    [otherUserInfo?.id, reset],
+  );
+  const resetRatchetState = React.useMemo(
+    () => (
+      <MenuItem
+        key="reset"
+        text="Reset ratchet"
+        dangerous
+        iconComponent={resetIcon}
+        onClick={resetRatchetStateAction}
+      />
+    ),
+    [resetRatchetStateAction],
+  );
+
   const menuItems = React.useMemo(() => {
     const items = [];
     if (otherUserInfo?.relationshipStatus === userRelationshipStatus.FRIEND) {
@@ -85,10 +114,16 @@ function UserProfileMenu(props: Props): React.Node {
       items.push(blockMenuItem);
     }
 
+    if (isCurrentUserStaff || isDev) {
+      items.push(resetRatchetState);
+    }
+
     return items;
   }, [
     blockMenuItem,
+    isCurrentUserStaff,
     otherUserInfo?.relationshipStatus,
+    resetRatchetState,
     unblockMenuItem,
     unfriendMenuIcon,
   ]);

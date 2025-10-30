@@ -4,6 +4,7 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
 import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
+import { useResetRatchetState } from 'lib/hooks/peer-list-hooks.js';
 import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeUserInfo } from 'lib/types/user-types.js';
@@ -115,6 +116,12 @@ function TooltipMenu(
     action: 'unblock',
   });
 
+  const reset = useResetRatchetState();
+  const resetRatchetStateAction = React.useCallback(
+    async () => reset(route.params.relativeUserInfo.id),
+    [reset, route.params.relativeUserInfo.id],
+  );
+
   return (
     <>
       <TooltipItem
@@ -129,6 +136,12 @@ function TooltipMenu(
         text="Unblock"
         onPress={onUnblockUser}
         key="unblock"
+      />
+      <TooltipItem
+        id="reset-ratchet"
+        text="Reset ratchet"
+        onPress={resetRatchetStateAction}
+        key="reset"
       />
     </>
   );
