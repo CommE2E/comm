@@ -75,6 +75,8 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     uploadMetadataToKeyserver:
       threadSpecs[threadInfo.type].protocol()
         .uploadMultimediaMetadataToKeyserver,
+    supportsEncryption:
+      threadSpecs[threadInfo.type].protocol().supportsEncryptedMultimedia,
   });
   const onImageSelected = React.useCallback(
     async (event: SyntheticEvent<HTMLInputElement>) => {

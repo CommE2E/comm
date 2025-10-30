@@ -10,7 +10,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
-import { useBlobServiceUpload } from 'lib/hooks/upload-hooks.js';
+import {
+  useBlobServiceUpload,
+  usePlaintextMediaUpload,
+} from 'lib/hooks/upload-hooks.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
@@ -37,7 +40,10 @@ import { processMedia } from '../media/media-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
-import { blobServiceUploadHandler } from '../utils/blob-service-upload.js';
+import {
+  blobServiceUploadHandler,
+  plaintextMediaUploadHandler,
+} from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function displayAvatarUpdateFailureAlert(): void {
@@ -52,10 +58,47 @@ function displayAvatarUpdateFailureAlert(): void {
 function useUploadProcessedMedia(): (
   media: MediaResult,
   metadataUploadLocation: 'keyserver' | 'none',
+  supportsEncryption?: boolean,
 ) => Promise<?UpdateUserAvatarRequest> {
   const callBlobServiceUpload = useBlobServiceUpload();
+  const callPlaintextMediaUpload = usePlaintextMediaUpload();
+
   return React.useCallback(
-    async (processedMedia, metadataUploadLocation) => {
+    async (
+      processedMedia,
+      metadataUploadLocation,
+      supportsEncryption = true,
+    ) => {
+      if (!supportsEncryption) {
+        invariant(processedMedia.success, 'processedMedia must be successful');
+        invariant(
+          processedMedia.mediaType === 'photo',
+          'Avatar must be a photo',
+        );
+
+        const uploadResult = await callPlaintextMediaUpload({
+          mediaInput: {
+            uploadInput: {
+              type: 'uri',
+              uri: processedMedia.uploadURI,
+              filename: processedMedia.filename,
+              mimeType: processedMedia.mime,
+            },
+            dimensions: processedMedia.dimensions,
+            loop: false,
+            thumbHash: null,
+          },
+          callbacks: { plaintextMediaUploadHandler },
+        });
+
+        return {
+          type: 'non_keyserver_image',
+          blobURI: uploadResult.uri,
+          thumbHash: null,
+          encryptionKey: '',
+        };
+      }
+
       const { result: encryptionResult } = await encryptMedia(processedMedia);
       if (!encryptionResult.success) {
         throw new Error('Avatar media encryption failed.');
@@ -107,7 +150,7 @@ function useUploadProcessedMedia(): (
       }
       return { type: 'encrypted_image', uploadID: id };
     },
-    [callBlobServiceUpload],
+    [callBlobServiceUpload, callPlaintextMediaUpload],
   );
 }
 
@@ -178,12 +221,17 @@ function useUploadSelectedMedia(
 ): (
   selection: NativeMediaSelection,
   metadataUploadLocation: 'keyserver' | 'none',
+  supportsEncryption?: boolean,
 ) => Promise<?UpdateUserAvatarRequest> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
   return React.useCallback(
-    async (selection: NativeMediaSelection, metadataUploadLocation) => {
+    async (
+      selection: NativeMediaSelection,
+      metadataUploadLocation,
+      supportsEncryption = true,
+    ) => {
       setProcessingOrUploadInProgress?.(true);
       const urisToBeDisposed: Set<string> = new Set([selection.uri]);
 
@@ -218,6 +266,7 @@ function useUploadSelectedMedia(
         uploadedMedia = await uploadProcessedMedia(
           processedMedia,
           metadataUploadLocation,
+          supportsEncryption,
         );
         urisToBeDisposed.forEach(filesystem.unlink);
         setProcessingOrUploadInProgress?.(false);
@@ -400,13 +449,14 @@ function useNativeUpdateThreadImageAvatar(): (
       selection: NativeMediaSelection,
       threadInfo: ThreadInfo | RawThreadInfo,
     ): Promise<void> => {
-      const metadataUploadLocation = threadSpecs[threadInfo.type].protocol()
-        .uploadMultimediaMetadataToKeyserver
-        ? 'keyserver'
-        : 'none';
+      const protocol = threadSpecs[threadInfo.type].protocol();
+      const metadataUploadLocation =
+        protocol.uploadMultimediaMetadataToKeyserver ? 'keyserver' : 'none';
+      const supportsEncryption = protocol.supportsEncryptedMultimedia;
       const imageAvatarUpdateRequest = await uploadSelectedMedia(
         selection,
         metadataUploadLocation,
+        supportsEncryption,
       );
       if (!imageAvatarUpdateRequest) {
         return;
