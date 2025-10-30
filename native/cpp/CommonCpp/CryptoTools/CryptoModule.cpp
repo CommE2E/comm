@@ -6,9 +6,12 @@
 #include "olm/account.hh"
 #include "olm/session.hh"
 
+#include "lib.rs.h"
+
 #include <folly/dynamic.h>
 #include <folly/json.h>
 #include <ctime>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -460,11 +463,28 @@ std::string CryptoModule::decrypt(
       encryptedData.sessionVersion.value() < session->getVersion()) {
     throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
   }
-  std::string result = session->decrypt(encryptedData);
-  // Store the updated session back as pickled string
-  std::string pickledSession = session->storeAsB64(this->secretKey);
-  this->sessions[targetDeviceId] = pickledSession;
-  return result;
+
+  const std::string &pickledSession = this->sessions.at(targetDeviceId);
+  std::cout << "C++ pickled session length: " << pickledSession.length()
+            << std::endl;
+  std::cout << "C++ pickled session content: " << pickledSession << std::endl;
+  std::cout << "C++ secret key length: " << this->secretKey.length()
+            << std::endl;
+  std::cout << "C++ secret key content: " << this->secretKey << std::endl;
+
+  auto sessionState = rust::String(pickledSession);
+  auto secretKey = rust::String(this->secretKey);
+  rust::Slice<const uint8_t> messageSlice{
+      encryptedData.message.data(), encryptedData.message.size()};
+
+  auto result = decryptWithVodozemac(
+      sessionState,
+      messageSlice,
+      static_cast<uint32_t>(encryptedData.messageType),
+      secretKey);
+
+  this->sessions[targetDeviceId] = std::string(result.updated_session_state);
+  return std::string(result.decrypted_message);
 }
 
 std::string CryptoModule::signMessage(const std::string &message) {
