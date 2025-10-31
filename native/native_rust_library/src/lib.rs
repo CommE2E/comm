@@ -54,7 +54,7 @@ mod ffi {
   }
 
   struct EncryptResult {
-    encrypted_message: Vec<u8>,
+    encrypted_message: String,
     message_type: u32,
     updated_session_state: String,
   }
@@ -387,7 +387,7 @@ mod ffi {
     #[cxx_name = "decryptWithVodozemac"]
     fn decrypt_with_vodozemac_cxx(
       session_state: String,
-      encrypted_message: &[u8],
+      encrypted_message: String,
       message_type: u32,
       session_key: String,
     ) -> DecryptResult;
