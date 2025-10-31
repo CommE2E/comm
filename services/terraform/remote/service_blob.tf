@@ -188,33 +188,13 @@ resource "aws_lb_listener" "blob_service_https" {
   certificate_arn   = data.aws_acm_certificate.blob_service.arn
 
   default_action {
-    type = "forward"
-
-    # Weighted forwarding for both environments
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.blob_service_http.arn
-        weight = 0 # 0% EC2
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.blob_service_http_fargate.arn
-        weight = 100 # 100% Fargate
-      }
-
-      stickiness {
-        enabled  = false
-        duration = 10
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blob_service_http_fargate.arn
   }
 
   lifecycle {
-    # Required only for existing resources to avoid plan difference
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
-
     # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.blob_service_http]
+    replace_triggered_by = [aws_lb_target_group.blob_service_http_fargate]
   }
 }
 

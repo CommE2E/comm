@@ -319,30 +319,12 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
   certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
 
   default_action {
-    type = "forward"
-
-    # Weighted forwarding for both environments
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.tunnelbroker_ws.arn
-        weight = 0 # 0% EC2
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.tunnelbroker_ws_fargate.arn
-        weight = 100 # 100% Fargate
-      }
-
-      stickiness {
-        enabled  = false
-        duration = 10
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate.arn
   }
 
   lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws]
+    replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws_fargate]
   }
 }
 
@@ -355,28 +337,12 @@ resource "aws_lb_listener" "tunnelbroker_grpc" {
   certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
 
   default_action {
-    type = "forward"
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.tunnelbroker_grpc.arn
-        weight = 0 # Switch to 0% EC2
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
-        weight = 100 # Switch to 100% Fargate
-      }
-
-      stickiness {
-        enabled  = false
-        duration = 10
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
   }
 
   lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc]
+    replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc_fargate]
   }
 }
 
