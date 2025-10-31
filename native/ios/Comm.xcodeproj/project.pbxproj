@@ -69,39 +69,6 @@
 		8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */; };
 		8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */; };
 		8E3994552B039A7C00D5E950 /* UserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3994532B039A7C00D5E950 /* UserStore.cpp */; };
-		8E3A18B92EB25DF100D76057 /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
-		8E3A18C02EB2684C00D76057 /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
-		8E3A18C12EB2691F00D76057 /* SQLiteBackup.h in Sources */ = {isa = PBXBuildFile; fileRef = 8EF0F6012DCA43CD00F2B171 /* SQLiteBackup.h */; };
-		8E3A18C22EB2691F00D76057 /* SQLiteBackup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF0F6022DCA43CD00F2B171 /* SQLiteBackup.cpp */; };
-		8E3A18C32EB2694600D76057 /* SQLiteUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 8EF29DA82DA52AE7003D677E /* SQLiteUtils.h */; };
-		8E3A18C42EB2694600D76057 /* SQLiteUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF29DA92DA52AE7003D677E /* SQLiteUtils.cpp */; };
-		8E3A18C52EB2697900D76057 /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
-		8E3A18C62EB2697900D76057 /* DatabaseQueryExecutor.h in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84402636A944002849D2 /* DatabaseQueryExecutor.h */; };
-		8E3A18C72EB2697900D76057 /* DatabaseManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84432636A944002849D2 /* DatabaseManager.h */; };
-		8E3A18C82EB269A500D76057 /* GlobalDBSingleton.h in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */; };
-		8E3A18C92EB269B300D76057 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
-		8E3A18CA2EB269B300D76057 /* SQLiteQueryExecutor.h in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84422636A944002849D2 /* SQLiteQueryExecutor.h */; };
-		8E3A18CB2EB26A0100D76057 /* WebSQLiteConnectionManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF4E162DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.h */; };
-		8E3A18CC2EB26A0100D76057 /* WebSQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF4E172DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp */; };
-		8E3A18CD2EB26A0100D76057 /* SQLiteSchemaMigrations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */; };
-		8E3A18CE2EB26A0100D76057 /* SQLiteSchema.h in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805542DA954B600B772A4 /* SQLiteSchema.h */; };
-		8E3A18CF2EB26A0100D76057 /* SQLiteSchema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */; };
-		8E3A18D02EB26A0100D76057 /* NativeSQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB3CCB002B7246F400793640 /* NativeSQLiteConnectionManager.cpp */; };
-		8E3A18D12EB26A0100D76057 /* NativeSQLiteConnectionManager.h in Sources */ = {isa = PBXBuildFile; fileRef = CB3CCAFF2B7246F400793640 /* NativeSQLiteConnectionManager.h */; };
-		8E3A18D22EB26A0100D76057 /* SQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBA5F8842B6979ED005BE700 /* SQLiteConnectionManager.cpp */; };
-		8E3A18D32EB26A0100D76057 /* SQLiteConnectionManager.h in Sources */ = {isa = PBXBuildFile; fileRef = CBA5F8832B6979ED005BE700 /* SQLiteConnectionManager.h */; };
-		8E3A18D42EB26A0100D76057 /* SQLiteStatementWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB01F0C32B67F3970089E1F9 /* SQLiteStatementWrapper.cpp */; };
-		8E3A18D52EB26A0100D76057 /* SQLiteDataConverters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB01F0C12B67EF470089E1F9 /* SQLiteDataConverters.cpp */; };
-		8E3A18D62EB26A0100D76057 /* SQLiteDataConverters.h in Sources */ = {isa = PBXBuildFile; fileRef = CB01F0C02B67CDC20089E1F9 /* SQLiteDataConverters.h */; };
-		8E3A18D72EB26A0100D76057 /* SQLiteStatementWrapper.h in Sources */ = {isa = PBXBuildFile; fileRef = CB01F0BF2B67CDC20089E1F9 /* SQLiteStatementWrapper.h */; };
-		8E3A18D82EB26A2D00D76057 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
-		8E3A18D92EB26A3B00D76057 /* RustCSAMetadataEmitter.h in Sources */ = {isa = PBXBuildFile; fileRef = CB74AB1F2B2B0C0900CBB494 /* RustCSAMetadataEmitter.h */; };
-		8E3A18DA2EB26A3B00D76057 /* CommServicesAuthMetadataEmitter.h in Sources */ = {isa = PBXBuildFile; fileRef = CBA784382B28AC4300E9F419 /* CommServicesAuthMetadataEmitter.h */; };
-		8E3A18DB2EB26A3B00D76057 /* CommServicesAuthMetadataEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB74AB1B2B2AFF6E00CBB494 /* CommServicesAuthMetadataEmitter.mm */; };
-		8E3A18DC2EB26A6300D76057 /* RustAESCrypto.h in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E7852B052B1400C32B6A /* RustAESCrypto.h */; };
-		8E3A18DD2EB26A6300D76057 /* AESCrypto.h in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E7802B05264F00C32B6A /* AESCrypto.h */; };
-		8E3A18DE2EB26A6300D76057 /* AESCrypto.mm in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E77D2B05264000C32B6A /* AESCrypto.mm */; };
-		8E3A18DF2EB26A6300D76057 /* AESCryptoModuleObjCCompat.h in Sources */ = {isa = PBXBuildFile; fileRef = CBCF57AB2B05096F00EC4BC0 /* AESCryptoModuleObjCCompat.h */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8A8DFC2E15A4F100519F55 /* HolderStore.cpp */; };
@@ -162,13 +129,6 @@
 		DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E77B2B05181400C32B6A /* RustSecureStore.cpp */; };
 		DFD5E77E2B05264000C32B6A /* AESCrypto.mm in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E77D2B05264000C32B6A /* AESCrypto.mm */; };
 		DFD5E7862B052B1400C32B6A /* RustAESCrypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E7842B052B1400C32B6A /* RustAESCrypto.cpp */; };
-		E1A2B3C42E21234500987654 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
-		E1A2B3C52E21234600987654 /* RustAESCrypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E7842B052B1400C32B6A /* RustAESCrypto.cpp */; };
-		E1A2B3C62E21234700987654 /* RustSecureStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E77B2B05181400C32B6A /* RustSecureStore.cpp */; };
-		E1A2B3C72E21234800987654 /* RustBackupExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFBEEB82B4ED90600729F1D /* RustBackupExecutor.cpp */; };
-		E1A2B3C82E21234900987654 /* RustCSAMetadataEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB74AB1E2B2B0C0900CBB494 /* RustCSAMetadataEmitter.cpp */; };
-		E1A2B3C92E21235000987654 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
-		E1A2B3CA2E21235100987654 /* BackupOperationsExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBAAA46E2B459181007599DA /* BackupOperationsExecutor.cpp */; };
 		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
 /* End PBXBuildFile section */
 
@@ -453,7 +413,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E3A18B92EB25DF100D76057 /* libnative_rust_library.a in Frameworks */,
+				8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */,
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
 				D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */,
 			);
@@ -471,7 +431,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */,
-				8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */,
 				F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1012,6 +971,7 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Comm" */;
 			buildPhases = (
 				02DE093B3C1DDF10C1FA3E9C /* [CP] Check Pods Manifest.lock */,
+				8BF9F24E28B795E200E20C13 /* Build Rust library */,
 				5B49B1B62109FCA9B5A7F933 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -1054,7 +1014,6 @@
 			buildConfigurationList = 724995DD27B4103A00323FCE /* Build configuration list for PBXNativeTarget "NotificationService" */;
 			buildPhases = (
 				6735FA74B2C82E3B27E18258 /* [CP] Check Pods Manifest.lock */,
-				8BF9F24E28B795E200E20C13 /* Build Rust library */,
 				105D2A7B69CF49C7EF865A3B /* [Expo] Configure project */,
 				724995CD27B4103A00323FCE /* Sources */,
 				724995CE27B4103A00323FCE /* Frameworks */,
@@ -1465,7 +1424,7 @@
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */,
 				8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */,
-				8E3A18C02EB2684C00D76057 /* lib.rs.cc in Sources */,
+				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				CBB0DF602B768007008E22FF /* CommMMKV.mm in Sources */,
@@ -1522,37 +1481,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E3A18DC2EB26A6300D76057 /* RustAESCrypto.h in Sources */,
-				8E3A18DD2EB26A6300D76057 /* AESCrypto.h in Sources */,
-				8E3A18DE2EB26A6300D76057 /* AESCrypto.mm in Sources */,
-				8E3A18DF2EB26A6300D76057 /* AESCryptoModuleObjCCompat.h in Sources */,
-				8E3A18D92EB26A3B00D76057 /* RustCSAMetadataEmitter.h in Sources */,
-				8E3A18DA2EB26A3B00D76057 /* CommServicesAuthMetadataEmitter.h in Sources */,
-				8E3A18DB2EB26A3B00D76057 /* CommServicesAuthMetadataEmitter.mm in Sources */,
-				8E3A18D82EB26A2D00D76057 /* GlobalDBSingleton.mm in Sources */,
-				8E3A18CB2EB26A0100D76057 /* WebSQLiteConnectionManager.h in Sources */,
-				8E3A18CC2EB26A0100D76057 /* WebSQLiteConnectionManager.cpp in Sources */,
-				8E3A18CD2EB26A0100D76057 /* SQLiteSchemaMigrations.cpp in Sources */,
-				8E3A18CE2EB26A0100D76057 /* SQLiteSchema.h in Sources */,
-				8E3A18CF2EB26A0100D76057 /* SQLiteSchema.cpp in Sources */,
-				8E3A18D02EB26A0100D76057 /* NativeSQLiteConnectionManager.cpp in Sources */,
-				8E3A18D12EB26A0100D76057 /* NativeSQLiteConnectionManager.h in Sources */,
-				8E3A18D22EB26A0100D76057 /* SQLiteConnectionManager.cpp in Sources */,
-				8E3A18D32EB26A0100D76057 /* SQLiteConnectionManager.h in Sources */,
-				8E3A18D42EB26A0100D76057 /* SQLiteStatementWrapper.cpp in Sources */,
-				8E3A18D52EB26A0100D76057 /* SQLiteDataConverters.cpp in Sources */,
-				8E3A18D62EB26A0100D76057 /* SQLiteDataConverters.h in Sources */,
-				8E3A18D72EB26A0100D76057 /* SQLiteStatementWrapper.h in Sources */,
-				8E3A18C92EB269B300D76057 /* SQLiteQueryExecutor.cpp in Sources */,
-				8E3A18CA2EB269B300D76057 /* SQLiteQueryExecutor.h in Sources */,
-				8E3A18C82EB269A500D76057 /* GlobalDBSingleton.h in Sources */,
-				8E3A18C52EB2697900D76057 /* DatabaseManager.cpp in Sources */,
-				8E3A18C62EB2697900D76057 /* DatabaseQueryExecutor.h in Sources */,
-				8E3A18C72EB2697900D76057 /* DatabaseManager.h in Sources */,
-				8E3A18C32EB2694600D76057 /* SQLiteUtils.h in Sources */,
-				8E3A18C42EB2694600D76057 /* SQLiteUtils.cpp in Sources */,
-				8E3A18C12EB2691F00D76057 /* SQLiteBackup.h in Sources */,
-				8E3A18C22EB2691F00D76057 /* SQLiteBackup.cpp in Sources */,
 				CB99DB4E2C45329500B8055E /* NotificationsInboundKeysProvider.mm in Sources */,
 				CBCF98502BA49A0500DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				7FDFC0FE2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */,
@@ -1576,14 +1504,6 @@
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,
-				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
-				E1A2B3C42E21234500987654 /* RustCallback.cpp in Sources */,
-				E1A2B3C52E21234600987654 /* RustAESCrypto.cpp in Sources */,
-				E1A2B3C62E21234700987654 /* RustSecureStore.cpp in Sources */,
-				E1A2B3C72E21234800987654 /* RustBackupExecutor.cpp in Sources */,
-				E1A2B3C82E21234900987654 /* RustCSAMetadataEmitter.cpp in Sources */,
-				E1A2B3C92E21235000987654 /* RustPromiseManager.cpp in Sources */,
-				E1A2B3CA2E21235100987654 /* BackupOperationsExecutor.cpp in Sources */,
 				724995D527B4103A00323FCE /* NotificationService.mm in Sources */,
 				CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */,
 				1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */,
@@ -2003,13 +1923,6 @@
 					"$(inherited)",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
-					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../native_rust_library",
-					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
-				);
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
@@ -2018,14 +1931,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/debug",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/debug",
 				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -2075,13 +1980,6 @@
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
-					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../native_rust_library",
-					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
-				);
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
@@ -2090,14 +1988,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
 				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_FAST_MATH = YES;
