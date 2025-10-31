@@ -280,30 +280,12 @@ resource "aws_lb_listener" "identity_service_ws" {
   certificate_arn   = data.aws_acm_certificate.identity_service.arn
 
   default_action {
-    type = "forward"
-
-    # Weighted forwarding for both environments
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.identity_service_ws.arn
-        weight = 0 # 0% EC2
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.identity_service_ws_fargate.arn
-        weight = 100 # 100% Fargate
-      }
-
-      stickiness {
-        enabled  = false
-        duration = 10
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.identity_service_ws_fargate.arn
   }
 
   lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.identity_service_ws]
+    replace_triggered_by = [aws_lb_target_group.identity_service_ws_fargate]
   }
 }
 
@@ -315,33 +297,13 @@ resource "aws_lb_listener" "identity_service_grpc" {
   certificate_arn   = data.aws_acm_certificate.identity_service.arn
 
   default_action {
-    type = "forward"
-
-    # Weighted forwarding for both environments
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.identity_service_grpc.arn
-        weight = 0 # 0% EC2
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.identity_service_grpc_fargate.arn
-        weight = 100 # 100% Fargate
-      }
-
-      stickiness {
-        enabled  = true
-        duration = 10
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate.arn
   }
 
   lifecycle {
-    # Required only for existing resources to avoid plan difference
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
-
     # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.identity_service_grpc]
+    replace_triggered_by = [aws_lb_target_group.identity_service_grpc_fargate]
   }
 }
 
