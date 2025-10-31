@@ -38,8 +38,7 @@ lazy_static! {
 
 // ffi uses
 use backup::ffi::*;
-use crypto::decrypt_with_vodozemac_cxx;
-use crypto::encrypt_with_vodozemac_cxx;
+use crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac};
 use identity::ffi::*;
 use utils::future_manager::ffi::*;
 
@@ -385,20 +384,20 @@ mod ffi {
 
     // Crypto - Vodozemac decrypt
     #[cxx_name = "decryptWithVodozemac"]
-    fn decrypt_with_vodozemac_cxx(
+    fn decrypt_with_vodozemac(
       session_state: String,
       encrypted_message: String,
       message_type: u32,
       session_key: String,
-    ) -> DecryptResult;
+    ) -> Result<DecryptResult>;
 
     // Crypto - Vodozemac encrypt
     #[cxx_name = "encryptWithVodozemac"]
-    fn encrypt_with_vodozemac_cxx(
+    fn encrypt_with_vodozemac(
       session_state: String,
       plaintext: String,
       session_key: String,
-    ) -> EncryptResult;
+    ) -> Result<EncryptResult>;
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
