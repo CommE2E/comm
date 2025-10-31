@@ -130,7 +130,6 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_ec2" {
   cluster_name = aws_ecs_cluster.comm_services.name
   capacity_providers = [
     "FARGATE",
-    "FARGATE_SPOT",
-    aws_ecs_capacity_provider.ecs_ec2.name
+    "FARGATE_SPOT"
   ]
 }
