@@ -310,6 +310,10 @@ describe('olm.Account', () => {
 
     createSession(aliceSession, aliceAccount, bobAccount, false, false);
     expect(testRatchet(aliceSession, bobSession, bobAccount, 100)).toBeTrue;
+
+    const key =
+      'Lp1NeFlVatfM8UUtgn3A9yC5iakrRXpu1HAFDOtc24x7nQlFJTyNydQltNHuiMoH';
+    console.log(aliceSession.pickle(key));
   });
 
   it('should not encrypt and decrypt if prekey is not signed correctly', async () => {

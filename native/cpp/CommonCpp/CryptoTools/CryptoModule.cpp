@@ -363,9 +363,12 @@ bool CryptoModule::hasSessionFor(const std::string &targetDeviceId) {
 
 std::shared_ptr<Session>
 CryptoModule::getSessionByDeviceId(const std::string &deviceId) {
-  const std::string &pickledSession = this->sessions.at(deviceId);
+  const SessionPersist &sessionPersist = this->sessions.at(deviceId);
+  const std::string &pickledSession = sessionPersist.buffer;
   OlmBuffer sessionBuffer(pickledSession.begin(), pickledSession.end());
-  return Session::restoreFromB64(this->secretKey, sessionBuffer);
+  std::shared_ptr<Session> session = Session::restoreFromB64(this->secretKey, sessionBuffer);
+  session->setVersion(sessionPersist.version);
+  return session;
 }
 
 void CryptoModule::removeSessionByDeviceId(const std::string &deviceId) {
@@ -396,14 +399,10 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
   persist.account = this->pickleAccount(secretKey);
 
-  std::unordered_map<std::string, std::string>::iterator it;
+  std::unordered_map<std::string, SessionPersist>::iterator it;
   for (it = this->sessions.begin(); it != this->sessions.end(); ++it) {
-    // Sessions are already pickled as strings, just need to get version
-    OlmBuffer sessionBuffer(it->second.begin(), it->second.end());
-    std::shared_ptr<Session> session =
-        Session::restoreFromB64(secretKey, sessionBuffer);
-    SessionPersist sessionPersist{it->second, session->getVersion()};
-    persist.sessions.insert(make_pair(it->first, sessionPersist));
+    // Sessions are already stored as SessionPersist with buffer and version
+    persist.sessions.insert(make_pair(it->first, it->second));
   }
 
   return persist;
@@ -444,12 +443,39 @@ EncryptedData CryptoModule::encrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-  std::shared_ptr<Session> session = this->getSessionByDeviceId(targetDeviceId);
-  EncryptedData result = session->encrypt(content);
-  // Store the updated session back as pickled string
-  std::string pickledSession = session->storeAsB64(this->secretKey);
-  this->sessions[targetDeviceId] = pickledSession;
-  return result;
+
+  const SessionPersist &sessionPersist = this->sessions.at(targetDeviceId);
+  const std::string &pickledSession = sessionPersist.buffer;
+  std::cout << "C++ encrypt - pickled session length: " << pickledSession.length() << std::endl;
+  std::cout << "C++ encrypt - pickled session content: " << pickledSession << std::endl;
+  std::cout << "C++ encrypt - session version: " << sessionPersist.version << std::endl;
+  std::cout << "C++ encrypt - secret key length: " << this->secretKey.length() << std::endl;
+  std::cout << "C++ encrypt - secret key content: " << this->secretKey << std::endl;
+  std::cout << "C++ encrypt - content length: " << content.length() << std::endl;
+
+  auto sessionState = rust::String(pickledSession);
+  auto secretKey = rust::String(this->secretKey);
+  auto plaintext = rust::String(content);
+
+  auto result = encryptWithVodozemac(
+      sessionState,
+      plaintext,
+      secretKey);
+
+  // Convert encrypted message to base64 and then to OlmBuffer for EncryptedData
+  std::vector<uint8_t> encryptedMessageVec(result.encrypted_message.begin(), result.encrypted_message.end());
+  std::string encryptedMessageBase64 = Base64::encode(encryptedMessageVec);
+  std::cout << "C++ encrypt - encrypted message base64 length: " << encryptedMessageBase64.length() << std::endl;
+  if (encryptedMessageBase64.size() > 0) {
+    std::cout << "C++ encrypt - first byte of base64 message: " << static_cast<int>(encryptedMessageBase64[0]) << std::endl;
+  }
+  
+  OlmBuffer encryptedMessage(encryptedMessageBase64.begin(), encryptedMessageBase64.end());
+
+  // Update the stored session with new state
+  this->sessions[targetDeviceId] = {std::string(result.updated_session_state), sessionPersist.version};
+  
+  return {encryptedMessage, result.message_type, sessionPersist.version};
 }
 
 std::string CryptoModule::decrypt(
@@ -458,24 +484,52 @@ std::string CryptoModule::decrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-  std::shared_ptr<Session> session = this->getSessionByDeviceId(targetDeviceId);
-  if (encryptedData.sessionVersion.has_value() &&
-      encryptedData.sessionVersion.value() < session->getVersion()) {
-    throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
-  }
+//  std::shared_ptr<Session> session = this->getSessionByDeviceId(targetDeviceId);
+//  if (encryptedData.sessionVersion.has_value() &&
+//      encryptedData.sessionVersion.value() < session->getVersion()) {
+//    throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
+//  }
 
-  const std::string &pickledSession = this->sessions.at(targetDeviceId);
+  const SessionPersist &sessionPersist = this->sessions.at(targetDeviceId);
+  const std::string &pickledSession = sessionPersist.buffer;
   std::cout << "C++ pickled session length: " << pickledSession.length()
             << std::endl;
   std::cout << "C++ pickled session content: " << pickledSession << std::endl;
+  std::cout << "C++ session version: " << sessionPersist.version << std::endl;
   std::cout << "C++ secret key length: " << this->secretKey.length()
             << std::endl;
   std::cout << "C++ secret key content: " << this->secretKey << std::endl;
 
+  std::cout << "C++ message length: " << encryptedData.message.size() << std::endl;
+  std::cout << "C++ message type: " << encryptedData.messageType << std::endl;
+  if (encryptedData.message.size() > 0) {
+    std::cout << "C++ first byte of message: " << static_cast<int>(encryptedData.message[0]) << std::endl;
+    std::cout << "C++ first 10 bytes: ";
+    for (size_t i = 0; i < std::min(size_t(10), encryptedData.message.size()); ++i) {
+      std::cout << static_cast<int>(encryptedData.message[i]) << " ";
+    }
+    std::cout << std::endl;
+  }
+
+  // Check if message needs base64 decoding (first byte should be 3 or 4 for OLM version)
+  std::vector<uint8_t> messageBytes;
+  if (encryptedData.message.size() > 0 && encryptedData.message[0] != 3 && encryptedData.message[0] != 4) {
+    std::cout << "C++ message appears to be base64 encoded, decoding..." << std::endl;
+    const std::string messageString(encryptedData.message.begin(), encryptedData.message.end());
+    messageBytes = Base64::decode(messageString);
+    std::cout << "C++ decoded message length: " << messageBytes.size() << std::endl;
+    if (messageBytes.size() > 0) {
+      std::cout << "C++ first byte of decoded message: " << static_cast<int>(messageBytes[0]) << std::endl;
+    }
+  } else {
+    std::cout << "C++ message appears to be raw binary, using as-is..." << std::endl;
+    messageBytes = std::vector<uint8_t>(encryptedData.message.begin(), encryptedData.message.end());
+  }
+
   auto sessionState = rust::String(pickledSession);
   auto secretKey = rust::String(this->secretKey);
   rust::Slice<const uint8_t> messageSlice{
-      encryptedData.message.data(), encryptedData.message.size()};
+      messageBytes.data(), messageBytes.size()};
 
   auto result = decryptWithVodozemac(
       sessionState,
@@ -483,7 +537,7 @@ std::string CryptoModule::decrypt(
       static_cast<uint32_t>(encryptedData.messageType),
       secretKey);
 
-  this->sessions[targetDeviceId] = std::string(result.updated_session_state);
+  this->sessions[targetDeviceId] = {std::string(result.updated_session_state), sessionPersist.version};
   return std::string(result.decrypted_message);
 }
 
