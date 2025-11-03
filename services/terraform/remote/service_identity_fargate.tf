@@ -198,7 +198,7 @@ module "identity_service_fargate_autoscaling" {
   service_name     = aws_ecs_service.identity_service_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = local.is_staging ? 1 : 2
+  min_capacity  = 1
   max_capacity  = 6
   cpu_target    = 35.0
   memory_target = 45.0
