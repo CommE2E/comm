@@ -7,6 +7,7 @@
 #include "olm/session.hh"
 
 #include "lib.rs.h"
+#include "vodozemac_bindings.rs.h"
 
 #include <folly/dynamic.h>
 #include <folly/json.h>

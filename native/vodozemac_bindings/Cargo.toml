@@ -1,0 +1,20 @@
+[package]
+name = "vodozemac_bindings"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cxx = "=1.0.75"
+vodozemac = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+derive_more = "0.99"
+
+[build-dependencies]
+cxx-build = "=1.0.75"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lib]
+crate-type = ["staticlib"]

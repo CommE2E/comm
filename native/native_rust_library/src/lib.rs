@@ -9,7 +9,6 @@ use tonic::Status;
 mod argon2_tools;
 mod backup;
 mod constants;
-mod crypto;
 mod identity;
 mod utils;
 
@@ -38,7 +37,7 @@ lazy_static! {
 
 // ffi uses
 use backup::ffi::*;
-use crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac};
+// Removed vodozemac functions - now in separate vodozemac_bindings library
 use identity::ffi::*;
 use utils::future_manager::ffi::*;
 
@@ -46,17 +45,7 @@ use utils::future_manager::ffi::*;
 #[cxx::bridge]
 mod ffi {
 
-  // Crypto types
-  struct DecryptResult {
-    decrypted_message: String,
-    updated_session_state: String,
-  }
-
-  struct EncryptResult {
-    encrypted_message: String,
-    message_type: u32,
-    updated_session_state: String,
-  }
+  // Crypto types moved to vodozemac_bindings library
 
   // Identity Service APIs
   extern "Rust" {
@@ -382,22 +371,7 @@ mod ffi {
       promise_id: u32,
     );
 
-    // Crypto - Vodozemac decrypt
-    #[cxx_name = "decryptWithVodozemac"]
-    fn decrypt_with_vodozemac(
-      session_state: String,
-      encrypted_message: String,
-      message_type: u32,
-      session_key: String,
-    ) -> Result<DecryptResult>;
-
-    // Crypto - Vodozemac encrypt
-    #[cxx_name = "encryptWithVodozemac"]
-    fn encrypt_with_vodozemac(
-      session_state: String,
-      plaintext: String,
-      session_key: String,
-    ) -> Result<EncryptResult>;
+    // Crypto functions moved to separate vodozemac_bindings library
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
