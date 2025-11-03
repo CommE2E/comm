@@ -199,7 +199,7 @@ module "tunnelbroker_fargate_autoscaling" {
   service_name     = aws_ecs_service.tunnelbroker_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = local.is_staging ? 1 : 2
+  min_capacity  = 1
   max_capacity  = 8
   cpu_target    = 30.0
   memory_target = 40.0
