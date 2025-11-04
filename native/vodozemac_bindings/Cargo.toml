@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 cxx = "=1.0.75"
-vodozemac = "0.5"
+vodozemac = { git = "https://github.com/xsanm/vodozemac", features = ["libolm-compat"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 derive_more = "0.99"
