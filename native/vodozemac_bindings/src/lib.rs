@@ -3,7 +3,7 @@ use std::error::Error as StdError;
 mod crypto;
 
 // Re-export crypto functions
-pub use crate::crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac};
+pub use crate::crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac, encrypt_with_vodozemac2};
 
 #[cxx::bridge]
 mod ffi {
@@ -31,6 +31,13 @@ mod ffi {
 
     #[cxx_name = "encryptWithVodozemac"]
     fn encrypt_with_vodozemac(
+      session_state: String,
+      plaintext: String,
+      session_key: String,
+    ) -> Result<EncryptResult>;
+
+    #[cxx_name = "encryptWithVodozemac2"]
+    fn encrypt_with_vodozemac2(
       session_state: String,
       plaintext: String,
       session_key: String,
