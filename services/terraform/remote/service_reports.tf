@@ -79,8 +79,8 @@ resource "aws_ecs_task_definition" "reports_service" {
   task_role_arn            = aws_iam_role.reports_service.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "awsvpc"
-  cpu                      = "1024"
-  memory                   = "8192"
+  cpu                      = local.is_staging ? "256" : "512"
+  memory                   = local.is_staging ? "512" : "1024"
   requires_compatibilities = ["EC2", "FARGATE"]
 
   # Set this to true if you want to keep old revisions

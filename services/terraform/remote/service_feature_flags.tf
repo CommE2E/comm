@@ -62,12 +62,7 @@ resource "aws_ecs_service" "feature_flags" {
   task_definition      = aws_ecs_task_definition.feature_flags.arn
   force_new_deployment = true
 
-  desired_count = 1
-  # Allow external changes without Terraform plan difference
-  # We can freely specify replica count in AWS Console
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
+  desired_count = 0
 
   load_balancer {
     target_group_arn = aws_lb_target_group.feature_flags_ecs.arn

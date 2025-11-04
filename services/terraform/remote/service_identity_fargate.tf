@@ -79,7 +79,7 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "awsvpc"
   cpu                      = local.is_staging ? "256" : "512"
-  memory                   = local.is_staging ? "512" : "2048"
+  memory                   = local.is_staging ? "512" : "1024"
   requires_compatibilities = ["FARGATE"]
 
   skip_destroy = true
