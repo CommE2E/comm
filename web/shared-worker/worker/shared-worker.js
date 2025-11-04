@@ -23,6 +23,7 @@ import {
   getPlatformDetails,
   setPlatformDetails,
 } from './worker-database.js';
+import initVodozemac from '../../../vodozemac-wasm/wasm/web/vodozemac.js';
 import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
   decryptData,
@@ -53,6 +54,7 @@ import {
   DEFAULT_BACKUP_CLIENT_FILENAME,
   SQLITE_RESTORE_DATABASE_PATH,
   RESTORED_SQLITE_CONTENT,
+  DEFAULT_VODOZEMAC_FILENAME,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -294,6 +296,31 @@ async function processAppRequest(
           message.backupClientFilename,
         ),
       );
+    }
+
+    async function initVodozemacModule(
+      webworkerModulesFilePath: string,
+      vodozemacFilename: ?string,
+    ) {
+      let modulePath;
+      if (vodozemacFilename) {
+        modulePath = `${webworkerModulesFilePath}/${vodozemacFilename}`;
+      } else {
+        modulePath = `${webworkerModulesFilePath}/${DEFAULT_VODOZEMAC_FILENAME}`;
+      }
+      console.log(modulePath);
+      return await initVodozemac(modulePath);
+    }
+
+    if (message.vodozemacFilename !== undefined) {
+      console.log('A');
+      // Let the init function handle WASM loading with its default behavior
+      const a = await initVodozemacModule(
+        message.webworkerModulesFilePath,
+        message.vodozemacFilename,
+      );
+      console.log(a);
+      console.log('B');
     }
     await Promise.all(promises);
     return undefined;

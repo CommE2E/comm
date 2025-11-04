@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "jest": "^27.5.1"
+  },
+  "scripts": {
+    "build-node": "wasm-pack build --target nodejs --out-dir wasm/node --out-name vodozemac",
+    "build-web": "wasm-pack build --target web --no-typescript --reference-types --no-pack --out-dir wasm/web --out-name vodozemac",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "jest": {
+    "globals": {
+      "__DEV__": false
+    },
+    "transform": {}
+  }
+}

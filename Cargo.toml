@@ -9,6 +9,7 @@ members = [
     "shared/*",
     # Other packages
     "keyserver/addons/rust-node-addon",
+    "vodozemac-wasm"
 ]
 
 exclude = [

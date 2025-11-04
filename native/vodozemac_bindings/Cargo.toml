@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 cxx = "=1.0.75"
-vodozemac = { git = "https://github.com/xsanm/vodozemac", features = ["libolm-compat"] }
+vodozemac = { git = "https://github.com/xsanm/vodozemac", features = ["libolm-compat", "js"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 derive_more = "0.99"
@@ -17,4 +17,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 [lib]
-crate-type = ["staticlib"]
+name = "vodozemac"
+crate-type = ["cdylib"]

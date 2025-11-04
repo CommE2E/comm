@@ -48,6 +48,11 @@ import {
   getPlatformDetails,
 } from './worker-database.js';
 import {
+  Session as VodozemacSession,
+  Account as VodozemacAccount,
+  OlmMessage as VodozemacOlmMessage,
+} from '../../../vodozemac-wasm/wasm/web/vodozemac.js';
+import {
   getOlmDataKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
   getOlmDataKeyForDeviceID,
@@ -66,7 +71,7 @@ import {
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 
-type OlmSession = { +session: olm.Session, +version: number };
+type OlmSession = { +session: VodozemacSession, +version: number };
 type OlmSessions = {
   [deviceID: string]: OlmSession,
 };
@@ -76,6 +81,16 @@ type WorkerCryptoStore = {
   +contentAccount: olm.Account,
   +contentSessions: OlmSessions,
 };
+
+// Helper function to get 32-byte pickle key for vodozemac
+function getVodozemacPickleKey(picklingKey: string): Uint8Array {
+  const fullKeyBytes = new TextEncoder().encode(picklingKey);
+  // NOTE: vodozemac works only with 32-byte keys.
+  // We have sessions pickled with 64-byte keys. Additionally, this key
+  // is used in backup, so it can't simply be migrated. Instead, we're going
+  // to just use the first 32 bytes of the existing secret key.
+  return fullKeyBytes.slice(0, 32);
+}
 
 let cryptoStore: ?WorkerCryptoStore = null;
 
@@ -120,7 +135,9 @@ async function persistCryptoStore(
     contentSessions,
   ).map(([targetDeviceID, sessionData]) => ({
     targetDeviceID,
-    sessionData: sessionData.session.pickle(contentAccountPickleKey),
+    sessionData: sessionData.session.pickle(
+      getVodozemacPickleKey(contentAccountPickleKey),
+    ),
     version: sessionData.version,
   }));
 
@@ -213,7 +230,7 @@ async function createAndPersistNotificationsOutboundSession(
   );
 
   const mainSession = session.pickle(
-    notificationAccountWithPicklingKey.picklingKey,
+    getVodozemacPickleKey(notificationAccountWithPicklingKey.picklingKey),
   );
   const notificationsOlmData: NotificationsOlmDataType = {
     mainSession,
@@ -328,10 +345,22 @@ function getOlmSessions(picklingKey: string): OlmSessions {
   const sessionsData: OlmSessions = {};
   for (const persistedSession: OlmPersistSession of dbSessionsData) {
     const { sessionData, version } = persistedSession;
-    // This `olm.Session` is created once and is cached for the entire
+    // This `VodozemacSession` is created once and is cached for the entire
     // program lifetime. Freeing is done as part of `clearCryptoStore`.
-    const session = new olm.Session();
-    session.unpickle(picklingKey, sessionData);
+    let session;
+    const fullKeyBytes = new TextEncoder().encode(picklingKey);
+    // NOTE: vodozemac works only with 32-byte keys.
+    // We have sessions pickled with 64-byte keys. Additionally, this key
+    // is used in backup, so it can't simply be migrated. Instead, we're going
+    // to just use the first 32 bytes of the existing secret key.
+    const pickleKeyBytes = fullKeyBytes.slice(0, 32);
+    try {
+      // First try vodozemac native format
+      session = VodozemacSession.from_pickle(sessionData, pickleKeyBytes);
+    } catch (e) {
+      // Fall back to libolm format
+      session = VodozemacSession.from_libolm_pickle(sessionData, fullKeyBytes);
+    }
     sessionsData[persistedSession.targetDeviceID] = {
       session,
       version,
@@ -352,6 +381,19 @@ function unpickleInitialCryptoStoreAccount(
   return olmAccount;
 }
 
+// export async function initVodozemacModule(
+//   webworkerModulesFilePath: string,
+//   vodozemacFilename: ?string,
+// ) {
+//   let modulePath;
+//   if (vodozemacFilename) {
+//     modulePath = `${webworkerModulesFilePath}/${vodozemacFilename}`;
+//   } else {
+//     modulePath = `${webworkerModulesFilePath}/${DEFAULT_VODOZEMAC_FILENAME}`;
+//   }
+//   return await initVodozemac(modulePath);
+// }
+
 async function initializeCryptoAccount(
   olmWasmPath: string,
   initialCryptoStore: ?LegacyCryptoStore,
@@ -362,6 +404,12 @@ async function initializeCryptoAccount(
   }
 
   await olm.init({ locateFile: () => olmWasmPath });
+
+  // console.log('A');
+  // // Let the init function handle WASM loading with its default behavior
+  // const a = await initVodozemacModule();
+  // console.log(a);
+  // console.log('B');
 
   if (initialCryptoStore) {
     clearCryptoStore();
@@ -605,13 +653,13 @@ const olmAPI: OlmAPI = {
     if (!olmSession) {
       throw new Error(olmSessionErrors.sessionDoesNotExist);
     }
-    const encryptedContent = olmSession.session.encrypt(content);
+    const encryptedMessage = olmSession.session.encrypt(content);
 
     await persistCryptoStore();
 
     return {
-      message: encryptedContent.body,
-      messageType: encryptedContent.type,
+      message: new TextDecoder().decode(encryptedMessage.ciphertext),
+      messageType: encryptedMessage.message_type,
       sessionVersion: olmSession.version,
     };
   },
@@ -628,7 +676,7 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.sessionDoesNotExist);
     }
 
-    const encryptedContent = olmSession.session.encrypt(content);
+    const encryptedMessage = olmSession.session.encrypt(content);
 
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
     const dbModule = getDBModule();
@@ -639,8 +687,8 @@ const olmAPI: OlmAPI = {
     }
 
     const result: EncryptedData = {
-      message: encryptedContent.body,
-      messageType: encryptedContent.type,
+      message: new TextDecoder().decode(encryptedMessage.ciphertext),
+      messageType: encryptedMessage.message_type,
       sessionVersion: olmSession.version,
     };
 
@@ -692,10 +740,13 @@ const olmAPI: OlmAPI = {
 
     let result;
     try {
-      result = olmSession.session.decrypt(
+      const olmMessage = new VodozemacOlmMessage(
         encryptedData.messageType,
-        encryptedData.message,
+        new TextEncoder().encode(encryptedData.message),
       );
+      const decryptedBytes = olmSession.session.decrypt(olmMessage);
+      result = new TextDecoder().decode(decryptedBytes);
+      olmMessage.free();
     } catch (e) {
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
     }
@@ -728,10 +779,13 @@ const olmAPI: OlmAPI = {
 
     let result;
     try {
-      result = olmSession.session.decrypt(
+      const olmMessage = new VodozemacOlmMessage(
         encryptedData.messageType,
-        encryptedData.message,
+        new TextEncoder().encode(encryptedData.message),
       );
+      const decryptedBytes = olmSession.session.decrypt(olmMessage);
+      result = new TextDecoder().decode(decryptedBytes);
+      olmMessage.free();
     } catch (e) {
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
     }

@@ -104,6 +104,7 @@ export type InitWorkerRequestMessage = {
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
   +backupClientFilename?: ?string,
+  +vodozemacFilename: string,
 };
 
 export type GenerateDatabaseEncryptionKeyRequestMessage = {
