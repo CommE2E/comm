@@ -74,8 +74,6 @@
 		8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */; };
 		8E3994552B039A7C00D5E950 /* UserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3994532B039A7C00D5E950 /* UserStore.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
-		8E46D0142EBA590100AF53C1 /* vodozemac_bindings.rs.h in Sources */ = {isa = PBXBuildFile; fileRef = 8BVODO0F28D511FF00EB5ADB /* vodozemac_bindings.rs.h */; };
-		8E46D0152EBA590100AF53C1 /* vodozemac_cxx.h in Sources */ = {isa = PBXBuildFile; fileRef = 8BVODO1028D511FF00EB5ADB /* vodozemac_cxx.h */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8A8DFC2E15A4F100519F55 /* HolderStore.cpp */; };
 		8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */; };
@@ -1528,8 +1526,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E46D0142EBA590100AF53C1 /* vodozemac_bindings.rs.h in Sources */,
-				8E46D0152EBA590100AF53C1 /* vodozemac_cxx.h in Sources */,
 				CB99DB4E2C45329500B8055E /* NotificationsInboundKeysProvider.mm in Sources */,
 				CBCF98502BA49A0500DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				7FDFC0FE2DC0FEBD00B1D87F /* OlmUtils.cpp in Sources */,
@@ -1995,20 +1991,14 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
+					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/debug",
 					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/debug",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
+					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/debug",
 					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/debug",
 				);
-								HEADER_SEARCH_PATHS = (
-                					"$(inherited)",
-                					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
-                					"$(PODS_ROOT)/boost-for-react-native",
-                					"$(SRCROOT)/../native_rust_library",
-                					"$(SRCROOT)/../vodozemac_bindings",
-                					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
-                				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2202,22 +2192,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/release",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
-					"$(inherited)",
-					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/release",
-				);
-								HEADER_SEARCH_PATHS = (
-                					"$(inherited)",
-                					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
-                					"$(PODS_ROOT)/boost-for-react-native",
-                					"$(SRCROOT)/../native_rust_library",
-                					"$(SRCROOT)/../vodozemac_bindings",
-                					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
-                				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2231,6 +2205,16 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DSQLITE_TEMP_STORE=2",
 					"-DSQLCIPHER_CRYPTO_OPENSSL",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/release",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
+					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/release",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = app.comm.NotificationService;

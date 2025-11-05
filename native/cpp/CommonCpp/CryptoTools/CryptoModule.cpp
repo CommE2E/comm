@@ -453,7 +453,7 @@ EncryptedData CryptoModule::encrypt(
   auto secretKey = rust::String(this->secretKey);
   auto plaintext = rust::String(content);
 
-  auto result = encryptWithVodozemac2(sessionState, plaintext, secretKey);
+  auto result = encryptWithVodozemac3(sessionState, plaintext, secretKey);
 
   // Convert encrypted message (already base64 from Rust) to OlmBuffer for
   // EncryptedData

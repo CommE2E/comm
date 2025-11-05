@@ -163,3 +163,27 @@ pub fn encrypt_with_vodozemac2(
     updated_session_state: updated_session,
   })
 }
+
+pub fn encrypt_with_vodozemac3(
+  session_state: String,
+  plaintext: String,
+  session_key: String,
+  //TODO: check if errors work
+) -> Result<crate::ffi::EncryptResult, String> {
+  let mut session =
+      create_session_from_state(session_state, session_key.clone())?;
+  let olm_message = session.encrypt(plaintext.as_bytes());
+
+  let (message_type, encrypted_message) = match olm_message {
+    OlmMessage::Normal(msg) => (1, msg.to_base64()),
+    OlmMessage::PreKey(msg) => (0, msg.to_base64()),
+  };
+
+  let updated_session = save_session_state(session, session_key)?;
+
+  Ok(crate::ffi::EncryptResult {
+    encrypted_message,
+    message_type: message_type as u32,
+    updated_session_state: updated_session,
+  })
+}
