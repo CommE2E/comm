@@ -17,7 +17,7 @@ class CryptoModule {
 
   OlmBuffer accountBuffer;
 
-  std::unordered_map<std::string, SessionPersist> sessions = {};
+  std::unordered_map<std::string, std::shared_ptr<Session>> sessions = {};
 
   Keys keys;
   std::string secretKey;

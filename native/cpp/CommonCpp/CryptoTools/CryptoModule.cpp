@@ -328,8 +328,7 @@ void CryptoModule::initializeInboundForReceivingSession(
       encryptedMessage,
       idKeys);
   newSession->setVersion(sessionVersion);
-  std::string pickledSession = newSession->storeAsB64(this->secretKey);
-  this->sessions.insert(make_pair(targetDeviceId, SessionPersist{pickledSession, sessionVersion}));
+  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
 }
 
 int CryptoModule::initializeOutboundForSendingSession(
@@ -355,8 +354,7 @@ int CryptoModule::initializeOutboundForSendingSession(
       preKeySignature,
       oneTimeKey);
   newSession->setVersion(newSessionVersion);
-  std::string pickledSession = newSession->storeAsB64(this->secretKey);
-  this->sessions.insert(make_pair(targetDeviceId, SessionPersist{pickledSession, newSessionVersion}));
+  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
   return newSessionVersion;
 }
 
@@ -366,13 +364,7 @@ bool CryptoModule::hasSessionFor(const std::string &targetDeviceId) {
 
 std::shared_ptr<Session>
 CryptoModule::getSessionByDeviceId(const std::string &deviceId) {
-  const SessionPersist &sessionPersist = this->sessions.at(deviceId);
-  const std::string &pickledSession = sessionPersist.buffer;
-  OlmBuffer sessionBuffer(pickledSession.begin(), pickledSession.end());
-  std::shared_ptr<Session> session =
-      Session::restoreFromB64(this->secretKey, sessionBuffer);
-  session->setVersion(sessionPersist.version);
-  return session;
+  return this->sessions.at(deviceId);
 }
 
 void CryptoModule::removeSessionByDeviceId(const std::string &deviceId) {
@@ -403,10 +395,11 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
   persist.account = this->pickleAccount(secretKey);
 
-  std::unordered_map<std::string, SessionPersist>::iterator it;
+  std::unordered_map<std::string, std::shared_ptr<Session>>::iterator it;
   for (it = this->sessions.begin(); it != this->sessions.end(); ++it) {
-    // Sessions are already stored as SessionPersist with buffer and version
-    persist.sessions.insert(make_pair(it->first, it->second));
+    OlmBuffer buffer = it->second->storeAsB64(secretKey);
+    SessionPersist sessionPersist{buffer, it->second->getVersion()};
+    persist.sessions.insert(make_pair(it->first, sessionPersist));
   }
 
   return persist;
@@ -436,8 +429,10 @@ void CryptoModule::restoreFromB64(
 
   std::unordered_map<std::string, SessionPersist>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
-    // Store directly as pickled string
-    this->sessions.insert(make_pair(it->first, it->second));
+    std::unique_ptr<Session> session =
+        session->restoreFromB64(secretKey, it->second.buffer);
+    session->setVersion(it->second.version);
+    this->sessions.insert(make_pair(it->first, move(session)));
   }
 }
 
@@ -447,28 +442,7 @@ EncryptedData CryptoModule::encrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-
-  const SessionPersist &sessionPersist = this->sessions.at(targetDeviceId);
-  const std::string &pickledSession = sessionPersist.buffer;
-
-  auto sessionState = rust::String(pickledSession);
-  auto secretKey = rust::String(this->secretKey);
-  auto plaintext = rust::String(content);
-
-  auto result = encryptWithVodozemac3(sessionState, plaintext, secretKey);
-
-  // Convert encrypted message (already base64 from Rust) to OlmBuffer for
-  // EncryptedData
-  std::string encryptedMessageBase64 = std::string(result.encrypted_message);
-
-  OlmBuffer encryptedMessage(
-      encryptedMessageBase64.begin(), encryptedMessageBase64.end());
-
-  // Update the stored session with new state
-  this->sessions[targetDeviceId] = {
-      std::string(result.updated_session_state), sessionPersist.version};
-
-  return {encryptedMessage, result.message_type, sessionPersist.version};
+  return this->sessions.at(targetDeviceId)->encrypt(content);
 }
 
 std::string CryptoModule::decrypt(
@@ -477,31 +451,12 @@ std::string CryptoModule::decrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
-  //  std::shared_ptr<Session> session =
-  //  this->getSessionByDeviceId(targetDeviceId); if
-  //  (encryptedData.sessionVersion.has_value() &&
-  //      encryptedData.sessionVersion.value() < session->getVersion()) {
-  //    throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
-  //  }
-
-  const SessionPersist &sessionPersist = this->sessions.at(targetDeviceId);
-  const std::string &pickledSession = sessionPersist.buffer;
-
-  auto sessionState = rust::String(pickledSession);
-  auto secretKey = rust::String(this->secretKey);
-  std::string messageString(
-      encryptedData.message.begin(), encryptedData.message.end());
-  auto encryptedMessage = rust::String(messageString);
-
-  auto result = decryptWithVodozemac(
-      sessionState,
-      encryptedMessage,
-      static_cast<uint32_t>(encryptedData.messageType),
-      secretKey);
-
-  this->sessions[targetDeviceId] = {
-      std::string(result.updated_session_state), sessionPersist.version};
-  return std::string(result.decrypted_message);
+  auto session = this->sessions.at(targetDeviceId);
+  if (encryptedData.sessionVersion.has_value() &&
+      encryptedData.sessionVersion.value() < session->getVersion()) {
+    throw std::runtime_error{INVALID_SESSION_VERSION_ERROR};
+  }
+  return session->decrypt(encryptedData);
 }
 
 std::string CryptoModule::signMessage(const std::string &message) {

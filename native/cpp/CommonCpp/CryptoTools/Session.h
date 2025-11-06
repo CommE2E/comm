@@ -28,7 +28,7 @@ public:
       std::uint8_t *ownerIdentityKeys,
       const OlmBuffer &encryptedMessage,
       const OlmBuffer &idKeys);
-  std::string storeAsB64(const std::string &secretKey);
+  OlmBuffer storeAsB64(const std::string &secretKey);
   static std::unique_ptr<Session>
   restoreFromB64(const std::string &secretKey, OlmBuffer &b64);
   OlmSession *getOlmSession();
