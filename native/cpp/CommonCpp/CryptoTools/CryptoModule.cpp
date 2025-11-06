@@ -7,7 +7,9 @@
 #include "olm/session.hh"
 
 #include "lib.rs.h"
+#ifndef ANDROID
 #include "vodozemac_bindings.rs.h"
+#endif
 
 #include <folly/dynamic.h>
 #include <folly/json.h>
@@ -327,7 +329,7 @@ void CryptoModule::initializeInboundForReceivingSession(
       idKeys);
   newSession->setVersion(sessionVersion);
   std::string pickledSession = newSession->storeAsB64(this->secretKey);
-  this->sessions.insert(make_pair(targetDeviceId, pickledSession));
+  this->sessions.insert(make_pair(targetDeviceId, SessionPersist{pickledSession, sessionVersion}));
 }
 
 int CryptoModule::initializeOutboundForSendingSession(
@@ -354,7 +356,7 @@ int CryptoModule::initializeOutboundForSendingSession(
       oneTimeKey);
   newSession->setVersion(newSessionVersion);
   std::string pickledSession = newSession->storeAsB64(this->secretKey);
-  this->sessions.insert(make_pair(targetDeviceId, pickledSession));
+  this->sessions.insert(make_pair(targetDeviceId, SessionPersist{pickledSession, newSessionVersion}));
   return newSessionVersion;
 }
 
@@ -435,7 +437,7 @@ void CryptoModule::restoreFromB64(
   std::unordered_map<std::string, SessionPersist>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
     // Store directly as pickled string
-    this->sessions.insert(make_pair(it->first, it->second.buffer));
+    this->sessions.insert(make_pair(it->first, it->second));
   }
 }
 

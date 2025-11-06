@@ -6,7 +6,7 @@ mod crypto;
 pub use crate::crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac, encrypt_with_vodozemac2, encrypt_with_vodozemac3};
 
 #[cxx::bridge]
-mod ffi {
+pub mod ffi {
   // Crypto result types (copied from native_rust_library for compatibility)
   struct DecryptResult {
     decrypted_message: String,

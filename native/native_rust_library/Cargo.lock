@@ -1436,7 +1436,7 @@ dependencies = [
  "tokio-util",
  "tonic",
  "tracing",
- "vodozemac",
+ "vodozemac_bindings",
 ]
 
 [[package]]
@@ -2894,6 +2894,19 @@ dependencies = [
  "thiserror 2.0.17",
  "x25519-dalek",
  "zeroize",
+]
+
+[[package]]
+name = "vodozemac_bindings"
+version = "0.1.0"
+dependencies = [
+ "cxx",
+ "cxx-build",
+ "derive_more",
+ "regex",
+ "serde",
+ "serde_json",
+ "vodozemac",
 ]
 
 [[package]]

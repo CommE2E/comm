@@ -12,6 +12,14 @@ mod constants;
 mod identity;
 mod utils;
 
+// Import vodozemac functions for wrapper implementations
+use vodozemac_bindings::{
+  decrypt_with_vodozemac as vz_decrypt, 
+  encrypt_with_vodozemac as vz_encrypt,
+  encrypt_with_vodozemac2 as vz_encrypt2, 
+  encrypt_with_vodozemac3 as vz_encrypt3
+};
+
 use crate::argon2_tools::compute_backup_key_str;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 
@@ -44,8 +52,18 @@ use utils::future_manager::ffi::*;
 #[allow(clippy::too_many_arguments)]
 #[cxx::bridge]
 mod ffi {
+  
+  // Crypto result types
+  struct DecryptResult {
+    decrypted_message: String,
+    updated_session_state: String,
+  }
 
-  // Crypto types moved to vodozemac_bindings library
+  struct EncryptResult {
+    encrypted_message: String,
+    message_type: u32,
+    updated_session_state: String,
+  }
 
   // Identity Service APIs
   extern "Rust" {
@@ -371,7 +389,39 @@ mod ffi {
       promise_id: u32,
     );
 
-    // Crypto functions moved to separate vodozemac_bindings library
+    // Vodozemac crypto functions (wrapper implementations)
+    #[cfg(target_os = "android")]
+    #[cxx_name = "decryptWithVodozemac"]
+    fn decrypt_with_vodozemac_wrapper(
+      session_state: String,
+      encrypted_message: String,
+      message_type: u32,
+      session_key: String,
+    ) -> Result<DecryptResult>;
+
+    #[cfg(target_os = "android")]
+    #[cxx_name = "encryptWithVodozemac"]
+    fn encrypt_with_vodozemac_wrapper(
+      session_state: String,
+      plaintext: String,
+      session_key: String,
+    ) -> Result<EncryptResult>;
+
+    #[cfg(target_os = "android")]
+    #[cxx_name = "encryptWithVodozemac2"]
+    fn encrypt_with_vodozemac2_wrapper(
+      session_state: String,
+      plaintext: String,
+      session_key: String,
+    ) -> Result<EncryptResult>;
+
+    #[cfg(target_os = "android")]
+    #[cxx_name = "encryptWithVodozemac3"]
+    fn encrypt_with_vodozemac3_wrapper(
+      session_state: String,
+      plaintext: String,
+      session_key: String,
+    ) -> Result<EncryptResult>;
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
@@ -569,6 +619,73 @@ mod ffi {
     #[cxx_name = "rejectFuture"]
     fn reject_future(future_id: usize, error: String);
   }
+}
+
+// Wrapper implementations for vodozemac crypto functions
+use ffi::{DecryptResult, EncryptResult};
+
+#[cfg(target_os = "android")]
+fn decrypt_with_vodozemac_wrapper(
+    session_state: String,
+    encrypted_message: String,
+    message_type: u32,
+    session_key: String,
+) -> Result<DecryptResult, Error> {
+    let vz_result = vz_decrypt(session_state, encrypted_message, message_type, session_key)
+        .map_err(|e| Error::Generic(StringError(e.to_string())))?;
+    
+    Ok(DecryptResult {
+        decrypted_message: vz_result.decrypted_message,
+        updated_session_state: vz_result.updated_session_state,
+    })
+}
+
+#[cfg(target_os = "android")]
+fn encrypt_with_vodozemac_wrapper(
+    session_state: String,
+    plaintext: String,
+    session_key: String,
+) -> Result<EncryptResult, Error> {
+    let vz_result = vz_encrypt(session_state, plaintext, session_key)
+        .map_err(|e| Error::Generic(StringError(e.to_string())))?;
+    
+    Ok(EncryptResult {
+        encrypted_message: vz_result.encrypted_message,
+        message_type: vz_result.message_type,
+        updated_session_state: vz_result.updated_session_state,
+    })
+}
+
+#[cfg(target_os = "android")]
+fn encrypt_with_vodozemac2_wrapper(
+    session_state: String,
+    plaintext: String,
+    session_key: String,
+) -> Result<EncryptResult, Error> {
+    let vz_result = vz_encrypt2(session_state, plaintext, session_key)
+        .map_err(|e| Error::Generic(StringError(e.to_string())))?;
+    
+    Ok(EncryptResult {
+        encrypted_message: vz_result.encrypted_message,
+        message_type: vz_result.message_type,
+        updated_session_state: vz_result.updated_session_state,
+    })
+}
+
+#[cfg(target_os = "android")]
+fn encrypt_with_vodozemac3_wrapper(
+    session_state: String,
+    plaintext: String,
+    session_key: String,
+) -> Result<EncryptResult, Error> {
+    let vz_result = vz_encrypt3(session_state, plaintext, session_key)
+        .map_err(|e| Error::Generic(StringError(e.to_string())))?;
+    
+    Ok(EncryptResult {
+        encrypted_message: vz_result.encrypted_message,
+        message_type: vz_result.message_type,
+        updated_session_state: vz_result.updated_session_state,
+    })
 }
 
 #[derive(Debug, derive_more::Display)]
