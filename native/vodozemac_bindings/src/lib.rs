@@ -1,54 +1,77 @@
 use std::error::Error as StdError;
+use std::fmt::Display;
 
 mod crypto;
+pub mod session;
+
+use session::{EncryptResult, VodozemacSession, session_from_pickle};
 
 // Re-export crypto functions
-pub use crate::crypto::{decrypt_with_vodozemac, encrypt_with_vodozemac, encrypt_with_vodozemac2, encrypt_with_vodozemac3};
+pub use crate::session::*;
 
 #[cxx::bridge]
 pub mod ffi {
   // Crypto result types (copied from native_rust_library for compatibility)
-  struct DecryptResult {
-    decrypted_message: String,
-    updated_session_state: String,
-  }
-
-  struct EncryptResult {
-    encrypted_message: String,
-    message_type: u32,
-    updated_session_state: String,
-  }
 
   // Vodozemac crypto functions only
   extern "Rust" {
-    #[cxx_name = "decryptWithVodozemac"]
-    fn decrypt_with_vodozemac(
-      session_state: String,
+    // #[cxx_name = "decryptWithVodozemac"]
+    // fn decrypt_with_vodozemac(
+    //   session_state: String,
+    //   encrypted_message: String,
+    //   message_type: u32,
+    //   session_key: String,
+    // ) -> Result<DecryptResult>;
+    //
+    // #[cxx_name = "encryptWithVodozemac"]
+    // fn encrypt_with_vodozemac(
+    //   session_state: String,
+    //   plaintext: String,
+    //   session_key: String,
+    // ) -> Result<EncryptResult>;
+    //
+    // #[cxx_name = "encryptWithVodozemac2"]
+    // fn encrypt_with_vodozemac2(
+    //   session_state: String,
+    //   plaintext: String,
+    //   session_key: String,
+    // ) -> Result<EncryptResult>;
+    //
+    // #[cxx_name = "encryptWithVodozemac3"]
+    // fn encrypt_with_vodozemac3(
+    //   session_state: String,
+    //   plaintext: String,
+    //   session_key: String,
+    // ) -> Result<EncryptResult>;
+
+    type VodozemacSession;
+    type EncryptResult;
+    fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
+    fn encrypt(
+      self: &mut VodozemacSession,
+      plaintext: &str,
+    ) -> Result<Box<EncryptResult>>;
+    fn decrypt(
+      self: &mut VodozemacSession,
       encrypted_message: String,
       message_type: u32,
-      session_key: String,
-    ) -> Result<DecryptResult>;
+    ) -> Result<String>;
 
-    #[cxx_name = "encryptWithVodozemac"]
-    fn encrypt_with_vodozemac(
+    pub fn session_from_pickle(
       session_state: String,
-      plaintext: String,
       session_key: String,
-    ) -> Result<EncryptResult>;
+    ) -> Result<Box<VodozemacSession>>;
 
-    #[cxx_name = "encryptWithVodozemac2"]
-    fn encrypt_with_vodozemac2(
-      session_state: String,
-      plaintext: String,
-      session_key: String,
-    ) -> Result<EncryptResult>;
-
-    #[cxx_name = "encryptWithVodozemac3"]
-    fn encrypt_with_vodozemac3(
-      session_state: String,
-      plaintext: String,
-      session_key: String,
-    ) -> Result<EncryptResult>;
+    // fn session_id(self: &Session) -> String;
+    // fn session_keys(self: &Session) -> SessionKeys;
+    // fn session_matches(self: &Session, message: &OlmMessage) -> bool;
+    // fn encrypt(self: &mut Session, plaintext: &str) -> Box<OlmMessage>;
+    // fn decrypt(self: &mut Session, message: &OlmMessage) -> Result<String>;
+    // fn session_from_pickle(pickle: &str, pickle_key: &[u8; 32]) -> Result<Box<Session>>;
+    //
+    // type OlmMessage;
+    // fn to_parts(self: &OlmMessage) -> OlmMessageParts;
+    // fn olm_message_from_parts(parts: &OlmMessageParts) -> Result<Box<OlmMessage>>;
   }
 }
 

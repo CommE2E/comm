@@ -927,6 +927,7 @@ dependencies = [
 name = "vodozemac_bindings"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "cxx",
  "cxx-build",
  "derive_more",

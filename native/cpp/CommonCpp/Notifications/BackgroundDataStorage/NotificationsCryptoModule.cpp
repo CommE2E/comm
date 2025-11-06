@@ -548,8 +548,7 @@ NotificationsCryptoModule::prepareLegacyDecryptedState(
   std::string legacyNotificationsAccountPath =
       comm::PlatformSpecificTools::getNotificationsCryptoAccountPath();
 
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   auto cryptoModule = NotificationsCryptoModule::deserializeCryptoModule(
       legacyNotificationsAccountPath, picklingKey.value());
@@ -585,8 +584,7 @@ std::string NotificationsCryptoModule::decrypt(
   std::unique_ptr<crypto::Session> session =
       std::move(sessionWithPicklingKey.value().first);
   std::string picklingKey = sessionWithPicklingKey.value().second;
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   std::string decryptedData = session->decrypt(encryptedData);
   NotificationsCryptoModule::persistNotificationsSessionInternal(
@@ -629,8 +627,7 @@ NotificationsCryptoModule::statefulDecrypt(
   std::unique_ptr<crypto::Session> session =
       std::move(sessionWithPicklingKey.value().first);
   std::string picklingKey = sessionWithPicklingKey.value().second;
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
   std::string decryptedData = session->decrypt(encryptedData);
   StatefulDecryptResult statefulDecryptResult(
       std::move(session), keyserverID, picklingKey, decryptedData);
@@ -671,18 +668,16 @@ NotificationsCryptoModule::statefulPeerDecrypt(
         " but session not initialized.");
   }
 
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   bool isSenderChainEmpty = true;
   bool hasReceivedMessage = false;
   bool sessionExists = maybeSessionWithPicklingKey.has_value();
 
   if (sessionExists) {
-    ::olm::Session *olmSessionAsCppClass = reinterpret_cast<::olm::Session *>(
-        maybeSessionWithPicklingKey.value().first->getOlmSession());
-    isSenderChainEmpty = olmSessionAsCppClass->ratchet.sender_chain.empty();
-    hasReceivedMessage = olmSessionAsCppClass->received_message;
+//    maybeSessionWithPicklingKey.value().first->vodozemacSession;
+    isSenderChainEmpty = false;
+    hasReceivedMessage = true;
   }
 
   // regular message

@@ -1611,8 +1611,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
                 static_cast<int>(sessionVersion),
                 overwrite);
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(
-                    encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
+              
+                    encryptedMessageCpp,
                 messageType};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
@@ -1904,7 +1904,7 @@ jsi::Value CommCoreModule::decrypt(
           std::string decryptedMessage;
           try {
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(message.begin(), message.end()),
+                message,
                 messageType,
                 sessionVersion};
             decryptedMessage =
@@ -1953,7 +1953,7 @@ jsi::Value CommCoreModule::decryptAndPersist(
           std::string decryptedMessage;
           try {
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(message.begin(), message.end()),
+                message,
                 messageType,
                 sessionVersion};
             decryptedMessage =

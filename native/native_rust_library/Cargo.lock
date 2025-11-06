@@ -64,9 +64,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.75"
+version = "1.0.100"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
+checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
 
 [[package]]
 name = "argon2"
@@ -1436,7 +1436,7 @@ dependencies = [
  "tokio-util",
  "tonic",
  "tracing",
- "vodozemac_bindings",
+ "vodozemac",
 ]
 
 [[package]]
@@ -2894,19 +2894,6 @@ dependencies = [
  "thiserror 2.0.17",
  "x25519-dalek",
  "zeroize",
-]
-
-[[package]]
-name = "vodozemac_bindings"
-version = "0.1.0"
-dependencies = [
- "cxx",
- "cxx-build",
- "derive_more",
- "regex",
- "serde",
- "serde_json",
- "vodozemac",
 ]
 
 [[package]]
