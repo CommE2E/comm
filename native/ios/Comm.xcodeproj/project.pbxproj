@@ -65,6 +65,10 @@
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
+		8BVODO0C28D50F3000EB5ADB /* libvodozemac_bindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BVODO0B28D50F3000EB5ADB /* libvodozemac_bindings.a */; };
+		8BVODO0E28D511FF00EB5ADB /* vodozemac_bindings.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BVODO0D28D511FF00EB5ADB /* vodozemac_bindings.rs.cc */; };
+		8BVODO1328D50F3000EB5ADB /* libvodozemac_bindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BVODO0B28D50F3000EB5ADB /* libvodozemac_bindings.a */; };
+		8BVODO1428D511FF00EB5ADB /* vodozemac_bindings.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BVODO0D28D511FF00EB5ADB /* vodozemac_bindings.rs.cc */; };
 		8E1805562DA954B600B772A4 /* SQLiteSchema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */; };
 		8E18055A2DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */; };
 		8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */; };
@@ -278,6 +282,10 @@
 		8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lib.rs.cc; sourceTree = "<group>"; };
 		8BC9568329FC49920060AE4A /* JSIRust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIRust.h; sourceTree = "<group>"; };
 		8BC9568429FC49B00060AE4A /* JSIRust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSIRust.cpp; sourceTree = "<group>"; };
+		8BVODO0B28D50F3000EB5ADB /* libvodozemac_bindings.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvodozemac_bindings.a; path = ../vodozemac_bindings/target/universal/release/libvodozemac_bindings.a; sourceTree = "<group>"; };
+		8BVODO0D28D511FF00EB5ADB /* vodozemac_bindings.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vodozemac_bindings.rs.cc; sourceTree = "<group>"; };
+		8BVODO0F28D511FF00EB5ADB /* vodozemac_bindings.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vodozemac_bindings.rs.h; sourceTree = "<group>"; };
+		8BVODO1028D511FF00EB5ADB /* vodozemac_cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vodozemac_cxx.h; sourceTree = "<group>"; };
 		8E1805542DA954B600B772A4 /* SQLiteSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SQLiteSchema.h; sourceTree = "<group>"; };
 		8E1805552DA954B600B772A4 /* SQLiteSchema.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteSchema.cpp; sourceTree = "<group>"; };
 		8E1805582DA95E7C00B772A4 /* SQLiteSchemaMigrations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteSchemaMigrations.cpp; sourceTree = "<group>"; };
@@ -414,6 +422,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */,
+				8BVODO0C28D50F3000EB5ADB /* libvodozemac_bindings.a in Frameworks */,
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
 				D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */,
 			);
@@ -430,6 +439,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BVODO1328D50F3000EB5ADB /* libvodozemac_bindings.a in Frameworks */,
 				724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */,
 				F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */,
 			);
@@ -712,6 +722,7 @@
 			isa = PBXGroup;
 			children = (
 				8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */,
+				8BVODO0B28D50F3000EB5ADB /* libvodozemac_bindings.a */,
 				CB3C621327CE66540054F24C /* libEXSecureStore.a */,
 				724995FA27BA9E8C00323FCE /* UserNotifications.framework */,
 				711CF80E25DC096000A00FBD /* libFolly.a */,
@@ -727,6 +738,7 @@
 			children = (
 				CB3220912BDA66B900DB6C5C /* PrivacyInfo.xcprivacy */,
 				8B99AF6B28D50D4800EB5ADB /* native_rust_library */,
+				8BVODO1128D50D4800EB5ADB /* vodozemac_bindings */,
 				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* Comm */,
 				713EE40726C6676B003D7C48 /* CommTests */,
@@ -770,6 +782,17 @@
 			);
 			name = native_rust_library;
 			path = ../native_rust_library;
+			sourceTree = "<group>";
+		};
+		8BVODO1128D50D4800EB5ADB /* vodozemac_bindings */ = {
+			isa = PBXGroup;
+			children = (
+				8BVODO0D28D511FF00EB5ADB /* vodozemac_bindings.rs.cc */,
+				8BVODO0F28D511FF00EB5ADB /* vodozemac_bindings.rs.h */,
+				8BVODO1028D511FF00EB5ADB /* vodozemac_cxx.h */,
+			);
+			name = vodozemac_bindings;
+			path = ../vodozemac_bindings;
 			sourceTree = "<group>";
 		};
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
@@ -1014,6 +1037,7 @@
 			buildConfigurationList = 724995DD27B4103A00323FCE /* Build configuration list for PBXNativeTarget "NotificationService" */;
 			buildPhases = (
 				6735FA74B2C82E3B27E18258 /* [CP] Check Pods Manifest.lock */,
+				8BVODO1228B795E200E20C13 /* Build Vodozemac library */,
 				105D2A7B69CF49C7EF865A3B /* [Expo] Configure project */,
 				724995CD27B4103A00323FCE /* Sources */,
 				724995CE27B4103A00323FCE /* Frameworks */,
@@ -1261,6 +1285,26 @@
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/../../scripts/build-rust-native-library.sh\n";
 		};
+		8BVODO1228B795E200E20C13 /* Build Vodozemac library */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Vodozemac library";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${SRCROOT}/../vodozemac_bindings/vodozemac_bindings.rs.cc",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${SRCROOT}/../../scripts/build-rust-vodozemac-bindings.sh\n";
+		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1425,6 +1469,7 @@
 				8E8A8DFD2E15A4F100519F55 /* HolderStore.cpp in Sources */,
 				8ECF4E182DDDD9EF0079D3D6 /* WebSQLiteConnectionManager.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
+				8BVODO0E28D511FF00EB5ADB /* vodozemac_bindings.rs.cc in Sources */,
 				8EF0F6032DCA43CD00F2B171 /* SQLiteBackup.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				CBB0DF602B768007008E22FF /* CommMMKV.mm in Sources */,
@@ -1504,6 +1549,7 @@
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,
+				8BVODO1428D511FF00EB5ADB /* vodozemac_bindings.rs.cc in Sources */,
 				724995D527B4103A00323FCE /* NotificationService.mm in Sources */,
 				CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */,
 				1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */,
@@ -1553,6 +1599,7 @@
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
 					"$(SRCROOT)/../native_rust_library",
+					"$(SRCROOT)/../vodozemac_bindings",
 					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
 				);
 				INFOPLIST_FILE = Comm/Info.debug.plist;
@@ -1642,10 +1689,12 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/debug",
+					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/debug",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/debug",
+					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/debug",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DFOLLY_MOBILE=1",
@@ -1693,6 +1742,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
+					"$(SRCROOT)/../vodozemac_bindings",
 					"$(SRCROOT)/../native_rust_library",
 					"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging",
 				);
@@ -1783,10 +1833,12 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/release",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
+					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/release",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1923,6 +1975,10 @@
 					"$(inherited)",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings",
+				);
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
@@ -1931,6 +1987,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/debug",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/debug",
 				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -1980,6 +2044,10 @@
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings",
+				);
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
@@ -1988,6 +2056,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings/target/aarch64-apple-ios/release",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../vodozemac_bindings/target/x86_64-apple-ios/release",
 				);
 				MARKETING_VERSION = 1.0.556;
 				MTL_FAST_MATH = YES;
