@@ -8,6 +8,11 @@
 
 #include "olm/olm.h"
 
+#include "lib.rs.h"
+#ifndef ANDROID
+#include "vodozemac_bindings.rs.h"
+#endif
+
 namespace comm {
 namespace crypto {
 

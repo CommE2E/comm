@@ -10,10 +10,12 @@ mod argon2_tools;
 mod backup;
 mod constants;
 mod identity;
+mod session;
 mod utils;
 
 use crate::argon2_tools::compute_backup_key_str;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
+use session::{session_from_pickle, EncryptResult, VodozemacSession};
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -563,6 +565,38 @@ mod ffi {
 
     #[cxx_name = "rejectFuture"]
     fn reject_future(future_id: usize, error: String);
+  }
+
+  // Future handling from C++
+  extern "Rust" {
+    // Vodozemac crypto functions (wrapper implementations)
+    #[cfg(target_os = "android")]
+    type VodozemacSession;
+    #[cfg(target_os = "android")]
+    type EncryptResult;
+    #[cfg(target_os = "android")]
+    fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
+    #[cfg(target_os = "android")]
+    fn encrypted_message(self: &EncryptResult) -> String;
+    #[cfg(target_os = "android")]
+    fn message_type(self: &EncryptResult) -> u32;
+    #[cfg(target_os = "android")]
+    fn encrypt(
+      self: &mut VodozemacSession,
+      plaintext: &str,
+    ) -> Result<Box<EncryptResult>>;
+    #[cfg(target_os = "android")]
+    fn decrypt(
+      self: &mut VodozemacSession,
+      encrypted_message: String,
+      message_type: u32,
+    ) -> Result<String>;
+
+    #[cfg(target_os = "android")]
+    pub fn session_from_pickle(
+      session_state: String,
+      session_key: String,
+    ) -> Result<Box<VodozemacSession>>;
   }
 }
 

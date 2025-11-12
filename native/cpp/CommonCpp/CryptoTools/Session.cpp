@@ -4,6 +4,11 @@
 #include <optional>
 #include <stdexcept>
 
+#include "lib.rs.h"
+#ifndef ANDROID
+#include "vodozemac_bindings.rs.h"
+#endif
+
 namespace comm {
 namespace crypto {
 
