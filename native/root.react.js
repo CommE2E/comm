@@ -69,7 +69,6 @@ import ColdStartTracker from './components/cold-start-tracker.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import DisplayCommunityDirectoryPromptHandler from './components/display-community-directory-prompt.react.js';
 import FarcasterSyncHandler from './components/farcaster-sync-handler.react.js';
-import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import NonKeyserverActivityHandler from './components/non-keyserver-activity-handler.react.js';
 import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
@@ -388,68 +387,66 @@ function Root() {
                               generateAESKey={generateQRAuthAESKey}
                               onLogInError={handleQRAuthError}
                             >
-                              <FeatureFlagsProvider>
-                                <NavContext.Provider value={navContext}>
-                                  <RootContext.Provider value={rootContext}>
-                                    <InputStateContainer>
-                                      <MessageEditingContextProvider>
-                                        <SafeAreaProvider
-                                          initialMetrics={initialWindowMetrics}
-                                        >
-                                          <ActionSheetProvider>
-                                            <MediaCacheProvider
-                                              persistence={filesystemMediaCache}
-                                            >
-                                              <EditUserAvatarProvider>
-                                                <NativeEditThreadAvatarProvider>
-                                                  <MarkdownContextProvider>
-                                                    <MessageSearchProvider>
-                                                      <BottomSheetProvider>
-                                                        <RegistrationContextProvider>
-                                                          <SQLiteDataHandler />
-                                                          <ConnectedStatusBar />
-                                                          <ReduxPersistGate
-                                                            persistor={getPersistor()}
-                                                          >
-                                                            {gated}
-                                                          </ReduxPersistGate>
-                                                          <PersistedStateGate>
-                                                            <ColdStartTracker />
-                                                            <KeyserverConnectionsHandler
-                                                              socketComponent={
-                                                                Socket
-                                                              }
-                                                              detectUnsupervisedBackgroundRef={
-                                                                detectUnsupervisedBackgroundRef
-                                                              }
-                                                            />
-                                                            <NonKeyserverActivityHandler />
-                                                            <VersionSupportedChecker />
-                                                            <PlatformDetailsSynchronizer />
-                                                            <PrekeysHandler />
-                                                            <ReportHandler />
-                                                            <FarcasterChannelPrefetchHandler />
-                                                            <FarcasterSyncHandler />
-                                                            <AutoJoinCommunityHandler />
-                                                            <SyncCommunityStoreHandler />
-                                                            <SecondaryDevicesBackupHandler />
-                                                            <ThemeHandler />
-                                                          </PersistedStateGate>
-                                                          {navigation}
-                                                        </RegistrationContextProvider>
-                                                      </BottomSheetProvider>
-                                                    </MessageSearchProvider>
-                                                  </MarkdownContextProvider>
-                                                </NativeEditThreadAvatarProvider>
-                                              </EditUserAvatarProvider>
-                                            </MediaCacheProvider>
-                                          </ActionSheetProvider>
-                                        </SafeAreaProvider>
-                                      </MessageEditingContextProvider>
-                                    </InputStateContainer>
-                                  </RootContext.Provider>
-                                </NavContext.Provider>
-                              </FeatureFlagsProvider>
+                              <NavContext.Provider value={navContext}>
+                                <RootContext.Provider value={rootContext}>
+                                  <InputStateContainer>
+                                    <MessageEditingContextProvider>
+                                      <SafeAreaProvider
+                                        initialMetrics={initialWindowMetrics}
+                                      >
+                                        <ActionSheetProvider>
+                                          <MediaCacheProvider
+                                            persistence={filesystemMediaCache}
+                                          >
+                                            <EditUserAvatarProvider>
+                                              <NativeEditThreadAvatarProvider>
+                                                <MarkdownContextProvider>
+                                                  <MessageSearchProvider>
+                                                    <BottomSheetProvider>
+                                                      <RegistrationContextProvider>
+                                                        <SQLiteDataHandler />
+                                                        <ConnectedStatusBar />
+                                                        <ReduxPersistGate
+                                                          persistor={getPersistor()}
+                                                        >
+                                                          {gated}
+                                                        </ReduxPersistGate>
+                                                        <PersistedStateGate>
+                                                          <ColdStartTracker />
+                                                          <KeyserverConnectionsHandler
+                                                            socketComponent={
+                                                              Socket
+                                                            }
+                                                            detectUnsupervisedBackgroundRef={
+                                                              detectUnsupervisedBackgroundRef
+                                                            }
+                                                          />
+                                                          <NonKeyserverActivityHandler />
+                                                          <VersionSupportedChecker />
+                                                          <PlatformDetailsSynchronizer />
+                                                          <PrekeysHandler />
+                                                          <ReportHandler />
+                                                          <FarcasterChannelPrefetchHandler />
+                                                          <FarcasterSyncHandler />
+                                                          <AutoJoinCommunityHandler />
+                                                          <SyncCommunityStoreHandler />
+                                                          <SecondaryDevicesBackupHandler />
+                                                          <ThemeHandler />
+                                                        </PersistedStateGate>
+                                                        {navigation}
+                                                      </RegistrationContextProvider>
+                                                    </BottomSheetProvider>
+                                                  </MessageSearchProvider>
+                                                </MarkdownContextProvider>
+                                              </NativeEditThreadAvatarProvider>
+                                            </EditUserAvatarProvider>
+                                          </MediaCacheProvider>
+                                        </ActionSheetProvider>
+                                      </SafeAreaProvider>
+                                    </MessageEditingContextProvider>
+                                  </InputStateContainer>
+                                </RootContext.Provider>
+                              </NavContext.Provider>
                             </SecondaryDeviceQRAuthContextProvider>
                           </IdentitySearchProvider>
                         </ErrorBoundary>
