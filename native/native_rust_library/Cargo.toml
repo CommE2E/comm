@@ -21,7 +21,9 @@ argon2 = { version = "0.5.1", features = ["std"] }
 grpc_clients = { path = "../../shared/grpc_clients" }
 base64 = "0.21"
 regex = "1.10"
-vodozemac = { git = "https://github.com/CommE2E/vodozemac", features = ["libolm-compat"] }
+vodozemac = { git = "https://github.com/CommE2E/vodozemac", branch = "x3dh-test", features = ["libolm-compat"] }
+anyhow = "1.0.97"
+sha2 = "0.10"
 
 [target.'cfg(target_os = "android")'.dependencies]
 backup_client = { path = "../../shared/backup_client", default-features = false, features = [
