@@ -897,7 +897,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "vodozemac"
 version = "0.9.0"
-source = "git+https://github.com/CommE2E/vodozemac#3c142a35f114fcc9edb9dc766b051716c5160150"
+source = "git+https://github.com/CommE2E/vodozemac?branch=x3dh-test#5a4c8ed45d6a2aa1c91f9bcdb2e567895b76a2f5"
 dependencies = [
  "aes",
  "arrayvec",
