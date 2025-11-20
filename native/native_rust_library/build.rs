@@ -197,7 +197,7 @@ fn main() {
     .expect("Couldn't write backup service config");
 
   println!("cargo:rerun-if-changed=src/lib.rs");
-  println!("cargo:rerun-if-changed=src/session.rs");
+  println!("cargo:rerun-if-changed=src/vodozemac.rs");
   println!("cargo:rerun-if-changed={}", IdentityServiceConfig::FILEPATH);
   println!("cargo:rerun-if-changed={}", BackupServiceConfig::FILEPATH);
 }
