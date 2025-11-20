@@ -1418,6 +1418,7 @@ dependencies = [
 name = "native_rust_library"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "argon2",
  "backup_client",
  "base64 0.21.7",
@@ -1431,6 +1432,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "sha2",
  "siwe",
  "tokio",
  "tokio-util",
@@ -2870,7 +2872,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "vodozemac"
 version = "0.9.0"
-source = "git+https://github.com/CommE2E/vodozemac#3c142a35f114fcc9edb9dc766b051716c5160150"
+source = "git+https://github.com/CommE2E/vodozemac?branch=x3dh-test#5a4c8ed45d6a2aa1c91f9bcdb2e567895b76a2f5"
 dependencies = [
  "aes",
  "arrayvec",
