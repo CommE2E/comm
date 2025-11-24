@@ -7,7 +7,6 @@
 #include "InternalModules/RustPromiseManager.h"
 #include "Logger.h"
 #include "NativeModuleUtils.h"
-#include "OlmUtils.h"
 #include "TerminateApp.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
@@ -814,15 +813,27 @@ jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
 
 jsi::Object parseOneTimeKeysResult(
     jsi::Runtime &rt,
-    std::string contentOneTimeKeysBlob,
-    std::string notifOneTimeKeysBlob) {
-  auto contentOneTimeKeys = parseOLMOneTimeKeys(rt, contentOneTimeKeysBlob);
-  auto notifOneTimeKeys = parseOLMOneTimeKeys(rt, notifOneTimeKeysBlob);
+    std::vector<std::string> contentOneTimeKeys,
+    std::vector<std::string> notifOneTimeKeys) {
+  auto jsiContentOneTimeKeys = jsi::Array(rt, contentOneTimeKeys.size());
+  size_t contentIdx = 0;
+  for (const auto &key : contentOneTimeKeys) {
+    jsiContentOneTimeKeys.setValueAtIndex(
+        rt, contentIdx++, jsi::String::createFromUtf8(rt, key));
+  }
+
+  auto jsiNotifOneTimeKeys = jsi::Array(rt, notifOneTimeKeys.size());
+  size_t notifIdx = 0;
+  for (const auto &key : notifOneTimeKeys) {
+    jsiNotifOneTimeKeys.setValueAtIndex(
+        rt, notifIdx++, jsi::String::createFromUtf8(rt, key));
+  }
+
   auto jsiOneTimeKeysResult = jsi::Object(rt);
   jsiOneTimeKeysResult.setProperty(
-      rt, "contentOneTimeKeys", contentOneTimeKeys);
+      rt, "contentOneTimeKeys", jsiContentOneTimeKeys);
   jsiOneTimeKeysResult.setProperty(
-      rt, "notificationsOneTimeKeys", notifOneTimeKeys);
+      rt, "notificationsOneTimeKeys", jsiNotifOneTimeKeys);
 
   return jsiOneTimeKeysResult;
 }
@@ -869,8 +880,8 @@ CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string contentResult;
-          std::string notifResult;
+          std::vector<std::string> contentResult;
+          std::vector<std::string> notifResult;
           if (this->contentCryptoModule == nullptr ||
               !NotificationsCryptoModule::isNotificationsAccountInitialized()) {
             this->jsInvoker_->invokeAsync([=, &innerRt]() {
@@ -1000,10 +1011,10 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
               auto currentID = RustPromiseManager::instance.addPromise(
                   std::move(promiseInfo));
               auto contentPrekeyToUploadRust =
-                  rust::String(parseOLMPrekey(contentPrekeyToUpload));
+                  rust::String(contentPrekeyToUpload);
               auto prekeySignatureRust = rust::string(contentPrekeySignature);
               auto notifsPrekeyToUploadRust =
-                  rust::String(parseOLMPrekey(notifsPrekeyToUpload));
+                  rust::String(notifsPrekeyToUpload);
               auto notificationsPrekeySignatureRust =
                   rust::string(notifsPrekeySignature);
               ::identityRefreshUserPrekeys(
@@ -1097,8 +1108,8 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
             notifPrekeySignature = notifsCryptoModuleWithPicklingKey.value()
                                        .first->getPrekeySignature();
 
-            contentPrekey = parseOLMPrekey(contentPrekeyBlob.value());
-            notifPrekey = parseOLMPrekey(notifPrekeyBlob.value());
+            contentPrekey = contentPrekeyBlob.value();
+            notifPrekey = notifPrekeyBlob.value();
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1163,21 +1174,14 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
           try {
             notifsCryptoModuleWithPicklingKey =
                 NotificationsCryptoModule::fetchNotificationsAccount();
-            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
-            if (oneTimeKeyCpp) {
-              oneTimeKeyBuffer = crypto::OlmBuffer(
-                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
-            }
 
             notifsCryptoModuleWithPicklingKey.value()
                 .first->initializeOutboundForSendingSession(
                     keyserverIDCpp,
-                    std::vector<uint8_t>(
-                        identityKeysCpp.begin(), identityKeysCpp.end()),
-                    std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
-                    std::vector<uint8_t>(
-                        prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                    oneTimeKeyBuffer);
+                    identityKeysCpp,
+                    prekeyCpp,
+                    prekeySignatureCpp,
+                    oneTimeKeyCpp);
 
             result = notifsCryptoModuleWithPicklingKey.value().first->encrypt(
                 keyserverIDCpp,
@@ -1540,20 +1544,13 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
           crypto::EncryptedData initialEncryptedData;
           int sessionVersion;
           try {
-            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
-            if (oneTimeKeyCpp) {
-              oneTimeKeyBuffer = crypto::OlmBuffer(
-                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
-            }
             sessionVersion =
                 this->contentCryptoModule->initializeOutboundForSendingSession(
                     deviceIDCpp,
-                    std::vector<uint8_t>(
-                        identityKeysCpp.begin(), identityKeysCpp.end()),
-                    std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
-                    std::vector<uint8_t>(
-                        prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                    oneTimeKeyBuffer);
+                    identityKeysCpp,
+                    prekeyCpp,
+                    prekeySignatureCpp,
+                    oneTimeKeyCpp);
 
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedData =
@@ -1602,20 +1599,15 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
           std::string error;
           std::string decryptedMessage;
           try {
-            this->contentCryptoModule->initializeInboundForReceivingSession(
-                deviceIDCpp,
-                std::vector<uint8_t>(
-                    encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
-                std::vector<uint8_t>(
-                    identityKeysCpp.begin(), identityKeysCpp.end()),
-                static_cast<int>(sessionVersion),
-                overwrite);
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(
-                    encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
-                messageType};
+                encryptedMessageCpp, messageType};
             decryptedMessage =
-                this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
+                this->contentCryptoModule->initializeInboundForReceivingSession(
+                    deviceIDCpp,
+                    encryptedData,
+                    identityKeysCpp,
+                    static_cast<int>(sessionVersion),
+                    overwrite);
             this->persistCryptoModules(true, std::nullopt);
           } catch (const std::exception &e) {
             error = e.what();
@@ -1697,20 +1689,13 @@ jsi::Value CommCoreModule::initializeNotificationsOutboundSession(
           try {
             notifsCryptoModuleWithPicklingKey =
                 NotificationsCryptoModule::fetchNotificationsAccount();
-            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
-            if (oneTimeKeyCpp) {
-              oneTimeKeyBuffer = crypto::OlmBuffer(
-                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
-            }
             notifsCryptoModuleWithPicklingKey.value()
                 .first->initializeOutboundForSendingSession(
                     deviceIDCpp,
-                    std::vector<uint8_t>(
-                        identityKeysCpp.begin(), identityKeysCpp.end()),
-                    std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
-                    std::vector<uint8_t>(
-                        prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                    oneTimeKeyBuffer);
+                    identityKeysCpp,
+                    prekeyCpp,
+                    prekeySignatureCpp,
+                    oneTimeKeyCpp);
 
             result = notifsCryptoModuleWithPicklingKey.value().first->encrypt(
                 deviceIDCpp,
@@ -1904,9 +1889,7 @@ jsi::Value CommCoreModule::decrypt(
           std::string decryptedMessage;
           try {
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(message.begin(), message.end()),
-                messageType,
-                sessionVersion};
+                message, messageType, sessionVersion};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
             this->persistCryptoModules(true, std::nullopt);
@@ -1953,9 +1936,7 @@ jsi::Value CommCoreModule::decryptAndPersist(
           std::string decryptedMessage;
           try {
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(message.begin(), message.end()),
-                messageType,
-                sessionVersion};
+                message, messageType, sessionVersion};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
 
@@ -2086,10 +2067,8 @@ jsi::Value CommCoreModule::verifySignature(
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
-            crypto::OlmBuffer messageBuffer(
-                messageStr.begin(), messageStr.end());
             crypto::CryptoModule::verifySignature(
-                keyStr, messageBuffer, signatureStr);
+                keyStr, messageStr, signatureStr);
           } catch (const std::exception &e) {
             error = "verifying signature failed with: " + std::string(e.what());
           }
