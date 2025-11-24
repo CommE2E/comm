@@ -7,7 +7,6 @@ set(TOOLS_HDRS
   "Base64.h"
   "WorkerThread.h"
   "StaffUtils.h"
-  "OlmUtils.h"
   "StringUtils.h"
 )
 
@@ -16,7 +15,6 @@ set(TOOLS_SRCS
   "WorkerThread.cpp"
   "StaffUtils.cpp"
   "ServicesUtils.cpp"
-  "OlmUtils.cpp"
   "StringUtils.cpp"
 )
 

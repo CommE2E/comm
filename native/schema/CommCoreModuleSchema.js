@@ -11,7 +11,7 @@ import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type {
-  OneTimeKeysResult,
+  OneTimeKeysResultValues,
   SignedPrekeys,
   ClientPublicKeys,
   EncryptedData,
@@ -58,7 +58,9 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
-  +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
+  +getOneTimeKeys: (
+    oneTimeKeysAmount: number,
+  ) => Promise<OneTimeKeysResultValues>;
   +validateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +validateAndUploadPrekeys: (
     authUserID: string,
