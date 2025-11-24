@@ -171,6 +171,9 @@ add_library(
   ${RUST_NATIVE_CODE}
 )
 
+# Ensure Rust cxxbridge headers are generated before compiling C++ code
+add_dependencies(${PACKAGE_NAME} native_rust_library_cxxbridge)
+
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 
 target_include_directories(
