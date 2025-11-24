@@ -1,6 +1,11 @@
 #include "CommUtilsModule.h"
 #include "../Tools/Base64.h"
-#include "olm/olm.h"
+
+#ifndef ANDROID
+#include "vodozemac_bindings.rs.h"
+#else
+#include "lib.rs.h"
+#endif
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <fstream>
@@ -12,9 +17,7 @@ using namespace facebook::react;
 
 CommUtilsModule::CommUtilsModule(std::shared_ptr<CallInvoker> jsInvoker)
     : CommUtilsModuleSchemaCxxSpecJSI(jsInvoker),
-      utilsThread(std::make_unique<WorkerThread>("utils")),
-      olmUtilityBuffer(::olm_utility_size()) {
-  this->olmUtility = ::olm_utility(olmUtilityBuffer.data());
+      utilsThread(std::make_unique<WorkerThread>("utils")) {
 }
 
 jsi::Value CommUtilsModule::writeBufferToFile(
@@ -135,19 +138,10 @@ jsi::String CommUtilsModule::sha256(jsi::Runtime &rt, jsi::Object data) {
   auto inputPtr = arrayBuffer.data(rt);
   auto inputSize = arrayBuffer.size(rt);
 
-  auto sha256Size = ::olm_sha256_length(this->olmUtility);
-  OlmBuffer sha256Bytes(sha256Size);
-  auto outputLength = ::olm_sha256(
-      this->olmUtility, inputPtr, inputSize, sha256Bytes.data(), sha256Size);
-  if (outputLength == std::size_t(-1)) {
-    throw jsi::JSError(
-        rt,
-        "olm error: " +
-            std::string{::olm_utility_last_error(this->olmUtility)});
-  }
+  rust::Slice<const uint8_t> input{inputPtr, inputSize};
+  auto sha256Result = ::sha256(input);
 
-  std::string sha256String{sha256Bytes.begin(), sha256Bytes.end()};
-  return jsi::String::createFromUtf8(rt, sha256String);
+  return jsi::String::createFromUtf8(rt, std::string(sha256Result));
 }
 
 jsi::String CommUtilsModule::decodeUTF8ArrayBufferToString(

@@ -6,8 +6,6 @@
 
 #include "Tools.h"
 
-#include "olm/olm.h"
-
 #ifndef ANDROID
 #include "vodozemac_bindings.rs.h"
 #else
@@ -18,26 +16,31 @@ namespace comm {
 namespace crypto {
 
 class Session {
-  OlmBuffer olmSessionBuffer;
   int version;
 
 public:
+  ::rust::Box<::VodozemacSession> vodozemacSession;
+
+  // Constructor that takes a vodozemac session
+  Session(::rust::Box<::VodozemacSession> session)
+      : vodozemacSession(std::move(session)), version(0) {
+  }
+
   static std::unique_ptr<Session> createSessionAsInitializer(
-      OlmAccount *account,
-      std::uint8_t *ownerIdentityKeys,
-      const OlmBuffer &idKeys,
-      const OlmBuffer &preKeys,
-      const OlmBuffer &preKeySignature,
-      const std::optional<OlmBuffer> &oneTimeKey);
-  static std::unique_ptr<Session> createSessionAsResponder(
-      OlmAccount *account,
-      std::uint8_t *ownerIdentityKeys,
-      const OlmBuffer &encryptedMessage,
-      const OlmBuffer &idKeys);
-  OlmBuffer storeAsB64(const std::string &secretKey);
+      ::rust::Box<::VodozemacAccount> &account,
+      const std::string &idKeys,
+      const std::string &preKeys,
+      const std::string &preKeySignature,
+      const std::optional<std::string> &oneTimeKey,
+      bool olmCompatibilityMode);
+  static std::pair<std::unique_ptr<Session>, std::string>
+  createSessionAsResponder(
+      ::rust::Box<::VodozemacAccount> &account,
+      const crypto::EncryptedData &encryptedData,
+      const std::string &idKeys);
+  std::string storeAsB64(const std::string &secretKey);
   static std::unique_ptr<Session>
-  restoreFromB64(const std::string &secretKey, OlmBuffer &b64);
-  OlmSession *getOlmSession();
+  restoreFromB64(const std::string &secretKey, const std::string &b64);
   std::string decrypt(EncryptedData &encryptedData);
   EncryptedData encrypt(const std::string &content);
   int getVersion();

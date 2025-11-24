@@ -577,79 +577,75 @@ mod ffi {
     // in native/vodozemac_bindings/src/lib.rs.
 
     // EncryptResult type
-    #[cfg(target_os = "android")]
     type EncryptResult;
-    #[cfg(target_os = "android")]
+
     fn encrypt_result_new(
       encrypted_message: String,
       message_type: u32,
     ) -> Box<EncryptResult>;
-    #[cfg(target_os = "android")]
+
     fn encrypted_message(self: &EncryptResult) -> String;
-    #[cfg(target_os = "android")]
+
     fn message_type(self: &EncryptResult) -> u32;
 
     // VodozemacSession type
-    #[cfg(target_os = "android")]
     type VodozemacSession;
-    #[cfg(target_os = "android")]
+
     fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
-    #[cfg(target_os = "android")]
+
     fn encrypt(
       self: &mut VodozemacSession,
       plaintext: &str,
     ) -> Result<Box<EncryptResult>>;
-    #[cfg(target_os = "android")]
+
     fn decrypt(
       self: &mut VodozemacSession,
       encrypted_message: String,
       message_type: u32,
     ) -> Result<String>;
-    #[cfg(target_os = "android")]
+
     fn has_received_message(self: &VodozemacSession) -> bool;
-    #[cfg(target_os = "android")]
+
     fn is_sender_chain_empty(self: &VodozemacSession) -> bool;
 
-    #[cfg(target_os = "android")]
     pub fn session_from_pickle(
       session_state: String,
       session_key: String,
     ) -> Result<Box<VodozemacSession>>;
 
     // VodozemacAccount type
-    #[cfg(target_os = "android")]
     type VodozemacAccount;
-    #[cfg(target_os = "android")]
+
     fn pickle(self: &VodozemacAccount, pickle_key: &[u8; 32]) -> String;
-    #[cfg(target_os = "android")]
+
     fn ed25519_key(self: &VodozemacAccount) -> String;
-    #[cfg(target_os = "android")]
+
     fn curve25519_key(self: &VodozemacAccount) -> String;
-    #[cfg(target_os = "android")]
+
     fn sign(self: &VodozemacAccount, message: &str) -> String;
-    #[cfg(target_os = "android")]
+
     fn generate_one_time_keys(self: &mut VodozemacAccount, count: usize);
-    #[cfg(target_os = "android")]
+
     fn one_time_keys(self: &VodozemacAccount) -> Vec<String>;
-    #[cfg(target_os = "android")]
+
     fn mark_keys_as_published(self: &mut VodozemacAccount);
-    #[cfg(target_os = "android")]
+
     fn max_number_of_one_time_keys(self: &VodozemacAccount) -> usize;
-    #[cfg(target_os = "android")]
+
     fn mark_prekey_as_published(self: &mut VodozemacAccount) -> bool;
-    #[cfg(target_os = "android")]
+
     fn generate_prekey(self: &mut VodozemacAccount) -> bool;
-    #[cfg(target_os = "android")]
+
     fn forget_old_prekey(self: &mut VodozemacAccount);
-    #[cfg(target_os = "android")]
+
     fn last_prekey_publish_time(self: &mut VodozemacAccount) -> u64;
-    #[cfg(target_os = "android")]
+
     fn prekey(self: &VodozemacAccount) -> String;
-    #[cfg(target_os = "android")]
+
     fn unpublished_prekey(self: &VodozemacAccount) -> String;
-    #[cfg(target_os = "android")]
+
     fn prekey_signature(self: &VodozemacAccount) -> String;
-    #[cfg(target_os = "android")]
+
     fn create_outbound_session(
       self: &VodozemacAccount,
       identity_key: &str,
@@ -659,38 +655,33 @@ mod ffi {
       pre_key_signature: &str,
       olm_compatibility_mode: bool,
     ) -> Result<Box<VodozemacSession>>;
-    #[cfg(target_os = "android")]
+
     fn create_inbound_session(
       self: &mut VodozemacAccount,
       identity_key: &str,
       message: &EncryptResult,
     ) -> Result<Box<InboundCreationResult>>;
 
-    #[cfg(target_os = "android")]
     pub fn account_new() -> Box<VodozemacAccount>;
 
-    #[cfg(target_os = "android")]
     pub fn account_from_pickle(
       account_state: String,
       session_key: String,
     ) -> Result<Box<VodozemacAccount>>;
 
-    #[cfg(target_os = "android")]
     pub fn verify_ed25519_signature(
       public_key: &str,
       message: &str,
       signature: &str,
     ) -> Result<()>;
 
-    #[cfg(target_os = "android")]
     pub fn sha256(input: &[u8]) -> String;
 
     // InboundCreationResult type
-    #[cfg(target_os = "android")]
     type InboundCreationResult;
-    #[cfg(target_os = "android")]
+
     fn plaintext(self: &InboundCreationResult) -> String;
-    #[cfg(target_os = "android")]
+
     fn take_session(self: &mut InboundCreationResult) -> Box<VodozemacSession>;
   }
 }
