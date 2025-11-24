@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "olm/olm.h"
-
 #include "Persist.h"
 #include "Session.h"
 #include "Tools.h"
@@ -21,14 +19,13 @@ namespace crypto {
 
 class CryptoModule {
 
-  OlmBuffer accountBuffer;
+  ::rust::Box<::VodozemacAccount> vodozemacAccount;
 
   std::unordered_map<std::string, std::shared_ptr<Session>> sessions = {};
 
   Keys keys;
+  std::string secretKey;
 
-  OlmAccount *getOlmAccount();
-  void createAccount();
   void exposePublicIdentityKeys();
   void generateOneTimeKeys(size_t oneTimeKeysAmount);
   std::string generateAndGetPrekey();
@@ -37,43 +34,37 @@ class CryptoModule {
   bool prekeyExistsAndOlderThan(uint64_t threshold);
   bool prekeyDoesntExist();
   bool isPrekeySignatureValid();
-  OlmBuffer pickleAccount(const std::string &secretKey);
+  std::string pickleAccount(const std::string &secretKey);
 
 public:
-  CryptoModule();
   CryptoModule(std::string secretKey, Persist persist);
 
   // CryptoModule's accountBuffer cannot be safely copied
   // See explanation in https://phab.comm.dev/D9562
   CryptoModule(const CryptoModule &) = delete;
 
-  static Keys keysFromStrings(
-      const std::string &identityKeys,
-      const std::string &oneTimeKeys);
-
   std::string getIdentityKeys();
   std::string getOneTimeKeysForPublishing(size_t oneTimeKeysAmount = 10);
 
   // Prekey rotation methods for X3DH
-  std::uint8_t getNumPrekeys();
   std::string getPrekey();
   std::string getPrekeySignature();
   std::optional<std::string> getUnpublishedPrekey();
   void markPrekeyAsPublished();
   void forgetOldPrekey();
 
-  void initializeInboundForReceivingSession(
+  std::string initializeInboundForReceivingSession(
       const std::string &targetDeviceId,
-      const OlmBuffer &encryptedMessage,
-      const OlmBuffer &idKeys,
+      const crypto::EncryptedData &encryptedData,
+      const std::string &idKeys,
       int sessionVersion,
       const bool overwrite);
   int initializeOutboundForSendingSession(
       const std::string &targetDeviceId,
-      const OlmBuffer &idKeys,
-      const OlmBuffer &preKeys,
-      const OlmBuffer &preKeySignature,
-      const std::optional<OlmBuffer> &oneTimeKey);
+      const std::string &idKeys,
+      const std::string &preKeys,
+      const std::string &preKeySignature,
+      const std::optional<std::string> &oneTimeKey);
   bool hasSessionFor(const std::string &targetDeviceId);
   std::shared_ptr<Session> getSessionByDeviceId(const std::string &deviceId);
   void removeSessionByDeviceId(const std::string &deviceId);
@@ -90,7 +81,7 @@ public:
   std::string signMessage(const std::string &message);
   static void verifySignature(
       const std::string &publicKey,
-      const OlmBuffer &message,
+      const std::string &message,
       const std::string &signature);
   std::optional<std::string> validatePrekey();
 };

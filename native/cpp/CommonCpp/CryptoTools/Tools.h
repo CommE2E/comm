@@ -18,12 +18,32 @@ namespace crypto {
 typedef std::vector<std::uint8_t> OlmBuffer;
 
 struct Keys {
-  OlmBuffer identityKeys; // size = 116
-  OlmBuffer oneTimeKeys;  // size = 43 each
+  std::string identityKeys;
+  std::string oneTimeKeys;
+
+  // Securely wipe keys from memory
+  void wipe() {
+    // Volatile pointer prevents compiler from optimizing away the zeroing
+    volatile char *p1 = const_cast<char *>(identityKeys.data());
+    for (size_t i = 0; i < identityKeys.size(); ++i) {
+      p1[i] = 0;
+    }
+    identityKeys.clear();
+
+    volatile char *p2 = const_cast<char *>(oneTimeKeys.data());
+    for (size_t i = 0; i < oneTimeKeys.size(); ++i) {
+      p2[i] = 0;
+    }
+    oneTimeKeys.clear();
+  }
+
+  ~Keys() {
+    wipe();
+  }
 };
 
 struct EncryptedData {
-  OlmBuffer message;
+  std::string message;
   size_t messageType;
   std::optional<int> sessionVersion;
 };

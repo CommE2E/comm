@@ -5,7 +5,6 @@
 #include "../../Tools/CommSecureStore.h"
 #include "../../Tools/PlatformSpecificTools.h"
 #include "NotificationsInboundKeysProvider.h"
-#include "olm/session.hh"
 
 #include "Logger.h"
 #include <fcntl.h>
@@ -19,6 +18,10 @@
 #include <unordered_set>
 
 namespace comm {
+// Message type constants (replacing Olm constants)
+constexpr uint32_t MESSAGE_TYPE_PREKEY = 0;
+constexpr uint32_t MESSAGE_TYPE_MESSAGE = 1;
+
 const std::string
     NotificationsCryptoModule::secureStoreNotificationsAccountDataKey =
         "notificationsCryptoAccountDataKey";
@@ -26,7 +29,7 @@ const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
     "keyserverHostedNotificationsID";
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
     "{\"type\": \"init\"}";
-const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
+    const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
 
 // This constant is only used to migrate the existing notifications
 // session with production keyserver from flat file to MMKV. This
@@ -166,9 +169,7 @@ void NotificationsCryptoModule::setNewSynchronizationValue() {
 std::string NotificationsCryptoModule::serializeNotificationsSession(
     std::shared_ptr<crypto::Session> session,
     std::string picklingKey) {
-  crypto::OlmBuffer pickledSessionBytes = session->storeAsB64(picklingKey);
-  std::string pickledSession =
-      std::string{pickledSessionBytes.begin(), pickledSessionBytes.end()};
+  std::string pickledSession = session->storeAsB64(picklingKey);
   folly::dynamic serializedSessionJson = folly::dynamic::object(
       "session", pickledSession)("picklingKey", picklingKey);
   return folly::toJson(serializedSessionJson);
@@ -187,11 +188,9 @@ NotificationsCryptoModule::deserializeNotificationsSession(
   }
 
   std::string pickledSession = serializedSessionJson["session"].asString();
-  crypto::OlmBuffer pickledSessionBytes =
-      crypto::OlmBuffer{pickledSession.begin(), pickledSession.end()};
   std::string picklingKey = serializedSessionJson["picklingKey"].asString();
   std::unique_ptr<crypto::Session> session =
-      crypto::Session::restoreFromB64(picklingKey, pickledSessionBytes);
+      crypto::Session::restoreFromB64(picklingKey, pickledSession);
   return {std::move(session), picklingKey};
 }
 
@@ -548,8 +547,7 @@ NotificationsCryptoModule::prepareLegacyDecryptedState(
   std::string legacyNotificationsAccountPath =
       comm::PlatformSpecificTools::getNotificationsCryptoAccountPath();
 
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   auto cryptoModule = NotificationsCryptoModule::deserializeCryptoModule(
       legacyNotificationsAccountPath, picklingKey.value());
@@ -585,8 +583,7 @@ std::string NotificationsCryptoModule::decrypt(
   std::unique_ptr<crypto::Session> session =
       std::move(sessionWithPicklingKey.value().first);
   std::string picklingKey = sessionWithPicklingKey.value().second;
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   std::string decryptedData = session->decrypt(encryptedData);
   NotificationsCryptoModule::persistNotificationsSessionInternal(
@@ -629,8 +626,7 @@ NotificationsCryptoModule::statefulDecrypt(
   std::unique_ptr<crypto::Session> session =
       std::move(sessionWithPicklingKey.value().first);
   std::string picklingKey = sessionWithPicklingKey.value().second;
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
   std::string decryptedData = session->decrypt(encryptedData);
   StatefulDecryptResult statefulDecryptResult(
       std::move(session), keyserverID, picklingKey, decryptedData);
@@ -651,8 +647,8 @@ NotificationsCryptoModule::statefulPeerDecrypt(
   std::optional<std::pair<std::shared_ptr<crypto::CryptoModule>, std::string>>
       maybeAccountWithPicklingKey;
 
-  if (messageType != OLM_MESSAGE_TYPE_MESSAGE &&
-      messageType != OLM_MESSAGE_TYPE_PRE_KEY) {
+  if (messageType != MESSAGE_TYPE_MESSAGE &&
+      messageType != MESSAGE_TYPE_PREKEY) {
     throw std::runtime_error(
         "Received message of invalid type from device: " + deviceID);
   } else {
@@ -665,32 +661,30 @@ NotificationsCryptoModule::statefulPeerDecrypt(
   }
 
   if (!maybeSessionWithPicklingKey.has_value() &&
-      messageType == OLM_MESSAGE_TYPE_MESSAGE) {
+      messageType == MESSAGE_TYPE_MESSAGE) {
     throw std::runtime_error(
         "Received MESSAGE_TYPE_MESSAGE message from device: " + deviceID +
         " but session not initialized.");
   }
 
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  crypto::EncryptedData encryptedData{data, messageType};
 
   bool isSenderChainEmpty = true;
   bool hasReceivedMessage = false;
   bool sessionExists = maybeSessionWithPicklingKey.has_value();
 
   if (sessionExists) {
-    ::olm::Session *olmSessionAsCppClass = reinterpret_cast<::olm::Session *>(
-        maybeSessionWithPicklingKey.value().first->getOlmSession());
-    isSenderChainEmpty = olmSessionAsCppClass->ratchet.sender_chain.empty();
-    hasReceivedMessage = olmSessionAsCppClass->received_message;
+    isSenderChainEmpty = maybeSessionWithPicklingKey.value()
+                             .first->vodozemacSession->is_sender_chain_empty();
+    hasReceivedMessage = maybeSessionWithPicklingKey.value()
+                             .first->vodozemacSession->has_received_message();
   }
 
   // regular message
-  bool isRegularMessage =
-      sessionExists && messageType == OLM_MESSAGE_TYPE_MESSAGE;
+  bool isRegularMessage = sessionExists && messageType == MESSAGE_TYPE_MESSAGE;
 
   bool isRegularPrekeyMessage = sessionExists &&
-      messageType == OLM_MESSAGE_TYPE_PRE_KEY && isSenderChainEmpty &&
+      messageType == MESSAGE_TYPE_PREKEY && isSenderChainEmpty &&
       hasReceivedMessage;
 
   if (isRegularMessage || isRegularPrekeyMessage) {
@@ -730,7 +724,7 @@ NotificationsCryptoModule::statefulPeerDecrypt(
   auto accountWithPicklingKey = maybeAccountWithPicklingKey.value();
   accountWithPicklingKey.first->initializeInboundForReceivingSession(
       deviceID,
-      {data.begin(), data.end()},
+      encryptedData,
       {notifInboundKeys.begin(), notifInboundKeys.end()},
       // The argument below is relevant for content only
       0,
