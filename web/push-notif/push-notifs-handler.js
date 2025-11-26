@@ -32,7 +32,10 @@ import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
+import {
+  getOlmWasmPath,
+  getVodozemacWasmPath,
+} from '../shared-worker/utils/constants.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function useCreateDesktopPushSubscription() {
@@ -162,6 +165,7 @@ function useCreatePushSubscription(): () => Promise<void> {
 
     workerRegistration.active?.postMessage({
       olmWasmPath: getOlmWasmPath(),
+      vodozemacWasmPath: getVodozemacWasmPath(),
       staffCanSee,
       authMetadata,
     });

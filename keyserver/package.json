@@ -49,6 +49,7 @@
     "@babel/runtime": "^7.28.3",
     "@commapp/olm": "0.2.6",
     "@hono/node-server": "^1.13.7",
+    "@commapp/vodozemac": "0.1.0",
     "@parse/node-apn": "^3.2.0",
     "@vingle/bmp-js": "^0.2.5",
     "bad-words": "^3.0.4",

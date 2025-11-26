@@ -3,7 +3,10 @@
 import { type OlmAPI } from 'lib/types/crypto-types.js';
 
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
-import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
+import {
+  getOlmWasmPath,
+  getVodozemacWasmPath,
+} from '../shared-worker/utils/constants.js';
 import {
   workerRequestMessageTypes,
   workerResponseMessageTypes,
@@ -41,6 +44,7 @@ const olmAPI: OlmAPI = {
     await sharedWorker.schedule({
       type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
       olmWasmPath: getOlmWasmPath(),
+      vodozemacWasmPath: getVodozemacWasmPath(),
     });
   },
   getUserPublicKey: proxyToWorker('getUserPublicKey'),

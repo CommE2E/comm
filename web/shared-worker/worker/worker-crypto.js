@@ -4,6 +4,7 @@ import olm, {
   type Account as OlmAccount,
   type Utility as OlmUtility,
 } from '@commapp/olm';
+import initVodozemac from '@commapp/vodozemac';
 import base64 from 'base-64';
 import localforage from 'localforage';
 import uuid from 'uuid';
@@ -354,6 +355,7 @@ function unpickleInitialCryptoStoreAccount(
 
 async function initializeCryptoAccount(
   olmWasmPath: string,
+  vodozemacWasmPath: string,
   initialCryptoStore: ?LegacyCryptoStore,
 ) {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -361,7 +363,7 @@ async function initializeCryptoAccount(
     throw new Error('Database not initialized');
   }
 
-  await olm.init({ locateFile: () => olmWasmPath });
+  await initVodozemac(vodozemacWasmPath);
 
   if (initialCryptoStore) {
     clearCryptoStore();
@@ -392,6 +394,7 @@ async function processAppOlmApiRequest(
   if (message.type === workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT) {
     await initializeCryptoAccount(
       message.olmWasmPath,
+      message.vodozemacWasmPath,
       message.initialCryptoStore,
     );
     verifyMemoryUsage('INITIALIZE_CRYPTO_ACCOUNT');

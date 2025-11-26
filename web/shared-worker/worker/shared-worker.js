@@ -1,5 +1,6 @@
 // @flow
 
+import initVodozemac from '@commapp/vodozemac';
 import localforage from 'localforage';
 
 import {
@@ -53,6 +54,7 @@ import {
   DEFAULT_BACKUP_CLIENT_FILENAME,
   SQLITE_RESTORE_DATABASE_PATH,
   RESTORED_SQLITE_CONTENT,
+  DEFAULT_VODOZEMAC_FILENAME,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -180,6 +182,20 @@ async function initBackupClient(
   await initBackupClientModule(modulePath);
 }
 
+async function initVodozemacModule(
+  webworkerModulesFilePath: string,
+  vodozemacFilename: ?string,
+) {
+  let modulePath;
+  if (vodozemacFilename) {
+    modulePath = `${webworkerModulesFilePath}/${vodozemacFilename}`;
+  } else {
+    modulePath = `${webworkerModulesFilePath}/${DEFAULT_VODOZEMAC_FILENAME}`;
+  }
+  console.log(modulePath);
+  await initVodozemac(modulePath);
+}
+
 async function persist() {
   persistInProgress = true;
   const mainQueryExecutor = getSQLiteQueryExecutor();
@@ -285,6 +301,10 @@ async function processAppRequest(
         message.webworkerModulesFilePath,
         message.commQueryExecutorFilename,
         message.encryptionKey,
+      ),
+      initVodozemacModule(
+        message.webworkerModulesFilePath,
+        message.vodozemacFilename,
       ),
     ];
     if (message.backupClientFilename !== undefined) {
