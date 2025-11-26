@@ -169,6 +169,7 @@ export type LegacyCryptoStore = {
 export type InitializeCryptoAccountRequestMessage = {
   +type: 12,
   +olmWasmPath: string,
+  +vodozemacWasmPath: string,
   +initialCryptoStore?: LegacyCryptoStore,
 };
 

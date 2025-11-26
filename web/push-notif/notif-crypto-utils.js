@@ -2,6 +2,7 @@
 
 import olm from '@commapp/olm';
 import type { EncryptResult } from '@commapp/olm';
+import initVodozemac from '@commapp/vodozemac';
 import invariant from 'invariant';
 import localforage from 'localforage';
 import uuid from 'uuid';
@@ -37,8 +38,8 @@ import {
   encryptedAESDataValidator,
   extendedCryptoKeyValidator,
 } from '../crypto/aes-gcm-crypto-utils.js';
-import { initOlm } from '../olm/olm-utils.js';
 import {
+  getVodozemacWasmPath,
   NOTIFICATIONS_OLM_DATA_CONTENT,
   NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
 } from '../shared-worker/utils/constants.js';
@@ -52,6 +53,7 @@ export type WebNotifDecryptionError = {
 
 export type WebNotifsServiceUtilsData = {
   +olmWasmPath: string,
+  +vodozemacWasmPath: ?string,
   +staffCanSee: boolean,
 };
 
@@ -366,10 +368,11 @@ async function decryptWebNotification(
     WEB_NOTIFS_SERVICE_UTILS_KEY,
   );
 
-  if (!utilsData) {
+  if (!utilsData || !utilsData.vodozemacWasmPath) {
     return { id, error: 'Necessary data not found in IndexedDB' };
   }
-  const { olmWasmPath, staffCanSee } = (utilsData: WebNotifsServiceUtilsData);
+  const { vodozemacWasmPath, staffCanSee } =
+    (utilsData: WebNotifsServiceUtilsData);
 
   let notifsAccountWithOlmData;
   try {
@@ -404,7 +407,7 @@ async function decryptWebNotification(
         encryptedOlmAccount,
         accountEncryptionKey,
       ),
-      olm.init({ locateFile: () => olmWasmPath }),
+      initVodozemac(vodozemacWasmPath),
     ]);
 
     let decryptedNotification;
@@ -517,7 +520,7 @@ async function decryptDesktopNotification(
   try {
     [notifsAccountWithOlmData] = await Promise.all([
       getNotifsAccountWithOlmData(senderDeviceDescriptor),
-      initOlm(),
+      initVodozemac(getVodozemacWasmPath()),
     ]);
   } catch (e) {
     return {
