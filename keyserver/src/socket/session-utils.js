@@ -28,6 +28,8 @@ import {
   type ServerCheckStateServerRequest,
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
+import { identityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
 import { hash, values } from 'lib/utils/objects.js';
 import { getOlmUtility } from 'lib/utils/olm-utility.js';
 import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
@@ -40,6 +42,7 @@ import {
   setCookiePlatform,
   setCookiePlatformDetails,
   setCookieSignedIdentityKeysBlob,
+  getSignedIdentityKeysBlobFromCookiesTable,
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
 import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
@@ -151,10 +154,23 @@ async function processClientResponses(
       );
       const { initialNotificationsEncryptedMessage } = clientResponse;
       try {
+        const signedIdentityKeysBlob =
+          await getSignedIdentityKeysBlobFromCookiesTable(viewer.cookieID);
+        if (!signedIdentityKeysBlob) {
+          continue;
+        }
+        const identityKeys: IdentityKeysBlob = JSON.parse(
+          signedIdentityKeysBlob,
+        );
+        if (!identityKeysBlobValidator.is(identityKeys)) {
+          throw new ServerError('invalid_identity_keys_blob');
+        }
+
         await createAndPersistOlmSession(
           initialNotificationsEncryptedMessage,
           'notifications',
           viewer.cookieID,
+          identityKeys.notificationIdentityPublicKeys.curve25519,
         );
       } catch (e) {
         continue;
