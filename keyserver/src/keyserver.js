@@ -13,8 +13,10 @@ import fetch from 'node-fetch';
 import os from 'os';
 import qrcode from 'qrcode';
 import stoppable from 'stoppable';
+import init, { Account } from 'vodozemac';
 
 import './cron/cron.js';
+
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { identityDeviceTypes } from 'lib/types/identity-service-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
@@ -77,6 +79,10 @@ void (async () => {
     initENSCache(),
     initFCCache(),
   ]);
+
+  await init();
+  const a = new Account();
+  console.log(a);
 
   const keyserverURLFacts = getKeyserverURLFacts();
   const keyserverBaseRoutePath = keyserverURLFacts?.baseRoutePath;

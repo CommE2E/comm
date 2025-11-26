@@ -150,11 +150,13 @@ async function processClientResponses(
         'initialNotificationsEncryptedMessage expected in client response',
       );
       const { initialNotificationsEncryptedMessage } = clientResponse;
+      //TODO: get from cookies table?
       try {
         await createAndPersistOlmSession(
           initialNotificationsEncryptedMessage,
           'notifications',
           viewer.cookieID,
+          '',
         );
       } catch (e) {
         continue;

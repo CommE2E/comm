@@ -29,6 +29,7 @@ declare class PushEvent extends ExtendableEvent {
 declare class CommAppMessage extends ExtendableEvent {
   +data: {
     +olmWasmPath?: string,
+    +vodozemacWasmPath?: string,
     +staffCanSee?: boolean,
     +authMetadata?: AuthMetadata,
   };
@@ -71,14 +72,21 @@ self.addEventListener('message', (event: CommAppMessage) => {
   localforage.config(localforageConfig);
   event.waitUntil(
     (async () => {
-      const { olmWasmPath, staffCanSee, authMetadata } = event.data;
+      const { olmWasmPath, vodozemacWasmPath, staffCanSee, authMetadata } =
+        event.data;
 
-      if (!olmWasmPath || staffCanSee === undefined || !authMetadata) {
+      if (
+        !olmWasmPath ||
+        !vodozemacWasmPath ||
+        staffCanSee === undefined ||
+        !authMetadata
+      ) {
         return;
       }
 
       const webNotifsServiceUtils: WebNotifsServiceUtilsData = {
         olmWasmPath: olmWasmPath,
+        vodozemacWasmPath: vodozemacWasmPath,
         staffCanSee: staffCanSee,
       };
 

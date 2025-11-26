@@ -1,10 +1,10 @@
 // @flow
 
-import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { SiweErrorType, SiweMessage } from 'siwe';
 import t, { type TInterface } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
+import type { Utility as OlmUtility } from 'vodozemac';
 
 import {
   baseLegalPolicies,
@@ -292,9 +292,16 @@ async function processSuccessfulLogin(
   // to avoid propagating a user cookie in case session creation fails
   const olmNotifSession = await (async () => {
     if (initialNotificationsEncryptedMessage && signedIdentityKeysBlob) {
+      const identityKeys: IdentityKeysBlob = JSON.parse(
+        signedIdentityKeysBlob.payload,
+      );
+      if (!identityKeysBlobValidator.is(identityKeys)) {
+        throw new ServerError('invalid_identity_keys_blob');
+      }
       return await createOlmSession(
         initialNotificationsEncryptedMessage,
         'notifications',
+        identityKeys.notificationIdentityPublicKeys.curve25519,
       );
     }
     return null;

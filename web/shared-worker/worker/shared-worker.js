@@ -1,6 +1,7 @@
 // @flow
 
 import localforage from 'localforage';
+import initVodozemac, { Account } from 'vodozemac';
 
 import {
   databaseIdentifier,
@@ -53,6 +54,7 @@ import {
   DEFAULT_BACKUP_CLIENT_FILENAME,
   SQLITE_RESTORE_DATABASE_PATH,
   RESTORED_SQLITE_CONTENT,
+  DEFAULT_VODOZEMAC_FILENAME,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -294,6 +296,35 @@ async function processAppRequest(
           message.backupClientFilename,
         ),
       );
+    }
+
+    async function initVodozemacModule(
+      webworkerModulesFilePath: string,
+      vodozemacFilename: ?string,
+    ) {
+      let modulePath;
+      if (vodozemacFilename) {
+        modulePath = `${webworkerModulesFilePath}/${vodozemacFilename}`;
+      } else {
+        modulePath = `${webworkerModulesFilePath}/${DEFAULT_VODOZEMAC_FILENAME}`;
+      }
+      console.log(modulePath);
+      return await initVodozemac(modulePath);
+    }
+
+    console.log(message);
+
+    if (message.vodozemacFilename !== undefined) {
+      console.log('A');
+      // Let the init function handle WASM loading with its default behavior
+      const a = await initVodozemacModule(
+        message.webworkerModulesFilePath,
+        message.vodozemacFilename,
+      );
+      console.log(a);
+      console.log('B');
+      const x = new Account();
+      console.log(x);
     }
     await Promise.all(promises);
     return undefined;

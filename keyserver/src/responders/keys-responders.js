@@ -1,6 +1,6 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
+import type { Account as OlmAccount } from 'vodozemac';
 
 import type {
   OlmSessionInitializationInfo,
@@ -18,9 +18,13 @@ type SessionInitializationKeysSet = {
 function retrieveSessionInitializationKeysSet(
   account: OlmAccount,
 ): SessionInitializationKeysSet {
-  const identityKeys = account.identity_keys();
+  const identityKeys = JSON.stringify({
+    ed25519: account.ed25519_key,
+    curve25519: account.curve25519_key,
+  });
 
-  const prekey = account.prekey();
+  //TODO
+  const prekey = account.prekey() ?? '';
   const prekeySignature = account.prekey_signature();
 
   if (!prekeySignature) {
@@ -28,7 +32,8 @@ function retrieveSessionInitializationKeysSet(
   }
 
   account.generate_one_time_keys(1);
-  const oneTimeKey = account.one_time_keys();
+  //CHECK THIS
+  const oneTimeKey = '';
   account.mark_keys_as_published();
 
   return { identityKeys, oneTimeKey, prekey, prekeySignature };

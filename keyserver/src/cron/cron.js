@@ -1,9 +1,9 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
 import olm from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
+import type { Account as OlmAccount } from 'vodozemac';
 
 import {
   getOlmMemory,

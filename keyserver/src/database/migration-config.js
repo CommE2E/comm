@@ -1,7 +1,7 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
 import fs from 'fs';
+import type { Account as OlmAccount } from 'vodozemac';
 
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';

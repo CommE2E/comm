@@ -25,6 +25,7 @@ import {
 declare var baseURL: string;
 declare var commQueryExecutorFilename: string;
 declare var backupClientFilename: string;
+declare var vodozemacFilename: string;
 
 const sharedWorkerStatuses = Object.freeze({
   NOT_RUNNING: 'NOT_RUNNING',
@@ -107,6 +108,7 @@ class CommSharedWorker {
           encryptionKey,
           commQueryExecutorFilename,
           backupClientFilename,
+          vodozemacFilename,
         });
         this.status = { type: sharedWorkerStatuses.INIT_SUCCESS };
         console.info('Database initialization success');
