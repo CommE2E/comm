@@ -11,7 +11,7 @@ import { createPickledOlmSession } from '../utils/olm-objects.js';
 async function createOlmSession(
   initialEncryptedMessage: string,
   olmSessionType: 'content' | 'notifications',
-  theirCurve25519Key?: string,
+  theirCurve25519Key: string,
 ): Promise<string> {
   const callback = (account: OlmAccount, picklingKey: string) =>
     createPickledOlmSession(
@@ -52,7 +52,7 @@ async function createAndPersistOlmSession(
   initialEncryptedMessage: string,
   olmSessionType: 'content' | 'notifications',
   cookieID: string,
-  theirCurve25519Key?: string,
+  theirCurve25519Key: string,
 ): Promise<void> {
   const pickledOlmSession = await createOlmSession(
     initialEncryptedMessage,

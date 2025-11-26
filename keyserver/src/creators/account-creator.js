@@ -13,10 +13,12 @@ import type {
 import type {
   UserDetail,
   ReservedUsernameMessage,
+  IdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { identityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
@@ -91,10 +93,18 @@ async function createAccount(
   // Olm sessions have to be created before createNewUserCookie is called,
   // to avoid propagating a user cookie in case session creation fails
   const olmNotifSession = await (async () => {
-    if (initialNotificationsEncryptedMessage) {
+    if (initialNotificationsEncryptedMessage && signedIdentityKeysBlob) {
+      const identityKeys: IdentityKeysBlob = JSON.parse(
+        signedIdentityKeysBlob.payload,
+      );
+      if (!identityKeysBlobValidator.is(identityKeys)) {
+        throw new ServerError('invalid_identity_keys_blob');
+      }
+
       return await createOlmSession(
         initialNotificationsEncryptedMessage,
         'notifications',
+        identityKeys.notificationIdentityPublicKeys.curve25519,
       );
     }
     return null;

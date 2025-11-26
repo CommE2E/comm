@@ -741,6 +741,18 @@ async function isCookieMissingSignedIdentityKeysBlob(
   );
 }
 
+async function getSignedIdentityKeysBlobFromCookiesTable(
+  cookieID: string,
+): Promise<?string> {
+  const query = SQL`
+    SELECT signed_identity_keys
+    FROM cookies 
+    WHERE id = ${cookieID}
+  `;
+  const [queryResult] = await dbQuery(query);
+  return queryResult[0]?.signed_identity_keys;
+}
+
 async function isCookieMissingOlmNotificationsSession(
   viewer: Viewer,
 ): Promise<boolean> {
@@ -823,4 +835,5 @@ export {
   setCookiePlatform,
   setCookiePlatformDetails,
   isCookieMissingOlmNotificationsSession,
+  getSignedIdentityKeysBlobFromCookiesTable,
 };
