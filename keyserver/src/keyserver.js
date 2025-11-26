@@ -1,6 +1,5 @@
 // @flow
 
-import olm from '@commapp/olm';
 import cluster from 'cluster';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -13,6 +12,7 @@ import fetch from 'node-fetch';
 import os from 'os';
 import qrcode from 'qrcode';
 import stoppable from 'stoppable';
+import initVodozemac from 'vodozemac';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
@@ -72,7 +72,7 @@ const shouldDisplayQRCodeInTerminal = false;
 void (async () => {
   const [webAppCorsConfig] = await Promise.all([
     getWebAppCorsConfig(),
-    olm.init(),
+    initVodozemac(),
     prefetchAllURLFacts(),
     initENSCache(),
     initFCCache(),

@@ -15,6 +15,7 @@ export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm-query-executor.wasm';
 export const DEFAULT_BACKUP_CLIENT_FILENAME = 'backup-client-wasm_bg.wasm';
 
 export const DEFAULT_OLM_FILENAME = 'olm.wasm';
+export const DEFAULT_VODOZEMAC_FILENAME = 'vodozemac_bg.wasm';
 
 export const DEFAULT_WEBWORKERS_OPAQUE_FILENAME = 'comm_opaque2_wasm_bg.wasm';
 
@@ -68,4 +69,14 @@ export function getOpaqueWasmPath(): string {
     ? webworkersOpaqueFilename
     : DEFAULT_WEBWORKERS_OPAQUE_FILENAME;
   return `${opaqueWasmDirPath}/${opaqueWasmFilename}`;
+}
+
+declare var vodozemacFilename: string;
+export function getVodozemacWasmPath(): string {
+  const origin = window.location.origin;
+  const vodozemacWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
+  const vodozemacWasmFilename = vodozemacFilename
+    ? vodozemacFilename
+    : DEFAULT_VODOZEMAC_FILENAME;
+  return `${vodozemacWasmDirPath}/${vodozemacWasmFilename}`;
 }

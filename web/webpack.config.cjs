@@ -137,6 +137,14 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
+        from: 'node_modules/vodozemac/wasm/vodozemac_bg.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
         from: 'backup-client-wasm/wasm/backup-client-wasm_bg.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
@@ -177,6 +185,19 @@ const prodWebWorkersPlugins = [
           'dist',
           'webworkers',
           'olm.[contenthash:12].wasm',
+        ),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'node_modules/vodozemac/wasm/vodozemac_bg.wasm',
+        to: path.join(
+          __dirname,
+          'dist',
+          'webworkers',
+          'vodozemac.[contenthash:12].wasm',
         ),
       },
     ],

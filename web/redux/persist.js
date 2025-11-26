@@ -86,7 +86,10 @@ import type { AppState } from './redux-setup.js';
 import { legacyUnshimClientDB, unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
-import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
+import {
+  getOlmWasmPath,
+  getVodozemacWasmPath,
+} from '../shared-worker/utils/constants.js';
 import { isSQLiteSupported } from '../shared-worker/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
@@ -341,6 +344,7 @@ const legacyMigrations = {
     await sharedWorker.schedule({
       type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
       olmWasmPath: getOlmWasmPath(),
+      vodozemacWasmPath: getVodozemacWasmPath(),
       initialCryptoStore: cryptoStore,
     });
     return rest;
