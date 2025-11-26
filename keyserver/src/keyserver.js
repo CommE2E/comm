@@ -13,6 +13,7 @@ import fetch from 'node-fetch';
 import os from 'os';
 import qrcode from 'qrcode';
 import stoppable from 'stoppable';
+import initVodozemac from 'vodozemac';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
@@ -76,6 +77,7 @@ void (async () => {
     prefetchAllURLFacts(),
     initENSCache(),
     initFCCache(),
+    initVodozemac(),
   ]);
 
   const keyserverURLFacts = getKeyserverURLFacts();
