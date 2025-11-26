@@ -97,20 +97,16 @@ async function createPickledOlmSession(
   account: OlmAccount,
   accountPicklingKey: string,
   initialEncryptedMessage: string,
-  theirCurve25519Key?: string,
+  theirCurve25519Key: string,
 ): Promise<string> {
   await olm.init();
   const session = new olm.Session();
 
-  if (theirCurve25519Key) {
-    session.create_inbound_from(
-      account,
-      theirCurve25519Key,
-      initialEncryptedMessage,
-    );
-  } else {
-    session.create_inbound(account, initialEncryptedMessage);
-  }
+  session.create_inbound_from(
+    account,
+    theirCurve25519Key,
+    initialEncryptedMessage,
+  );
 
   account.remove_one_time_keys(session);
   session.decrypt(olmEncryptedMessageTypes.PREKEY, initialEncryptedMessage);
