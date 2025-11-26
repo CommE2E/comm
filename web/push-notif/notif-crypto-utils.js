@@ -5,6 +5,7 @@ import type { EncryptResult } from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
 import uuid from 'uuid';
+import initVodozemac from 'vodozemac';
 
 import {
   olmEncryptedMessageTypes,
@@ -52,6 +53,7 @@ export type WebNotifDecryptionError = {
 
 export type WebNotifsServiceUtilsData = {
   +olmWasmPath: string,
+  +vodozemacWasmPath: string,
   +staffCanSee: boolean,
 };
 
@@ -369,7 +371,8 @@ async function decryptWebNotification(
   if (!utilsData) {
     return { id, error: 'Necessary data not found in IndexedDB' };
   }
-  const { olmWasmPath, staffCanSee } = (utilsData: WebNotifsServiceUtilsData);
+  const { vodozemacWasmPath, staffCanSee } =
+    (utilsData: WebNotifsServiceUtilsData);
 
   let notifsAccountWithOlmData;
   try {
@@ -404,7 +407,7 @@ async function decryptWebNotification(
         encryptedOlmAccount,
         accountEncryptionKey,
       ),
-      olm.init({ locateFile: () => olmWasmPath }),
+      initVodozemac(vodozemacWasmPath),
     ]);
 
     let decryptedNotification;
