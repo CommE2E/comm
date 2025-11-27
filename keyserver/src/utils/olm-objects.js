@@ -1,13 +1,20 @@
 // @flow
 
-import olm, {
+import {
   type Account as OlmAccount,
+  Account,
+  OlmMessage,
   type Session as OlmSession,
-} from '@commapp/olm';
+} from '@commapp/vodozemac';
 import uuid from 'uuid';
 
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import {
+  getVodozemacPickleKey,
+  unpickleVodozemacAccount,
+  unpickleVodozemacSession,
+} from 'lib/utils/vodozemac-utils.js';
 
 import { getMessageForException } from '../responders/utils.js';
 
@@ -20,16 +27,12 @@ async function unpickleAccountAndUseCallback<T>(
   pickledOlmAccount: PickledOlmAccount,
   callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
 ): Promise<{ +result: T, +pickledOlmAccount: PickledOlmAccount }> {
-  const { picklingKey, pickledAccount } = pickledOlmAccount;
-
-  await olm.init();
-
-  const account = new olm.Account();
-  account.unpickle(picklingKey, pickledAccount);
+  const { picklingKey } = pickledOlmAccount;
+  const account = unpickleVodozemacAccount(pickledOlmAccount);
 
   try {
     const result = await callback(account, picklingKey);
-    const updatedAccount = account.pickle(picklingKey);
+    const updatedAccount = account.pickle(getVodozemacPickleKey(picklingKey));
     return {
       result,
       pickledOlmAccount: {
@@ -45,14 +48,10 @@ async function unpickleAccountAndUseCallback<T>(
 }
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
-  await olm.init();
-
-  const account = new olm.Account();
-  account.create();
+  const account = new Account();
 
   const picklingKey = uuid.v4();
-  const pickledAccount = account.pickle(picklingKey);
-
+  const pickledAccount = account.pickle(getVodozemacPickleKey(picklingKey));
   account.free();
 
   return {
@@ -69,16 +68,12 @@ async function unpickleSessionAndUseCallback<T>(
   pickledOlmSession: PickledOlmSession,
   callback: (session: OlmSession) => Promise<T> | T,
 ): Promise<{ +result: T, +pickledOlmSession: PickledOlmSession }> {
-  const { picklingKey, pickledSession } = pickledOlmSession;
-
-  await olm.init();
-
-  const session = new olm.Session();
-  session.unpickle(picklingKey, pickledSession);
+  const { picklingKey } = pickledOlmSession;
+  const session = unpickleVodozemacSession(pickledOlmSession);
 
   try {
     const result = await callback(session);
-    const updatedSession = session.pickle(picklingKey);
+    const updatedSession = session.pickle(getVodozemacPickleKey(picklingKey));
     return {
       result,
       pickledOlmSession: {
@@ -99,19 +94,20 @@ async function createPickledOlmSession(
   initialEncryptedMessage: string,
   theirCurve25519Key: string,
 ): Promise<string> {
-  await olm.init();
-  const session = new olm.Session();
-
-  session.create_inbound_from(
-    account,
-    theirCurve25519Key,
+  const olmMessage = new OlmMessage(
+    olmEncryptedMessageTypes.PREKEY,
     initialEncryptedMessage,
   );
-
-  account.remove_one_time_keys(session);
-  session.decrypt(olmEncryptedMessageTypes.PREKEY, initialEncryptedMessage);
-  const pickledSession = session.pickle(accountPicklingKey);
-
+  const inboundCreationResult = account.create_inbound_session(
+    theirCurve25519Key,
+    olmMessage,
+  );
+  // into_session() is consuming object.
+  // There is no need to call free() on inboundCreationResult
+  const session = inboundCreationResult.into_session();
+  const pickledSession = session.pickle(
+    getVodozemacPickleKey(accountPicklingKey),
+  );
   session.free();
 
   return pickledSession;

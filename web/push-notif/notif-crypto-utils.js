@@ -1,8 +1,9 @@
 // @flow
 
-import olm from '@commapp/olm';
-import type { EncryptResult } from '@commapp/olm';
-import initVodozemac from '@commapp/vodozemac';
+import initVodozemac, {
+  OlmMessage,
+  type Account as VodozemacAccount,
+} from '@commapp/vodozemac';
 import invariant from 'invariant';
 import localforage from 'localforage';
 import uuid from 'uuid';
@@ -14,6 +15,7 @@ import {
   type OlmEncryptedMessageTypes,
 } from 'lib/types/crypto-types.js';
 import { olmEncryptedMessageTypesValidator } from 'lib/types/crypto-types.js';
+import type { EncryptResult } from 'lib/types/encrypted-type.js';
 import type {
   PlainTextWebNotification,
   EncryptedWebNotification,
@@ -23,6 +25,11 @@ import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
+import {
+  getVodozemacPickleKey,
+  unpickleVodozemacAccount,
+  unpickleVodozemacSession,
+} from 'lib/utils/vodozemac-utils.js';
 
 import {
   fetchAuthMetadata,
@@ -58,7 +65,7 @@ export type WebNotifsServiceUtilsData = {
 };
 
 export type NotificationAccountWithPicklingKey = {
-  +notificationAccount: olm.Account,
+  +notificationAccount: VodozemacAccount,
   +picklingKey: string,
   +synchronizationValue: ?string,
   +accountEncryptionKey?: CryptoKey,
@@ -723,11 +730,10 @@ async function commonPeerDecrypt<T>(
 
   if (notificationsOlmData) {
     // Memory is freed below in this condition.
-    const session = new olm.Session();
-    session.unpickle(
-      notificationsOlmData.picklingKey,
-      notificationsOlmData.pendingSessionUpdate,
-    );
+    const session = unpickleVodozemacSession({
+      picklingKey: notificationsOlmData.picklingKey,
+      pickledSession: notificationsOlmData.pendingSessionUpdate,
+    });
 
     isSenderChainEmpty = session.is_sender_chain_empty();
     hasReceivedMessage = session.has_received_message();
@@ -762,14 +768,12 @@ async function commonPeerDecrypt<T>(
   );
 
   // Memory is freed below after pickling.
-  const account = new olm.Account();
-  const session = new olm.Session();
+  let account;
+  let session;
+  let decryptedNotification: T;
 
   try {
-    account.unpickle(
-      notificationAccount.picklingKey,
-      notificationAccount.pickledAccount,
-    );
+    account = unpickleVodozemacAccount(notificationAccount);
 
     if (notifInboundKeys.error) {
       throw new Error(notifInboundKeys.error);
@@ -780,20 +784,26 @@ async function commonPeerDecrypt<T>(
       'curve25519 must be present in notifs inbound keys',
     );
 
-    session.create_inbound_from(
-      account,
+    const olmMessage = new OlmMessage(messageType, encryptedPayload);
+    const inboundCreationResult = account.create_inbound_session(
       notifInboundKeys.curve25519,
-      encryptedPayload,
+      olmMessage,
     );
 
-    account.remove_one_time_keys(session);
+    const decryptedString = inboundCreationResult.plaintext;
+    // into_session() is consuming object.
+    // There is no need to call free() on inboundCreationResult
+    session = inboundCreationResult.into_session();
+    olmMessage.free();
 
-    const decryptedNotification: T = JSON.parse(
-      session.decrypt(messageType, encryptedPayload),
+    decryptedNotification = JSON.parse(decryptedString);
+
+    const pickledOlmSession = session.pickle(
+      getVodozemacPickleKey(notificationAccount.picklingKey),
     );
-
-    const pickledOlmSession = session.pickle(notificationAccount.picklingKey);
-    const pickledAccount = account.pickle(notificationAccount.picklingKey);
+    const pickledAccount = account.pickle(
+      getVodozemacPickleKey(notificationAccount.picklingKey),
+    );
 
     // session reset attempt or session initialization - handled the same
     const sessionResetAttempt =
@@ -834,8 +844,8 @@ async function commonPeerDecrypt<T>(
     // any session state
     return { decryptedNotification };
   } finally {
-    session.free();
-    account.free();
+    session?.free();
+    account?.free();
   }
 }
 
@@ -846,12 +856,16 @@ function decryptWithSession<T>(
   type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> {
   // Memory is freed below after pickling.
-  const session = new olm.Session();
-  session.unpickle(picklingKey, pickledSession);
-  const decryptedNotification: T = JSON.parse(
-    session.decrypt(type, encryptedPayload),
+  const session = unpickleVodozemacSession({ picklingKey, pickledSession });
+
+  const olmMessage = new OlmMessage(type, encryptedPayload);
+  const decryptedString = session.decrypt(olmMessage);
+  olmMessage.free();
+
+  const decryptedNotification: T = JSON.parse(decryptedString);
+  const newPendingSessionUpdate = session.pickle(
+    getVodozemacPickleKey(picklingKey),
   );
-  const newPendingSessionUpdate = session.pickle(picklingKey);
   session.free();
 
   const newUpdateCreationTimestamp = Date.now();
@@ -970,10 +984,22 @@ async function encryptNotificationWithOlmSession(
   );
 
   // Memory is freed below after pickling.
-  const session = new olm.Session();
-  session.unpickle(picklingKey, pendingSessionUpdate);
-  const encryptedNotification = session.encrypt(payload);
-  const newPendingSessionUpdate = session.pickle(picklingKey);
+
+  const session = unpickleVodozemacSession({
+    picklingKey,
+    pickledSession: pendingSessionUpdate,
+  });
+
+  const olmMessage = session.encrypt(payload);
+  const encryptedNotification = {
+    body: olmMessage.ciphertext,
+    type: olmMessage.message_type,
+  };
+  olmMessage.free();
+
+  const newPendingSessionUpdate = session.pickle(
+    getVodozemacPickleKey(picklingKey),
+  );
   session.free();
 
   const updatedOlmData: NotificationsOlmDataType = {
@@ -1040,10 +1066,9 @@ async function getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT(): Promise<N
     validatedNotifsAccountEncryptionKey,
   );
 
-  const { pickledAccount, picklingKey } = pickledOLMAccount;
+  const { picklingKey } = pickledOLMAccount;
 
-  const notificationAccount = new olm.Account();
-  notificationAccount.unpickle(picklingKey, pickledAccount);
+  const notificationAccount = unpickleVodozemacAccount(pickledOLMAccount);
 
   return {
     notificationAccount,

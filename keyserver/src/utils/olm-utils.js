@@ -1,9 +1,8 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
+import { type Account as OlmAccount } from '@commapp/vodozemac';
 import invariant from 'invariant';
 
-import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
@@ -134,16 +133,12 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
   await Promise.all([
     fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
       contentAccount.generate_one_time_keys(numberOfKeys);
-      contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
-        contentAccount.one_time_keys(),
-      );
+      contentOneTimeKeys = [...contentAccount.one_time_keys().values()];
       contentAccount.mark_keys_as_published();
     }),
     fetchCallUpdateOlmAccount('notifications', (notifAccount: OlmAccount) => {
       notifAccount.generate_one_time_keys(numberOfKeys);
-      notifOneTimeKeys = getOneTimeKeyValuesFromBlob(
-        notifAccount.one_time_keys(),
-      );
+      notifOneTimeKeys = [...notifAccount.one_time_keys().values()];
       notifAccount.mark_keys_as_published();
     }),
   ]);
@@ -164,7 +159,7 @@ async function getContentSigningKey(): Promise<string> {
   const pickledOlmAccount = await fetchPickledOlmAccount('content');
   const getAccountEd25519Key: (account: OlmAccount) => string = (
     account: OlmAccount,
-  ) => JSON.parse(account.identity_keys()).ed25519;
+  ) => account.ed25519_key;
 
   const { result } = await unpickleAccountAndUseCallback(
     pickledOlmAccount,
@@ -211,7 +206,7 @@ async function publishPrekeysToIdentity(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
 ): Promise<void> {
-  const deviceID = JSON.parse(contentAccount.identity_keys()).ed25519;
+  const deviceID = contentAccount.ed25519_key;
 
   const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
     getAccountPrekeysSet(contentAccount);
