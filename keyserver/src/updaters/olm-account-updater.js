@@ -1,6 +1,6 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
+import { type Account as OlmAccount } from '@commapp/vodozemac';
 
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
