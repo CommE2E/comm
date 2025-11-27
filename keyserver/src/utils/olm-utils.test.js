@@ -2,8 +2,6 @@
 
 import olm from '@commapp/olm';
 
-import { getOlmUtility } from 'lib/utils/olm-utility.js';
-
 describe('olm.Account', () => {
   const alphabet =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ';
@@ -219,12 +217,6 @@ describe('olm.Account', () => {
 
     return true;
   };
-
-  it('should get Olm Utility', async () => {
-    await olm.init();
-    const utility = getOlmUtility();
-    expect(utility).toBeDefined();
-  });
 
   it('should generate, regenerate, forget, and publish prekey', async () => {
     await olm.init();

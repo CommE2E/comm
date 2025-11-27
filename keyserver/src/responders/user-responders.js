@@ -1,10 +1,10 @@
 // @flow
 
-import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { SiweErrorType, SiweMessage } from 'siwe';
 import t, { type TInterface } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
+import type { Utility as OlmUtility } from 'vodozemac';
 
 import {
   baseLegalPolicies,

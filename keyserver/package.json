@@ -118,7 +118,7 @@
       ]
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@babel/runtime)"
+      "/node_modules/(?!(@babel/runtime|vodozemac))"
     ],
     "setupFiles": [
       "<rootDir>/jest-setup.js"

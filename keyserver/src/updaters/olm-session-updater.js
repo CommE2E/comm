@@ -1,7 +1,8 @@
 // @flow
 
-import type { EncryptResult, Session as OlmSession } from '@commapp/olm';
+import type { Session as OlmSession } from 'vodozemac';
 
+import type { EncryptResult } from 'lib/types/encrypted-type.js';
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
@@ -56,9 +57,11 @@ async function encryptAndUpdateOlmSession(
       },
       (olmSession: OlmSession) => {
         for (const messageName in messagesToEncrypt) {
-          encryptedMessages[messageName] = olmSession.encrypt(
-            messagesToEncrypt[messageName],
-          );
+          const olmMessage = olmSession.encrypt(messagesToEncrypt[messageName]);
+          encryptedMessages[messageName] = {
+            type: olmMessage.message_type,
+            body: olmMessage.ciphertext,
+          };
         }
       },
     );
