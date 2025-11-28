@@ -238,7 +238,8 @@ int CryptoModule::initializeOutboundForSendingSession(
     const std::string &idKeys,
     const std::string &preKeys,
     const std::string &preKeySignature,
-    const std::optional<std::string> &oneTimeKey) {
+    const std::optional<std::string> &oneTimeKey,
+    bool olmCompatibilityMode) {
   int newSessionVersion = 1;
   if (this->hasSessionFor(targetDeviceId)) {
     std::shared_ptr<Session> existingSession =
@@ -256,7 +257,7 @@ int CryptoModule::initializeOutboundForSendingSession(
       preKeys,
       preKeySignature,
       oneTimeKey,
-      true); // olmCompatibilityMode = true
+      olmCompatibilityMode);
 
   newSession->setVersion(newSessionVersion);
   this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));

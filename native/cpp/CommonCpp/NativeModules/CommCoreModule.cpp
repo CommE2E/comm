@@ -1152,7 +1152,8 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::String prekey,
     jsi::String prekeySignature,
     std::optional<jsi::String> oneTimeKey,
-    jsi::String keyserverID) {
+    jsi::String keyserverID,
+    bool olmCompatibilityMode) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
@@ -1181,7 +1182,8 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
                     identityKeysCpp,
                     prekeyCpp,
                     prekeySignatureCpp,
-                    oneTimeKeyCpp);
+                    oneTimeKeyCpp,
+                    olmCompatibilityMode);
 
             result = notifsCryptoModuleWithPicklingKey.value().first->encrypt(
                 keyserverIDCpp,
@@ -1526,7 +1528,8 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::String prekey,
     jsi::String prekeySignature,
     std::optional<jsi::String> oneTimeKey,
-    jsi::String deviceID) {
+    jsi::String deviceID,
+    bool olmCompatibilityMode) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
@@ -1550,7 +1553,8 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
                     identityKeysCpp,
                     prekeyCpp,
                     prekeySignatureCpp,
-                    oneTimeKeyCpp);
+                    oneTimeKeyCpp,
+                    olmCompatibilityMode);
 
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedData =
@@ -1667,7 +1671,8 @@ jsi::Value CommCoreModule::initializeNotificationsOutboundSession(
     jsi::String prekey,
     jsi::String prekeySignature,
     std::optional<jsi::String> oneTimeKey,
-    jsi::String deviceID) {
+    jsi::String deviceID,
+    bool olmCompatibilityMode) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
@@ -1695,7 +1700,8 @@ jsi::Value CommCoreModule::initializeNotificationsOutboundSession(
                     identityKeysCpp,
                     prekeyCpp,
                     prekeySignatureCpp,
-                    oneTimeKeyCpp);
+                    oneTimeKeyCpp,
+                    olmCompatibilityMode);
 
             result = notifsCryptoModuleWithPicklingKey.value().first->encrypt(
                 deviceIDCpp,

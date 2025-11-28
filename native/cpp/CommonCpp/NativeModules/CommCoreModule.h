@@ -107,7 +107,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String prekey,
       jsi::String prekeySignature,
       std::optional<jsi::String> oneTimeKey,
-      jsi::String keyserverID) override;
+      jsi::String keyserverID,
+      bool olmCompatibilityMode) override;
   virtual jsi::Value
   isNotificationsSessionInitialized(jsi::Runtime &rt) override;
   virtual jsi::Value isDeviceNotificationsSessionInitialized(
@@ -133,7 +134,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String prekey,
       jsi::String prekeySignature,
       std::optional<jsi::String> oneTimeKey,
-      jsi::String deviceID) override;
+      jsi::String deviceID,
+      bool olmCompatibilityMode) override;
   virtual jsi::Value initializeContentInboundSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
@@ -149,7 +151,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String prekey,
       jsi::String prekeySignature,
       std::optional<jsi::String> oneTimeKey,
-      jsi::String deviceID) override;
+      jsi::String deviceID,
+      bool olmCompatibilityMode) override;
   virtual jsi::Value
   encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) override;
   virtual jsi::Value encryptNotification(
