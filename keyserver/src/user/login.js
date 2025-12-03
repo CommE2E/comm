@@ -1,6 +1,6 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
+import type { Account as OlmAccount } from '@commapp/vodozemac';
 import { getRustAPI } from 'rust-node-addon';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';

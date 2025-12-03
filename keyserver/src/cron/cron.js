@@ -1,14 +1,8 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
-import olm from '@commapp/olm';
+import type { Account as OlmAccount } from '@commapp/vodozemac';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
-
-import {
-  getOlmMemory,
-  compareAndLogOlmMemory,
-} from 'lib/utils/olm-memory-utils.js';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
@@ -88,7 +82,6 @@ if (cluster.isMaster) {
     schedule.scheduleJob(
       '0 0 * * *', // every day at midnight in the keyserver's timezone
       async () => {
-        const memBefore = getOlmMemory();
         try {
           await fetchCallUpdateOlmAccount(
             'content',
@@ -101,15 +94,12 @@ if (cluster.isMaster) {
           );
         } catch (e) {
           console.warn('encountered error while trying to validate prekeys', e);
-        } finally {
-          compareAndLogOlmMemory(memBefore, 'prekey upload cronjob');
         }
       },
     );
     schedule.scheduleJob(
       '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
       async () => {
-        const memBefore = getOlmMemory();
         try {
           await synchronizeInviteLinksWithBlobs();
         } catch (e) {
@@ -117,24 +107,6 @@ if (cluster.isMaster) {
             'encountered an error while trying to synchronize invite links with blobs',
             e,
           );
-        } finally {
-          compareAndLogOlmMemory(memBefore, 'invite links cronjob');
-        }
-      },
-    );
-    schedule.scheduleJob(
-      '0,15,30,45 * * * *', // every 15 minutes
-      async () => {
-        const memBefore = getOlmMemory();
-        try {
-          await olm.init();
-        } catch (e) {
-          console.warn(
-            'encountered an error while executing olm init cron job',
-            e,
-          );
-        } finally {
-          compareAndLogOlmMemory(memBefore, 'olm init cronjob');
         }
       },
     );

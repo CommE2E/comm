@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@commapp/olm';
+import initVodozemac from '@commapp/vodozemac';
 import cluster from 'cluster';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -72,7 +72,7 @@ const shouldDisplayQRCodeInTerminal = false;
 void (async () => {
   const [webAppCorsConfig] = await Promise.all([
     getWebAppCorsConfig(),
-    olm.init(),
+    initVodozemac(),
     prefetchAllURLFacts(),
     initENSCache(),
     initFCCache(),

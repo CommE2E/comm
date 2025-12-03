@@ -1,7 +1,6 @@
 // @flow
 
-import type { EncryptResult } from '@commapp/olm';
-
+import type { EncryptResult } from 'lib/types/encrypted-type.js';
 import type { EncryptedNotifUtilsAPI } from 'lib/types/notif-types.js';
 import { getOlmUtility } from 'lib/utils/olm-utility.js';
 

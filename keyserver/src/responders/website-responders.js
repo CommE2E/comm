@@ -41,6 +41,7 @@ type AssetInfo = {
   +fontsURL: string,
   +cssInclude: string,
   +olmFilename: string,
+  +vodozemacFilename: string,
   +commQueryExecutorFilename: string,
   +backupClientFilename: string,
   +webworkersOpaqueFilename: string,
@@ -57,6 +58,7 @@ async function getAssetInfo() {
       fontsURL,
       cssInclude: '',
       olmFilename: '',
+      vodozemacFilename: '',
       commQueryExecutorFilename: '',
       backupClientFilename: '',
       webworkersOpaqueFilename: '',
@@ -82,6 +84,7 @@ async function getAssetInfo() {
         />
       `,
       olmFilename: manifest['olm.wasm'],
+      vodozemacFilename: manifest['vodozemac.wasm'],
       commQueryExecutorFilename: webworkersManifest['comm-query-executor.wasm'],
       backupClientFilename: webworkersManifest['backup-client-wasm_bg.wasm'],
       webworkersOpaqueFilename: webworkersManifest['comm_opaque2_wasm_bg.wasm'],
@@ -136,6 +139,7 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
     fontsURL,
     cssInclude,
     olmFilename,
+    vodozemacFilename,
     commQueryExecutorFilename,
     backupClientFilename,
     webworkersOpaqueFilename,
@@ -195,6 +199,7 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
               var keyserverURL = "${keyserverURL}";
               var baseURL = "${baseURL}";
               var olmFilename = "${olmFilename}";
+              var vodozemacFilename = "${vodozemacFilename}";
               var commQueryExecutorFilename = "${commQueryExecutorFilename}";
               var backupClientFilename = "${backupClientFilename}";
               var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
