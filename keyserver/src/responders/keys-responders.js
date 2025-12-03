@@ -1,6 +1,6 @@
 // @flow
 
-import type { Account as OlmAccount } from '@commapp/olm';
+import type { Account as OlmAccount } from '@commapp/vodozemac';
 
 import type {
   OlmSessionInitializationInfo,
@@ -18,20 +18,39 @@ type SessionInitializationKeysSet = {
 function retrieveSessionInitializationKeysSet(
   account: OlmAccount,
 ): SessionInitializationKeysSet {
-  const identityKeys = account.identity_keys();
+  const identityKeys = JSON.stringify({
+    ed25519: account.ed25519_key,
+    curve25519: account.curve25519_key,
+  });
 
   const prekey = account.prekey();
-  const prekeySignature = account.prekey_signature();
+  if (!prekey) {
+    throw new ServerError('missing_prekey');
+  }
 
+  // Wrap prekey in old Olm format to match expected structure on all clients
+  const prekeyWrapped = JSON.stringify({
+    curve25519: { AAAAAA: prekey },
+  });
+
+  const prekeySignature = account.prekey_signature();
   if (!prekeySignature) {
     throw new ServerError('invalid_prekey');
   }
 
   account.generate_one_time_keys(1);
-  const oneTimeKey = account.one_time_keys();
+  const oneTimeKeysMap = account.one_time_keys();
+  const oneTimeKeysEntries = Array.from(oneTimeKeysMap.entries());
+  const oneTimeKeysObject = Object.fromEntries(oneTimeKeysEntries);
+  const oneTimeKey = JSON.stringify({ curve25519: oneTimeKeysObject });
   account.mark_keys_as_published();
 
-  return { identityKeys, oneTimeKey, prekey, prekeySignature };
+  return {
+    identityKeys,
+    oneTimeKey,
+    prekey: prekeyWrapped,
+    prekeySignature,
+  };
 }
 
 async function getOlmSessionInitializationDataResponder(): Promise<GetOlmSessionInitializationDataResponse> {

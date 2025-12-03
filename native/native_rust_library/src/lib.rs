@@ -10,12 +10,16 @@ mod argon2_tools;
 mod backup;
 mod constants;
 mod identity;
-mod session;
 mod utils;
+mod vodozemac;
 
 use crate::argon2_tools::compute_backup_key_str;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
-use session::{session_from_pickle, EncryptResult, VodozemacSession};
+use vodozemac::{
+  account_from_pickle, account_new, encrypt_result_new, session_from_pickle,
+  sha256, verify_ed25519_signature, verify_prekey_signature, EncryptResult,
+  InboundCreationResult, VodozemacAccount, VodozemacSession,
+};
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -568,36 +572,100 @@ mod ffi {
   }
 
   // Vodozemac crypto functions
+  // NOTE: We use `not(target_os = "ios")` to target Android instead of
+  // checking for Android directly due to problems with setting the Android
+  // target OS on CI.
+  #[cfg(not(target_os = "ios"))]
   extern "Rust" {
     // NOTE: Keep in sync with Vodozemac crypto functions block
     // in native/vodozemac_bindings/src/lib.rs.
-    #[cfg(target_os = "android")]
-    type VodozemacSession;
-    #[cfg(target_os = "android")]
+
+    // EncryptResult type
     type EncryptResult;
-    #[cfg(target_os = "android")]
-    fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
-    #[cfg(target_os = "android")]
+    fn encrypt_result_new(
+      encrypted_message: String,
+      message_type: u32,
+    ) -> Box<EncryptResult>;
     fn encrypted_message(self: &EncryptResult) -> String;
-    #[cfg(target_os = "android")]
     fn message_type(self: &EncryptResult) -> u32;
-    #[cfg(target_os = "android")]
+
+    // VodozemacSession type
+    type VodozemacSession;
+    fn pickle(self: &VodozemacSession, pickle_key: &[u8; 32]) -> String;
     fn encrypt(
       self: &mut VodozemacSession,
       plaintext: &str,
     ) -> Result<Box<EncryptResult>>;
-    #[cfg(target_os = "android")]
     fn decrypt(
       self: &mut VodozemacSession,
       encrypted_message: String,
       message_type: u32,
     ) -> Result<String>;
+    fn has_received_message(self: &VodozemacSession) -> bool;
+    fn is_sender_chain_empty(self: &VodozemacSession) -> bool;
 
-    #[cfg(target_os = "android")]
     pub fn session_from_pickle(
       session_state: String,
       session_key: String,
     ) -> Result<Box<VodozemacSession>>;
+
+    // VodozemacAccount type
+    type VodozemacAccount;
+    fn pickle(self: &VodozemacAccount, pickle_key: &[u8; 32]) -> String;
+    fn ed25519_key(self: &VodozemacAccount) -> String;
+    fn curve25519_key(self: &VodozemacAccount) -> String;
+    fn sign(self: &VodozemacAccount, message: &str) -> String;
+    fn generate_one_time_keys(self: &mut VodozemacAccount, count: usize);
+    fn one_time_keys(self: &VodozemacAccount) -> Vec<String>;
+    fn mark_keys_as_published(self: &mut VodozemacAccount);
+    fn max_number_of_one_time_keys(self: &VodozemacAccount) -> usize;
+    fn mark_prekey_as_published(self: &mut VodozemacAccount) -> bool;
+    fn generate_prekey(self: &mut VodozemacAccount);
+    fn forget_old_prekey(self: &mut VodozemacAccount);
+    fn last_prekey_publish_time(self: &mut VodozemacAccount) -> u64;
+    fn prekey(self: &VodozemacAccount) -> String;
+    fn unpublished_prekey(self: &VodozemacAccount) -> String;
+    fn prekey_signature(self: &VodozemacAccount) -> String;
+    fn create_outbound_session(
+      self: &VodozemacAccount,
+      identity_key: &str,
+      signing_key: &str,
+      one_time_key: &str,
+      pre_key: &str,
+      pre_key_signature: &str,
+      olm_compatibility_mode: bool,
+    ) -> Result<Box<VodozemacSession>>;
+    fn create_inbound_session(
+      self: &mut VodozemacAccount,
+      identity_key: &str,
+      message: &EncryptResult,
+    ) -> Result<Box<InboundCreationResult>>;
+
+    pub fn account_new() -> Box<VodozemacAccount>;
+
+    pub fn account_from_pickle(
+      account_state: String,
+      session_key: String,
+    ) -> Result<Box<VodozemacAccount>>;
+
+    pub fn verify_ed25519_signature(
+      public_key: &str,
+      message: &str,
+      signature: &str,
+    ) -> Result<()>;
+
+    pub fn verify_prekey_signature(
+      public_key: &str,
+      prekey_base64: &str,
+      signature: &str,
+    ) -> Result<()>;
+
+    pub fn sha256(input: &[u8]) -> String;
+
+    // InboundCreationResult type
+    type InboundCreationResult;
+    fn plaintext(self: &InboundCreationResult) -> String;
+    fn take_session(self: &mut InboundCreationResult) -> Box<VodozemacSession>;
   }
 }
 
