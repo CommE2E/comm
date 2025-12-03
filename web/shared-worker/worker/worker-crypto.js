@@ -1,9 +1,12 @@
 // @flow
 
-import olm, {
-  type Account as OlmAccount,
-  type Utility as OlmUtility,
-} from '@commapp/olm';
+import initVodozemac, {
+  Account,
+  type Account as VodozemacAccount,
+  OlmMessage,
+  Session,
+  Utility,
+} from '@commapp/vodozemac';
 import base64 from 'base-64';
 import localforage from 'localforage';
 import uuid from 'uuid';
@@ -11,16 +14,16 @@ import uuid from 'uuid';
 import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
-  type OLMIdentityKeys,
-  type PickledOLMAccount,
-  type IdentityKeysBlob,
-  type SignedIdentityKeysBlob,
-  type OlmAPI,
-  type OneTimeKeysResultValues,
   type ClientPublicKeys,
-  type NotificationsOlmDataType,
   type EncryptedData,
+  type IdentityKeysBlob,
+  type NotificationsOlmDataType,
+  type OlmAPI,
+  type OLMIdentityKeys,
+  type OneTimeKeysResultValues,
   type OutboundSessionCreationResult,
+  type PickledOLMAccount,
+  type SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
@@ -28,52 +31,56 @@ import type { OlmSessionInitializationInfo } from 'lib/types/olm-session-types.j
 import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
-import { verifyMemoryUsage } from 'lib/utils/olm-memory-utils.js';
 import { getOlmUtility } from 'lib/utils/olm-utility.js';
 import {
-  retrieveAccountKeysSet,
   getAccountOneTimeKeys,
   getAccountPrekeysSet,
+  OLM_ERROR_FLAG,
+  olmSessionErrors,
+  retrieveAccountKeysSet,
   shouldForgetPrekey,
   shouldRotatePrekey,
-  olmSessionErrors,
-  OLM_ERROR_FLAG,
 } from 'lib/utils/olm-utils.js';
+import {
+  getVodozemacPickleKey,
+  unpickleVodozemacAccount,
+  unpickleVodozemacSession,
+} from 'lib/utils/vodozemac-utils.js';
 
 import { getIdentityClient } from './identity-client.js';
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
   getDBModule,
-  getSQLiteQueryExecutor,
   getPlatformDetails,
+  getSQLiteQueryExecutor,
 } from './worker-database.js';
 import {
-  getOlmDataKeyForCookie,
-  getOlmEncryptionKeyDBLabelForCookie,
-  getOlmDataKeyForDeviceID,
-  getOlmEncryptionKeyDBLabelForDeviceID,
   encryptNotification,
-  type NotificationAccountWithPicklingKey,
   getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT,
+  getOlmDataKeyForCookie,
+  getOlmDataKeyForDeviceID,
+  getOlmEncryptionKeyDBLabelForCookie,
+  getOlmEncryptionKeyDBLabelForDeviceID,
+  type NotificationAccountWithPicklingKey,
   persistNotifsAccountWithOlmData,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
-  type WorkerRequestMessage,
-  type WorkerResponseMessage,
-  workerRequestMessageTypes,
-  workerResponseMessageTypes,
   type LegacyCryptoStore,
+  type WorkerRequestMessage,
+  workerRequestMessageTypes,
+  type WorkerResponseMessage,
+  workerResponseMessageTypes,
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 
-type OlmSession = { +session: olm.Session, +version: number };
+type OlmSession = { +session: Session, +version: number };
 type OlmSessions = {
   [deviceID: string]: OlmSession,
 };
 
 type WorkerCryptoStore = {
   +contentAccountPickleKey: string,
-  +contentAccount: olm.Account,
+  +contentAccount: VodozemacAccount,
   +contentSessions: OlmSessions,
 };
 
@@ -113,14 +120,18 @@ async function persistCryptoStore(
 
   const pickledContentAccount: PickledOLMAccount = {
     picklingKey: contentAccountPickleKey,
-    pickledAccount: contentAccount.pickle(contentAccountPickleKey),
+    pickledAccount: contentAccount.pickle(
+      getVodozemacPickleKey(contentAccountPickleKey),
+    ),
   };
 
   const pickledContentSessions: OlmPersistSession[] = entries(
     contentSessions,
   ).map(([targetDeviceID, sessionData]) => ({
     targetDeviceID,
-    sessionData: sessionData.session.pickle(contentAccountPickleKey),
+    sessionData: sessionData.session.pickle(
+      getVodozemacPickleKey(contentAccountPickleKey),
+    ),
     version: sessionData.version,
   }));
 
@@ -143,7 +154,9 @@ async function persistCryptoStore(
         accountEncryptionKey,
       } = notifsCryptoAccount;
 
-      const pickledAccount = notificationAccount.pickle(picklingKey);
+      const pickledAccount = notificationAccount.pickle(
+        getVodozemacPickleKey(picklingKey),
+      );
       const accountWithPicklingKey: PickledOLMAccount = {
         pickledAccount,
         picklingKey,
@@ -189,31 +202,23 @@ async function createAndPersistNotificationsOutboundSession(
   const notificationsPrekey = notificationsInitializationInfo.prekey;
 
   // Memory is freed below after persisting.
-  const session = new olm.Session();
-  if (notificationsInitializationInfo.oneTimeKey) {
-    session.create_outbound(
-      notificationAccount,
-      notificationsIdentityKeys.curve25519,
-      notificationsIdentityKeys.ed25519,
-      notificationsPrekey,
-      notificationsInitializationInfo.prekeySignature,
-      notificationsInitializationInfo.oneTimeKey,
-    );
-  } else {
-    session.create_outbound_without_otk(
-      notificationAccount,
-      notificationsIdentityKeys.curve25519,
-      notificationsIdentityKeys.ed25519,
-      notificationsPrekey,
-      notificationsInitializationInfo.prekeySignature,
-    );
-  }
-  const { body: message, type: messageType } = session.encrypt(
-    JSON.stringify(initialEncryptedMessageContent),
+  const session = notificationAccount.create_outbound_session(
+    notificationsIdentityKeys.curve25519,
+    notificationsIdentityKeys.ed25519,
+    notificationsInitializationInfo.oneTimeKey || '',
+    notificationsPrekey,
+    notificationsInitializationInfo.prekeySignature,
+    true, // olmCompatibilityMode
   );
 
+  const encryptedMessage = session.encrypt(
+    JSON.stringify(initialEncryptedMessageContent),
+  );
+  const message = encryptedMessage.ciphertext;
+  const messageType = encryptedMessage.message_type;
+
   const mainSession = session.pickle(
-    notificationAccountWithPicklingKey.picklingKey,
+    getVodozemacPickleKey(notificationAccountWithPicklingKey.picklingKey),
   );
   const notificationsOlmData: NotificationsOlmDataType = {
     mainSession,
@@ -222,7 +227,9 @@ async function createAndPersistNotificationsOutboundSession(
     picklingKey,
   };
 
-  const pickledAccount = notificationAccount.pickle(picklingKey);
+  const pickledAccount = notificationAccount.pickle(
+    getVodozemacPickleKey(picklingKey),
+  );
   const accountWithPicklingKey: PickledOLMAccount = {
     pickledAccount,
     picklingKey,
@@ -246,7 +253,7 @@ async function createAndPersistNotificationsOutboundSession(
 
 async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
   +picklingKey: string,
-  +account: olm.Account,
+  +account: VodozemacAccount,
   +synchronizationValue?: ?string,
 }> {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -288,18 +295,18 @@ async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
     };
   }
 
-  // This `olm.Account` is created once and is cached for the entire
+  // This `Account` is created once and is cached for the entire
   // program lifetime. Freeing is done as part of `clearCryptoStore`.
-  const account = new olm.Account();
+  let account;
   let picklingKey;
 
   if (!accountDBString) {
     picklingKey = uuid.v4();
-    account.create();
+    account = new Account();
   } else {
     const dbAccount: PickledOLMAccount = JSON.parse(accountDBString);
     picklingKey = dbAccount.picklingKey;
-    account.unpickle(picklingKey, dbAccount.pickledAccount);
+    account = unpickleVodozemacAccount(dbAccount);
   }
 
   if (accountIDInDB === sqliteQueryExecutor.getNotifsAccountID()) {
@@ -328,10 +335,12 @@ function getOlmSessions(picklingKey: string): OlmSessions {
   const sessionsData: OlmSessions = {};
   for (const persistedSession: OlmPersistSession of dbSessionsData) {
     const { sessionData, version } = persistedSession;
-    // This `olm.Session` is created once and is cached for the entire
+    // This `Session` is created once and is cached for the entire
     // program lifetime. Freeing is done as part of `clearCryptoStore`.
-    const session = new olm.Session();
-    session.unpickle(picklingKey, sessionData);
+    const session = unpickleVodozemacSession({
+      picklingKey,
+      pickledSession: sessionData,
+    });
     sessionsData[persistedSession.targetDeviceID] = {
       session,
       version,
@@ -341,19 +350,8 @@ function getOlmSessions(picklingKey: string): OlmSessions {
   return sessionsData;
 }
 
-function unpickleInitialCryptoStoreAccount(
-  account: PickledOLMAccount,
-): olm.Account {
-  const { picklingKey, pickledAccount } = account;
-  // This `olm.Account` is created once and is cached for the entire
-  // program lifetime. Freeing is done as part of `clearCryptoStore`.
-  const olmAccount = new olm.Account();
-  olmAccount.unpickle(picklingKey, pickledAccount);
-  return olmAccount;
-}
-
 async function initializeCryptoAccount(
-  olmWasmPath: string,
+  vodozemacWasmPath: string,
   initialCryptoStore: ?LegacyCryptoStore,
 ) {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -361,20 +359,20 @@ async function initializeCryptoAccount(
     throw new Error('Database not initialized');
   }
 
-  await olm.init({ locateFile: () => olmWasmPath });
+  await initVodozemac(vodozemacWasmPath);
 
   if (initialCryptoStore) {
     clearCryptoStore();
     cryptoStore = {
       contentAccountPickleKey: initialCryptoStore.primaryAccount.picklingKey,
-      contentAccount: unpickleInitialCryptoStoreAccount(
+      contentAccount: unpickleVodozemacAccount(
         initialCryptoStore.primaryAccount,
       ),
       contentSessions: {},
     };
     const notifsCryptoAccount = {
       picklingKey: initialCryptoStore.notificationAccount.picklingKey,
-      notificationAccount: unpickleInitialCryptoStoreAccount(
+      notificationAccount: unpickleVodozemacAccount(
         initialCryptoStore.notificationAccount,
       ),
       synchronizationValue: uuid.v4(),
@@ -391,10 +389,9 @@ async function processAppOlmApiRequest(
 ): Promise<?WorkerResponseMessage> {
   if (message.type === workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT) {
     await initializeCryptoAccount(
-      message.olmWasmPath,
+      message.vodozemacWasmPath,
       message.initialCryptoStore,
     );
-    verifyMemoryUsage('INITIALIZE_CRYPTO_ACCOUNT');
   } else if (message.type === workerRequestMessageTypes.CALL_OLM_API_METHOD) {
     const method: (...$ReadOnlyArray<mixed>) => mixed = (olmAPI[
       message.method
@@ -402,7 +399,6 @@ async function processAppOlmApiRequest(
     // Flow doesn't allow us to bind the (stringified) method name with
     // the argument types so we need to pass the args as mixed.
     const result = await method(...message.args);
-    verifyMemoryUsage(message.method);
     return {
       type: workerResponseMessageTypes.CALL_OLM_API_METHOD,
       result,
@@ -421,10 +417,14 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
     await getNotifsCryptoAccount_WITH_MANUAL_MEMORY_MANAGEMENT();
 
   const identityKeysBlob: IdentityKeysBlob = {
-    notificationIdentityPublicKeys: JSON.parse(
-      notificationAccount.identity_keys(),
-    ),
-    primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
+    notificationIdentityPublicKeys: {
+      ed25519: notificationAccount.ed25519_key,
+      curve25519: notificationAccount.curve25519_key,
+    },
+    primaryIdentityPublicKeys: {
+      ed25519: contentAccount.ed25519_key,
+      curve25519: contentAccount.curve25519_key,
+    },
   };
 
   const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
@@ -444,13 +444,14 @@ function olmVerifyMessage(
   signature: string,
   signingPublicKey: string,
 ) {
-  const olmUtility: OlmUtility = getOlmUtility();
+  const olmUtility: Utility = getOlmUtility();
   try {
     olmUtility.ed25519_verify(signingPublicKey, message, signature);
     return true;
   } catch (err) {
-    const isSignatureInvalid =
-      getMessageForException(err)?.includes('BAD_MESSAGE_MAC');
+    const isSignatureInvalid = getMessageForException(err)?.includes(
+      'The signature was invalid',
+    );
     if (isSignatureInvalid) {
       return false;
     }
@@ -458,8 +459,8 @@ function olmVerifyMessage(
   }
 }
 
-function isPrekeySignatureValid(account: OlmAccount): boolean {
-  const signingPublicKey = JSON.parse(account.identity_keys()).ed25519;
+function isPrekeySignatureValid(account: VodozemacAccount): boolean {
+  const signingPublicKey = account.ed25519_key;
   const { prekey, prekeySignature } = getAccountPrekeysSet(account);
   if (!prekey || !prekeySignature) {
     return false;
@@ -586,10 +587,14 @@ const olmAPI: OlmAPI = {
     );
 
     const result = {
-      primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
-      notificationIdentityPublicKeys: JSON.parse(
-        notificationAccount.identity_keys(),
-      ),
+      primaryIdentityPublicKeys: {
+        ed25519: contentAccount.ed25519_key,
+        curve25519: contentAccount.curve25519_key,
+      },
+      notificationIdentityPublicKeys: {
+        ed25519: notificationAccount.ed25519_key,
+        curve25519: notificationAccount.curve25519_key,
+      },
       blobPayload: payload,
       signature,
     };
@@ -605,15 +610,17 @@ const olmAPI: OlmAPI = {
     if (!olmSession) {
       throw new Error(olmSessionErrors.sessionDoesNotExist);
     }
-    const encryptedContent = olmSession.session.encrypt(content);
+    const olmMessage = olmSession.session.encrypt(content);
+    const encryptedData = {
+      message: olmMessage.ciphertext,
+      messageType: olmMessage.message_type,
+      sessionVersion: olmSession.version,
+    };
+    olmMessage.free();
 
     await persistCryptoStore();
 
-    return {
-      message: encryptedContent.body,
-      messageType: encryptedContent.type,
-      sessionVersion: olmSession.version,
-    };
+    return encryptedData;
   },
   async encryptAndPersist(
     content: string,
@@ -627,8 +634,12 @@ const olmAPI: OlmAPI = {
     if (!olmSession) {
       throw new Error(olmSessionErrors.sessionDoesNotExist);
     }
-
-    const encryptedContent = olmSession.session.encrypt(content);
+    const olmMessage = olmSession.session.encrypt(content);
+    const encryptedContent = {
+      body: olmMessage.ciphertext,
+      type: olmMessage.message_type,
+    };
+    olmMessage.free();
 
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
     const dbModule = getDBModule();
@@ -690,14 +701,18 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.invalidSessionVersion);
     }
 
+    const olmMessage = new OlmMessage(
+      encryptedData.messageType,
+      encryptedData.message,
+    );
+
     let result;
     try {
-      result = olmSession.session.decrypt(
-        encryptedData.messageType,
-        encryptedData.message,
-      );
+      result = olmSession.session.decrypt(olmMessage);
     } catch (e) {
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    } finally {
+      olmMessage.free();
     }
 
     await persistCryptoStore();
@@ -726,14 +741,18 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.invalidSessionVersion);
     }
 
+    const olmMessage = new OlmMessage(
+      encryptedData.messageType,
+      encryptedData.message,
+    );
+
     let result;
     try {
-      result = olmSession.session.decrypt(
-        encryptedData.messageType,
-        encryptedData.message,
-      );
+      result = olmSession.session.decrypt(olmMessage);
     } catch (e) {
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    } finally {
+      olmMessage.free();
     }
 
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -784,26 +803,29 @@ const olmAPI: OlmAPI = {
       }
     }
 
-    // This `olm.Session` is created once and is cached for the entire
+    // This `Session` is created once and is cached for the entire
     // program lifetime. Freeing is done as part of `clearCryptoStore`.
-    const session = new olm.Session();
-    session.create_inbound_from(
-      contentAccount,
-      contentIdentityKeys.curve25519,
+    const olmMessage = new OlmMessage(
+      initialEncryptedData.messageType,
       initialEncryptedData.message,
     );
 
-    contentAccount.remove_one_time_keys(session);
-    let initialEncryptedMessage;
+    let inboundCreationResult;
     try {
-      initialEncryptedMessage = session.decrypt(
-        initialEncryptedData.messageType,
-        initialEncryptedData.message,
+      inboundCreationResult = contentAccount.create_inbound_session(
+        contentIdentityKeys.curve25519,
+        olmMessage,
       );
     } catch (e) {
-      session.free();
       throw new Error(`error decrypt => ${OLM_ERROR_FLAG} ` + e.message);
+    } finally {
+      olmMessage.free();
     }
+
+    // into_session() is consuming object.
+    // There is no need to call free() on inboundCreationResult
+    const initialEncryptedMessage = inboundCreationResult.plaintext;
+    const session = inboundCreationResult.into_session();
 
     if (existingSession) {
       existingSession.session.free();
@@ -826,30 +848,25 @@ const olmAPI: OlmAPI = {
     const { contentAccount, contentSessions } = cryptoStore;
     const existingSession = contentSessions[contentIdentityKeys.ed25519];
 
-    // This `olm.Session` is created once and is cached for the entire
+    // This `Session` is created once and is cached for the entire
     // program lifetime. Freeing is done as part of `clearCryptoStore`.
-    const session = new olm.Session();
-    if (contentInitializationInfo.oneTimeKey) {
-      session.create_outbound(
-        contentAccount,
-        contentIdentityKeys.curve25519,
-        contentIdentityKeys.ed25519,
-        contentInitializationInfo.prekey,
-        contentInitializationInfo.prekeySignature,
-        contentInitializationInfo.oneTimeKey,
-      );
-    } else {
-      session.create_outbound_without_otk(
-        contentAccount,
-        contentIdentityKeys.curve25519,
-        contentIdentityKeys.ed25519,
-        contentInitializationInfo.prekey,
-        contentInitializationInfo.prekeySignature,
-      );
-    }
-    const initialEncryptedData = session.encrypt(
+    const session = contentAccount.create_outbound_session(
+      contentIdentityKeys.curve25519,
+      contentIdentityKeys.ed25519,
+      contentInitializationInfo.oneTimeKey || '',
+      contentInitializationInfo.prekey,
+      contentInitializationInfo.prekeySignature,
+      true, // olmCompatibilityMode
+    );
+
+    const olmMessage = session.encrypt(
       JSON.stringify(initialEncryptedMessageContent),
     );
+    const initialEncryptedData = {
+      body: olmMessage.ciphertext,
+      type: olmMessage.message_type,
+    };
+    olmMessage.free();
 
     const newSessionVersion = existingSession ? existingSession.version + 1 : 1;
     if (existingSession) {

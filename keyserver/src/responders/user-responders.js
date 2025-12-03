@@ -1,6 +1,6 @@
 // @flow
 
-import type { Utility as OlmUtility } from '@commapp/olm';
+import type { Utility as OlmUtility } from '@commapp/vodozemac';
 import invariant from 'invariant';
 import { SiweErrorType, SiweMessage } from 'siwe';
 import t, { type TInterface } from 'tcomb';
