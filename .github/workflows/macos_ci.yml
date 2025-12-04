@@ -3,7 +3,9 @@ name: macOS Build CI
 on:
   workflow_call:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'vodozemac-final-ci'
     paths-ignore:
       - 'landing/**'
       - 'docs/**'

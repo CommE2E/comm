@@ -2,7 +2,9 @@ name: Docker keyserver CI
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'vodozemac-final-ci'
     paths-ignore:
       - 'native/**'
       - 'docs/**'

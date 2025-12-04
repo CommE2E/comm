@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - 'debugci/ios_ci/*'
+      - 'vodozemac-final-ci'
     paths-ignore:
       - 'landing/**'
       - 'web/**'

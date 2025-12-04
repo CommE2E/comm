@@ -2,7 +2,9 @@ name: ESLint & Flow & Jest
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'vodozemac-final-ci'
   pull_request:
     types: [opened, reopened]
 
