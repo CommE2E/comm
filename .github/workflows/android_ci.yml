@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - 'debugci/android_ci/*'
+      - 'vodozemac-work-part-1-ci'
     paths-ignore:
       - 'landing/**'
       - 'web/**'
