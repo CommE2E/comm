@@ -36,7 +36,6 @@
     "webpack": "^5.98.0"
   },
   "dependencies": {
-    "@commapp/olm": "0.2.6",
     "@ensdomains/ensjs": "^4.0.1",
     "@commapp/vodozemac": "0.1.0",
     "@khanacademy/simple-markdown": "^2.1.0",

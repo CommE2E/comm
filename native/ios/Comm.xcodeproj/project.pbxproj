@@ -1625,7 +1625,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/EXSecureStore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/ExpoModulesCore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/FBReactNativeSpec\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/OLMKit\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-C++\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCTTypeSafety\"",
@@ -1769,7 +1768,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/EXSecureStore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/ExpoModulesCore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/FBReactNativeSpec\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/OLMKit\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-C++\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCTTypeSafety\"",
@@ -1901,12 +1899,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Comm.app/Comm";
-				USER_HEADER_SEARCH_PATHS = (
-					../../node_modules/olm/include,
-					../../node_modules/olm/lib,
-					"${PODS_ROOT}/OLMKit/include",
-					"${PODS_ROOT}/OLMKit/lib",
-				);
 			};
 			name = Debug;
 		};
@@ -1940,12 +1932,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Comm.app/Comm";
-				USER_HEADER_SEARCH_PATHS = (
-					../../node_modules/olm/include,
-					../../node_modules/olm/lib,
-					"${PODS_ROOT}/OLMKit/include",
-					"${PODS_ROOT}/OLMKit/lib",
-				);
 			};
 			name = Release;
 		};

@@ -56,29 +56,11 @@ const baseDevBrowserConfig = {
       directory: path.join(__dirname, 'dist'),
     },
   },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: 'node_modules/@commapp/olm/olm.wasm',
-          to: path.join(__dirname, 'dist'),
-        },
-      ],
-    }),
-  ],
 };
 
 const baseProdBrowserConfig = {
   ...baseBrowserConfig,
   plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: 'node_modules/@commapp/olm/olm.wasm',
-          to: path.join(__dirname, 'dist', 'olm.[contenthash:12].wasm'),
-        },
-      ],
-    }),
     new WebpackManifestPlugin({
       publicPath: '',
     }),
@@ -129,14 +111,6 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'node_modules/@commapp/olm/olm.wasm',
-        to: path.join(__dirname, 'dist', 'webworkers'),
-      },
-    ],
-  }),
-  new CopyPlugin({
-    patterns: [
-      {
         from: 'node_modules/@commapp/vodozemac/wasm/vodozemac_bg.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
@@ -172,19 +146,6 @@ const prodWebWorkersPlugins = [
           'dist',
           'webworkers',
           'comm-query-executor.[contenthash:12].wasm',
-        ),
-      },
-    ],
-  }),
-  new CopyPlugin({
-    patterns: [
-      {
-        from: 'node_modules/@commapp/olm/olm.wasm',
-        to: path.join(
-          __dirname,
-          'dist',
-          'webworkers',
-          'olm.[contenthash:12].wasm',
         ),
       },
     ],

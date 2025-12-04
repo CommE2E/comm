@@ -28,7 +28,6 @@
 , mariadb
 , mariadb-up
 , nodejs
-, olm
 , openjdk17
 , openssl
 , pkg-config
@@ -110,7 +109,6 @@ mkShell {
     folly # cpp tools
     fmt # needed for folly
     boost # needed for folly
-    olm # needed for CryptoTools
     sqlite # needed for sqlite database
     openssl # needed for grpc
   ] ++ lib.optionals stdenv.isDarwin [
