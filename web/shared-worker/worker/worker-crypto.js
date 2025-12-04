@@ -185,6 +185,7 @@ async function createAndPersistNotificationsOutboundSession(
   notificationsInitializationInfo: OlmSessionInitializationInfo,
   dataPersistenceKey: string,
   dataEncryptionKeyDBLabel: string,
+  olmCompatibilityMode: boolean,
 ): Promise<EncryptedData> {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
@@ -208,7 +209,7 @@ async function createAndPersistNotificationsOutboundSession(
     notificationsInitializationInfo.oneTimeKey || '',
     notificationsPrekey,
     notificationsInitializationInfo.prekeySignature,
-    true, // olmCompatibilityMode
+    olmCompatibilityMode,
   );
 
   const encryptedMessage = session.encrypt(
@@ -841,6 +842,7 @@ const olmAPI: OlmAPI = {
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
+    olmCompatibilityMode: boolean,
   ): Promise<OutboundSessionCreationResult> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
@@ -856,7 +858,7 @@ const olmAPI: OlmAPI = {
       contentInitializationInfo.oneTimeKey || '',
       contentInitializationInfo.prekey,
       contentInitializationInfo.prekeySignature,
-      true, // olmCompatibilityMode
+      olmCompatibilityMode,
     );
 
     const olmMessage = session.encrypt(
@@ -896,6 +898,7 @@ const olmAPI: OlmAPI = {
     deviceID: string,
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
+    olmCompatibilityMode: boolean,
   ): Promise<EncryptedData> {
     const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
     const dataEncryptionKeyDBLabel =
@@ -906,6 +909,7 @@ const olmAPI: OlmAPI = {
       notificationsInitializationInfo,
       dataPersistenceKey,
       dataEncryptionKeyDBLabel,
+      olmCompatibilityMode,
     );
   },
   async isDeviceNotificationsSessionInitialized(deviceID: string) {
@@ -944,6 +948,7 @@ const olmAPI: OlmAPI = {
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
     keyserverID: string,
+    olmCompatibilityMode: boolean,
   ): Promise<string> {
     const platformDetails = getPlatformDetails();
     if (!platformDetails) {
@@ -958,6 +963,7 @@ const olmAPI: OlmAPI = {
       notificationsInitializationInfo,
       notifsOlmDataContentKey,
       notifsOlmDataEncryptionKeyDBLabel,
+      olmCompatibilityMode,
     );
 
     return message;

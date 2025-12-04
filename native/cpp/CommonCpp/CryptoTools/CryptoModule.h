@@ -64,7 +64,8 @@ public:
       const std::string &idKeys,
       const std::string &preKeys,
       const std::string &preKeySignature,
-      const std::optional<std::string> &oneTimeKey);
+      const std::optional<std::string> &oneTimeKey,
+      bool olmCompatibilityMode);
   bool hasSessionFor(const std::string &targetDeviceId);
   std::shared_ptr<Session> getSessionByDeviceId(const std::string &deviceId);
   void removeSessionByDeviceId(const std::string &deviceId);

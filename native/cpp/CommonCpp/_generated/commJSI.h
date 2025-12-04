@@ -33,7 +33,7 @@ public:
   virtual jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value validateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
-  virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID) = 0;
+  virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID, bool olmCompatibilityMode) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
   virtual jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
   virtual jsi::Value isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, jsi::Array deviceIDs) = 0;
@@ -42,10 +42,10 @@ public:
   virtual jsi::Value getDataFromNotifStorage(jsi::Runtime &rt, jsi::Array ids) = 0;
   virtual jsi::Value updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, jsi::Array unreadThickThreadIDs) = 0;
   virtual jsi::Value getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) = 0;
-  virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
+  virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID, bool olmCompatibilityMode) = 0;
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) = 0;
   virtual jsi::Value isContentSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
-  virtual jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
+  virtual jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID, bool olmCompatibilityMode) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value encryptNotification(jsi::Runtime &rt, jsi::String payload, jsi::String deviceID) = 0;
   virtual jsi::Value encryptAndPersist(jsi::Runtime &rt, jsi::String message, jsi::String deviceID, jsi::String messageID) = 0;
@@ -222,13 +222,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::validateAndUploadPrekeys, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken));
     }
-    jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID) override {
+    jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID, bool olmCompatibilityMode) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeNotificationsSession) == 6,
-          "Expected initializeNotificationsSession(...) to have 6 parameters");
+          bridging::getParameterCount(&T::initializeNotificationsSession) == 7,
+          "Expected initializeNotificationsSession(...) to have 7 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(keyserverID));
+          rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(keyserverID), std::move(olmCompatibilityMode));
     }
     jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) override {
       static_assert(
@@ -294,13 +294,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getUnreadThickThreadIDsFromNotifsStorage, jsInvoker_, instance_);
     }
-    jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) override {
+    jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID, bool olmCompatibilityMode) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeContentOutboundSession) == 6,
-          "Expected initializeContentOutboundSession(...) to have 6 parameters");
+          bridging::getParameterCount(&T::initializeContentOutboundSession) == 7,
+          "Expected initializeContentOutboundSession(...) to have 7 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeContentOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(deviceID));
+          rt, &T::initializeContentOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(deviceID), std::move(olmCompatibilityMode));
     }
     jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) override {
       static_assert(
@@ -318,13 +318,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isContentSessionInitialized, jsInvoker_, instance_, std::move(deviceID));
     }
-    jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) override {
+    jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID, bool olmCompatibilityMode) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeNotificationsOutboundSession) == 6,
-          "Expected initializeNotificationsOutboundSession(...) to have 6 parameters");
+          bridging::getParameterCount(&T::initializeNotificationsOutboundSession) == 7,
+          "Expected initializeNotificationsOutboundSession(...) to have 7 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeNotificationsOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(deviceID));
+          rt, &T::initializeNotificationsOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(deviceID), std::move(olmCompatibilityMode));
     }
     jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) override {
       static_assert(
