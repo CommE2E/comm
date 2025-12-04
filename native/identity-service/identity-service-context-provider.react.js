@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
-import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import { createAndSignSingletonDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
@@ -456,8 +455,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyValues(contentOneTimeKeys),
-          getOneTimeKeyValues(notificationsOneTimeKeys),
+          contentOneTimeKeys,
+          notificationsOneTimeKeys,
           fid ?? '',
           JSON.stringify(initialDeviceList),
           farcasterDCsToken ?? '',
@@ -498,8 +497,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             prekeys.contentPrekeySignature,
             prekeys.notifPrekey,
             prekeys.notifPrekeySignature,
-            getOneTimeKeyValues(contentOneTimeKeys),
-            getOneTimeKeyValues(notificationsOneTimeKeys),
+            contentOneTimeKeys,
+            notificationsOneTimeKeys,
             keyserverMessage,
             keyserverSignature,
             JSON.stringify(initialDeviceList),
@@ -531,8 +530,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyValues(contentOneTimeKeys),
-          getOneTimeKeyValues(notificationsOneTimeKeys),
+          contentOneTimeKeys,
+          notificationsOneTimeKeys,
         );
 
         return await processAuthResult(
@@ -570,8 +569,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyValues(contentOneTimeKeys),
-          getOneTimeKeyValues(notificationsOneTimeKeys),
+          contentOneTimeKeys,
+          notificationsOneTimeKeys,
           fid ?? '',
           JSON.stringify(initialDeviceList),
           farcasterDCsToken ?? '',
@@ -607,8 +606,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyValues(contentOneTimeKeys),
-          getOneTimeKeyValues(notificationsOneTimeKeys),
+          contentOneTimeKeys,
+          notificationsOneTimeKeys,
         );
 
         return await processAuthResult(
@@ -643,8 +642,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyValues(contentOneTimeKeys),
-          getOneTimeKeyValues(notificationsOneTimeKeys),
+          contentOneTimeKeys,
+          notificationsOneTimeKeys,
           JSON.stringify(deviceList),
           backupSecret,
         );
@@ -686,8 +685,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             prekeys.contentPrekeySignature,
             prekeys.notifPrekey,
             prekeys.notifPrekeySignature,
-            getOneTimeKeyValues(contentOneTimeKeys),
-            getOneTimeKeyValues(notificationsOneTimeKeys),
+            contentOneTimeKeys,
+            notificationsOneTimeKeys,
           );
 
         return await processAuthResult(
