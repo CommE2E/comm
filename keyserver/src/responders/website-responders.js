@@ -84,7 +84,7 @@ async function getAssetInfo() {
         />
       `,
       olmFilename: manifest['olm.wasm'],
-      vodozemacFilename: manifest['vodozemac.wasm'],
+      vodozemacFilename: webworkersManifest['vodozemac_bg.wasm'],
       commQueryExecutorFilename: webworkersManifest['comm-query-executor.wasm'],
       backupClientFilename: webworkersManifest['backup-client-wasm_bg.wasm'],
       webworkersOpaqueFilename: webworkersManifest['comm_opaque2_wasm_bg.wasm'],
