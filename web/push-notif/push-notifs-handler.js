@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import localforage from 'localforage';
 import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
@@ -27,7 +28,10 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   decryptDesktopNotification,
   migrateLegacyOlmNotificationsSessions,
+  WEB_NOTIFS_SERVICE_UTILS_KEY,
 } from './notif-crypto-utils.js';
+import type { WebNotifsServiceUtilsData } from './notif-crypto-utils.js';
+import { persistAuthMetadata } from './services-client.js';
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -35,6 +39,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import {
   getOlmWasmPath,
   getVodozemacWasmPath,
+  localforageConfig,
 } from '../shared-worker/utils/constants.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
@@ -46,6 +51,30 @@ function useCreateDesktopPushSubscription() {
     React.useState<boolean>(false);
   const platformDetails = getConfig().platformDetails;
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
+  const populateDesktopData = React.useCallback(async () => {
+    const authMetadata = await getAuthMetadata();
+    if (!authMetadata) {
+      return;
+    }
+
+    localforage.config(localforageConfig);
+
+    const webNotifsServiceUtils: WebNotifsServiceUtilsData = {
+      olmWasmPath: getOlmWasmPath(),
+      vodozemacWasmPath: getVodozemacWasmPath(),
+      staffCanSee: staffCanSee,
+    };
+
+    await Promise.all([
+      localforage.setItem(WEB_NOTIFS_SERVICE_UTILS_KEY, webNotifsServiceUtils),
+      persistAuthMetadata(authMetadata),
+    ]);
+  }, [getAuthMetadata, staffCanSee]);
+
   React.useEffect(() => {
     if (
       !isDesktopPlatform(platformDetails.platform) ||
@@ -54,10 +83,11 @@ function useCreateDesktopPushSubscription() {
       return;
     }
     void (async () => {
+      await populateDesktopData();
       await migrateLegacyOlmNotificationsSessions();
       setNotifsSessionsMigrated(true);
     })();
-  }, [platformDetails]);
+  }, [platformDetails, populateDesktopData]);
 
   React.useEffect(
     () =>
