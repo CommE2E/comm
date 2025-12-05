@@ -23,10 +23,6 @@ add_library(comm-cryptotools
   ${CRYPTO_SRCS}
 )
 
-target_link_libraries(comm-cryptotools
-  Olm::Olm
-)
-
 # reference local directory when building, use installation path when installing
 target_include_directories(comm-cryptotools
   PUBLIC

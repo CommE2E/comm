@@ -87,8 +87,6 @@ endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/openssl-target.cmake)
 
-add_subdirectory(../../node_modules/olm ./build)
-
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
 
@@ -241,7 +239,6 @@ target_link_libraries(
   android
   ${log-lib}
   ReactAndroid::reactnative
-  olm
   openssl-crypto
   openssl-ssl
   comm::native_rust_library

@@ -436,16 +436,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - MMKV (2.2.2):
-    - MMKVCore (~> 2.2.2)
-  - MMKVAppExtension (2.2.2):
-    - MMKVCore (~> 2.2.2)
-  - MMKVCore (2.2.2)
-  - OLMKit (3.2.14):
-    - OLMKit/olmc (= 3.2.14)
-    - OLMKit/olmcpp (= 3.2.14)
-  - OLMKit/olmc (3.2.14)
-  - OLMKit/olmcpp (3.2.14)
+  - MMKV (2.3.0):
+    - MMKVCore (~> 2.3.0)
+  - MMKVAppExtension (2.3.0):
+    - MMKVCore (~> 2.3.0)
+  - MMKVCore (2.3.0)
   - OpenSSL-Universal (3.3.3001)
   - RCT-Folly (2024.11.18.00):
     - boost
@@ -2971,10 +2966,10 @@ PODS:
     - Yoga
   - RNSVG (15.12.0):
     - React-Core
-  - SDWebImage (5.21.0):
-    - SDWebImage/Core (= 5.21.0)
-  - SDWebImage/Core (5.21.0)
-  - SDWebImageAVIFCoder (0.11.0):
+  - SDWebImage (5.21.5):
+    - SDWebImage/Core (= 5.21.5)
+  - SDWebImage/Core (5.21.5)
+  - SDWebImageAVIFCoder (0.11.1):
     - libavif/core (>= 0.11.0)
     - SDWebImage (~> 5.10)
   - SDWebImageSVGCoder (1.7.0):
@@ -3034,7 +3029,6 @@ DEPENDENCIES:
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - MMKV (>= 1.3.5)
   - MMKVAppExtension (>= 1.3.5)
-  - OLMKit (from `../node_modules/olm`)
   - RCT-Folly (from `../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../../node_modules/react-native/Libraries/Required`)
@@ -3207,8 +3201,6 @@ EXTERNAL SOURCES:
     :tag: hermes-2025-05-06-RNv0.80.0-4eb6132a5bf0450bf4c6c91987675381d7ac8bca
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
-  OLMKit:
-    :path: "../node_modules/olm"
   RCT-Folly:
     :podspec: "../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -3421,10 +3413,9 @@ SPEC CHECKSUMS:
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: 0180e0b84b1d7ce332ad6433806a4750da1013c6
-  MMKV: b4802ebd5a7c68fc0c4a5ccb4926fbdfb62d68e0
-  MMKVAppExtension: 19e34f3305b0b157f169c61353053bce094a36bf
-  MMKVCore: a255341a3746955f50da2ad9121b18cb2b346e61
-  OLMKit: a13e1a20579e88d03971c5821360be24949a1a09
+  MMKV: c953dbaac0da392c24b005e763c03ce2638b4ed7
+  MMKVAppExtension: 9fad13624efba8a1781195b4a4995b5e28e536b9
+  MMKVCore: d078dce7d6586a888b2c2ef5343b6242678e3ee8
   OpenSSL-Universal: 6082b0bf950e5636fe0d78def171184e2b3899c2
   RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: efa5010912100e944a7ac9a93a157e1def1988fe
@@ -3510,8 +3501,8 @@ SPEC CHECKSUMS:
   RNReanimated: 891817b5c509ae2b249240bb2c9f037c794ce745
   RNScreens: 945c9fc4872ccc9a235e55cd643957b688ecf657
   RNSVG: 3446469442ca54ddf210d2a1b7c2b6eaecaca2c3
-  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
-  SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
+  SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
+  SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
@@ -3520,6 +3511,6 @@ SPEC CHECKSUMS:
   VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
   Yoga: daa1e4de4b971b977b23bc842aaa3e135324f1f3
 
-PODFILE CHECKSUM: 4d01ca41c9bbf2f05b6f28f12340d0e1d4d52b73
+PODFILE CHECKSUM: ebed39646b9ca25b5c3028767159844b697a7160
 
 COCOAPODS: 1.15.2

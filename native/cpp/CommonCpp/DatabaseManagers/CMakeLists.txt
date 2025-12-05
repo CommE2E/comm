@@ -52,7 +52,6 @@ target_include_directories(comm-databasemanagers
   PRIVATE
   # HACK
   "../../../node_modules/react-native/ReactCommon/jsi"
-  "../../../node_modules/olm/include"
 )
 
 include("${_react_native_dir}/ReactAndroid/cmake-utils/folly-flags.cmake")

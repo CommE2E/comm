@@ -32,9 +32,6 @@
           inherit system;
           config = {
             allowUnfree = true;
-            permittedInsecurePackages = [
-              "olm-3.2.16"
-            ];
           };
           overlays = overlays ++ [
             # Re-introduce older packages that were removed in latest nixpkgs
