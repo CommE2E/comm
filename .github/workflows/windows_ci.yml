@@ -3,7 +3,9 @@ name: Windows build CI
 on:
   workflow_call:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'remove-olm-ci'
     paths-ignore:
       - 'landing/**'
       - 'docs/**'

@@ -2,7 +2,9 @@ name: Docker keyserver CI
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'remove-olm-ci'
     paths-ignore:
       - 'native/**'
       - 'docs/**'

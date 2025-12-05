@@ -2,7 +2,9 @@ name: JSI Codegen
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'remove-olm-ci'
   pull_request:
     types: [opened, reopened]
 
