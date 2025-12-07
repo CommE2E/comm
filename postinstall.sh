@@ -13,5 +13,5 @@ yarn flow-mono create-symlinks native
 yarn workspace native jetify
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  (cd native/ios && bundle install && MACOSX_DEPLOYMENT_TARGET='' bundle exec pod install --repo-update)
+  (cd native/ios && bundle install && MACOSX_DEPLOYMENT_TARGET='' DEVELOPER_DIR=$(/usr/bin/xcode-select -p) bundle exec pod install --repo-update)
 fi
