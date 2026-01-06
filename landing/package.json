@@ -45,7 +45,7 @@
     "buffer": "^6.0.3",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
-    "ethers": "^6.11.1",
+    "ethers": "^6.16.0",
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^3.0.0",
     "lib": "0.0.1",
