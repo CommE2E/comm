@@ -51,8 +51,7 @@ variable "container_name" {
 variable "desired_count" {
   description = "Desired number of running nodes"
   type        = number
-  # default 2 for constant uptime
-  default = 2
+  default     = 1
 }
 
 variable "image" {
