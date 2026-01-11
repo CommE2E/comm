@@ -93,24 +93,15 @@ function ConnectFarcaster(): React.Node {
       reconnect();
       postMessageToNativeWebView({
         type: 'farcaster_log',
-        log: `effect ran reconnect before signIn due to error. ${effectRunReason}`,
+        log: `effect ran reconnect due to error. ${effectRunReason}`,
       });
     } else if (!channelToken) {
       connect();
       postMessageToNativeWebView({
         type: 'farcaster_log',
-        log:
-          'effect ran connect before signIn due to no channelToken. ' +
-          effectRunReason,
-      });
-    } else {
-      postMessageToNativeWebView({
-        type: 'farcaster_log',
-        log: `effect ran signIn on its own. ${effectRunReason}`,
+        log: `effect ran connect due to no channelToken. ${effectRunReason}`,
       });
     }
-
-    signIn();
 
     if (url && messageSentRef.current === false) {
       messageSentRef.current = true;
@@ -130,6 +121,12 @@ function ConnectFarcaster(): React.Node {
           `effect skipped posting ${url.toString()} because already ` +
           `posted. ${effectRunReason}`,
       });
+    } else {
+      postMessageToNativeWebView({
+        type: 'farcaster_log',
+        log: `effect ran signIn because no URL yet. ${effectRunReason}`,
+      });
+      signIn();
     }
     // We exclude signIn below because it leads to rerunning the hook
     // constantly, which we suspect is breaking SIWF for some users
