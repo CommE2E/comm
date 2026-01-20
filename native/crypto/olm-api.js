@@ -58,7 +58,6 @@ const olmAPI: OlmAPI = {
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
-    olmCompatibilityMode: boolean,
   ): Promise<OutboundSessionCreationResult> {
     const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
     const identityKeys = JSON.stringify({
@@ -72,7 +71,6 @@ const olmAPI: OlmAPI = {
       prekeySignature,
       oneTimeKey,
       contentIdentityKeys.ed25519,
-      olmCompatibilityMode,
     );
   },
   keyserverNotificationsSessionCreator(
@@ -80,7 +78,6 @@ const olmAPI: OlmAPI = {
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
     keyserverID: string,
-    olmCompatibilityMode: boolean,
   ): Promise<string> {
     const { prekey, prekeySignature, oneTimeKey } =
       notificationsInitializationInfo;
@@ -90,14 +87,12 @@ const olmAPI: OlmAPI = {
       prekeySignature,
       oneTimeKey,
       keyserverID,
-      olmCompatibilityMode,
     );
   },
   async notificationsOutboundSessionCreator(
     deviceID: string,
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
-    olmCompatibilityMode: boolean,
   ): Promise<EncryptedData> {
     const { prekey, prekeySignature, oneTimeKey } =
       notificationsInitializationInfo;
@@ -111,7 +106,6 @@ const olmAPI: OlmAPI = {
       prekeySignature,
       oneTimeKey,
       deviceID,
-      olmCompatibilityMode,
     );
   },
   isDeviceNotificationsSessionInitialized:
