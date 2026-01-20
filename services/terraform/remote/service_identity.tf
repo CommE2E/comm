@@ -1,5 +1,5 @@
 locals {
-  identity_service_image_tag      = local.is_staging ? "0.54.8" : "0.54.8"
+  identity_service_image_tag      = local.is_staging ? "0.54.9" : "0.54.9"
   identity_service_server_image   = "commapp/identity-server:${local.identity_service_image_tag}"
   identity_service_container_name = "identity-server"
 
