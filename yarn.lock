@@ -1490,10 +1490,10 @@
   resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.5.5-e.tgz#05245e7c1f07ed46cdc652ebeeb7e1a923fa748a"
   integrity sha512-f+fuT/mbN/cB+Z4+QhTEmuRSbOLvaTdE3R2emcTK0P4gCPtwtgdZ3BGyxDLHkQPjlDaJ9G0Z6/+WqDJJLD0NnA==
 
-"@commapp/vodozemac@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@commapp/vodozemac/-/vodozemac-0.1.0.tgz#8a3016bb4354915600d0915a979bfa04b1db5cd7"
-  integrity sha512-JEUeFrVMLYXACxKqOze+6aqITGt46QrsSGZ19+Nrpx3Wo85Gml7nUm47HF+Pkc3iNS1uiNYhK3pliq9N/SMomQ==
+"@commapp/vodozemac@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@commapp/vodozemac/-/vodozemac-0.1.1.tgz#1fce8b3b39540900338271130efc42550b9a3542"
+  integrity sha512-TT9pqLUtfN3tPAGbJ3fsKa5CqWwoku9W3mokBk7v0bXko2cddheE9i5zzanQ9+hzHl5h2PWxD5HgiNbIlLSg8Q==
 
 "@commapp/windowspush@file:desktop/addons/windows-pushnotifications":
   version "0.0.1"
