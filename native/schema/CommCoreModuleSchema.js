@@ -73,7 +73,6 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKey: ?string,
     keyserverID: string,
-    olmCompatibilityMode: boolean,
   ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
   +isDeviceNotificationsSessionInitialized: (
@@ -103,7 +102,6 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKey: ?string,
     deviceID: string,
-    olmCompatibilityMode: boolean,
   ) => Promise<OutboundSessionCreationResult>;
   +initializeContentInboundSession: (
     identityKeys: string,
@@ -119,7 +117,6 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKey: ?string,
     deviceID: string,
-    olmCompatibilityMode: boolean,
   ) => Promise<EncryptedData>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +encryptNotification: (
