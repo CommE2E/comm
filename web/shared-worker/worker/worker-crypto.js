@@ -208,7 +208,6 @@ async function createAndPersistNotificationsOutboundSession(
     notificationsInitializationInfo.oneTimeKey || '',
     notificationsPrekey,
     notificationsInitializationInfo.prekeySignature,
-    true, // olmCompatibilityMode
   );
 
   const encryptedMessage = session.encrypt(
@@ -856,7 +855,6 @@ const olmAPI: OlmAPI = {
       contentInitializationInfo.oneTimeKey || '',
       contentInitializationInfo.prekey,
       contentInitializationInfo.prekeySignature,
-      true, // olmCompatibilityMode
     );
 
     const olmMessage = session.encrypt(

@@ -30,8 +30,7 @@ public:
       const std::string &idKeys,
       const std::string &preKeys,
       const std::string &preKeySignature,
-      const std::optional<std::string> &oneTimeKey,
-      bool olmCompatibilityMode);
+      const std::optional<std::string> &oneTimeKey);
   static std::pair<std::unique_ptr<Session>, std::string>
   createSessionAsResponder(
       ::rust::Box<::VodozemacAccount> &account,

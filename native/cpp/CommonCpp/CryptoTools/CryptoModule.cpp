@@ -251,12 +251,7 @@ int CryptoModule::initializeOutboundForSendingSession(
 
   // Use Olm compatibility mode = true for backward compatibility
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
-      this->vodozemacAccount,
-      idKeys,
-      preKeys,
-      preKeySignature,
-      oneTimeKey,
-      true); // olmCompatibilityMode = true
+      this->vodozemacAccount, idKeys, preKeys, preKeySignature, oneTimeKey);
 
   newSession->setVersion(newSessionVersion);
   this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));

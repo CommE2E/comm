@@ -257,7 +257,6 @@ impl VodozemacAccount {
     one_time_key: &str,
     pre_key: &str,
     pre_key_signature: &str,
-    olm_compatibility_mode: bool,
   ) -> Result<Box<VodozemacSession>, String> {
     let session_config = vodozemac::olm::SessionConfig::version_1();
     let identity_key =
@@ -287,7 +286,6 @@ impl VodozemacAccount {
         one_time_key,
         pre_key,
         pre_key_signature.to_string(),
-        olm_compatibility_mode,
       )
       .map_err(|e| e.to_string())?;
 
