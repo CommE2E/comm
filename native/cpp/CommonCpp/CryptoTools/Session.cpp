@@ -22,8 +22,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     const std::string &idKeys,
     const std::string &preKeys,
     const std::string &preKeySignature,
-    const std::optional<std::string> &oneTimeKey,
-    bool olmCompatibilityMode) {
+    const std::optional<std::string> &oneTimeKey) {
 
   try {
     // Parse identity keys JSON
@@ -40,8 +39,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
             // doesn't support Option<&str> in FFI function signatures.
             oneTimeKey.value_or(""),
             preKeys,
-            preKeySignature,
-            olmCompatibilityMode);
+            preKeySignature);
 
     return std::unique_ptr<Session>(new Session(std::move(vodozemacSession)));
   } catch (const std::exception &e) {

@@ -633,7 +633,6 @@ mod ffi {
       one_time_key: &str,
       pre_key: &str,
       pre_key_signature: &str,
-      olm_compatibility_mode: bool,
     ) -> Result<Box<VodozemacSession>>;
     fn create_inbound_session(
       self: &mut VodozemacAccount,
