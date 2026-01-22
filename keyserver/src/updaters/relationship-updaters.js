@@ -149,7 +149,11 @@ async function updateRelationships(
       promises.push(dbQuery(directedDeleteQuery));
     }
     if (messageDatas.length > 0) {
-      promises.push(createMessages(viewer, messageDatas, 'broadcast'));
+      promises.push(
+        createMessages(viewer, messageDatas, {
+          updatesForCurrentSession: 'broadcast',
+        }),
+      );
     }
 
     await Promise.all(promises);
@@ -269,7 +273,9 @@ async function updateRelationships(
         operation: 'farcaster_mutual',
       }),
     );
-    await createMessages(viewer, messageDatas, 'broadcast');
+    await createMessages(viewer, messageDatas, {
+      updatesForCurrentSession: 'broadcast',
+    });
   } else if (request.action === relationshipActions.ACKNOWLEDGE) {
     updateIDs.push(...userIDs);
 

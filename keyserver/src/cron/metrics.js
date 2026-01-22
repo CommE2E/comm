@@ -79,7 +79,7 @@ async function postMetrics() {
       text: metricText,
     },
   ];
-  await createMessages(viewer, messageDatas);
+  await createMessages(viewer, messageDatas, { skipUnreadUpdate: true });
 }
 
 async function getActiveCountSince(time: number): Promise<number> {

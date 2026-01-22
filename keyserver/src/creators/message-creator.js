@@ -66,12 +66,20 @@ type LatestMessageInfo = {
   +latestReadMessage: ?string,
 };
 
+type CreateMessagesOptions = Partial<{
+  +updatesForCurrentSession: UpdatesForCurrentSession,
+  +skipUnreadUpdate: boolean,
+}>;
+
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
   viewer: Viewer,
   messageDatas: $ReadOnlyArray<MessageData>,
-  updatesForCurrentSession?: UpdatesForCurrentSession = 'return',
+  options?: CreateMessagesOptions,
 ): Promise<RawMessageInfo[]> {
+  const updatesForCurrentSession =
+    options?.updatesForCurrentSession ?? 'return';
+  const skipUnreadUpdate = options?.skipUnreadUpdate ?? false;
   if (messageDatas.length === 0) {
     return [];
   }
@@ -180,6 +188,7 @@ async function createMessages(
     stripLocalIDs(newMessageInfos),
     newMessageDatas,
     updatesForCurrentSession,
+    skipUnreadUpdate,
   );
   if (!viewer.isScriptViewer) {
     // If we're not being called from a script, then we avoid awaiting
@@ -286,6 +295,7 @@ async function postMessageSend(
   messageInfos: RawMessageInfo[],
   messageDatas: MessageData[],
   updatesForCurrentSession: UpdatesForCurrentSession,
+  skipUnreadUpdate: boolean,
 ) {
   const processForSearchPromise = processMessagesForSearch(messageInfos);
 
@@ -436,6 +446,7 @@ async function postMessageSend(
           messages,
           preUserPushInfo,
           userID,
+          skipUnreadUpdate,
         );
       })(),
     );
@@ -534,6 +545,7 @@ function determineLatestMessagesPerThread(
   >,
   preUserPushInfo: UserThreadInfo,
   userID: string,
+  skipUnreadUpdate: boolean,
 ): Array<LatestMessageInfo> {
   const { threadIDs, notFocusedThreadIDs, subthreadsCanSetToUnread } =
     preUserPushInfo;
@@ -562,8 +574,8 @@ function determineLatestMessagesPerThread(
 
       let latestReadMessage = curLatestMessageForThread?.latestReadMessage;
       if (
-        !notFocusedThreadIDs.has(threadID) ||
-        messageInfo.creatorID === userID
+        !skipUnreadUpdate &&
+        (!notFocusedThreadIDs.has(threadID) || messageInfo.creatorID === userID)
       ) {
         latestReadMessage = Math.max(
           Number(messageID),
@@ -581,8 +593,9 @@ function determineLatestMessagesPerThread(
       let latestMessageForUnreadCheck =
         curLatestMessageForThread?.latestMessageForUnreadCheck;
       if (
-        messageNotifyType === messageNotifyTypes.SET_UNREAD ||
-        messageNotifyType === messageNotifyTypes.NOTIF_AND_SET_UNREAD
+        !skipUnreadUpdate &&
+        (messageNotifyType === messageNotifyTypes.SET_UNREAD ||
+          messageNotifyType === messageNotifyTypes.NOTIF_AND_SET_UNREAD)
       ) {
         latestMessageForUnreadCheck = Math.max(
           Number(messageID),

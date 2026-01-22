@@ -490,11 +490,9 @@ async function createThread(
       childThreadID: id,
     });
   }
-  const newMessageInfos = await createMessages(
-    viewer,
-    messageDatas,
+  const newMessageInfos = await createMessages(viewer, messageDatas, {
     updatesForCurrentSession,
-  );
+  });
 
   return {
     newThreadID: id,
