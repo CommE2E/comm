@@ -122,6 +122,19 @@ if (cluster.isMaster) {
         }
       },
     );
+    schedule.scheduleJob(
+      '0 6 * * *', // every day at 6:00 AM in the keyserver's timezone
+      async () => {
+        try {
+          await postMetrics();
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to post product metrics',
+            e,
+          );
+        }
+      },
+    );
   }
   if (RUN_COMM_TEAM_DEV_SCRIPTS && (isPrimaryNode || isAuxiliaryNode)) {
     schedule.scheduleJob(
@@ -145,19 +158,6 @@ if (cluster.isMaster) {
         } catch (e) {
           console.warn(
             'encountered error while trying to post Phabricator leaderboard',
-            e,
-          );
-        }
-      },
-    );
-    schedule.scheduleJob(
-      '0 6 * * *', // every day at 6:00 AM in the keyserver's timezone
-      async () => {
-        try {
-          await postMetrics();
-        } catch (e) {
-          console.warn(
-            'encountered error while trying to post product metrics',
             e,
           );
         }

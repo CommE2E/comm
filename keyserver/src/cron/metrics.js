@@ -11,7 +11,7 @@ const metricsChannel = '80820870';
 const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
 async function postMetrics() {
-  if (!process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
+  if (!process.env.RUN_COMM_TEAM_METRICS) {
     // This is a job that the Comm internal team uses
     return;
   }
