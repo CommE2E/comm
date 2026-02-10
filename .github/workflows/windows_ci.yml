@@ -94,7 +94,7 @@ jobs:
             if ($signature.Status -eq 'NotSigned') {
               throw "Expected a signature but found none: $filePath"
             }
-            Write-Host "Signature status for $filePath: $($signature.Status)"
+            Write-Host "Signature status for ${filePath}: $($signature.Status)"
           }
 
       - name: Upload Artifact
