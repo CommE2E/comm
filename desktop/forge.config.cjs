@@ -75,6 +75,7 @@ const optionsForFile = filePath => {
 
 const signingOptions = {
   packagerMacos: {},
+  packagerWindows: {},
   makerMacos: {},
   makerWindows: {},
 };
@@ -110,10 +111,26 @@ if (process.env?.ENV === 'dev') {
       'identifier': 'app.comm.macos',
     },
   };
-  signingOptions.makerWindows = {
-    certificateFile: process.env?.WINDOWS_CERTIFICATE,
-    certificatePassword: process.env?.WINDOWS_PASSWORD,
-  };
+  if (
+    process.env?.AZURE_CODE_SIGNING_DLIB &&
+    process.env?.WINDOWS_SIGNTOOL_PATH
+  ) {
+    const windowsSign = {
+      signToolPath: process.env?.WINDOWS_SIGNTOOL_PATH,
+      signWithParams: [
+        '/v',
+        '/debug',
+        '/dlib',
+        process.env.AZURE_CODE_SIGNING_DLIB,
+        '/dmdf',
+        path.resolve(__dirname, 'azure-artifact-signing-metadata.json'),
+      ],
+      timestampServer: 'http://timestamp.acs.microsoft.com',
+      hashes: ['sha256'],
+    };
+    signingOptions.packagerWindows = { windowsSign };
+    signingOptions.makerWindows = { windowsSign };
+  }
 }
 
 const macIconPackage = path.resolve(__dirname, '../lib/icons/apple.icon');
@@ -166,6 +183,7 @@ module.exports = {
       CFBundleIconFile: 'icon.icns', // Legacy .icns file
     },
     ...signingOptions.packagerMacos,
+    ...signingOptions.packagerWindows,
   },
   makers: [
     {

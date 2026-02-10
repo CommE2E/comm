@@ -1,0 +1,6 @@
+{
+  "Endpoint": "https://eus.codesigning.azure.net/",
+  "CodeSigningAccountName": "Comm",
+  "CertificateProfileName": "Comm-Windows-app-signing",
+  "ExcludeCredentials": ["ManagedIdentityCredential"]
+}

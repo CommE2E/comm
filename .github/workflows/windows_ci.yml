@@ -22,20 +22,80 @@ jobs:
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
-      - name: Save WINDOWS_CERTIFICATE_B64 to file
-        env:
-          WINDOWS_CERTIFICATE_B64: ${{secrets.WINDOWS_CERTIFICATE_B64}}
-        run: echo "$env:WINDOWS_CERTIFICATE_B64" > WINDOWS_CERTIFICATE_B64.b64
+      - name: Prepare Azure Trusted Signing tools
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
 
-      - name: Decode Windows certificate
-        run: certutil -decode WINDOWS_CERTIFICATE_B64.b64 windows_certificate.pfx
+          $trustedSigningVersion = '1.0.95'
+          $trustedSigningRoot = Join-Path $env:RUNNER_TEMP 'trusted-signing-client'
+          $trustedSigningPackage = Join-Path $trustedSigningRoot 'Microsoft.Trusted.Signing.Client.nupkg'
+          New-Item -ItemType Directory -Force -Path $trustedSigningRoot | Out-Null
+
+          Invoke-WebRequest `
+            -Uri "https://www.nuget.org/api/v2/package/Microsoft.Trusted.Signing.Client/$trustedSigningVersion" `
+            -OutFile $trustedSigningPackage
+          Expand-Archive -Path $trustedSigningPackage -DestinationPath $trustedSigningRoot -Force
+
+          $azureCodeSigningDlib = Join-Path $trustedSigningRoot 'bin\x64\Azure.CodeSigning.Dlib.dll'
+          if (-not (Test-Path -Path $azureCodeSigningDlib)) {
+            throw "Azure.CodeSigning.Dlib.dll was not found at expected path: $azureCodeSigningDlib"
+          }
+
+          $signToolCandidates = Get-ChildItem `
+            -Path 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' `
+            -File
+          if (-not $signToolCandidates) {
+            throw 'No x64 signtool.exe found under Windows SDK directories.'
+          }
+
+          $windowsSignToolPath = $signToolCandidates |
+            Sort-Object { [version]$_.Directory.Parent.Name } |
+            Select-Object -Last 1 -ExpandProperty FullName
+
+          "WINDOWS_SIGNTOOL_PATH=$windowsSignToolPath" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "AZURE_CODE_SIGNING_DLIB=$azureCodeSigningDlib" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Build App
         env:
-          WINDOWS_CERTIFICATE: ${{github.workspace}}\windows_certificate.pfx
-          WINDOWS_PASSWORD: ${{secrets.WINDOWS_PASSWORD}}
+          AZURE_CLIENT_ID: ${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.WINDOWS_SIGNING_AZURE_TENANT_ID }}
         working-directory: './desktop'
         run: yarn make-windows
+
+      - name: Verify signatures are present
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $appExe = Join-Path $env:GITHUB_WORKSPACE 'desktop\out\Comm-win32-x64\Comm.exe'
+          if (-not (Test-Path -Path $appExe)) {
+            throw "Signed app executable was not found: $appExe"
+          }
+
+          $setupExe = Get-ChildItem `
+            -Path (Join-Path $env:GITHUB_WORKSPACE 'desktop\out\make') `
+            -Filter '*Setup*.exe' `
+            -Recurse `
+            -File |
+            Select-Object -First 1
+          if (-not $setupExe) {
+            throw 'Signed Setup executable was not found under desktop/out/make.'
+          }
+
+          $filesToCheck = @($appExe, $setupExe.FullName)
+          foreach ($filePath in $filesToCheck) {
+            $signature = Get-AuthenticodeSignature -FilePath $filePath
+            if ($signature.Status -eq 'NotSigned') {
+              throw "Expected a signature but found none: $filePath"
+            }
+            Write-Host "Signature status for $filePath: $($signature.Status)"
+          }
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
