@@ -47,7 +47,7 @@ RUN \
 # We need to add the MariaDB repo to apt in order to install mariadb-client
 RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup \
   && chmod +x mariadb_repo_setup \
-  && ./mariadb_repo_setup \
+  && ./mariadb_repo_setup --mariadb-server-version=10.11 \
   && rm mariadb_repo_setup
 
 # We need rsync in the prod-build yarn script
