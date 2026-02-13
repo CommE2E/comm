@@ -36,6 +36,7 @@
 , rabbitmq-server
 , redis
 , redis-up
+, ruby
 , rustup
 , shellcheck
 , sops
@@ -96,6 +97,7 @@ mkShell {
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods # needed for ios
     bundler
+    ruby
   ];
 
   # include any libraries buildInputs
