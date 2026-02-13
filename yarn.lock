@@ -21977,10 +21977,10 @@ postcss@~8.4.32:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
-postinstall-postinstall@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.0.0.tgz#7ba6711b4420575c4f561638836a81faad47f43f"
-  integrity sha512-3f6qWexsHiT4WKtZc5DRb0FPLilHtARi5KpY4fqban/DJNn8/YhZH8U7dVKVz51WbOxEnR31gV+qYQhvEdHtdQ==
+"@ulissemini/postinstall-postinstall@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/@ulissemini/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#7a29e1e0878d47feb03ecd6b891ca5fe0ba85979"
+  integrity sha512-Q+X9BWTytD1u+QMwEQWWsbt1+tNitI9F3Dm0yOOjc+GE4xLAwXNThR9/p1QQS78UlXro2LEsi30edNh3PCaGUQ==
 
 postject@^1.0.0-alpha.6:
   version "1.0.0-alpha.6"
