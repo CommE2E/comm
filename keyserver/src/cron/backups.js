@@ -4,8 +4,7 @@ import childProcess from 'child_process';
 import dateFormat from 'dateformat';
 import fs from 'fs';
 import invariant from 'invariant';
-import { ReReadable } from 'rereadable-stream';
-import { PassThrough } from 'stream';
+import { PassThrough, pipeline as streamPipeline } from 'stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
 
@@ -16,6 +15,7 @@ import { getDBConfig, type DBConfig } from '../database/db-config.js';
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 const unlink = promisify(fs.unlink);
+const pipeline = promisify(streamPipeline);
 
 type BackupConfig = {
   +enabled: boolean,
@@ -41,40 +41,17 @@ async function backupDB() {
   const filename = `comm.${dateString}.sql.gz`;
   const filePath = `${backupConfig.directory}/${filename}`;
 
-  const rawStream = new PassThrough();
-  void (async () => {
-    try {
-      await mysqldump(dbConfig, filename, rawStream, ['--no-data'], {
-        end: false,
-      });
-    } catch {}
-    try {
-      const ignoreReports = `--ignore-table=${dbConfig.database}.reports`;
-      await mysqldump(dbConfig, filename, rawStream, [
-        '--no-create-info',
-        ignoreReports,
-      ]);
-    } catch {
-      rawStream.end();
-    }
-  })();
-
-  const gzippedBuffer = new ReReadable();
-  rawStream
-    .on('error', (e: Error) => {
-      console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
-    })
-    .pipe(zlib.createGzip())
-    .on('error', (e: Error) => {
-      console.warn(`gzip transform stream emitted error for ${filename}`, e);
-    })
-    .pipe(gzippedBuffer);
-
   try {
-    await saveBackup(filename, filePath, gzippedBuffer);
+    await saveBackup(dbConfig, filename, filePath);
   } catch (e) {
     console.warn(`saveBackup threw for ${filename}`, e);
-    await unlink(filePath);
+    try {
+      await unlink(filePath);
+    } catch (deleteError) {
+      if (deleteError.code !== 'ENOENT') {
+        throw deleteError;
+      }
+    }
   }
 
   await deleteOldBackupsIfSpaceExceeded();
@@ -139,13 +116,13 @@ function mysqldump(
 }
 
 async function saveBackup(
+  dbConfig: DBConfig,
   filename: string,
   filePath: string,
-  gzippedBuffer: ReReadable,
   retries: number = 2,
 ): Promise<void> {
   try {
-    await trySaveBackup(filename, filePath, gzippedBuffer);
+    await trySaveBackup(dbConfig, filename, filePath);
   } catch (saveError) {
     if (saveError.code !== 'ENOSPC') {
       throw saveError;
@@ -162,15 +139,15 @@ async function saveBackup(
         throw deleteError;
       }
     }
-    await saveBackup(filename, filePath, gzippedBuffer, retries - 1);
+    await saveBackup(dbConfig, filename, filePath, retries - 1);
   }
 }
 
 const backupWatchFrequency = 60 * 1000;
-function trySaveBackup(
+async function trySaveBackup(
+  dbConfig: DBConfig,
   filename: string,
   filePath: string,
-  gzippedBuffer: ReReadable,
 ): Promise<void> {
   const timeoutObject: { timeout: ?TimeoutID } = { timeout: null };
   const setBackupTimeout = (alreadyWaited: number) => {
@@ -184,21 +161,56 @@ function trySaveBackup(
   };
   setBackupTimeout(0);
 
+  const rawStream = new PassThrough();
+  const gzipStream = zlib.createGzip();
   const writeStream = fs.createWriteStream(filePath);
-  return new Promise((resolve, reject) => {
-    gzippedBuffer
-      .rewind()
-      .pipe(writeStream)
-      .on('finish', () => {
-        clearTimeout(timeoutObject.timeout);
-        resolve();
-      })
-      .on('error', (e: Error) => {
-        clearTimeout(timeoutObject.timeout);
-        console.warn(`write stream emitted error for ${filename}`, e);
-        reject(e);
-      });
+  rawStream.on('error', (e: Error) => {
+    console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
   });
+  gzipStream.on('error', (e: Error) => {
+    console.warn(`gzip transform stream emitted error for ${filename}`, e);
+  });
+  writeStream.on('error', (e: Error) => {
+    console.warn(`write stream emitted error for ${filename}`, e);
+  });
+
+  const dumpPromise = (async () => {
+    try {
+      await mysqldump(dbConfig, filename, rawStream, ['--no-data'], {
+        end: false,
+      });
+    } catch (firstDumpError) {
+      console.warn(
+        `mysqldump --no-data failed for ${filename}; ` +
+          'continuing with data-only backup',
+        firstDumpError,
+      );
+    }
+    const ignoreReports = `--ignore-table=${dbConfig.database}.reports`;
+    try {
+      await mysqldump(dbConfig, filename, rawStream, [
+        '--no-create-info',
+        ignoreReports,
+      ]);
+    } catch (error) {
+      rawStream.destroy(error);
+      throw error;
+    }
+  })();
+
+  try {
+    try {
+      await pipeline(rawStream, gzipStream, writeStream);
+    } catch (error) {
+      try {
+        await dumpPromise;
+      } catch {}
+      throw error;
+    }
+    await dumpPromise;
+  } finally {
+    clearTimeout(timeoutObject.timeout);
+  }
 }
 
 async function deleteOldestBackup() {

@@ -83,7 +83,6 @@
     "react-router": "^5.2.0",
     "redis": "^3.1.1",
     "redux": "^4.0.4",
-    "rereadable-stream": "^1.4.5",
     "rust-node-addon": "0.0.1",
     "sharp": "^0.30.5",
     "siwe": "^2.1.4",
