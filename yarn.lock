@@ -6804,6 +6804,11 @@
     "@typescript-eslint/types" "8.32.1"
     eslint-visitor-keys "^4.2.0"
 
+"@ulissemini/postinstall-postinstall@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/@ulissemini/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#7a29e1e0878d47feb03ecd6b891ca5fe0ba85979"
+  integrity sha512-Q+X9BWTytD1u+QMwEQWWsbt1+tNitI9F3Dm0yOOjc+GE4xLAwXNThR9/p1QQS78UlXro2LEsi30edNh3PCaGUQ==
+
 "@ungap/structured-clone@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
@@ -21977,11 +21982,6 @@ postcss@~8.4.32:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
-"@ulissemini/postinstall-postinstall@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/@ulissemini/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#7a29e1e0878d47feb03ecd6b891ca5fe0ba85979"
-  integrity sha512-Q+X9BWTytD1u+QMwEQWWsbt1+tNitI9F3Dm0yOOjc+GE4xLAwXNThR9/p1QQS78UlXro2LEsi30edNh3PCaGUQ==
-
 postject@^1.0.0-alpha.6:
   version "1.0.0-alpha.6"
   resolved "https://registry.yarnpkg.com/postject/-/postject-1.0.0-alpha.6.tgz#9d022332272e2cfce8dea4cfce1ee6dd1b2ee135"
@@ -23633,11 +23633,6 @@ requires-port@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
-
-rereadable-stream@^1.4.5:
-  version "1.4.5"
-  resolved "https://registry.yarnpkg.com/rereadable-stream/-/rereadable-stream-1.4.5.tgz#aed1f880597fcd20d695b93141256d9bb0b7119a"
-  integrity sha512-hgVjbKq65Ynx4FAYTZaNjy0Oy9z+VPEmSYE1087k+P0dGbKUK+ZtFmIoMHXZ7TdjnR8u5y8/ecaDVbpypD6X1w==
 
 resedit@^2.0.0:
   version "2.0.3"
