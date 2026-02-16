@@ -1,3 +1,14 @@
+# Command execution
+
+All commands must be run inside Nix for this repository.
+
+If already running inside a Nix environment, run commands directly and do not start a nested `nix develop`.
+
+Otherwise:
+
+- One-shot command pattern: `nix develop --command <cmd ...>`
+- Interactive shell pattern: `nix develop`
+
 # Comm Project Development Guide
 
 ## Build & Test Commands
