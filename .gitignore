@@ -6,6 +6,7 @@ landing/node_modules
 landing/dist
 
 lib/node_modules
+lib/facts/services-environment.json
 
 web/node_modules
 web/dist
