@@ -5,15 +5,103 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ServicesEnvironment {
+  Production,
+  Staging,
+}
+
+impl ServicesEnvironment {
+  const ENV_VAR_NAME: &'static str = "COMM_SERVICES_ENV";
+  const CONFIG_FILEPATH: &'static str =
+    "../facts/rust_services_environment.json";
+  const ALL_VALUES: [Self; 2] = [Self::Production, Self::Staging];
+
+  fn as_str(self) -> &'static str {
+    match self {
+      Self::Production => "production",
+      Self::Staging => "staging",
+    }
+  }
+
+  fn expected_values() -> String {
+    Self::ALL_VALUES
+      .iter()
+      .map(|value| value.as_str())
+      .collect::<Vec<_>>()
+      .join(", ")
+  }
+
+  fn from_value(raw_value: &str) -> Option<Self> {
+    let normalized_value = raw_value.to_ascii_lowercase();
+    Self::ALL_VALUES
+      .iter()
+      .copied()
+      .find(|value| value.as_str() == normalized_value)
+  }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ServicesEnvironmentConfig {
+  environment: String,
+}
+
+fn get_services_environment() -> ServicesEnvironment {
+  println!(
+    "cargo:rerun-if-env-changed={}",
+    ServicesEnvironment::ENV_VAR_NAME
+  );
+  println!(
+    "cargo:rerun-if-changed={}",
+    ServicesEnvironment::CONFIG_FILEPATH
+  );
+
+  if let Ok(raw_environment) = env::var(ServicesEnvironment::ENV_VAR_NAME) {
+    let expected_values = ServicesEnvironment::expected_values();
+    return ServicesEnvironment::from_value(&raw_environment).unwrap_or_else(
+      || {
+        panic!(
+          "Invalid services environment from {}: `{}`. Expected one of: {}",
+          ServicesEnvironment::ENV_VAR_NAME,
+          raw_environment,
+          expected_values
+        )
+      },
+    );
+  }
+
+  if let Ok(file_content) =
+    fs::read_to_string(ServicesEnvironment::CONFIG_FILEPATH)
+  {
+    let config: ServicesEnvironmentConfig = serde_json::from_str(&file_content)
+      .expect("Could not parse rust_services_environment.json");
+    let raw_environment = config.environment;
+    let expected_values = ServicesEnvironment::expected_values();
+    return ServicesEnvironment::from_value(&raw_environment).unwrap_or_else(
+      || {
+        panic!(
+          "Invalid services environment from {}: `{}`. Expected one of: {}",
+          ServicesEnvironment::CONFIG_FILEPATH,
+          raw_environment,
+          expected_values
+        )
+      },
+    );
+  }
+
+  ServicesEnvironment::Production
+}
+
 trait ServiceConfig: for<'a> Deserialize<'a> {
   const FILEPATH: &'static str;
 
-  fn debug_default() -> Self;
-  fn release_default() -> Self;
+  fn staging_default() -> Self;
+  fn production_default() -> Self;
 
   fn generated_code(&self) -> String;
 
-  fn get_config() -> Self {
+  fn get_config(services_environment: ServicesEnvironment) -> Self {
     let path = Path::new(Self::FILEPATH);
 
     if let Ok(file_content) = fs::read_to_string(path) {
@@ -22,11 +110,10 @@ trait ServiceConfig: for<'a> Deserialize<'a> {
       }
     }
 
-    let profile = env::var("PROFILE").expect("Error fetching PROFILE env var");
-    if profile == "release" {
-      Self::release_default()
+    if services_environment == ServicesEnvironment::Staging {
+      Self::staging_default()
     } else {
-      Self::debug_default()
+      Self::production_default()
     }
   }
 }
@@ -40,14 +127,14 @@ struct IdentityServiceConfig {
 impl ServiceConfig for IdentityServiceConfig {
   const FILEPATH: &'static str = "../facts/identity_service_config.json";
 
-  fn debug_default() -> Self {
+  fn staging_default() -> Self {
     Self {
       identity_socket_addr:
         "https://identity.staging.commtechnologies.org:50054".to_string(),
     }
   }
 
-  fn release_default() -> Self {
+  fn production_default() -> Self {
     Self {
       identity_socket_addr: "https://identity.commtechnologies.org:50054"
         .to_string(),
@@ -71,14 +158,14 @@ struct BackupServiceConfig {
 impl ServiceConfig for BackupServiceConfig {
   const FILEPATH: &'static str = "../facts/backup_service_config.json";
 
-  fn debug_default() -> Self {
+  fn staging_default() -> Self {
     Self {
       backup_socket_addr: "https://backup.staging.commtechnologies.org"
         .to_string(),
     }
   }
 
-  fn release_default() -> Self {
+  fn production_default() -> Self {
     Self {
       backup_socket_addr: "https://backup.commtechnologies.org".to_string(),
     }
@@ -182,8 +269,9 @@ fn main() {
   let out_dir = env::var("OUT_DIR").expect("Error fetching OUT_DIR env var");
   write_version_constants(&out_dir);
 
-  let identity_config = IdentityServiceConfig::get_config();
-  let backup_config = BackupServiceConfig::get_config();
+  let services_environment = get_services_environment();
+  let identity_config = IdentityServiceConfig::get_config(services_environment);
+  let backup_config = BackupServiceConfig::get_config(services_environment);
 
   let socket_config_path = Path::new(&out_dir).join("socket_config.rs");
 
