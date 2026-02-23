@@ -1,7 +1,6 @@
 apply plugin: "com.android.application"
 
 import de.undercouch.gradle.tasks.download.Download
-import app.comm.gradle.tasks.GitModules
 
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"

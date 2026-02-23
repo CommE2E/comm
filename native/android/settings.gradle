@@ -42,6 +42,3 @@ project(':reactnativekeyboardinput').projectDir = new File(rootProject.projectDi
 include ':app'
 
 includeBuild(expoAutolinking.reactNativeGradlePlugin)
-
-// We need to include '.gitmodules' for our 'GitModules' custom task
-org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitmodules")
