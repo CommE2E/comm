@@ -3,6 +3,7 @@ apply plugin: "com.android.application"
 import de.undercouch.gradle.tasks.download.Download
 import app.comm.gradle.AndroidAbiHelpers
 import app.comm.gradle.AndroidSigning
+import app.comm.gradle.BuildInvocation
 
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -185,7 +186,7 @@ task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
 }
 
 // Bind preBuild dependencies only if not 'clean' running
-if (!isCleanRunning()) {
+if (!BuildInvocation.isCleanRunning(project)) {
     afterEvaluate {
         preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, copyNativeRustLibraryFiles)
     }
@@ -200,13 +201,6 @@ gradle.projectsEvaluated {
 // Run removing CXX task before the clean execution
 beforeEvaluate {
     clean.dependsOn(removeCXX)
-}
-
-// Detects are we running the 'clean' commands
-def isCleanRunning() {
-    gradle.startParameter.taskRequests.any {
-        !it.args.isEmpty() && it.args.first().startsWith('clean')
-    }
 }
 
 android {
