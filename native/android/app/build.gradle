@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 
 import de.undercouch.gradle.tasks.download.Download
 import app.comm.gradle.AndroidAbiHelpers
+import app.comm.gradle.AndroidSigning
 
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -208,23 +209,6 @@ def isCleanRunning() {
     }
 }
 
-// Release keystore via macOS Keychain Access
-def getPassword(String keyLabel) {
-    if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
-        return System.getenv('ANDROID_SIGNING_PASSWORD') 
-    }
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'security',
-            'find-generic-password',
-            '-wl', keyLabel,
-            '-a', System.properties['user.name']
-        standardOutput = stdout
-        ignoreExitValue true
-    }
-    return stdout.toString().strip()
-}
-
 android {
     buildFeatures {
         prefab true
@@ -266,7 +250,10 @@ android {
         }
         release {
             if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
-                def password = getPassword('CommAndroidKeyPassword')
+                def password = AndroidSigning.getPassword(
+                    project,
+                    'CommAndroidKeyPassword',
+                )
                 storeFile file(COMM_UPLOAD_STORE_FILE)
                 storePassword password
                 keyAlias COMM_UPLOAD_KEY_ALIAS
