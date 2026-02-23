@@ -3,16 +3,66 @@
 #import "CommSecureStore.h"
 #import "Logger.h"
 
-#ifdef DEBUG
-NSString const *blobServiceAddress =
-    @"https://blob.staging.commtechnologies.org";
-NSString const *identityServiceAddress =
-    @"https://identity.staging.commtechnologies.org:51004";
-#else
-NSString const *blobServiceAddress = @"https://blob.commtechnologies.org";
-NSString const *identityServiceAddress =
-    @"https://identity.commtechnologies.org:51004";
-#endif
+NSString *const commServicesEnvironmentInfoPlistKey =
+    @"CommServicesEnvironment";
+NSString *const productionServicesEnvironment = @"production";
+NSString *const stagingServicesEnvironment = @"staging";
+
+NSArray<NSString *> *commServicesEnvironmentValues() {
+  return @[ productionServicesEnvironment, stagingServicesEnvironment ];
+}
+
+NSString *parseServicesEnvironment(NSString *environment) {
+  for (NSString *servicesEnvironment in commServicesEnvironmentValues()) {
+    if ([environment isEqualToString:servicesEnvironment]) {
+      return servicesEnvironment;
+    }
+  }
+
+  [NSException
+       raise:@"CommServicesEnvironmentError"
+      format:
+          @"Invalid services environment from %@: `%@`. Expected one "
+          @"of: %@",
+          [NSString
+              stringWithFormat:@"Info.plist:%@",
+                               commServicesEnvironmentInfoPlistKey] environment,
+          [commServicesEnvironmentValues() componentsJoinedByString:@", "]];
+  return productionServicesEnvironment;
+}
+
+NSString *resolveServicesEnvironment() {
+  id environment = [[NSBundle mainBundle]
+      objectForInfoDictionaryKey:commServicesEnvironmentInfoPlistKey];
+  if ([environment isKindOfClass:[NSString class]] &&
+      [((NSString *)environment) length] > 0) {
+    return parseServicesEnvironment((NSString *)environment);
+  }
+
+  return productionServicesEnvironment;
+}
+
+bool useStagingServices() {
+  static bool cachedUseStagingServices = false;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *servicesEnvironment = resolveServicesEnvironment();
+    cachedUseStagingServices =
+        [servicesEnvironment isEqualToString:stagingServicesEnvironment];
+  });
+  return cachedUseStagingServices;
+}
+
+NSString *blobServiceAddress() {
+  return useStagingServices() ? @"https://blob.staging.commtechnologies.org"
+                              : @"https://blob.commtechnologies.org";
+}
+
+NSString *identityServiceAddress() {
+  return useStagingServices()
+      ? @"https://identity.staging.commtechnologies.org:51004"
+      : @"https://identity.commtechnologies.org:51004";
+}
 
 int const servicesQueryTimeLimit = 15;
 const std::string mmkvBlobHolderPrefix = "BLOB_HOLDER.";
@@ -56,7 +106,7 @@ NSString *const blobServiceHolderKey = @"holder";
     return nil;
   }
 
-  NSString *blobUrlStr = [blobServiceAddress
+  NSString *blobUrlStr = [blobServiceAddress()
       stringByAppendingString:[@"/blob/" stringByAppendingString:blobHash]];
   NSURL *blobUrl = [NSURL URLWithString:blobUrlStr];
   NSMutableURLRequest *blobRequest =
@@ -139,7 +189,7 @@ NSString *const blobServiceHolderKey = @"holder";
 
   NSString *urlString =
       [NSString stringWithFormat:@"%@/device_inbound_keys?device_id=%@",
-                                 identityServiceAddress,
+                                 identityServiceAddress(),
                                  base64URLEncodedDeviceID];
   NSURL *url = [NSURL URLWithString:urlString];
 
@@ -279,7 +329,8 @@ NSString *const blobServiceHolderKey = @"holder";
     return;
   }
 
-  NSString *blobUrlStr = [blobServiceAddress stringByAppendingString:@"/blob"];
+  NSString *blobUrlStr =
+      [blobServiceAddress() stringByAppendingString:@"/blob"];
   NSURL *blobUrl = [NSURL URLWithString:blobUrlStr];
 
   NSMutableURLRequest *deleteRequest =
