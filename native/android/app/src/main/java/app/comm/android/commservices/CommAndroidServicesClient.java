@@ -37,10 +37,13 @@ public class CommAndroidServicesClient {
   public static final CommAndroidServicesClient instance =
       new CommAndroidServicesClient();
 
-  public static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
+  private static final boolean useStagingServices =
+      BuildConfig.COMM_SERVICES_ENVIRONMENT.equals("staging");
+
+  public static final String BLOB_SERVICE_URL = useStagingServices
       ? "https://blob.staging.commtechnologies.org"
       : "https://blob.commtechnologies.org";
-  public static final String IDENTITY_SERVICE_URL = BuildConfig.DEBUG
+  public static final String IDENTITY_SERVICE_URL = useStagingServices
       ? "https://identity.staging.commtechnologies.org:51004"
       : "https://identity.commtechnologies.org:51004";
   public static final String BLOB_HASH_KEY = "blob_hash";
