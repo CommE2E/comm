@@ -4,6 +4,7 @@ import de.undercouch.gradle.tasks.download.Download
 import app.comm.gradle.AndroidAbiHelpers
 import app.comm.gradle.AndroidSigning
 import app.comm.gradle.BuildInvocation
+import app.comm.gradle.ServicesEnvironment
 
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -85,6 +86,8 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+def commServicesEnvironment = ServicesEnvironment.resolve(project)
 
 def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
 def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
@@ -233,6 +236,7 @@ android {
         versionCode 562
         versionName '1.0.562'
         multiDexEnabled true
+        buildConfigField "String", "COMM_SERVICES_ENVIRONMENT", "\"${commServicesEnvironment}\""
     }
 
     signingConfigs {
