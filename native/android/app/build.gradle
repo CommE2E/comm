@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 
 import de.undercouch.gradle.tasks.download.Download
+import app.comm.gradle.AndroidAbiHelpers
 
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -83,14 +84,6 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
-/**
- * Architectures to build native code for.
- */
-def reactNativeArchitectures() {
-    def value = project.getProperties().get("reactNativeArchitectures")
-    return value ? value.split(",") : ["armeabi-v7a", "x86_64", "arm64-v8a"]
-}
-
 def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
 def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
 def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
@@ -125,12 +118,12 @@ task prepareOpenSSL(
 task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
     inputs.properties([
         'openssl.version': OPENSSL_VERSION,
-        'openssl.abis': getBuildTypeABIs(reactNativeArchitectures())
+        'openssl.abis': AndroidAbiHelpers.getBuildTypeABIs(project)
     ])
     outputs.dir("${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/build/")
         .withPropertyName('openssl.output')
     doFirst {
-        getBuildTypeABIs(reactNativeArchitectures()).each { buildABI ->
+        AndroidAbiHelpers.getBuildTypeABIs(project).each { buildABI ->
             logger.info("Building OpenSSL library for the ${buildABI}")
             exec {
                 commandLine './bash/build_openssl.sh',
@@ -232,36 +225,6 @@ def getPassword(String keyLabel) {
     return stdout.toString().strip()
 }
 
-// Returns all ABIs architectures for the 'bundleRelease'
-// or only from 'adb devices' if running debug release.
-def getBuildTypeABIs(nativeArchitectures) {
-    if (System.getenv("BUILDKITE") == "true") {
-        return ["arm64-v8a"] 
-    }
-    def isBundleRelease = gradle.startParameter.taskRequests.any {
-        !it.args.isEmpty() && it.args.first().contains("bundleRelease")
-    }
-    if (isBundleRelease) {
-        // All of the supported ABIs
-        // https://developer.android.com/ndk/guides/abis.html#sa
-        final allAbis = ["armeabi-v7a", "arm64-v8a", "x86_64"]
-        logger.info("Using all architectures to build: ${allAbis}")
-        return allAbis
-    }
-    if (nativeArchitectures) {
-        return nativeArchitectures
-    }
-    // Get current 'adb devices' architectures
-    def commandOutput = new ByteArrayOutputStream()
-    exec {
-        commandLine "./bash/detect_abis.sh"
-        standardOutput = commandOutput
-    }
-    final detectedAbis = commandOutput.toString("UTF-8").trim().tokenize()
-    logger.info("Detected architectures to build: ${detectedAbis}")
-    return detectedAbis
-}
-
 android {
     buildFeatures {
         prefab true
@@ -312,7 +275,7 @@ android {
         }
     }
     buildTypes {
-        final buildABIs = getBuildTypeABIs(reactNativeArchitectures())
+        final buildABIs = AndroidAbiHelpers.getBuildTypeABIs(project)
         release {
             if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
                 signingConfig signingConfigs.release
