@@ -14,10 +14,7 @@ class AndroidAbiHelpers {
       return ['arm64-v8a']
     }
 
-    def isBundleRelease = project.gradle.startParameter.taskRequests.any {
-      !it.args.isEmpty() && it.args.first().contains('bundleRelease')
-    }
-    if (isBundleRelease) {
+    if (BuildInvocation.isBundleReleaseRunning(project)) {
       // All of the supported ABIs
       // https://developer.android.com/ndk/guides/abis.html#sa
       final allAbis = ['armeabi-v7a', 'arm64-v8a', 'x86_64']
