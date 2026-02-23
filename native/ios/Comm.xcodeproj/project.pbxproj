@@ -1002,6 +1002,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */,
 				EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */,
+				8F0F6A392E7A0D610021A2A1 /* Set services environment */,
 				724995DA27B4103A00323FCE /* Embed App Extensions */,
 			);
 			buildRules = (
@@ -1304,6 +1305,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/../../scripts/build-rust-vodozemac-bindings.sh\n";
+		};
+		8F0F6A392E7A0D610021A2A1 /* Set services environment */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+				"${PROJECT_DIR}/../../lib/facts/services-environment.json",
+			);
+			name = "Set services environment";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\"$NODE_BINARY\" \"$PROJECT_ROOT/scripts/set-ios-services-environment.js\"\n";
 		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
