@@ -1,0 +1,9 @@
+// @flow
+
+declare export default {|
+  +servicesEnvironments: {|
+    +production: 'production',
+    +staging: 'staging',
+  |},
+  +resolveServicesEnvironment: () => 'production' | 'staging',
+|};
