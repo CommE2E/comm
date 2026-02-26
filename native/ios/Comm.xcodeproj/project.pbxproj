@@ -1002,8 +1002,8 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */,
 				EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */,
-				8F0F6A392E7A0D610021A2A1 /* Set services environment */,
 				724995DA27B4103A00323FCE /* Embed App Extensions */,
+				8F0F6A392E7A0D610021A2A1 /* Set services environment */,
 			);
 			buildRules = (
 			);
@@ -1316,6 +1316,7 @@
 				"$(SRCROOT)/.xcode.env.local",
 				"$(SRCROOT)/.xcode.env",
 				"${PROJECT_DIR}/../../lib/facts/services-environment.json",
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Set services environment";
 			outputPaths = (
