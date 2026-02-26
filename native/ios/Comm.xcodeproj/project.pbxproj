@@ -1316,6 +1316,7 @@
 				"$(SRCROOT)/.xcode.env.local",
 				"$(SRCROOT)/.xcode.env",
 				"${PROJECT_DIR}/../../lib/facts/services-environment.json",
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Set services environment";
 			outputPaths = (
