@@ -63,7 +63,11 @@ function SelectProtocolDropdown(): React.Node {
 
   const dropdownHeader = React.useMemo(() => {
     if (!selectedProtocol) {
-      return <Text style={styles.text}>Select chat type</Text>;
+      return (
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>Select chat type</Text>
+        </View>
+      );
     }
     return (
       <View key={selectedProtocol} style={styles.selectedOption}>
@@ -76,6 +80,7 @@ function SelectProtocolDropdown(): React.Node {
     styles.protocolName,
     styles.selectedOption,
     styles.text,
+    styles.textContainer,
   ]);
 
   const iconName = React.useMemo(
@@ -124,6 +129,8 @@ function SelectProtocolDropdown(): React.Node {
 
 const unboundStyles = {
   container: {
+    marginHorizontal: 4,
+    marginVertical: 8,
     backgroundColor: 'selectProtocolDropdownBackground',
     zIndex: 4,
   },
@@ -164,10 +171,13 @@ const unboundStyles = {
     top: 43,
     width: '100%',
   },
+  textContainer: {
+    justifyContent: 'center',
+    height: 24,
+  },
   text: {
     fontSize: 16,
     color: 'panelForegroundLabel',
-    height: 24,
     textAlignVertical: 'center',
   },
   protocolName: {
