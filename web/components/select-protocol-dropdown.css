@@ -78,14 +78,6 @@
   color: var(--fg);
 }
 
-.disabled {
-  cursor: not-allowed;
-}
-
-.disabled .dropdownHeader {
-  cursor: not-allowed;
-}
-
 .headerClickableArea {
   display: flex;
   align-items: center;
@@ -94,8 +86,4 @@
 
 .iconClickable {
   cursor: pointer;
-}
-
-.modalContent {
-  color: var(--fg);
 }
