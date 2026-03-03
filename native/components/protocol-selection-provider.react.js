@@ -43,14 +43,15 @@ function ProtocolSelectionProvider(
 
   const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
     useUsersSupportingProtocols(userInfoInputArray);
+
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
+  const canUseFarcasterThreads =
+    (userInfoInputArray.length === 0 || allUsersSupportFarcasterThreads) &&
+    currentUserSupportsDCs;
 
   const availableProtocols = React.useMemo(() => {
     const protocols: Array<ProtocolName> = [];
-    if (
-      (userInfoInputArray.length === 0 || allUsersSupportFarcasterThreads) &&
-      currentUserSupportsDCs
-    ) {
+    if (canUseFarcasterThreads) {
       protocols.push(protocolNames.FARCASTER_DC);
     }
     if (userInfoInputArray.length === 0 || allUsersSupportThickThreads) {
@@ -58,9 +59,8 @@ function ProtocolSelectionProvider(
     }
     return protocols.filter(protocol => protocol !== selectedProtocol);
   }, [
-    allUsersSupportFarcasterThreads,
+    canUseFarcasterThreads,
     allUsersSupportThickThreads,
-    currentUserSupportsDCs,
     selectedProtocol,
     userInfoInputArray.length,
   ]);
@@ -69,15 +69,19 @@ function ProtocolSelectionProvider(
     if (userInfoInputArray.length === 0 || !isThreadPending) {
       return;
     }
-    if (allUsersSupportFarcasterThreads && !allUsersSupportThickThreads) {
-      setSelectedProtocol(protocolNames.FARCASTER_DC);
-    } else if (
-      !allUsersSupportFarcasterThreads &&
-      allUsersSupportThickThreads
+    if (
+      canUseFarcasterThreads &&
+      allUsersSupportFarcasterThreads &&
+      !allUsersSupportThickThreads
     ) {
+      setSelectedProtocol(protocolNames.FARCASTER_DC);
+    } else if (!canUseFarcasterThreads && allUsersSupportThickThreads) {
       setSelectedProtocol(protocolNames.COMM_DM);
+    } else if (!canUseFarcasterThreads && !allUsersSupportThickThreads) {
+      setSelectedProtocol(protocolNames.KEYSERVER);
     }
   }, [
+    canUseFarcasterThreads,
     allUsersSupportFarcasterThreads,
     allUsersSupportThickThreads,
     isThreadPending,

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
+import { protocolNames } from 'lib/shared/protocol-names.js';
 import { protocols } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { ProtocolName } from 'lib/shared/threads/thread-spec';
 
@@ -54,7 +55,7 @@ function SelectProtocolDropdown(): React.Node {
   );
 
   const dropdownHeader = React.useMemo(() => {
-    if (!selectedProtocol) {
+    if (!selectedProtocol || selectedProtocol === protocolNames.KEYSERVER) {
       return (
         <View style={styles.textContainer}>
           <Text style={styles.text}>Select chat type</Text>
