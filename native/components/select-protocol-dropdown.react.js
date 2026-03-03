@@ -2,12 +2,11 @@
 
 import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { protocols } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { ProtocolName } from 'lib/shared/threads/thread-spec';
-import { protocolInfoAlert } from 'lib/utils/alert-utils.js';
 
 import ProtocolIcon from './protocol-icon.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -20,14 +19,7 @@ function SelectProtocolDropdown(): React.Node {
   const [showOptions, setShowOptions] = React.useState(false);
 
   const onDropdownPress = React.useCallback(() => {
-    if (availableProtocols.length < 1) {
-      return;
-    }
-    setShowOptions(!showOptions);
-  }, [availableProtocols.length, showOptions]);
-
-  const onInfoPress = React.useCallback(() => {
-    Alert.alert(protocolInfoAlert.title, protocolInfoAlert.message);
+    setShowOptions(currentShowOptions => !currentShowOptions);
   }, []);
 
   const onOptionSelection = React.useCallback(
@@ -83,11 +75,6 @@ function SelectProtocolDropdown(): React.Node {
     styles.textContainer,
   ]);
 
-  const iconName = React.useMemo(
-    () => (availableProtocols.length > 0 ? 'chevron-down' : 'info-circle'),
-    [availableProtocols.length],
-  );
-
   const optionsComponent = React.useMemo(() => {
     if (!showOptions) {
       return null;
@@ -108,18 +95,18 @@ function SelectProtocolDropdown(): React.Node {
     ],
   );
 
+  if (availableProtocols.length === 0) {
+    return null;
+  }
+
   return (
     <View style={containerStyle}>
       <View style={styles.dropdownHeader}>
         <TouchableOpacity onPress={onDropdownPress} style={styles.button}>
           {dropdownHeader}
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={
-            availableProtocols.length > 0 ? onDropdownPress : onInfoPress
-          }
-        >
-          <Icon name={iconName} size={14} style={styles.icon} />
+        <TouchableOpacity onPress={onDropdownPress}>
+          <Icon name="chevron-down" size={14} style={styles.icon} />
         </TouchableOpacity>
       </View>
       {optionsComponent}

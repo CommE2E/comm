@@ -1,47 +1,25 @@
 // @flow
 
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { protocols } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
-import { protocolInfoAlert } from 'lib/utils/alert-utils.js';
 
 import ProtocolIcon from './protocol-icon.react.js';
 import css from './select-protocol-dropdown.css';
-import Modal from '../modals/modal.react.js';
 
 function SelectProtocolDropdown(): React.Node {
   const { selectedProtocol, setSelectedProtocol, availableProtocols } =
     useProtocolSelection();
-  const { pushModal, popModal } = useModalContext();
   const [showOptions, setShowOptions] = React.useState(false);
 
   const onDropdownPress = React.useCallback(() => {
-    if (availableProtocols.length < 1) {
-      return;
-    }
-    setShowOptions(!showOptions);
-  }, [availableProtocols.length, showOptions]);
-
-  const onInfoPress = React.useCallback(() => {
-    pushModal(
-      <Modal
-        size="fit-content"
-        name={protocolInfoAlert.title}
-        onClose={popModal}
-      >
-        <div className={css.modalContent}>
-          <p>{protocolInfoAlert.message}</p>
-        </div>
-      </Modal>,
-    );
-  }, [pushModal, popModal]);
+    setShowOptions(currentShowOptions => !currentShowOptions);
+  }, []);
 
   const onOptionSelection = React.useCallback(
     (protocolName: ProtocolName) => {
@@ -73,7 +51,6 @@ function SelectProtocolDropdown(): React.Node {
   const containerClassNames = classNames(css.container, {
     [css.bordersWithOptions]: showOptions,
     [css.bordersWithoutOptions]: !showOptions,
-    [css.disabled]: availableProtocols.length < 1,
   });
 
   const dropdownHeader = React.useMemo(() => {
@@ -95,10 +72,9 @@ function SelectProtocolDropdown(): React.Node {
     return <ul className={css.optionsContainer}>{options}</ul>;
   }, [options, showOptions]);
 
-  const icon = React.useMemo(
-    () => (availableProtocols.length > 0 ? faChevronDown : faInfoCircle),
-    [availableProtocols.length],
-  );
+  if (availableProtocols.length === 0) {
+    return null;
+  }
 
   return (
     <div className={containerClassNames}>
@@ -107,11 +83,9 @@ function SelectProtocolDropdown(): React.Node {
           {dropdownHeader}
         </div>
         <FontAwesomeIcon
-          icon={icon}
+          icon={faChevronDown}
           size={14}
-          onClick={
-            availableProtocols.length > 0 ? onDropdownPress : onInfoPress
-          }
+          onClick={onDropdownPress}
           className={classNames(css.chevron, css.iconClickable)}
         />
       </div>
