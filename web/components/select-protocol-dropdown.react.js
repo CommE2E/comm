@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
+import { protocolNames } from 'lib/shared/protocol-names.js';
 import { protocols } from 'lib/shared/threads/protocols/thread-protocols.js';
 import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
 
@@ -54,7 +55,7 @@ function SelectProtocolDropdown(): React.Node {
   });
 
   const dropdownHeader = React.useMemo(() => {
-    if (!selectedProtocol) {
+    if (!selectedProtocol || selectedProtocol === protocolNames.KEYSERVER) {
       return <span className={css.text}>Select chat type</span>;
     }
     return (
