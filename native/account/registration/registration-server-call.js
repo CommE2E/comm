@@ -318,6 +318,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           hasBeenCancelled: () => false,
           doNotRegister: false,
         });
+        if (credentialsToSave) {
+          await setNativeCredentials(credentialsToSave);
+        }
         setCurrentStep({
           step: 'authoritative_keyserver_registration_dispatched',
           avatarData,
@@ -415,8 +418,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       return;
     }
     avatarBeingSetRef.current = true;
-    const { avatarData, resolve, clearCachedSelections, credentialsToSave } =
-      currentStep;
+    const { avatarData, resolve, clearCachedSelections } = currentStep;
     void (async () => {
       try {
         if (!avatarData) {
@@ -444,9 +446,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           },
         });
         clearCachedSelections();
-        if (credentialsToSave) {
-          void setNativeCredentials(credentialsToSave);
-        }
         setCurrentStep(inactiveStep);
         avatarBeingSetRef.current = false;
         resolve();
