@@ -184,6 +184,7 @@ function useRestore(): (
   secret: string,
   siweSocialProof?: SignedMessage,
   setStep?: (step: string) => void,
+  afterLoginBeforeRestoreCallback?: () => Promise<void>,
 ) => Promise<IdentityAuthResult> {
   const restoreProtocol = useRestoreProtocol();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -251,11 +252,15 @@ function useRestore(): (
       secret: string,
       siweSocialProof?: SignedMessage,
       setStep,
+      afterLoginBeforeRestoreCallback,
     ) => {
       setStep?.('user_keys_restore');
       const identityAuthResult = await logIn(
         restoreAuth(userIdentifier, secret, siweSocialProof),
       );
+      if (afterLoginBeforeRestoreCallback) {
+        await afterLoginBeforeRestoreCallback();
+      }
       setStep?.('user_data_restore');
       await restoreUserData(identityAuthResult);
       return identityAuthResult;

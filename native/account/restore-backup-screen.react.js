@@ -108,11 +108,12 @@ function RestoreBackupScreen(props: Props): React.Node {
             credentials.password,
             undefined,
             setStep,
+            () =>
+              setNativeCredentials({
+                username: userIdentifier,
+                password: credentials.password,
+              }),
           );
-          await setNativeCredentials({
-            username: userIdentifier,
-            password: credentials.password,
-          });
         } else {
           await commCoreModule.setSIWEBackupSecrets(credentials.backup);
           await restore(
