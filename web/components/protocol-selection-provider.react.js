@@ -73,10 +73,12 @@ function ProtocolSelectionProvider(
   ]);
 
   React.useEffect(() => {
-    if (selectedUserInfos.length === 0 || !isThreadPending) {
+    if (!isThreadPending) {
       return;
     }
-    if (
+    if (selectedUserInfos.length === 0) {
+      setSelectedProtocol(null);
+    } else if (
       canUseFarcasterThreads &&
       allUsersSupportFarcasterThreads &&
       !allUsersSupportThickThreads
