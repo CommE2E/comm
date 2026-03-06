@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, Platform } from 'react-native';
 
-import { protocolNames } from 'lib/shared/protocol-names.js';
+import { protocolNames } from 'lib/types/protocol-names.js';
 import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';

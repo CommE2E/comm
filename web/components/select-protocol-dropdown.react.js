@@ -6,9 +6,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
-import { protocolNames } from 'lib/shared/protocol-names.js';
 import { protocols } from 'lib/shared/threads/protocols/thread-protocols.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
+import { protocolNames, type ProtocolName } from 'lib/types/protocol-names.js';
 
 import ProtocolIcon from './protocol-icon.react.js';
 import css from './select-protocol-dropdown.css';
