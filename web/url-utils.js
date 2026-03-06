@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import _keyBy from 'lodash/fp/keyBy.js';
 
 import type { WebNavInfo } from 'lib/types/nav-types.js';
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import type { AccountUserInfo, SelectedUserInfo } from 'lib/types/user-types.js';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
@@ -134,11 +134,11 @@ function navInfoFromURL(
   };
 
   if (urlInfo.selectedUserList) {
-    const selectedUsers = _keyBy('id')(navInfo?.selectedUserList ?? []);
-    const userInfos: { +[id: string]: AccountUserInfo } =
-      backupInfo.userInfos ?? {};
+    const selectedUsers: { +[id: string]: SelectedUserInfo } = _keyBy('id')(
+      navInfo?.selectedUserList ?? [],
+    );
     newNavInfo.selectedUserList = urlInfo.selectedUserList
-      ?.map(id => selectedUsers[id] ?? userInfos[id])
+      ?.map(id => selectedUsers[id])
       ?.filter(Boolean);
   }
 

@@ -3,11 +3,13 @@
 import * as React from 'react';
 
 import { ProtocolSelectionContext } from 'lib/contexts/protocol-selection-context.js';
-import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
-import { protocolNames } from 'lib/shared/protocol-names.js';
+import {
+  getAvailableProtocolsForSearching,
+  getSelectedProtocolForCompose,
+} from 'lib/shared/protocol-selection-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import type { ProtocolName } from 'lib/types/protocol-names.js';
+import type { SelectedUserInfo } from 'lib/types/user-types.js';
 import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 
 import { useActiveThread } from '../navigation/nav-selectors.js';
@@ -25,7 +27,7 @@ function ProtocolSelectionProvider(
     React.useState<?ProtocolName>(null);
   const [isSearching, setSearching] = React.useState(false);
   const [userInfoInputArray, setUserInfoInputArray] = React.useState<
-    $ReadOnlyArray<AccountUserInfo>,
+    $ReadOnlyArray<SelectedUserInfo>,
   >([]);
 
   const activeThread = useActiveThread();
@@ -41,54 +43,34 @@ function ProtocolSelectionProvider(
     }
   }, [isSearching, selectedProtocol]);
 
-  const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
-    useUsersSupportingProtocols(userInfoInputArray);
-
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
-  const canUseFarcasterThreads =
-    (userInfoInputArray.length === 0 || allUsersSupportFarcasterThreads) &&
-    currentUserSupportsDCs;
 
-  const availableProtocols = React.useMemo(() => {
-    const protocols: Array<ProtocolName> = [];
-    if (canUseFarcasterThreads) {
-      protocols.push(protocolNames.FARCASTER_DC);
-    }
-    if (userInfoInputArray.length === 0 || allUsersSupportThickThreads) {
-      protocols.push(protocolNames.COMM_DM);
-    }
-    return protocols.filter(protocol => protocol !== selectedProtocol);
-  }, [
-    canUseFarcasterThreads,
-    allUsersSupportThickThreads,
-    selectedProtocol,
-    userInfoInputArray.length,
-  ]);
+  const availableProtocols = React.useMemo(
+    () =>
+      getAvailableProtocolsForSearching(
+        userInfoInputArray,
+        currentUserSupportsDCs,
+      ),
+    [currentUserSupportsDCs, userInfoInputArray],
+  );
 
   React.useEffect(() => {
     if (!isThreadPending) {
       return;
     }
-    if (userInfoInputArray.length === 0) {
-      setSelectedProtocol(null);
-    } else if (
-      canUseFarcasterThreads &&
-      allUsersSupportFarcasterThreads &&
-      !allUsersSupportThickThreads
-    ) {
-      setSelectedProtocol(protocolNames.FARCASTER_DC);
-    } else if (!canUseFarcasterThreads && allUsersSupportThickThreads) {
-      setSelectedProtocol(protocolNames.COMM_DM);
-    } else if (!canUseFarcasterThreads && !allUsersSupportThickThreads) {
-      setSelectedProtocol(protocolNames.KEYSERVER);
+    const nextSelectedProtocol = getSelectedProtocolForCompose(
+      userInfoInputArray,
+      currentUserSupportsDCs,
+      selectedProtocol,
+    );
+    if (nextSelectedProtocol !== undefined) {
+      setSelectedProtocol(nextSelectedProtocol);
     }
   }, [
-    canUseFarcasterThreads,
-    allUsersSupportFarcasterThreads,
-    allUsersSupportThickThreads,
+    currentUserSupportsDCs,
     isThreadPending,
     selectedProtocol,
-    userInfoInputArray.length,
+    userInfoInputArray,
   ]);
 
   const contextValue = React.useMemo(

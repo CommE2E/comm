@@ -3,9 +3,12 @@
 import * as React from 'react';
 
 import { ProtocolSelectionContext } from 'lib/contexts/protocol-selection-context.js';
-import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
+import {
+  getAvailableProtocolsForSearching,
+  getSelectedProtocolForCompose,
+} from 'lib/shared/protocol-selection-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import { protocolNames, type ProtocolName } from 'lib/types/protocol-names.js';
+import type { ProtocolName } from 'lib/types/protocol-names.js';
 import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -47,54 +50,34 @@ function ProtocolSelectionProvider(
     }
   }, [isChatCreation]);
 
-  const { allUsersSupportThickThreads, allUsersSupportFarcasterThreads } =
-    useUsersSupportingProtocols(selectedUserInfos);
-
   const currentUserSupportsDCs = useCurrentUserSupportsDCs();
-  const canUseFarcasterThreads =
-    (selectedUserInfos.length === 0 || allUsersSupportFarcasterThreads) &&
-    currentUserSupportsDCs;
 
-  const availableProtocols = React.useMemo(() => {
-    const protocols: Array<ProtocolName> = [];
-    if (canUseFarcasterThreads) {
-      protocols.push(protocolNames.FARCASTER_DC);
-    }
-    if (selectedUserInfos.length === 0 || allUsersSupportThickThreads) {
-      protocols.push(protocolNames.COMM_DM);
-    }
-    return protocols.filter(protocol => protocol !== selectedProtocol);
-  }, [
-    canUseFarcasterThreads,
-    allUsersSupportThickThreads,
-    selectedProtocol,
-    selectedUserInfos.length,
-  ]);
+  const availableProtocols = React.useMemo(
+    () =>
+      getAvailableProtocolsForSearching(
+        selectedUserInfos,
+        currentUserSupportsDCs,
+      ),
+    [currentUserSupportsDCs, selectedUserInfos],
+  );
 
   React.useEffect(() => {
     if (!isThreadPending) {
       return;
     }
-    if (selectedUserInfos.length === 0) {
-      setSelectedProtocol(null);
-    } else if (
-      canUseFarcasterThreads &&
-      allUsersSupportFarcasterThreads &&
-      !allUsersSupportThickThreads
-    ) {
-      setSelectedProtocol(protocolNames.FARCASTER_DC);
-    } else if (!canUseFarcasterThreads && allUsersSupportThickThreads) {
-      setSelectedProtocol(protocolNames.COMM_DM);
-    } else if (!canUseFarcasterThreads && !allUsersSupportThickThreads) {
-      setSelectedProtocol(protocolNames.KEYSERVER);
+    const nextSelectedProtocol = getSelectedProtocolForCompose(
+      selectedUserInfos,
+      currentUserSupportsDCs,
+      selectedProtocol,
+    );
+    if (nextSelectedProtocol !== undefined) {
+      setSelectedProtocol(nextSelectedProtocol);
     }
   }, [
-    canUseFarcasterThreads,
-    allUsersSupportFarcasterThreads,
-    allUsersSupportThickThreads,
+    currentUserSupportsDCs,
     isThreadPending,
     selectedProtocol,
-    selectedUserInfos.length,
+    selectedUserInfos,
   ]);
 
   const contextValue = React.useMemo(
