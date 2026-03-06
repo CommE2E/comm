@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
+import type { ProtocolName } from 'lib/types/protocol-names.js';
 
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
