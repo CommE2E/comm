@@ -13,6 +13,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { useFarcasterThreadRefresher } from 'lib/shared/farcaster/farcaster-hooks.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import { getSearchingProtocol } from 'lib/shared/protocol-selection-utils.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -23,7 +24,8 @@ import {
   threadTypeIsPersonal,
 } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import type { SelectedUserInfo, UserListItem } from 'lib/types/user-types.js';
+import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
@@ -96,9 +98,9 @@ type Props = {
   // Redux state
   +usernameInputText: string,
   +updateUsernameInput: (text: string) => void,
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-  +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
-  +resolveToUser: (user: AccountUserInfo) => Promise<void>,
+  +userInfoInputArray: $ReadOnlyArray<SelectedUserInfo>,
+  +updateTagInput: (items: $ReadOnlyArray<SelectedUserInfo>) => void,
+  +resolveToUser: (user: SelectedUserInfo) => Promise<void>,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
@@ -244,7 +246,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
   React.memo(function ConnectedMessageListContainer(props: BaseProps) {
     const [usernameInputText, setUsernameInputText] = React.useState('');
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
-      $ReadOnlyArray<AccountUserInfo>,
+      $ReadOnlyArray<SelectedUserInfo>,
     >([]);
     const { setUserInfoInput, selectedProtocol, setSearching } =
       useProtocolSelection();
@@ -281,12 +283,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       props.route.params.threadInfo,
     );
 
-    const existingThreadInfoFinder = useExistingThreadInfoFinder(
-      baseThreadInfo,
-      selectedProtocol,
-    );
+    const existingThreadInfoFinder =
+      useExistingThreadInfoFinder(baseThreadInfo);
 
     const isSearching = !!props.route.params.searching;
+    const currentUserSupportsDCs = useCurrentUserSupportsDCs();
     React.useEffect(() => {
       setSearching?.(isSearching);
       return () => {
@@ -294,14 +295,27 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       };
     }, [isSearching, setSearching]);
 
-    const threadInfo = React.useMemo(
-      () =>
-        existingThreadInfoFinder({
-          searching: isSearching,
+    const threadInfo = React.useMemo(() => {
+      if (!isSearching) {
+        return existingThreadInfoFinder({ searching: false });
+      }
+      return existingThreadInfoFinder({
+        searching: true,
+        userInfoInputArray,
+        matchProtocol: selectedProtocol,
+        pendingThreadProtocol: getSearchingProtocol(
           userInfoInputArray,
-        }),
-      [existingThreadInfoFinder, isSearching, userInfoInputArray],
-    );
+          currentUserSupportsDCs,
+          selectedProtocol,
+        ),
+      });
+    }, [
+      currentUserSupportsDCs,
+      existingThreadInfoFinder,
+      isSearching,
+      selectedProtocol,
+      userInfoInputArray,
+    ]);
     invariant(
       threadInfo,
       'threadInfo must be specified in messageListContainer',
@@ -352,7 +366,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     }, [setParams, threadInfo]);
 
     const updateTagInput = React.useCallback(
-      (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
+      (input: $ReadOnlyArray<SelectedUserInfo>) => setUserInfoInputArray(input),
       [],
     );
     const updateUsernameInput = React.useCallback(
@@ -361,12 +375,18 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     );
     const { editInputMessage } = inputState;
     const resolveToUser = React.useCallback(
-      async (user: AccountUserInfo) => {
+      async (user: SelectedUserInfo) => {
         const newUserInfoInputArray = user.id === viewerID ? [] : [user];
 
         const resolvedThreadInfo = existingThreadInfoFinder({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
+          matchProtocol: selectedProtocol,
+          pendingThreadProtocol: getSearchingProtocol(
+            newUserInfoInputArray,
+            currentUserSupportsDCs,
+            selectedProtocol,
+          ),
         });
         invariant(
           resolvedThreadInfo,
@@ -376,7 +396,14 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         setBaseThreadInfo(resolvedThreadInfo);
         setParams({ searching: false, threadInfo: resolvedThreadInfo });
       },
-      [viewerID, existingThreadInfoFinder, editInputMessage, setParams],
+      [
+        currentUserSupportsDCs,
+        viewerID,
+        existingThreadInfoFinder,
+        editInputMessage,
+        selectedProtocol,
+        setParams,
+      ],
     );
 
     const messageListData = useNativeMessageListData({
