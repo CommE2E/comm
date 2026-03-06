@@ -56,7 +56,8 @@ type ActiveThreadBehavior =
 
 function ChatThreadComposer(props: Props): React.Node {
   const { userInfoInputArray, threadID, inputState } = props;
-  const { selectedProtocol, setSelectedProtocol } = useProtocolSelection();
+  const { selectedProtocol, setSelectedProtocol, setUserInfoInput } =
+    useProtocolSelection();
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
@@ -150,10 +151,14 @@ function ChatThreadComposer(props: Props): React.Node {
           },
         });
       } else if (!alert) {
+        const nextSelectedUserList = [...userInfoInputArray, nextSelectedUser];
+        setUserInfoInput?.(nextSelectedUserList);
         dispatch({
           type: updateNavInfoActionType,
           payload: {
-            selectedUserList: [...userInfoInputArray, nextSelectedUser],
+            selectedUserList: nextSelectedUserList.map(
+              ({ supportedProtocols, ...accountUserInfo }) => accountUserInfo,
+            ),
           },
         });
       } else {
@@ -171,6 +176,7 @@ function ChatThreadComposer(props: Props): React.Node {
       pushModal,
       selectedProtocol,
       setSelectedProtocol,
+      setUserInfoInput,
     ],
   );
 
@@ -182,14 +188,17 @@ function ChatThreadComposer(props: Props): React.Node {
       if (_isEqual(userInfoInputArray)(newSelectedUserList)) {
         return;
       }
+      setUserInfoInput?.(newSelectedUserList);
       dispatch({
         type: updateNavInfoActionType,
         payload: {
-          selectedUserList: newSelectedUserList,
+          selectedUserList: newSelectedUserList.map(
+            ({ supportedProtocols, ...accountUserInfo }) => accountUserInfo,
+          ),
         },
       });
     },
-    [dispatch, userInfoInputArray],
+    [dispatch, setUserInfoInput, userInfoInputArray],
   );
 
   const userSearchResultList = React.useMemo(() => {
