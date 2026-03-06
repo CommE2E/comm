@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useProtocolSelection } from 'lib/contexts/protocol-selection-context.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { getSearchingProtocol } from 'lib/shared/protocol-selection-utils.js';
@@ -26,9 +27,7 @@ function useInfosForPendingThread(): InfosForPendingThread {
   const isChatCreation = useSelector(
     state => state.navInfo.chatMode === 'create',
   );
-  const selectedUserInfos = useSelector(
-    state => state.navInfo.selectedUserList ?? [],
-  );
+  const { selectedUserInfos = [] } = useProtocolSelection();
   return {
     isChatCreation,
     selectedUserInfos,

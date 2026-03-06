@@ -7,15 +7,11 @@ import {
   getAvailableProtocolsForSearching,
   getSelectedProtocolForCompose,
 } from 'lib/shared/protocol-selection-utils.js';
-import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ProtocolName } from 'lib/types/protocol-names.js';
 import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
-import {
-  useInfosForPendingThread,
-  useThreadInfoForPossiblyPendingThread,
-} from '../utils/thread-utils.js';
+import { useSelectedUserInfosWithSupportedProtocols } from '../utils/protocol-selection-hooks.js';
 
 type ProtocolSelectionProviderProps = {
   +children: React.Node,
@@ -29,20 +25,17 @@ function ProtocolSelectionProvider(
   const [selectedProtocol, setSelectedProtocol] =
     React.useState<?ProtocolName>(null);
 
-  const activeChatThreadID = useSelector(
-    state => state.navInfo.activeChatThreadID,
+  const isChatCreation = useSelector(
+    state => state.navInfo.chatMode === 'create',
   );
-
-  const threadInfo = useThreadInfoForPossiblyPendingThread(
-    activeChatThreadID,
-    selectedProtocol,
+  const rawSelectedUserInfos = useSelector(
+    state => state.navInfo.selectedUserList ?? [],
   );
-  const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
-
-  const isThreadPending = React.useMemo(
-    () => threadInfo && threadIsPending(threadInfo.id),
-    [threadInfo],
-  );
+  const { selectedUserInfos, setUserInfoInput } =
+    useSelectedUserInfosWithSupportedProtocols(
+      rawSelectedUserInfos,
+      isChatCreation,
+    );
 
   React.useEffect(() => {
     if (!isChatCreation) {
@@ -62,7 +55,7 @@ function ProtocolSelectionProvider(
   );
 
   React.useEffect(() => {
-    if (!isThreadPending) {
+    if (!isChatCreation) {
       return;
     }
     const nextSelectedProtocol = getSelectedProtocolForCompose(
@@ -75,7 +68,7 @@ function ProtocolSelectionProvider(
     }
   }, [
     currentUserSupportsDCs,
-    isThreadPending,
+    isChatCreation,
     selectedProtocol,
     selectedUserInfos,
   ]);
@@ -85,8 +78,10 @@ function ProtocolSelectionProvider(
       selectedProtocol,
       setSelectedProtocol,
       availableProtocols,
+      selectedUserInfos,
+      setUserInfoInput,
     }),
-    [availableProtocols, selectedProtocol],
+    [availableProtocols, selectedProtocol, selectedUserInfos, setUserInfoInput],
   );
 
   return (
