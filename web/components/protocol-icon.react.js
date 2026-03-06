@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
+import type { ProtocolName } from 'lib/types/protocol-names.js';
 
 import CommIcon from '../comm-icon.react.js';
 

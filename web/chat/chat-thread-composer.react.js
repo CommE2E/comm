@@ -12,7 +12,6 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
-import { protocolNames } from 'lib/shared/protocol-names.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -26,6 +25,7 @@ import {
 import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
 import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
+import { protocolNames } from 'lib/types/protocol-names.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';

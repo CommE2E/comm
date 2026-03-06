@@ -4,9 +4,8 @@ import * as React from 'react';
 
 import { ProtocolSelectionContext } from 'lib/contexts/protocol-selection-context.js';
 import { useUsersSupportingProtocols } from 'lib/hooks/user-identities-hooks.js';
-import { protocolNames } from 'lib/shared/protocol-names.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
+import { protocolNames, type ProtocolName } from 'lib/types/protocol-names.js';
 import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
