@@ -20,7 +20,10 @@ import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { farcasterThreadTypeValidator } from 'lib/types/thread-types-enum.js';
-import { type AccountUserInfo } from 'lib/types/user-types.js';
+import {
+  type AccountUserInfo,
+  type SelectedUserInfo,
+} from 'lib/types/user-types.js';
 import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -232,7 +235,7 @@ function AddUsersModal(props: Props): React.Node {
   );
 
   const onUserSelect = React.useCallback(
-    ({ id }: AccountUserInfo) => {
+    ({ id }: SelectedUserInfo) => {
       if (isLoading) {
         return;
       }

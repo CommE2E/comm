@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Text, Platform } from 'react-native';
 
-import { protocolNames } from 'lib/shared/protocol-names.js';
-import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
+import { protocolNames } from 'lib/types/protocol-names.js';
+import type { SelectedUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';
 import ProtocolIcon from './protocol-icon.react.js';
@@ -42,7 +42,7 @@ const unboundStyles = {
 
 type BaseProps = {
   +userInfo: UserListItem,
-  +onSelect: (user: AccountUserInfo) => mixed,
+  +onSelect: (user: SelectedUserInfo) => mixed,
   +textStyle?: TextStyle,
 };
 type Props = {
@@ -91,14 +91,8 @@ class UserListUser extends React.PureComponent<Props> {
   onSelect = () => {
     const { userInfo } = this.props;
     if (!userInfo.alert) {
-      const {
-        alert,
-        notice,
-        disabled,
-        supportedProtocols,
-        ...accountUserInfo
-      } = userInfo;
-      this.props.onSelect(accountUserInfo);
+      const { alert, notice, disabled, ...selectedUserInfo } = userInfo;
+      this.props.onSelect(selectedUserInfo);
       return;
     }
     Alert.alert(userInfo.alert.title, userInfo.alert.text, [{ text: 'OK' }], {
