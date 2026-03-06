@@ -9,7 +9,7 @@ import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
 import { notFriendNotice } from 'lib/shared/search-utils.js';
 import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
 import { protocolNames } from 'lib/types/protocol-names.js';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import type { SelectedUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
 import { createTagInput } from '../components/tag-input.react.js';
@@ -17,14 +17,14 @@ import UserList from '../components/user-list.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
-const TagInput = createTagInput<AccountUserInfo>();
+const TagInput = createTagInput<SelectedUserInfo>();
 
 type Props = {
   +usernameInputText: string,
   +updateUsernameInput: (text: string) => void,
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-  +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
-  +resolveToUser: (user: AccountUserInfo) => Promise<void>,
+  +userInfoInputArray: $ReadOnlyArray<SelectedUserInfo>,
+  +updateTagInput: (items: $ReadOnlyArray<SelectedUserInfo>) => void,
+  +resolveToUser: (user: SelectedUserInfo) => Promise<void>,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
 };
 
@@ -69,7 +69,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
     const findExistingUserForFid = useFindExistingUserForFid();
     const { setSelectedProtocol } = useProtocolSelection();
     const onUserSelect = React.useCallback(
-      async (selectedUserInfo: AccountUserInfo) => {
+      async (selectedUserInfo: SelectedUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
           if (selectedUserInfo.id === existingUserInfo.id) {
             return;
@@ -77,7 +77,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
         }
         const isFarcasterOnlyUser =
           supportsFarcasterDCs && !!extractFIDFromUserID(selectedUserInfo.id);
-        let userInfo: AccountUserInfo = selectedUserInfo;
+        let userInfo: SelectedUserInfo = selectedUserInfo;
         if (isFarcasterOnlyUser) {
           userInfo = findExistingUserForFid(userInfo) ?? userInfo;
           setSelectedProtocol(protocolNames.FARCASTER_DC);
@@ -107,7 +107,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo(
     );
 
     const tagDataLabelExtractor = React.useCallback(
-      (userInfo: AccountUserInfo) => userInfo.username,
+      (userInfo: SelectedUserInfo) => userInfo.username,
       [],
     );
 

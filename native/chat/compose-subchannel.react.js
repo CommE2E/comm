@@ -16,7 +16,10 @@ import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
-import { type AccountUserInfo } from 'lib/types/user-types.js';
+import {
+  type AccountUserInfo,
+  type SelectedUserInfo,
+} from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
@@ -244,7 +247,7 @@ function ComposeSubchannel(props: Props): React.Node {
   );
 
   const onUserSelect = React.useCallback(
-    ({ id }: AccountUserInfo) => {
+    ({ id }: SelectedUserInfo) => {
       if (userInfoInputIDs.some(existingUserID => id === existingUserID)) {
         return;
       }
