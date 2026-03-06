@@ -12,6 +12,7 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useResolvableNames } from 'lib/hooks/names-cache.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { extractFIDFromUserID } from 'lib/shared/id-utils.js';
+import { getSearchingProtocol } from 'lib/shared/protocol-selection-utils.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -23,10 +24,10 @@ import {
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
 import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
-import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
 import { useFindExistingUserForFid } from 'lib/shared/user-utils.js';
 import { protocolNames } from 'lib/types/protocol-names.js';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import type { SelectedUserInfo, UserListItem } from 'lib/types/user-types.js';
+import { useCurrentUserSupportsDCs } from 'lib/utils/farcaster-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useIsFarcasterDCsIntegrationEnabled } from 'lib/utils/services-utils.js';
 
@@ -44,7 +45,7 @@ import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +userInfoInputArray: $ReadOnlyArray<SelectedUserInfo>,
   +threadID: string,
   +inputState: InputState,
 };
@@ -60,6 +61,7 @@ function ChatThreadComposer(props: Props): React.Node {
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
   const dispatch = useDispatch();
+  const currentUserSupportsDCs = useCurrentUserSupportsDCs();
 
   const loggedInUserInfo = useLoggedInUserInfo();
   invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
@@ -94,49 +96,50 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const { pushModal } = useModalContext();
 
-  const pendingThread = React.useMemo(() => {
-    const protocol = getProtocolByName(selectedProtocol) ?? dmThreadProtocol;
-
-    return createPendingThread({
-      viewerID,
-      threadType: protocol.pendingThreadType(userInfoInputArray.length),
-      members: [loggedInUserInfo],
-    });
-  }, [loggedInUserInfo, selectedProtocol, userInfoInputArray.length, viewerID]);
-
-  const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
-    pendingThread,
-    selectedProtocol,
+  const pendingThread = React.useMemo(
+    () =>
+      createPendingThread({
+        viewerID,
+        threadType: dmThreadProtocol.pendingThreadType(
+          userInfoInputArray.length,
+        ),
+        members: [loggedInUserInfo],
+      }),
+    [loggedInUserInfo, userInfoInputArray.length, viewerID],
   );
+
+  const existingThreadInfoFinderForCreatingThread =
+    useExistingThreadInfoFinder(pendingThread);
 
   const findExistingUserForFid = useFindExistingUserForFid();
   const onSelectUserFromSearch = React.useCallback(
     async (userListItem: UserListItem) => {
-      const { alert, notice, disabled, supportedProtocols, ...user } =
-        userListItem;
+      const { alert, notice, disabled, ...selectedUser } = userListItem;
       setUsernameInputText('');
-      const fid = extractFIDFromUserID(user.id);
+      const fid = extractFIDFromUserID(selectedUser.id);
       const isFarcasterOnlyUser = isFarcasterDCsIntegrationEnabled && !!fid;
-      let selectedUser: AccountUserInfo = user;
+      let nextSelectedUser: SelectedUserInfo = selectedUser;
       if (isFarcasterOnlyUser) {
-        selectedUser = findExistingUserForFid(user) ?? selectedUser;
+        nextSelectedUser = findExistingUserForFid(selectedUser) ?? selectedUser;
         setSelectedProtocol(protocolNames.FARCASTER_DC);
       }
       if (
         ((!isFarcasterOnlyUser && notice === notFriendNotice) ||
-          user.id === viewerID) &&
+          selectedUser.id === viewerID) &&
         userInfoInputArray.length === 0
       ) {
-        const newUserInfo = {
-          id: selectedUser.id,
-          username: selectedUser.username,
-        };
         const newUserInfoInputArray =
-          selectedUser.id === viewerID ? [] : [newUserInfo];
+          nextSelectedUser.id === viewerID ? [] : [nextSelectedUser];
 
         const threadInfo = existingThreadInfoFinderForCreatingThread({
           searching: true,
           userInfoInputArray: newUserInfoInputArray,
+          matchProtocol: selectedProtocol,
+          pendingThreadProtocol: getSearchingProtocol(
+            newUserInfoInputArray,
+            currentUserSupportsDCs,
+            selectedProtocol,
+          ),
         });
         dispatch({
           type: updateNavInfoActionType,
@@ -150,7 +153,7 @@ function ChatThreadComposer(props: Props): React.Node {
         dispatch({
           type: updateNavInfoActionType,
           payload: {
-            selectedUserList: [...userInfoInputArray, selectedUser],
+            selectedUserList: [...userInfoInputArray, nextSelectedUser],
           },
         });
       } else {
@@ -162,9 +165,11 @@ function ChatThreadComposer(props: Props): React.Node {
       viewerID,
       userInfoInputArray,
       findExistingUserForFid,
+      currentUserSupportsDCs,
       existingThreadInfoFinderForCreatingThread,
       dispatch,
       pushModal,
+      selectedProtocol,
       setSelectedProtocol,
     ],
   );
