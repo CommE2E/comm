@@ -10,8 +10,8 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { dmThreadProtocol } from 'lib/shared/threads/protocols/dm-thread-protocol.js';
 import { getProtocolByName } from 'lib/shared/threads/protocols/thread-protocols.js';
-import type { ProtocolName } from 'lib/shared/threads/thread-spec.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ProtocolName } from 'lib/types/protocol-names.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';
