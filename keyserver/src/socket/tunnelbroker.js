@@ -6,6 +6,7 @@ import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 import WebSocket from 'ws';
 
+import { tunnnelbrokerURL } from 'lib/facts/tunnelbroker.js';
 import { hexToUintArray } from 'lib/media/data-utils.js';
 import {
   clientTunnelbrokerSocketReconnectDelay,
@@ -76,9 +77,8 @@ async function getTBConnectionInfo(): Promise<TBConnectionInfo> {
     return tbConfig;
   }
 
-  console.warn('Defaulting to staging Tunnelbroker');
   return {
-    url: 'wss://tunnelbroker.staging.commtechnologies.org:51001',
+    url: tunnnelbrokerURL,
   };
 }
 
