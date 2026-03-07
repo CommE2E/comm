@@ -24,7 +24,7 @@ module "landing_service" {
   image                       = local.keyserver_image
   service_name                = "landing"
   cluster_id                  = aws_ecs_cluster.comm_services.id
-  domain_name                 = local.is_staging ? "comm.engineer" : "comm.app"
+  domain_name                 = local.is_staging ? "landing.staging.comm.app" : "comm.app"
   vpc_id                      = aws_vpc.default.id
   vpc_subnets                 = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   region                      = "us-east-2"
