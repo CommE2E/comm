@@ -25,7 +25,7 @@ module "webapp_service" {
   image                       = local.keyserver_image
   service_name                = "webapp"
   cluster_id                  = aws_ecs_cluster.comm_services.id
-  domain_name                 = local.is_staging ? "comm.software" : "web.comm.app"
+  domain_name                 = local.is_staging ? "web.staging.comm.app" : "web.comm.app"
   vpc_id                      = aws_vpc.default.id
   vpc_subnets                 = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   region                      = "us-east-2"
