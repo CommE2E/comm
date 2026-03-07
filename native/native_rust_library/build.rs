@@ -12,8 +12,10 @@ enum ServicesEnvironment {
 }
 
 impl ServicesEnvironment {
-  const CONFIG_FILEPATH: &'static str =
-    "../../lib/facts/services-environment.json";
+  const CONFIG_FILEPATH: &'static str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../lib/facts/services-environment.json"
+  );
   const ALL_VALUES: [Self; 2] = [Self::Production, Self::Staging];
 
   fn as_str(self) -> &'static str {
