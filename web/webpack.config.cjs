@@ -10,6 +10,12 @@ const {
 } = require('lib/webpack/shared.cjs');
 
 const babelConfig = require('./.babelrc.cjs');
+const ignoreMissingServicesEnvironmentConfigWarning = warning =>
+  warning.module?.resource ===
+    path.resolve(__dirname, '../lib/utils/services-environment.cjs') &&
+  warning.message.includes(
+    "Can't resolve '../facts/services-environment.json'",
+  );
 
 async function getConfig(configName) {
   const { getCommConfig } = await import(
@@ -22,6 +28,7 @@ const baseBrowserConfig = {
   entry: {
     browser: ['./script.js'],
   },
+  ignoreWarnings: [ignoreMissingServicesEnvironmentConfigWarning],
   output: {
     filename: 'prod.[contenthash:12].build.js',
     path: path.join(__dirname, 'dist'),
@@ -85,6 +92,7 @@ const baseWebWorkersConfig = {
     pushNotif: './push-notif/service-worker.js',
     database: './shared-worker/worker/shared-worker.js',
   },
+  ignoreWarnings: [ignoreMissingServicesEnvironmentConfigWarning],
   output: {
     filename: '[name].build.js',
     path: path.join(__dirname, 'dist', 'webworkers'),
