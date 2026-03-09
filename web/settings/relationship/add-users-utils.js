@@ -12,6 +12,7 @@ import {
   usePotentialMemberItems,
 } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import {
@@ -168,6 +169,7 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType: threadInfo.type,
+    protocol: threadSpecs[threadInfo.type].protocol().protocolName,
     includeServerSearchUsers: isFarcasterThread ? searchUsersResult : undefined,
   });
 
@@ -243,6 +245,7 @@ function useSubchannelAddMembersListUserInfos(
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
+    protocol: threadSpecs[threadType].protocol().protocolName,
   });
 
   const filteredUserResults = React.useMemo(

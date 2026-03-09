@@ -14,6 +14,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
+import { threadSpecs } from 'lib/shared/threads/thread-specs.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -215,6 +216,7 @@ function ComposeSubchannel(props: Props): React.Node {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
+    protocol: threadSpecs[threadType].protocol().protocolName,
   });
 
   const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {

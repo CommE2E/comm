@@ -213,6 +213,7 @@ function AddUsersModal(props: Props): React.Node {
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
     threadType: threadInfo.type,
+    protocol: threadSpecs[threadInfo.type].protocol().protocolName,
     includeServerSearchUsers: isFarcasterThread ? searchUsersResult : undefined,
   });
 
