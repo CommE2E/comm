@@ -91,6 +91,7 @@ function ChatThreadComposer(props: Props): React.Node {
     auxUserInfos,
     excludeUserIDs,
     includeServerSearchUsers: searchResults,
+    protocol: selectedProtocol,
   });
 
   const userListItemsWithENSNames = useResolvableNames(userListItems);

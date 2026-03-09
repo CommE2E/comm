@@ -277,6 +277,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       auxUserInfos,
       excludeUserIDs,
       includeServerSearchUsers: serverSearchResults,
+      protocol: selectedProtocol,
     });
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
