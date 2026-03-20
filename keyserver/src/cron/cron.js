@@ -7,7 +7,7 @@ import schedule from 'node-schedule';
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
 import { postMetrics } from './metrics.js';
-import { postLeaderboard } from './phab-leaderboard.js';
+import { postPhorgeLeaderboard } from './phorge-leaderboard.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
@@ -154,10 +154,10 @@ if (cluster.isMaster) {
       '0 0 8 * *', // 8th of every month at midnight in the keyserver's timezone
       async () => {
         try {
-          await postLeaderboard();
+          await postPhorgeLeaderboard();
         } catch (e) {
           console.warn(
-            'encountered error while trying to post Phabricator leaderboard',
+            'encountered error while trying to post Phorge leaderboard',
             e,
           );
         }
