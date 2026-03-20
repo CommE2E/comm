@@ -28,5 +28,5 @@ mv $OUTPUT_DIR/identity_auth_pb.d.ts \
 mv $OUTPUT_DIR/identity_auth_grpc_web_pb.d.ts \
    $OUTPUT_DIR/identity-auth-client.cjs.flow
 
-# This echo statement splits the string to ensure that Phabricator shows this file in reviews
+# This echo statement splits the string to ensure that Phorge shows this file in reviews
 echo "Make sure to edit the files to correct import paths, reintroduce @""generated annotation, and convert TS to Flow!"
