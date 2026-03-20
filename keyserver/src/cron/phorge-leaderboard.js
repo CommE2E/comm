@@ -10,9 +10,9 @@ import createMessages from '../creators/message-creator.js';
 import { SQL } from '../database/database.js';
 import { createScriptViewer } from '../session/scripts.js';
 
-const phabLeaderboardChannel = '6910797';
+const phorgeLeaderboardChannel = '6910797';
 
-type PhabDBConfig = {
+type PhorgeDBConfig = {
   +host: string,
   +user: string,
   +password: string,
@@ -195,7 +195,7 @@ function messageForNumRevisionsReviewedLeaderboard(
   );
 }
 
-async function postLeaderboard() {
+async function postPhorgeLeaderboard() {
   if (!process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
     // This is a job that the Comm internal team uses
     return;
@@ -214,9 +214,9 @@ async function postLeaderboard() {
   const startOfLastYear = new Date(startOfLastMonth);
   startOfLastYear.setMonth(0);
 
-  const dbConfig = await getCommConfig<PhabDBConfig>({
+  const dbConfig = await getCommConfig<PhorgeDBConfig>({
     folder: 'secrets',
-    name: 'phab_db_config',
+    name: 'phorge_db_config',
   });
   const conn = await mysql.createConnection(dbConfig);
 
@@ -277,7 +277,7 @@ async function postLeaderboard() {
   const messageDatas = [
     {
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForLineCountLeaderboard(
@@ -288,7 +288,7 @@ async function postLeaderboard() {
     },
     {
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForNumRevisionsLandedLeaderboard(
@@ -299,7 +299,7 @@ async function postLeaderboard() {
     },
     {
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForNumRevisionsReviewedLeaderboard(
@@ -312,7 +312,7 @@ async function postLeaderboard() {
   if (yearlyLineCountResults) {
     messageDatas.push({
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForLineCountLeaderboard(
@@ -325,7 +325,7 @@ async function postLeaderboard() {
   if (yearlyNumRevisionsLandedResults) {
     messageDatas.push({
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForNumRevisionsLandedLeaderboard(
@@ -338,7 +338,7 @@ async function postLeaderboard() {
   if (yearlyNumRevisionsReviewedResults) {
     messageDatas.push({
       type: messageTypes.TEXT,
-      threadID: phabLeaderboardChannel,
+      threadID: phorgeLeaderboardChannel,
       creatorID: bots.commbot.userID,
       time: Date.now(),
       text: messageForNumRevisionsReviewedLeaderboard(
@@ -352,4 +352,4 @@ async function postLeaderboard() {
   await createMessages(viewer, messageDatas);
 }
 
-export { postLeaderboard };
+export { postPhorgeLeaderboard };
