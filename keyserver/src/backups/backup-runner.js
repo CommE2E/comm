@@ -14,6 +14,7 @@ export type WriteBackup = (
 ) => Promise<void>;
 
 type RunBackupOptions = {
+  +jobName: string,
   +filename: string,
   +filenamePrefix: string,
   +filenameSuffix: string,
@@ -23,7 +24,10 @@ type RunBackupOptions = {
   +retries?: number,
 };
 
+const activeBackupJobs = new Set<string>();
+
 async function runBackup({
+  jobName,
   filename,
   filenamePrefix,
   filenameSuffix,
@@ -32,20 +36,32 @@ async function runBackup({
   maxDirSizeMiB,
   retries = 2,
 }: RunBackupOptions): Promise<void> {
-  await saveBackup({
-    filename,
-    filenamePrefix,
-    filenameSuffix,
-    storageAdapter,
-    writeBackup,
-    retries,
-  });
-  await deleteOldBackupsIfSpaceExceeded({
-    filenamePrefix,
-    filenameSuffix,
-    storageAdapter,
-    maxDirSizeMiB,
-  });
+  if (activeBackupJobs.has(jobName)) {
+    console.warn(
+      `${jobName} backup is already in progress; skipping the new trigger`,
+    );
+    return;
+  }
+
+  activeBackupJobs.add(jobName);
+  try {
+    await saveBackup({
+      filename,
+      filenamePrefix,
+      filenameSuffix,
+      storageAdapter,
+      writeBackup,
+      retries,
+    });
+    await deleteOldBackupsIfSpaceExceeded({
+      filenamePrefix,
+      filenameSuffix,
+      storageAdapter,
+      maxDirSizeMiB,
+    });
+  } finally {
+    activeBackupJobs.delete(jobName);
+  }
 }
 
 type SaveBackupOptions = {
