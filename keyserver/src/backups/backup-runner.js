@@ -2,6 +2,7 @@
 
 import {
   type BackupStorageAdapter,
+  BackupStorageSpaceExceededError,
   type StoredFileInfo,
 } from './backup-storage.js';
 
@@ -67,7 +68,10 @@ async function saveBackup({
   try {
     await tryRunBackup(storageAdapter, filename, writeBackup);
   } catch (error) {
-    if (error.code !== 'ENOSPC') {
+    if (
+      !(error instanceof BackupStorageSpaceExceededError) &&
+      error.code !== 'ENOSPC'
+    ) {
       throw error;
     }
     if (!retries) {
