@@ -10,6 +10,7 @@ import zlib from 'zlib';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
 
+import { runBackup } from '../backups/backup-runner.js';
 import { getDBConfig, type DBConfig } from '../database/db-config.js';
 
 const readdir = promisify(fs.readdir);
@@ -41,18 +42,15 @@ async function backupDB() {
   const filename = `comm.${dateString}.sql.gz`;
   const filePath = `${backupConfig.directory}/${filename}`;
 
-  try {
-    await saveBackup(dbConfig, filename, filePath);
-  } catch (e) {
-    console.warn(`saveBackup threw for ${filename}`, e);
-    try {
-      await unlink(filePath);
-    } catch (deleteError) {
-      if (deleteError.code !== 'ENOENT') {
-        throw deleteError;
-      }
-    }
-  }
+  await runBackup({
+    filename,
+    filePath,
+    writeBackup(writeFilename, writeFilePath) {
+      return writeDatabaseBackup(dbConfig, writeFilename, writeFilePath);
+    },
+    deleteOldestBackup,
+    cleanupBackup: cleanupFailedBackup,
+  });
 
   await deleteOldBackupsIfSpaceExceeded();
 }
@@ -115,52 +113,11 @@ function mysqldump(
   });
 }
 
-async function saveBackup(
-  dbConfig: DBConfig,
-  filename: string,
-  filePath: string,
-  retries: number = 2,
-): Promise<void> {
-  try {
-    await trySaveBackup(dbConfig, filename, filePath);
-  } catch (saveError) {
-    if (saveError.code !== 'ENOSPC') {
-      throw saveError;
-    }
-    if (!retries) {
-      throw saveError;
-    }
-    try {
-      await deleteOldestBackup();
-    } catch (deleteError) {
-      if (deleteError.message === 'no_backups_left') {
-        throw saveError;
-      } else {
-        throw deleteError;
-      }
-    }
-    await saveBackup(dbConfig, filename, filePath, retries - 1);
-  }
-}
-
-const backupWatchFrequency = 60 * 1000;
-async function trySaveBackup(
+async function writeDatabaseBackup(
   dbConfig: DBConfig,
   filename: string,
   filePath: string,
 ): Promise<void> {
-  const timeoutObject: { timeout: ?TimeoutID } = { timeout: null };
-  const setBackupTimeout = (alreadyWaited: number) => {
-    timeoutObject.timeout = setTimeout(() => {
-      const nowWaited = alreadyWaited + backupWatchFrequency;
-      console.log(
-        `writing backup for ${filename} has taken ${nowWaited}ms so far`,
-      );
-      setBackupTimeout(nowWaited);
-    }, backupWatchFrequency);
-  };
-  setBackupTimeout(0);
-
   const rawStream = new PassThrough();
   const gzipStream = zlib.createGzip();
   const writeStream = fs.createWriteStream(filePath);
@@ -209,17 +166,17 @@ async function trySaveBackup(
     }
     await dumpPromise;
   } finally {
-    clearTimeout(timeoutObject.timeout);
+    rawStream.destroy();
   }
 }
 
-async function deleteOldestBackup() {
+async function deleteOldestBackup(): Promise<boolean> {
   const sortedBackupInfos = await getSortedBackupInfos();
   if (sortedBackupInfos.length === 0) {
-    throw new Error('no_backups_left');
+    return false;
   }
-  const oldestFilename = sortedBackupInfos[0].filename;
-  await deleteBackup(oldestFilename);
+  await deleteBackup(sortedBackupInfos[0].filename);
+  return true;
 }
 
 async function deleteBackup(filename: string) {
@@ -228,9 +185,18 @@ async function deleteBackup(filename: string) {
   try {
     await unlink(`${backupConfig.directory}/${filename}`);
   } catch (e) {
-    // Check if it's already been deleted
     if (e.code !== 'ENOENT') {
       throw e;
+    }
+  }
+}
+
+async function cleanupFailedBackup(filePath: string): Promise<void> {
+  try {
+    await unlink(filePath);
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
     }
   }
 }
