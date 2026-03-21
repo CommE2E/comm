@@ -42,6 +42,7 @@ async function backupDB() {
   const storageAdapter = createBackupStorageAdapter(backupConfig.storage);
 
   await runBackup({
+    jobName: 'comm',
     filename,
     filenamePrefix: 'comm.',
     filenameSuffix: '.sql.gz',

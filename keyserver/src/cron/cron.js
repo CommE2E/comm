@@ -7,6 +7,7 @@ import schedule from 'node-schedule';
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
 import { postMetrics } from './metrics.js';
+import { backupPhorge } from './phorge-backups.js';
 import { postPhorgeLeaderboard } from './phorge-leaderboard.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
@@ -119,6 +120,16 @@ if (cluster.isMaster) {
           await backupDB();
         } catch (e) {
           console.warn('encountered error while trying to backup database', e);
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 2-23/4 * * *', // every four hours, offset two hours from Comm DB
+      async () => {
+        try {
+          await backupPhorge();
+        } catch (e) {
+          console.warn('encountered error while trying to backup Phorge', e);
         }
       },
     );
