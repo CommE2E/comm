@@ -1,6 +1,10 @@
 // @flow
 
-import type { BackupStorageAdapter, StoredFileInfo } from './backup-storage.js';
+import {
+  type BackupStorageAdapter,
+  BackupStorageSpaceExceededError,
+  type StoredFileInfo,
+} from './backup-storage.js';
 
 const backupWatchFrequency = 60 * 1000;
 
@@ -65,7 +69,7 @@ async function saveBackup({
     await trySaveBackup(storageAdapter, filename, writeBackup);
   } catch (error) {
     console.warn(`trySaveBackup threw for ${filename}`, error);
-    if (error.code !== 'ENOSPC' || !retries) {
+    if (!(error instanceof BackupStorageSpaceExceededError) || !retries) {
       throw error;
     }
     const deleted = await deleteOldestBackup(

@@ -2,9 +2,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { PassThrough } from 'stream';
 import { promisify } from 'util';
 
 import {
+  BackupStorageSpaceExceededError,
   type LocalStorageConfig,
   type StoredFileInfo,
 } from './backup-storage.js';
@@ -49,7 +51,19 @@ class LocalBackupStorageAdapter {
   }
 
   async createWriteStream(filename: string): Promise<stream$Writable> {
-    return fs.createWriteStream(path.join(this.directory, filename));
+    const writeStream = new PassThrough();
+    const fileWriteStream = fs.createWriteStream(
+      path.join(this.directory, filename),
+    );
+    fileWriteStream.on('error', error => {
+      if (error?.code === 'ENOSPC') {
+        writeStream.destroy(new BackupStorageSpaceExceededError(error.message));
+      } else {
+        writeStream.destroy(error);
+      }
+    });
+    writeStream.pipe(fileWriteStream);
+    return writeStream;
   }
 }
 
