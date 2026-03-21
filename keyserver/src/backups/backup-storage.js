@@ -1,5 +1,6 @@
 // @flow
 
+import { DropboxBackupStorageAdapter } from './dropbox-backup-storage-adapter.js';
 import { LocalBackupStorageAdapter } from './local-backup-storage-adapter.js';
 
 export type StoredFileInfo = {
@@ -13,7 +14,21 @@ export type LocalStorageConfig = {
   +folder: string,
 };
 
-export type StorageConfig = LocalStorageConfig;
+export type DropboxStorageConfig = {
+  +type: 'dropbox',
+  +folder: string,
+  +appKey: string,
+  +appSecret: string,
+  +refreshToken: string,
+};
+
+export type StorageConfig = LocalStorageConfig | DropboxStorageConfig;
+
+class BackupStorageSpaceExceededError extends Error {
+  constructor(message?: string) {
+    super(message ?? 'backup_storage_space_exceeded');
+  }
+}
 
 class BackupStorageAdapter {
   async listFiles(): Promise<$ReadOnlyArray<StoredFileInfo>> {
@@ -34,7 +49,14 @@ class BackupStorageAdapter {
 function createBackupStorageAdapter(
   config: StorageConfig,
 ): BackupStorageAdapter {
-  return new LocalBackupStorageAdapter(config);
+  if (config.type === 'local') {
+    return new LocalBackupStorageAdapter(config);
+  }
+  return new DropboxBackupStorageAdapter(config);
 }
 
-export { BackupStorageAdapter, createBackupStorageAdapter };
+export {
+  BackupStorageAdapter,
+  BackupStorageSpaceExceededError,
+  createBackupStorageAdapter,
+};
