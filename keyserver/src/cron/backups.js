@@ -2,8 +2,6 @@
 
 import childProcess from 'child_process';
 import dateFormat from 'dateformat';
-import fs from 'fs';
-import invariant from 'invariant';
 import { PassThrough, pipeline as streamPipeline } from 'stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
@@ -11,21 +9,22 @@ import zlib from 'zlib';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 
 import { runBackup } from '../backups/backup-runner.js';
+import {
+  createBackupStorageAdapter,
+  type StorageConfig,
+} from '../backups/backup-storage.js';
 import { getDBConfig, type DBConfig } from '../database/db-config.js';
 
-const readdir = promisify(fs.readdir);
-const lstat = promisify(fs.lstat);
-const unlink = promisify(fs.unlink);
 const pipeline = promisify(streamPipeline);
 
 type BackupConfig = {
   +enabled: boolean,
-  +directory: string,
+  +storage: StorageConfig,
   +maxDirSizeMiB?: ?number,
 };
 
 function getBackupConfig(): Promise<?BackupConfig> {
-  return getCommConfig({ folder: 'facts', name: 'backups' });
+  return getCommConfig({ folder: 'secrets', name: 'backups' });
 }
 
 async function backupDB() {
@@ -40,19 +39,18 @@ async function backupDB() {
 
   const dateString = dateFormat('yyyy-mm-dd-HH:MM');
   const filename = `comm.${dateString}.sql.gz`;
-  const filePath = `${backupConfig.directory}/${filename}`;
+  const storageAdapter = createBackupStorageAdapter(backupConfig.storage);
 
   await runBackup({
     filename,
-    filePath,
-    writeBackup(writeFilename, writeFilePath) {
-      return writeDatabaseBackup(dbConfig, writeFilename, writeFilePath);
+    filenamePrefix: 'comm.',
+    filenameSuffix: '.sql.gz',
+    storageAdapter,
+    maxDirSizeMiB: backupConfig.maxDirSizeMiB,
+    writeBackup(writeStream) {
+      return writeDatabaseBackup(dbConfig, filename, writeStream);
     },
-    deleteOldestBackup,
-    cleanupBackup: cleanupFailedBackup,
   });
-
-  await deleteOldBackupsIfSpaceExceeded();
 }
 
 function mysqldump(
@@ -116,19 +114,15 @@ function mysqldump(
 async function writeDatabaseBackup(
   dbConfig: DBConfig,
   filename: string,
-  filePath: string,
+  writeStream: stream$Writable,
 ): Promise<void> {
   const rawStream = new PassThrough();
   const gzipStream = zlib.createGzip();
-  const writeStream = fs.createWriteStream(filePath);
   rawStream.on('error', (e: Error) => {
     console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
   });
   gzipStream.on('error', (e: Error) => {
     console.warn(`gzip transform stream emitted error for ${filename}`, e);
-  });
-  writeStream.on('error', (e: Error) => {
-    console.warn(`write stream emitted error for ${filename}`, e);
   });
 
   const dumpPromise = (async () => {
@@ -168,97 +162,6 @@ async function writeDatabaseBackup(
   } finally {
     rawStream.destroy();
   }
-}
-
-async function deleteOldestBackup(): Promise<boolean> {
-  const sortedBackupInfos = await getSortedBackupInfos();
-  if (sortedBackupInfos.length === 0) {
-    return false;
-  }
-  const oldestFilename = sortedBackupInfos[0].filename;
-  await deleteBackup(oldestFilename);
-  return true;
-}
-
-async function deleteBackup(filename: string) {
-  const backupConfig = await getBackupConfig();
-  invariant(backupConfig, 'backupConfig should be non-null');
-  try {
-    await unlink(`${backupConfig.directory}/${filename}`);
-  } catch (e) {
-    // Check if it's already been deleted
-    if (e.code !== 'ENOENT') {
-      throw e;
-    }
-  }
-}
-
-async function cleanupFailedBackup(filePath: string): Promise<void> {
-  try {
-    await unlink(filePath);
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-  }
-}
-
-type BackupInfo = {
-  +filename: string,
-  +lastModifiedTime: number,
-  +bytes: number,
-};
-async function getSortedBackupInfos(): Promise<BackupInfo[]> {
-  const backupConfig = await getBackupConfig();
-  invariant(backupConfig, 'backupConfig should be non-null');
-
-  const filenames = await readdir(backupConfig.directory);
-  const backups = await Promise.all(
-    filenames.map(async filename => {
-      if (!filename.startsWith('comm.') || !filename.endsWith('.sql.gz')) {
-        return null;
-      }
-      const stats = await lstat(`${backupConfig.directory}/${filename}`);
-      if (stats.isDirectory()) {
-        return null;
-      }
-      return {
-        filename,
-        lastModifiedTime: stats.mtime,
-        bytes: stats.size,
-      };
-    }),
-  );
-
-  const filteredBackups = backups.filter(Boolean);
-  filteredBackups.sort((a, b) => a.lastModifiedTime - b.lastModifiedTime);
-  return filteredBackups;
-}
-
-async function deleteOldBackupsIfSpaceExceeded() {
-  const backupConfig = await getBackupConfig();
-  invariant(backupConfig, 'backupConfig should be non-null');
-  const { maxDirSizeMiB } = backupConfig;
-  if (!maxDirSizeMiB) {
-    return;
-  }
-
-  const sortedBackupInfos = await getSortedBackupInfos();
-  const mostRecentBackup = sortedBackupInfos.pop();
-  if (!mostRecentBackup) {
-    return;
-  }
-  let bytesLeft = maxDirSizeMiB * 1024 * 1024 - mostRecentBackup.bytes;
-
-  const deleteBackupPromises = [];
-  for (let i = sortedBackupInfos.length - 1; i >= 0; i--) {
-    const backupInfo = sortedBackupInfos[i];
-    bytesLeft -= backupInfo.bytes;
-    if (bytesLeft <= 0) {
-      deleteBackupPromises.push(deleteBackup(backupInfo.filename));
-    }
-  }
-  await Promise.all(deleteBackupPromises);
 }
 
 export { backupDB };
