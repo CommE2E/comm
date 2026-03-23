@@ -16,6 +16,37 @@ type DropboxTokenResponse = {
   ...
 };
 
+type DropboxFileEntry = {
+  +'.tag': 'file',
+  +'name': string,
+  +'path_display'?: ?string,
+  +'server_modified': string,
+  +'size': number,
+  ...
+};
+
+type DropboxNonFileEntry = {
+  +'.tag': 'folder' | 'deleted',
+  ...
+};
+
+type DropboxListFolderResponse = {
+  +entries: $ReadOnlyArray<DropboxFileEntry | DropboxNonFileEntry>,
+  +has_more: boolean,
+  +cursor: string,
+  ...
+};
+
+type DropboxUploadSessionStartResponse = {
+  +session_id: string,
+  ...
+};
+
+type DropboxContentResponse<T> = {
+  +accessToken: string,
+  +response: T,
+};
+
 class DropboxRequestError extends Error {
   +status: number;
   +responseText: string;
@@ -42,9 +73,12 @@ class DropboxBackupStorageAdapter {
 
   async listFiles(): Promise<$ReadOnlyArray<StoredFileInfo>> {
     const fileEntries: StoredFileInfo[] = [];
-    let response = await this.rpcRequest('files/list_folder', {
-      path: this.directory,
-    });
+    let response = await this.rpcRequest<DropboxListFolderResponse>(
+      'files/list_folder',
+      {
+        path: this.directory,
+      },
+    );
     while (true) {
       for (const entry of response.entries) {
         if (entry['.tag'] !== 'file') {
@@ -59,16 +93,19 @@ class DropboxBackupStorageAdapter {
       if (!response.has_more) {
         break;
       }
-      response = await this.rpcRequest('files/list_folder/continue', {
-        cursor: response.cursor,
-      });
+      response = await this.rpcRequest<DropboxListFolderResponse>(
+        'files/list_folder/continue',
+        {
+          cursor: response.cursor,
+        },
+      );
     }
     return fileEntries;
   }
 
   async deleteFile(filename: string): Promise<void> {
     try {
-      await this.rpcRequest('files/delete_v2', {
+      await this.rpcRequest<mixed>('files/delete_v2', {
         path: this.filePath(filename),
       });
     } catch (error) {
@@ -99,7 +136,7 @@ class DropboxBackupStorageAdapter {
   }> {
     if (!sessionID) {
       const { accessToken: currentAccessToken, response } =
-        await this.contentRequest(
+        await this.contentRequest<DropboxUploadSessionStartResponse>(
           accessToken,
           'files/upload_session/start',
           { close: false },
@@ -110,7 +147,7 @@ class DropboxBackupStorageAdapter {
         sessionID: response.session_id,
       };
     }
-    const { accessToken: currentAccessToken } = await this.contentRequest(
+    const { accessToken: currentAccessToken } = await this.contentRequest<null>(
       accessToken,
       'files/upload_session/append_v2',
       {
@@ -136,20 +173,21 @@ class DropboxBackupStorageAdapter {
     chunk: Buffer,
   ): Promise<string> {
     if (!sessionID) {
-      const { accessToken: currentAccessToken } = await this.contentRequest(
-        accessToken,
-        'files/upload',
-        {
-          path: this.filePath(filename),
-          mode: { '.tag': 'overwrite' },
-          autorename: false,
-          mute: true,
-        },
-        chunk,
-      );
+      const { accessToken: currentAccessToken } =
+        await this.contentRequest<null>(
+          accessToken,
+          'files/upload',
+          {
+            path: this.filePath(filename),
+            mode: { '.tag': 'overwrite' },
+            autorename: false,
+            mute: true,
+          },
+          chunk,
+        );
       return currentAccessToken;
     }
-    const { accessToken: currentAccessToken } = await this.contentRequest(
+    const { accessToken: currentAccessToken } = await this.contentRequest<null>(
       accessToken,
       'files/upload_session/finish',
       {
@@ -198,7 +236,7 @@ class DropboxBackupStorageAdapter {
     return tokenResponse.access_token;
   }
 
-  async rpcRequest(endpoint: string, payload: Object): Promise<any> {
+  async rpcRequest<T>(endpoint: string, payload: Object): Promise<T> {
     const accessToken = await this.refreshAccessToken();
     const response = await nodeFetch(
       `https://api.dropboxapi.com/2/${endpoint}`,
@@ -218,20 +256,17 @@ class DropboxBackupStorageAdapter {
     return await response.json();
   }
 
-  async contentRequest(
+  async contentRequest<T>(
     accessToken: string,
     endpoint: string,
     args: Object,
     content: Buffer,
-  ): Promise<{
-    +accessToken: string,
-    +response: any,
-  }> {
+  ): Promise<DropboxContentResponse<T>> {
     const tryContentRequest = async (
       currentAccessToken: string,
     ): Promise<{
       +accessToken: string,
-      +response: any,
+      +responseText: string,
     }> => {
       const response = await nodeFetch(
         `https://content.dropboxapi.com/2/${endpoint}`,
@@ -260,10 +295,15 @@ class DropboxBackupStorageAdapter {
       const responseText = await response.text();
       return {
         accessToken: currentAccessToken,
-        response: responseText ? JSON.parse(responseText) : {},
+        responseText,
       };
     };
-    return await tryContentRequest(accessToken);
+    const { accessToken: currentAccessToken, responseText } =
+      await tryContentRequest(accessToken);
+    return {
+      accessToken: currentAccessToken,
+      response: JSON.parse(responseText ?? 'null'),
+    };
   }
 }
 
