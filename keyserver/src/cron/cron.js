@@ -124,7 +124,7 @@ if (cluster.isMaster) {
       },
     );
     schedule.scheduleJob(
-      '0 2-23/4 * * *', // every four hours, offset two hours
+      '0 1 * * *', // every day at 1:00 AM in the keyserver's timezone
       async () => {
         try {
           await backupPhorge();
