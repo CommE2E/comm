@@ -93,17 +93,24 @@ class DropboxBackupStorageAdapter {
     sessionID: ?string,
     offset: number,
     chunk: Buffer,
-  ): Promise<string> {
+  ): Promise<{
+    +accessToken: string,
+    +sessionID: string,
+  }> {
     if (!sessionID) {
-      const response = await this.contentRequest(
-        accessToken,
-        'files/upload_session/start',
-        { close: false },
-        chunk,
-      );
-      return response.session_id;
+      const { accessToken: currentAccessToken, response } =
+        await this.contentRequest(
+          accessToken,
+          'files/upload_session/start',
+          { close: false },
+          chunk,
+        );
+      return {
+        accessToken: currentAccessToken,
+        sessionID: response.session_id,
+      };
     }
-    await this.contentRequest(
+    const { accessToken: currentAccessToken } = await this.contentRequest(
       accessToken,
       'files/upload_session/append_v2',
       {
@@ -115,7 +122,10 @@ class DropboxBackupStorageAdapter {
       },
       chunk,
     );
-    return sessionID;
+    return {
+      accessToken: currentAccessToken,
+      sessionID,
+    };
   }
 
   async finishUpload(
@@ -124,9 +134,9 @@ class DropboxBackupStorageAdapter {
     sessionID: ?string,
     offset: number,
     chunk: Buffer,
-  ): Promise<void> {
+  ): Promise<string> {
     if (!sessionID) {
-      await this.contentRequest(
+      const { accessToken: currentAccessToken } = await this.contentRequest(
         accessToken,
         'files/upload',
         {
@@ -137,9 +147,9 @@ class DropboxBackupStorageAdapter {
         },
         chunk,
       );
-      return;
+      return currentAccessToken;
     }
-    await this.contentRequest(
+    const { accessToken: currentAccessToken } = await this.contentRequest(
       accessToken,
       'files/upload_session/finish',
       {
@@ -156,6 +166,7 @@ class DropboxBackupStorageAdapter {
       },
       chunk,
     );
+    return currentAccessToken;
   }
 
   filePath(filename: string): string {
@@ -212,36 +223,54 @@ class DropboxBackupStorageAdapter {
     endpoint: string,
     args: Object,
     content: Buffer,
-  ): Promise<any> {
-    const response = await nodeFetch(
-      `https://content.dropboxapi.com/2/${endpoint}`,
-      {
-        method: 'POST',
-        body: content,
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/octet-stream',
-          'Dropbox-API-Arg': JSON.stringify(args),
+  ): Promise<{
+    +accessToken: string,
+    +response: any,
+  }> {
+    const tryContentRequest = async (
+      currentAccessToken: string,
+    ): Promise<{
+      +accessToken: string,
+      +response: any,
+    }> => {
+      const response = await nodeFetch(
+        `https://content.dropboxapi.com/2/${endpoint}`,
+        {
+          method: 'POST',
+          body: content,
+          headers: {
+            'Authorization': `Bearer ${currentAccessToken}`,
+            'Content-Type': 'application/octet-stream',
+            'Dropbox-API-Arg': JSON.stringify(args),
+          },
         },
-      },
-    );
-    if (!response.ok) {
-      const responseText = await response.text();
-      throw mapDropboxError(response.status, responseText);
-    }
+      );
+      if (!response.ok) {
+        const responseText = await response.text();
+        if (
+          response.status === 401 &&
+          responseText.includes('expired_access_token')
+        ) {
+          const refreshedAccessToken = await this.refreshAccessToken();
+          return await tryContentRequest(refreshedAccessToken);
+        }
+        throw mapDropboxError(response.status, responseText);
+      }
 
-    const responseText = await response.text();
-    if (!responseText) {
-      return {};
-    }
-    return JSON.parse(responseText);
+      const responseText = await response.text();
+      return {
+        accessToken: currentAccessToken,
+        response: responseText ? JSON.parse(responseText) : {},
+      };
+    };
+    return await tryContentRequest(accessToken);
   }
 }
 
 const dropboxChunkSize = 16 * 1024 * 1024;
 class DropboxUploadWriteStream extends Writable {
   +adapter: DropboxBackupStorageAdapter;
-  +accessToken: string;
+  accessToken: string;
   +filename: string;
   sessionID: ?string;
   offset: number;
@@ -290,19 +319,21 @@ class DropboxUploadWriteStream extends Writable {
     this.bufferedChunk = Buffer.concat([this.bufferedChunk, buffer]);
     while (this.bufferedChunk.length >= dropboxChunkSize) {
       const uploadChunk = this.bufferedChunk.subarray(0, dropboxChunkSize);
-      this.sessionID = await this.adapter.uploadChunk(
+      const uploadResponse = await this.adapter.uploadChunk(
         this.accessToken,
         this.sessionID,
         this.offset,
         uploadChunk,
       );
+      this.accessToken = uploadResponse.accessToken;
+      this.sessionID = uploadResponse.sessionID;
       this.offset += uploadChunk.length;
       this.bufferedChunk = this.bufferedChunk.subarray(dropboxChunkSize);
     }
   }
 
   async finish(): Promise<void> {
-    await this.adapter.finishUpload(
+    this.accessToken = await this.adapter.finishUpload(
       this.accessToken,
       this.filename,
       this.sessionID,
