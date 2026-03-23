@@ -53,6 +53,7 @@ RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup \
 # We need rsync in the prod-build yarn script
 # We need mariadb-client so we can use mysqldump for backups
 # We need php-cli and php-mysql for Phorge backups
+# We need gnupg for OpenPGP backup encryption
 # We need cmake to install protobuf (prereq for rust-node-addon)
 # We need binaryen for wasm-opt tool used for WASM optimization
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -60,6 +61,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   mariadb-client \
   php-cli \
   php-mysql \
+  gnupg \
   cmake \
   && rm -rf /var/lib/apt/lists/*
 
