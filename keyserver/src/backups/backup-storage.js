@@ -33,7 +33,11 @@ class BackupStorageSpaceExceededError extends Error {
 export interface BackupStorageAdapter {
   listFiles(): Promise<$ReadOnlyArray<StoredFileInfo>>;
   deleteFile(filename: string): Promise<void>;
-  createWriteStream(filename: string): Promise<stream$Writable>;
+  createWriteStream(filename: string): Promise<BackupWriteStream>;
+}
+
+export interface BackupWriteStream extends stream$Writable {
+  getUploadedByteCount(): number;
 }
 
 function createBackupStorageAdapter(

@@ -7,6 +7,7 @@ import { promisify } from 'util';
 
 import {
   BackupStorageSpaceExceededError,
+  type BackupWriteStream,
   type LocalStorageConfig,
   type StoredFileInfo,
 } from './backup-storage.js';
@@ -50,8 +51,8 @@ class LocalBackupStorageAdapter {
     }
   }
 
-  async createWriteStream(filename: string): Promise<stream$Writable> {
-    const writeStream = new PassThrough();
+  async createWriteStream(filename: string): Promise<BackupWriteStream> {
+    const writeStream = new LocalBackupWriteStream();
     const fileWriteStream = fs.createWriteStream(
       path.join(this.directory, filename),
     );
@@ -64,6 +65,22 @@ class LocalBackupStorageAdapter {
     });
     writeStream.pipe(fileWriteStream);
     return writeStream;
+  }
+}
+
+class LocalBackupWriteStream extends PassThrough {
+  uploadedByteCount: number;
+
+  constructor() {
+    super();
+    this.uploadedByteCount = 0;
+    this.on('data', chunk => {
+      this.uploadedByteCount += chunk.length;
+    });
+  }
+
+  getUploadedByteCount(): number {
+    return this.uploadedByteCount;
   }
 }
 

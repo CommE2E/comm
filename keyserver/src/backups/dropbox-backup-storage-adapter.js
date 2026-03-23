@@ -6,6 +6,7 @@ import { Writable } from 'stream';
 
 import {
   BackupStorageSpaceExceededError,
+  type BackupWriteStream,
   type DropboxStorageConfig,
   type StoredFileInfo,
 } from './backup-storage.js';
@@ -82,7 +83,7 @@ class DropboxBackupStorageAdapter {
     }
   }
 
-  async createWriteStream(filename: string): Promise<stream$Writable> {
+  async createWriteStream(filename: string): Promise<BackupWriteStream> {
     const accessToken = await this.refreshAccessToken();
     return new DropboxUploadWriteStream(this, accessToken, filename);
   }
@@ -309,6 +310,10 @@ class DropboxUploadWriteStream extends Writable {
       this.bufferedChunk,
     );
     this.bufferedChunk = Buffer.alloc(0);
+  }
+
+  getUploadedByteCount(): number {
+    return this.offset;
   }
 }
 
