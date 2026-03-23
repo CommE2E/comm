@@ -15,6 +15,7 @@ import {
 } from '../backups/backup-storage.js';
 
 const pipeline = promisify(streamPipeline);
+const maxCommandOutputLength = 8192;
 
 type PhorgeBackupConfig = {
   +enabled: boolean,
@@ -63,7 +64,27 @@ async function writePhorgeBackup(
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
+  let stderr = '';
+  phorgeDump.stderr.on('data', chunk => {
+    if (stderr.length >= maxCommandOutputLength) {
+      return;
+    }
+    stderr += chunk
+      .toString('utf8')
+      .slice(0, maxCommandOutputLength - stderr.length);
+  });
+
   const rawStream = new PassThrough();
+
+  let stdout = '';
+  rawStream.on('data', chunk => {
+    if (stdout.length >= maxCommandOutputLength) {
+      return;
+    }
+    stdout += chunk
+      .toString('utf8')
+      .slice(0, maxCommandOutputLength - stdout.length);
+  });
 
   rawStream.on('error', error => {
     console.warn(
@@ -78,14 +99,6 @@ async function writePhorgeBackup(
     console.warn(`gzip transform stream emitted error for ${filename}`, error);
   });
 
-  let stderr = '';
-  phorgeDump.stderr.on('data', chunk => {
-    if (stderr.length >= 8192) {
-      return;
-    }
-    stderr += chunk.toString('utf8').slice(0, 8192 - stderr.length);
-  });
-
   const exitPromise: Promise<void> = new Promise((resolve, reject) => {
     phorgeDump.on('error', reject);
     phorgeDump.on('exit', (code: number | null, signal: string | null) => {
@@ -96,11 +109,12 @@ async function writePhorgeBackup(
           ),
         );
       } else if (code !== null && code !== 0) {
+        const stdoutSuffix = stdout ? ` stdout: ${stdout}` : '';
         const stderrSuffix = stderr ? ` stderr: ${stderr}` : '';
         reject(
           new Error(
             `phorge storage dump exited with code ${code} for ` +
-              `${filename}.${stderrSuffix}`,
+              `${filename}.${stdoutSuffix}${stderrSuffix}`,
           ),
         );
       } else {
