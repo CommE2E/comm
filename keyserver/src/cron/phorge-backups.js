@@ -2,8 +2,9 @@
 
 import childProcess from 'child_process';
 import dateFormat from 'dateformat';
-import { pipeline as streamPipeline } from 'stream';
+import { pipeline as streamPipeline, PassThrough } from 'stream';
 import { promisify } from 'util';
+import zlib from 'zlib';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
 
@@ -57,14 +58,25 @@ async function writePhorgeBackup(
   filename: string,
   writeStream: stream$Writable,
 ): Promise<void> {
-  const phorgeDump = childProcess.spawn(
-    './bin/storage',
-    ['dump', '--compress'],
-    {
-      cwd: phorgeDirectory,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
-  );
+  const phorgeDump = childProcess.spawn('./bin/storage', ['dump'], {
+    cwd: phorgeDirectory,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  const rawStream = new PassThrough();
+
+  rawStream.on('error', error => {
+    console.warn(
+      `phorge dump stdout stream emitted error for ${filename}`,
+      error,
+    );
+  });
+
+  const gzipStream = zlib.createGzip();
+
+  gzipStream.on('error', error => {
+    console.warn(`gzip transform stream emitted error for ${filename}`, error);
+  });
 
   let stderr = '';
   phorgeDump.stderr.on('data', chunk => {
@@ -97,9 +109,11 @@ async function writePhorgeBackup(
     });
   });
 
+  phorgeDump.stdout.pipe(rawStream);
+
   try {
     try {
-      await pipeline(phorgeDump.stdout, writeStream);
+      await pipeline(rawStream, gzipStream, writeStream);
     } catch (error) {
       try {
         await exitPromise;
@@ -110,6 +124,7 @@ async function writePhorgeBackup(
   } finally {
     phorgeDump.stdout.destroy();
     phorgeDump.stderr.destroy();
+    rawStream.destroy();
   }
 }
 
