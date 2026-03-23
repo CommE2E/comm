@@ -2,12 +2,12 @@
 
 import childProcess from 'child_process';
 import dateFormat from 'dateformat';
-import { PassThrough, pipeline as streamPipeline } from 'stream';
-import { promisify } from 'util';
-import zlib from 'zlib';
+import { PassThrough } from 'stream';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
 
+import type { BackupEncryptionConfig } from '../backups/backup-encryption.js';
+import { createBackupOutputPipeline } from '../backups/backup-output.js';
 import { runBackup } from '../backups/backup-runner.js';
 import {
   createBackupStorageAdapter,
@@ -15,12 +15,11 @@ import {
 } from '../backups/backup-storage.js';
 import { getDBConfig, type DBConfig } from '../database/db-config.js';
 
-const pipeline = promisify(streamPipeline);
-
-type BackupConfig = {
+export type BackupConfig = {
   +enabled: boolean,
   +storage: StorageConfig,
   +maxDirSizeMiB?: ?number,
+  +encryption?: ?BackupEncryptionConfig,
 };
 
 function getBackupConfig(): Promise<?BackupConfig> {
@@ -38,18 +37,24 @@ async function backupDB() {
   }
 
   const dateString = dateFormat('yyyy-mm-dd-HH:MM');
-  const filename = `comm.${dateString}.sql.gz`;
+  const filenameSuffix = backupConfig.encryption ? '.sql.gz.gpg' : '.sql.gz';
+  const filename = `comm.${dateString}${filenameSuffix}`;
   const storageAdapter = createBackupStorageAdapter(backupConfig.storage);
 
   await runBackup({
     jobName: 'comm',
     filename,
     filenamePrefix: 'comm.',
-    filenameSuffix: '.sql.gz',
+    filenameSuffix,
     storageAdapter,
     maxDirSizeMiB: backupConfig.maxDirSizeMiB,
     writeBackup: writeStream =>
-      writeDatabaseBackup(dbConfig, filename, writeStream),
+      writeDatabaseBackup(
+        dbConfig,
+        filename,
+        backupConfig.encryption,
+        writeStream,
+      ),
   });
 }
 
@@ -114,15 +119,13 @@ function mysqldump(
 async function writeDatabaseBackup(
   dbConfig: DBConfig,
   filename: string,
+  encryption: ?BackupEncryptionConfig,
   writeStream: stream$Writable,
 ): Promise<void> {
-  const rawStream = new PassThrough();
-  const gzipStream = zlib.createGzip();
-  rawStream.on('error', (e: Error) => {
-    console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
-  });
-  gzipStream.on('error', (e: Error) => {
-    console.warn(`gzip transform stream emitted error for ${filename}`, e);
+  const { rawStream, completion } = await createBackupOutputPipeline({
+    filename,
+    writeStream,
+    encryption,
   });
 
   const dumpPromise = (async () => {
@@ -150,7 +153,7 @@ async function writeDatabaseBackup(
   })();
 
   try {
-    await pipeline(rawStream, gzipStream, writeStream);
+    await completion;
   } catch (error) {
     try {
       await dumpPromise;

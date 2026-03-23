@@ -2,26 +2,20 @@
 
 import childProcess from 'child_process';
 import dateFormat from 'dateformat';
-import { pipeline as streamPipeline, PassThrough } from 'stream';
-import { promisify } from 'util';
-import zlib from 'zlib';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
 
+import type { BackupConfig } from './backups.js';
+import type { BackupEncryptionConfig } from '../backups/backup-encryption.js';
+import { createBackupOutputPipeline } from '../backups/backup-output.js';
 import { runBackup } from '../backups/backup-runner.js';
-import {
-  createBackupStorageAdapter,
-  type StorageConfig,
-} from '../backups/backup-storage.js';
+import { createBackupStorageAdapter } from '../backups/backup-storage.js';
 
-const pipeline = promisify(streamPipeline);
 const maxCommandOutputLength = 8192;
 
 type PhorgeBackupConfig = {
-  +enabled: boolean,
+  ...BackupConfig,
   +phorgeDirectory: string,
-  +storage: StorageConfig,
-  +maxDirSizeMiB?: ?number,
 };
 
 function getPhorgeBackupConfig(): Promise<?PhorgeBackupConfig> {
@@ -35,20 +29,24 @@ async function backupPhorge() {
   }
 
   const dateString = dateFormat('yyyy-mm-dd-HH:MM');
-  const filename = `phorge.${dateString}.sql.gz`;
+  const filenameSuffix = phorgeBackupConfig.encryption
+    ? '.sql.gz.gpg'
+    : '.sql.gz';
+  const filename = `phorge.${dateString}${filenameSuffix}`;
   const storageAdapter = createBackupStorageAdapter(phorgeBackupConfig.storage);
 
   await runBackup({
     jobName: 'phorge',
     filename,
     filenamePrefix: 'phorge.',
-    filenameSuffix: '.sql.gz',
+    filenameSuffix,
     storageAdapter,
     maxDirSizeMiB: phorgeBackupConfig.maxDirSizeMiB,
     writeBackup: writeStream =>
       writePhorgeBackup(
         phorgeBackupConfig.phorgeDirectory,
         filename,
+        phorgeBackupConfig.encryption,
         writeStream,
       ),
   });
@@ -57,6 +55,7 @@ async function backupPhorge() {
 async function writePhorgeBackup(
   phorgeDirectory: string,
   filename: string,
+  encryption: ?BackupEncryptionConfig,
   writeStream: stream$Writable,
 ): Promise<void> {
   const phorgeDump = childProcess.spawn('./bin/storage', ['dump'], {
@@ -74,7 +73,11 @@ async function writePhorgeBackup(
       .slice(0, maxCommandOutputLength - stderr.length);
   });
 
-  const rawStream = new PassThrough();
+  const { rawStream, completion } = await createBackupOutputPipeline({
+    filename,
+    writeStream,
+    encryption,
+  });
 
   let stdout = '';
   rawStream.on('data', chunk => {
@@ -84,19 +87,6 @@ async function writePhorgeBackup(
     stdout += chunk
       .toString('utf8')
       .slice(0, maxCommandOutputLength - stdout.length);
-  });
-
-  rawStream.on('error', error => {
-    console.warn(
-      `phorge dump stdout stream emitted error for ${filename}`,
-      error,
-    );
-  });
-
-  const gzipStream = zlib.createGzip();
-
-  gzipStream.on('error', error => {
-    console.warn(`gzip transform stream emitted error for ${filename}`, error);
   });
 
   const exitPromise: Promise<void> = new Promise((resolve, reject) => {
@@ -127,7 +117,7 @@ async function writePhorgeBackup(
 
   try {
     try {
-      await pipeline(rawStream, gzipStream, writeStream);
+      await completion;
     } catch (error) {
       try {
         await exitPromise;
