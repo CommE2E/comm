@@ -57,6 +57,7 @@ Otherwise:
 
 - Use consistent returns in functions
 - Handle all promise rejections
+- Prefer async IIFEs with `try`/`catch`/`finally` over `.then()` / `.catch()` / `.finally()` chains
 
 ### Diff Review
 
