@@ -57,3 +57,7 @@ Otherwise:
 
 - Use consistent returns in functions
 - Handle all promise rejections
+
+### Diff Review
+
+- Before reporting back after code changes, review your diff and remove low-signal churn such as opinionated renames, unnecessary variable reshuffles, comment-only deletions, or other non-pertinent edits
