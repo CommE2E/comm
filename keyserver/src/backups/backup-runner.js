@@ -113,18 +113,21 @@ async function trySaveBackup(
   writeBackup: WriteBackup,
 ): Promise<void> {
   const timeoutObject: { timeout: ?TimeoutID } = { timeout: null };
+  const writeStream = await storageAdapter.createWriteStream(filename);
   const setBackupTimeout = (alreadyWaited: number) => {
     timeoutObject.timeout = setTimeout(() => {
       const nowWaited = alreadyWaited + backupWatchFrequency;
+      const uploadedByteCount = writeStream.getUploadedByteCount();
+      const uploadedMiB = Math.floor(uploadedByteCount / (1024 * 1024));
       console.log(
-        `writing backup for ${filename} has taken ${nowWaited}ms so far`,
+        `writing backup for ${filename} has taken ${nowWaited}ms, ` +
+          `uploaded ${uploadedMiB}MiB so far`,
       );
       setBackupTimeout(nowWaited);
     }, backupWatchFrequency);
   };
   setBackupTimeout(0);
 
-  const writeStream = await storageAdapter.createWriteStream(filename);
   writeStream.on('error', (error: Error) => {
     console.warn(`write stream emitted error for ${filename}`, error);
   });
