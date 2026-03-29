@@ -20,6 +20,7 @@ locals {
 module "landing_service" {
   source = "../modules/keyserver_node_service"
 
+  desired_count               = 0
   container_name              = "landing"
   image                       = local.keyserver_image
   service_name                = "landing"

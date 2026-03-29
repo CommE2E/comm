@@ -99,7 +99,7 @@ resource "aws_ecs_service" "keyserver_secondary_service" {
   enable_execute_command  = true
   enable_ecs_managed_tags = true
   force_new_deployment    = true
-  desired_count           = var.desired_secondary_nodes
+  desired_count           = max(var.desired_nodes - 1, 0)
 
   network_configuration {
     subnets          = local.vpc_subnets
