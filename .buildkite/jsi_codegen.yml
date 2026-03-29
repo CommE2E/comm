@@ -11,11 +11,12 @@ steps:
     retry:
       automatic: true
     plugins:
-      - docker#v5.3.0:
+      - docker#v5.13.0:
           image: 'cimg/node:20.19'
+          platform: 'linux/amd64'
           always-pull: true
           workdir: /comm
           propagate-environment: true
           user: 'root'
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'

@@ -8,8 +8,8 @@ steps:
     retry:
       automatic: true
     plugins:
-      - docker#v5.3.0:
+      - docker#v5.13.0:
           image: 'rust:1.74.0'
           propagate-environment: true
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'
