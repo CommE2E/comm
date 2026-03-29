@@ -11,4 +11,4 @@ steps:
           propagate-environment: true
           user: 'root'
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'

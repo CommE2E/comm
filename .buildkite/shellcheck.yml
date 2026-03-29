@@ -12,4 +12,4 @@ steps:
           shell: ['/bin/bash', '-e', '-c']
           propagate-environment: true
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'

@@ -4,4 +4,4 @@ steps:
     retry:
       automatic: true
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'

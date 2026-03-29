@@ -12,4 +12,4 @@ steps:
           upload-container-logs: always
           build-parallel: true
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'
