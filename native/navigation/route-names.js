@@ -70,7 +70,6 @@ export const ActionResultModalRouteName = 'ActionResultModal';
 export const AddUsersModalRouteName = 'AddUsersModal';
 export const AppearancePreferencesRouteName = 'AppearancePreferences';
 export const AppRouteName = 'App';
-export const AppsRouteName = 'Apps';
 export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
 export const BackupMenuRouteName = 'BackupMenu';
 export const BlockListRouteName = 'BlockList';
@@ -278,7 +277,6 @@ export type TabParamList = {
   +Calendar: void,
   +Chat: void,
   +Profile: void,
-  +Apps: void,
 };
 
 export type ChatParamList = {

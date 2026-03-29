@@ -4,7 +4,6 @@ import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
-import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -48,7 +47,6 @@ const defaultState = ({
   },
   watchedThreadIDs: [],
   lifecycleState: 'active',
-  enabledApps: defaultEnabledApps,
   reportStore: {
     enabledReports: {
       crashReports: __DEV__,

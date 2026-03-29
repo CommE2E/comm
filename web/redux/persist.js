@@ -866,14 +866,10 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     };
   }: MigrationFunction<WebNavInfo, AppState>),
   [93]: (async (state: AppState) => {
-    const { enabledApps, globalThemeInfo, alertStore } = state;
+    const { globalThemeInfo, alertStore } = state;
 
     const syncedMetadataStoreOperations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation> =
       [
-        createReplaceSyncedMetadataOperation(
-          syncedMetadataNames.ENABLED_APPS,
-          JSON.stringify(enabledApps),
-        ),
         createReplaceSyncedMetadataOperation(
           syncedMetadataNames.GLOBAL_THEME_INFO,
           JSON.stringify(globalThemeInfo),
@@ -940,6 +936,14 @@ const migrations: MigrationsManifest<WebNavInfo, AppState> = {
     const ops = await sharedMigrations[97](databaseIdentifier.MAIN);
     return {
       state,
+      ops,
+    };
+  }: MigrationFunction<WebNavInfo, AppState>),
+  [99]: (async (state: any) => {
+    const { enabledApps, ...stateWithoutEnabledApps } = state;
+    const ops = await sharedMigrations[99](databaseIdentifier.MAIN);
+    return {
+      state: stateWithoutEnabledApps,
       ops,
     };
   }: MigrationFunction<WebNavInfo, AppState>),

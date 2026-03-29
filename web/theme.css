@@ -131,7 +131,6 @@
   --menu-color-hover: var(--shades-white-100);
   --menu-color-dangerous: var(--error-primary);
   --menu-color-dangerous-hover: var(--error-light-50);
-  --app-list-icon-disabled-color: var(--shades-white-80);
   --chat-thread-list-color-active: var(--shades-white-60);
   --chat-thread-list-menu-color: var(--shades-white-60);
   --chat-thread-list-menu-bg: var(--shades-black-75);

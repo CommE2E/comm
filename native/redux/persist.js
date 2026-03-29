@@ -92,7 +92,6 @@ import {
 } from 'lib/types/alert-types.js';
 import { databaseIdentifier } from 'lib/types/database-identifier-types.js';
 import { dmOperationTypes } from 'lib/types/dm-ops.js';
-import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -381,10 +380,7 @@ const legacyMigrations = {
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
-  [24]: (state: AppState) => ({
-    ...state,
-    enabledApps: defaultEnabledApps,
-  }),
+  [24]: (state: AppState) => state,
   [25]: (state: AppState) =>
     ({
       ...state,
@@ -1653,14 +1649,10 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     };
   }: MigrationFunction<NavInfo, AppState>),
   [93]: (async (state: AppState) => {
-    const { enabledApps, globalThemeInfo, alertStore } = state;
+    const { globalThemeInfo, alertStore } = state;
 
     const syncedMetadataStoreOperations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation> =
       [
-        createReplaceSyncedMetadataOperation(
-          syncedMetadataNames.ENABLED_APPS,
-          JSON.stringify(enabledApps),
-        ),
         createReplaceSyncedMetadataOperation(
           syncedMetadataNames.GLOBAL_THEME_INFO,
           JSON.stringify(globalThemeInfo),
@@ -1727,6 +1719,14 @@ const migrations: MigrationsManifest<NavInfo, AppState> = Object.freeze({
     const ops = await sharedMigrations[98](databaseIdentifier.MAIN);
     return {
       state,
+      ops,
+    };
+  }: MigrationFunction<NavInfo, AppState>),
+  [99]: (async (state: any) => {
+    const { enabledApps, ...stateWithoutEnabledApps } = state;
+    const ops = await sharedMigrations[99](databaseIdentifier.MAIN);
+    return {
+      state: stateWithoutEnabledApps,
       ops,
     };
   }: MigrationFunction<NavInfo, AppState>),

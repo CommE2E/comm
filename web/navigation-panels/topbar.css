@@ -11,23 +11,6 @@
   height: 56px;
 }
 
-.plusButton {
-  margin: 12px;
-  display: flex;
-  cursor: pointer;
-  color: var(--topbar-button-fg);
-  align-items: center;
-  justify-content: center;
-  background-color: var(--topbar-button-bg);
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-}
-
-.plusButton:hover {
-  background-color: var(--topbar-button-bg-hover);
-}
-
 .navigationPanelTab {
   display: flex;
   flex-direction: row;
@@ -87,5 +70,5 @@ span.chatBadge {
 .tabs {
   display: flex;
   overflow: auto;
-  max-width: calc(100% - 56px);
+  max-width: 100%;
 }

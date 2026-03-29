@@ -46,7 +46,6 @@ import type { DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { QueuedDMOperations } from 'lib/types/dm-ops.js';
 import { processDMOpsActionType } from 'lib/types/dm-ops.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
-import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
 import { type CalendarFilter } from 'lib/types/filter-types.js';
 import type { HolderStore } from 'lib/types/holder-types.js';
@@ -123,7 +122,6 @@ export type AppState = {
   +alertStore: AlertStore,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
-  +enabledApps: EnabledApps,
   +reportStore: ReportStore,
   +dataLoaded: boolean,
   +windowActive: boolean,
