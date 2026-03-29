@@ -25,7 +25,6 @@ const persistBlacklist = [
   'integrityStore',
   'communityStore',
   'keyserverStore',
-  'enabledApps',
   'alertStore',
   'globalThemeInfo',
   'holderStore',

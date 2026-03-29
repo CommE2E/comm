@@ -80,20 +80,17 @@ function AppSwitcher(): React.Node {
     [dispatch],
   );
 
-  const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
-  const calendarNavigationItem = React.useMemo(() => {
-    if (!isCalendarEnabled) {
-      return null;
-    }
-    return (
+  const calendarNavigationItem = React.useMemo(
+    () => (
       <NavigationPanel.Item tab="calendar">
         <a className={css.navigationPanelTab} onClick={onClickCalendar}>
           <SWMansionIcon icon="calendar" size={20} />
           <p>Calendar</p>
         </a>
       </NavigationPanel.Item>
-    );
-  }, [isCalendarEnabled, onClickCalendar]);
+    ),
+    [onClickCalendar],
+  );
 
   return (
     <NavigationPanel.Container tabSelector={navTabSelector} horizontal={true}>

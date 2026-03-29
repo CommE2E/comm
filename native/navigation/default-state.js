@@ -9,13 +9,13 @@ import {
   AppRouteName,
   TabNavigatorRouteName,
   LoggedOutModalRouteName,
+  CalendarRouteName,
   ProfileRouteName,
   ProfileScreenRouteName,
   ChatRouteName,
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
-  AppsRouteName,
   CommunityDrawerNavigatorRouteName,
 } from './route-names.js';
 
@@ -64,6 +64,9 @@ const defaultNavigationState: StaleNavigationState = {
                         },
                       },
                       {
+                        name: CalendarRouteName,
+                      },
+                      {
                         name: ProfileRouteName,
                         state: {
                           type: 'stack',
@@ -71,7 +74,6 @@ const defaultNavigationState: StaleNavigationState = {
                           routes: [{ name: ProfileScreenRouteName }],
                         },
                       },
-                      { name: AppsRouteName },
                     ],
                   },
                 },

@@ -1,7 +1,6 @@
 // @flow
 
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
-import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -49,7 +48,6 @@ const defaultWebState: AppState = Object.freeze({
   },
   watchedThreadIDs: [],
   lifecycleState: 'active',
-  enabledApps: defaultWebEnabledApps,
   reportStore: {
     enabledReports: {
       crashReports: false,

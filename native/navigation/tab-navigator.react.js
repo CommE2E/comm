@@ -25,20 +25,15 @@ import { Keyboard } from 'react-native';
 import { useDebugLogs } from 'lib/components/debug-logs-context.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
-import CommunityDrawerButton from './community-drawer-button.react.js';
-import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react.js';
 import {
   CalendarRouteName,
   ChatRouteName,
   ProfileRouteName,
-  AppsRouteName,
   type ScreenParamList,
   type TabParamList,
-  type NavigationRoute,
 } from './route-names.js';
 import { tabBar } from './tab-bar.react.js';
 import TabRouter from './tab-router.js';
-import AppsDirectory from '../apps/apps-directory.react.js';
 import Calendar from '../calendar/calendar.react.js';
 import Chat from '../chat/chat.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -67,13 +62,6 @@ const getProfileTabOptions = (badge: number) => ({
   ),
   tabBarBadge: badge ? badge : undefined,
 });
-const appsTabOptions = {
-  tabBarLabel: 'Apps',
-  tabBarIcon: ({ color }: { +color: string, ... }) => (
-    <SWMansionIcon name="globe-1" style={[styles.icon, { color }]} />
-  ),
-};
-
 export type CustomBottomTabNavigationHelpers<
   ParamList: ParamListBase = ParamListBase,
 > = {
@@ -146,48 +134,13 @@ const Tab = createTabNavigator<
   TabParamList,
   BottomTabNavigationHelpers<ScreenParamList>,
 >();
-type Props = {
-  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
-  +route: NavigationRoute<'TabNavigator'>,
-};
-function TabComponent(props: Props): React.Node {
+function TabComponent(): React.Node {
   const colors = useColors();
   const chatBadge = useSelector(unreadCount);
 
   const staffCanSee = useStaffCanSee();
   const { errorLogsCount } = useDebugLogs();
   const profileBadge = staffCanSee ? errorLogsCount : 0;
-
-  const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
-
-  let calendarTab;
-  if (isCalendarEnabled) {
-    calendarTab = (
-      <Tab.Screen
-        name={CalendarRouteName}
-        component={Calendar}
-        options={calendarTabOptions}
-      />
-    );
-  }
-
-  const headerLeft = React.useCallback(
-    () => <CommunityDrawerButton navigation={props.navigation} />,
-    [props.navigation],
-  );
-
-  const appsOptions = React.useMemo(
-    () => ({
-      ...appsTabOptions,
-      headerShown: true,
-      headerLeft,
-      headerStyle: {
-        backgroundColor: colors.tabBarBackground,
-      },
-      headerShadowVisible: false,
-    }),
-    [colors.tabBarBackground, headerLeft],
-  );
 
   const tabBarScreenOptions = React.useMemo(
     () => ({
@@ -222,16 +175,15 @@ function TabComponent(props: Props): React.Node {
         component={Chat}
         options={getChatTabOptions(chatBadge)}
       />
-      {calendarTab}
+      <Tab.Screen
+        name={CalendarRouteName}
+        component={Calendar}
+        options={calendarTabOptions}
+      />
       <Tab.Screen
         name={ProfileRouteName}
         component={Profile}
         options={getProfileTabOptions(profileBadge)}
-      />
-      <Tab.Screen
-        name={AppsRouteName}
-        component={AppsDirectory}
-        options={appsOptions}
       />
     </Tab.Navigator>
   );

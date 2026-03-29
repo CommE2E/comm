@@ -13,7 +13,6 @@ import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types';
 import type { QueuedDMOperations } from 'lib/types/dm-ops';
 import type { DraftStore } from 'lib/types/draft-types.js';
-import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { HolderStore } from 'lib/types/holder-types.js';
@@ -74,7 +73,6 @@ export type AppState = {
   +alertStore: AlertStore,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
-  +enabledApps: EnabledApps,
   +reportStore: ReportStore,
   +_persist: ?PersistState,
   +dimensions: DimensionsInfo,
