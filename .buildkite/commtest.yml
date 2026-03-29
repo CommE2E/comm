@@ -2,6 +2,8 @@ steps:
   - label: ':docker: Run Commtest'
     retry:
       automatic: true
+    env:
+      PLATFORM: 'linux/arm64'
     plugins:
       - docker-compose#v4.14.0:
           run: commtest
@@ -10,6 +12,6 @@ steps:
             - services/docker-compose.yml
             - services/docker-compose.tests.yml
           upload-container-logs: always
-          build-parallel: true
+          build-parallel: false
     agents:
-      - 'autoscaling=true'
+      - 'mac=true'
