@@ -37,10 +37,10 @@ variable "db_instance_class" {
   default     = "db.t4g.medium"
 }
 
-variable "desired_secondary_nodes" {
-  description = "Desired number of secondary nodes"
+variable "desired_nodes" {
+  description = "Desired total number of keyserver nodes"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "custom_keyserver_image" {
@@ -76,4 +76,3 @@ variable "landing_domain_name" {
   type        = string
   default     = ""
 }
-

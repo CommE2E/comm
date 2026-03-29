@@ -20,7 +20,7 @@ locals {
 module "webapp_service" {
   source = "../modules/keyserver_node_service"
 
-  desired_count               = 1
+  desired_count               = 0
   container_name              = "webapp"
   image                       = local.keyserver_image
   service_name                = "webapp"
