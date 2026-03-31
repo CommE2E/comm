@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "backup_service_fargate" {
+  name              = "/ecs/backup-service-fargate-task-def"
+  retention_in_days = 7
+}
+
 # Fargate task definition
 resource "aws_ecs_task_definition" "backup_service_fargate" {
   family = "backup-service-fargate-task-def"
@@ -35,8 +40,7 @@ resource "aws_ecs_task_definition" "backup_service_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/backup-service-fargate-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.backup_service_fargate.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }

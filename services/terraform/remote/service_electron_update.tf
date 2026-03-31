@@ -6,6 +6,11 @@ locals {
   electron_update_domain_name = "electron-update.${local.root_domain}"
 }
 
+resource "aws_cloudwatch_log_group" "electron_update" {
+  name              = "/ecs/electron-update-task-def"
+  retention_in_days = 7
+}
+
 # Task definition - defines container resources, ports,
 # environment variables, docker image etc.
 resource "aws_ecs_task_definition" "electron_update" {
@@ -26,8 +31,7 @@ resource "aws_ecs_task_definition" "electron_update" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/electron-update-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.electron_update.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }

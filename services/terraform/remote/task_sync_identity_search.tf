@@ -4,6 +4,11 @@ locals {
   sync_identity_search_schedule = "cron(0 0 * * ? *)"
 }
 
+resource "aws_cloudwatch_log_group" "sync_identity_search" {
+  name              = "/ecs/sync-identity-search"
+  retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "sync_identity_search" {
   family = "sync-identity-search-task-def"
   container_definitions = jsonencode([
@@ -32,8 +37,7 @@ resource "aws_ecs_task_definition" "sync_identity_search" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/sync-identity-search"
+          "awslogs-group"         = aws_cloudwatch_log_group.sync_identity_search.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
