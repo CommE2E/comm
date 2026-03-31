@@ -1,4 +1,4 @@
-name: JSI Codegen
+name: Farcaster signer
 
 on:
   push:
@@ -19,6 +19,10 @@ jobs:
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
-      - name: '[native] JSI Codegen'
-        working-directory: ./native
-        run: yarn codegen-jsi && git diff --exit-code
+      - name: Build Farcaster signer
+        run: |
+          if ! bash -lc 'cd native && yarn build-farcaster-signer'; then
+            bash -lc 'cd native && yarn clean-farcaster-signer'
+            bash -lc 'cd native && yarn build-farcaster-signer'
+          fi
+          git diff --exit-code

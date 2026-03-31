@@ -1,0 +1,24 @@
+name: Tunnelbroker Unit Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container: rust:1.74.0
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: apt update && apt install -y autoconf libtool build-essential cmake git
+
+      - name: Install protobuf
+        run: ./scripts/install_protobuf.sh
+
+      - name: Tunnelbroker unit tests
+        working-directory: ./services/tunnelbroker
+        run: cargo test

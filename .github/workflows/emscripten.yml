@@ -1,0 +1,30 @@
+name: Emscripten
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            extra-substituters = https://comm.cachix.org
+            extra-trusted-public-keys = comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4=
+
+      - name: Build Emscripten artifacts
+        run: |
+          if ! nix develop --accept-flake-config --command \
+            bash -lc 'cd web && yarn build-db-wasm'; then
+            nix develop --accept-flake-config --command \
+              bash -lc 'cd web && yarn clean-db-wasm'
+            nix develop --accept-flake-config --command \
+              bash -lc 'cd web && yarn build-db-wasm'
+          fi
+          git diff --exit-code

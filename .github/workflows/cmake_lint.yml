@@ -1,0 +1,21 @@
+name: CMake Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install cmakelang
+        run: python3 -m pip install cmakelang
+
+      - name: Run cmake-lint
+        run: |
+          shopt -s globstar
+          cmake-lint **/CMakeLists.txt **/*.cmake
