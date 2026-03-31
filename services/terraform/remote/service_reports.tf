@@ -96,10 +96,7 @@ resource "aws_ecs_service" "reports_service" {
   task_definition      = aws_ecs_task_definition.reports_service.arn
   force_new_deployment = true
 
-  desired_count = 1
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
+  desired_count = local.fixed_count_service_desired_counts.reports
 
   service_connect_configuration {
     # to be able to reach Blob service by DNS name
@@ -107,10 +104,13 @@ resource "aws_ecs_service" "reports_service" {
   }
 
   # HTTP
-  load_balancer {
-    target_group_arn = aws_lb_target_group.reports_service_http.arn
-    container_name   = local.reports_service_container_name
-    container_port   = local.reports_service_container_http_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.reports_service_http[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.reports_service_container_name
+      container_port   = local.reports_service_container_http_port
+    }
   }
 
   network_configuration {
@@ -161,6 +161,8 @@ resource "aws_security_group" "reports_service" {
 }
 
 resource "aws_lb_target_group" "reports_service_http" {
+  count = local.public_ingress_enabled.reports ? 1 : 0
+
   name     = "reports-service-ecs-http-tg"
   port     = local.reports_service_container_http_port
   protocol = "HTTP"
@@ -182,6 +184,8 @@ resource "aws_lb_target_group" "reports_service_http" {
 
 # Load Balancer
 resource "aws_lb" "reports_service" {
+  count = local.public_ingress_enabled.reports ? 1 : 0
+
   load_balancer_type = "application"
   name               = "reports-service-lb"
   internal           = false
@@ -193,7 +197,8 @@ resource "aws_lb" "reports_service" {
 }
 
 resource "aws_lb_listener" "reports_service_https" {
-  load_balancer_arn = aws_lb.reports_service.arn
+  count             = local.public_ingress_enabled.reports ? 1 : 0
+  load_balancer_arn = aws_lb.reports_service[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
@@ -201,7 +206,7 @@ resource "aws_lb_listener" "reports_service_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.reports_service_http.arn
+    target_group_arn = aws_lb_target_group.reports_service_http[0].arn
   }
 
   lifecycle {

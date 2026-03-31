@@ -56,17 +56,15 @@ resource "aws_ecs_service" "electron_update" {
   task_definition      = aws_ecs_task_definition.electron_update.arn
   force_new_deployment = true
 
-  desired_count = 1
-  # Allow external changes without Terraform plan difference
-  # We can freely specify replica count in AWS Console
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
+  desired_count = local.fixed_count_service_desired_counts.electron_update
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.electron_update_ecs.arn
-    container_name   = local.electron_update_container_name
-    container_port   = local.electron_update_container_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.electron_update_ecs[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.electron_update_container_name
+      container_port   = local.electron_update_container_port
+    }
   }
 
   network_configuration {
@@ -116,6 +114,8 @@ resource "aws_security_group" "electron_update" {
 # Running service instances are registered here
 # to be accessed by the load balancer
 resource "aws_lb_target_group" "electron_update_ecs" {
+  count = local.public_ingress_enabled.electron_update ? 1 : 0
+
   name     = "electron-update-ecs-tg"
   port     = local.electron_update_container_port
   protocol = "HTTP"
@@ -138,6 +138,8 @@ resource "aws_lb_target_group" "electron_update_ecs" {
 
 # Load Balancer
 resource "aws_lb" "electron_update" {
+  count = local.public_ingress_enabled.electron_update ? 1 : 0
+
   load_balancer_type = "application"
   name               = "electron-update-lb"
   internal           = false
@@ -151,7 +153,8 @@ resource "aws_lb" "electron_update" {
 }
 
 resource "aws_lb_listener" "electron_update_https" {
-  load_balancer_arn = aws_lb.electron_update.arn
+  count             = local.public_ingress_enabled.electron_update ? 1 : 0
+  load_balancer_arn = aws_lb.electron_update[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -159,7 +162,7 @@ resource "aws_lb_listener" "electron_update_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.electron_update_ecs.arn
+    target_group_arn = aws_lb_target_group.electron_update_ecs[0].arn
   }
 
   lifecycle {

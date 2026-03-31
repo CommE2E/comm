@@ -52,6 +52,8 @@ resource "aws_security_group" "blob_service" {
 
 # Load Balancer
 resource "aws_lb" "blob_service" {
+  count = local.public_ingress_enabled.blob ? 1 : 0
+
   load_balancer_type = "application"
   name               = "blob-service-lb"
   internal           = false
@@ -64,7 +66,8 @@ resource "aws_lb" "blob_service" {
 }
 
 resource "aws_lb_listener" "blob_service_https" {
-  load_balancer_arn = aws_lb.blob_service.arn
+  count             = local.public_ingress_enabled.blob ? 1 : 0
+  load_balancer_arn = aws_lb.blob_service[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
@@ -72,12 +75,12 @@ resource "aws_lb_listener" "blob_service_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.blob_service_http_fargate.arn
+    target_group_arn = aws_lb_target_group.blob_service_http_fargate[0].arn
   }
 
   lifecycle {
     # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.blob_service_http_fargate]
+    replace_triggered_by = [aws_lb_target_group.blob_service_http_fargate[0]]
   }
 }
 
