@@ -11,13 +11,39 @@ on:
       - 'desktop/**'
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      harbormaster_build_target_phid:
+        required: true
+        type: string
+      phabricator_diff_id:
+        required: true
+        type: string
+      phabricator_revision_id:
+        required: true
+        type: string
+      staging_base_ref:
+        required: true
+        type: string
+      staging_diff_ref:
+        required: true
+        type: string
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout staged diff
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.staging_diff_ref }}
+          fetch-depth: 0
+
+      - name: Checkout normal ref
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: actions/checkout@v3
 
       - name: docker compose build --no-cache blob-server
         working-directory: ./services
