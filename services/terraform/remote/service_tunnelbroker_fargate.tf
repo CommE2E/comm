@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "tunnelbroker_fargate" {
+  name              = "/ecs/tunnelbroker-fargate-task-def"
+  retention_in_days = 7
+}
+
 # Fargate task definition
 resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
   family = "tunnelbroker-fargate-task-def"
@@ -79,8 +84,7 @@ resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/tunnelbroker-fargate-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.tunnelbroker_fargate.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }

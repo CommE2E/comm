@@ -4,6 +4,11 @@ locals {
   blob_cleanup_schedule = "cron(0 0 * * ? *)"
 }
 
+resource "aws_cloudwatch_log_group" "blob_cleanup" {
+  name              = "/ecs/blob-cleanup"
+  retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "blob_cleanup" {
   family = "blob-cleanup-task-def"
   container_definitions = jsonencode([
@@ -29,8 +34,7 @@ resource "aws_ecs_task_definition" "blob_cleanup" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/blob-cleanup"
+          "awslogs-group"         = aws_cloudwatch_log_group.blob_cleanup.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }

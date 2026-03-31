@@ -6,6 +6,11 @@ locals {
   feature_flags_domain_name    = "feature-flags.${local.root_domain}"
 }
 
+resource "aws_cloudwatch_log_group" "feature_flags" {
+  name              = "/ecs/feature-flags-task-def"
+  retention_in_days = 7
+}
+
 # Task definition - defines container resources, ports,
 # environment variables, docker image etc.
 resource "aws_ecs_task_definition" "feature_flags" {
@@ -32,8 +37,7 @@ resource "aws_ecs_task_definition" "feature_flags" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/feature-flags-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.feature_flags.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }

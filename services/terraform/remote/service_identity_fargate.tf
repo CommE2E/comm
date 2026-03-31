@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "identity_service_fargate" {
+  name              = "/ecs/identity-service-fargate-task-def"
+  retention_in_days = 7
+}
+
 # Fargate task definition
 resource "aws_ecs_task_definition" "identity_service_fargate" {
   family = "identity-service-fargate-task-def"
@@ -67,8 +72,7 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/identity-service-fargate-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.identity_service_fargate.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
