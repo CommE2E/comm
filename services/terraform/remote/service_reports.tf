@@ -6,6 +6,11 @@ locals {
   reports_service_domain_name         = "reports.${local.root_domain}"
 }
 
+resource "aws_cloudwatch_log_group" "reports_service" {
+  name              = "/ecs/reports-service-task-def"
+  retention_in_days = 7
+}
+
 resource "aws_secretsmanager_secret" "email_config" {
   name_prefix = "email_config"
   description = "E-mail configuration for the reports service"
@@ -68,8 +73,7 @@ resource "aws_ecs_task_definition" "reports_service" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/ecs/reports-service-task-def"
+          "awslogs-group"         = aws_cloudwatch_log_group.reports_service.name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
