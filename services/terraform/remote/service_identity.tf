@@ -96,6 +96,8 @@ resource "aws_security_group" "identity_service" {
 
 # Load Balancer
 resource "aws_lb" "identity_service" {
+  count = local.public_ingress_enabled.identity ? 1 : 0
+
   load_balancer_type = "application"
   name               = "identity-service-lb"
   internal           = false
@@ -107,7 +109,8 @@ resource "aws_lb" "identity_service" {
 }
 
 resource "aws_lb_listener" "identity_service_ws" {
-  load_balancer_arn = aws_lb.identity_service.arn
+  count             = local.public_ingress_enabled.identity ? 1 : 0
+  load_balancer_arn = aws_lb.identity_service[0].arn
   port              = local.identity_service_container_ws_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -115,16 +118,17 @@ resource "aws_lb_listener" "identity_service_ws" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.identity_service_ws_fargate.arn
+    target_group_arn = aws_lb_target_group.identity_service_ws_fargate[0].arn
   }
 
   lifecycle {
-    replace_triggered_by = [aws_lb_target_group.identity_service_ws_fargate]
+    replace_triggered_by = [aws_lb_target_group.identity_service_ws_fargate[0]]
   }
 }
 
 resource "aws_lb_listener" "identity_service_grpc" {
-  load_balancer_arn = aws_lb.identity_service.arn
+  count             = local.public_ingress_enabled.identity ? 1 : 0
+  load_balancer_arn = aws_lb.identity_service[0].arn
   port              = local.identity_service_grpc_public_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
@@ -132,12 +136,12 @@ resource "aws_lb_listener" "identity_service_grpc" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate.arn
+    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate[0].arn
   }
 
   lifecycle {
     # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.identity_service_grpc_fargate]
+    replace_triggered_by = [aws_lb_target_group.identity_service_grpc_fargate[0]]
   }
 }
 

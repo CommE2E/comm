@@ -85,10 +85,13 @@ resource "aws_ecs_service" "blob_service_fargate" {
   }
 
   # HTTP
-  load_balancer {
-    target_group_arn = aws_lb_target_group.blob_service_http_fargate.arn
-    container_name   = local.blob_service_container_name
-    container_port   = local.blob_service_container_http_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.blob_service_http_fargate[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.blob_service_container_name
+      container_port   = local.blob_service_container_http_port
+    }
   }
 
   deployment_circuit_breaker {
@@ -103,6 +106,8 @@ resource "aws_ecs_service" "blob_service_fargate" {
 
 # Fargate HTTP target group
 resource "aws_lb_target_group" "blob_service_http_fargate" {
+  count = local.public_ingress_enabled.blob ? 1 : 0
+
   name        = "blob-service-http-fargate-tg"
   port        = local.blob_service_container_http_port
   protocol    = "HTTP"
@@ -128,8 +133,8 @@ module "blob_service_fargate_autoscaling" {
   service_name     = aws_ecs_service.blob_service_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = 1
-  max_capacity  = 4
+  min_capacity  = local.autoscaled_service_capacities.blob.min_capacity
+  max_capacity  = local.autoscaled_service_capacities.blob.max_capacity
   cpu_target    = 35.0
   memory_target = 45.0
 

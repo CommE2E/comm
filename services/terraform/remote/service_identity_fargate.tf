@@ -117,17 +117,23 @@ resource "aws_ecs_service" "identity_service_fargate" {
   }
 
   # WebSocket
-  load_balancer {
-    target_group_arn = aws_lb_target_group.identity_service_ws_fargate.arn
-    container_name   = local.identity_service_container_name
-    container_port   = local.identity_service_container_ws_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.identity_service_ws_fargate[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.identity_service_container_name
+      container_port   = local.identity_service_container_ws_port
+    }
   }
 
   # gRPC
-  load_balancer {
-    target_group_arn = aws_lb_target_group.identity_service_grpc_fargate.arn
-    container_name   = local.identity_service_container_name
-    container_port   = local.identity_service_container_grpc_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.identity_service_grpc_fargate[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.identity_service_container_name
+      container_port   = local.identity_service_container_grpc_port
+    }
   }
 
   deployment_circuit_breaker {
@@ -145,6 +151,8 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
 # Fargate gRPC target group
 resource "aws_lb_target_group" "identity_service_grpc_fargate" {
+  count = local.public_ingress_enabled.identity ? 1 : 0
+
   name             = "identity-service-grpc-fargate-tg"
   port             = local.identity_service_container_grpc_port
   protocol         = "HTTP"
@@ -172,6 +180,8 @@ resource "aws_lb_target_group" "identity_service_grpc_fargate" {
 
 # Fargate WebSocket target group
 resource "aws_lb_target_group" "identity_service_ws_fargate" {
+  count = local.public_ingress_enabled.identity ? 1 : 0
+
   name             = "identity-service-ws-fargate-tg"
   port             = local.identity_service_container_ws_port
   protocol         = "HTTP"
@@ -198,8 +208,8 @@ module "identity_service_fargate_autoscaling" {
   service_name     = aws_ecs_service.identity_service_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = 1
-  max_capacity  = 6
+  min_capacity  = local.autoscaled_service_capacities.identity.min_capacity
+  max_capacity  = local.autoscaled_service_capacities.identity.max_capacity
   cpu_target    = 35.0
   memory_target = 45.0
 

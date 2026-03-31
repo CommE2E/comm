@@ -62,12 +62,15 @@ resource "aws_ecs_service" "feature_flags" {
   task_definition      = aws_ecs_task_definition.feature_flags.arn
   force_new_deployment = true
 
-  desired_count = 0
+  desired_count = local.fixed_count_service_desired_counts.feature_flags
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.feature_flags_ecs.arn
-    container_name   = local.feature_flags_container_name
-    container_port   = local.feature_flags_container_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.feature_flags_ecs[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.feature_flags_container_name
+      container_port   = local.feature_flags_container_port
+    }
   }
 
   network_configuration {
@@ -91,6 +94,8 @@ resource "aws_ecs_service" "feature_flags" {
 # Running service instances are registered here
 # to be accessed by the load balancer
 resource "aws_lb_target_group" "feature_flags_ecs" {
+  count = local.public_ingress_enabled.feature_flags ? 1 : 0
+
   name     = "feature-flags-ecs-tg"
   port     = local.feature_flags_container_port
   protocol = "HTTP"
@@ -140,6 +145,8 @@ resource "aws_security_group" "feature_flags" {
 
 # Load Balancer
 resource "aws_lb" "feature_flags" {
+  count = local.public_ingress_enabled.feature_flags ? 1 : 0
+
   load_balancer_type = "application"
   name               = "feature-flags-service-lb"
   internal           = false
@@ -152,7 +159,8 @@ resource "aws_lb" "feature_flags" {
 }
 
 resource "aws_lb_listener" "feature_flags_https" {
-  load_balancer_arn = aws_lb.feature_flags.arn
+  count             = local.public_ingress_enabled.feature_flags ? 1 : 0
+  load_balancer_arn = aws_lb.feature_flags[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -160,12 +168,12 @@ resource "aws_lb_listener" "feature_flags_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.feature_flags_ecs.arn
+    target_group_arn = aws_lb_target_group.feature_flags_ecs[0].arn
   }
 
   lifecycle {
     ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.feature_flags_ecs]
+    replace_triggered_by = [aws_lb_target_group.feature_flags_ecs[0]]
   }
 }
 

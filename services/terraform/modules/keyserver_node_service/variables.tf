@@ -54,6 +54,12 @@ variable "desired_count" {
   default     = 1
 }
 
+variable "public_ingress_enabled" {
+  description = "Whether to provision public load balancer ingress"
+  type        = bool
+  default     = true
+}
+
 variable "image" {
   description = "The Docker image for the container"
   type        = string

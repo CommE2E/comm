@@ -109,6 +109,8 @@ resource "aws_security_group" "tunnelbroker" {
 
 # Load Balancer
 resource "aws_lb" "tunnelbroker" {
+  count = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+
   load_balancer_type = "application"
   name               = "tunnelbroker-lb"
   internal           = false
@@ -120,7 +122,8 @@ resource "aws_lb" "tunnelbroker" {
 }
 
 resource "aws_lb_listener" "tunnelbroker_ws" {
-  load_balancer_arn = aws_lb.tunnelbroker.arn
+  count             = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+  load_balancer_arn = aws_lb.tunnelbroker[0].arn
   port              = local.tunnelbroker_config.websocket_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -128,17 +131,17 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate.arn
+    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
   }
 
   lifecycle {
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws_fargate]
+    replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws_fargate[0]]
   }
 }
 
 resource "aws_lb_listener" "tunnelbroker_grpc" {
-  count             = local.is_staging ? 1 : 0
-  load_balancer_arn = aws_lb.tunnelbroker.arn
+  count             = local.tunnelbroker_grpc_public_ingress_enabled ? 1 : 0
+  load_balancer_arn = aws_lb.tunnelbroker[0].arn
   port              = local.tunnelbroker_config.grpc_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -146,11 +149,11 @@ resource "aws_lb_listener" "tunnelbroker_grpc" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
+    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
   }
 
   lifecycle {
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc_fargate]
+    replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc_fargate[0]]
   }
 }
 
