@@ -109,10 +109,13 @@ resource "aws_ecs_service" "service" {
     assign_public_ip = true
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.service.arn
-    container_name   = var.container_name
-    container_port   = 3000
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.service[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = var.container_name
+      container_port   = 3000
+    }
   }
 
   deployment_circuit_breaker {
@@ -122,6 +125,8 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_lb_target_group" "service" {
+  count = var.public_ingress_enabled ? 1 : 0
+
   name     = "${var.service_name}-ecs-tg"
   port     = 3000
   protocol = "HTTP"
@@ -147,16 +152,19 @@ resource "aws_lb_target_group" "service" {
 }
 
 resource "aws_lb" "service" {
+  count = var.public_ingress_enabled ? 1 : 0
+
   load_balancer_type = "application"
   name               = "${var.service_name}-lb"
-  security_groups    = [aws_security_group.lb_sg.id]
+  security_groups    = [aws_security_group.lb_sg[0].id]
 
   internal = false
   subnets  = var.vpc_subnets
 }
 
 resource "aws_lb_listener" "service" {
-  load_balancer_arn = aws_lb.service.arn
+  count             = var.public_ingress_enabled ? 1 : 0
+  load_balancer_arn = aws_lb.service[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -164,16 +172,18 @@ resource "aws_lb_listener" "service" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.service.arn
+    target_group_arn = aws_lb_target_group.service[0].arn
   }
 
   lifecycle {
     ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.service]
+    replace_triggered_by = [aws_lb_target_group.service[0]]
   }
 }
 
 resource "aws_security_group" "lb_sg" {
+  count = var.public_ingress_enabled ? 1 : 0
+
   name        = "${var.service_name}-lb-sg"
   description = "Security group for ${var.service_name} load balancer"
   vpc_id      = var.vpc_id

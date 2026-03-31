@@ -129,17 +129,20 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
   }
 
   # Websocket
-  load_balancer {
-    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate.arn
-    container_name   = local.tunnelbroker_config.container_name
-    container_port   = local.tunnelbroker_config.websocket_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.tunnelbroker_ws_fargate[*]
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = local.tunnelbroker_config.container_name
+      container_port   = local.tunnelbroker_config.websocket_port
+    }
   }
 
   # gRPC (only exists in staging)
   dynamic "load_balancer" {
-    for_each = aws_lb_listener.tunnelbroker_grpc
+    for_each = aws_lb_target_group.tunnelbroker_grpc_fargate[*]
     content {
-      target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate.arn
+      target_group_arn = load_balancer.value.arn
       container_name   = local.tunnelbroker_config.container_name
       container_port   = local.tunnelbroker_config.grpc_port
     }
@@ -157,6 +160,8 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
 # Fargate WebSocket target group
 resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
+  count = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+
   name             = "tunnelbroker-ws-fargate-tg"
   port             = local.tunnelbroker_config.websocket_port
   protocol         = "HTTP"
@@ -177,6 +182,8 @@ resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
 
 # Fargate gRPC target group
 resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
+  count = local.tunnelbroker_grpc_public_ingress_enabled ? 1 : 0
+
   name             = "tunnelbroker-grpc-fargate-tg"
   port             = local.tunnelbroker_config.grpc_port
   protocol         = "HTTP"
@@ -199,8 +206,8 @@ module "tunnelbroker_fargate_autoscaling" {
   service_name     = aws_ecs_service.tunnelbroker_fargate.name
   cluster_name     = aws_ecs_cluster.comm_services.name
 
-  min_capacity  = 1
-  max_capacity  = 8
+  min_capacity  = local.autoscaled_service_capacities.tunnelbroker.min_capacity
+  max_capacity  = local.autoscaled_service_capacities.tunnelbroker.max_capacity
   cpu_target    = 30.0
   memory_target = 40.0
 

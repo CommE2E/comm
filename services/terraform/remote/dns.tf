@@ -1,33 +1,49 @@
 locals {
-  dns_services = {
+  dns_service_configs = {
     Blob = {
-      domain = local.blob_service_domain_name
-      lb     = aws_lb.blob_service
-    },
+      enabled = local.public_ingress_enabled.blob
+      domain  = local.blob_service_domain_name
+      lb      = aws_lb.blob_service
+    }
     Backup = {
-      domain = local.backup_service_domain_name
-      lb     = aws_lb.backup_service
-    },
+      enabled = local.public_ingress_enabled.backup
+      domain  = local.backup_service_domain_name
+      lb      = aws_lb.backup_service
+    }
     ElectronUpdate = {
-      domain = local.electron_update_domain_name
-      lb     = aws_lb.electron_update
-    },
+      enabled = local.public_ingress_enabled.electron_update
+      domain  = local.electron_update_domain_name
+      lb      = aws_lb.electron_update
+    }
     FeatureFlags = {
-      domain = local.feature_flags_domain_name
-      lb     = aws_lb.feature_flags
-    },
+      enabled = local.public_ingress_enabled.feature_flags
+      domain  = local.feature_flags_domain_name
+      lb      = aws_lb.feature_flags
+    }
     Identity = {
-      domain = local.identity_service_domain_name
-      lb     = aws_lb.identity_service
-    },
+      enabled = local.public_ingress_enabled.identity
+      domain  = local.identity_service_domain_name
+      lb      = aws_lb.identity_service
+    }
     Reports = {
-      domain = local.reports_service_domain_name
-      lb     = aws_lb.reports_service
-    },
+      enabled = local.public_ingress_enabled.reports
+      domain  = local.reports_service_domain_name
+      lb      = aws_lb.reports_service
+    }
     Tunnelbroker = {
-      domain = local.tunnelbroker_config.domain_name
-      lb     = aws_lb.tunnelbroker
-    },
+      enabled = local.public_ingress_enabled.tunnelbroker
+      domain  = local.tunnelbroker_config.domain_name
+      lb      = aws_lb.tunnelbroker
+    }
+  }
+
+  dns_services = {
+    for service_name, config in local.dns_service_configs :
+    service_name => {
+      domain = config.domain
+      lb     = config.lb[0]
+    }
+    if config.enabled
   }
 }
 
