@@ -1,0 +1,37 @@
+name: CommTest
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare AWS config for local Docker mounts
+        run: |
+          mkdir -p "$HOME/.aws"
+          cat > "$HOME/.aws/config" <<'EOF'
+          [default]
+          region = us-east-2
+          output = json
+          EOF
+          cat > "$HOME/.aws/credentials" <<'EOF'
+          [default]
+          aws_access_key_id = test
+          aws_secret_access_key = test
+          EOF
+
+      - name: Run CommTest
+        working-directory: ./services
+        run: docker compose -f docker-compose.yml -f docker-compose.tests.yml run --build --rm commtest bash run-tests-ci.sh
+
+      - name: Clean up CommTest containers
+        if: always()
+        working-directory: ./services
+        run: docker compose -f docker-compose.yml -f docker-compose.tests.yml down -v --remove-orphans

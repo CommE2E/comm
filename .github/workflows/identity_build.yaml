@@ -10,7 +10,7 @@ on:
       - 'keyserver/**'
       - 'desktop/**'
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 jobs:
   build:
