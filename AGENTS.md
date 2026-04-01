@@ -6,8 +6,8 @@ If already running inside a Nix environment, run commands directly and do not st
 
 Otherwise:
 
-- One-shot command pattern: `nix develop --command <cmd ...>`
-- Interactive shell pattern: `nix develop`
+- Interactive shell pattern: `nix develop` (preferred)
+- One-shot command pattern: `nix develop --command <cmd ...>` (adds delay for each invocation)
 
 # Comm Project Development Guide
 
@@ -62,3 +62,8 @@ Otherwise:
 ### Diff Review
 
 - Before reporting back after code changes, review your diff and remove low-signal churn such as opinionated renames, unnecessary variable reshuffles, comment-only deletions, or other non-pertinent edits
+
+## Git
+
+- Match the existing repo commit message style by checking recent `git log` before committing when the pattern is not obvious
+- Use the repo's bracketed scope format when applicable, such as `[terraform] Short imperative sentence case`
