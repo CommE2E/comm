@@ -54,8 +54,8 @@ variable "desired_count" {
   default     = 1
 }
 
-variable "public_ingress_enabled" {
-  description = "Whether to provision public load balancer ingress"
+variable "service_enabled" {
+  description = "Whether to provision the ECS service and its public ingress"
   type        = bool
   default     = true
 }

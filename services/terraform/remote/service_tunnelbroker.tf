@@ -71,6 +71,8 @@ locals {
 
 # Security group to configure access to the service
 resource "aws_security_group" "tunnelbroker" {
+  count = local.service_enabled.tunnelbroker ? 1 : 0
+
   name   = "tunnelbroker-sg"
   vpc_id = aws_vpc.default.id
 
@@ -109,7 +111,7 @@ resource "aws_security_group" "tunnelbroker" {
 
 # Load Balancer
 resource "aws_lb" "tunnelbroker" {
-  count = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+  count = local.service_enabled.tunnelbroker ? 1 : 0
 
   load_balancer_type = "application"
   name               = "tunnelbroker-lb"
@@ -122,7 +124,7 @@ resource "aws_lb" "tunnelbroker" {
 }
 
 resource "aws_lb_listener" "tunnelbroker_ws" {
-  count             = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+  count             = local.service_enabled.tunnelbroker ? 1 : 0
   load_balancer_arn = aws_lb.tunnelbroker[0].arn
   port              = local.tunnelbroker_config.websocket_port
   protocol          = "HTTPS"
@@ -140,7 +142,7 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
 }
 
 resource "aws_lb_listener" "tunnelbroker_grpc" {
-  count             = local.tunnelbroker_grpc_public_ingress_enabled ? 1 : 0
+  count             = local.tunnelbroker_grpc_service_enabled ? 1 : 0
   load_balancer_arn = aws_lb.tunnelbroker[0].arn
   port              = local.tunnelbroker_config.grpc_port
   protocol          = "HTTPS"

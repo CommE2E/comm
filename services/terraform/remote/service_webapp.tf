@@ -21,7 +21,7 @@ module "webapp_service" {
   source = "../modules/keyserver_node_service"
 
   desired_count               = local.fixed_count_service_desired_counts.webapp
-  public_ingress_enabled      = local.public_ingress_enabled.webapp
+  service_enabled             = local.service_enabled.webapp
   container_name              = "webapp"
   image                       = local.keyserver_image
   service_name                = "webapp"

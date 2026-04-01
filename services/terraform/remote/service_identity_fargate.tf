@@ -1,10 +1,14 @@
 resource "aws_cloudwatch_log_group" "identity_service_fargate" {
+  count = local.service_enabled.identity ? 1 : 0
+
   name              = "/ecs/identity-service-fargate-task-def"
   retention_in_days = 7
 }
 
 # Fargate task definition
 resource "aws_ecs_task_definition" "identity_service_fargate" {
+  count = local.service_enabled.identity ? 1 : 0
+
   family = "identity-service-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -72,7 +76,7 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.identity_service_fargate.name
+          "awslogs-group"         = aws_cloudwatch_log_group.identity_service_fargate[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -91,11 +95,13 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
 
 # Fargate ECS Service
 resource "aws_ecs_service" "identity_service_fargate" {
+  count = local.service_enabled.identity ? 1 : 0
+
   name        = "identity-service-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.identity_service_fargate.arn
+  task_definition      = aws_ecs_task_definition.identity_service_fargate[0].arn
   force_new_deployment = true
 
   network_configuration {
@@ -104,7 +110,7 @@ resource "aws_ecs_service" "identity_service_fargate" {
       aws_subnet.public_b.id,
       aws_subnet.public_c.id,
     ]
-    security_groups  = [aws_security_group.identity_service.id]
+    security_groups  = [aws_security_group.identity_service[0].id]
     assign_public_ip = true
   }
 
@@ -155,7 +161,7 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
 # Fargate gRPC target group
 resource "aws_lb_target_group" "identity_service_grpc_fargate" {
-  count = local.public_ingress_enabled.identity ? 1 : 0
+  count = local.service_enabled.identity ? 1 : 0
 
   name             = "identity-service-grpc-fargate-tg"
   port             = local.identity_service_container_grpc_port
@@ -184,7 +190,7 @@ resource "aws_lb_target_group" "identity_service_grpc_fargate" {
 
 # Fargate WebSocket target group
 resource "aws_lb_target_group" "identity_service_ws_fargate" {
-  count = local.public_ingress_enabled.identity ? 1 : 0
+  count = local.service_enabled.identity ? 1 : 0
 
   name             = "identity-service-ws-fargate-tg"
   port             = local.identity_service_container_ws_port
@@ -208,9 +214,13 @@ resource "aws_lb_target_group" "identity_service_ws_fargate" {
 module "identity_service_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = true
-  service_name     = aws_ecs_service.identity_service_fargate.name
-  cluster_name     = aws_ecs_cluster.comm_services.name
+  create_resources = local.service_enabled.identity
+  service_name = (
+    local.service_enabled.identity
+    ? aws_ecs_service.identity_service_fargate[0].name
+    : "identity-service-fargate"
+  )
+  cluster_name = aws_ecs_cluster.comm_services.name
 
   min_capacity  = local.autoscaled_service_capacities.identity.min_capacity
   max_capacity  = local.autoscaled_service_capacities.identity.max_capacity

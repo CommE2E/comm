@@ -25,6 +25,8 @@ locals {
 
 # Security group to configure access to the service
 resource "aws_security_group" "blob_service" {
+  count = local.service_enabled.blob ? 1 : 0
+
   name   = "blob-service-ecs-sg"
   vpc_id = aws_vpc.default.id
 
@@ -52,7 +54,7 @@ resource "aws_security_group" "blob_service" {
 
 # Load Balancer
 resource "aws_lb" "blob_service" {
-  count = local.public_ingress_enabled.blob ? 1 : 0
+  count = local.service_enabled.blob ? 1 : 0
 
   load_balancer_type = "application"
   name               = "blob-service-lb"
@@ -66,7 +68,7 @@ resource "aws_lb" "blob_service" {
 }
 
 resource "aws_lb_listener" "blob_service_https" {
-  count             = local.public_ingress_enabled.blob ? 1 : 0
+  count             = local.service_enabled.blob ? 1 : 0
   load_balancer_arn = aws_lb.blob_service[0].arn
   port              = "443"
   protocol          = "HTTPS"
