@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# Check if in an interactive shell
-# `test -t` tests if a file descriptor is open, 0 being stdin
-# Normally, a non-interactive shell will not have 0 FD bound
-# However, Buildkite still has 0 FD bound, so check if PS1 is empty
+# Check if in an interactive shell.
+# `test -t` checks whether stdin (fd 0) is attached to a terminal.
+# Some non-interactive `nix develop --command ...` invocations still have a
+# TTY on stdin, so also require `PS1` to be set.
 if [[ ! -t 0 ]] || [[ -z "$PS1" ]]; then
   return 0
 fi

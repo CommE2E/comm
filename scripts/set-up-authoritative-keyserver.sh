@@ -35,7 +35,7 @@ set_up_or_abort() {
   node "$PRJ_ROOT"/scripts/set-user-credentials.js "$PRJ_ROOT"
 }
 
-if [[ -n "$BUILDKITE" || -n "$GITHUB_ACTIONS" ]]; then
+if [[ -n "$GITHUB_ACTIONS" ]]; then
   exit
 fi
 

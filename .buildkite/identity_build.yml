@@ -1,7 +1,0 @@
-steps:
-  - label: ':docker: Identity Build (Docker)'
-    command: 'cd services && docker-compose build --no-cache identity-server'
-    retry:
-      automatic: true
-    agents:
-      - 'autoscaling=true'

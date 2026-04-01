@@ -1,7 +1,0 @@
-steps:
-  - label: ':docker: Backup Build (Docker)'
-    command: 'cd services && docker-compose build --no-cache backup-server'
-    retry:
-      automatic: true
-    agents:
-      - 'autoscaling=true'

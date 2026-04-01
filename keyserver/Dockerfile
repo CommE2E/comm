@@ -133,7 +133,6 @@ COPY --chown=comm desktop/package.json desktop/
 COPY --chown=comm desktop/addons/windows-pushnotifications/package.json \
   desktop/addons/windows-pushnotifications/
 COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
-  keyserver/addons/rust-node-addon/install_ci_deps.sh \
   keyserver/addons/rust-node-addon/postinstall.sh \
   keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/comm-expo-package/package.json \

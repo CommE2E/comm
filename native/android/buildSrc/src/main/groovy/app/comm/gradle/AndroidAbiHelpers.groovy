@@ -10,10 +10,6 @@ class AndroidAbiHelpers {
   }
 
   static List<String> getBuildTypeABIs(Project project) {
-    if (System.getenv('BUILDKITE') == 'true') {
-      return ['arm64-v8a']
-    }
-
     if (BuildInvocation.isBundleReleaseRunning(project)) {
       // All of the supported ABIs
       // https://developer.android.com/ndk/guides/abis.html#sa
