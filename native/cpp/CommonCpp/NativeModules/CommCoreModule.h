@@ -32,7 +32,7 @@ namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   // Version defined in native/version.mjs and updated by update-version script
-  const int codeVersion{565};
+  const int codeVersion{566};
   std::unique_ptr<WorkerThread> cryptoThread;
 
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
