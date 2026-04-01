@@ -45,6 +45,14 @@ locals {
     }
     if config.enabled
   }
+
+  off_aws_service_a_records = {
+    for service_name, ip in local.off_aws_service_a_record_ips :
+    service_name => {
+      domain = local.dns_service_configs[service_name].domain
+      ip     = ip
+    }
+  }
 }
 
 # Hosted zones are created manually in AWS Console
@@ -66,4 +74,15 @@ resource "aws_route53_record" "service_load_balancer" {
     zone_id                = each.value.lb.zone_id
     evaluate_target_health = true
   }
+}
+
+resource "aws_route53_record" "off_aws_service_a_record" {
+  for_each = local.off_aws_service_a_records
+
+  allow_overwrite = true
+  zone_id         = data.aws_route53_zone.primary.id
+  name            = each.value.domain
+  type            = "A"
+  ttl             = 300
+  records         = [each.value.ip]
 }
