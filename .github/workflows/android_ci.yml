@@ -105,4 +105,5 @@ jobs:
         working-directory: ./native/android
         env:
           ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
+          COMM_ANDROID_SINGLE_ABI_BUILD: ${{ github.event_name == 'workflow_dispatch' }}
         run: JAVA_HOME=${JAVA_HOME_17_arm64} ./gradlew bundleRelease
