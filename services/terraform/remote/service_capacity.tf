@@ -42,8 +42,4 @@ locals {
   tunnelbroker_grpc_service_enabled = (
     local.service_enabled.tunnelbroker && local.is_staging
   )
-
-  off_aws_service_a_record_ips = {
-    ElectronUpdate = "64.62.211.132"
-  }
 }
