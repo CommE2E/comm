@@ -60,6 +60,20 @@ variable "service_enabled" {
   default     = true
 }
 
+variable "ingress_mode" {
+  description = "How public ingress is provisioned for the service"
+  type        = string
+  default     = "dedicated"
+
+  validation {
+    condition = contains(
+      ["dedicated", "shared", "disabled"],
+      var.ingress_mode,
+    )
+    error_message = "ingress_mode must be one of dedicated, shared, or disabled."
+  }
+}
+
 variable "image" {
   description = "The Docker image for the container"
   type        = string
@@ -87,4 +101,16 @@ variable "ephemeral_storage" {
   description = "Ephemeral storage dedicated to task in GiB"
   type        = number
   default     = 40
+}
+
+variable "internal_service_security_group_id" {
+  description = "Internal shared security group ID attached to the ECS service"
+  type        = string
+  default     = null
+}
+
+variable "target_group_name" {
+  description = "Load balancer target group name"
+  type        = string
+  default     = null
 }

@@ -5,6 +5,19 @@ locals {
       value = value
     }
   ]
+  dedicated_ingress_enabled = (
+    var.service_enabled && var.ingress_mode == "dedicated"
+  )
+  shared_ingress_enabled = (
+    var.service_enabled && var.ingress_mode == "shared"
+  )
+  public_ingress_enabled = (
+    local.dedicated_ingress_enabled || local.shared_ingress_enabled
+  )
+  target_group_name = coalesce(
+    var.target_group_name,
+    "${var.service_name}-ecs-tg",
+  )
 }
 
 resource "aws_cloudwatch_log_group" "service" {
@@ -69,19 +82,27 @@ resource "aws_security_group" "service" {
   name   = "${var.service_name}-service-ecs-sg"
   vpc_id = var.vpc_id
 
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = local.dedicated_ingress_enabled ? [1] : []
+
+    content {
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
-  ingress {
-    description      = "Allow inbound traffic from any IPv6 address"
-    from_port        = 3000
-    to_port          = 3000
-    protocol         = "tcp"
-    ipv6_cidr_blocks = ["::/0"]
+  dynamic "ingress" {
+    for_each = local.dedicated_ingress_enabled ? [1] : []
+
+    content {
+      description      = "Allow inbound traffic from any IPv6 address"
+      from_port        = 3000
+      to_port          = 3000
+      protocol         = "tcp"
+      ipv6_cidr_blocks = ["::/0"]
+    }
   }
 
   egress {
@@ -111,8 +132,13 @@ resource "aws_ecs_service" "service" {
   deployment_minimum_healthy_percent = 100
 
   network_configuration {
-    subnets          = var.vpc_subnets
-    security_groups  = [aws_security_group.service[0].id]
+    subnets = var.vpc_subnets
+    security_groups = concat(
+      [aws_security_group.service[0].id],
+      var.internal_service_security_group_id == null ? [] : [
+        var.internal_service_security_group_id
+      ],
+    )
     assign_public_ip = true
   }
 
@@ -132,9 +158,9 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_lb_target_group" "service" {
-  count = var.service_enabled ? 1 : 0
+  count = local.public_ingress_enabled ? 1 : 0
 
-  name     = "${var.service_name}-ecs-tg"
+  name     = local.target_group_name
   port     = 3000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -159,7 +185,7 @@ resource "aws_lb_target_group" "service" {
 }
 
 resource "aws_lb" "service" {
-  count = var.service_enabled ? 1 : 0
+  count = local.dedicated_ingress_enabled ? 1 : 0
 
   load_balancer_type = "application"
   name               = "${var.service_name}-lb"
@@ -170,12 +196,12 @@ resource "aws_lb" "service" {
 }
 
 resource "aws_lb_listener" "service" {
-  count             = var.service_enabled ? 1 : 0
+  count             = local.dedicated_ingress_enabled ? 1 : 0
   load_balancer_arn = aws_lb.service[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.service.arn
+  certificate_arn   = data.aws_acm_certificate.service[0].arn
 
   default_action {
     type             = "forward"
@@ -189,7 +215,7 @@ resource "aws_lb_listener" "service" {
 }
 
 resource "aws_security_group" "lb_sg" {
-  count = var.service_enabled ? 1 : 0
+  count = local.dedicated_ingress_enabled ? 1 : 0
 
   name        = "${var.service_name}-lb-sg"
   description = "Security group for ${var.service_name} load balancer"
@@ -211,6 +237,8 @@ resource "aws_security_group" "lb_sg" {
 }
 
 data "aws_acm_certificate" "service" {
+  count = local.dedicated_ingress_enabled ? 1 : 0
+
   domain   = var.domain_name
   statuses = ["ISSUED"]
 }
