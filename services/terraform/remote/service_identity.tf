@@ -66,19 +66,19 @@ resource "aws_security_group" "identity_service" {
   vpc_id = aws_vpc.default.id
 
   ingress {
-    from_port   = local.identity_service_container_grpc_port
-    to_port     = local.identity_service_container_grpc_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "gRPC port"
+    from_port       = local.identity_service_container_grpc_port
+    to_port         = local.identity_service_container_grpc_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "gRPC port"
   }
 
   ingress {
-    from_port   = local.identity_service_container_ws_port
-    to_port     = local.identity_service_container_ws_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Websocket port"
+    from_port       = local.identity_service_container_ws_port
+    to_port         = local.identity_service_container_ws_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "Websocket port"
   }
 
   # Allow all outbound traffic

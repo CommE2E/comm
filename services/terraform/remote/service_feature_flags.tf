@@ -89,6 +89,7 @@ resource "aws_ecs_service" "feature_flags" {
     assign_public_ip = true
     security_groups = [
       aws_security_group.feature_flags[0].id,
+      aws_security_group.comm_services_internal.id,
     ]
     subnets = [
       aws_subnet.public_a.id,
@@ -111,11 +112,11 @@ resource "aws_security_group" "feature_flags" {
   vpc_id = aws_vpc.default.id
 
   ingress {
-    from_port   = local.feature_flags_container_port
-    to_port     = local.feature_flags_container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP port"
+    from_port       = local.feature_flags_container_port
+    to_port         = local.feature_flags_container_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "HTTP port"
   }
 
   # Allow all outbound traffic

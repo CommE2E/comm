@@ -110,7 +110,10 @@ resource "aws_ecs_service" "identity_service_fargate" {
       aws_subnet.public_b.id,
       aws_subnet.public_c.id,
     ]
-    security_groups  = [aws_security_group.identity_service[0].id]
+    security_groups = [
+      aws_security_group.identity_service[0].id,
+      aws_security_group.comm_services_internal.id,
+    ]
     assign_public_ip = true
   }
 

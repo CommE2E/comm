@@ -34,6 +34,12 @@ module "webapp_service" {
   environment_vars            = local.webapp_environment_vars
   ecs_task_role_arn           = aws_iam_role.keyserver_node_ecs_task_role.arn
   ecs_task_execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  public_ingress_security_group_id = (
+    module.shared_public_ingress.public_ingress_security_group_id
+  )
+  internal_service_security_group_id = (
+    aws_security_group.comm_services_internal.id
+  )
   target_group_name = (
     local.public_ingress_endpoint_definitions.webapp_https.target_group_name
   )
