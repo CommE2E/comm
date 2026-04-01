@@ -18,6 +18,7 @@ module "landing_service" {
   source = "../modules/keyserver_node_service"
   count  = var.enable_landing_service ? 1 : 0
 
+  ingress_mode                = "dedicated"
   container_name              = "landing"
   image                       = local.keyserver_service_server_image
   service_name                = "landing"
