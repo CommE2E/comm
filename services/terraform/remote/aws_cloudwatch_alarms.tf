@@ -1,14 +1,51 @@
 locals {
   error_reports_subscribed_email = "error-reports@comm.app"
 
+  service_log_group_configs = {
+    Backup = {
+      enabled        = local.service_enabled.backup
+      name           = "Backup"
+      log_group_name = "/ecs/backup-service-fargate-task-def"
+    }
+    Blob = {
+      enabled        = local.service_enabled.blob
+      name           = "Blob"
+      log_group_name = "/ecs/blob-service-fargate-task-def"
+    }
+    ElectronUpdate = {
+      enabled        = local.service_enabled.electron_update
+      name           = "ElectronUpdate"
+      log_group_name = "/ecs/electron-update-task-def"
+    }
+    FeatureFlags = {
+      enabled        = local.service_enabled.feature_flags
+      name           = "FeatureFlags"
+      log_group_name = "/ecs/feature-flags-task-def"
+    }
+    Identity = {
+      enabled        = local.service_enabled.identity
+      name           = "Identity"
+      log_group_name = "/ecs/identity-service-fargate-task-def"
+    }
+    Reports = {
+      enabled        = local.service_enabled.reports
+      name           = "Reports"
+      log_group_name = "/ecs/reports-service-task-def"
+    }
+    Tunnelbroker = {
+      enabled        = local.service_enabled.tunnelbroker
+      name           = "Tunnelbroker"
+      log_group_name = "/ecs/tunnelbroker-fargate-task-def"
+    }
+  }
+
   service_log_groups = {
-    Backup         = { name = "Backup", log_group_name = "/ecs/backup-service-fargate-task-def" },
-    Blob           = { name = "Blob", log_group_name = "/ecs/blob-service-fargate-task-def" },
-    ElectronUpdate = { name = "ElectronUpdate", log_group_name = "/ecs/electron-update-task-def" },
-    FeatureFlags   = { name = "FeatureFlags", log_group_name = "/ecs/feature-flags-task-def" },
-    Identity       = { name = "Identity", log_group_name = "/ecs/identity-service-fargate-task-def" },
-    Reports        = { name = "Reports", log_group_name = "/ecs/reports-service-task-def" },
-    Tunnelbroker   = { name = "Tunnelbroker", log_group_name = "/ecs/tunnelbroker-fargate-task-def" }
+    for service_name, config in local.service_log_group_configs :
+    service_name => {
+      name           = config.name
+      log_group_name = config.log_group_name
+    }
+    if config.enabled
   }
 }
 

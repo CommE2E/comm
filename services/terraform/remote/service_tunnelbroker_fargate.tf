@@ -1,10 +1,14 @@
 resource "aws_cloudwatch_log_group" "tunnelbroker_fargate" {
+  count = local.service_enabled.tunnelbroker ? 1 : 0
+
   name              = "/ecs/tunnelbroker-fargate-task-def"
   retention_in_days = 7
 }
 
 # Fargate task definition
 resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
+  count = local.service_enabled.tunnelbroker ? 1 : 0
+
   family = "tunnelbroker-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -84,7 +88,7 @@ resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.tunnelbroker_fargate.name
+          "awslogs-group"         = aws_cloudwatch_log_group.tunnelbroker_fargate[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -103,11 +107,13 @@ resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
 
 # Fargate ECS Service
 resource "aws_ecs_service" "tunnelbroker_fargate" {
+  count = local.service_enabled.tunnelbroker ? 1 : 0
+
   name        = "tunnelbroker-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.tunnelbroker_fargate.arn
+  task_definition      = aws_ecs_task_definition.tunnelbroker_fargate[0].arn
   force_new_deployment = true
 
   network_configuration {
@@ -116,7 +122,7 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
       aws_subnet.public_b.id,
       aws_subnet.public_c.id,
     ]
-    security_groups  = [aws_security_group.tunnelbroker.id]
+    security_groups  = [aws_security_group.tunnelbroker[0].id]
     assign_public_ip = true
   }
 
@@ -164,7 +170,7 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
 # Fargate WebSocket target group
 resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
-  count = local.public_ingress_enabled.tunnelbroker ? 1 : 0
+  count = local.service_enabled.tunnelbroker ? 1 : 0
 
   name             = "tunnelbroker-ws-fargate-tg"
   port             = local.tunnelbroker_config.websocket_port
@@ -186,7 +192,7 @@ resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
 
 # Fargate gRPC target group
 resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
-  count = local.tunnelbroker_grpc_public_ingress_enabled ? 1 : 0
+  count = local.tunnelbroker_grpc_service_enabled ? 1 : 0
 
   name             = "tunnelbroker-grpc-fargate-tg"
   port             = local.tunnelbroker_config.grpc_port
@@ -206,9 +212,13 @@ resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
 module "tunnelbroker_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = true
-  service_name     = aws_ecs_service.tunnelbroker_fargate.name
-  cluster_name     = aws_ecs_cluster.comm_services.name
+  create_resources = local.service_enabled.tunnelbroker
+  service_name = (
+    local.service_enabled.tunnelbroker
+    ? aws_ecs_service.tunnelbroker_fargate[0].name
+    : "tunnelbroker-fargate"
+  )
+  cluster_name = aws_ecs_cluster.comm_services.name
 
   min_capacity  = local.autoscaled_service_capacities.tunnelbroker.min_capacity
   max_capacity  = local.autoscaled_service_capacities.tunnelbroker.max_capacity
