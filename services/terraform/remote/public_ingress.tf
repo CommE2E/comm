@@ -19,7 +19,7 @@ locals {
       hostname           = local.electron_update_domain_name
       route53_record_key = "ElectronUpdate"
       route53_managed    = true
-      off_aws_record_ip  = local.off_aws_service_a_record_ips.ElectronUpdate
+      off_aws_record_ip  = "64.62.211.132"
     }
     feature_flags = {
       enabled            = local.service_enabled.feature_flags
