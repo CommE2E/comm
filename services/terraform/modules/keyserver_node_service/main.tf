@@ -105,6 +105,21 @@ resource "aws_security_group" "service" {
     }
   }
 
+  dynamic "ingress" {
+    for_each = (
+      local.shared_ingress_enabled && var.public_ingress_security_group_id != null
+      ? [var.public_ingress_security_group_id]
+      : []
+    )
+
+    content {
+      from_port       = 3000
+      to_port         = 3000
+      protocol        = "tcp"
+      security_groups = [ingress.value]
+    }
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

@@ -96,9 +96,11 @@ resource "aws_ecs_service" "backup_service_fargate" {
 
   # HTTP
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.backup_service_http_fargate[*]
+    for_each = local.service_enabled.backup ? [
+      module.shared_public_ingress.target_group_arns["backup_https"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.backup_service_container_name
       container_port   = local.backup_service_container_http_port
     }
@@ -115,27 +117,6 @@ resource "aws_ecs_service" "backup_service_fargate" {
 
   enable_execute_command  = true
   enable_ecs_managed_tags = true
-}
-
-# Fargate HTTP target group
-resource "aws_lb_target_group" "backup_service_http_fargate" {
-  count = local.service_enabled.backup ? 1 : 0
-
-  name        = "backup-service-http-fargate-tg"
-  port        = local.backup_service_container_http_port
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.default.id
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    path     = "/health"
-    matcher  = "200-204"
-  }
 }
 
 # Auto-scaling for Fargate service

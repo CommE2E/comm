@@ -115,9 +115,11 @@ resource "aws_ecs_service" "reports_service" {
 
   # HTTP
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.reports_service_http[*]
+    for_each = local.service_enabled.reports ? [
+      module.shared_public_ingress.target_group_arns["reports_https"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.reports_service_container_name
       container_port   = local.reports_service_container_http_port
     }
@@ -170,65 +172,4 @@ resource "aws_security_group" "reports_service" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_lb_target_group" "reports_service_http" {
-  count = local.service_enabled.reports ? 1 : 0
-
-  name     = "reports-service-ecs-http-tg"
-  port     = local.reports_service_container_http_port
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.default.id
-
-  # ECS Fargate requires target type set to IP
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    path     = "/health"
-    matcher  = "200-204"
-  }
-}
-
-# Load Balancer
-resource "aws_lb" "reports_service" {
-  count = local.service_enabled.reports ? 1 : 0
-
-  load_balancer_type = "application"
-  name               = "reports-service-lb"
-  internal           = false
-  subnets = [
-    aws_subnet.public_a.id,
-    aws_subnet.public_b.id,
-    aws_subnet.public_c.id,
-  ]
-}
-
-resource "aws_lb_listener" "reports_service_https" {
-  count             = local.service_enabled.reports ? 1 : 0
-  load_balancer_arn = aws_lb.reports_service[0].arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = data.aws_acm_certificate.reports_service.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.reports_service_http[0].arn
-  }
-
-  lifecycle {
-    # Required to avoid no-op plan differences
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
-  }
-}
-
-# SSL Certificate
-data "aws_acm_certificate" "reports_service" {
-  domain   = local.reports_service_domain_name
-  statuses = ["ISSUED"]
 }

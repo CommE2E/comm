@@ -65,7 +65,7 @@ locals {
     }
   }
 
-  public_ingress_endpoints = {
+  public_ingress_endpoint_definitions = {
     backup_https = {
       enabled                                       = local.public_services.backup.enabled
       hostname                                      = local.public_services.backup.hostname
@@ -297,6 +297,25 @@ locals {
       target_group_stickiness_type                  = "lb_cookie"
       target_group_stickiness_cookie_duration       = 86500
     }
+  }
+
+  external_target_group_arns = {
+    landing_https = module.landing_service.service_target_group_arn
+    webapp_https  = module.webapp_service.service_target_group_arn
+  }
+
+  public_ingress_endpoints = {
+    for endpoint_name, endpoint in local.public_ingress_endpoint_definitions :
+    endpoint_name => merge(
+      endpoint,
+      {
+        target_group_arn = lookup(
+          local.external_target_group_arns,
+          endpoint_name,
+          endpoint.target_group_arn,
+        )
+      },
+    )
   }
 
   shared_public_ingress_enabled = (

@@ -20,6 +20,7 @@ locals {
 module "landing_service" {
   source = "../modules/keyserver_node_service"
 
+  ingress_mode                = "shared"
   desired_count               = local.fixed_count_service_desired_counts.landing
   service_enabled             = local.service_enabled.landing
   container_name              = "landing"
@@ -33,8 +34,15 @@ module "landing_service" {
   environment_vars            = local.landing_environment_vars
   ecs_task_role_arn           = aws_iam_role.keyserver_node_ecs_task_role.arn
   ecs_task_execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  target_group_name = (
+    local.public_ingress_endpoint_definitions.landing_https.target_group_name
+  )
 }
 
 output "landing_service_load_balancer_dns_name" {
-  value = module.landing_service.service_load_balancer_dns_name
+  value = (
+    local.service_enabled.landing
+    ? module.shared_public_ingress.load_balancer_dns_name
+    : null
+  )
 }

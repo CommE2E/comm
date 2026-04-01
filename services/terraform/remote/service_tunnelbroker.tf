@@ -107,64 +107,6 @@ resource "aws_security_group" "tunnelbroker" {
   }
 }
 
-
-
-# Load Balancer
-resource "aws_lb" "tunnelbroker" {
-  count = local.service_enabled.tunnelbroker ? 1 : 0
-
-  load_balancer_type = "application"
-  name               = "tunnelbroker-lb"
-  internal           = false
-  subnets = [
-    aws_subnet.public_a.id,
-    aws_subnet.public_b.id,
-    aws_subnet.public_c.id,
-  ]
-}
-
-resource "aws_lb_listener" "tunnelbroker_ws" {
-  count             = local.service_enabled.tunnelbroker ? 1 : 0
-  load_balancer_arn = aws_lb.tunnelbroker[0].arn
-  port              = local.tunnelbroker_config.websocket_port
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_ws_fargate[0].arn
-  }
-
-  lifecycle {
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_ws_fargate[0]]
-  }
-}
-
-resource "aws_lb_listener" "tunnelbroker_grpc" {
-  count             = local.tunnelbroker_grpc_service_enabled ? 1 : 0
-  load_balancer_arn = aws_lb.tunnelbroker[0].arn
-  port              = local.tunnelbroker_config.grpc_port
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.tunnelbroker.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tunnelbroker_grpc_fargate[0].arn
-  }
-
-  lifecycle {
-    replace_triggered_by = [aws_lb_target_group.tunnelbroker_grpc_fargate[0]]
-  }
-}
-
-# SSL Certificate
-data "aws_acm_certificate" "tunnelbroker" {
-  domain   = local.tunnelbroker_config.domain_name
-  statuses = ["ISSUED"]
-}
-
 output "rabbitmq_console_url" {
   value = aws_mq_broker.tunnelbroker_rabbitmq.instances[0].console_url
 }

@@ -96,9 +96,11 @@ resource "aws_ecs_service" "blob_service_fargate" {
 
   # HTTP
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.blob_service_http_fargate[*]
+    for_each = local.service_enabled.blob ? [
+      module.shared_public_ingress.target_group_arns["blob_https"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.blob_service_container_name
       container_port   = local.blob_service_container_http_port
     }
@@ -111,27 +113,6 @@ resource "aws_ecs_service" "blob_service_fargate" {
 
   lifecycle {
     ignore_changes = [desired_count]
-  }
-}
-
-# Fargate HTTP target group
-resource "aws_lb_target_group" "blob_service_http_fargate" {
-  count = local.service_enabled.blob ? 1 : 0
-
-  name        = "blob-service-http-fargate-tg"
-  port        = local.blob_service_container_http_port
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.default.id
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    path     = "/health"
-    matcher  = "200-499"
   }
 }
 
