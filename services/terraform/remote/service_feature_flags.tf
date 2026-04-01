@@ -75,9 +75,11 @@ resource "aws_ecs_service" "feature_flags" {
   desired_count = local.fixed_count_service_desired_counts.feature_flags
 
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.feature_flags_ecs[*]
+    for_each = local.service_enabled.feature_flags ? [
+      module.shared_public_ingress.target_group_arns["feature_flags_https"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.feature_flags_container_name
       container_port   = local.feature_flags_container_port
     }
@@ -98,32 +100,6 @@ resource "aws_ecs_service" "feature_flags" {
   deployment_circuit_breaker {
     enable   = true
     rollback = true
-  }
-}
-
-# Running service instances are registered here
-# to be accessed by the load balancer
-resource "aws_lb_target_group" "feature_flags_ecs" {
-  count = local.service_enabled.feature_flags ? 1 : 0
-
-  name     = "feature-flags-ecs-tg"
-  port     = local.feature_flags_container_port
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.default.id
-
-  # ECS Fargate requires target type set to IP
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    # The features endpoint should return HTTP 400 
-    # if no platform, staff, code version is specified
-    path    = "/features"
-    matcher = "200-499"
   }
 }
 
@@ -153,44 +129,4 @@ resource "aws_security_group" "feature_flags" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-# Load Balancer
-resource "aws_lb" "feature_flags" {
-  count = local.service_enabled.feature_flags ? 1 : 0
-
-  load_balancer_type = "application"
-  name               = "feature-flags-service-lb"
-  internal           = false
-  #security_groups    = [aws_security_group.feature_flags.id]
-  subnets = [
-    aws_subnet.public_a.id,
-    aws_subnet.public_b.id,
-    aws_subnet.public_c.id,
-  ]
-}
-
-resource "aws_lb_listener" "feature_flags_https" {
-  count             = local.service_enabled.feature_flags ? 1 : 0
-  load_balancer_arn = aws_lb.feature_flags[0].arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.feature_flags.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.feature_flags_ecs[0].arn
-  }
-
-  lifecycle {
-    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
-    replace_triggered_by = [aws_lb_target_group.feature_flags_ecs[0]]
-  }
-}
-
-# SSL Certificate
-data "aws_acm_certificate" "feature_flags" {
-  domain   = local.feature_flags_domain_name
-  statuses = ["ISSUED"]
 }

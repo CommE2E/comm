@@ -128,9 +128,11 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
   # WebSocket
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.identity_service_ws_fargate[*]
+    for_each = local.service_enabled.identity ? [
+      module.shared_public_ingress.target_group_arns["identity_ws"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.identity_service_container_name
       container_port   = local.identity_service_container_ws_port
     }
@@ -138,9 +140,11 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
   # gRPC
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.identity_service_grpc_fargate[*]
+    for_each = local.service_enabled.identity ? [
+      module.shared_public_ingress.target_group_arns["identity_grpc"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.identity_service_container_name
       container_port   = local.identity_service_container_grpc_port
     }
@@ -157,57 +161,6 @@ resource "aws_ecs_service" "identity_service_fargate" {
 
   enable_execute_command  = true
   enable_ecs_managed_tags = true
-}
-
-# Fargate gRPC target group
-resource "aws_lb_target_group" "identity_service_grpc_fargate" {
-  count = local.service_enabled.identity ? 1 : 0
-
-  name             = "identity-service-grpc-fargate-tg"
-  port             = local.identity_service_container_grpc_port
-  protocol         = "HTTP"
-  protocol_version = "HTTP2"
-  vpc_id           = aws_vpc.default.id
-  target_type      = "ip"
-
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = 10
-    enabled         = true
-  }
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    port     = "traffic-port"
-    path     = "/"
-    matcher  = "200-499"
-  }
-}
-
-# Fargate WebSocket target group
-resource "aws_lb_target_group" "identity_service_ws_fargate" {
-  count = local.service_enabled.identity ? 1 : 0
-
-  name             = "identity-service-ws-fargate-tg"
-  port             = local.identity_service_container_ws_port
-  protocol         = "HTTP"
-  protocol_version = "HTTP1"
-  vpc_id           = aws_vpc.default.id
-  target_type      = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    path     = "/health"
-    matcher  = "200"
-  }
 }
 
 # Auto-scaling for Fargate service

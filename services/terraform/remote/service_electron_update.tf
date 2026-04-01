@@ -69,9 +69,11 @@ resource "aws_ecs_service" "electron_update" {
   desired_count = local.fixed_count_service_desired_counts.electron_update
 
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.electron_update_ecs[*]
+    for_each = local.service_enabled.electron_update ? [
+      module.shared_public_ingress.target_group_arns["electron_update_https"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.electron_update_container_name
       container_port   = local.electron_update_container_port
     }
@@ -121,70 +123,4 @@ resource "aws_security_group" "electron_update" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-# Running service instances are registered here
-# to be accessed by the load balancer
-resource "aws_lb_target_group" "electron_update_ecs" {
-  count = local.service_enabled.electron_update ? 1 : 0
-
-  name     = "electron-update-ecs-tg"
-  port     = local.electron_update_container_port
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.default.id
-
-  # ECS Fargate requires target type set to IP
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    # Hazel homepage returns some HTML that can be used as a health check
-    path    = "/"
-    matcher = "200"
-  }
-}
-
-# Load Balancer
-resource "aws_lb" "electron_update" {
-  count = local.service_enabled.electron_update ? 1 : 0
-
-  load_balancer_type = "application"
-  name               = "electron-update-lb"
-  internal           = false
-  subnets = [
-    aws_subnet.public_a.id,
-    aws_subnet.public_c.id,
-
-    # For some reason we don't use this subnet here
-    # aws_subnet.public_b.id,
-  ]
-}
-
-resource "aws_lb_listener" "electron_update_https" {
-  count             = local.service_enabled.electron_update ? 1 : 0
-  load_balancer_arn = aws_lb.electron_update[0].arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.electron_update.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.electron_update_ecs[0].arn
-  }
-
-  lifecycle {
-    # Required only for existing resources to avoid plan difference
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
-  }
-}
-
-# SSL Certificate
-data "aws_acm_certificate" "electron_update" {
-  domain   = local.electron_update_domain_name
-  statuses = ["ISSUED"]
 }

@@ -103,6 +103,12 @@ variable "ephemeral_storage" {
   default     = 40
 }
 
+variable "public_ingress_security_group_id" {
+  description = "Public ingress security group ID used by a shared ALB"
+  type        = string
+  default     = null
+}
+
 variable "internal_service_security_group_id" {
   description = "Internal shared security group ID attached to the ECS service"
   type        = string
