@@ -3,7 +3,7 @@ locals {
     webapp          = 0
     landing         = 0
     feature_flags   = 0
-    electron_update = 1
+    electron_update = 0
     reports         = 1
   }
 
@@ -42,4 +42,8 @@ locals {
   tunnelbroker_grpc_service_enabled = (
     local.service_enabled.tunnelbroker && local.is_staging
   )
+
+  off_aws_service_a_record_ips = {
+    ElectronUpdate = "64.62.211.132"
+  }
 }
