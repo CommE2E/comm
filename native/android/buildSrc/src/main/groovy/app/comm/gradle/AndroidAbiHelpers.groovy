@@ -10,6 +10,12 @@ class AndroidAbiHelpers {
   }
 
   static List<String> getBuildTypeABIs(Project project) {
+    if (System.getenv('COMM_ANDROID_SINGLE_ABI_BUILD') == 'true') {
+      final singleAbi = ['arm64-v8a']
+      project.logger.info("Using single architecture to build: ${singleAbi}")
+      return singleAbi
+    }
+
     if (BuildInvocation.isBundleReleaseRunning(project)) {
       // All of the supported ABIs
       // https://developer.android.com/ndk/guides/abis.html#sa
