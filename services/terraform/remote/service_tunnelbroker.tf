@@ -78,20 +78,20 @@ resource "aws_security_group" "tunnelbroker" {
 
   # Websocket
   ingress {
-    from_port   = local.tunnelbroker_config.websocket_port
-    to_port     = local.tunnelbroker_config.websocket_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Websocket port"
+    from_port       = local.tunnelbroker_config.websocket_port
+    to_port         = local.tunnelbroker_config.websocket_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "Websocket port"
   }
 
   # gRPC
   ingress {
-    from_port   = local.tunnelbroker_config.grpc_port
-    to_port     = local.tunnelbroker_config.grpc_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "gRPC port"
+    from_port       = local.tunnelbroker_config.grpc_port
+    to_port         = local.tunnelbroker_config.grpc_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "gRPC port"
   }
 
   # Allow all outbound traffic

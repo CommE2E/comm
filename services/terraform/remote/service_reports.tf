@@ -129,6 +129,7 @@ resource "aws_ecs_service" "reports_service" {
     assign_public_ip = true
     security_groups = [
       aws_security_group.reports_service[0].id,
+      aws_security_group.comm_services_internal.id,
     ]
     subnets = [
       aws_subnet.public_a.id,
@@ -154,11 +155,11 @@ resource "aws_security_group" "reports_service" {
   vpc_id = aws_vpc.default.id
 
   ingress {
-    from_port   = local.reports_service_container_http_port
-    to_port     = local.reports_service_container_http_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP port"
+    from_port       = local.reports_service_container_http_port
+    to_port         = local.reports_service_container_http_port
+    protocol        = "tcp"
+    security_groups = [module.shared_public_ingress.public_ingress_security_group_id]
+    description     = "HTTP port"
   }
 
   # Allow all outbound traffic

@@ -79,7 +79,10 @@ resource "aws_scheduler_schedule" "blob_cleanup" {
 
       network_configuration {
         assign_public_ip = true
-        security_groups  = [aws_security_group.blob_service[0].id]
+        security_groups = [
+          aws_security_group.blob_service[0].id,
+          aws_security_group.comm_services_internal.id,
+        ]
         subnets = [
           aws_subnet.public_a.id,
           aws_subnet.public_b.id,

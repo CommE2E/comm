@@ -78,7 +78,10 @@ resource "aws_ecs_service" "backup_service_fargate" {
       aws_subnet.public_b.id,
       aws_subnet.public_c.id,
     ]
-    security_groups  = [aws_security_group.backup_service[0].id]
+    security_groups = [
+      aws_security_group.backup_service[0].id,
+      aws_security_group.comm_services_internal.id,
+    ]
     assign_public_ip = true
   }
 
