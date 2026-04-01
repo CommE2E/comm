@@ -7,6 +7,8 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "electron_update" {
+  count = local.service_enabled.electron_update ? 1 : 0
+
   name              = "/ecs/electron-update-task-def"
   retention_in_days = 7
 }
@@ -14,6 +16,8 @@ resource "aws_cloudwatch_log_group" "electron_update" {
 # Task definition - defines container resources, ports,
 # environment variables, docker image etc.
 resource "aws_ecs_task_definition" "electron_update" {
+  count = local.service_enabled.electron_update ? 1 : 0
+
   family = "electron-update-task-def"
   container_definitions = jsonencode([
     {
@@ -31,7 +35,7 @@ resource "aws_ecs_task_definition" "electron_update" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.electron_update.name
+          "awslogs-group"         = aws_cloudwatch_log_group.electron_update[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -53,11 +57,13 @@ resource "aws_ecs_task_definition" "electron_update" {
 # ECS Service - defines task scaling, load balancer connection,
 # network configuration etc.
 resource "aws_ecs_service" "electron_update" {
+  count = local.service_enabled.electron_update ? 1 : 0
+
   name        = "electron-update"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.electron_update.arn
+  task_definition      = aws_ecs_task_definition.electron_update[0].arn
   force_new_deployment = true
 
   desired_count = local.fixed_count_service_desired_counts.electron_update
@@ -74,7 +80,7 @@ resource "aws_ecs_service" "electron_update" {
   network_configuration {
     assign_public_ip = true
     security_groups = [
-      aws_security_group.electron_update.id,
+      aws_security_group.electron_update[0].id,
     ]
     subnets = [
       aws_subnet.public_a.id,
@@ -91,6 +97,8 @@ resource "aws_ecs_service" "electron_update" {
 
 # Security group to configure access to the service
 resource "aws_security_group" "electron_update" {
+  count = local.service_enabled.electron_update ? 1 : 0
+
   name   = "electron-update-ecs-sg"
   vpc_id = aws_vpc.default.id
 
@@ -118,7 +126,7 @@ resource "aws_security_group" "electron_update" {
 # Running service instances are registered here
 # to be accessed by the load balancer
 resource "aws_lb_target_group" "electron_update_ecs" {
-  count = local.public_ingress_enabled.electron_update ? 1 : 0
+  count = local.service_enabled.electron_update ? 1 : 0
 
   name     = "electron-update-ecs-tg"
   port     = local.electron_update_container_port
@@ -142,7 +150,7 @@ resource "aws_lb_target_group" "electron_update_ecs" {
 
 # Load Balancer
 resource "aws_lb" "electron_update" {
-  count = local.public_ingress_enabled.electron_update ? 1 : 0
+  count = local.service_enabled.electron_update ? 1 : 0
 
   load_balancer_type = "application"
   name               = "electron-update-lb"
@@ -157,7 +165,7 @@ resource "aws_lb" "electron_update" {
 }
 
 resource "aws_lb_listener" "electron_update_https" {
-  count             = local.public_ingress_enabled.electron_update ? 1 : 0
+  count             = local.service_enabled.electron_update ? 1 : 0
   load_balancer_arn = aws_lb.electron_update[0].arn
   port              = "443"
   protocol          = "HTTPS"

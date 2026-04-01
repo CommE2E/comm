@@ -21,7 +21,7 @@ module "landing_service" {
   source = "../modules/keyserver_node_service"
 
   desired_count               = local.fixed_count_service_desired_counts.landing
-  public_ingress_enabled      = local.public_ingress_enabled.landing
+  service_enabled             = local.service_enabled.landing
   container_name              = "landing"
   image                       = local.keyserver_image
   service_name                = "landing"

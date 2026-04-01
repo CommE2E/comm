@@ -1,10 +1,14 @@
 resource "aws_cloudwatch_log_group" "backup_service_fargate" {
+  count = local.service_enabled.backup ? 1 : 0
+
   name              = "/ecs/backup-service-fargate-task-def"
   retention_in_days = 7
 }
 
 # Fargate task definition
 resource "aws_ecs_task_definition" "backup_service_fargate" {
+  count = local.service_enabled.backup ? 1 : 0
+
   family = "backup-service-fargate-task-def"
   container_definitions = jsonencode([
     {
@@ -40,7 +44,7 @@ resource "aws_ecs_task_definition" "backup_service_fargate" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.backup_service_fargate.name
+          "awslogs-group"         = aws_cloudwatch_log_group.backup_service_fargate[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -59,11 +63,13 @@ resource "aws_ecs_task_definition" "backup_service_fargate" {
 
 # Fargate ECS Service
 resource "aws_ecs_service" "backup_service_fargate" {
+  count = local.service_enabled.backup ? 1 : 0
+
   name        = "backup-service-fargate"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.backup_service_fargate.arn
+  task_definition      = aws_ecs_task_definition.backup_service_fargate[0].arn
   force_new_deployment = true
 
   network_configuration {
@@ -72,7 +78,7 @@ resource "aws_ecs_service" "backup_service_fargate" {
       aws_subnet.public_b.id,
       aws_subnet.public_c.id,
     ]
-    security_groups  = [aws_security_group.backup_service.id]
+    security_groups  = [aws_security_group.backup_service[0].id]
     assign_public_ip = true
   }
 
@@ -113,7 +119,7 @@ resource "aws_ecs_service" "backup_service_fargate" {
 
 # Fargate HTTP target group
 resource "aws_lb_target_group" "backup_service_http_fargate" {
-  count = local.public_ingress_enabled.backup ? 1 : 0
+  count = local.service_enabled.backup ? 1 : 0
 
   name        = "backup-service-http-fargate-tg"
   port        = local.backup_service_container_http_port
@@ -136,9 +142,13 @@ resource "aws_lb_target_group" "backup_service_http_fargate" {
 module "backup_service_fargate_autoscaling" {
   source = "../modules/fargate-autoscaling"
 
-  create_resources = true
-  service_name     = aws_ecs_service.backup_service_fargate.name
-  cluster_name     = aws_ecs_cluster.comm_services.name
+  create_resources = local.service_enabled.backup
+  service_name = (
+    local.service_enabled.backup
+    ? aws_ecs_service.backup_service_fargate[0].name
+    : "backup-service-fargate"
+  )
+  cluster_name = aws_ecs_cluster.comm_services.name
 
   min_capacity  = local.autoscaled_service_capacities.backup.min_capacity
   max_capacity  = local.autoscaled_service_capacities.backup.max_capacity

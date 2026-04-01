@@ -5,11 +5,15 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "blob_cleanup" {
+  count = local.service_enabled.blob ? 1 : 0
+
   name              = "/ecs/blob-cleanup"
   retention_in_days = 7
 }
 
 resource "aws_ecs_task_definition" "blob_cleanup" {
+  count = local.service_enabled.blob ? 1 : 0
+
   family = "blob-cleanup-task-def"
   container_definitions = jsonencode([
     {
@@ -34,7 +38,7 @@ resource "aws_ecs_task_definition" "blob_cleanup" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.blob_cleanup.name
+          "awslogs-group"         = aws_cloudwatch_log_group.blob_cleanup[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -51,6 +55,8 @@ resource "aws_ecs_task_definition" "blob_cleanup" {
 }
 
 resource "aws_scheduler_schedule" "blob_cleanup" {
+  count = local.service_enabled.blob ? 1 : 0
+
   name       = "blob-cleanup-schedule"
   group_name = "default"
 
@@ -68,12 +74,12 @@ resource "aws_scheduler_schedule" "blob_cleanup" {
     role_arn = aws_iam_role.task_scheduler.arn
 
     ecs_parameters {
-      task_definition_arn = aws_ecs_task_definition.blob_cleanup.arn_without_revision
+      task_definition_arn = aws_ecs_task_definition.blob_cleanup[0].arn_without_revision
       launch_type         = "FARGATE"
 
       network_configuration {
         assign_public_ip = true
-        security_groups  = [aws_security_group.blob_service.id]
+        security_groups  = [aws_security_group.blob_service[0].id]
         subnets = [
           aws_subnet.public_a.id,
           aws_subnet.public_b.id,
@@ -90,11 +96,15 @@ resource "aws_scheduler_schedule" "blob_cleanup" {
 }
 
 resource "aws_iam_role_policy_attachment" "blob_cleanup_scheduler" {
-  policy_arn = aws_iam_policy.blob_cleanup_scheduler.arn
+  count = local.service_enabled.blob ? 1 : 0
+
+  policy_arn = aws_iam_policy.blob_cleanup_scheduler[0].arn
   role       = aws_iam_role.task_scheduler.name
 }
 
 resource "aws_iam_policy" "blob_cleanup_scheduler" {
+  count = local.service_enabled.blob ? 1 : 0
+
   name = "blob-cleanup-cron-scheduler-policy"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -106,7 +116,7 @@ resource "aws_iam_policy" "blob_cleanup_scheduler" {
         Action = [
           "ecs:RunTask"
         ]
-        Resource = aws_ecs_task_definition.blob_cleanup.arn_without_revision
+        Resource = aws_ecs_task_definition.blob_cleanup[0].arn_without_revision
       },
       # Allow scheduler to set the IAM roles of the ECS task
       {
@@ -115,8 +125,8 @@ resource "aws_iam_policy" "blob_cleanup_scheduler" {
           "iam:PassRole"
         ]
         Resource = [
-          aws_ecs_task_definition.blob_cleanup.execution_role_arn,
-          aws_ecs_task_definition.blob_cleanup.task_role_arn
+          aws_ecs_task_definition.blob_cleanup[0].execution_role_arn,
+          aws_ecs_task_definition.blob_cleanup[0].task_role_arn
         ]
       },
     ]

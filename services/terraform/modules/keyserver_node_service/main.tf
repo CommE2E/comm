@@ -8,11 +8,15 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "service" {
+  count = var.service_enabled ? 1 : 0
+
   name              = "/ecs/${var.service_name}-task-def"
   retention_in_days = 7
 }
 
 resource "aws_ecs_task_definition" "service" {
+  count = var.service_enabled ? 1 : 0
+
   network_mode             = "awsvpc"
   family                   = "${var.service_name}-task-def"
   requires_compatibilities = ["FARGATE"]
@@ -42,7 +46,7 @@ resource "aws_ecs_task_definition" "service" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.service.name
+          "awslogs-group"         = aws_cloudwatch_log_group.service[0].name
           "awslogs-stream-prefix" = "ecs"
           "awslogs-region"        = var.region
         }
@@ -60,6 +64,8 @@ resource "aws_ecs_task_definition" "service" {
 }
 
 resource "aws_security_group" "service" {
+  count = var.service_enabled ? 1 : 0
+
   name   = "${var.service_name}-service-ecs-sg"
   vpc_id = var.vpc_id
 
@@ -91,9 +97,11 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_ecs_service" "service" {
+  count = var.service_enabled ? 1 : 0
+
   name                               = var.service_name
   cluster                            = var.cluster_id
-  task_definition                    = aws_ecs_task_definition.service.arn
+  task_definition                    = aws_ecs_task_definition.service[0].arn
   launch_type                        = "FARGATE"
   enable_execute_command             = true
   enable_ecs_managed_tags            = true
@@ -104,7 +112,7 @@ resource "aws_ecs_service" "service" {
 
   network_configuration {
     subnets          = var.vpc_subnets
-    security_groups  = [aws_security_group.service.id]
+    security_groups  = [aws_security_group.service[0].id]
     assign_public_ip = true
   }
 
@@ -124,7 +132,7 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_lb_target_group" "service" {
-  count = var.public_ingress_enabled ? 1 : 0
+  count = var.service_enabled ? 1 : 0
 
   name     = "${var.service_name}-ecs-tg"
   port     = 3000
@@ -151,7 +159,7 @@ resource "aws_lb_target_group" "service" {
 }
 
 resource "aws_lb" "service" {
-  count = var.public_ingress_enabled ? 1 : 0
+  count = var.service_enabled ? 1 : 0
 
   load_balancer_type = "application"
   name               = "${var.service_name}-lb"
@@ -162,7 +170,7 @@ resource "aws_lb" "service" {
 }
 
 resource "aws_lb_listener" "service" {
-  count             = var.public_ingress_enabled ? 1 : 0
+  count             = var.service_enabled ? 1 : 0
   load_balancer_arn = aws_lb.service[0].arn
   port              = "443"
   protocol          = "HTTPS"
@@ -181,7 +189,7 @@ resource "aws_lb_listener" "service" {
 }
 
 resource "aws_security_group" "lb_sg" {
-  count = var.public_ingress_enabled ? 1 : 0
+  count = var.service_enabled ? 1 : 0
 
   name        = "${var.service_name}-lb-sg"
   description = "Security group for ${var.service_name} load balancer"

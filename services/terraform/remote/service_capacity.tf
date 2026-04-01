@@ -26,7 +26,7 @@ locals {
     }
   }
 
-  public_ingress_enabled = merge(
+  service_enabled = merge(
     {
       for service_name, desired_count in local.fixed_count_service_desired_counts :
       service_name => desired_count > 0
@@ -39,7 +39,7 @@ locals {
     },
   )
 
-  tunnelbroker_grpc_public_ingress_enabled = (
-    local.public_ingress_enabled.tunnelbroker && local.is_staging
+  tunnelbroker_grpc_service_enabled = (
+    local.service_enabled.tunnelbroker && local.is_staging
   )
 }

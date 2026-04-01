@@ -13,17 +13,21 @@ locals {
 }
 
 resource "aws_sns_topic" "identity_error_topic" {
+  count = local.service_enabled.identity ? 1 : 0
+
   name = "identity-error-topic"
 }
 
 resource "aws_sns_topic_subscription" "identity_email_subscription" {
-  topic_arn = aws_sns_topic.identity_error_topic.arn
+  count = local.service_enabled.identity ? 1 : 0
+
+  topic_arn = aws_sns_topic.identity_error_topic[0].arn
   protocol  = "email"
   endpoint  = local.error_reports_subscribed_email
 }
 
 resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
-  for_each = local.identity_error_patterns
+  for_each = local.service_enabled.identity ? local.identity_error_patterns : {}
 
   name           = "Identity${each.value.name}ErrorCount"
   pattern        = "{ $.level = \"ERROR\" && $.fields.errorType = \"${each.value.pattern}\" }"
@@ -37,7 +41,7 @@ resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
-  for_each = local.identity_error_patterns
+  for_each = local.service_enabled.identity ? local.identity_error_patterns : {}
 
   alarm_name          = "Identity${local.is_staging ? "Staging" : "Production"}${each.value.name}ErrorAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -49,6 +53,5 @@ resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
   threshold           = local.identity_error_threshold
   alarm_description   = "Alarm when Identity ${each.value.name} errors exceed threshold"
   actions_enabled     = true
-  alarm_actions       = [aws_sns_topic.identity_error_topic.arn]
+  alarm_actions       = [aws_sns_topic.identity_error_topic[0].arn]
 }
-

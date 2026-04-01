@@ -60,6 +60,8 @@ data "aws_secretsmanager_secret" "identity_server_setup" {
 
 # Security group to configure access to the service
 resource "aws_security_group" "identity_service" {
+  count = local.service_enabled.identity ? 1 : 0
+
   name   = "identity-service-ecs-sg"
   vpc_id = aws_vpc.default.id
 
@@ -96,7 +98,7 @@ resource "aws_security_group" "identity_service" {
 
 # Load Balancer
 resource "aws_lb" "identity_service" {
-  count = local.public_ingress_enabled.identity ? 1 : 0
+  count = local.service_enabled.identity ? 1 : 0
 
   load_balancer_type = "application"
   name               = "identity-service-lb"
@@ -109,7 +111,7 @@ resource "aws_lb" "identity_service" {
 }
 
 resource "aws_lb_listener" "identity_service_ws" {
-  count             = local.public_ingress_enabled.identity ? 1 : 0
+  count             = local.service_enabled.identity ? 1 : 0
   load_balancer_arn = aws_lb.identity_service[0].arn
   port              = local.identity_service_container_ws_port
   protocol          = "HTTPS"
@@ -127,7 +129,7 @@ resource "aws_lb_listener" "identity_service_ws" {
 }
 
 resource "aws_lb_listener" "identity_service_grpc" {
-  count             = local.public_ingress_enabled.identity ? 1 : 0
+  count             = local.service_enabled.identity ? 1 : 0
   load_balancer_arn = aws_lb.identity_service[0].arn
   port              = local.identity_service_grpc_public_port
   protocol          = "HTTPS"

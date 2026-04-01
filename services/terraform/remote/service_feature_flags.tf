@@ -7,6 +7,8 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "feature_flags" {
+  count = local.service_enabled.feature_flags ? 1 : 0
+
   name              = "/ecs/feature-flags-task-def"
   retention_in_days = 7
 }
@@ -14,6 +16,8 @@ resource "aws_cloudwatch_log_group" "feature_flags" {
 # Task definition - defines container resources, ports,
 # environment variables, docker image etc.
 resource "aws_ecs_task_definition" "feature_flags" {
+  count = local.service_enabled.feature_flags ? 1 : 0
+
   family = "feature-flags-service-task-def"
   container_definitions = jsonencode([
     {
@@ -37,7 +41,7 @@ resource "aws_ecs_task_definition" "feature_flags" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.feature_flags.name
+          "awslogs-group"         = aws_cloudwatch_log_group.feature_flags[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -59,11 +63,13 @@ resource "aws_ecs_task_definition" "feature_flags" {
 # ECS Service - defines task scaling, load balancer connection,
 # network configuration etc.
 resource "aws_ecs_service" "feature_flags" {
+  count = local.service_enabled.feature_flags ? 1 : 0
+
   name        = "feature-flags-service"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.feature_flags.arn
+  task_definition      = aws_ecs_task_definition.feature_flags[0].arn
   force_new_deployment = true
 
   desired_count = local.fixed_count_service_desired_counts.feature_flags
@@ -80,7 +86,7 @@ resource "aws_ecs_service" "feature_flags" {
   network_configuration {
     assign_public_ip = true
     security_groups = [
-      aws_security_group.feature_flags.id,
+      aws_security_group.feature_flags[0].id,
     ]
     subnets = [
       aws_subnet.public_a.id,
@@ -98,7 +104,7 @@ resource "aws_ecs_service" "feature_flags" {
 # Running service instances are registered here
 # to be accessed by the load balancer
 resource "aws_lb_target_group" "feature_flags_ecs" {
-  count = local.public_ingress_enabled.feature_flags ? 1 : 0
+  count = local.service_enabled.feature_flags ? 1 : 0
 
   name     = "feature-flags-ecs-tg"
   port     = local.feature_flags_container_port
@@ -123,6 +129,8 @@ resource "aws_lb_target_group" "feature_flags_ecs" {
 
 # Security group to configure access to the service
 resource "aws_security_group" "feature_flags" {
+  count = local.service_enabled.feature_flags ? 1 : 0
+
   name   = "feature-flags-service-sg"
   vpc_id = aws_vpc.default.id
 
@@ -149,7 +157,7 @@ resource "aws_security_group" "feature_flags" {
 
 # Load Balancer
 resource "aws_lb" "feature_flags" {
-  count = local.public_ingress_enabled.feature_flags ? 1 : 0
+  count = local.service_enabled.feature_flags ? 1 : 0
 
   load_balancer_type = "application"
   name               = "feature-flags-service-lb"
@@ -163,7 +171,7 @@ resource "aws_lb" "feature_flags" {
 }
 
 resource "aws_lb_listener" "feature_flags_https" {
-  count             = local.public_ingress_enabled.feature_flags ? 1 : 0
+  count             = local.service_enabled.feature_flags ? 1 : 0
   load_balancer_arn = aws_lb.feature_flags[0].arn
   port              = "443"
   protocol          = "HTTPS"

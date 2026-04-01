@@ -7,6 +7,8 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "reports_service" {
+  count = local.service_enabled.reports ? 1 : 0
+
   name              = "/ecs/reports-service-task-def"
   retention_in_days = 7
 }
@@ -21,6 +23,8 @@ resource "aws_secretsmanager_secret_version" "email_config" {
 }
 
 resource "aws_ecs_task_definition" "reports_service" {
+  count = local.service_enabled.reports ? 1 : 0
+
   family = "reports-service-task-def"
   container_definitions = jsonencode([
     {
@@ -73,7 +77,7 @@ resource "aws_ecs_task_definition" "reports_service" {
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
-          "awslogs-group"         = aws_cloudwatch_log_group.reports_service.name
+          "awslogs-group"         = aws_cloudwatch_log_group.reports_service[0].name
           "awslogs-region"        = "us-east-2"
           "awslogs-stream-prefix" = "ecs"
         }
@@ -93,11 +97,13 @@ resource "aws_ecs_task_definition" "reports_service" {
 }
 
 resource "aws_ecs_service" "reports_service" {
+  count = local.service_enabled.reports ? 1 : 0
+
   name        = "reports-service"
   cluster     = aws_ecs_cluster.comm_services.id
   launch_type = "FARGATE"
 
-  task_definition      = aws_ecs_task_definition.reports_service.arn
+  task_definition      = aws_ecs_task_definition.reports_service[0].arn
   force_new_deployment = true
 
   desired_count = local.fixed_count_service_desired_counts.reports
@@ -120,7 +126,7 @@ resource "aws_ecs_service" "reports_service" {
   network_configuration {
     assign_public_ip = true
     security_groups = [
-      aws_security_group.reports_service.id,
+      aws_security_group.reports_service[0].id,
     ]
     subnets = [
       aws_subnet.public_a.id,
@@ -140,6 +146,8 @@ resource "aws_ecs_service" "reports_service" {
 
 # Security group to configure access to the service
 resource "aws_security_group" "reports_service" {
+  count = local.service_enabled.reports ? 1 : 0
+
   name   = "reports-service-ecs-sg"
   vpc_id = aws_vpc.default.id
 
@@ -165,7 +173,7 @@ resource "aws_security_group" "reports_service" {
 }
 
 resource "aws_lb_target_group" "reports_service_http" {
-  count = local.public_ingress_enabled.reports ? 1 : 0
+  count = local.service_enabled.reports ? 1 : 0
 
   name     = "reports-service-ecs-http-tg"
   port     = local.reports_service_container_http_port
@@ -188,7 +196,7 @@ resource "aws_lb_target_group" "reports_service_http" {
 
 # Load Balancer
 resource "aws_lb" "reports_service" {
-  count = local.public_ingress_enabled.reports ? 1 : 0
+  count = local.service_enabled.reports ? 1 : 0
 
   load_balancer_type = "application"
   name               = "reports-service-lb"
@@ -201,7 +209,7 @@ resource "aws_lb" "reports_service" {
 }
 
 resource "aws_lb_listener" "reports_service_https" {
-  count             = local.public_ingress_enabled.reports ? 1 : 0
+  count             = local.service_enabled.reports ? 1 : 0
   load_balancer_arn = aws_lb.reports_service[0].arn
   port              = "443"
   protocol          = "HTTPS"

@@ -21,6 +21,8 @@ locals {
 
 # Security group to configure access to the service
 resource "aws_security_group" "backup_service" {
+  count = local.service_enabled.backup ? 1 : 0
+
   name   = "backup-service-ecs-sg"
   vpc_id = aws_vpc.default.id
 
@@ -48,7 +50,7 @@ resource "aws_security_group" "backup_service" {
 
 # Load Balancer
 resource "aws_lb" "backup_service" {
-  count = local.public_ingress_enabled.backup ? 1 : 0
+  count = local.service_enabled.backup ? 1 : 0
 
   load_balancer_type = "application"
   name               = "backup-service-lb"
@@ -61,7 +63,7 @@ resource "aws_lb" "backup_service" {
 }
 
 resource "aws_lb_listener" "backup_service_https" {
-  count             = local.public_ingress_enabled.backup ? 1 : 0
+  count             = local.service_enabled.backup ? 1 : 0
   load_balancer_arn = aws_lb.backup_service[0].arn
   port              = "443"
   protocol          = "HTTPS"

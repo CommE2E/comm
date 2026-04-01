@@ -1,37 +1,37 @@
 locals {
   dns_service_configs = {
     Blob = {
-      enabled = local.public_ingress_enabled.blob
+      enabled = local.service_enabled.blob
       domain  = local.blob_service_domain_name
       lb      = aws_lb.blob_service
     }
     Backup = {
-      enabled = local.public_ingress_enabled.backup
+      enabled = local.service_enabled.backup
       domain  = local.backup_service_domain_name
       lb      = aws_lb.backup_service
     }
     ElectronUpdate = {
-      enabled = local.public_ingress_enabled.electron_update
+      enabled = local.service_enabled.electron_update
       domain  = local.electron_update_domain_name
       lb      = aws_lb.electron_update
     }
     FeatureFlags = {
-      enabled = local.public_ingress_enabled.feature_flags
+      enabled = local.service_enabled.feature_flags
       domain  = local.feature_flags_domain_name
       lb      = aws_lb.feature_flags
     }
     Identity = {
-      enabled = local.public_ingress_enabled.identity
+      enabled = local.service_enabled.identity
       domain  = local.identity_service_domain_name
       lb      = aws_lb.identity_service
     }
     Reports = {
-      enabled = local.public_ingress_enabled.reports
+      enabled = local.service_enabled.reports
       domain  = local.reports_service_domain_name
       lb      = aws_lb.reports_service
     }
     Tunnelbroker = {
-      enabled = local.public_ingress_enabled.tunnelbroker
+      enabled = local.service_enabled.tunnelbroker
       domain  = local.tunnelbroker_config.domain_name
       lb      = aws_lb.tunnelbroker
     }
