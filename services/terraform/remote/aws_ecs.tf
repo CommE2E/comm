@@ -16,12 +16,6 @@ resource "aws_ecs_cluster" "comm_services" {
 # by their hostnames. Similiar to docker compose network.
 resource "aws_service_discovery_http_namespace" "comm_services" {
   name = "comm-services-ecs-cluster"
-  tags = {
-    # This tag was added by AWS Console because this resource
-    # was auto-created along with the cluster.
-    # It should be left as-is until we need a custom namespace.
-    "AmazonECSManaged" = "true"
-  }
 }
 
 
