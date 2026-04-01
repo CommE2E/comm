@@ -140,9 +140,11 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
   # Websocket
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.tunnelbroker_ws_fargate[*]
+    for_each = local.service_enabled.tunnelbroker ? [
+      module.shared_public_ingress.target_group_arns["tunnelbroker_ws"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.tunnelbroker_config.container_name
       container_port   = local.tunnelbroker_config.websocket_port
     }
@@ -150,9 +152,11 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
   # gRPC (only exists in staging)
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.tunnelbroker_grpc_fargate[*]
+    for_each = local.tunnelbroker_grpc_service_enabled ? [
+      module.shared_public_ingress.target_group_arns["tunnelbroker_grpc"]
+    ] : []
     content {
-      target_group_arn = load_balancer.value.arn
+      target_group_arn = load_balancer.value
       container_name   = local.tunnelbroker_config.container_name
       container_port   = local.tunnelbroker_config.grpc_port
     }
@@ -165,46 +169,6 @@ resource "aws_ecs_service" "tunnelbroker_fargate" {
 
   lifecycle {
     ignore_changes = [desired_count]
-  }
-}
-
-# Fargate WebSocket target group
-resource "aws_lb_target_group" "tunnelbroker_ws_fargate" {
-  count = local.service_enabled.tunnelbroker ? 1 : 0
-
-  name             = "tunnelbroker-ws-fargate-tg"
-  port             = local.tunnelbroker_config.websocket_port
-  protocol         = "HTTP"
-  protocol_version = "HTTP1"
-  vpc_id           = aws_vpc.default.id
-  target_type      = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-
-    protocol = "HTTP"
-    path     = "/health"
-    matcher  = "200"
-  }
-}
-
-# Fargate gRPC target group
-resource "aws_lb_target_group" "tunnelbroker_grpc_fargate" {
-  count = local.tunnelbroker_grpc_service_enabled ? 1 : 0
-
-  name             = "tunnelbroker-grpc-fargate-tg"
-  port             = local.tunnelbroker_config.grpc_port
-  protocol         = "HTTP"
-  protocol_version = "GRPC"
-  vpc_id           = aws_vpc.default.id
-  target_type      = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
   }
 }
 
