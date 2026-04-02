@@ -10,6 +10,7 @@ import {
   TabNavigatorRouteName,
   LoggedOutModalRouteName,
   CalendarRouteName,
+  CalendarScreenRouteName,
   ProfileRouteName,
   ProfileScreenRouteName,
   ChatRouteName,
@@ -65,6 +66,11 @@ const defaultNavigationState: StaleNavigationState = {
                       },
                       {
                         name: CalendarRouteName,
+                        state: {
+                          type: 'stack',
+                          index: 0,
+                          routes: [{ name: CalendarScreenRouteName }],
+                        },
                       },
                       {
                         name: ProfileRouteName,
