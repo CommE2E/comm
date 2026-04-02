@@ -8,11 +8,18 @@ const {
 } = require('lib/webpack/shared.cjs');
 
 const babelConfig = require('./.babelrc.cjs');
+const ignoreMissingServicesEnvironmentConfigWarning = warning =>
+  warning.module?.resource ===
+    path.resolve(__dirname, '../lib/utils/services-environment.cjs') &&
+  warning.message.includes(
+    "Can't resolve '../facts/services-environment.json'",
+  );
 
 const baseBrowserConfig = {
   entry: {
     browser: ['./script.js'],
   },
+  ignoreWarnings: [ignoreMissingServicesEnvironmentConfigWarning],
   output: {
     filename: 'prod.[contenthash:12].build.js',
     path: path.join(__dirname, 'dist'),
@@ -57,6 +64,7 @@ const baseNodeServerRenderingConfig = {
   entry: {
     server: ['./landing-ssr.react.js'],
   },
+  ignoreWarnings: [ignoreMissingServicesEnvironmentConfigWarning],
   output: {
     filename: 'landing.build.cjs',
     library: 'landing',
