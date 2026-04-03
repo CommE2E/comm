@@ -10,6 +10,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 
 import AppLanding from './app-landing.react.js';
+import Beta from './beta.react.js';
 import ConnectFarcaster from './connect-farcaster.react.js';
 import Download from './download.react.js';
 import Footer from './footer.react.js';
@@ -98,6 +99,7 @@ function LandingSite(): React.Node {
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onLegacySupportersPath = useRouteMatch({ path: '/investors' });
+  const onBeta = useRouteMatch({ path: '/beta' });
   const onQR = useRouteMatch({ path: '/qr' });
   const onSupporters = useRouteMatch({ path: '/supporters' });
   const onDownload = useRouteMatch({ path: '/download' });
@@ -113,6 +115,8 @@ function LandingSite(): React.Node {
       return <Keyservers />;
     } else if (onLegacySupportersPath) {
       return <Redirect to="/supporters" />;
+    } else if (onBeta) {
+      return <Beta />;
     } else if (onQR) {
       return <QR />;
     } else if (onSupporters) {
@@ -128,6 +132,7 @@ function LandingSite(): React.Node {
     onSupport,
     onKeyservers,
     onLegacySupportersPath,
+    onBeta,
     onQR,
     onSupporters,
     onDownload,
