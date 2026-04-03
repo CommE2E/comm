@@ -32,10 +32,25 @@ div.headerContainerMobileNavActive {
 }
 
 .betaBadge {
+  display: inline-flex;
+  align-items: center;
   padding: 4px 16px;
   background-color: #ebebeb26;
   border-radius: 16px;
   color: var(--white-100);
+  cursor: pointer;
+  transition: 200ms;
+  transition-property: background-color;
+}
+
+.betaBadgeActive {
+  background-color: #ebebeb40;
+}
+
+@media screen and (hover: hover) {
+  .betaBadge:hover {
+    background-color: #ebebeb40;
+  }
 }
 
 .tab {

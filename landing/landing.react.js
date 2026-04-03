@@ -10,6 +10,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 
 import AppLanding from './app-landing.react.js';
+import Beta from './beta.react.js';
 import ConnectFarcaster from './connect-farcaster.react.js';
 import Download from './download.react.js';
 import Footer from './footer.react.js';
@@ -98,6 +99,7 @@ function LandingSite(): React.Node {
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
+  const onBeta = useRouteMatch({ path: '/beta' });
   const onQR = useRouteMatch({ path: '/qr' });
   const onTeam = useRouteMatch({ path: '/team' });
   const onInvestors = useRouteMatch({ path: '/investors' });
@@ -112,6 +114,8 @@ function LandingSite(): React.Node {
       return <Support />;
     } else if (onKeyservers) {
       return <Keyservers />;
+    } else if (onBeta) {
+      return <Beta />;
     } else if (onQR) {
       return <QR />;
     } else if (onTeam) {
@@ -128,6 +132,7 @@ function LandingSite(): React.Node {
     onTerms,
     onSupport,
     onKeyservers,
+    onBeta,
     onQR,
     onTeam,
     onInvestors,

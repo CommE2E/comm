@@ -56,7 +56,15 @@ function Header(props: Props): React.Node {
               Comm
             </h1>
           </NavLink>
-          <div className={badgeClassName}>Beta</div>
+          <NavLink
+            to="/beta"
+            exact
+            className={badgeClassName}
+            activeClassName={css.betaBadgeActive}
+            onClick={onClickLogo}
+          >
+            Beta
+          </NavLink>
         </div>
         <div className={css.pageNav}>
           <NavLink
