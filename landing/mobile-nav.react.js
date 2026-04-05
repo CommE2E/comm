@@ -46,18 +46,6 @@ function MobileNav(props: Props): React.Node {
           </div>
         </NavLink>
       </div>
-      <div className={css.tabContainer}>
-        <NavLink
-          to="/investors"
-          exact
-          className={navLinkClassName}
-          activeClassName={css.activeTab}
-        >
-          <div onClick={dismissMobileNav} className={css.tabContent}>
-            Investors
-          </div>
-        </NavLink>
-      </div>
       <div className={css.socialIconsContainer}>
         <NavLink to="/download" exact className={navLinkClassName}>
           <FontAwesomeIcon

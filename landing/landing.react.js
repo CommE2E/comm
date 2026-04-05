@@ -2,7 +2,7 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { Redirect, useRouteMatch } from 'react-router-dom';
 
 import {
   ModalProvider,
@@ -14,7 +14,6 @@ import ConnectFarcaster from './connect-farcaster.react.js';
 import Download from './download.react.js';
 import Footer from './footer.react.js';
 import Header, { HEADER_BREAKPOINT } from './header.react.js';
-import Investors from './investors.react.js';
 import Keyservers from './keyservers.react.js';
 import css from './landing.css';
 import MobileNav from './mobile-nav.react.js';
@@ -22,6 +21,7 @@ import Privacy from './privacy.react.js';
 import QR from './qr.react.js';
 import SIWE from './siwe.react.js';
 import Support from './support.react.js';
+import Supporters from './supporters.react.js';
 import Terms from './terms.react.js';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react.js';
 import './reset.css';
@@ -97,8 +97,9 @@ function LandingSite(): React.Node {
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
+  const onLegacySupportersPath = useRouteMatch({ path: '/investors' });
   const onQR = useRouteMatch({ path: '/qr' });
-  const onInvestors = useRouteMatch({ path: '/investors' });
+  const onSupporters = useRouteMatch({ path: '/supporters' });
   const onDownload = useRouteMatch({ path: '/download' });
 
   const activePage = React.useMemo(() => {
@@ -110,10 +111,12 @@ function LandingSite(): React.Node {
       return <Support />;
     } else if (onKeyservers) {
       return <Keyservers />;
+    } else if (onLegacySupportersPath) {
+      return <Redirect to="/supporters" />;
     } else if (onQR) {
       return <QR />;
-    } else if (onInvestors) {
-      return <Investors />;
+    } else if (onSupporters) {
+      return <Supporters />;
     } else if (onDownload) {
       return <Download />;
     } else {
@@ -124,8 +127,9 @@ function LandingSite(): React.Node {
     onTerms,
     onSupport,
     onKeyservers,
+    onLegacySupportersPath,
     onQR,
-    onInvestors,
+    onSupporters,
     onDownload,
   ]);
 

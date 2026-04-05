@@ -6,12 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
-import css from './investor-profile.css';
+import css from './supporter-profile.css';
 import typography from './typography.css';
 
 type Props = {
   +name: string,
-  +description: string,
+  +description?: string,
   +involvement?: string,
   +imageURL: string,
   +onClick: () => void,
@@ -21,7 +21,7 @@ type Props = {
   +linkedinHandle?: string,
 };
 
-function InvestorProfile(props: Props): React.Node {
+function SupporterProfile(props: Props): React.Node {
   const {
     name,
     description,
@@ -96,21 +96,47 @@ function InvestorProfile(props: Props): React.Node {
     );
   }
 
+  let descriptionNode;
+  if (description) {
+    descriptionNode = <p className={descriptionClassName}>{description}</p>;
+  }
+
+  let involvementNode;
+  if (involvement) {
+    involvementNode = <p className={involvementClassName}>{involvement}</p>;
+  }
+
+  let socialLinksNode;
+  if (websiteIcon || twitterIcon || linkedinIcon) {
+    socialLinksNode = (
+      <span className={css.socialLinks}>
+        {websiteIcon}
+        {twitterIcon}
+        {linkedinIcon}
+      </span>
+    );
+  }
+
+  let metaNode;
+  if (involvementNode || socialLinksNode) {
+    metaNode = (
+      <div className={css.metaContainer}>
+        {involvementNode}
+        {socialLinksNode}
+      </div>
+    );
+  }
+
   return (
     <a className={profileContainerClassName} onClick={onClick}>
-      <img alt={`image of Comm investor ${name}`} src={imageURL} />
-      <div className={css.investorInfoContainer}>
+      <img alt={`image of Comm supporter ${name}`} src={imageURL} />
+      <div className={css.supporterInfoContainer}>
         <p className={nameClassName}>{name}</p>
-        <p className={descriptionClassName}>{description}</p>
-        <p className={involvementClassName}>{involvement}</p>
-        <span>
-          {websiteIcon}
-          {twitterIcon}
-          {linkedinIcon}
-        </span>
+        {descriptionNode}
+        {metaNode}
       </div>
     </a>
   );
 }
 
-export default InvestorProfile;
+export default SupporterProfile;
