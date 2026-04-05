@@ -46,6 +46,17 @@ function MobileNav(props: Props): React.Node {
           </div>
         </NavLink>
       </div>
+      <div className={css.tabContainer}>
+        <a
+          href="https://dh9fld3hutpxf.cloudfront.net/whitepaper.pdf"
+          target="_blank"
+          rel="noreferrer"
+          className={navLinkClassName}
+          onClick={dismissMobileNav}
+        >
+          <div className={css.tabContent}>Whitepaper</div>
+        </a>
+      </div>
       <div className={css.socialIconsContainer}>
         <NavLink to="/download" exact className={navLinkClassName}>
           <FontAwesomeIcon

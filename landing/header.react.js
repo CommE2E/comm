@@ -67,6 +67,14 @@ function Header(props: Props): React.Node {
           >
             Keyserver
           </NavLink>
+          <a
+            href="https://dh9fld3hutpxf.cloudfront.net/whitepaper.pdf"
+            target="_blank"
+            rel="noreferrer"
+            className={navLinkClassName}
+          >
+            Whitepaper
+          </a>
         </div>
         <div className={css.socialIconsContainer}>
           <NavLink
