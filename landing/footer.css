@@ -42,6 +42,11 @@ footer.wrapper {
   align-items: center;
 }
 
+.navLinkIcons {
+  color: var(--white-60);
+  margin-left: 8px;
+}
+
 .socialIcons {
   color: var(--white-100);
 }
@@ -52,7 +57,8 @@ footer.wrapper {
   transition-property: color;
 }
 
-.links:hover {
+.links:hover,
+.navLinkIcons:hover {
   color: var(--white-100);
   transition: 150ms;
   transition-property: color;
