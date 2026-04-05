@@ -26,6 +26,12 @@ For developers using macOS, go to the [Mac App Store](https://apps.apple.com/us/
 
 Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any [“Additional Required Components”](./nix_mobile_setup.md#xcode-settings)
 
+When prompted to select which development platforms you want to support, make sure NOT to select iOS, as this will lock you into a version of the iOS Simulator that doesn't support x86. Instead, after opening Xcode, run this command from a terminal:
+
+```
+xcodebuild -downloadPlatform iOS -architectureVariant universal
+```
+
 ### Xcode Command Line Tools
 
 For developers using macOS, you need to make sure that the Xcode “Command Line Tools” are installed. You can do this by running:
