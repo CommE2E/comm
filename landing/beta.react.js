@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import css from './beta.css';
+import landingCSS from './landing.css';
 import typography from './typography.css';
 
 type BetaReleaseBlocker = {
@@ -24,7 +25,7 @@ const betaReleaseBlockers: $ReadOnlyArray<BetaReleaseBlocker> = [
           href="https://dh9fld3hutpxf.cloudfront.net/whitepaper.pdf"
           target="_blank"
           rel="noreferrer"
-          className={css.link}
+          className={landingCSS.link}
         >
           whitepaper
         </a>

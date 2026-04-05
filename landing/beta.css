@@ -44,17 +44,6 @@
   margin: 0;
 }
 
-.link {
-  color: inherit;
-  text-decoration: underline;
-  transition: color 150ms;
-}
-
-.link:hover {
-  color: var(--violet-dark-100);
-  transition: color 150ms;
-}
-
 .listItemText strong {
   color: var(--white-100);
   font-weight: var(--semi-bold);

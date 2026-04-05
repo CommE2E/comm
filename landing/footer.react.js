@@ -37,6 +37,14 @@ function Footer(): React.Node {
               Comm
             </NavLink>
             <NavLink
+              to="/story"
+              exact
+              {...navLinkProps}
+              className={navLinkClassName}
+            >
+              Story
+            </NavLink>
+            <NavLink
               to="/keyservers"
               exact
               {...navLinkProps}

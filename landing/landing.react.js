@@ -21,6 +21,7 @@ import MobileNav from './mobile-nav.react.js';
 import Privacy from './privacy.react.js';
 import QR from './qr.react.js';
 import SIWE from './siwe.react.js';
+import Story from './story.react.js';
 import Support from './support.react.js';
 import Supporters from './supporters.react.js';
 import Terms from './terms.react.js';
@@ -97,6 +98,7 @@ function LandingSite(): React.Node {
   const onPrivacy = useRouteMatch({ path: '/privacy' });
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
+  const onStory = useRouteMatch({ path: '/story' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onLegacySupportersPath = useRouteMatch({ path: '/investors' });
   const onBeta = useRouteMatch({ path: '/beta' });
@@ -111,6 +113,8 @@ function LandingSite(): React.Node {
       return <Terms />;
     } else if (onSupport) {
       return <Support />;
+    } else if (onStory) {
+      return <Story />;
     } else if (onKeyservers) {
       return <Keyservers />;
     } else if (onLegacySupportersPath) {
@@ -130,6 +134,7 @@ function LandingSite(): React.Node {
     onPrivacy,
     onTerms,
     onSupport,
+    onStory,
     onKeyservers,
     onLegacySupportersPath,
     onBeta,

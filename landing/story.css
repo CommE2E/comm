@@ -1,0 +1,34 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 72px 32px 128px;
+}
+
+.content {
+  width: 960px;
+  max-width: 100%;
+}
+
+.heading {
+  color: var(--white-80);
+  margin-bottom: 48px;
+}
+
+.paragraph {
+  color: var(--white-80);
+  margin: 0 0 24px;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-inline: 24px;
+  }
+}
