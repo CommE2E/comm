@@ -1,7 +1,6 @@
 // @flow
 
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
@@ -68,32 +67,6 @@ function Footer(): React.Node {
             >
               Investors
             </NavLink>
-            <a
-              href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234"
-              target="_blank"
-              rel="noreferrer"
-              className={navLinkClassName}
-            >
-              Learn how Comm works
-              <FontAwesomeIcon
-                size="sm"
-                className={css.navLinkIcons}
-                icon={faExternalLinkAlt}
-              />
-            </a>
-            <a
-              href="https://commapp.notion.site/Learn-more-about-Comm-1efb9b646d504dddae30a20b4f33200e"
-              target="_blank"
-              rel="noreferrer"
-              className={navLinkClassName}
-            >
-              About Comm
-              <FontAwesomeIcon
-                size="sm"
-                className={css.navLinkIcons}
-                icon={faExternalLinkAlt}
-              />
-            </a>
           </div>
           <div className={css.socialIconsContainer}>
             <a
