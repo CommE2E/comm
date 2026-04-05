@@ -6,33 +6,11 @@
 
 .headingContainer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 16px;
-  flex-wrap: wrap;
-  row-gap: 8px;
-  /* We use 34px to match the coming soon badge's height and this
-  keep everything aligned */
-  min-height: 34px;
 }
 
 .headingText {
   color: var(--white-100);
-}
-
-.comingSoonBadge {
-  background-color: var(--badge);
-  padding: 5px 10px;
-  border-radius: 16px;
-}
-
-.comingSoonText {
-  color: var(--white-100);
-  margin-left: 8px;
-}
-
-.comingSoonIcon {
-  color: var(--coming-soon-icon);
 }
 
 hr {

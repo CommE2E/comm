@@ -72,7 +72,6 @@ function CompetitorComparison(): React.Node {
         key={`${selectedCompetitor.id}_${feature.title}`}
         competitorID={selectedCompetitor.id}
         title={feature.title}
-        comingSoon={feature.comingSoon}
         competitorDescription={feature.competitorDescriptionShort}
         commDescription={feature.commDescriptionShort}
         onClick={() => onFeatureCardClick(selectedCompetitor, feature)}

@@ -61,7 +61,6 @@ function FeatureModal(props: Props): React.Node {
           <CompetitorFeature
             competitorID={competitor.id}
             title={feature.title}
-            comingSoon={feature.comingSoon}
             competitorDescription={feature.competitorDescriptionLong}
             commDescription={feature.commDescriptionLong}
           />

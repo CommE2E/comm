@@ -13,7 +13,6 @@ export type Competitors = $Values<typeof competitors>;
 
 export type FeatureComparison = {
   +title: string,
-  +comingSoon: boolean,
   +competitorDescriptionShort: string,
   +commDescriptionShort: string,
   +competitorDescriptionLong: $ReadOnlyArray<string>,
@@ -34,7 +33,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Tree structure',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -48,7 +46,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Muted tab',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -62,7 +59,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Integrated calendar',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -76,7 +72,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notif controls',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -90,7 +85,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Unique threading model',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -104,7 +98,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Inbox zero workflow',
-        comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
         commDescriptionShort:
@@ -124,7 +117,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: false,
         competitorDescriptionShort:
           'Discord staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
@@ -142,7 +134,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Inbox',
-        comingSoon: false,
         competitorDescriptionShort:
           'Discord’s inbox is basically a simple notification queue tucked away in a corner.',
         commDescriptionShort:
@@ -157,7 +148,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Communities',
-        comingSoon: false,
         competitorDescriptionShort:
           'Discord supports communities with a flat list of channels.',
         commDescriptionShort:
@@ -172,7 +162,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notifications',
-        comingSoon: false,
         competitorDescriptionShort:
           'Discord has a single function to mute notifs from a chat.',
         commDescriptionShort:
@@ -186,7 +175,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Badging',
-        comingSoon: false,
         competitorDescriptionShort:
           'Discord’s unread count is based on the number of unread messages.',
         commDescriptionShort:
@@ -205,19 +193,7 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     name: 'Keybase',
     featureComparison: [
       {
-        title: 'Active development',
-        comingSoon: false,
-        competitorDescriptionShort:
-          'Following its acquisition by Zoom, Keybase is no longer in active development.',
-        commDescriptionShort: 'Comm is actively in development.',
-        competitorDescriptionLong: [
-          'Following its acquisition by Zoom, Keybase is no longer in active development.',
-        ],
-        commDescriptionLong: ['Comm is actively in development.'],
-      },
-      {
         title: 'Encryption',
-        comingSoon: false,
         competitorDescriptionShort:
           'Keybase has a custom implementation of E2E encryption that doesn’t guarantee forward secrecy.',
         commDescriptionShort:
@@ -231,7 +207,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Search',
-        comingSoon: false,
         competitorDescriptionShort:
           'Keybase searches chats locally by downloading the full history to your client device.',
         commDescriptionShort:
@@ -245,7 +220,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Key resets',
-        comingSoon: false,
         competitorDescriptionShort:
           'Keybase’s servers can reset anybody’s public keys in order to facilitate account recovery.',
         commDescriptionShort:
@@ -262,7 +236,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notifications',
-        comingSoon: false,
         competitorDescriptionShort:
           'Keybase has a single function to mute notifs from a chat.',
         commDescriptionShort:
@@ -282,7 +255,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: false,
         competitorDescriptionShort:
           'E2E encryption is optional in Matrix. Two-person encrypted chats use Double Ratchet, but group chats use a less secure algorithm called Megolm.',
         commDescriptionShort:
@@ -300,7 +272,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Search',
-        comingSoon: false,
         competitorDescriptionShort:
           'Matrix searches encrypted chats locally by downloading the full history to your client device.',
         commDescriptionShort:
@@ -316,7 +287,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Key resets',
-        comingSoon: false,
         competitorDescriptionShort:
           'Matrix homeservers can change a user account’s associated public keys in order to facilitate account recovery.',
         commDescriptionShort:
@@ -334,7 +304,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Backup',
-        comingSoon: true,
         competitorDescriptionShort:
           'Matrix relies on individual implementations and homeservers to handle backup.',
         commDescriptionShort:
@@ -356,7 +325,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Backup',
-        comingSoon: true,
         competitorDescriptionShort:
           'Signal does not back up your data. Data is stored locally on your device.',
         commDescriptionShort:
@@ -373,7 +341,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Communities',
-        comingSoon: false,
         competitorDescriptionShort:
           'Signal does not support communities with channels à la Discord or Slack.',
         commDescriptionShort:
@@ -387,13 +354,12 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Identity',
-        comingSoon: false,
         competitorDescriptionShort:
-          'Your identity on Signal is linked to a phone number.',
+          'Most identities on Signal are linked to phone numbers.',
         commDescriptionShort:
           'Comm accounts are associated with a username or an Ethereum wallet.',
         competitorDescriptionLong: [
-          'Your identity on Signal is linked to a phone number, which limits the anonymity and sovereignty of user accounts.',
+          'Signal still requires a phone number to sign up, although users can now connect via optional usernames.',
         ],
         commDescriptionLong: [
           'Comm accounts can be linked either to a pseudonymous username or to an Ethereum wallet.',
@@ -401,7 +367,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Key resets',
-        comingSoon: false,
         competitorDescriptionShort:
           'Signal’s servers can reset anybody’s public keys in order to facilitate account recovery.',
         commDescriptionShort:
@@ -418,7 +383,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notifications',
-        comingSoon: false,
         competitorDescriptionShort:
           'Signal has a single function to mute notifs from a chat.',
         commDescriptionShort:
@@ -438,7 +402,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: false,
         competitorDescriptionShort:
           'Slack staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
@@ -456,7 +419,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Inbox',
-        comingSoon: false,
         competitorDescriptionShort:
           'Slack separates notifs into individual channels, threads, and DMs within individual communities.',
         commDescriptionShort:
@@ -471,7 +433,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Communities',
-        comingSoon: false,
         competitorDescriptionShort:
           'Slack supports communities with a flat list of channels.',
         commDescriptionShort:
@@ -486,7 +447,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notifications',
-        comingSoon: false,
         competitorDescriptionShort:
           'Slack has a single function to mute notifs from a chat.',
         commDescriptionShort:
@@ -500,7 +460,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Badging',
-        comingSoon: false,
         competitorDescriptionShort:
           'Slack’s unread count is based on the number of unread messages.',
         commDescriptionShort:
@@ -514,7 +473,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Unified account',
-        comingSoon: false,
         competitorDescriptionShort:
           'Your identity on Slack is specific to a community.',
         commDescriptionShort:
@@ -535,7 +493,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
     featureComparison: [
       {
         title: 'Encryption',
-        comingSoon: false,
         competitorDescriptionShort:
           'Outside of rarely-used “Secret Chats”, Telegram staff is able to read the contents of all messages sent on the app.',
         commDescriptionShort:
@@ -554,7 +511,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Communities',
-        comingSoon: false,
         competitorDescriptionShort:
           'Telegram has a Topics feature for group chats, but communities aren’t a top-level concept.',
         commDescriptionShort:
@@ -572,7 +528,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Notifications',
-        comingSoon: false,
         competitorDescriptionShort:
           'Telegram has a single function to mute notifs from a chat.',
         commDescriptionShort:
@@ -586,7 +541,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Noisy chats',
-        comingSoon: false,
         competitorDescriptionShort:
           'Telegram has a Chat Folders feature, but it’s not easy to move a noisy chat out of your inbox.',
         commDescriptionShort:
@@ -600,7 +554,6 @@ const competitorData: { +[key: string]: Competitor } = Object.freeze({
       },
       {
         title: 'Badging',
-        comingSoon: false,
         competitorDescriptionShort:
           'Telegram’s unread count is based on the number of unread messages.',
         commDescriptionShort:

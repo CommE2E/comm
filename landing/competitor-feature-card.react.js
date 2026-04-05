@@ -11,7 +11,6 @@ import typography from './typography.css';
 type Props = {
   +competitorID: Competitors,
   +title: string,
-  +comingSoon: boolean,
   +competitorDescription: string,
   +commDescription: string,
   +onClick: () => mixed,
@@ -21,7 +20,6 @@ function CompetitorFeatureCard(props: Props): React.Node {
   const {
     competitorID,
     title,
-    comingSoon,
     competitorDescription,
     commDescription,
     onClick,
@@ -37,7 +35,6 @@ function CompetitorFeatureCard(props: Props): React.Node {
       <CompetitorFeature
         competitorID={competitorID}
         title={title}
-        comingSoon={comingSoon}
         competitorDescription={competitorDescription}
         commDescription={commDescription}
         descriptionTextClassName={css.descriptionText}

@@ -36,7 +36,6 @@ function DifferentiationInfo(): React.Node {
           key={`${generalCompetitorData.id}_${feature.title}`}
           competitorID={generalCompetitorData.id}
           title={feature.title}
-          comingSoon={feature.comingSoon}
           competitorDescription={feature.competitorDescriptionShort}
           commDescription={feature.commDescriptionShort}
           onClick={() => onFeatureCardClick(feature)}
