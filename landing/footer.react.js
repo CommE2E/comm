@@ -1,6 +1,7 @@
 // @flow
 
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
@@ -43,6 +44,20 @@ function Footer(): React.Node {
             >
               Keyservers
             </NavLink>
+            <a
+              href="https://dh9fld3hutpxf.cloudfront.net/whitepaper.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className={navLinkClassName}
+              type="application/pdf"
+            >
+              Whitepaper
+              <FontAwesomeIcon
+                size="sm"
+                className={css.navLinkIcons}
+                icon={faExternalLinkAlt}
+              />
+            </a>
             <NavLink
               to="/support"
               exact
