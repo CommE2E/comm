@@ -65,7 +65,7 @@ function Header(props: Props): React.Node {
             className={navLinkClassName}
             activeClassName={css.activeTab}
           >
-            Keyserver
+            Keyservers
           </NavLink>
           <a
             href="https://dh9fld3hutpxf.cloudfront.net/whitepaper.pdf"

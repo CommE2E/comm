@@ -42,7 +42,7 @@ function MobileNav(props: Props): React.Node {
           activeClassName={css.activeTab}
         >
           <div onClick={dismissMobileNav} className={css.tabContent}>
-            Keyserver
+            Keyservers
           </div>
         </NavLink>
       </div>
