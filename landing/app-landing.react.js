@@ -19,7 +19,7 @@ const differentiationInfo = DISABLE_DIFFERENTIATION_INFO ? null : (
 function AppLanding(): React.Node {
   usePreloadImageAssets(imageAssetMetaData);
   const [hero] = imageAssetMetaData;
-  const [keyserver, team] = assetMetaData;
+  const [keyserver] = assetMetaData;
 
   return (
     <main>
@@ -27,7 +27,6 @@ function AppLanding(): React.Node {
       <CompetitorComparison />
       {differentiationInfo}
       <InfoBlock {...keyserver} />
-      <InfoBlock {...team} />
       <RequestAccess />
     </main>
   );

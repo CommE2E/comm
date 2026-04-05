@@ -52,14 +52,6 @@ function Footer(): React.Node {
               Support
             </NavLink>
             <NavLink
-              to="/team"
-              exact
-              {...navLinkProps}
-              className={navLinkClassName}
-            >
-              Team
-            </NavLink>
-            <NavLink
               to="/investors"
               exact
               {...navLinkProps}

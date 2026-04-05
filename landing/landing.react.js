@@ -22,7 +22,6 @@ import Privacy from './privacy.react.js';
 import QR from './qr.react.js';
 import SIWE from './siwe.react.js';
 import Support from './support.react.js';
-import Team from './team.react.js';
 import Terms from './terms.react.js';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react.js';
 import './reset.css';
@@ -99,7 +98,6 @@ function LandingSite(): React.Node {
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onQR = useRouteMatch({ path: '/qr' });
-  const onTeam = useRouteMatch({ path: '/team' });
   const onInvestors = useRouteMatch({ path: '/investors' });
   const onDownload = useRouteMatch({ path: '/download' });
 
@@ -114,8 +112,6 @@ function LandingSite(): React.Node {
       return <Keyservers />;
     } else if (onQR) {
       return <QR />;
-    } else if (onTeam) {
-      return <Team />;
     } else if (onInvestors) {
       return <Investors />;
     } else if (onDownload) {
@@ -129,7 +125,6 @@ function LandingSite(): React.Node {
     onSupport,
     onKeyservers,
     onQR,
-    onTeam,
     onInvestors,
     onDownload,
   ]);
