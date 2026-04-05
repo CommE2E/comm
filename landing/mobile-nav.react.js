@@ -36,6 +36,18 @@ function MobileNav(props: Props): React.Node {
     <nav className={mobileNavClassName}>
       <div className={css.tabContainer}>
         <NavLink
+          to="/story"
+          exact
+          className={navLinkClassName}
+          activeClassName={css.activeTab}
+        >
+          <div onClick={dismissMobileNav} className={css.tabContent}>
+            Story
+          </div>
+        </NavLink>
+      </div>
+      <div className={css.tabContainer}>
+        <NavLink
           to="/keyservers"
           exact
           className={navLinkClassName}

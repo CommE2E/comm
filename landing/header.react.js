@@ -68,6 +68,14 @@ function Header(props: Props): React.Node {
         </div>
         <div className={css.pageNav}>
           <NavLink
+            to="/story"
+            exact
+            className={navLinkClassName}
+            activeClassName={css.activeTab}
+          >
+            Story
+          </NavLink>
+          <NavLink
             to="/keyservers"
             exact
             className={navLinkClassName}
