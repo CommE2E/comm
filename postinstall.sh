@@ -19,10 +19,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     export BUNDLE_TIMEOUT="${BUNDLE_TIMEOUT:-30}"
     export IPV4_FALLBACK_ENABLED="${IPV4_FALLBACK_ENABLED:-true}"
     export MACOSX_DEPLOYMENT_TARGET=''
-    DEVELOPER_DIR=$(/usr/bin/xcode-select -p)
-    export DEVELOPER_DIR
 
     bundle install
+
+    DEVELOPER_DIR=$(/usr/bin/xcode-select -p)
+    export DEVELOPER_DIR
 
     pod_install_exit_code=0
     bundle exec pod install --deployment || pod_install_exit_code=$?
