@@ -58,37 +58,4 @@ export const assetMetaData: $ReadOnlyArray<Asset> = [
     navLinkDestination: '/keyservers',
     linkTextContent: 'Learn more about keyservers',
   },
-  {
-    containerClassName: css.teamInfo,
-    colorHeader: false,
-    headerTextContent: 'Our story and vision',
-    infoBlockContent: (
-      <>
-        <p className={paragraphClassName}>
-          <span>Comm was founded by&nbsp;</span>
-          <a
-            href="https://ashoat.com/"
-            target="_blank"
-            rel="noreferrer"
-            className={css.link}
-          >
-            Ashoat
-          </a>
-          <span>
-            &nbsp;after his experiences trying to add E2E encryption to a social
-            calendaring app exposed the limits of contemporary cryptographic
-            approaches. He realized why E2E apps were so limited in
-            functionality: the lack of a server layer meant that everything had
-            to be done on a phone.
-          </span>
-        </p>
-        <p className={paragraphClassName}>
-          Comm&rsquo;s vision is a world where people own their own data. We
-          believe that in the future, everybody will have a server.
-        </p>
-      </>
-    ),
-    navLinkDestination: '/team',
-    linkTextContent: 'Learn more about our team',
-  },
 ];
