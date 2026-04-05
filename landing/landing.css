@@ -38,6 +38,12 @@
   background-color: var(--light-dark-page-background);
 }
 
+.storyInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .paragraph {
   color: var(--white-100);
   padding-bottom: 24px;
