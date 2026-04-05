@@ -84,18 +84,34 @@ post_install do |installer|
     end
   end
 
-  # Fix for fmt library compatibility with Xcode 26
-  # Add missing #include <utility> for std::declval
+  # Fixes for fmt library compatibility with Xcode 26
   fmt_base_path = "#{installer.sandbox.pod_dir('fmt')}/include/fmt/base.h"
   if File.exist?(fmt_base_path)
     content = File.read(fmt_base_path)
+    updated = false
+
+    # Add missing #include <utility> for std::declval
     unless content.include?('#  include <utility>      // std::declval')
       content.gsub!(
         '#  include <type_traits>  // std::enable_if',
         "#  include <type_traits>  // std::enable_if\n#  include <utility>      // std::declval"
       )
+      updated = true
+    end
+
+    # Xcode 26.4's Apple clang rejects fmt 11.0.2 consteval formatting
+    unless content.include?('__apple_build_version__ >= 21000099L')
+      content.gsub!(
+        "#elif FMT_MSC_VERSION && FMT_MSC_VERSION < 1929\n#  define FMT_USE_CONSTEVAL 0  // consteval is broken in MSVC VS2019 < 16.10.",
+        "#elif defined(__apple_build_version__) && __apple_build_version__ >= 21000099L\n#  define FMT_USE_CONSTEVAL 0  // consteval breaks in Apple clang shipped with Xcode 26.4+.\n#elif FMT_MSC_VERSION && FMT_MSC_VERSION < 1929\n#  define FMT_USE_CONSTEVAL 0  // consteval is broken in MSVC VS2019 < 16.10."
+      )
+      updated = true
+    end
+
+    if updated
+      File.chmod(0644, fmt_base_path) unless File.writable?(fmt_base_path)
       File.write(fmt_base_path, content)
-      puts "Applied fmt/base.h fix for Xcode 26 compatibility"
+      puts "Applied fmt/base.h fixes for Xcode 26 compatibility"
     end
   end
 end
