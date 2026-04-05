@@ -67,14 +67,6 @@ function Header(props: Props): React.Node {
           >
             Keyserver
           </NavLink>
-          <NavLink
-            to="/investors"
-            exact
-            className={navLinkClassName}
-            activeClassName={css.activeTab}
-          >
-            Investors
-          </NavLink>
         </div>
         <div className={css.socialIconsContainer}>
           <NavLink
