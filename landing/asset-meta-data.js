@@ -50,8 +50,8 @@ export const assetMetaData: $ReadOnlyArray<Asset> = [
         </p>
         <p className={paragraphClassName}>
           But what if people had their own servers? Keyservers enable Comm to
-          offer the best of both worlds: Signal-level privacy with a
-          Telegram-level feature set.
+          offer the best of both worlds: Signal-level privacy with a Slack-level
+          feature set.
         </p>
       </>
     ),

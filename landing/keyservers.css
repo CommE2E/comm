@@ -16,7 +16,7 @@ span.purpleGradient {
 
 .heroSection,
 .serversSection,
-.keyserverCompanySection {
+.keyserverVisionSection {
   display: flex;
   padding: 120px 32px;
   justify-content: center;
@@ -32,7 +32,7 @@ span.purpleGradient {
 
 .heroContainer,
 .serversContainer,
-.keyserverCompanyContainer {
+.keyserverVisionContainer {
   display: flex;
   width: 1376px;
   max-width: 90vw;
@@ -64,31 +64,22 @@ span.purpleGradient {
   padding-left: 72px;
 }
 
-.readTheDocs {
-  width: 100%;
-  align-self: flex-end;
-  margin-bottom: 24px;
-  margin-left: 112px;
+.keyserverVisionContainer {
+  justify-content: center;
+}
+
+.keyserverVisionCopy {
+  max-width: 980px;
+  text-align: center;
 }
 
 @media (max-width: 1440px) {
-  .serversContainer,
-  .keyserverCompanyContainer {
+  .serversContainer {
     flex-direction: column;
   }
 
   .serversCopy {
     padding-left: 0;
     margin-top: 64px;
-  }
-
-  .keyserverCompanyCopy {
-    margin-bottom: 48px;
-  }
-
-  .readTheDocs {
-    max-width: 504px;
-    align-self: flex-start;
-    margin: 0;
   }
 }

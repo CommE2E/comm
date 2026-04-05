@@ -9,7 +9,6 @@ import { useIsomorphicLayoutEffect } from 'lib/hooks/isomorphic-layout-effect.re
 import { assetsCacheURLPrefix } from './asset-meta-data.js';
 import KeyserverFAQ from './keyserver-faq.react.js';
 import css from './keyservers.css';
-import ReadDocsButton from './read-docs-btn.react.js';
 import RequestAccess from './request-access.react.js';
 import typography from './typography.css';
 
@@ -133,26 +132,17 @@ function Keyservers(): React.Node {
           </div>
         </div>
       </section>
-      <section className={css.keyserverCompanySection}>
-        <div className={css.keyserverCompanyContainer}>
-          <div className={css.keyserverCompanyCopy}>
+      <section className={css.keyserverVisionSection}>
+        <div className={css.keyserverVisionContainer}>
+          <div className={css.keyserverVisionCopy}>
             <h1 className={headingClassName}>
-              Comm is the
-              <span className={css.purpleGradient}> keyserver </span>
-              company.
+              Your keyserver is your personal server.
             </h1>
             <p className={descriptionClassName}>
-              In the future, people have their own servers.
+              Comm communities are hosted on personal servers that we call
+              keyservers. Our vision is for your keyserver to be a sovereign
+              backend for your digital life and personal AI agents.
             </p>
-            <p className={descriptionClassName}>
-              Your keyserver is the home of your digital identity. It owns your
-              private keys and your personal data. It&rsquo;s your password
-              manager, your crypto bank, your digital surrogate, and your second
-              brain.
-            </p>
-          </div>
-          <div className={css.readTheDocs}>
-            <ReadDocsButton />
           </div>
         </div>
       </section>
