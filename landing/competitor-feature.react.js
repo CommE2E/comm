@@ -1,7 +1,5 @@
 // @flow
 
-import { faWrench } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
@@ -37,7 +35,6 @@ function useDescriptionContent(
 type Props = {
   +competitorID: Competitors,
   +title: string,
-  +comingSoon: boolean,
   +competitorDescription: string | $ReadOnlyArray<string>,
   +commDescription: string | $ReadOnlyArray<string>,
   +descriptionTextClassName?: string,
@@ -47,17 +44,12 @@ function CompetitorFeature(props: Props): React.Node {
   const {
     competitorID,
     title,
-    comingSoon,
     competitorDescription,
     commDescription,
     descriptionTextClassName = '',
   } = props;
 
   const headingClassName = classNames([typography.heading3, css.headingText]);
-  const comingSoonClassName = classNames([
-    typography.paragraph3,
-    css.comingSoonText,
-  ]);
   const descriptionClassName = classNames([
     typography.paragraph1,
     css.descriptionText,
@@ -68,20 +60,6 @@ function CompetitorFeature(props: Props): React.Node {
     css.descriptionTextMutli,
     descriptionTextClassName,
   ]);
-
-  let comingSoonBadge;
-  if (comingSoon) {
-    comingSoonBadge = (
-      <div className={css.comingSoonBadge}>
-        <FontAwesomeIcon
-          size="sm"
-          className={css.comingSoonIcon}
-          icon={faWrench}
-        />
-        <span className={comingSoonClassName}>Coming Soon</span>
-      </div>
-    );
-  }
 
   const competitorInfo = useDescriptionContent(
     competitorDescription,
@@ -98,7 +76,6 @@ function CompetitorFeature(props: Props): React.Node {
     <div className={css.container}>
       <div className={css.headingContainer}>
         <p className={headingClassName}>{title}</p>
-        {comingSoonBadge}
       </div>
       <CommLogo size={30} />
       {commInfo}
