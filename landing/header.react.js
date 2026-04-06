@@ -1,6 +1,6 @@
 // @flow
 
-import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import {
   faExternalLinkAlt,
   faBars,
@@ -14,7 +14,6 @@ import { NavLink } from 'react-router-dom';
 
 import type { SetState } from 'lib/types/hook-types.js';
 
-import FarcasterLogo from './assets/farcaster-logo.react.js';
 import css from './header.css';
 import typography from './typography.css';
 
@@ -132,28 +131,6 @@ function Header(props: Props): React.Node {
               size="sm"
             />
           </div>
-          <a
-            href="https://warpcast.com/comm.eth"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div className={css.farcasterIcon}>
-              <FarcasterLogo size={30} className={css.icon} />
-            </div>
-          </a>
-          <a
-            href="https://twitter.com/commdotapp"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div className={css.twitterIcon}>
-              <FontAwesomeIcon
-                icon={faTwitter}
-                className={css.icon}
-                size="sm"
-              />
-            </div>
-          </a>
         </div>
       </div>
     </nav>

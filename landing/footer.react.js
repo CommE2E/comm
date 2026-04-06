@@ -1,6 +1,6 @@
 // @flow
 
-import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
@@ -76,17 +76,6 @@ function Footer(): React.Node {
             </NavLink>
           </div>
           <div className={css.socialIconsContainer}>
-            <a
-              href="https://twitter.com/commdotapp"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <FontAwesomeIcon
-                size="lg"
-                className={css.socialIcons}
-                icon={faTwitter}
-              />
-            </a>
             <a
               href="https://github.com/CommE2E/comm"
               target="_blank"
