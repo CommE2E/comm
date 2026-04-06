@@ -19,7 +19,6 @@ import Keyservers from './keyservers.react.js';
 import css from './landing.css';
 import MobileNav from './mobile-nav.react.js';
 import Privacy from './privacy.react.js';
-import QR from './qr.react.js';
 import SIWE from './siwe.react.js';
 import Story from './story.react.js';
 import Support from './support.react.js';
@@ -102,7 +101,7 @@ function LandingSite(): React.Node {
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onLegacySupportersPath = useRouteMatch({ path: '/investors' });
   const onBeta = useRouteMatch({ path: '/beta' });
-  const onQR = useRouteMatch({ path: '/qr' });
+  const onLegacyQRPath = useRouteMatch({ path: '/qr' });
   const onSupporters = useRouteMatch({ path: '/supporters' });
   const onDownload = useRouteMatch({ path: '/download' });
 
@@ -121,8 +120,8 @@ function LandingSite(): React.Node {
       return <Redirect to="/supporters" />;
     } else if (onBeta) {
       return <Beta />;
-    } else if (onQR) {
-      return <QR />;
+    } else if (onLegacyQRPath) {
+      return <Redirect to="/" />;
     } else if (onSupporters) {
       return <Supporters />;
     } else if (onDownload) {
@@ -138,37 +137,25 @@ function LandingSite(): React.Node {
     onKeyservers,
     onLegacySupportersPath,
     onBeta,
-    onQR,
+    onLegacyQRPath,
     onSupporters,
     onDownload,
   ]);
 
-  let header;
-  if (!onQR) {
-    header = (
-      <Header
-        showMobileNav={showMobileNav}
-        setShowMobileNav={setShowMobileNav}
-      />
-    );
-  }
-
-  let footer;
-  if (!onQR) {
-    footer = <Footer />;
-  }
-
   return (
     <div className={css.container}>
       <div className={innerContainerClassName}>
-        {header}
+        <Header
+          showMobileNav={showMobileNav}
+          setShowMobileNav={setShowMobileNav}
+        />
         <div className={css.pageContentContainer}>
           <MobileNav
             showMobileNav={showMobileNav}
             setShowMobileNav={setShowMobileNav}
           />
           {activePage}
-          {footer}
+          <Footer />
           {modals}
         </div>
       </div>
