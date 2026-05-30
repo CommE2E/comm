@@ -269,10 +269,14 @@ function useFetchAndDecryptMedia(): (
   const { getAuthMetadata } = identityContext;
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
+  const getAuthMetadataRef = React.useRef(getAuthMetadata);
+  getAuthMetadataRef.current = getAuthMetadata;
+  const invalidTokenLogOutRef = React.useRef(invalidTokenLogOut);
+  invalidTokenLogOutRef.current = invalidTokenLogOut;
 
   return React.useCallback(
     async (blobURI, encryptionKey) => {
-      const authMetadata = await getAuthMetadata();
+      const authMetadata = await getAuthMetadataRef.current();
       const output = await fetchAndDecryptMedia(
         blobURI,
         encryptionKey,
@@ -280,11 +284,11 @@ function useFetchAndDecryptMedia(): (
       );
 
       if (!output.result.success && output.result.reason === 'invalid_csat') {
-        void invalidTokenLogOut('fetch_and_decrypt_media');
+        void invalidTokenLogOutRef.current('fetch_and_decrypt_media');
       }
       return output;
     },
-    [getAuthMetadata, invalidTokenLogOut],
+    [],
   );
 }
 
