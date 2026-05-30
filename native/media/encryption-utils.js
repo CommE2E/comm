@@ -419,29 +419,30 @@ function useFetchAndDecryptMedia(): (
   const { getAuthMetadata } = identityContext;
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
+  const getAuthMetadataRef = React.useRef(getAuthMetadata);
+  getAuthMetadataRef.current = getAuthMetadata;
+  const invalidTokenLogOutRef = React.useRef(invalidTokenLogOut);
+  invalidTokenLogOutRef.current = invalidTokenLogOut;
 
-  return React.useCallback(
-    async (blobURI, encryptionKey, options) => {
-      let authMetadata;
-      try {
-        authMetadata = await getAuthMetadata();
-      } catch (err) {
-        console.warn('Failed to get auth metadata:', err);
-      }
-      const output = await fetchAndDecryptMedia(
-        blobURI,
-        encryptionKey,
-        authMetadata,
-        options,
-      );
+  return React.useCallback(async (blobURI, encryptionKey, options) => {
+    let authMetadata;
+    try {
+      authMetadata = await getAuthMetadataRef.current();
+    } catch (err) {
+      console.warn('Failed to get auth metadata:', err);
+    }
+    const output = await fetchAndDecryptMedia(
+      blobURI,
+      encryptionKey,
+      authMetadata,
+      options,
+    );
 
-      if (!output.result.success && output.result.reason === 'invalid_csat') {
-        void invalidTokenLogOut('fetch_and_decrypt_media');
-      }
-      return output;
-    },
-    [getAuthMetadata, invalidTokenLogOut],
-  );
+    if (!output.result.success && output.result.reason === 'invalid_csat') {
+      void invalidTokenLogOutRef.current('fetch_and_decrypt_media');
+    }
+    return output;
+  }, []);
 }
 
 function encryptBase64(
