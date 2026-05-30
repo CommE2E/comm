@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
+import { useStableCallback } from 'lib/hooks/stable-callback.js';
 import { uintArrayToHexString, hexToUintArray } from 'lib/media/data-utils.js';
 import {
   replaceExtension,
@@ -419,9 +420,12 @@ function useFetchAndDecryptMedia(): (
   const { getAuthMetadata } = identityContext;
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
-
-  return React.useCallback(
-    async (blobURI, encryptionKey, options) => {
+  return useStableCallback(
+    async (
+      blobURI: string,
+      encryptionKey: string,
+      options: FetchAndDecryptMediaOptions,
+    ) => {
       let authMetadata;
       try {
         authMetadata = await getAuthMetadata();
@@ -440,7 +444,6 @@ function useFetchAndDecryptMedia(): (
       }
       return output;
     },
-    [getAuthMetadata, invalidTokenLogOut],
   );
 }
 
