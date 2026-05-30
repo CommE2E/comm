@@ -5,6 +5,7 @@ import * as React from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
 import { useInvalidCSATLogOut } from 'lib/actions/user-actions.js';
+import { useStableCallback } from 'lib/hooks/stable-callback.js';
 import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
@@ -269,9 +270,8 @@ function useFetchAndDecryptMedia(): (
   const { getAuthMetadata } = identityContext;
 
   const invalidTokenLogOut = useInvalidCSATLogOut();
-
-  return React.useCallback(
-    async (blobURI, encryptionKey) => {
+  return useStableCallback(
+    async (blobURI: string, encryptionKey: string) => {
       const authMetadata = await getAuthMetadata();
       const output = await fetchAndDecryptMedia(
         blobURI,
@@ -284,7 +284,6 @@ function useFetchAndDecryptMedia(): (
       }
       return output;
     },
-    [getAuthMetadata, invalidTokenLogOut],
   );
 }
 
