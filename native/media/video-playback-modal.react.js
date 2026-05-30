@@ -75,16 +75,22 @@ function VideoPlaybackModal(props: Props): React.Node {
   const mediaCache = React.useContext(MediaCacheContext);
   const fetchAndDecryptMedia = useFetchAndDecryptMedia();
 
+  let encryptedBlobURI: ?string, encryptedEncryptionKey: ?string;
+  if (
+    mediaInfo.type === 'encrypted_photo' ||
+    mediaInfo.type === 'encrypted_video'
+  ) {
+    const { index, ...rest } = mediaInfo;
+    encryptedBlobURI = encryptedMediaBlobURI(rest);
+    encryptedEncryptionKey = mediaInfo.encryptionKey;
+  }
+
   React.useEffect(() => {
-    if (
-      mediaInfo.type !== 'encrypted_photo' &&
-      mediaInfo.type !== 'encrypted_video'
-    ) {
+    const blobURI = encryptedBlobURI;
+    const encryptionKey = encryptedEncryptionKey;
+    if (!blobURI || !encryptionKey) {
       return undefined;
     }
-    const { index, ...rest } = mediaInfo;
-    const blobURI = encryptedMediaBlobURI(rest);
-    const { encryptionKey } = mediaInfo;
 
     let isMounted = true;
     let uriToDispose;
@@ -123,7 +129,12 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [mediaInfo, mediaCache, fetchAndDecryptMedia]);
+  }, [
+    encryptedBlobURI,
+    encryptedEncryptionKey,
+    mediaCache,
+    fetchAndDecryptMedia,
+  ]);
 
   const closeButtonX = useSharedValue(-1);
   const closeButtonY = useSharedValue(-1);
