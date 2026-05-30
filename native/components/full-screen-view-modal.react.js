@@ -37,7 +37,7 @@ import {
 
 import { type Dimensions } from 'lib/types/media-types.js';
 
-import SWMansionIcon from './swmansion-icon.react.js';
+import FullScreenMediaActionButton from './full-screen-media-action-button.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -723,28 +723,24 @@ function FullScreenViewModal(props: Props) {
   let saveButton;
   if (saveContentCallback) {
     saveButton = (
-      <TouchableOpacity
+      <FullScreenMediaActionButton
+        iconName="save"
+        label="Save"
         onPress={saveContentCallback}
         disabled={!actionLinksEnabled}
-        style={styles.mediaIconButtons}
-      >
-        <SWMansionIcon name="save" style={styles.mediaIcon} />
-        <Text style={styles.mediaIconText}>Save</Text>
-      </TouchableOpacity>
+      />
     );
   }
 
   let copyButton;
   if (copyContentCallback) {
     copyButton = (
-      <TouchableOpacity
+      <FullScreenMediaActionButton
+        iconName="copy"
+        label="Copy"
         onPress={copyContentCallback}
         disabled={!actionLinksEnabled}
-        style={styles.mediaIconButtons}
-      >
-        <SWMansionIcon name="copy" style={styles.mediaIcon} />
-        <Text style={styles.mediaIconText}>Copy</Text>
-      </TouchableOpacity>
+      />
     );
   }
 
@@ -839,27 +835,6 @@ const styles = StyleSheet.create({
   },
   fill: {
     flex: 1,
-  },
-  mediaIcon: {
-    color: '#D7D7DC',
-    fontSize: 36,
-    textShadowColor: '#1C1C1E',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
-  },
-  mediaIconButtons: {
-    alignItems: 'center',
-    paddingBottom: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 2,
-  },
-  mediaIconText: {
-    color: '#D7D7DC',
-    fontSize: 14,
-    textShadowColor: '#1C1C1E',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
   },
   mediaIconsContainer: {
     bottom: 8,
