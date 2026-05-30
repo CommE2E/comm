@@ -27,6 +27,10 @@ import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
 import { useFetchAndDecryptMedia } from './encryption-utils.js';
+import {
+  useIntentionalSaveMedia,
+  type IntentionalSaveMediaIDs,
+} from './save-media.js';
 import { formatDuration } from './video-utils.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -65,12 +69,24 @@ type Props = {
   +route: NavigationRoute<'VideoPlaybackModal'>,
 };
 function VideoPlaybackModal(props: Props): React.Node {
-  const { mediaInfo } = props.route.params;
+  const { mediaInfo, item } = props.route.params;
 
   const { uri: videoURI } = mediaInfo;
   const [videoSource, setVideoSource] = React.useState(
     videoURI ? { uri: videoURI } : undefined,
   );
+
+  const intentionalSaveMedia = useIntentionalSaveMedia();
+  const messageInfo = item?.messageInfo;
+  const onPressSave = React.useCallback(() => {
+    const uploadID = mediaInfo.id;
+    let ids: ?IntentionalSaveMediaIDs;
+    if (messageInfo) {
+      const { id: messageServerID, localID: messageLocalID } = messageInfo;
+      ids = { uploadID, messageServerID, messageLocalID };
+    }
+    return intentionalSaveMedia(mediaInfo, ids);
+  }, [intentionalSaveMedia, messageInfo, mediaInfo]);
 
   const mediaCache = React.useContext(MediaCacheContext);
   const fetchAndDecryptMedia = useFetchAndDecryptMedia();
@@ -549,6 +565,13 @@ function VideoPlaybackModal(props: Props): React.Node {
               <Text style={styles.durationText}>
                 {timeElapsed} / {totalDuration}
               </Text>
+              <TouchableOpacity
+                onPress={onPressSave}
+                style={styles.saveButton}
+                accessibilityLabel="Save video"
+              >
+                <Icon name="download" size={28} style={styles.iconButton} />
+              </TouchableOpacity>
             </View>
           </View>
         </SafeAreaView>
@@ -632,6 +655,11 @@ const unboundStyles = {
     top: 0,
   },
   playPauseButton: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveButton: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
