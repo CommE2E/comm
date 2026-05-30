@@ -151,12 +151,31 @@ type HlsVideoProps = {
   +multimediaClassName?: string,
 };
 
+function sourceURIFromVideoJsOptions(options: VideoJsOptions): ?string {
+  const { sources, src } = options;
+  if (sources && sources.length > 0) {
+    return sources[0].src;
+  }
+  return src;
+}
+
+function updatePlayerSource(player: Player, options: VideoJsOptions) {
+  const { sources, src } = options;
+  if (sources && sources.length > 0) {
+    player.src(sources);
+  } else if (src) {
+    player.src(src);
+  }
+}
+
 function HlsVideo(props: HlsVideoProps): React.Node {
   const containerRef = React.useRef<?HTMLDivElement>(null);
   const playerRef = React.useRef<?Player>(null);
+  const sourceURIRef = React.useRef<?string>(null);
   const { options, onReady, multimediaClassName } = props;
 
   React.useEffect(() => {
+    const sourceURI = sourceURIFromVideoJsOptions(options);
     if (!playerRef.current) {
       const videoElement: Element = document.createElement('video-js');
       containerRef.current?.appendChild(videoElement);
@@ -165,11 +184,15 @@ function HlsVideo(props: HlsVideoProps): React.Node {
         onReady?.(player);
       });
       playerRef.current = player;
+      sourceURIRef.current = sourceURI;
     } else {
       const player = playerRef.current;
 
       player.autoplay(options.autoplay);
-      player.src(options.sources);
+      if (sourceURI !== sourceURIRef.current) {
+        updatePlayerSource(player, options);
+        sourceURIRef.current = sourceURI;
+      }
       player.loop(options.loop);
       options.poster && player.poster(options.poster);
     }
