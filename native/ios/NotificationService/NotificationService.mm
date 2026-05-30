@@ -468,6 +468,7 @@ std::string joinStrings(
   localNotifContent.title = content.title;
   localNotifContent.body = content.body;
   localNotifContent.badge = content.badge;
+  localNotifContent.sound = content.sound;
   localNotifContent.userInfo = content.userInfo;
 
   UNNotificationRequest *localNotifRequest =
