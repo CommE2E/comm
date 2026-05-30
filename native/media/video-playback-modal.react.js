@@ -27,7 +27,12 @@ import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
 import { useFetchAndDecryptMedia } from './encryption-utils.js';
+import {
+  useIntentionalSaveMedia,
+  type IntentionalSaveMediaIDs,
+} from './save-media.js';
 import { formatDuration } from './video-utils.js';
+import { FullScreenMediaActionButton } from '../components/full-screen-media-action-button.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -65,12 +70,24 @@ type Props = {
   +route: NavigationRoute<'VideoPlaybackModal'>,
 };
 function VideoPlaybackModal(props: Props): React.Node {
-  const { mediaInfo } = props.route.params;
+  const { mediaInfo, item } = props.route.params;
 
   const { uri: videoURI } = mediaInfo;
   const [videoSource, setVideoSource] = React.useState(
     videoURI ? { uri: videoURI } : undefined,
   );
+
+  const intentionalSaveMedia = useIntentionalSaveMedia();
+  const messageInfo = item?.messageInfo;
+  const onPressSave = React.useCallback(() => {
+    const uploadID = mediaInfo.id;
+    let ids: ?IntentionalSaveMediaIDs;
+    if (messageInfo) {
+      const { id: messageServerID, localID: messageLocalID } = messageInfo;
+      ids = { uploadID, messageServerID, messageLocalID };
+    }
+    return intentionalSaveMedia(mediaInfo, ids);
+  }, [intentionalSaveMedia, messageInfo, mediaInfo]);
 
   const mediaCache = React.useContext(MediaCacheContext);
   const fetchAndDecryptMedia = useFetchAndDecryptMedia();
@@ -196,6 +213,36 @@ function VideoPlaybackModal(props: Props): React.Node {
     footerHeight,
   ]);
 
+  const saveButtonX = useSharedValue(-1);
+  const saveButtonY = useSharedValue(-1);
+  const saveButtonWidth = useSharedValue(-1);
+  const saveButtonHeight = useSharedValue(-1);
+  const saveButtonRef = React.useRef<?React.ElementRef<typeof View>>();
+  const saveButton = saveButtonRef.current;
+  const onSaveButtonLayoutCalledRef = React.useRef(false);
+  const onSaveButtonLayout = React.useCallback(() => {
+    onSaveButtonLayoutCalledRef.current = true;
+  }, []);
+  const onSaveButtonLayoutCalled = onSaveButtonLayoutCalledRef.current;
+  React.useEffect(() => {
+    if (!saveButton || !onSaveButtonLayoutCalled) {
+      return;
+    }
+    saveButton.measure((x, y, width, height, pageX, pageY) => {
+      saveButtonX.value = pageX;
+      saveButtonY.value = pageY;
+      saveButtonWidth.value = width;
+      saveButtonHeight.value = height;
+    });
+  }, [
+    saveButton,
+    onSaveButtonLayoutCalled,
+    saveButtonX,
+    saveButtonY,
+    saveButtonWidth,
+    saveButtonHeight,
+  ]);
+
   const controlsShowing = useSharedValue<boolean>(true);
   const outsideButtons = React.useCallback(
     (x: number, y: number) => {
@@ -213,7 +260,12 @@ function VideoPlaybackModal(props: Props): React.Node {
         x > footerX.value + footerWidth.value ||
         y < footerY.value ||
         y > footerY.value + footerHeight.value;
-      return isOutsideCloseButton && isOutsideFooter;
+      const isOutsideSaveButton =
+        x < saveButtonX.value ||
+        x > saveButtonX.value + saveButtonWidth.value ||
+        y < saveButtonY.value ||
+        y > saveButtonY.value + saveButtonHeight.value;
+      return isOutsideCloseButton && isOutsideFooter && isOutsideSaveButton;
     },
     [
       closeButtonHeight,
@@ -225,6 +277,10 @@ function VideoPlaybackModal(props: Props): React.Node {
       footerWidth,
       footerX,
       footerY,
+      saveButtonHeight,
+      saveButtonWidth,
+      saveButtonX,
+      saveButtonY,
     ],
   );
 
@@ -534,6 +590,19 @@ function VideoPlaybackModal(props: Props): React.Node {
               </View>
             </View>
             <View
+              style={styles.saveButton}
+              ref={saveButtonRef}
+              onLayout={onSaveButtonLayout}
+            >
+              <FullScreenMediaActionButton
+                iconName="save"
+                label="Save"
+                onPress={onPressSave}
+                disabled={!controlsEnabled}
+                accessibilityLabel="Save video"
+              />
+            </View>
+            <View
               style={styles.footer}
               ref={footerRef}
               onLayout={onFooterLayout}
@@ -646,6 +715,11 @@ const unboundStyles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  saveButton: {
+    position: 'absolute',
+    left: 16,
+    top: 8,
   },
   closeButton: {
     paddingTop: 10,
