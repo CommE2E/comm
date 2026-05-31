@@ -714,9 +714,8 @@ const unboundStyles = {
     paddingTop: 10,
     paddingRight: 20,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flexDirection: 'row',
-    height: 100,
   },
   progressBar: {
     flex: 1,
