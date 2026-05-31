@@ -707,8 +707,8 @@ const unboundStyles = {
   },
   saveButton: {
     position: 'absolute',
-    bottom: 84,
-    right: 16,
+    left: 16,
+    top: 8,
   },
   closeButton: {
     paddingTop: 10,
