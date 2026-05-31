@@ -2,13 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -37,7 +31,9 @@ import {
 
 import { type Dimensions } from 'lib/types/media-types.js';
 
-import FullScreenMediaActionButton from './full-screen-media-action-button.react.js';
+import FullScreenMediaActionButton, {
+  FullScreenTextActionButton,
+} from './full-screen-media-action-button.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -778,14 +774,14 @@ function FullScreenViewModal(props: Props) {
               <Animated.View
                 style={[styles.closeButtonContainer, animatedCloseButtonStyle]}
               >
-                <TouchableOpacity
-                  onPress={close}
-                  disabled={!closeButtonEnabled}
-                  onLayout={onCloseButtonLayout}
-                  ref={closeButtonRef}
-                >
-                  <Text style={styles.closeButton}>×</Text>
-                </TouchableOpacity>
+                <View onLayout={onCloseButtonLayout} ref={closeButtonRef}>
+                  <FullScreenTextActionButton
+                    text="×"
+                    onPress={close}
+                    disabled={!closeButtonEnabled}
+                    accessibilityLabel="Close"
+                  />
+                </View>
               </Animated.View>
               {mediaActionButtons}
             </View>
@@ -811,15 +807,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
-  },
-  closeButton: {
-    color: 'white',
-    fontSize: 36,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    textShadowColor: '#000',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
   },
   closeButtonContainer: {
     position: 'absolute',

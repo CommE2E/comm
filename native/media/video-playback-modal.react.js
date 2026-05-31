@@ -32,7 +32,9 @@ import {
   type IntentionalSaveMediaIDs,
 } from './save-media.js';
 import { formatDuration } from './video-utils.js';
-import FullScreenMediaActionButton from '../components/full-screen-media-action-button.react.js';
+import FullScreenMediaActionButton, {
+  FullScreenTextActionButton,
+} from '../components/full-screen-media-action-button.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -568,14 +570,17 @@ function VideoPlaybackModal(props: Props): React.Node {
         <SafeAreaView style={styles.fill}>
           <View style={styles.fill}>
             <View style={styles.header}>
-              <View style={styles.closeButton}>
-                <TouchableOpacity
+              <View
+                style={styles.closeButton}
+                ref={closeButtonRef}
+                onLayout={onCloseButtonLayout}
+              >
+                <FullScreenTextActionButton
+                  text="×"
                   onPress={navigation.goBackOnce}
-                  ref={(closeButtonRef: any)}
-                  onLayout={onCloseButtonLayout}
-                >
-                  <Icon name="close" size={30} style={styles.iconButton} />
-                </TouchableOpacity>
+                  disabled={!controlsEnabled}
+                  accessibilityLabel="Close video"
+                />
               </View>
             </View>
             <View
@@ -585,6 +590,7 @@ function VideoPlaybackModal(props: Props): React.Node {
             >
               <FullScreenMediaActionButton
                 iconName="download"
+                iconSize={30}
                 onPress={onPressSave}
                 disabled={!controlsEnabled}
                 accessibilityLabel="Save video"
@@ -710,8 +716,8 @@ const unboundStyles = {
     top: 8,
   },
   closeButton: {
-    paddingTop: 10,
-    paddingRight: 20,
+    paddingTop: 8,
+    paddingRight: 16,
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
     flexDirection: 'row',
