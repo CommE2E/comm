@@ -2,13 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import {
   type PinchGestureEvent,
   type PanGestureEvent,
@@ -37,7 +31,9 @@ import {
 
 import { type Dimensions } from 'lib/types/media-types.js';
 
-import FullScreenMediaActionButton from './full-screen-media-action-button.react.js';
+import FullScreenMediaActionButton, {
+  FullScreenTextActionButton,
+} from './full-screen-media-action-button.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -124,17 +120,9 @@ function FullScreenViewModal(props: Props) {
   );
 
   const closeButtonRef = React.useRef<?React.ElementRef<typeof View>>();
-  const saveButtonRef = React.useRef<?React.ElementRef<typeof View>>();
   const mediaIconsRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const closeButtonDimensions = useSharedValue({
-    x: -1,
-    y: -1,
-    width: 0,
-    height: 0,
-  });
-
-  const saveButtonDimensions = useSharedValue({
     x: -1,
     y: -1,
     width: 0,
@@ -160,17 +148,6 @@ function FullScreenViewModal(props: Props) {
       closeButtonDimensions.value = { x: pageX, y: pageY, width, height };
     });
   }, [closeButtonDimensions]);
-
-  const onSaveButtonLayout = React.useCallback(() => {
-    const saveButton = saveButtonRef.current;
-    if (!saveButton) {
-      return;
-    }
-
-    saveButton.measure((x, y, width, height, pageX, pageY) => {
-      saveButtonDimensions.value = { x: pageX, y: pageY, width, height };
-    });
-  }, [saveButtonDimensions]);
 
   const onMediaIconsLayout = React.useCallback(() => {
     const mediaIconsContainer = mediaIconsRef.current;
@@ -199,13 +176,11 @@ function FullScreenViewModal(props: Props) {
       };
 
       const isOutsideCloseButton = isOutsideButton(closeButtonDimensions.value);
-      const isOutsideSaveButton = isOutsideButton(saveButtonDimensions.value);
       const isOutsideMediaIcons = isOutsideButton(mediaIconsDimensions.value);
-      const isOutsideActionLinks = isOutsideSaveButton && isOutsideMediaIcons;
 
       return (
         (closeButtonLastState.value === false || isOutsideCloseButton) &&
-        (actionLinksLastState.value === false || isOutsideActionLinks)
+        (actionLinksLastState.value === false || isOutsideMediaIcons)
       );
     },
     [
@@ -213,7 +188,6 @@ function FullScreenViewModal(props: Props) {
       closeButtonDimensions,
       closeButtonLastState,
       mediaIconsDimensions,
-      saveButtonDimensions,
       insets.top,
     ],
   );
@@ -745,18 +719,12 @@ function FullScreenViewModal(props: Props) {
   let saveButton;
   if (saveContentCallback) {
     saveButton = (
-      <Animated.View
-        style={[styles.saveButtonContainer, animatedMediaIconsButtonStyle]}
-      >
-        <View onLayout={onSaveButtonLayout} ref={saveButtonRef}>
-          <FullScreenMediaActionButton
-            iconName="download"
-            onPress={saveContentCallback}
-            disabled={!actionLinksEnabled}
-            accessibilityLabel="Save"
-          />
-        </View>
-      </Animated.View>
+      <FullScreenMediaActionButton
+        iconName="download"
+        onPress={saveContentCallback}
+        disabled={!actionLinksEnabled}
+        accessibilityLabel="Save"
+      />
     );
   }
 
@@ -773,7 +741,7 @@ function FullScreenViewModal(props: Props) {
   }
 
   let mediaActionButtons;
-  if (copyContentCallback) {
+  if (saveContentCallback || copyContentCallback) {
     mediaActionButtons = (
       <Animated.View
         style={[styles.mediaIconsContainer, animatedMediaIconsButtonStyle]}
@@ -783,6 +751,7 @@ function FullScreenViewModal(props: Props) {
           onLayout={onMediaIconsLayout}
           ref={mediaIconsRef}
         >
+          {saveButton}
           {copyButton}
         </View>
       </Animated.View>
@@ -805,16 +774,15 @@ function FullScreenViewModal(props: Props) {
               <Animated.View
                 style={[styles.closeButtonContainer, animatedCloseButtonStyle]}
               >
-                <TouchableOpacity
-                  onPress={close}
-                  disabled={!closeButtonEnabled}
-                  onLayout={onCloseButtonLayout}
-                  ref={closeButtonRef}
-                >
-                  <Text style={styles.closeButton}>×</Text>
-                </TouchableOpacity>
+                <View onLayout={onCloseButtonLayout} ref={closeButtonRef}>
+                  <FullScreenTextActionButton
+                    text="×"
+                    onPress={close}
+                    disabled={!closeButtonEnabled}
+                    accessibilityLabel="Close"
+                  />
+                </View>
               </Animated.View>
-              {saveButton}
               {mediaActionButtons}
             </View>
           </SafeAreaView>
@@ -840,15 +808,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
   },
-  closeButton: {
-    color: 'white',
-    fontSize: 36,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    textShadowColor: '#000',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
-  },
   closeButtonContainer: {
     position: 'absolute',
     right: 4,
@@ -871,11 +830,6 @@ const styles = StyleSheet.create({
   },
   mediaIconsRow: {
     flexDirection: 'row',
-  },
-  saveButtonContainer: {
-    left: 16,
-    position: 'absolute',
-    top: 8,
   },
 });
 
