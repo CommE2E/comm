@@ -724,7 +724,7 @@ function FullScreenViewModal(props: Props) {
   if (saveContentCallback) {
     saveButton = (
       <FullScreenMediaActionButton
-        iconName="save"
+        iconName="download"
         label="Save"
         onPress={saveContentCallback}
         disabled={!actionLinksEnabled}

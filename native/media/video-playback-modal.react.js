@@ -595,7 +595,7 @@ function VideoPlaybackModal(props: Props): React.Node {
               onLayout={onSaveButtonLayout}
             >
               <FullScreenMediaActionButton
-                iconName="save"
+                iconName="download"
                 label="Save"
                 onPress={onPressSave}
                 disabled={!controlsEnabled}
