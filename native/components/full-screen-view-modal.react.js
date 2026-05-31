@@ -751,9 +751,9 @@ function FullScreenViewModal(props: Props) {
         <View onLayout={onSaveButtonLayout} ref={saveButtonRef}>
           <FullScreenMediaActionButton
             iconName="download"
-            label="Save"
             onPress={saveContentCallback}
             disabled={!actionLinksEnabled}
+            accessibilityLabel="Save"
           />
         </View>
       </Animated.View>
@@ -765,9 +765,9 @@ function FullScreenViewModal(props: Props) {
     copyButton = (
       <FullScreenMediaActionButton
         iconName="copy"
-        label="Copy"
         onPress={copyContentCallback}
         disabled={!actionLinksEnabled}
+        accessibilityLabel="Copy"
       />
     );
   }
