@@ -1,20 +1,19 @@
 // @flow
 
 import * as React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 
 type Props = {
   +iconName: string,
-  +label: string,
   +onPress: () => mixed,
   +disabled?: boolean,
   +accessibilityLabel?: string,
 };
 
 function FullScreenMediaActionButton(props: Props): React.Node {
-  const { iconName, label, onPress, disabled, accessibilityLabel } = props;
+  const { iconName, onPress, disabled, accessibilityLabel } = props;
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -23,7 +22,6 @@ function FullScreenMediaActionButton(props: Props): React.Node {
       accessibilityLabel={accessibilityLabel}
     >
       <SWMansionIcon name={iconName} style={styles.mediaIcon} />
-      <Text style={styles.mediaIconText}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -42,13 +40,6 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
     paddingTop: 2,
-  },
-  mediaIconText: {
-    color: '#D7D7DC',
-    fontSize: 14,
-    textShadowColor: '#1C1C1E',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
   },
 });
 
