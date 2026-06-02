@@ -233,8 +233,8 @@ android {
         applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 569
-        versionName '1.0.569'
+        versionCode 570
+        versionName '1.0.570'
         multiDexEnabled true
         buildConfigField "String", "COMM_SERVICES_ENVIRONMENT", "\"${commServicesEnvironment}\""
     }
