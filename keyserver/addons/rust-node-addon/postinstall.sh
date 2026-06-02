@@ -3,7 +3,8 @@
 set -Eeuo pipefail
 
 # Skip Windows
-if [[ "$OSTYPE" == "msys" ]]; then
+echo "RUNNER_OS=${RUNNER_OS:-} OSTYPE=$OSTYPE"
+if [[ "$OSTYPE" == msys* ]]; then
   exit 0
 fi
 
