@@ -60,9 +60,6 @@ RCT_EXPORT_MODULE()
 
 - (void)setBridge:(RCTBridge *)bridge {
   _bridge = bridge;
-  [CommIOSNotificationsBridgeQueue sharedInstance].openedRemoteNotification =
-      [_bridge.launchOptions
-          objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 }
 
 - (void)stopObserving {
@@ -173,29 +170,50 @@ RCT_EXPORT_MODULE()
 + (void)didReceiveRemoteNotification:(NSDictionary *)notification
               fetchCompletionHandler:
                   (void (^)(UIBackgroundFetchResult))completionHandler {
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+  if (state == UIApplicationStateActive) {
+    [self didReceiveForegroundNotification:notification
+                    fetchCompletionHandler:completionHandler];
+  } else if (state == UIApplicationStateInactive) {
+    [self didReceiveNotificationResponse:notification
+                  fetchCompletionHandler:completionHandler];
+  }
+}
 
++ (void)didReceiveNotification:(NSDictionary *)notification
+        fetchCompletionHandler:
+            (void (^)(UIBackgroundFetchResult))completionHandler
+                      withName:(NSNotificationName)name {
   NSDictionary *notifInfo = @{
     @"notification" : notification,
     @"completionHandler" : completionHandler
   };
-  UIApplicationState state = [UIApplication sharedApplication].applicationState;
 
   if (!CommIOSNotificationsBridgeQueue.sharedInstance.jsReady) {
-    [CommIOSNotificationsBridgeQueue.sharedInstance putNotification:notifInfo];
+    [CommIOSNotificationsBridgeQueue.sharedInstance putNotification:notifInfo
+                                                           withName:name];
     return;
   }
 
-  if (state == UIApplicationStateActive) {
-    [NSNotificationCenter.defaultCenter
-        postNotificationName:CommIOSNotificationsReceivedForeground
-                      object:self
-                    userInfo:notifInfo];
-  } else if (state == UIApplicationStateInactive) {
-    [NSNotificationCenter.defaultCenter
-        postNotificationName:CommIOSNotificationsOpened
-                      object:self
-                    userInfo:notifInfo];
-  }
+  [NSNotificationCenter.defaultCenter postNotificationName:name
+                                                    object:self
+                                                  userInfo:notifInfo];
+}
+
++ (void)didReceiveForegroundNotification:(NSDictionary *)notification
+                  fetchCompletionHandler:
+                      (void (^)(UIBackgroundFetchResult))completionHandler {
+  [self didReceiveNotification:notification
+        fetchCompletionHandler:completionHandler
+                      withName:CommIOSNotificationsReceivedForeground];
+}
+
++ (void)didReceiveNotificationResponse:(NSDictionary *)notification
+                fetchCompletionHandler:
+                    (void (^)(UIBackgroundFetchResult))completionHandler {
+  [self didReceiveNotification:notification
+        fetchCompletionHandler:completionHandler
+                      withName:CommIOSNotificationsOpened];
 }
 
 + (void)didReceiveBackgroundMessageInfos:(NSDictionary *)notification {
@@ -404,28 +422,12 @@ RCT_EXPORT_METHOD(setBadgesCount : (int)count) {
 RCT_EXPORT_METHOD(consumeBackgroundQueue) {
   CommIOSNotificationsBridgeQueue.sharedInstance.jsReady = YES;
 
-  // Push background notifications to JS
   [CommIOSNotificationsBridgeQueue.sharedInstance
-      processNotifications:^(NSDictionary *notifInfo) {
-        NSDictionary *notification = notifInfo[@"notification"];
-        RCTRemoteNotificationCallback completionHandler =
-            notifInfo[@"completionHandler"];
-        [CommIOSNotifications didReceiveRemoteNotification:notification
-                                    fetchCompletionHandler:completionHandler];
+      processNotifications:^(NSDictionary *notifInfo, NSNotificationName name) {
+        [NSNotificationCenter.defaultCenter postNotificationName:name
+                                                          object:self
+                                                        userInfo:notifInfo];
       }];
-
-  // Push opened remote notifications
-  NSDictionary *openedRemoteNotification =
-      CommIOSNotificationsBridgeQueue.sharedInstance.openedRemoteNotification;
-  if (openedRemoteNotification) {
-    CommIOSNotificationsBridgeQueue.sharedInstance.openedRemoteNotification =
-        nil;
-    NSDictionary *notifInfo = @{@"notification" : openedRemoteNotification};
-    [NSNotificationCenter.defaultCenter
-        postNotificationName:CommIOSNotificationsOpened
-                      object:self
-                    userInfo:notifInfo];
-  }
 }
 
 RCT_EXPORT_METHOD(checkPermissions

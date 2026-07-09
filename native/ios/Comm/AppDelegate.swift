@@ -126,7 +126,7 @@ public class AppDelegate: ExpoAppDelegate, UNUserNotificationCenterDelegate {
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    CommIOSNotifications.didReceiveRemoteNotification(
+    CommIOSNotifications.didReceiveForegroundNotification(
       notification.request.content.userInfo,
       fetchCompletionHandler: { _ in }
     )
@@ -138,7 +138,7 @@ public class AppDelegate: ExpoAppDelegate, UNUserNotificationCenterDelegate {
     didReceive response: UNNotificationResponse,
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
-    CommIOSNotifications.didReceiveRemoteNotification(
+    CommIOSNotifications.didReceiveNotificationResponse(
       response.notification.request.content.userInfo,
       fetchCompletionHandler: { _ in }
     )

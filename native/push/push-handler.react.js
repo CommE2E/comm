@@ -160,7 +160,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     inAppNotifProps: null,
   };
   currentState: ?string = getCurrentLifecycleState();
-  appStarted = 0;
   androidNotificationsEventSubscriptions: Array<EventSubscription> = [];
   androidNotificationsPermissionPromise: ?Promise<boolean> = undefined;
   initialAndroidNotifHandled = false;
@@ -169,7 +168,6 @@ class PushHandler extends React.PureComponent<Props, State> {
   iosNotificationEventSubscriptions: Array<EventSubscription> = [];
 
   componentDidMount() {
-    this.appStarted = Date.now();
     this.lifecycleSubscription = addLifecycleListener(
       this.handleAppStateChange,
     );
@@ -729,17 +727,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     rawNotification: CoreIOSNotificationData,
   ) => {
     const notification = new CommIOSNotification(rawNotification);
-    if (Date.now() < this.appStarted + 1500) {
-      // On iOS, when the app is opened from a notif press, for some reason this
-      // callback gets triggered before iosNotificationOpened. In fact this
-      // callback shouldn't be triggered at all. To avoid weirdness we are
-      // ignoring any foreground notification received within the first second
-      // of the app being started, since they are most likely to be erroneous.
-      notification.finish(
-        CommIOSNotifications.getConstants().FETCH_RESULT_NO_DATA,
-      );
-      return;
-    }
     const threadID = notification.getData().threadID;
     const messageInfos = notification.getData().messageInfos;
     this.saveMessageInfos(messageInfos);

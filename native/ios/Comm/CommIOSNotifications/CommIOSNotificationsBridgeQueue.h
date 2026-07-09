@@ -3,11 +3,12 @@
 @interface CommIOSNotificationsBridgeQueue : NSObject
 
 @property BOOL jsReady;
-@property NSDictionary *openedRemoteNotification;
 
 + (nonnull instancetype)sharedInstance;
 
-- (void)putNotification:(NSDictionary *)notifInfo;
-- (void)processNotifications:(void (^)(NSDictionary *))block;
+- (void)putNotification:(NSDictionary *)notifInfo
+               withName:(NSNotificationName)name;
+- (void)processNotifications:
+    (void (^)(NSDictionary *, NSNotificationName))block;
 
 @end

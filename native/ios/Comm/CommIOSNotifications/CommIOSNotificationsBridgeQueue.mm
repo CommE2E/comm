@@ -1,5 +1,8 @@
 #import "CommIOSNotificationsBridgeQueue.h"
 
+static NSString *const notificationInfoKey = @"notificationInfo";
+static NSString *const notificationNameKey = @"notificationName";
+
 @implementation CommIOSNotificationsBridgeQueue
 
 NSMutableArray<NSDictionary *> *commNotificationsQueue;
@@ -20,19 +23,26 @@ NSMutableArray<NSDictionary *> *commNotificationsQueue;
   return self;
 }
 
-- (void)putNotification:(NSDictionary *)notifInfo {
+- (void)putNotification:(NSDictionary *)notifInfo
+               withName:(NSNotificationName)name {
   if (!commNotificationsQueue) {
     return;
   }
-  [commNotificationsQueue addObject:notifInfo];
+
+  NSDictionary *queueEntry = @{
+    notificationInfoKey : notifInfo,
+    notificationNameKey : name,
+  };
+  [commNotificationsQueue addObject:queueEntry];
 }
 
-- (void)processNotifications:(void (^)(NSDictionary *))block {
+- (void)processNotifications:
+    (void (^)(NSDictionary *, NSNotificationName))block {
   if (!commNotificationsQueue) {
     return;
   }
-  for (id notifInfo in commNotificationsQueue) {
-    block(notifInfo);
+  for (NSDictionary *queueEntry in commNotificationsQueue) {
+    block(queueEntry[notificationInfoKey], queueEntry[notificationNameKey]);
   }
   commNotificationsQueue = nil;
 }
