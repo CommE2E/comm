@@ -16,6 +16,11 @@ import {
   useSetDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
+import {
+  type AddLogCallback,
+  logTypes,
+  useDebugLogs,
+} from 'lib/components/debug-logs-context.js';
 import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
   deviceTokensSelector,
@@ -140,6 +145,7 @@ type Props = {
         +connected: false,
         +retryCount: number,
       },
+  +addLog: AddLogCallback,
 };
 type State = {
   +inAppNotifProps: ?{
@@ -463,6 +469,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         PushHandler.clearDeliveredIOSNotificationsForThread(
           activeThread,
           notifications,
+          this.props.addLog,
         ),
       );
     } else if (Platform.OS === 'android') {
@@ -475,9 +482,30 @@ class PushHandler extends React.PureComponent<Props, State> {
   static clearDeliveredIOSNotificationsForThread(
     threadID: string,
     notifications: $ReadOnlyArray<CoreIOSNotificationDataWithRequestIdentifier>,
+    addLog: AddLogCallback,
   ) {
     const identifiersToClear = [];
     for (const notification of notifications) {
+      const {
+        id,
+        threadID: notificationThreadID,
+        identifier,
+        triggerType,
+        hasSound,
+        hasCollapseID,
+      } = notification;
+      addLog(
+        'Delivered iOS notification',
+        JSON.stringify({
+          id,
+          threadID: notificationThreadID,
+          identifier,
+          triggerType,
+          hasSound,
+          hasCollapseID,
+        }),
+        new Set([logTypes.NOTIFICATIONS]),
+      );
       if (notification.threadID === threadID) {
         identifiersToClear.push(notification.identifier);
       }
@@ -858,6 +886,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo(
     const callSetDeviceToken = useSetDeviceToken();
     const callSetDeviceTokenFanout = useSetDeviceTokenFanout();
     const rootContext = React.useContext(RootContext);
+    const { addLog } = useDebugLogs();
     const { socketState: tunnelbrokerSocketState } = useTunnelbroker();
     return (
       <PushHandler
@@ -881,6 +910,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo(
         localToken={localToken}
         tunnelbrokerSocketState={tunnelbrokerSocketState}
         farcasterUnreadCount={unreadFarcasterThreadIDs.length}
+        addLog={addLog}
       />
     );
   },
