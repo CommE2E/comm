@@ -30,6 +30,9 @@ export type CoreIOSNotificationData = {
 export type CoreIOSNotificationDataWithRequestIdentifier = {
   ...CoreIOSNotificationData,
   +identifier: string,
+  +triggerType: 'local' | 'remote',
+  +hasSound: boolean,
+  +hasCollapseID: boolean,
 };
 
 export type ParsedCoreIOSNotificationData = {

@@ -463,14 +463,22 @@ RCT_EXPORT_METHOD(getDeliveredNotifications
             [NSMutableArray new];
 
         for (UNNotification *notification in notifications) {
-          NSDictionary *jsReadableNotification = [CommIOSNotifications
+          NSMutableDictionary *jsReadableNotification = [[CommIOSNotifications
               parseNotificationToJSReadableObject:notification.request.content
                                                       .userInfo
                             withRequestIdentifier:notification.request
-                                                      .identifier];
+                                                      .identifier] mutableCopy];
           if (!jsReadableNotification) {
             continue;
           }
+          BOOL isRemoteNotification = [notification.request.trigger
+              isKindOfClass:[UNPushNotificationTrigger class]];
+          jsReadableNotification[@"triggerType"] =
+              isRemoteNotification ? @"remote" : @"local";
+          jsReadableNotification[@"hasSound"] =
+              @(notification.request.content.sound != nil);
+          jsReadableNotification[@"hasCollapseID"] =
+              @(notification.request.content.userInfo[@"collapseID"] != nil);
           [formattedNotifications addObject:jsReadableNotification];
         }
         callback(@[ formattedNotifications ]);
