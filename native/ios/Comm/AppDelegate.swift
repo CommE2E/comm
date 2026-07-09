@@ -2,6 +2,7 @@ import Expo
 import React
 import ReactAppDependencyProvider
 import Foundation
+import UserNotifications
 
 let newMessageInfosNSNotification = Notification.Name("app.comm.ns_new_message_infos")
 let newMessageInfosDarwinNotification: CFString = ("app.comm.darwin_new_message_infos") as CFString
@@ -17,7 +18,7 @@ func didReceiveNewMessageInfosDarwinNotification(
 }
 
 @UIApplicationMain
-public class AppDelegate: ExpoAppDelegate {
+public class AppDelegate: ExpoAppDelegate, UNUserNotificationCenterDelegate {
   var window: UIWindow?
 
   var reactNativeDelegate: ExpoReactNativeFactoryDelegate?
@@ -27,6 +28,7 @@ public class AppDelegate: ExpoAppDelegate {
     _ application: UIApplication,
     willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
     DBInit.attemptDatabaseInitialization()
     registerForNewMessageInfosNotifications()
     DBInit.initMMKV()
@@ -117,6 +119,30 @@ public class AppDelegate: ExpoAppDelegate {
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
     CommIOSNotifications.didReceiveRemoteNotification(notification, fetchCompletionHandler: completionHandler)
+  }
+
+  public func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    CommIOSNotifications.didReceiveRemoteNotification(
+      notification.request.content.userInfo,
+      fetchCompletionHandler: { _ in }
+    )
+    completionHandler([])
+  }
+
+  public func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    CommIOSNotifications.didReceiveRemoteNotification(
+      response.notification.request.content.userInfo,
+      fetchCompletionHandler: { _ in }
+    )
+    completionHandler()
   }
   
   @objc private func didReceiveNewMessageInfosNSNotification(notification: Notification) {
