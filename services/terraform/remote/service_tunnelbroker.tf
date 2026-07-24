@@ -48,9 +48,10 @@ data "aws_secretsmanager_secret" "tunnelbroker_wns" {
 resource "aws_mq_broker" "tunnelbroker_rabbitmq" {
   broker_name = "tunnelbroker-rabbitmq"
 
-  # Keep RabbitMQ version in sync with docker-compose.yml
+  # AWS manages the patch version within the configured RabbitMQ minor line.
+  # Keep the minor version in sync with docker-compose.yml.
   engine_type                = "RabbitMQ"
-  engine_version             = "3.13.7"
+  engine_version             = "3.13"
   auto_minor_version_upgrade = true
   host_instance_type         = local.is_staging ? "mq.t3.micro" : "mq.m7g.medium"
   apply_immediately          = local.is_staging
