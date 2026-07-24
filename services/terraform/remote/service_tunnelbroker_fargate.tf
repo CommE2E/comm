@@ -109,9 +109,10 @@ resource "aws_ecs_task_definition" "tunnelbroker_fargate" {
 resource "aws_ecs_service" "tunnelbroker_fargate" {
   count = local.service_enabled.tunnelbroker ? 1 : 0
 
-  name        = "tunnelbroker-fargate"
-  cluster     = aws_ecs_cluster.comm_services.id
-  launch_type = "FARGATE"
+  name                          = "tunnelbroker-fargate"
+  cluster                       = aws_ecs_cluster.comm_services.id
+  launch_type                   = "FARGATE"
+  availability_zone_rebalancing = "ENABLED"
 
   task_definition      = aws_ecs_task_definition.tunnelbroker_fargate[0].arn
   force_new_deployment = true

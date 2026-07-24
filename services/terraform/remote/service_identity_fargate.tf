@@ -97,9 +97,10 @@ resource "aws_ecs_task_definition" "identity_service_fargate" {
 resource "aws_ecs_service" "identity_service_fargate" {
   count = local.service_enabled.identity ? 1 : 0
 
-  name        = "identity-service-fargate"
-  cluster     = aws_ecs_cluster.comm_services.id
-  launch_type = "FARGATE"
+  name                          = "identity-service-fargate"
+  cluster                       = aws_ecs_cluster.comm_services.id
+  launch_type                   = "FARGATE"
+  availability_zone_rebalancing = "ENABLED"
 
   task_definition      = aws_ecs_task_definition.identity_service_fargate[0].arn
   force_new_deployment = true
